@@ -293,6 +293,8 @@
         mutObs.observe(track, { childList: true });
 
         return {
+            pause,
+            resume,
             destroy() {
                 dead = true;
                 cancelAnimationFrame(rafId);
@@ -470,8 +472,35 @@
             });
         }
 
-        /* ── INICIO ──────────────────────────────────────────── */
-        renderComments();
+        /* ── INICIO LAZY (Rendimiento) ─────────────────────────
+           Solo cargamos/renderizamos si el usuario está cerca.
+           Además, pausamos la animación si sale de la pantalla.
+        ─────────────────────────────────────────────────────── */
+        let hasRendered = false;
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Entró a pantalla (o cerca)
+                        if (!hasRendered) {
+                            hasRendered = true;
+                            renderComments();
+                        } else if (carousel) {
+                            carousel.resume(0); // reanuda animacion
+                        }
+                    } else {
+                        // Salió de la pantalla: pausa para ahorrar batería/CPU
+                        if (carousel) carousel.pause();
+                    }
+                });
+            }, { rootMargin: '300px' }); // Actuar 300px antes de llegar
+            
+            const section = document.getElementById('comentarios') || container;
+            observer.observe(section);
+        } else {
+            // Fallback navegadores viejos
+            renderComments();
+        }
 
         /* ── RE-INIT AL REDIMENSIONAR ────────────────────────── */
         let resizeTimer;
