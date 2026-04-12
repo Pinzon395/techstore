@@ -157,8 +157,11 @@ if (mobileMenu && navMenu) {
    @param {string} customText — Mensaje preescrito
 ══════════════════════════════════════════════════════════════ */
 function openWhatsApp(customText) {
-    // Liga empresarial predefinida de Pixon PC 
-    const url = 'https://wa.me/message/E5K6UIFIIVXAI1';
+    const phone = '529986690777'; // Número directo Pixon PC con código de país
+    const text = customText ? encodeURIComponent(customText) : '';
+    const url = text
+        ? `https://wa.me/${phone}?text=${text}`
+        : 'https://wa.me/message/E5K6UIFIIVXAI1'; // Fallback perfil corporativo
     window.open(url, '_blank', 'noopener');
 }
 

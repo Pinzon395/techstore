@@ -5,7 +5,11 @@
  * Los datos vienen del catálogo definido aquí abajo.
  */
 
-const WA_URL = 'https://wa.me/message/E5K6UIFIIVXAI1';
+const WA_PHONE = '529986690777';
+const WA_FALLBACK = 'https://wa.me/message/E5K6UIFIIVXAI1';
+const buildWaUrl = (msg) => msg
+    ? `https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`
+    : WA_FALLBACK;
 
 const ASSEMBLIES = {
     'gaming-mid': {
@@ -145,7 +149,7 @@ class AssemblyCard extends HTMLElement {
 
                 <!-- CTA -->
                 <button
-                    onclick="window.open('${WA_URL}', '_blank', 'noopener')"
+                    onclick="window.open(buildWaUrl(data.waMessage), '_blank', 'noopener')"
                     style="
                         width:100%;
                         background:linear-gradient(135deg, #25D366, #128C7E);
