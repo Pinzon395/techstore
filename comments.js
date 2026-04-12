@@ -34,12 +34,12 @@
        CONFIGURACIÓN — Cambia solo aquí para ajustar comportamiento
     ──────────────────────────────────────────────────────────── */
     const CONFIG = {
-        SCROLL_SPEED:       38,     // px/s — velocidad del auto-scroll
-        RESUME_HOVER_MS:    700,    // ms de espera al quitar el cursor
-        RESUME_DRAG_MS:     1300,   // ms de espera al soltar en móvil
-        RESUME_CLICK_MS:    900,    // ms tras dejar un comentario levantado
-        COMMENTS_PER_PAGE:  4,      // comentarios por "página" en el botón ver más
-        DT_CAP:             0.05,   // cap de delta-time (evita jumps al volver al tab)
+        SCROLL_SPEED: 90,     // px/s — velocidad del auto-scroll
+        RESUME_HOVER_MS: 700,    // ms de espera al quitar el cursor
+        RESUME_DRAG_MS: 1300,   // ms de espera al soltar en móvil
+        RESUME_CLICK_MS: 900,    // ms tras dejar un comentario levantado
+        COMMENTS_PER_PAGE: 4,      // comentarios por "página" en el botón ver más
+        DT_CAP: 0.05,   // cap de delta-time (evita jumps al volver al tab)
     };
 
     /* ────────────────────────────────────────────────────────────
@@ -56,10 +56,10 @@
        localStorage están vacíos. Una vez sembrados, no vuelven.
     ──────────────────────────────────────────────────────────── */
     const SEED = [
-        { name: 'Eduardo Álvarez',    stars: 5, text: 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.' },
+        { name: 'Eduardo Álvarez', stars: 5, text: 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.' },
         { name: 'Ana Maria Martínez', stars: 5, text: 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.' },
-        { name: 'Carlos Rodríguez',   stars: 5, text: 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.' },
-        { name: 'Laura Gómez',        stars: 5, text: 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.' },
+        { name: 'Carlos Rodríguez', stars: 5, text: 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.' },
+        { name: 'Laura Gómez', stars: 5, text: 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.' },
     ];
 
     /* ═══════════════════════════════════════════════════════════
@@ -74,7 +74,8 @@
      */
     async function fetchComments() {
         try {
-            const res = await fetch(`${API_BASE}/comments`, {
+            // Bypass browser cache for real-time reads
+            const res = await fetch(`${API_BASE}/comments?r=${Date.now()}`, {
                 signal: AbortSignal.timeout(3000) // no esperar más de 3s
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -102,10 +103,10 @@
     async function saveComment(data) {
         try {
             const res = await fetch(`${API_BASE}/comments`, {
-                method:  'POST',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify(data),
-                signal:  AbortSignal.timeout(5000)
+                body: JSON.stringify(data),
+                signal: AbortSignal.timeout(5000)
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             return await res.json();
@@ -131,13 +132,13 @@
      * @returns {{ destroy: Function }}
      */
     function mountCarousel(container, track) {
-        const S         = CONFIG.SCROLL_SPEED;
-        let paused      = false;    
-        let rafId       = null;     
-        let lastTs      = null;     
-        let timer       = null;     
-        let halfWidth   = 0;        
-        let dead        = false;    
+        const S = CONFIG.SCROLL_SPEED;
+        let paused = false;
+        let rafId = null;
+        let lastTs = null;
+        let timer = null;
+        let halfWidth = 0;
+        let dead = false;
         let lastInteraction = Date.now();
         let liftedTimer = null;     // Auto-cierre de tarjetas pulsadas
 
@@ -192,24 +193,24 @@
             }, delay || CONFIG.RESUME_HOVER_MS);
         }
 
-        function onMouseEnter()  { pause(); }
-        function onMouseLeave()  { resume(CONFIG.RESUME_HOVER_MS); }
+        function onMouseEnter() { pause(); }
+        function onMouseLeave() { resume(CONFIG.RESUME_HOVER_MS); }
         container.addEventListener('mouseenter', onMouseEnter);
         container.addEventListener('mouseleave', onMouseLeave);
 
-        let isDragging   = false;
-        let dragStartX   = 0;
+        let isDragging = false;
+        let dragStartX = 0;
         let scrollAtDrag = 0;
 
         function onPointerDown(e) {
             if (e.pointerType === 'mouse' && e.button !== 0) return;
-            isDragging   = true;
-            dragStartX   = e.clientX;
+            isDragging = true;
+            dragStartX = e.clientX;
             scrollAtDrag = container.scrollLeft;
 
             // Quitar tarjetas levantadas inmediatamente si arrastran
             track.querySelectorAll('.comment-item.lifted')
-                 .forEach(c => c.classList.remove('lifted'));
+                .forEach(c => c.classList.remove('lifted'));
             clearTimeout(liftedTimer);
 
             pause();
@@ -222,31 +223,31 @@
             lastInteraction = Date.now();
             const delta = dragStartX - e.clientX;
             let newScroll = scrollAtDrag + delta;
-            
+
             // Loop manual si arrastra al borde
             if (halfWidth > 0) {
                 if (newScroll >= halfWidth) newScroll -= halfWidth;
-                if (newScroll < 0)         newScroll += halfWidth;
+                if (newScroll < 0) newScroll += halfWidth;
             }
             container.scrollLeft = newScroll;
         }
 
         function onPointerUp(e) {
             if (isDragging) {
-               isDragging = false;
-               if (e.pointerId) container.releasePointerCapture(e.pointerId);
-               resume(CONFIG.RESUME_DRAG_MS);
+                isDragging = false;
+                if (e.pointerId) container.releasePointerCapture(e.pointerId);
+                resume(CONFIG.RESUME_DRAG_MS);
             }
         }
 
         container.addEventListener('pointerdown', onPointerDown);
-        container.addEventListener('pointermove',  onPointerMove);
-        container.addEventListener('pointerup',    onPointerUp);
+        container.addEventListener('pointermove', onPointerMove);
+        container.addEventListener('pointerup', onPointerUp);
         container.addEventListener('pointercancel', onPointerUp);
         // Evitar bug si el mouse sale sin soltar (leave en capturing a veces falla)
         document.addEventListener('pointerup', onPointerUp);
 
-        const cardHandlers = []; 
+        const cardHandlers = [];
 
         function attachCardClick(card) {
             function onClick(e) {
@@ -255,7 +256,7 @@
 
                 const wasLifted = card.classList.contains('lifted');
                 track.querySelectorAll('.comment-item.lifted')
-                     .forEach(c => c.classList.remove('lifted'));
+                    .forEach(c => c.classList.remove('lifted'));
 
                 if (!wasLifted) {
                     card.classList.add('lifted');
@@ -294,7 +295,7 @@
         function onDocClick(e) {
             if (!container.contains(e.target)) {
                 track.querySelectorAll('.comment-item.lifted')
-                     .forEach(c => c.classList.remove('lifted'));
+                    .forEach(c => c.classList.remove('lifted'));
                 resume(400);
             }
         }
@@ -319,11 +320,11 @@
                 cancelAnimationFrame(rafId);
                 clearTimeout(timer);
                 mutObs.disconnect();
-                container.removeEventListener('mouseenter',   onMouseEnter);
-                container.removeEventListener('mouseleave',   onMouseLeave);
-                container.removeEventListener('pointerdown',  onPointerDown);
-                container.removeEventListener('pointermove',  onPointerMove);
-                container.removeEventListener('pointerup',    onPointerUp);
+                container.removeEventListener('mouseenter', onMouseEnter);
+                container.removeEventListener('mouseleave', onMouseLeave);
+                container.removeEventListener('pointerdown', onPointerDown);
+                container.removeEventListener('pointermove', onPointerMove);
+                container.removeEventListener('pointerup', onPointerUp);
                 container.removeEventListener('pointercancel', onPointerUp);
                 document.removeEventListener('click', onDocClick);
                 document.removeEventListener('pointerup', onPointerUp);
@@ -339,10 +340,10 @@
     document.addEventListener('DOMContentLoaded', () => {
 
         /* Referencias al DOM */
-        const commentBox  = document.getElementById('commentsBox');
+        const commentBox = document.getElementById('commentsBox');
         const commentForm = document.getElementById('addCommentForm');
-        const starIcons   = document.querySelectorAll('#star-rating i');
-        const container   = document.querySelector('.comments-marquee-container');
+        const starIcons = document.querySelectorAll('#star-rating i');
+        const container = document.querySelector('.comments-marquee-container');
         const loadMoreBtn = document.getElementById('loadMoreComments');
 
         // Salir silenciosamente si los elementos no existen en esta página
@@ -350,8 +351,8 @@
 
         /* Estado de la UI */
         let currentRating = 5;
-        let visibleCount  = CONFIG.COMMENTS_PER_PAGE;
-        let carousel      = null; // referencia al controlador activo
+        let visibleCount = CONFIG.COMMENTS_PER_PAGE;
+        let carousel = null; // referencia al controlador activo
 
         /* ── ESTRELLAS interactivas ───────────────────────────── */
         function paintStars(rating) {
@@ -408,10 +409,10 @@
                 carousel = null;
             }
 
-            const all      = await fetchComments();
+            const all = await fetchComments();
             // Más recientes primero
             const reversed = all.slice().reverse();
-            const toShow   = reversed.slice(0, visibleCount);
+            const toShow = reversed.slice(0, visibleCount);
 
             // Multiplicamos 8 veces para que funcione incluso en 
             // monitores Ultra-wide a 50% de zoom. Esto garantiza que 
@@ -439,6 +440,7 @@
             // Esperar al siguiente paint para medir scrollWidth
             setTimeout(() => {
                 carousel = mountCarousel(container, commentBox);
+                if (carousel) carousel.resume(50); // Forzar reanudación instantánea
             }, 150);
 
             // Botón "ver más"
@@ -518,7 +520,7 @@
                     }
                 });
             }, { rootMargin: '300px' }); // Actuar 300px antes de llegar
-            
+
             const section = document.getElementById('comentarios') || container;
             observer.observe(section);
         } else {

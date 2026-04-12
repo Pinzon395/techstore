@@ -134,8 +134,8 @@ if (mobileMenu && navMenu) {
    @param {string} customText — Mensaje preescrito
 ══════════════════════════════════════════════════════════════ */
 function openWhatsApp(customText) {
-    const phone   = '529986690777'; // ← Número Pixon PC (incluye código de país)
-    const url     = `https://wa.me/${phone}?text=${encodeURIComponent(customText)}`;
+    // Liga empresarial predefinida de Pixon PC 
+    const url = 'https://wa.me/message/E5K6UIFIIVXAI1';
     window.open(url, '_blank', 'noopener');
 }
 
