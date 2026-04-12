@@ -296,3 +296,82 @@ document.addEventListener('DOMContentLoaded', () => {
 window.openTab = openTab;
 window.openWhatsApp = openWhatsApp;
 
+/* ══════════════════════════════════════════════════════════════
+   SPECIALTY MODALS LOGIC
+══════════════════════════════════════════════════════════════ */
+const specialtiesData = {
+    'laptop': {
+        icon: '<i class="fa-solid fa-laptop"></i>',
+        title: '¿Quieres arreglar tu laptop?',
+        desc: 'Corregimos problemas de pantalla, batería, teclado o sobrecalentamiento rápido y con garantía.',
+        btnText: 'Quiero reparar una laptop',
+        waText: 'Quiero reparar una laptop'
+    },
+    'pc': {
+        icon: '<i class="fa-solid fa-desktop"></i>',
+        title: '¿Quieres arreglar o mejorar tu PC Gamer?',
+        desc: 'Mantenimiento profundo, actualización de componentes y overclocking seguro.',
+        btnText: 'Quiero reparar una PC Gamer',
+        waText: 'Quiero reparar una PC Gamer'
+    },
+    'mobile': {
+        icon: '<i class="fa-solid fa-mobile-screen-button"></i>',
+        title: '¿Quieres arreglar tu celular?',
+        desc: 'Cambio de pantallas y baterías tanto para Android como para iPhone.',
+        btnText: 'Quiero reparar un celular',
+        waText: 'Quiero reparar un celular'
+    },
+    'printer': {
+        icon: '<i class="fa-solid fa-print"></i>',
+        title: '¿Quieres revisar tu impresora?',
+        desc: 'Solucionamos atascos, problemas de cabezal y fallas de conectividad.',
+        btnText: 'Quiero revisar una impresora',
+        waText: 'Quiero revisar una impresora'
+    },
+    'console': {
+        icon: '<i class="fa-solid fa-gamepad"></i>',
+        title: '¿Quieres darle mantenimiento a tu consola?',
+        desc: 'Limpieza profunda de PS5, Xbox y Switch. Reparación de discos y puertos HDMI.',
+        btnText: 'Quiero mantenimiento para mi consola',
+        waText: 'Quiero mantenimiento para mi consola'
+    },
+    'b2b': {
+        icon: '<i class="fa-solid fa-building"></i>',
+        title: '¿Requieres soporte para tu empresa?',
+        desc: 'Mantenimiento de flotas de equipos, pólizas con técnica asignada y facturación.',
+        btnText: 'Quiero soporte empresarial B2B',
+        waText: 'Quiero soporte empresarial B2B'
+    }
+};
+
+function openSpecialtyModal(id) {
+    const modal = document.getElementById('specialty-modal');
+    if (!modal) return;
+    
+    const data = specialtiesData[id];
+    if (!data) return;
+
+    document.getElementById('sm-icon').innerHTML = data.icon;
+    document.getElementById('sm-title').innerText = data.title;
+    document.getElementById('sm-desc').innerText = data.desc;
+    document.getElementById('sm-btn-text').innerText = data.btnText;
+    
+    document.getElementById('sm-btn').onclick = function() {
+        openWhatsApp(data.waText);
+        closeSpecialtyModal();
+    };
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevents background scrolling
+}
+
+function closeSpecialtyModal() {
+    const modal = document.getElementById('specialty-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    document.body.style.overflow = ''; // Restores background scrolling
+}
+
+window.openSpecialtyModal = openSpecialtyModal;
+window.closeSpecialtyModal = closeSpecialtyModal;
