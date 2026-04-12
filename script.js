@@ -30,10 +30,14 @@ const waFloat = document.getElementById('whatsapp-float');
 /** Referencia al paquetes section SOLO en index.html */
 const paquetesSection = document.getElementById('paquetes');
 
+let lastScrollY = 0;
+
 window.addEventListener('scroll', () => {
     if (!navbar) return;
+    const currentY = window.scrollY;
 
-    if (window.scrollY > 50) {
+    // Compactar navbar al bajar de 50px
+    if (currentY > 50) {
         navbar.style.background = 'rgba(255,255,255,0.98)';
         navbar.style.boxShadow  = '0 4px 20px rgba(0,0,0,0.08)';
         navbar.style.padding    = '10px 20px';
@@ -43,15 +47,34 @@ window.addEventListener('scroll', () => {
         navbar.style.padding    = '15px 20px';
     }
 
+    // Auto-hide navbar: desaparece al bajar, aparece al subir
+    if (currentY > 120) {
+        if (currentY > lastScrollY) {
+            // Scroll hacia abajo → ocultar
+            navbar.style.transform = 'translateY(-100%)';
+        } else {
+            // Scroll hacia arriba → mostrar
+            navbar.style.transform = 'translateY(0)';
+        }
+    } else {
+        navbar.style.transform = 'translateY(0)';
+    }
+    lastScrollY = currentY;
+
     /* WhatsApp flotante: aparece al llegar a #paquetes en el home,
        o simplemente al bajar 300px en otras páginas */
     if (waFloat) {
         const threshold = paquetesSection
             ? paquetesSection.offsetTop + 200
             : 300;
-        waFloat.classList.toggle('visible', window.scrollY > threshold);
+        waFloat.classList.toggle('visible', currentY > threshold);
     }
 }, { passive: true });
+
+// Agregar CSS para transition de navbar si no existe
+if (navbar) {
+    navbar.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease, box-shadow 0.3s ease, background 0.3s ease';
+}
 
 /* ══════════════════════════════════════════════════════════════
    2. SCROLL-SPY — Resalta el nav-link de la sección visible
@@ -138,6 +161,17 @@ function openWhatsApp(customText) {
     const url = 'https://wa.me/message/E5K6UIFIIVXAI1';
     window.open(url, '_blank', 'noopener');
 }
+
+// Hacer global para HTML inline onclick
+window.openWhatsApp = openWhatsApp;
+
+// Smooth scroll al top cuando se hace clic en "Inicio"
+document.querySelectorAll('a[href="#inicio"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+});
 
 /* ══════════════════════════════════════════════════════════════
    5. FOOTER — Año dinámico
