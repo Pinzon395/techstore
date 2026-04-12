@@ -158,10 +158,8 @@ if (mobileMenu && navMenu) {
 ══════════════════════════════════════════════════════════════ */
 function openWhatsApp(customText) {
     const phone = '529986690777'; // Número directo Pixon PC con código de país
-    const text = customText ? encodeURIComponent(customText) : '';
-    const url = text
-        ? `https://wa.me/${phone}?text=${text}`
-        : 'https://wa.me/message/E5K6UIFIIVXAI1'; // Fallback perfil corporativo
+    const text = customText ? encodeURIComponent(customText) : encodeURIComponent('Hola, vengo de la web y quiero información.');
+    const url = `https://wa.me/${phone}?text=${text}`;
     window.open(url, '_blank', 'noopener');
 }
 

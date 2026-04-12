@@ -6,10 +6,10 @@
  */
 
 const WA_PHONE = '529986690777';
-const WA_FALLBACK = 'https://wa.me/message/E5K6UIFIIVXAI1';
-const buildWaUrl = (msg) => msg
-    ? `https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`
-    : WA_FALLBACK;
+const buildWaUrl = (msg) => {
+    const text = msg ? encodeURIComponent(msg) : encodeURIComponent('Hola, me gustaría cotizar un servicio.');
+    return `https://wa.me/${WA_PHONE}?text=${text}`;
+};
 
 const ASSEMBLIES = {
     'gaming-mid': {

@@ -5,21 +5,22 @@
  * Todos los botones usan el link corporativo fijo.
  */
 
-const WA_URL = 'https://wa.me/message/E5K6UIFIIVXAI1';
+const WA_PHONE = '529986690777';
 
 class WhatsAppBtn extends HTMLElement {
     connectedCallback() {
         const label = this.getAttribute('label') || 'Contactar por WhatsApp';
-        const message = this.getAttribute('message') || '';
+        const msg = this.getAttribute('message') || 'Hola, quiero información.';
         const variant = this.getAttribute('variant') || 'primary'; // primary | secondary | outline
         const fullWidth = this.hasAttribute('full-width');
 
         const btnClass = `btn btn-${variant}${fullWidth ? ' w-100' : ''}`;
+        const url = `https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`;
 
         this.innerHTML = `
             <button 
                 class="${btnClass}"
-                onclick="window.open('${WA_URL}', '_blank', 'noopener')"
+                onclick="window.open('${url}', '_blank', 'noopener')"
                 title="${label}"
             >
                 ${label} <i class="fa-brands fa-whatsapp"></i>
