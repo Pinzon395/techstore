@@ -1,9 +1,9 @@
-# 🚀 Pixon PC — Guía de Despliegue en pizon.com.mx
+# 🚀 Pixon PC — Guía de Despliegue en pixon.com.mx
 
 ## Arquitectura de producción
 
 ```
-[Visitante] → pizon.com.mx → Cloudflare → Tunnel → [Tu PC] → servidor Node.js (puerto 3000)
+[Visitante] → pixon.com.mx → Cloudflare → Tunnel → [Tu PC] → servidor Node.js (puerto 3000)
                                                                ├── /               → dist/ (Vite build)
                                                                └── /api/comments   → SQLite en RAM
 ```
@@ -60,7 +60,7 @@ cloudflared tunnel login
 
 ---
 
-## 6 — Crear el tunnel para pizon.com.mx
+## 6 — Crear el tunnel para pixon.com.mx
 
 ```powershell
 # Crear tunnel (solo una vez)
@@ -81,8 +81,8 @@ tunnel: <TU-TUNNEL-ID>   # Reemplaza con el ID del paso anterior
 credentials-file: C:\Users\Pinzon\.cloudflared\<TU-TUNNEL-ID>.json
 
 ingress:
-  # Todo el tráfico de pizon.com.mx va al servidor Express en :3000
-  - hostname: pizon.com.mx
+  # Todo el tráfico de pixon.com.mx va al servidor Express en :3000
+  - hostname: pixon.com.mx
     service: http://localhost:3000
   # Regla catch-all requerida por cloudflared
   - service: http_status:404
@@ -93,7 +93,7 @@ ingress:
 ## 8 — Apuntar el DNS
 
 ```powershell
-cloudflared tunnel route dns pixon-tunnel pizon.com.mx
+cloudflared tunnel route dns pixon-tunnel pixon.com.mx
 ```
 
 Esto crea automáticamente el registro CNAME en Cloudflare.
@@ -114,7 +114,7 @@ npm run start
 ### Terminal 2 — Cloudflare Tunnel
 ```powershell
 cloudflared tunnel run pixon-tunnel
-# Conecta pizon.com.mx → localhost:3000
+# Conecta pixon.com.mx → localhost:3000
 ```
 
 ---
@@ -144,7 +144,7 @@ Register-ScheduledTask -TaskName "PixonPC-Server" -Action $action -Trigger $trig
 | `npm run dev:all` | Ambos en paralelo |
 | `npm run build` | Build de producción en dist/ |
 | `npm run start` | Producción en :3000 (requiere build) |
-| `cloudflared tunnel run pixon-tunnel` | Tunnel hacia pizon.com.mx |
+| `cloudflared tunnel run pixon-tunnel` | Tunnel hacia pixon.com.mx |
 
 ---
 

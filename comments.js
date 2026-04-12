@@ -139,6 +139,7 @@
         let halfWidth   = 0;        
         let dead        = false;    
         let lastInteraction = Date.now();
+        let liftedTimer = null;     // Auto-cierre de tarjetas pulsadas
 
         // Calcular en el proximo frame para que layout exista
         requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -205,6 +206,12 @@
             isDragging   = true;
             dragStartX   = e.clientX;
             scrollAtDrag = container.scrollLeft;
+
+            // Quitar tarjetas levantadas inmediatamente si arrastran
+            track.querySelectorAll('.comment-item.lifted')
+                 .forEach(c => c.classList.remove('lifted'));
+            clearTimeout(liftedTimer);
+
             pause();
             container.setPointerCapture(e.pointerId);
         }
@@ -253,6 +260,8 @@
                 if (!wasLifted) {
                     card.classList.add('lifted');
                     pause();
+                    clearTimeout(liftedTimer);
+
                     setTimeout(() => {
                         const cL = card.offsetLeft;
                         const cW = card.offsetWidth;
@@ -262,7 +271,17 @@
                         if (targetScroll < 0) targetScroll += halfWidth;
                         container.scrollLeft = targetScroll;
                     }, 50);
+
+                    // Autocierre y reanudación después de 3.5 segundos de inactividad
+                    liftedTimer = setTimeout(() => {
+                        if (card.classList.contains('lifted') && !isDragging) {
+                            card.classList.remove('lifted');
+                            resume(CONFIG.RESUME_CLICK_MS);
+                        }
+                    }, 3500);
+
                 } else {
+                    clearTimeout(liftedTimer);
                     resume(CONFIG.RESUME_CLICK_MS);
                 }
             }
@@ -394,9 +413,14 @@
             const reversed = all.slice().reverse();
             const toShow   = reversed.slice(0, visibleCount);
 
-            // Duplicar exactamente 2x para el loop perfecto
-            // halfWidth = scrollWidth / 2 → al llegar, scrollLeft -= halfWidth
-            const toRender = [...toShow, ...toShow];
+            // Multiplicamos 8 veces para que funcione incluso en 
+            // monitores Ultra-wide a 50% de zoom. Esto garantiza que 
+            // el contenedor sea inmenso y el límite nativo de scroll
+            // jamás atranque la matemática (scrollLeft >= halfWidth).
+            const toRender = [];
+            for (let i = 0; i < 8; i++) {
+                toRender.push(...toShow);
+            }
 
             commentBox.innerHTML = '';
             toRender.forEach(c => {

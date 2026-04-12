@@ -38,7 +38,7 @@ app.use(cors({
         'http://localhost:5173',
         'http://localhost:5174',
         'http://localhost:3000',
-        'https://pizon.com.mx',
+        'https://pixon.com.mx',
     ],
     methods: ['GET', 'POST'],
 }));
@@ -63,7 +63,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/comments', (_req, res) => {
     try {
         const comments = getAllComments();
-        res.setHeader('Cache-Control', 'public, max-age=30');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.json(comments);
     } catch (err) {
         console.error('❌ GET /api/comments:', err.message);

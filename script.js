@@ -254,3 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     autoThumbs.forEach(t => videoObserver.observe(t));
 });
+
+/* ══════════════════════════════════════════════════════════════
+   EXPORTS GLOBALES PARA MODULE BUNDLING (Vite)
+══════════════════════════════════════════════════════════════ */
+window.openTab = openTab;
+window.openWhatsApp = openWhatsApp;
+
