@@ -305,42 +305,42 @@ const specialtiesData = {
         title: '¿Quieres arreglar tu laptop?',
         desc: 'Corregimos problemas de pantalla, batería, teclado o sobrecalentamiento rápido y con garantía.',
         btnText: 'Quiero reparar una laptop',
-        waText: 'Quiero reparar una laptop'
+        waUrl: 'https://wa.me/529986690777?text=Quiero%20reparar%20una%20laptop'
     },
     'pc': {
         icon: '<i class="fa-solid fa-desktop"></i>',
         title: '¿Quieres arreglar o mejorar tu PC Gamer?',
         desc: 'Mantenimiento profundo, actualización de componentes y overclocking seguro.',
-        btnText: 'Quiero reparar una PC Gamer',
-        waText: 'Quiero reparar una PC Gamer'
+        btnText: 'Necesito soporte o reparación para PC Gamer',
+        waUrl: 'https://wa.me/529986690777?text=Necesito%20soporte%20o%20reparaci%C3%B3n%20para%20PC%20Gamer'
     },
     'mobile': {
         icon: '<i class="fa-solid fa-mobile-screen-button"></i>',
         title: '¿Quieres arreglar tu celular?',
         desc: 'Cambio de pantallas y baterías tanto para Android como para iPhone.',
-        btnText: 'Quiero reparar un celular',
-        waText: 'Quiero reparar un celular'
+        btnText: 'Quiero reparar mi celular',
+        waUrl: 'https://wa.me/529986690777?text=Quiero%20reparar%20mi%20celular'
     },
     'printer': {
         icon: '<i class="fa-solid fa-print"></i>',
         title: '¿Quieres revisar tu impresora?',
         desc: 'Solucionamos atascos, problemas de cabezal y fallas de conectividad.',
-        btnText: 'Quiero revisar una impresora',
-        waText: 'Quiero revisar una impresora'
+        btnText: 'Necesito reparar una impresora',
+        waUrl: 'https://wa.me/529986690777?text=Necesito%20reparar%20una%20impresora'
     },
     'console': {
         icon: '<i class="fa-solid fa-gamepad"></i>',
         title: '¿Quieres darle mantenimiento a tu consola?',
         desc: 'Limpieza profunda de PS5, Xbox y Switch. Reparación de discos y puertos HDMI.',
-        btnText: 'Quiero mantenimiento para mi consola',
-        waText: 'Quiero mantenimiento para mi consola'
+        btnText: 'Quiero mantenimiento para consola',
+        waUrl: 'https://wa.me/529986690777?text=Quiero%20mantenimiento%20para%20consola'
     },
     'b2b': {
         icon: '<i class="fa-solid fa-building"></i>',
         title: '¿Requieres soporte para tu empresa?',
         desc: 'Mantenimiento de flotas de equipos, pólizas con técnica asignada y facturación.',
-        btnText: 'Quiero soporte empresarial B2B',
-        waText: 'Quiero soporte empresarial B2B'
+        btnText: 'Soy empresa y necesito soporte técnico B2B',
+        waUrl: 'https://wa.me/529986690777?text=Soy%20empresa%20y%20necesito%20soporte%20t%C3%A9cnico%20B2B'
     }
 };
 
@@ -356,13 +356,14 @@ function openSpecialtyModal(id) {
     document.getElementById('sm-desc').innerText = data.desc;
     document.getElementById('sm-btn-text').innerText = data.btnText;
     
+    // Direct link — no global function
     document.getElementById('sm-btn').onclick = function() {
-        openWhatsApp(data.waText);
+        window.open(data.waUrl, '_blank');
         closeSpecialtyModal();
     };
 
     modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Prevents background scrolling
+    document.body.style.overflow = 'hidden';
 }
 
 function closeSpecialtyModal() {
@@ -370,7 +371,7 @@ function closeSpecialtyModal() {
     if (modal) {
         modal.classList.remove('active');
     }
-    document.body.style.overflow = ''; // Restores background scrolling
+    document.body.style.overflow = '';
 }
 
 window.openSpecialtyModal = openSpecialtyModal;
