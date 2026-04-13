@@ -304,52 +304,61 @@ function initSpecialties() {
     const specialtyCards = document.querySelectorAll('.specialty-card');
     const overlay = document.getElementById('specialty-overlay');
 
+    let openScrollY = null;
+
+    // Función auxiliar para cerrar de forma centralizada (Mobile y Desktop)
+    const closeAllSpecialties = () => {
+        document.querySelectorAll('.specialty-card.active').forEach(c => c.classList.remove('active'));
+        if (overlay) overlay.classList.remove('active');
+        openScrollY = null;
+    };
+
+    // 1. Cerrar automáticamente solo si el scroll es significativo
+    window.addEventListener('scroll', () => {
+        if (openScrollY !== null && document.querySelector('.specialty-card.active')) {
+            // Evaluamos la distancia recorrida desde que se abrió
+            if (Math.abs(window.scrollY - openScrollY) > 200) {
+                closeAllSpecialties();
+            }
+        }
+    }, { passive: true });
+
+    // 2. Cerrar al tocar en "cualquier lado" fuera de las cards
+    document.addEventListener('click', (e) => {
+        if (document.querySelector('.specialty-card.active')) {
+            // Si el elemento clicado NO es y NO está dentro de una tarjeta
+            if (!e.target.closest('.specialty-card')) {
+                closeAllSpecialties();
+            }
+        }
+    });
+
     if (specialtyCards.length > 0) {
         specialtyCards.forEach(card => {
             // Eliminar el atributo inline onclick para evitar conflictos
             card.removeAttribute('onclick');
 
             card.addEventListener('click', function(e) {
-                // Prevenir que el click se propague si se hace clic en el botón interno
+                // Prevenir interferencia si hacen clic directamente en el botón de WhatsApp
                 if (e.target.closest('button')) return;
 
                 const isMobile = window.innerWidth < 768;
 
-                if (isMobile) {
-                    if (!overlay) return;
-
-                    if (this.classList.contains('active')) {
-                        this.classList.remove('active');
-                        overlay.classList.remove('active');
-                        document.body.style.overflow = '';
-                        return;
-                    }
-
-                    // Cerramos cualquier otra activa
-                    document.querySelectorAll('.specialty-card.active').forEach(c => c.classList.remove('active'));
-
-                    // Activamos la modal y el overlay
-                    this.classList.add('active');
-                    overlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-
-                    // Evento para cerrar tocando el overlay
-                    overlay.onclick = () => {
-                        this.classList.remove('active');
-                        overlay.classList.remove('active');
-                        document.body.style.overflow = '';
-                    };
-                } else {
-                    // Configuración Escritorio: Expansión
-                    if (this.classList.contains('active')) {
-                        this.classList.remove('active');
-                        return;
-                    }
-
-                    // Cerramos las demás
-                    document.querySelectorAll('.specialty-card.active').forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
+                // Cierre manual tocando la misma tarjeta que está abierta
+                if (this.classList.contains('active')) {
+                    closeAllSpecialties();
+                    return;
                 }
+
+                // Cerramos cualquier otra card antes de abrir la nueva
+                closeAllSpecialties();
+
+                // Abrimos la card presionada
+                this.classList.add('active');
+                openScrollY = window.scrollY;
+
+                // Si estamos en móvil, el estilo CSS ahora hace una expansión inline hermosa (eliminando el efecto modal estático).
+                // No necesitamos encender un #specialty-overlay negro que se quede pegado, con el scale 1.03 basta.
             });
         });
     }
