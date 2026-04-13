@@ -295,7 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
    EXPORTS GLOBALES PARA MODULE BUNDLING (Vite)
 ══════════════════════════════════════════════════════════════ */
 window.openTab = openTab;
-window.openWhatsApp = openWhatsApp;
 
 /* ══════════════════════════════════════════════════════════════
    SPECIALTIES LOGIC
