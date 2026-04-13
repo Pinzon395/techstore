@@ -152,19 +152,20 @@ if (mobileMenu && navMenu) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   4. WHATSAPP — Función global
-   El número está aquí para cambiarlo en un solo lugar.
-   @param {string} customText — Mensaje preescrito
+   4. WHATSAPP — Redirección Inteligente (Mobile First)
+   Evita el error de "about:blank" en iOS/Android al abrir pestañas nuevas.
+   @param {string} url — La URL completa de wa.me a la que redirigir
 ══════════════════════════════════════════════════════════════ */
-function openWhatsApp(customText) {
-    const phone = '529986690777'; // Número directo Pixon PC con código de país
-    const text = customText ? encodeURIComponent(customText) : encodeURIComponent('Hola, vengo de la web y quiero información.');
-    const url = `https://wa.me/${phone}?text=${text}`;
-    window.open(url, '_blank', 'noopener');
+function smartWaRedirect(url) {
+    if (window.innerWidth < 768) {
+        window.location.href = url; // En móvil usamos redirección directa
+    } else {
+        window.open(url, '_blank', 'noopener'); // En escritorio sí usamos target _blank
+    }
 }
 
 // Hacer global para HTML inline onclick
-window.openWhatsApp = openWhatsApp;
+window.smartWaRedirect = smartWaRedirect;
 
 // Smooth scroll al top cuando se hace clic en "Inicio"
 document.querySelectorAll('a[href="#inicio"]').forEach(el => {
@@ -297,82 +298,53 @@ window.openTab = openTab;
 window.openWhatsApp = openWhatsApp;
 
 /* ══════════════════════════════════════════════════════════════
-   SPECIALTY MODALS LOGIC
+/* ══════════════════════════════════════════════════════════════
+   SPECIALTIES INLINE LOGIC
+   (El código de UI ahora se maneja directamente con CSS :target o JS inline en los botones/tarjetas)
 ══════════════════════════════════════════════════════════════ */
-const specialtiesData = {
-    'laptop': {
-        icon: '<i class="fa-solid fa-laptop"></i>',
-        title: '¿Quieres arreglar tu laptop?',
-        desc: 'Corregimos problemas de pantalla, batería, teclado o sobrecalentamiento rápido y con garantía.',
-        btnText: 'Quiero reparar una laptop',
-        waUrl: 'https://wa.me/529986690777?text=Quiero%20reparar%20una%20laptop'
-    },
-    'pc': {
-        icon: '<i class="fa-solid fa-desktop"></i>',
-        title: '¿Quieres arreglar o mejorar tu PC Gamer?',
-        desc: 'Mantenimiento profundo, actualización de componentes y overclocking seguro.',
-        btnText: 'Necesito soporte o reparación para PC Gamer',
-        waUrl: 'https://wa.me/529986690777?text=Necesito%20soporte%20o%20reparaci%C3%B3n%20para%20PC%20Gamer'
-    },
-    'mobile': {
-        icon: '<i class="fa-solid fa-mobile-screen-button"></i>',
-        title: '¿Quieres arreglar tu celular?',
-        desc: 'Cambio de pantallas y baterías tanto para Android como para iPhone.',
-        btnText: 'Quiero reparar mi celular',
-        waUrl: 'https://wa.me/529986690777?text=Quiero%20reparar%20mi%20celular'
-    },
-    'printer': {
-        icon: '<i class="fa-solid fa-print"></i>',
-        title: '¿Quieres revisar tu impresora?',
-        desc: 'Solucionamos atascos, problemas de cabezal y fallas de conectividad.',
-        btnText: 'Necesito reparar una impresora',
-        waUrl: 'https://wa.me/529986690777?text=Necesito%20reparar%20una%20impresora'
-    },
-    'console': {
-        icon: '<i class="fa-solid fa-gamepad"></i>',
-        title: '¿Quieres darle mantenimiento a tu consola?',
-        desc: 'Limpieza profunda de PS5, Xbox y Switch. Reparación de discos y puertos HDMI.',
-        btnText: 'Quiero mantenimiento para consola',
-        waUrl: 'https://wa.me/529986690777?text=Quiero%20mantenimiento%20para%20consola'
-    },
-    'b2b': {
-        icon: '<i class="fa-solid fa-building"></i>',
-        title: '¿Requieres soporte para tu empresa?',
-        desc: 'Mantenimiento de flotas de equipos, pólizas con técnica asignada y facturación.',
-        btnText: 'Soy empresa y necesito soporte técnico B2B',
-        waUrl: 'https://wa.me/529986690777?text=Soy%20empresa%20y%20necesito%20soporte%20t%C3%A9cnico%20B2B'
+/* ══════════════════════════════════════════════════════════════
+   SPECIALTIES INLINE LOGIC
+   Dual behavior: Desktop (Grow) vs Mobile (Modal-ish)
+══════════════════════════════════════════════════════════════ */
+function toggleSpecialty(card) {
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+        const overlay = document.getElementById('specialty-overlay');
+        if (!overlay) return;
+
+        // Si ya está activa, la cerramos
+        if (card.classList.contains('active')) {
+            card.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            return;
+        }
+
+        // Cerramos cualquier otra antes de abrir esta
+        document.querySelectorAll('.specialty-card.active').forEach(c => {
+            c.classList.remove('active');
+        });
+
+        // Abrimos la actual en modo "modal"
+        card.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Cerrar al tocar el overlay
+        overlay.onclick = () => {
+            card.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+    } else {
+        // Desktop: Inline Grow
+        if (card.classList.contains('active')) {
+            card.classList.remove('active');
+            return;
+        }
+        document.querySelectorAll('.specialty-card.active').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
     }
-};
-
-function openSpecialtyModal(id) {
-    const modal = document.getElementById('specialty-modal');
-    if (!modal) return;
-    
-    const data = specialtiesData[id];
-    if (!data) return;
-
-    document.getElementById('sm-icon').innerHTML = data.icon;
-    document.getElementById('sm-title').innerText = data.title;
-    document.getElementById('sm-desc').innerText = data.desc;
-    document.getElementById('sm-btn-text').innerText = data.btnText;
-    
-    // Direct link — no global function
-    document.getElementById('sm-btn').onclick = function() {
-        window.open(data.waUrl, '_blank');
-        closeSpecialtyModal();
-    };
-
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
 }
-
-function closeSpecialtyModal() {
-    const modal = document.getElementById('specialty-modal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-    document.body.style.overflow = '';
-}
-
-window.openSpecialtyModal = openSpecialtyModal;
-window.closeSpecialtyModal = closeSpecialtyModal;
+window.toggleSpecialty = toggleSpecialty;

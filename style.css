@@ -2583,145 +2583,236 @@ ul {
 
 @media (max-width: 768px) {
     .home-build-card {
-        flex-direction: column;
-        max-width: 340px;
-        margin: 0 auto;
+        flex-direction: row;
+        align-items: stretch;
+        max-width: 100%;
+        margin: 0;
+        cursor: pointer;
     }
 
     .home-build-img {
-        flex: auto;
-        height: 180px; /* Shorter height for mobile */
+        flex: 0 0 110px;
+        height: auto;
     }
 
     .home-build-body {
-        padding: 20px;
-        text-align: center;
+        padding: 12px 14px;
+        text-align: left;
+        justify-content: center;
     }
 
     .home-build-header {
         flex-direction: column;
-        gap: 5px;
-        margin-bottom: 12px;
+        align-items: flex-start;
+        gap: 2px;
+        margin-bottom: 6px;
+    }
+    
+    .home-build-title {
+        font-size: 1.05rem;
+    }
+    
+    .home-build-price {
+        font-size: 0.95rem;
+    }
+    
+    .home-build-desc {
+        font-size: 0.8rem;
+        margin-bottom: 8px; /* Give space for price */
+    }
+    
+    .home-build-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
-    .home-build-action .btn {
-        width: 100%;
-        justify-content: center;
+    .home-build-price {
+        font-size: 0.95rem;
+        font-weight: 800;
+        margin-top: auto; /* Push to bottom */
+        display: block;
     }
 }
 
 /* =========================================
-   SPECIALITIES MODAL (Animated)
+   SPECIALTIES EXPANDABLE CARDS (Replaces modal)
 ========================================= */
-.specialty-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.85); /* Slate 900 semi-transparent */
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 10000;
+.specialties-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.specialty-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px 18px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    cursor: pointer;
+    flex: 1 1 200px; /* Base width */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.specialty-card.b2b-card {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid #3b82f6;
+    color: #fff;
+}
+
+.specialty-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.08);
+}
+.specialty-card.b2b-card:hover {
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
+}
+
+.specialty-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    padding: 20px;
+    margin: 0 auto 12px;
+    font-size: 1.3rem;
+    transition: transform 0.3s ease;
 }
 
-.specialty-modal-overlay.active {
+.specialty-card-visible h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #1e293b;
+}
+
+.specialty-card.b2b-card .specialty-card-visible h3 {
+    color: #fff;
+}
+
+.specialty-card-visible p {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin: 0;
+}
+.specialty-card.b2b-card .specialty-card-visible p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.specialty-card-hidden {
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    margin-top: 0;
+}
+
+.specialty-card-hidden p {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.specialty-card.b2b-card .specialty-card-hidden p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-specialty-info {
+    background: #0F172A;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    animation: specialty-pulse 3s infinite;
+}
+
+@keyframes specialty-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.4); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(15, 23, 42, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(15, 23, 42, 0); }
+}
+
+.btn-specialty-info:hover {
+    background: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    animation: none;
+}
+
+.specialty-card.b2b-card .btn-specialty-info {
+    background: #3b82f6;
+    animation: b2b-pulse 3s infinite;
+}
+@keyframes b2b-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+.specialty-card.b2b-card .btn-specialty-info:hover {
+    background: #60a5fa;
+}
+
+/* DESKTOP Behavior */
+@media (min-width: 769px) {
+    .specialty-card.active {
+        flex: 3 1 450px; /* Grow wide, push others */
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1);
+        transform: scale(1.02);
+    }
+    .specialty-card.b2b-card.active {
+        box-shadow: 0 16px 36px rgba(59, 130, 246, 0.25);
+    }
+    .specialty-card.active .specialty-card-hidden {
+        max-height: 250px;
+        opacity: 1;
+        margin-top: 15px;
+    }
+}
+
+/* Overlay visible state */
+#specialty-overlay.active {
     opacity: 1;
     pointer-events: auto;
 }
 
-.specialty-modal-content {
-    background: #fff;
-    width: 100%;
-    max-width: 480px;
-    border-radius: 20px;
-    padding: 30px;
-    position: relative;
-    transform: scale(0.95) translateY(20px);
-    opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-    text-align: center;
-}
-
-.specialty-modal-overlay.active .specialty-modal-content {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-}
-
-.specialty-modal-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #f1f5f9;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #64748b;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    font-size: 1.1rem;
-}
-
-.specialty-modal-close:hover {
-    background: #e2e8f0;
-    color: #0f172a;
-}
-
-.specialty-modal-icon {
-    width: 64px;
-    height: 64px;
-    background: #eff6ff;
-    color: #3b82f6;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    margin: 0 auto 20px;
-}
-
-.specialty-modal-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #1e293b;
-    margin-bottom: 8px;
-    line-height: 1.2;
-}
-
-.specialty-modal-desc {
-    font-size: 0.95rem;
-    color: #64748b;
-    margin-bottom: 25px;
-    line-height: 1.5;
-}
-
-.specialty-modal-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 16px;
-    font-size: 1.05rem;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.specialty-modal-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.4);
+/* MOBILE Behavior */
+@media (max-width: 768px) {
+    .specialties-container {
+        flex-direction: column;
+    }
+    .specialty-card {
+        flex: 1 1 auto;
+        transition: transform 0.4s ease, opacity 0.4s ease, box-shadow 0.4s ease;
+    }
+    .specialty-card.active {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(1);
+        width: 90%;
+        max-width: 350px;
+        z-index: 10001;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .specialty-card.active .specialty-card-hidden {
+        max-height: 450px;
+        opacity: 1;
+        margin-top: 15px;
+    }
 }
