@@ -298,53 +298,66 @@ window.openTab = openTab;
 window.openWhatsApp = openWhatsApp;
 
 /* ══════════════════════════════════════════════════════════════
-/* ══════════════════════════════════════════════════════════════
-   SPECIALTIES INLINE LOGIC
-   (El código de UI ahora se maneja directamente con CSS :target o JS inline en los botones/tarjetas)
-══════════════════════════════════════════════════════════════ */
-/* ══════════════════════════════════════════════════════════════
-   SPECIALTIES INLINE LOGIC
+   SPECIALTIES LOGIC
    Dual behavior: Desktop (Grow) vs Mobile (Modal-ish)
 ══════════════════════════════════════════════════════════════ */
-function toggleSpecialty(card) {
-    const isMobile = window.innerWidth < 768;
+function initSpecialties() {
+    const specialtyCards = document.querySelectorAll('.specialty-card');
+    const overlay = document.getElementById('specialty-overlay');
 
-    if (isMobile) {
-        const overlay = document.getElementById('specialty-overlay');
-        if (!overlay) return;
+    if (specialtyCards.length > 0) {
+        specialtyCards.forEach(card => {
+            // Eliminar el atributo inline onclick para evitar conflictos
+            card.removeAttribute('onclick');
 
-        // Si ya está activa, la cerramos
-        if (card.classList.contains('active')) {
-            card.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-            return;
-        }
+            card.addEventListener('click', function(e) {
+                // Prevenir que el click se propague si se hace clic en el botón interno
+                if (e.target.closest('button')) return;
 
-        // Cerramos cualquier otra antes de abrir esta
-        document.querySelectorAll('.specialty-card.active').forEach(c => {
-            c.classList.remove('active');
+                const isMobile = window.innerWidth < 768;
+
+                if (isMobile) {
+                    if (!overlay) return;
+
+                    if (this.classList.contains('active')) {
+                        this.classList.remove('active');
+                        overlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                        return;
+                    }
+
+                    // Cerramos cualquier otra activa
+                    document.querySelectorAll('.specialty-card.active').forEach(c => c.classList.remove('active'));
+
+                    // Activamos la modal y el overlay
+                    this.classList.add('active');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+
+                    // Evento para cerrar tocando el overlay
+                    overlay.onclick = () => {
+                        this.classList.remove('active');
+                        overlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                    };
+                } else {
+                    // Configuración Escritorio: Expansión
+                    if (this.classList.contains('active')) {
+                        this.classList.remove('active');
+                        return;
+                    }
+
+                    // Cerramos las demás
+                    document.querySelectorAll('.specialty-card.active').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
         });
-
-        // Abrimos la actual en modo "modal"
-        card.classList.add('active');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-
-        // Cerrar al tocar el overlay
-        overlay.onclick = () => {
-            card.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        };
-    } else {
-        // Desktop: Inline Grow
-        if (card.classList.contains('active')) {
-            card.classList.remove('active');
-            return;
-        }
-        document.querySelectorAll('.specialty-card.active').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
     }
 }
-window.toggleSpecialty = toggleSpecialty;
+
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initSpecialties);
+} else {
+    initSpecialties();
+}
