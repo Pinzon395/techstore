@@ -198,99 +198,190 @@ function openTab(evt, tabId) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   7. LAZY LOADING DE VIDEOS YOUTUBE
+   7. LAZY LOADING DE VIDEOS YOUTUBE Y HERO
    ─────────────────────────────────────────────────────────────
-   a) Hero background — carga diferida 1.5s tras window.load
-      (no bloquea el First Contentful Paint)
-   b) Click-to-play — cualquier .video-lazy-thumb se convierte
-      en iframe al hacer click
-   c) IntersectionObserver — videos con data-autoplay="true"
-      se cargan solos al entrar a 300px del viewport
+   a) Hero HTML5 Video — Fade in suave cuando esté listo
+   b) YouTube Videos — IntersectionObserver
+      - Todas las plataformas: cargan cuando entran al viewport
+      - Móvil (<768px): Se pausan automáticamente si salen (60%), play si entran.
+      - Ocultar "cargando" y mostrar suavemente.
 ══════════════════════════════════════════════════════════════ */
 
-/* a) Hero iframe diferido */
-window.addEventListener('load', () => {
-    const heroFrame = document.querySelector('.bg-video-iframe[data-src]');
-    if (!heroFrame) return;
-    /* 1500ms de gracia para que el browser pinte el LCP antes de pedir el video */
-    setTimeout(() => {
-        heroFrame.src = heroFrame.getAttribute('data-src');
-        heroFrame.removeAttribute('data-src');
-    }, 1500);
-}, { once: true });
+/* a) Hero YouTube Video con Poster */
+window.addEventListener('DOMContentLoaded', () => {
+    const poster = document.getElementById('hero-poster');
+    const wrapper = document.getElementById('hero-yt-wrapper');
+    if (poster && wrapper) {
+        const iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/cbKre_xAFlo?autoplay=1&mute=1&loop=1&playlist=cbKre_xAFlo&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.className = 'bg-video-iframe';
+        iframe.style.opacity = '0';
+        iframe.style.transition = 'opacity 0.8s ease-in-out';
+
+        wrapper.appendChild(iframe);
+
+        const onYouTubeMessageHero = (e) => {
+            if (e.origin !== "https://www.youtube.com") return;
+            try {
+                const data = JSON.parse(e.data);
+                if (data.event === 'infoDelivery' && data.info && data.info.playerState === 1) {
+                    if (e.source === iframe.contentWindow) {
+                        iframe.style.opacity = '1';
+                        poster.style.opacity = '0';
+                        setTimeout(() => poster.remove(), 800);
+                        window.removeEventListener('message', onYouTubeMessageHero);
+                    }
+                }
+            } catch(err) {}
+        };
+        window.addEventListener('message', onYouTubeMessageHero);
+
+        // Fallback: Si YouTube tarda mucho o bloquea el evento
+        setTimeout(() => {
+            if (poster && poster.parentNode) {
+                iframe.style.opacity = '1';
+                poster.style.opacity = '0';
+                setTimeout(() => poster.remove(), 800);
+                window.removeEventListener('message', onYouTubeMessageHero);
+            }
+        }, 3500);
+    }
+});
 
 /**
- * b) Convierte un thumbnail en iframe de YouTube.
- * Detecta automáticamente el tipo de wrapper para ajustar el zoom.
- * @param {HTMLElement} thumb
+ * b) YouTube Videos
  */
+const isMobile = window.innerWidth < 768;
+
+function postMessageToPlayer(iframe, func, args = []) {
+    if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: func,
+            args: args
+        }), '*');
+    }
+}
+
+// Observer MÓVIL y DESKTOP
+let playObserver = null;
+if ('IntersectionObserver' in window) {
+    playObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const iframe = entry.target.querySelector('iframe');
+            if (!iframe) return;
+            if (isMobile) {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+                    postMessageToPlayer(iframe, 'playVideo');
+                } else if (!entry.isIntersecting || entry.intersectionRatio < 0.6) {
+                    postMessageToPlayer(iframe, 'pauseVideo');
+                }
+            } else {
+                if (entry.isIntersecting && entry.intersectionRatio > 0) {
+                    postMessageToPlayer(iframe, 'playVideo');
+                } else if (!entry.isIntersecting || entry.intersectionRatio === 0) {
+                    postMessageToPlayer(iframe, 'pauseVideo');
+                }
+            }
+        });
+    }, { threshold: [0, 0.1, 0.6] });
+}
+
 function loadVideoFromThumb(thumb) {
+    if (thumb.dataset.loading) return; // evitar cargas dobles
+    thumb.dataset.loading = "true";
+
     const videoId     = thumb.getAttribute('data-video-id');
     const wrapper     = thumb.closest('.video-wrapper');
     const isLandscape = thumb.hasAttribute('data-landscape');
     if (!videoId || !wrapper) return;
 
     const iframe = document.createElement('iframe');
-    /* autoplay+mute obligatorio para reproducción automática en mobile */
-    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1&disablekb=1`;
+    // enablejsapi=1 es crucial para postMessage
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1`;
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
     iframe.setAttribute('allowfullscreen', '');
-    /* pointer-events:none evita que el usuario haga click en el overlay del video */
+    
     Object.assign(iframe.style, {
         width: '100%', height: '100%', border: 'none',
         position: 'absolute', top: '0', left: '0',
         pointerEvents: 'none',
+        opacity: '0', // Oculto mientras YouTube carga su interfaz predeterminada (pantalla negra)
+        transition: 'opacity 0.5s ease-in-out'
     });
 
-    /* Zoom para wrappers de video vertical/corporativo */
     if (wrapper.classList.contains('b2b-zoom-wrapper')) {
         Object.assign(iframe.style, {
-            width: '140%', height: '140%',
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
+            width: '140%', height: '140%', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'
         });
-    }
-    if (wrapper.classList.contains('b2b-vertical-wrapper')) {
+    } else if (wrapper.classList.contains('b2b-vertical-wrapper')) {
         Object.assign(iframe.style, {
-            width: '200%', height: '200%',
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
+            width: '200%', height: '200%', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'
         });
-    }
-    if (!isLandscape &&
-        !wrapper.classList.contains('b2b-zoom-wrapper') &&
-        !wrapper.classList.contains('b2b-vertical-wrapper')) {
+    } else if (!isLandscape) {
         iframe.style.minHeight = '450px';
     }
 
-    thumb.remove();
+    // El thumbnail se mantiene y hace un fade out cuando el video ya se está reproduciendo
+    thumb.style.transition = 'opacity 0.5s ease-in-out';
     wrapper.appendChild(iframe);
+
+    // Escuchar mensajes de YouTube para saber cuándo empieza a reproducirse
+    const onYouTubeMessage = (e) => {
+        if (e.origin !== "https://www.youtube.com") return;
+        try {
+            const data = JSON.parse(e.data);
+            if (data.event === 'infoDelivery' && data.info && data.info.playerState === 1) {
+                if (e.source === iframe.contentWindow) {
+                    iframe.style.opacity = '1';
+                    thumb.style.opacity = '0';
+                    setTimeout(() => thumb.remove(), 500);
+                    window.removeEventListener('message', onYouTubeMessage);
+                }
+            }
+        } catch(err) {}
+    };
+    window.addEventListener('message', onYouTubeMessage);
+
+    // Fallback: Remove thumb and show video after 3 seconds in case iframe API takes longer or blocks messages
+    setTimeout(() => {
+        if (thumb && thumb.parentNode) {
+            iframe.style.opacity = '1';
+            thumb.style.opacity = '0';
+            setTimeout(() => thumb.remove(), 500);
+            window.removeEventListener('message', onYouTubeMessage);
+        }
+    }, 3000);
+
+    // Observer para pausar/play en Desktop y Móvil (usamos la variable global playObserver)
+    if (typeof playObserver !== 'undefined' && playObserver) {
+        playObserver.observe(wrapper);
+    }
 }
 
-/* c) Click manual + IntersectionObserver */
 document.addEventListener('DOMContentLoaded', () => {
-    /* Click-to-play en todos los thumbnails */
-    document.querySelectorAll('.video-lazy-thumb').forEach(thumb => {
-        thumb.addEventListener('click', () => loadVideoFromThumb(thumb), { once: true });
-    });
+    // Para asegurar un diseño final profesional sin interacción, todos cargan automáticamente
+    const allThumbs = document.querySelectorAll('.video-lazy-thumb');
+    if (!allThumbs.length || !('IntersectionObserver' in window)) {
+        allThumbs.forEach(t => t.addEventListener('click', () => loadVideoFromThumb(t), { once: true }));
+        return;
+    }
 
-    /* Auto-load con IntersectionObserver para data-autoplay="true" */
-    const autoThumbs = document.querySelectorAll('.video-lazy-thumb[data-autoplay="true"]');
-    if (!autoThumbs.length || !('IntersectionObserver' in window)) return;
-
-    const videoObserver = new IntersectionObserver(entries => {
+    const loadObserver = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 loadVideoFromThumb(entry.target);
-                videoObserver.unobserve(entry.target);
+                loadObserver.unobserve(entry.target);
             }
         });
-    }, { rootMargin: '300px' }); /* Pre-carga 300px antes de llegar */
+    }, { rootMargin: '300px' }); 
 
-    autoThumbs.forEach(t => videoObserver.observe(t));
+    allThumbs.forEach(t => loadObserver.observe(t));
 });
-
 /* ══════════════════════════════════════════════════════════════
    EXPORTS GLOBALES PARA MODULE BUNDLING (Vite)
 ══════════════════════════════════════════════════════════════ */

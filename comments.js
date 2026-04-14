@@ -34,7 +34,7 @@
        CONFIGURACIÓN — Cambia solo aquí para ajustar comportamiento
     ──────────────────────────────────────────────────────────── */
     const CONFIG = {
-        SCROLL_SPEED: 90,     // px/s — velocidad del auto-scroll
+        SCROLL_SPEED: 60,     // px/s — velocidad del auto-scroll
         RESUME_HOVER_MS: 700,    // ms de espera al quitar el cursor
         RESUME_DRAG_MS: 1300,   // ms de espera al soltar en móvil
         RESUME_CLICK_MS: 900,    // ms tras dejar un comentario levantado
