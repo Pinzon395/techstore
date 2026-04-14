@@ -101,14 +101,44 @@ app.post('/api/comments', (req, res) => {
 
 /* ─────────────────────────────────────────────────────────────
    ARCHIVOS ESTÁTICOS EN PRODUCCIÓN
+   — URLs limpias: /ensambles → ensambles.html (sin .html en URL)
 ───────────────────────────────────────────────────────────── */
 if (process.env.NODE_ENV === 'production') {
     const distPath = path.join(__dirname, '../dist');
+    const fs = require('fs');
+
+    // Páginas del sitio → archivo HTML correspondiente
+    const pages = {
+        '/':            'index.html',
+        '/paquetes':    'paquetes.html',
+        '/ensambles':   'ensambles.html',
+        '/catalogo':    'catalogo.html',
+        '/comentarios': 'comentarios.html',
+        '/contacto':    'contacto.html',
+    };
+
+    // Servir assets estáticos (CSS, JS, imágenes) con caché
     app.use(express.static(distPath, { maxAge: '1d', etag: true }));
-    app.get('*', (req, res) => {
-        if (!req.path.startsWith('/api')) {
-            res.sendFile(path.join(distPath, 'index.html'));
+
+    // Rutas limpias sin extensión .html
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api')) return next();
+
+        // Normalizar: quitar trailing slash excepto en '/'
+        const cleanPath = req.path === '/' ? '/' : req.path.replace(/\/$/, '');
+
+        // Buscar la página correspondiente a la ruta limpia
+        const htmlFile = pages[cleanPath];
+
+        if (htmlFile) {
+            const fullPath = path.join(distPath, htmlFile);
+            if (fs.existsSync(fullPath)) {
+                return res.sendFile(fullPath);
+            }
         }
+
+        // Fallback: servir index.html (para rutas desconocidas)
+        res.sendFile(path.join(distPath, 'index.html'));
     });
 }
 
