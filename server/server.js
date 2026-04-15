@@ -120,6 +120,25 @@ if (process.env.NODE_ENV === 'production') {
     // Servir assets estáticos (CSS, JS, imágenes) con caché
     app.use(express.static(distPath, { maxAge: '1d', etag: true }));
 
+    // ── SEO: Servir robots.txt y sitemap.xml directamente ──
+    app.get('/robots.txt', (_req, res) => {
+        const file = path.join(distPath, 'robots.txt');
+        if (fs.existsSync(file)) {
+            res.type('text/plain').sendFile(file);
+        } else {
+            res.type('text/plain').send('User-agent: *\nAllow: /\n\nSitemap: https://pixon.com.mx/sitemap.xml\n');
+        }
+    });
+
+    app.get('/sitemap.xml', (_req, res) => {
+        const file = path.join(distPath, 'sitemap.xml');
+        if (fs.existsSync(file)) {
+            res.type('application/xml').sendFile(file);
+        } else {
+            res.status(404).send('Sitemap not found');
+        }
+    });
+
     // Rutas limpias sin extensión .html
     app.get('*', (req, res, next) => {
         if (req.path.startsWith('/api')) return next();
