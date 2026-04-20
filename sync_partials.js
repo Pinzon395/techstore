@@ -54,6 +54,7 @@ const unifiedFooter = `    <footer class="light-footer">
 
 // Script de WhatsApp que estandariza todo al final del body
 const finalScripts = `<script type="module" src="/script.js"></script>
+    <script type="module" src="/comments.js"></script>
     <!-- ═══ Cookie Banner ═══ -->
     <script type="module" src="/components/cookies/CookieBanner.js"></script>
 </body>`;
