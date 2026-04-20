@@ -501,3 +501,26 @@ if (document.readyState === 'loading') {
 } else {
     animateCounters();
 }
+
+/* ══════════════════════════════════════════════════════════════
+   FAQ LOGIC — Acordeones de Preguntas Frecuentes
+══════════════════════════════════════════════════════════════ */
+function toggleFaq(button) {
+    const item = button.closest('.faq-item');
+    const answer = item.querySelector('.faq-answer');
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+    // Cierra todos los tabs abiertos (comportamiento puro de acordeón)
+    document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('faq-item--open');
+        i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+        i.querySelector('.faq-answer').style.maxHeight = null;
+    });
+
+    if (!isExpanded) {
+        button.setAttribute('aria-expanded', 'true');
+        item.classList.add('faq-item--open');
+        answer.style.maxHeight = answer.scrollHeight + "px";
+    }
+}
+window.toggleFaq = toggleFaq;
