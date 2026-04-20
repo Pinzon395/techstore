@@ -10,10 +10,31 @@
  */
 
 import { defineConfig } from 'vite';
-
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 export default defineConfig({
     // La raíz del proyecto es el directorio actual
     root: '.',
+    appType: 'mpa', // Especifica que es multi-página
+
+    plugins: [
+        ViteImageOptimizer({
+            png: { quality: 80, compressionLevel: 8 },
+            jpeg: { quality: 80, progressive: true },
+            jpg: { quality: 80, progressive: true },
+        }),
+        {
+            name: 'clean-url-dev',
+            configureServer(server) {
+                server.middlewares.use((req, res, next) => {
+                    // Si la ruta no tiene extensión y no es la raíz o la API, buscar .html
+                    if (req.url && !req.url.includes('.') && req.url !== '/' && !req.url.startsWith('/api')) {
+                        req.url = req.url + '.html';
+                    }
+                    next();
+                });
+            }
+        }
+    ],
 
     build: {
         // La carpeta de salida es dist/ — Express la sirve en producción
@@ -36,12 +57,17 @@ export default defineConfig({
         rollupOptions: {
             // Todas las páginas HTML del sitio
             input: {
-                main:         'index.html',
-                paquetes:     'paquetes.html',
-                ensambles:    'ensambles.html',
-                catalogo:     'catalogo.html',
-                comentarios:  'comentarios.html',
-                contacto:     'contacto.html',
+                main:                  'index.html',
+                paquetes:              'paquetes.html',
+                ensambles:             'ensambles.html',
+                catalogo:              'catalogo.html',
+                comentarios:           'comentarios.html',
+                contacto:              'contacto.html',
+                mantenimientoMac:      'mantenimiento-mac.html',
+                preguntasFrecuentes:   'preguntas-frecuentes.html',
+                privacidad:            'privacidad.html',
+                garantia:              'garantia.html',
+                notFound:              '404.html',
             },
         },
     },

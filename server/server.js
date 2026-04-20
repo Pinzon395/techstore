@@ -24,6 +24,7 @@ const path     = require('path');
 const { initDB, getAllComments, insertComment } = require('./database');
 
 const app  = express();
+app.disable('x-powered-by'); // Oculta Express de los headers para máxima privacidad
 const PORT = process.env.PORT || 3000;
 
 /* ─────────────────────────────────────────────────────────────
@@ -109,12 +110,16 @@ if (process.env.NODE_ENV === 'production') {
 
     // Páginas del sitio → archivo HTML correspondiente
     const pages = {
-        '/':            'index.html',
-        '/paquetes':    'paquetes.html',
-        '/ensambles':   'ensambles.html',
-        '/catalogo':    'catalogo.html',
-        '/comentarios': 'comentarios.html',
-        '/contacto':    'contacto.html',
+        '/':                      'index.html',
+        '/paquetes':              'paquetes.html',
+        '/ensambles':             'ensambles.html',
+        '/catalogo':              'catalogo.html',
+        '/comentarios':           'comentarios.html',
+        '/contacto':              'contacto.html',
+        '/mantenimiento-mac':     'mantenimiento-mac.html',
+        '/preguntas-frecuentes':  'preguntas-frecuentes.html',
+        '/privacidad':            'privacidad.html',
+        '/garantia':              'garantia.html',
     };
 
     // Servir assets estáticos (CSS, JS, imágenes) con caché

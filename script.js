@@ -460,3 +460,44 @@ if (document.readyState === 'loading') {
 } else {
     initSpecialties();
 }
+
+/* ══════════════════════════════════════════════════════════════
+   8. CONTADORES ANIMADOS (IntersectionObserver)
+══════════════════════════════════════════════════════════════ */
+const animateCounters = () => {
+    const counters = document.querySelectorAll('.animated-counter');
+    if (!counters.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target;
+                const target = +counter.getAttribute('data-target');
+                const duration = 1400; // 1.4 segundos — 30% más rápido
+                const increment = target / (duration / 16); // 60fps
+                
+                let current = 0;
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.innerText = Math.ceil(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                
+                updateCounter();
+                observer.unobserve(counter);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    counters.forEach(counter => observer.observe(counter));
+};
+
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', animateCounters);
+} else {
+    animateCounters();
+}
