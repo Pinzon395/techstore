@@ -68,6 +68,7 @@ export default defineConfig({
                 privacidad:            'privacidad.html',
                 garantia:              'garantia.html',
                 notFound:              '404.html',
+                formateoOptimizacion:  'formateo-optimizacion-computadoras-cancun.html',
             },
         },
     },

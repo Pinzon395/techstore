@@ -2,6 +2,34 @@
 <html lang="es">
 
 <head>
+
+<script>
+  // Pixon Cache Buster - Obliga a recargar si la versión cambia
+  (function() {
+    var currentVersion = '2.1.0';
+    var userVersion = localStorage.getItem('pixon_version');
+    if (userVersion !== currentVersion) {
+      localStorage.clear();
+      sessionStorage.clear();
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) caches.delete(name);
+        });
+      }
+      // Si existiera algún Service Worker viejo (de la PWA anterior), desinstalarlo
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+      localStorage.setItem('pixon_version', currentVersion);
+      window.location.reload(true);
+    }
+  })();
+</script>
+
     <!-- ═══ META BÁSICOS ═══ -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +53,7 @@
     <link rel="canonical" href="https://pixon.com.mx/" />
 
     <!-- ═══ FAVICON & ICONOS ═══ -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
     <meta name="theme-color" content="#2563eb">
 
@@ -1471,5 +1499,7 @@
     <script type="module" src="/priority-loader.js"></script>
     <!-- ═══ Cookie Banner ═══ -->
     <script type="module" src="/components/cookies/CookieBanner.js"></script>
+    <!-- ═══ Alert Box Web Component ═══ -->
+    <script type="module" src="/components/alerts/AlertBox.js"></script>
 </body>
 </html>

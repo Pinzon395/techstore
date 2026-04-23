@@ -9,9 +9,10 @@
  *  Producción:  npm run start
  *
  *  RUTAS:
- *  GET  /api/health      → check de salud
- *  GET  /api/comments    → lista de comentarios aprobados
- *  POST /api/comments    → crear comentario nuevo
+ *  GET  /api/health              → check de salud
+ *  GET  /api/comments            → lista de comentarios aprobados
+ *  POST /api/comments            → crear comentario nuevo
+ *  GET  /api/comments/stream     → SSE: push tiempo real
  * ============================================================
  */
 
@@ -20,20 +21,38 @@
 const express  = require('express');
 const cors     = require('cors');
 const path     = require('path');
-
-const { initDB, getAllComments, insertComment } = require('./database');
+const fs       = require('fs');
+const { initDB, getAllComments, insertComment, reloadIfExternallyChanged } = require('./database');
 
 const app  = express();
-app.disable('x-powered-by'); // Oculta Express de los headers para máxima privacidad
+app.disable('x-powered-by');
 const PORT = process.env.PORT || 3000;
+
+/* ─────────────────────────────────────────────────────────────
+   SSE — Set de clientes conectados en tiempo real
+───────────────────────────────────────────────────────────── */
+const sseClients = new Set();
+let sseIdCounter = 0;
+
+/**
+ * broadcastComment(comment) — Envía SSE 'new-comment' a TODOS los clientes.
+ */
+function broadcastComment(comment) {
+    const payload = JSON.stringify(comment);
+    for (const client of sseClients) {
+        try {
+            client.res.write(`event: new-comment\ndata: ${payload}\n\n`);
+        } catch (e) {
+            sseClients.delete(client);
+        }
+    }
+}
 
 /* ─────────────────────────────────────────────────────────────
    MIDDLEWARE
 ───────────────────────────────────────────────────────────── */
-
 app.use(express.json({ limit: '10kb' }));
 
-// CORS: permite peticiones desde el dev server de Vite
 app.use(cors({
     origin: [
         'http://localhost:5173',
@@ -44,7 +63,6 @@ app.use(cors({
     methods: ['GET', 'POST'],
 }));
 
-// Headers de seguridad básicos
 app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
@@ -55,60 +73,89 @@ app.use((req, res, next) => {
    RUTAS
 ───────────────────────────────────────────────────────────── */
 
-/** GET /api/health — Para Cloudflare Tunnel y monitoreo */
+/** GET /api/health */
 app.get('/api/health', (_req, res) => {
-    res.json({ ok: true, ts: new Date().toISOString() });
+    res.json({ ok: true, ts: new Date().toISOString(), clients: sseClients.size });
 });
 
-/** GET /api/comments — Lista de comentarios */
+/** GET /api/comments */
 app.get('/api/comments', (_req, res) => {
     try {
         const comments = getAllComments();
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.json(comments);
     } catch (err) {
-        console.error('❌ GET /api/comments:', err.message);
+        console.error('GET /api/comments error:', err.message);
         res.status(500).json({ error: 'Error al obtener comentarios.' });
     }
 });
 
-/** POST /api/comments — Crear comentario */
+/**
+ * GET /api/comments/stream — SSE tiempo real
+ * El cliente se subscribe y recibe un evento 'new-comment' cada
+ * vez que alguien publica uno via POST, sin recargar la página.
+ */
+app.get('/api/comments/stream', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Para Nginx / Cloudflare Tunnel
+    res.flushHeaders();
+
+    const clientId = ++sseIdCounter;
+    const client = { id: clientId, res };
+    sseClients.add(client);
+    console.log(`SSE #${clientId} conectado (total: ${sseClients.size})`);
+
+    // Keepalive cada 25s para evitar timeouts de proxy
+    const keepalive = setInterval(() => {
+        try { res.write(': ping\n\n'); } catch (e) { clearInterval(keepalive); }
+    }, 25000);
+
+    req.on('close', () => {
+        clearInterval(keepalive);
+        sseClients.delete(client);
+        console.log(`SSE #${clientId} desconectado (total: ${sseClients.size})`);
+    });
+});
+
+/** POST /api/comments */
 app.post('/api/comments', (req, res) => {
     try {
         const { name, stars, text } = req.body;
 
-        // Limpiar input
         const cleanName  = String(name  || '').trim().slice(0, 60);
         const cleanText  = String(text  || '').trim().slice(0, 500);
         const cleanStars = parseInt(stars, 10);
 
-        // Validar
         const errors = [];
         if (cleanName.length < 2)   errors.push('El nombre es muy corto.');
         if (cleanText.length < 10)  errors.push('El comentario es muy corto.');
         if (isNaN(cleanStars) || cleanStars < 1 || cleanStars > 5)
-                                    errors.push('Estrellas inválidas (1-5).');
+                                    errors.push('Estrellas invalidas (1-5).');
 
         if (errors.length) return res.status(400).json({ errors });
 
         const created = insertComment({ name: cleanName, stars: cleanStars, text: cleanText });
+
+        // PUSH EN TIEMPO REAL a todos los clientes SSE
+        broadcastComment(created);
+
         res.status(201).json(created);
 
     } catch (err) {
-        console.error('❌ POST /api/comments:', err.message);
+        console.error('POST /api/comments error:', err.message);
         res.status(500).json({ error: 'Error al guardar el comentario.' });
     }
 });
 
 /* ─────────────────────────────────────────────────────────────
-   ARCHIVOS ESTÁTICOS EN PRODUCCIÓN
-   — URLs limpias: /ensambles → ensambles.html (sin .html en URL)
+   ARCHIVOS ESTATICOS EN PRODUCCION
 ───────────────────────────────────────────────────────────── */
 if (process.env.NODE_ENV === 'production') {
     const distPath = path.join(__dirname, '../dist');
     const fs = require('fs');
 
-    // Páginas del sitio → archivo HTML correspondiente
     const pages = {
         '/':                      'index.html',
         '/paquetes':              'paquetes.html',
@@ -120,12 +167,11 @@ if (process.env.NODE_ENV === 'production') {
         '/preguntas-frecuentes':  'preguntas-frecuentes.html',
         '/privacidad':            'privacidad.html',
         '/garantia':              'garantia.html',
+        '/formateo-optimizacion-computadoras-cancun': 'formateo-optimizacion-computadoras-cancun.html',
     };
 
-    // Servir assets estáticos (CSS, JS, imágenes) con caché
-    app.use(express.static(distPath, { maxAge: '1d', etag: true }));
+    app.use(express.static(distPath, { maxAge: '1y', etag: true, index: false }));
 
-    // ── SEO: Servir robots.txt y sitemap.xml directamente ──
     app.get('/robots.txt', (_req, res) => {
         const file = path.join(distPath, 'robots.txt');
         if (fs.existsSync(file)) {
@@ -144,42 +190,57 @@ if (process.env.NODE_ENV === 'production') {
         }
     });
 
-    // Rutas limpias sin extensión .html
     app.get('*', (req, res, next) => {
         if (req.path.startsWith('/api')) return next();
 
-        // Normalizar: quitar trailing slash excepto en '/'
-        const cleanPath = req.path === '/' ? '/' : req.path.replace(/\/$/, '');
+        const sendFileOptions = {
+            headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'Surrogate-Control': 'no-store'
+            }
+        };
 
-        // Buscar la página correspondiente a la ruta limpia
+        const cleanPath = req.path === '/' ? '/' : req.path.replace(/\/$/, '');
         const htmlFile = pages[cleanPath];
 
         if (htmlFile) {
             const fullPath = path.join(distPath, htmlFile);
             if (fs.existsSync(fullPath)) {
-                return res.sendFile(fullPath);
+                return res.sendFile(fullPath, sendFileOptions);
             }
         }
 
-        // Fallback: servir index.html (para rutas desconocidas)
-        res.sendFile(path.join(distPath, 'index.html'));
+        res.sendFile(path.join(distPath, 'index.html'), sendFileOptions);
     });
 }
 
 /* ─────────────────────────────────────────────────────────────
-   ARRANCAR — Primero inicializar la DB (async), luego escuchar
+   ARRANCAR
 ───────────────────────────────────────────────────────────── */
 initDB().then(() => {
+    // Escuchar cambios externos en el archivo de base de datos
+    fs.watchFile(path.join(__dirname, 'pixon.db'), { interval: 1000 }, () => {
+        if (reloadIfExternallyChanged()) {
+            const payload = JSON.stringify({ action: 'reload' });
+            for (const client of sseClients) {
+                try { client.res.write(`event: db-sync\ndata: ${payload}\n\n`); } catch(e){}
+            }
+        }
+    });
+
     app.listen(PORT, () => {
         const mode = process.env.NODE_ENV || 'development';
         console.log(`
-╔════════════════════════════════════════════╗
-║  🚀 Pixon PC API — ${mode.padEnd(20)}║
-║  📡 http://localhost:${PORT}/api/comments  ║
-╚════════════════════════════════════════════╝`);
++--------------------------------------------------+
+|  Pixon PC API [${mode}]
+|  REST  -> http://localhost:${PORT}/api/comments
+|  SSE   -> http://localhost:${PORT}/api/comments/stream
++--------------------------------------------------+`);
     });
 }).catch(err => {
-    console.error('❌ Error iniciando la DB:', err);
+    console.error('Error iniciando la DB:', err);
     process.exit(1);
 });
 

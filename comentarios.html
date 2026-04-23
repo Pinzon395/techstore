@@ -2,6 +2,34 @@
 <html lang="es">
 
 <head>
+
+<script>
+  // Pixon Cache Buster - Obliga a recargar si la versión cambia
+  (function() {
+    var currentVersion = '2.1.0';
+    var userVersion = localStorage.getItem('pixon_version');
+    if (userVersion !== currentVersion) {
+      localStorage.clear();
+      sessionStorage.clear();
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) caches.delete(name);
+        });
+      }
+      // Si existiera algún Service Worker viejo (de la PWA anterior), desinstalarlo
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+      localStorage.setItem('pixon_version', currentVersion);
+      window.location.reload(true);
+    }
+  })();
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -38,7 +66,7 @@
     <title>Opiniones y Reseñas de Clientes | Pixon PC Cancún</title>
 
     <!-- ═══ FAVICON ═══ -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
     <meta name="theme-color" content="#2563eb">
 
@@ -107,7 +135,7 @@
     <section class="comments-section-container section-padding dark-bg" id="comentarios">
         <div class="container comments-section">
             <div class="section-title text-center">
-                <h2>Reseñas de Clientes</h2>
+                <h2>Reseñas de Clientes <span id="comments-live-indicator" title="Conectando..." style="display:none; align-items:center; gap:5px; font-size:0.7rem; font-weight:600; color:#10b981; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:20px; padding:3px 10px; vertical-align:middle;"><span style="width:7px;height:7px;background:#10b981;border-radius:50%;display:inline-block;"></span> En vivo</span></h2>
                 <p>Déjanos un comentario y calificación sobre nuestro servicio.</p>
             </div>
 

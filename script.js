@@ -463,37 +463,54 @@ if (document.readyState === 'loading') {
 
 /* ══════════════════════════════════════════════════════════════
    8. CONTADORES ANIMADOS (IntersectionObserver)
+   Fix: Si el elemento ya está en viewport al registrarse (primera
+   carga), el observer dispara de inmediato con threshold:0.
+   Se marca con data-counted para no animar dos veces.
 ══════════════════════════════════════════════════════════════ */
 const animateCounters = () => {
     const counters = document.querySelectorAll('.animated-counter');
     if (!counters.length) return;
 
+    const runCount = (counter) => {
+        if (counter.dataset.counted) return; // evitar doble animación
+        counter.dataset.counted = 'true';
+
+        const target    = +counter.getAttribute('data-target');
+        const duration  = 1400; // ms
+        const increment = target / (duration / 16); // ~60fps
+
+        let current = 0;
+        const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+                counter.innerText = Math.ceil(current);
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCounter();
+    };
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const counter = entry.target;
-                const target = +counter.getAttribute('data-target');
-                const duration = 1400; // 1.4 segundos — 30% más rápido
-                const increment = target / (duration / 16); // 60fps
-                
-                let current = 0;
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.innerText = Math.ceil(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.innerText = target;
-                    }
-                };
-                
-                updateCounter();
-                observer.unobserve(counter);
+                runCount(entry.target);
+                observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.5 });
+    }, { threshold: 0, rootMargin: '0px' }); // threshold:0 → dispara en cuanto 1px es visible
 
-    counters.forEach(counter => observer.observe(counter));
+    counters.forEach(counter => {
+        // Chequeo inmediato: si ya está en el viewport al cargar, animar ya
+        const rect = counter.getBoundingClientRect();
+        const inView = rect.top < window.innerHeight && rect.bottom > 0;
+        if (inView) {
+            runCount(counter);
+        } else {
+            observer.observe(counter);
+        }
+    });
 };
 
 if (document.readyState === 'loading') {
@@ -524,3 +541,44 @@ function toggleFaq(button) {
     }
 }
 window.toggleFaq = toggleFaq;
+
+/* ══════════════════════════════════════════════════════════════
+   9. LENIS SMOOTH SCROLL (Apple-like Momentum Scrolling)
+══════════════════════════════════════════════════════════════ */
+(function initLenis() {
+    // Evitar cargar en móviles porque el scroll nativo táctil ya es perfecto
+    if (window.innerWidth < 768) return;
+
+    const lenisScript = document.createElement('script');
+    lenisScript.src = 'https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js';
+    lenisScript.onload = () => {
+        const lenis = new Lenis({
+            duration: 1.4, // Suavidad extendida tipo Apple
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Curva suave y delicada
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        // Loop de animación
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Conectar Lenis con los enlaces internos (#) para que el salto también sea suave
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href');
+                if (targetId !== '#') {
+                    e.preventDefault();
+                    lenis.scrollTo(targetId, { duration: 1.5 });
+                }
+            });
+        });
+    };
+    document.head.appendChild(lenisScript);
+})();

@@ -37,10 +37,37 @@ let SQL  = null;   // instancia de sql.js (para crear nuevas DBs)
    Llamar esta función después de CADA INSERT/UPDATE/DELETE
    para persistir los cambios al archivo.
 ───────────────────────────────────────────────────────────── */
+let lastModifiedTime = 0;
+
 function saveDB() {
     const data = db.export(); // Uint8Array de la DB en memoria
-    fs.writeFileSync(DB_PATH, Buffer.from(data));
+    const tmpPath = DB_PATH + '.tmp';
+    fs.writeFileSync(tmpPath, Buffer.from(data));
+    try {
+        fs.copyFileSync(tmpPath, DB_PATH);
+        fs.unlinkSync(tmpPath);
+    } catch (err) {
+        console.error("Warning: fallback saveDB", err.message);
+        fs.writeFileSync(DB_PATH, Buffer.from(data));
+    }
+    try { lastModifiedTime = fs.statSync(DB_PATH).mtimeMs; } catch (e) {}
 }
+
+function reloadIfExternallyChanged() {
+    try {
+        const stats = fs.statSync(DB_PATH);
+        // Margen de 50ms por precisión de timestamps
+        if (stats.mtimeMs > lastModifiedTime + 50) {
+            console.log("🔄 Archivo DB modificado externamente, recargando a memoria...");
+            const buf = fs.readFileSync(DB_PATH);
+            db = new SQL.Database(buf);
+            lastModifiedTime = stats.mtimeMs;
+            return true;
+        }
+    } catch (e) {}
+    return false;
+}
+
 
 /* ─────────────────────────────────────────────────────────────
    SEMILLA DE COMENTARIOS
@@ -133,4 +160,4 @@ function insertComment({ name, stars, text }) {
     return Object.fromEntries(cols.map((col, i) => [col, row[i]]));
 }
 
-module.exports = { initDB, getAllComments, insertComment };
+module.exports = { initDB, getAllComments, insertComment, reloadIfExternallyChanged };

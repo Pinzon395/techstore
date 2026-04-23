@@ -1,148 +1,119 @@
 /**
  * ============================================================
- *  PIXON PC — comments.js  v2.0
+ *  PIXON PC — comments.js  v3.0
  * ============================================================
  *
- *  ARQUITECTURA DE DATOS:
- *  ┌─────────────────────────────────────────────────────────┐
- *  │  1. Intenta leer/guardar en el servidor SQLite          │
- *  │     GET  /api/comments  → lista de comentarios          │
- *  │     POST /api/comments  → guardar nuevo comentario      │
- *  │  2. Si el servidor no está disponible: localStorage     │
- *  │     (fallback automático sin errores visibles al user)  │
- *  └─────────────────────────────────────────────────────────┘
+ *  NOVEDADES v3.0:
+ *  - SSE (Server-Sent Events): nuevos comentarios aparecen
+ *    en tiempo real para TODOS los usuarios sin recargar.
+ *  - El carrusel muestra TODOS los comentarios de la DB,
+ *    no solo los primeros 4.
+ *  - Formulario con manejo de errores del servidor.
+ *  - Indicador visual "En vivo" cuando SSE está conectado.
  *
- *  CARRUSEL — SPEC EXACTA:
- *  ┌─────────────────────────────────────────────────────────┐
- *  │  Container: overflow:hidden (NUNCA overflow-x:auto)     │
- *  │  Scroll:    100% controlado por JS via scrollLeft       │
- *  │  Grid:      grid-template-rows: repeat(2, auto)         │
- *  │             grid-auto-flow: column                      │
- *  │  Cards:     clamp(260px, 28vw, 400px) — zoom resilient  │
- *  │  Loop:      2x duplicate: scrollLeft -= halfWidth       │
- *  │  Desktop:   auto-scroll via rAF, pausa en hover/click   │
- *  │  Mobile:    mismo auto-scroll + drag con pointer events │
- *  │  Edges:     mask-image fade (izq/der)                   │
- *  └─────────────────────────────────────────────────────────┘
+ *  ARQUITECTURA:
+ *  GET  /api/comments        → carga inicial (todos los comentarios)
+ *  GET  /api/comments/stream → SSE: push de nuevos comentarios
+ *  POST /api/comments        → publicar comentario
+ *
+ *  CARRUSEL — SPEC:
+ *  - Container: overflow:hidden
+ *  - Scroll: 100% controlado por JS via scrollLeft
+ *  - Loop: 8x duplicate → scrollLeft -= halfWidth
+ *  - Desktop: auto-scroll via rAF, pausa en hover/click
+ *  - Mobile: drag con pointer events
  * ============================================================
  */
 
 (function () {
     'use strict';
 
-    /* ────────────────────────────────────────────────────────────
-       CONFIGURACIÓN — Cambia solo aquí para ajustar comportamiento
-    ──────────────────────────────────────────────────────────── */
+    /* ────────────────────────────────────────────────────────
+       CONFIGURACIÓN
+    ──────────────────────────────────────────────────────── */
     const CONFIG = {
-        SCROLL_SPEED: 60,     // px/s — velocidad del auto-scroll
-        RESUME_HOVER_MS: 700,    // ms de espera al quitar el cursor
-        RESUME_DRAG_MS: 1300,   // ms de espera al soltar en móvil
-        RESUME_CLICK_MS: 900,    // ms tras dejar un comentario levantado
-        COMMENTS_PER_PAGE: 4,      // comentarios por "página" en el botón ver más
-        DT_CAP: 0.05,   // cap de delta-time (evita jumps al volver al tab)
+        SCROLL_SPEED:    60,    // px/s
+        RESUME_HOVER_MS: 700,
+        RESUME_DRAG_MS:  1300,
+        RESUME_CLICK_MS: 900,
+        DT_CAP:          0.05,  // evita jumps al volver al tab
+        DUPLICATES:      8,     // veces que se duplica el track para el loop
     };
 
-    /* ────────────────────────────────────────────────────────────
-       ENDPOINT DE LA API
-       En desarrollo: http://localhost:3000/api/comments
-       En producción (pizon.com.mx): /api/comments (mismo dominio)
-    ──────────────────────────────────────────────────────────── */
-    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    /* ────────────────────────────────────────────────────────
+       API BASE
+    ──────────────────────────────────────────────────────── */
+    const API_BASE = (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+    )
         ? `${window.location.protocol}//${window.location.hostname}:3000/api`
         : '/api';
 
-    /* ────────────────────────────────────────────────────────────
-       COMENTARIOS SEMILLA — solo se usan si el servidor Y
-       localStorage están vacíos. Una vez sembrados, no vuelven.
-    ──────────────────────────────────────────────────────────── */
+    /* ────────────────────────────────────────────────────────
+       COMENTARIOS SEMILLA (fallback offline)
+    ──────────────────────────────────────────────────────── */
     const SEED = [
-        { name: 'Eduardo Álvarez', stars: 5, text: 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.' },
-        { name: 'Ana Maria Martínez', stars: 5, text: 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.' },
-        { name: 'Carlos Rodríguez', stars: 5, text: 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.' },
-        { name: 'Laura Gómez', stars: 5, text: 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.' },
+        { id: 1, name: 'Eduardo Álvarez',    stars: 5, text: 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.' },
+        { id: 2, name: 'Ana Maria Martínez', stars: 5, text: 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.' },
+        { id: 3, name: 'Carlos Rodríguez',   stars: 5, text: 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.' },
+        { id: 4, name: 'Laura Gómez',        stars: 5, text: 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.' },
     ];
 
-    /* ═══════════════════════════════════════════════════════════
-       CAPA DE DATOS — Solo estas 2 funciones tocan el backend.
-       Al migrar o cambiar el servidor, solo editas aquí.
-    ═══════════════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════════
+       CAPA DE DATOS
+    ═══════════════════════════════════════════════════════ */
 
-    /**
-     * fetchComments() — Obtiene todos los comentarios.
-     * Intenta API → cae a localStorage si falla.
-     * @returns {Promise<Array>}
-     */
+    /** Obtiene todos los comentarios de la API (sin caché) */
     async function fetchComments() {
         try {
-            // Bypass browser cache for real-time reads
             const res = await fetch(`${API_BASE}/comments?r=${Date.now()}`, {
-                signal: AbortSignal.timeout(3000) // no esperar más de 3s
+                signal: AbortSignal.timeout(4000)
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
-            // Cachear en localStorage como backup offline
-            localStorage.setItem('pixon_comments', JSON.stringify(data));
+            // Guardar copia offline
+            try { localStorage.setItem('pixon_comments_v3', JSON.stringify(data)); } catch (_) {}
             return data;
         } catch (err) {
-            // Servidor caído o sin conexión → usar localStorage
-            console.info('ℹ️  API no disponible, usando localStorage:', err.message);
-            const raw = localStorage.getItem('pixon_comments');
-            if (raw) return JSON.parse(raw);
-            // Primera vez sin servidor: sembrar comentarios de ejemplo
-            localStorage.setItem('pixon_comments', JSON.stringify(SEED));
+            console.info('API no disponible, usando caché local:', err.message);
+            try {
+                const raw = localStorage.getItem('pixon_comments_v3');
+                if (raw) return JSON.parse(raw);
+            } catch (_) {}
             return [...SEED];
         }
     }
 
-    /**
-     * saveComment(data) — Persiste un comentario nuevo.
-     * Intenta API → cae a localStorage si falla.
-     * @param {{name:string, stars:number, text:string}} data
-     * @returns {Promise<object>}
-     */
+    /** Publica un comentario nuevo en la API */
     async function saveComment(data) {
-        try {
-            const res = await fetch(`${API_BASE}/comments`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-                signal: AbortSignal.timeout(5000)
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            return await res.json();
-        } catch (err) {
-            console.info('ℹ️  Guardando en localStorage:', err.message);
-            const all = JSON.parse(localStorage.getItem('pixon_comments') || '[]');
-            all.push(data);
-            localStorage.setItem('pixon_comments', JSON.stringify(all));
-            return data;
+        const res = await fetch(`${API_BASE}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            signal: AbortSignal.timeout(6000)
+        });
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.errors ? body.errors.join(' ') : `HTTP ${res.status}`);
         }
+        return await res.json();
     }
 
-    /* ═══════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════
        MOTOR DEL CARRUSEL
-       Un solo controlador que funciona en desktop Y móvil.
-       La diferencia: en móvil agregamos drag via pointer events.
-    ═══════════════════════════════════════════════════════════ */
-
-    /**
-     * mountCarousel(container, track) — Monta el carrusel.
-     * @param {HTMLElement} container — .comments-marquee-container (overflow:hidden)
-     * @param {HTMLElement} track    — .comment-list (el grid scrollable)
-     * @returns {{ destroy: Function }}
-     */
+    ═══════════════════════════════════════════════════════ */
     function mountCarousel(container, track) {
         const S = CONFIG.SCROLL_SPEED;
         let paused = false;
-        let rafId = null;
+        let rafId  = null;
         let lastTs = null;
-        let timer = null;
+        let timer  = null;
         let halfWidth = 0;
         let dead = false;
         let lastInteraction = Date.now();
-        let liftedTimer = null;     // Auto-cierre de tarjetas pulsadas
+        let liftedTimer = null;
 
-        // Calcular en el proximo frame para que layout exista
         requestAnimationFrame(() => requestAnimationFrame(() => {
             halfWidth = track.scrollWidth / 2;
         }));
@@ -153,21 +124,18 @@
             const dt = Math.min((ts - lastTs) / 1000, CONFIG.DT_CAP);
             lastTs = ts;
 
-            // Recalcular dinámicamente si cambia el DOM/Ventana (~1 vez por segundo)
+            // Recalcular halfWidth periódicamente
             if (Math.round(ts) % 60 === 0) {
                 halfWidth = track.scrollWidth / 2;
             }
 
-            // Failsafe antimuerte: si está pausado sin arrastrar ni hacer click y pasaron 2s
+            // Failsafe: si está pausado sin arrastrar y pasaron 2s → reanudar
             if (paused && !isDragging && !track.querySelector('.comment-item.lifted')) {
-                if (Date.now() - lastInteraction > 2000) {
-                    paused = false;
-                }
+                if (Date.now() - lastInteraction > 2000) paused = false;
             }
 
             if (!paused && halfWidth > 0) {
                 container.scrollLeft += S * dt;
-                // Margen de -1 para evitar topes nativos del navegador por redondeo
                 if (container.scrollLeft >= halfWidth - 1) {
                     container.scrollLeft -= halfWidth;
                 }
@@ -207,24 +175,17 @@
             isDragging = true;
             dragStartX = e.clientX;
             scrollAtDrag = container.scrollLeft;
-
-            // Quitar tarjetas levantadas inmediatamente si arrastran
-            track.querySelectorAll('.comment-item.lifted')
-                .forEach(c => c.classList.remove('lifted'));
+            track.querySelectorAll('.comment-item.lifted').forEach(c => c.classList.remove('lifted'));
             clearTimeout(liftedTimer);
-
             pause();
             container.setPointerCapture(e.pointerId);
         }
 
         function onPointerMove(e) {
             if (!isDragging) return;
-            // update interaction stamp
             lastInteraction = Date.now();
             const delta = dragStartX - e.clientX;
             let newScroll = scrollAtDrag + delta;
-
-            // Loop manual si arrastra al borde
             if (halfWidth > 0) {
                 if (newScroll >= halfWidth) newScroll -= halfWidth;
                 if (newScroll < 0) newScroll += halfWidth;
@@ -240,12 +201,11 @@
             }
         }
 
-        container.addEventListener('pointerdown', onPointerDown);
-        container.addEventListener('pointermove', onPointerMove);
-        container.addEventListener('pointerup', onPointerUp);
+        container.addEventListener('pointerdown',  onPointerDown);
+        container.addEventListener('pointermove',  onPointerMove);
+        container.addEventListener('pointerup',    onPointerUp);
         container.addEventListener('pointercancel', onPointerUp);
-        // Evitar bug si el mouse sale sin soltar (leave en capturing a veces falla)
-        document.addEventListener('pointerup', onPointerUp);
+        document.addEventListener('pointerup',     onPointerUp);
 
         const cardHandlers = [];
 
@@ -253,34 +213,26 @@
             function onClick(e) {
                 if (isDragging) return;
                 lastInteraction = Date.now();
-
                 const wasLifted = card.classList.contains('lifted');
-                track.querySelectorAll('.comment-item.lifted')
-                    .forEach(c => c.classList.remove('lifted'));
-
+                track.querySelectorAll('.comment-item.lifted').forEach(c => c.classList.remove('lifted'));
                 if (!wasLifted) {
                     card.classList.add('lifted');
                     pause();
                     clearTimeout(liftedTimer);
-
                     setTimeout(() => {
                         const cL = card.offsetLeft;
                         const cW = card.offsetWidth;
                         const sW = container.offsetWidth;
-                        // Centrar forzando un loop safe
                         let targetScroll = cL - (sW / 2) + (cW / 2);
                         if (targetScroll < 0) targetScroll += halfWidth;
                         container.scrollLeft = targetScroll;
                     }, 50);
-
-                    // Autocierre y reanudación después de 3.5 segundos de inactividad
                     liftedTimer = setTimeout(() => {
                         if (card.classList.contains('lifted') && !isDragging) {
                             card.classList.remove('lifted');
                             resume(CONFIG.RESUME_CLICK_MS);
                         }
                     }, 3500);
-
                 } else {
                     clearTimeout(liftedTimer);
                     resume(CONFIG.RESUME_CLICK_MS);
@@ -294,13 +246,13 @@
 
         function onDocClick(e) {
             if (!container.contains(e.target)) {
-                track.querySelectorAll('.comment-item.lifted')
-                    .forEach(c => c.classList.remove('lifted'));
+                track.querySelectorAll('.comment-item.lifted').forEach(c => c.classList.remove('lifted'));
                 resume(400);
             }
         }
         document.addEventListener('click', onDocClick);
 
+        // MutationObserver: adjuntar click a cards nuevas (insertas por SSE)
         const mutObs = new MutationObserver(mutations => {
             mutations.forEach(m => {
                 m.addedNodes.forEach(node => {
@@ -315,18 +267,19 @@
         return {
             pause,
             resume,
+            recalc() { halfWidth = track.scrollWidth / 2; },
             destroy() {
                 dead = true;
                 cancelAnimationFrame(rafId);
                 clearTimeout(timer);
                 mutObs.disconnect();
-                container.removeEventListener('mouseenter', onMouseEnter);
-                container.removeEventListener('mouseleave', onMouseLeave);
+                container.removeEventListener('mouseenter',  onMouseEnter);
+                container.removeEventListener('mouseleave',  onMouseLeave);
                 container.removeEventListener('pointerdown', onPointerDown);
                 container.removeEventListener('pointermove', onPointerMove);
-                container.removeEventListener('pointerup', onPointerUp);
+                container.removeEventListener('pointerup',   onPointerUp);
                 container.removeEventListener('pointercancel', onPointerUp);
-                document.removeEventListener('click', onDocClick);
+                document.removeEventListener('click',     onDocClick);
                 document.removeEventListener('pointerup', onPointerUp);
                 cardHandlers.forEach(({ card, onClick }) =>
                     card.removeEventListener('click', onClick));
@@ -334,27 +287,62 @@
         };
     }
 
-    /* ═══════════════════════════════════════════════════════════
-       PÁGINA: INICIALIZACIÓN
-    ═══════════════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════════
+       HELPERS UI
+    ═══════════════════════════════════════════════════════ */
+    function starsHTML(n) {
+        let html = '';
+        for (let i = 1; i <= 5; i++) {
+            html += i <= n
+                ? '<i class="fa-solid fa-star"></i>'
+                : '<i class="fa-regular fa-star"></i>';
+        }
+        return html;
+    }
+
+    function esc(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function buildCard(c) {
+        const card = document.createElement('div');
+        card.className = 'comment-item';
+        card.dataset.id = c.id || '';
+        card.innerHTML = `
+            <div class="header">
+                <h5>${esc(c.name)}</h5>
+                <div class="stars">${starsHTML(c.stars)}</div>
+            </div>
+            <p>"${esc(c.text)}"</p>
+        `;
+        return card;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       INICIALIZACIÓN
+    ═══════════════════════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', () => {
 
-        /* Referencias al DOM */
-        const commentBox = document.getElementById('commentsBox');
+        const commentBox  = document.getElementById('commentsBox');
         const commentForm = document.getElementById('addCommentForm');
-        const starIcons = document.querySelectorAll('#star-rating i');
-        const container = document.querySelector('.comments-marquee-container');
-        const loadMoreBtn = document.getElementById('loadMoreComments');
+        const starIcons   = document.querySelectorAll('#star-rating i');
+        const container   = document.querySelector('.comments-marquee-container');
+        const liveIndicator = document.getElementById('comments-live-indicator');
 
-        // Salir silenciosamente si los elementos no existen en esta página
         if (!commentBox || !container) return;
 
-        /* Estado de la UI */
+        /* ── Estado ───────────────────────────────────────── */
         let currentRating = 5;
-        let visibleCount = CONFIG.COMMENTS_PER_PAGE;
-        let carousel = null; // referencia al controlador activo
+        let carousel = null;
+        let allComments = [];  // lista maestra en memoria (más recientes primero)
+        let sseSource = null;  // EventSource activo
 
-        /* ── ESTRELLAS interactivas ───────────────────────────── */
+        /* ── Estrellas interactivas ──────────────────────── */
         function paintStars(rating) {
             starIcons.forEach(star => {
                 const val = parseInt(star.getAttribute('data-val'));
@@ -362,7 +350,6 @@
                 star.classList.toggle('active', val <= rating);
             });
         }
-
         starIcons.forEach(star => {
             star.addEventListener('click', () => {
                 currentRating = parseInt(star.getAttribute('data-val'));
@@ -374,95 +361,112 @@
         });
         paintStars(currentRating);
 
-        /* ── HTML de N estrellas ─────────────────────────────── */
-        function starsHTML(n) {
-            let html = '';
-            for (let i = 1; i <= 5; i++) {
-                html += i <= n
-                    ? '<i class="fa-solid fa-star"></i>'
-                    : '<i class="fa-regular fa-star"></i>';
-            }
-            return html;
-        }
-
-        /* ── Sanitizador XSS ─────────────────────────────────── */
-        function esc(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        /* ── RENDER PRINCIPAL ────────────────────────────────────
-           1. Destruye el carrusel previo (evitar memory leaks)
-           2. Obtiene comentarios (API o localStorage)
-           3. Duplica los comentarios exactamente 2x para el loop
-           4. Inyecta en el DOM
-           5. Monta el carrusel
-        ─────────────────────────────────────────────────────── */
-        async function renderComments() {
-            // Destruir el carrusel antes de borrar el DOM
+        /* ── Renderizar el carrusel ──────────────────────── */
+        function renderCarousel(comments) {
             if (carousel) {
                 carousel.destroy();
                 carousel = null;
             }
 
-            const all = await fetchComments();
-            // Más recientes primero
-            const reversed = all.slice().reverse();
-            const toShow = reversed.slice(0, visibleCount);
-
-            // Multiplicamos 8 veces para que funcione incluso en 
-            // monitores Ultra-wide a 50% de zoom. Esto garantiza que 
-            // el contenedor sea inmenso y el límite nativo de scroll
-            // jamás atranque la matemática (scrollLeft >= halfWidth).
-            const toRender = [];
-            for (let i = 0; i < 8; i++) {
-                toRender.push(...toShow);
-            }
-
-            commentBox.innerHTML = '';
-            toRender.forEach(c => {
-                const card = document.createElement('div');
-                card.className = 'comment-item';
-                card.innerHTML = `
-                    <div class="header">
-                        <h5>${esc(c.name)}</h5>
-                        <div class="stars">${starsHTML(c.stars)}</div>
-                    </div>
-                    <p>"${esc(c.text)}"</p>
-                `;
-                commentBox.appendChild(card);
-            });
-
-            // Esperar al siguiente paint para medir scrollWidth
-            setTimeout(() => {
-                carousel = mountCarousel(container, commentBox);
-                if (carousel) carousel.resume(50); // Forzar reanudación instantánea
-            }, 150);
-
-            // Botón "ver más"
-            if (loadMoreBtn) {
-                const hasMore = reversed.length > visibleCount;
-                loadMoreBtn.style.display = hasMore ? 'inline-flex' : 'none';
-                if (hasMore) {
-                    loadMoreBtn.textContent =
-                        `Ver más comentarios (${reversed.length - visibleCount} restantes)`;
+            if (!comments.length) {
+                commentBox.innerHTML = '<div class="comment-item" style="min-width:260px;text-align:center;opacity:0.6;">Sé el primero en comentar 🌟</div>';
+            } else {
+                // Duplicar CONFIG.DUPLICATES veces para el loop infinito
+                commentBox.innerHTML = '';
+                for (let d = 0; d < CONFIG.DUPLICATES; d++) {
+                    comments.forEach(c => commentBox.appendChild(buildCard(c)));
                 }
             }
+
+            setTimeout(() => {
+                carousel = mountCarousel(container, commentBox);
+                if (carousel) carousel.resume(50);
+            }, 150);
         }
 
-        /* ── VER MÁS ─────────────────────────────────────────── */
-        if (loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', () => {
-                visibleCount += CONFIG.COMMENTS_PER_PAGE;
-                renderComments();
-            });
+        /* ── Carga inicial completa ──────────────────────── */
+        async function loadAll() {
+            allComments = await fetchComments();
+            // Los comentarios vienen DESC del servidor (más nuevos primero)
+            // Los mostramos en ese mismo orden en el carrusel
+            renderCarousel(allComments);
         }
 
-        /* ── ENVÍO DEL FORMULARIO ────────────────────────────── */
+        /* ── Insertar un comentario nuevo en tiempo real ─── */
+        function prependComment(newComment) {
+            // Verificar que no sea un duplicado (por id)
+            if (allComments.some(c => c.id === newComment.id)) return;
+
+            allComments.unshift(newComment); // agregar al inicio (más reciente)
+
+            // Guardar en caché local actualizado
+            try { localStorage.setItem('pixon_comments_v3', JSON.stringify(allComments)); } catch (_) {}
+
+            // Re-renderizar el carrusel con el nuevo comentario incluido
+            renderCarousel(allComments);
+        }
+
+        /* ── SSE — Recibir comentarios en tiempo real ────── */
+        function connectSSE() {
+            if (sseSource) {
+                sseSource.close();
+                sseSource = null;
+            }
+
+            try {
+                const streamUrl = `${API_BASE}/comments/stream`;
+                sseSource = new EventSource(streamUrl);
+
+                sseSource.addEventListener('new-comment', (e) => {
+                    try {
+                        const comment = JSON.parse(e.data);
+                        prependComment(comment);
+                        // Flash del indicador "en vivo"
+                        if (liveIndicator) {
+                            liveIndicator.classList.add('pulse-live');
+                            setTimeout(() => liveIndicator.classList.remove('pulse-live'), 1200);
+                        }
+                    } catch (err) {
+                        console.error('SSE parse error:', err);
+                    }
+                });
+
+                sseSource.addEventListener('db-sync', (e) => {
+                    try {
+                        // Recargar todo porque la DB cambió (ej. alguien borró un comentario)
+                        loadAll();
+                        if (liveIndicator) {
+                            liveIndicator.classList.add('pulse-live');
+                            setTimeout(() => liveIndicator.classList.remove('pulse-live'), 1200);
+                        }
+                    } catch (err) {
+                        console.error('SSE db-sync error:', err);
+                    }
+                });
+
+                sseSource.onopen = () => {
+                    if (liveIndicator) {
+                        liveIndicator.style.display = 'inline-flex';
+                        liveIndicator.title = 'Conectado en tiempo real';
+                    }
+                };
+
+                sseSource.onerror = () => {
+                    // SSE no disponible (servidor no está corriendo) — silencioso
+                    if (liveIndicator) liveIndicator.style.display = 'none';
+                    sseSource.close();
+                    sseSource = null;
+                    // Intentar reconectar en 15s
+                    setTimeout(connectSSE, 15000);
+                };
+
+            } catch (err) {
+                // EventSource no soportado o URL inválida — ignorar
+                console.info('SSE no disponible:', err.message);
+            }
+        }
+
+        /* ── ENVÍO DEL FORMULARIO ────────────────────────── */
         if (commentForm) {
             commentForm.addEventListener('submit', async e => {
                 e.preventDefault();
@@ -470,70 +474,82 @@
                 const text = document.getElementById('commenterText').value.trim();
                 if (!name || !text) return;
 
-                // Deshabilitar botón mientras guarda
                 const btn = document.getElementById('submitCommentBtn');
-                if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+                if (btn) { btn.disabled = true; btn.textContent = 'Publicando…'; }
 
-                await saveComment({ name, stars: currentRating, text });
+                try {
+                    // El servidor ya hace el broadcastComment → el SSE propio lo recibirá
+                    // pero prependComment tiene protección de duplicados (por id)
+                    await saveComment({ name, stars: currentRating, text });
 
-                // Reset formulario
-                document.getElementById('commenterName').value = '';
-                document.getElementById('commenterText').value = '';
-                currentRating = 5;
-                paintStars(currentRating);
-                visibleCount = CONFIG.COMMENTS_PER_PAGE;
+                    // Reset formulario
+                    document.getElementById('commenterName').value = '';
+                    document.getElementById('commenterText').value = '';
+                    currentRating = 5;
+                    paintStars(currentRating);
 
-                // Feedback visual de éxito
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '¡Publicado! ✓';
-                    btn.style.background = '#10b981';
-                    setTimeout(() => {
-                        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar Comentario';
-                        btn.style.background = '';
-                    }, 2500);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '¡Publicado! ✓';
+                        btn.style.background = '#10b981';
+                        setTimeout(() => {
+                            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar Comentario';
+                            btn.style.background = '';
+                        }, 2500);
+                    }
+
+                    // Si SSE no está conectado, recargar manualmente
+                    if (!sseSource || sseSource.readyState === EventSource.CLOSED) {
+                        await loadAll();
+                    }
+
+                } catch (err) {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Publicar Comentario'; }
+                    alert('Error al publicar: ' + err.message);
                 }
-
-                renderComments();
             });
         }
 
-        /* ── INICIO LAZY (Rendimiento) ─────────────────────────
-           Solo cargamos/renderizamos si el usuario está cerca.
-           Además, pausamos la animación si sale de la pantalla.
-        ─────────────────────────────────────────────────────── */
+        /* ── INICIO — IntersectionObserver ──────────────── */
         let hasRendered = false;
+
+        function startUp() {
+            if (hasRendered) return;
+            hasRendered = true;
+            loadAll().then(() => connectSSE());
+        }
+
         if ('IntersectionObserver' in window) {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        // Entró a pantalla (o cerca)
-                        if (!hasRendered) {
-                            hasRendered = true;
-                            renderComments();
-                        } else if (carousel) {
-                            carousel.resume(0); // reanuda animacion
-                        }
+                        startUp();
+                        if (carousel) carousel.resume(0);
                     } else {
-                        // Salió de la pantalla: pausa para ahorrar batería/CPU
                         if (carousel) carousel.pause();
                     }
                 });
-            }, { rootMargin: '300px' }); // Actuar 300px antes de llegar
+            }, { rootMargin: '300px' });
 
             const section = document.getElementById('comentarios') || container;
             observer.observe(section);
         } else {
-            // Fallback navegadores viejos
-            renderComments();
+            startUp();
         }
 
-        /* ── RE-INIT AL REDIMENSIONAR ────────────────────────── */
+        /* ── Re-render al redimensionar ────────────────── */
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(renderComments, 350);
+            resizeTimer = setTimeout(() => {
+                if (allComments.length) renderCarousel(allComments);
+            }, 350);
         }, { passive: true });
+
+        /* ── Limpiar SSE al salir ───────────────────────── */
+        window.addEventListener('beforeunload', () => {
+            if (sseSource) sseSource.close();
+        });
     });
 
-})(); // IIFE — encapsula para no contaminar el scope global
+})();

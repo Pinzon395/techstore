@@ -35,7 +35,7 @@ class AlertBox extends HTMLElement {
     connectedCallback() {
         const type = this.getAttribute('type') || 'info';
         const cfg = ALERT_CONFIG[type] || ALERT_CONFIG.info;
-        const text = this.textContent.trim();
+        const text = this.textContent.trim().replace(/\s+/g, ' ');
 
         this.innerHTML = `
             <div style="
