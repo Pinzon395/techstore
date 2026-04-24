@@ -1,163 +1,295 @@
 /**
  * ============================================================
- *  server/database.js  — SQLite via sql.js (WebAssembly)
+ *  server/database.js  — SQLite via better-sqlite3
  * ============================================================
  *
- *  sql.js es SQLite compilado a WebAssembly.
- *  No requiere compilación nativa → funciona en cualquier PC
- *  con Node.js sin dependencias de Visual Studio/MSBuild.
+ *  Migración completada a better-sqlite3.
+ *  Evita el error 'disk image malformed' en Windows y mejora
+ *  drásticamente la concurrencia usando el modo WAL.
  *
- *  La DB se guarda en server/pixon.db como archivo binario.
- *  sql.js la lee al iniciar y la escribe con cada cambio.
- *
- *  TABLAS:
- *  comments   (id, name, stars, text, approved, created_at)
- *
- *  FUTURO marketplace:
- *  products   (id, title, price, stock, image_url, category)
- *  orders     (id, customer, items_json, total, status, date)
- *  users      (id, email, password_hash, role)
+ *  ESQUEMA COMPLETO - FASE 1:
+ *  - users, comments, addresses, products, services
+ *  - cart_items, orders, order_items, reviews
  * ============================================================
  */
 
 'use strict';
 
-const initSqlJs = require('sql.js');
-const fs        = require('fs');
-const path      = require('path');
+const Database = require('better-sqlite3');
+const path = require('path');
+const { EventEmitter } = require('events');
+const crypto = require('crypto');
 
+const dbEmitter = new EventEmitter();
 const DB_PATH = path.join(__dirname, 'pixon.db');
 
-/* Estado del módulo */
-let db   = null;   // instancia de sql.js Database
-let SQL  = null;   // instancia de sql.js (para crear nuevas DBs)
+let db = null;
 
-/* ─────────────────────────────────────────────────────────────
-   GUARDAR EN DISCO — sql.js trabaja en memoria.
-   Llamar esta función después de CADA INSERT/UPDATE/DELETE
-   para persistir los cambios al archivo.
-───────────────────────────────────────────────────────────── */
-let lastModifiedTime = 0;
+function initDB() {
+    // Abrir o crear la base de datos
+    db = new Database(DB_PATH);
+    
+    // Configurar modo WAL (Write-Ahead Logging) para mejor rendimiento/concurrencia y cero bloqueos
+    db.pragma('journal_mode = WAL');
+    
+    console.log('🗄️  Base de datos cargada/creada con better-sqlite3:', DB_PATH);
 
-function saveDB() {
-    const data = db.export(); // Uint8Array de la DB en memoria
-    const tmpPath = DB_PATH + '.tmp';
-    fs.writeFileSync(tmpPath, Buffer.from(data));
-    try {
-        fs.copyFileSync(tmpPath, DB_PATH);
-        fs.unlinkSync(tmpPath);
-    } catch (err) {
-        console.error("Warning: fallback saveDB", err.message);
-        fs.writeFileSync(DB_PATH, Buffer.from(data));
-    }
-    try { lastModifiedTime = fs.statSync(DB_PATH).mtimeMs; } catch (e) {}
-}
-
-function reloadIfExternallyChanged() {
-    try {
-        const stats = fs.statSync(DB_PATH);
-        // Margen de 50ms por precisión de timestamps
-        if (stats.mtimeMs > lastModifiedTime + 50) {
-            console.log("🔄 Archivo DB modificado externamente, recargando a memoria...");
-            const buf = fs.readFileSync(DB_PATH);
-            db = new SQL.Database(buf);
-            lastModifiedTime = stats.mtimeMs;
-            return true;
-        }
-    } catch (e) {}
-    return false;
-}
-
-
-/* ─────────────────────────────────────────────────────────────
-   SEMILLA DE COMENTARIOS
-───────────────────────────────────────────────────────────── */
-const SEED_COMMENTS = [
-    ['Eduardo Álvarez',    5, 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.'],
-    ['Ana Maria Martínez', 5, 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.'],
-    ['Carlos Rodríguez',   5, 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.'],
-    ['Laura Gómez',        5, 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.'],
-];
-
-/* ─────────────────────────────────────────────────────────────
-   INICIALIZACIÓN — Asíncrona porque sql.js carga WASM
-───────────────────────────────────────────────────────────── */
-async function initDB() {
-    SQL = await initSqlJs();
-
-    if (fs.existsSync(DB_PATH)) {
-        // Cargar DB existente desde disco
-        const fileBuffer = fs.readFileSync(DB_PATH);
-        db = new SQL.Database(fileBuffer);
-        console.log('🗄️  Base de datos cargada:', DB_PATH);
-    } else {
-        // Primera vez: crear DB en blanco
-        db = new SQL.Database();
-        console.log('🆕  Base de datos creada:', DB_PATH);
-    }
-
-    // Migraciones — idempotentes
-    db.run(`
-        CREATE TABLE IF NOT EXISTS comments (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            name       TEXT    NOT NULL,
-            stars      INTEGER NOT NULL CHECK(stars BETWEEN 1 AND 5),
-            text       TEXT    NOT NULL,
-            approved   INTEGER NOT NULL DEFAULT 1,
-            created_at TEXT    DEFAULT (datetime('now', 'localtime'))
+    // Crear el Schema Completo (Fase 1 y Futuro)
+    db.exec(`
+        -- 1. Usuarios y Autenticación
+        CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            google_id TEXT UNIQUE,
+            email TEXT UNIQUE NOT NULL,
+            name TEXT,
+            avatar TEXT,
+            role TEXT DEFAULT 'user',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE INDEX IF NOT EXISTS idx_comments_date
-            ON comments(created_at DESC);
+
+        -- 2. Comentarios (Reseñas del inicio - RÍO DE COMENTARIOS)
+        CREATE TABLE IF NOT EXISTS comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            stars INTEGER NOT NULL CHECK(stars BETWEEN 1 AND 5),
+            text TEXT NOT NULL,
+            approved INTEGER NOT NULL DEFAULT 1,
+            user_email TEXT,
+            created_at TEXT DEFAULT (datetime('now', 'localtime'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_comments_date ON comments(created_at DESC);
+
+        -- 3. Direcciones
+        CREATE TABLE IF NOT EXISTS addresses (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            street TEXT,
+            city TEXT,
+            state TEXT,
+            zip TEXT,
+            phone TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
+        -- 4. Productos (Catálogo)
+        CREATE TABLE IF NOT EXISTS products (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT,
+            price REAL NOT NULL,
+            stock INTEGER DEFAULT 0,
+            image_url TEXT,
+            category TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- 5. Servicios
+        CREATE TABLE IF NOT EXISTS services (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            base_price REAL,
+            description TEXT
+        );
+
+        -- 6. Carrito de Compras
+        CREATE TABLE IF NOT EXISTS cart_items (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            product_id TEXT NOT NULL,
+            quantity INTEGER DEFAULT 1,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+        );
+
+        -- 7. Órdenes
+        CREATE TABLE IF NOT EXISTS orders (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            total REAL NOT NULL,
+            status TEXT DEFAULT 'pending', -- pending, paid, shipped, delivered, cancelled
+            shipping_address_id TEXT,
+            stripe_session_id TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+        );
+
+        -- 8. Items de la orden
+        CREATE TABLE IF NOT EXISTS order_items (
+            id TEXT PRIMARY KEY,
+            order_id TEXT NOT NULL,
+            product_id TEXT,
+            service_id TEXT,
+            quantity INTEGER NOT NULL,
+            price_at_time REAL NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+        );
+
+        -- 9. Reseñas de Productos/Servicios
+        CREATE TABLE IF NOT EXISTS reviews (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            product_id TEXT,
+            service_id TEXT,
+            rating INTEGER CHECK(rating BETWEEN 1 AND 5),
+            comment TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
     `);
 
-    // Sembrar si está vacía
-    const result = db.exec('SELECT COUNT(*) as c FROM comments');
-    const cnt    = result[0]?.values[0][0] || 0;
+    // Semilla de comentarios (solo si está vacía)
+    const cnt = db.prepare('SELECT COUNT(*) as c FROM comments').get().c;
     if (cnt === 0) {
-        SEED_COMMENTS.forEach(([name, stars, text]) => {
-            db.run(
-                'INSERT INTO comments (name, stars, text) VALUES (?, ?, ?)',
-                [name, stars, text]
-            );
+        const insertStmt = db.prepare('INSERT INTO comments (name, stars, text) VALUES (?, ?, ?)');
+        const seedComments = [
+            ['Eduardo Álvarez',    5, 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.'],
+            ['Ana Maria Martínez', 5, 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.'],
+            ['Carlos Rodríguez',   5, 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.'],
+            ['Laura Gómez',        5, 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.'],
+        ];
+        
+        const insertMany = db.transaction((comments) => {
+            for (const c of comments) insertStmt.run(c[0], c[1], c[2]);
         });
+        insertMany(seedComments);
         console.log('🌱  Semilla de comentarios insertada.');
     }
 
-    // Guardar el estado inicial en disco
-    saveDB();
+    // MIGRACIÓN: agregar user_email si la columna no existe (bases de datos antiguas)
+    const cols = db.prepare('PRAGMA table_info(comments)').all();
+    if (!cols.some(c => c.name === 'user_email')) {
+        db.exec('ALTER TABLE comments ADD COLUMN user_email TEXT');
+        console.log('🔧  Migración: columna user_email agregada a comments.');
+    }
 
+    // MIGRACIÓN: agregar phone a users
+    const userCols = db.prepare('PRAGMA table_info(users)').all();
+    if (!userCols.some(c => c.name === 'phone')) {
+        db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
+        console.log('🔧  Migración: columna phone agregada a users.');
+    }
+
+    return Promise.resolve(db);
+}
+
+// Exponer instancia de DB pura (útil para better-sqlite3-session-store)
+function getDB() {
     return db;
 }
 
 /* ─────────────────────────────────────────────────────────────
-   OPERACIONES CRUD — Exportadas para usar en server.js
+   OPERACIONES DE USUARIOS
 ───────────────────────────────────────────────────────────── */
 
-/** @returns {Array} Todos los comentarios aprobados, más recientes primero */
+function updateUserProfile(id, { phone }) {
+    if (!id) return false;
+    const info = db.prepare('UPDATE users SET phone = ? WHERE id = ?').run(phone, id);
+    return info.changes > 0;
+}
+
+function getAllUsersAdmin() {
+    return db.prepare('SELECT id, name, email, avatar, role, phone, created_at FROM users ORDER BY created_at DESC').all();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   OPERACIONES DE COMENTARIOS
+───────────────────────────────────────────────────────────── */
+
 function getAllComments() {
-    const res = db.exec(`
+    return db.prepare(`
         SELECT id, name, stars, text, created_at
         FROM comments WHERE approved = 1
         ORDER BY created_at DESC
-    `);
-    if (!res.length) return [];
-    const [cols, ...rows] = [res[0].columns, ...res[0].values];
-    return rows.map(row =>
-        Object.fromEntries(cols.map((col, i) => [col, row[i]]))
-    );
+    `).all();
 }
 
-/** @returns {object} El comentario recién insertado */
-function insertComment({ name, stars, text }) {
-    db.run(
-        'INSERT INTO comments (name, stars, text) VALUES (?, ?, ?)',
-        [name, stars, text]
-    );
-    // Obtener el registro recién creado
-    const res = db.exec('SELECT id, name, stars, text, created_at FROM comments ORDER BY id DESC LIMIT 1');
-    const [cols, row] = [res[0].columns, res[0].values[0]];
-    saveDB(); // ← Persistir en disco después de cada escritura
-    return Object.fromEntries(cols.map((col, i) => [col, row[i]]));
+function insertComment({ name, stars, text, user_email }) {
+    // Los comentarios entran como pendientes (approved=0) hasta que el admin los apruebe
+    const info = db.prepare(
+        'INSERT INTO comments (name, stars, text, approved, user_email) VALUES (?, ?, ?, 0, ?)'
+    ).run(name, stars, text, user_email || null);
+    const newRow = db.prepare(
+        'SELECT id, name, stars, text, approved, user_email, created_at FROM comments WHERE id = ?'
+    ).get(info.lastInsertRowid);
+
+    // NO emitimos 'new-comment' todavía: el admin debe aprobar primero
+    // Notificar solo al admin panel (si está escuchando)
+    dbEmitter.emit('admin-pending', newRow);
+
+    return newRow;
 }
 
-module.exports = { initDB, getAllComments, insertComment, reloadIfExternallyChanged };
+// Útil para un futuro endpoint de borrado desde panel admin
+function deleteComment(id) {
+    const info = db.prepare('DELETE FROM comments WHERE id = ?').run(id);
+    if (info.changes > 0) {
+        dbEmitter.emit('db-sync'); // Fuerza a recargar carrusel en todos los clientes
+    }
+    return info.changes > 0;
+}
+
+// Retorna TODOS los comentarios (pendientes + aprobados) para el panel admin
+// Incluye user_email para trazabilidad
+function getAllCommentsAdmin() {
+    return db.prepare(`
+        SELECT id, name, stars, text, approved, user_email, created_at
+        FROM comments
+        ORDER BY created_at DESC
+    `).all();
+}
+
+// Aprobar un comentario: lo pone visible en el carrusel público
+function approveComment(id) {
+    const info = db.prepare('UPDATE comments SET approved = 1 WHERE id = ?').run(id);
+    if (info.changes > 0) {
+        const comment = db.prepare('SELECT id, name, stars, text, created_at FROM comments WHERE id = ?').get(id);
+        dbEmitter.emit('new-comment', comment); // Transmitir al río de comentarios público
+    }
+    return info.changes > 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   OPERACIONES DE USUARIOS (OAuth)
+───────────────────────────────────────────────────────────── */
+
+function findOrCreateGoogleUser(profile) {
+    let user = db.prepare('SELECT * FROM users WHERE google_id = ?').get(profile.id);
+    const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+    const name = profile.displayName;
+    const avatar = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
+    
+    // Asignar rol admin si el correo coincide con el del .env
+    const role = (email === process.env.ADMIN_EMAIL) ? 'admin' : 'user';
+
+    if (!user) {
+        const newId = crypto.randomUUID();
+        db.prepare('INSERT INTO users (id, google_id, email, name, avatar, role) VALUES (?, ?, ?, ?, ?, ?)')
+          .run(newId, profile.id, email, name, avatar, role);
+        user = db.prepare('SELECT * FROM users WHERE id = ?').get(newId);
+    } else if (user.role !== role || user.avatar !== avatar) {
+        // Actualizar el rol o avatar si cambió
+        db.prepare('UPDATE users SET role = ?, avatar = ? WHERE id = ?').run(role, avatar, user.id);
+        user.role = role;
+        user.avatar = avatar;
+    }
+    return user;
+}
+
+function getUserById(id) {
+    return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+}
+
+module.exports = {
+    initDB,
+    getDB,
+    dbEmitter,
+    getAllComments,
+    getAllCommentsAdmin,
+    insertComment,
+    deleteComment,
+    approveComment,
+    findOrCreateGoogleUser,
+    getUserById,
+    updateUserProfile,
+    getAllUsersAdmin
+};

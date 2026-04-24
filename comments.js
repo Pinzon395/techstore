@@ -466,6 +466,182 @@
             }
         }
 
+        /* ── MODAL DE LOGIN (solo se crea una vez) ──────── */
+        function createLoginModal() {
+            if (document.getElementById('comment-login-modal')) return;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'comment-login-modal';
+            overlay.style.cssText = `
+                position:fixed; inset:0; z-index:99999;
+                background:rgba(2,6,23,0.85);
+                backdrop-filter:blur(12px);
+                -webkit-backdrop-filter:blur(12px);
+                display:flex; align-items:center; justify-content:center;
+                opacity:0; transition:opacity 0.25s ease;
+                padding:20px;
+            `;
+
+            overlay.innerHTML = `
+                <div id="comment-login-card" style="
+                    background:linear-gradient(135deg,rgba(15,23,42,0.98),rgba(30,41,59,0.98));
+                    border:1px solid rgba(99,102,241,0.3);
+                    border-radius:20px;
+                    padding:36px 32px;
+                    max-width:400px; width:100%;
+                    text-align:center;
+                    box-shadow:0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.1);
+                    transform:translateY(20px) scale(0.97);
+                    transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+                    opacity:0;
+                ">
+                    <div style="
+                        width:60px; height:60px; border-radius:50%;
+                        background:linear-gradient(135deg,#6366f1,#2563eb);
+                        display:flex; align-items:center; justify-content:center;
+                        margin:0 auto 18px;
+                        box-shadow:0 8px 24px rgba(99,102,241,0.4);
+                    ">
+                        <i class="fa-solid fa-comment" style="color:#fff;font-size:1.4rem;"></i>
+                    </div>
+                    <h3 style="color:#f1f5f9;font-size:1.25rem;margin:0 0 8px;font-weight:700;">
+                        Inicia sesión para comentar
+                    </h3>
+                    <p style="color:#94a3b8;font-size:0.92rem;line-height:1.6;margin:0 0 24px;">
+                        Tu comentario ya está listo. Solo necesitamos verificar que eres una persona real.<br>
+                        <strong style="color:#c7d2fe;">Se publicará automáticamente</strong> al iniciar sesión.
+                    </p>
+                    <a href="/auth/google" id="modal-google-login-btn" style="
+                        display:flex; align-items:center; justify-content:center; gap:10px;
+                        background:linear-gradient(135deg,#fff,#f8fafc);
+                        color:#1e293b; font-weight:700; font-size:0.95rem;
+                        padding:13px 24px; border-radius:12px;
+                        text-decoration:none;
+                        box-shadow:0 4px 16px rgba(0,0,0,0.3);
+                        transition:transform 0.15s ease, box-shadow 0.15s ease;
+                        border:none; cursor:pointer;
+                    "
+                    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.4)'"
+                    onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(0,0,0,0.3)'"
+                    >
+                        <i class="fa-brands fa-google" style="font-size:1.1rem;color:#4285f4;"></i>
+                        Continuar con Google
+                    </a>
+                    <button id="modal-cancel-btn" style="
+                        display:block; width:100%; margin-top:12px;
+                        background:transparent; border:1px solid rgba(148,163,184,0.2);
+                        color:#64748b; font-size:0.85rem;
+                        padding:9px; border-radius:10px; cursor:pointer;
+                        transition:background 0.15s;
+                    "
+                    onmouseover="this.style.background='rgba(148,163,184,0.1)'"
+                    onmouseout="this.style.background='transparent'"
+                    >
+                        Cancelar — seguir navegando
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            // Animación de entrada
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                const card = document.getElementById('comment-login-card');
+                if (card) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0) scale(1)';
+                }
+            });
+
+            // Cerrar al hacer click en el overlay
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeLoginModal();
+            });
+
+            // Cerrar con botón cancelar
+            document.getElementById('modal-cancel-btn').addEventListener('click', closeLoginModal);
+
+            // Cerrar con Escape
+            document.addEventListener('keydown', function escHandler(e) {
+                if (e.key === 'Escape') {
+                    closeLoginModal();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            });
+        }
+
+        function closeLoginModal() {
+            const overlay = document.getElementById('comment-login-modal');
+            if (!overlay) return;
+            const card = document.getElementById('comment-login-card');
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px) scale(0.97)';
+            }
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 300);
+        }
+
+        /* ── AUTO-SUBMIT: si viene de login con comentario pendiente ── */
+        async function checkPendingComment() {
+            try {
+                const pending = sessionStorage.getItem('pixon_pending_comment');
+                if (!pending) return;
+
+                // Verificar si está autenticado
+                const meRes = await fetch(`${API_BASE}/me`, { credentials: 'include' });
+                const meData = await meRes.json();
+                if (!meData.user) return;
+
+                // Hay sesión Y hay comentario pendiente → auto-submit
+                sessionStorage.removeItem('pixon_pending_comment');
+                const data = JSON.parse(pending);
+
+                // Mostrar banner de "enviando tu comentario..."
+                const btn = document.getElementById('submitCommentBtn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando tu comentario...';
+                }
+
+                await saveComment(data);
+
+                // Rellenar el formulario con los datos (para que el usuario los vea)
+                const nameEl = document.getElementById('commenterName');
+                const textEl = document.getElementById('commenterText');
+                if (nameEl) nameEl.value = data.name;
+                if (textEl) textEl.value = data.text;
+                currentRating = data.stars;
+                paintStars(currentRating);
+
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Comentario enviado! En revisión';
+                    btn.style.background = '#10b981';
+                    btn.style.color = '#fff';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar Comentario';
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        // Limpiar el form
+                        if (nameEl) nameEl.value = '';
+                        if (textEl) textEl.value = '';
+                        currentRating = 5;
+                        paintStars(currentRating);
+                    }, 4000);
+                }
+
+                if (!sseSource || sseSource.readyState === EventSource.CLOSED) {
+                    await loadAll();
+                }
+
+            } catch (err) {
+                console.info('Auto-submit pendiente falló:', err.message);
+                sessionStorage.removeItem('pixon_pending_comment');
+            }
+        }
+
         /* ── ENVÍO DEL FORMULARIO ────────────────────────── */
         if (commentForm) {
             commentForm.addEventListener('submit', async e => {
@@ -475,14 +651,37 @@
                 if (!name || !text) return;
 
                 const btn = document.getElementById('submitCommentBtn');
-                if (btn) { btn.disabled = true; btn.textContent = 'Publicando…'; }
+
+                // Verificar si hay sesión antes de intentar publicar
+                try {
+                    const meRes = await fetch(`${API_BASE}/me`, { credentials: 'include' });
+                    const meData = await meRes.json();
+
+                    if (!meData.user) {
+                        // Sin sesión → guardar en sessionStorage y mostrar modal
+                        sessionStorage.setItem('pixon_pending_comment', JSON.stringify({
+                            name,
+                            stars: currentRating,
+                            text
+                        }));
+                        createLoginModal();
+                        return;
+                    }
+                } catch (_) {
+                    // Si falla el check de sesión, guardar igual y mostrar modal
+                    sessionStorage.setItem('pixon_pending_comment', JSON.stringify({
+                        name, stars: currentRating, text
+                    }));
+                    createLoginModal();
+                    return;
+                }
+
+                // Hay sesión → publicar directamente
+                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publicando…'; }
 
                 try {
-                    // El servidor ya hace el broadcastComment → el SSE propio lo recibirá
-                    // pero prependComment tiene protección de duplicados (por id)
                     await saveComment({ name, stars: currentRating, text });
 
-                    // Reset formulario
                     document.getElementById('commenterName').value = '';
                     document.getElementById('commenterText').value = '';
                     currentRating = 5;
@@ -490,7 +689,7 @@
 
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '¡Publicado! ✓';
+                        btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Publicado! En revisión ✓';
                         btn.style.background = '#10b981';
                         setTimeout(() => {
                             btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar Comentario';
@@ -498,13 +697,12 @@
                         }, 2500);
                     }
 
-                    // Si SSE no está conectado, recargar manualmente
                     if (!sseSource || sseSource.readyState === EventSource.CLOSED) {
                         await loadAll();
                     }
 
                 } catch (err) {
-                    if (btn) { btn.disabled = false; btn.textContent = 'Publicar Comentario'; }
+                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar Comentario'; }
                     alert('Error al publicar: ' + err.message);
                 }
             });
@@ -516,7 +714,10 @@
         function startUp() {
             if (hasRendered) return;
             hasRendered = true;
-            loadAll().then(() => connectSSE());
+            loadAll().then(() => {
+                connectSSE();
+                checkPendingComment(); // Auto-submit si viene de login con comentario pendiente
+            });
         }
 
         if ('IntersectionObserver' in window) {

@@ -55,6 +55,7 @@ const unifiedFooter = `    <footer class="light-footer">
 // Script de WhatsApp que estandariza todo al final del body
 const finalScripts = `<script type="module" src="/script.js"></script>
     <script type="module" src="/comments.js"></script>
+    <script type="module" src="/user-menu.js"></script>
     <!-- ═══ Cookie Banner ═══ -->
     <script type="module" src="/components/cookies/CookieBanner.js"></script>
 </body>`;
@@ -87,10 +88,12 @@ const getNavForPage = (pageName) => {
                 <li><a href="/catalogo" class="nav-links ${isCatalogo}">Catálogo Video</a></li>
                 <li><a href="/preguntas-frecuentes" class="nav-links ${isFAQ}">FAQ</a></li>
                 <li><a href="/contacto" class="nav-links ${isContact}">Contacto</a></li>
+                <li class="nav-auth-mobile-li" id="nav-auth-mobile-li">
+                    <div id="nav-auth-area-mobile"></div>
+                </li>
             </ul>
             <div class="nav-actions">
-                <button onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20me%20gustaría%20cotizar%20un%20servicio%20rápido.')"
-                    class="btn btn-primary">Atención Rápida <i class="fa-brands fa-whatsapp"></i></button>
+                <div id="nav-auth-area"></div>
             </div>
         </div>
     </nav>`;

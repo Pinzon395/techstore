@@ -34,7 +34,7 @@
     /* Slate gray */
 
     /* Typography */
-    --font-heading: 'Fugaz One', cursive;
+    --font-heading: 'Kanit', sans-serif;
     --font-main: 'Red Hat Display', sans-serif;
 
     /* Spacing */
@@ -499,7 +499,8 @@ h3,
 h4,
 h5 {
     font-family: var(--font-heading);
-    font-weight: 400;
+    font-weight: 800;
+    font-style: italic;
     line-height: 1.2;
     margin-bottom: 1rem;
     letter-spacing: 0.5px;
@@ -3737,4 +3738,260 @@ ul {
     transform: scale(0.96) translateY(0);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
     animation: none;
+}
+
+/* =========================================
+   AUTH UI — Botón dinámico en el Navbar
+   (login / usuario / admin)
+========================================= */
+
+/* ── Botón de Iniciar Sesión ── */
+.nav-login-btn {
+    font-size: 0.88rem;
+    padding: 9px 18px;
+    white-space: nowrap;
+}
+
+/* ── Contenedor del usuario logueado (desktop) ── */
+.nav-user-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── Botón tuerca para admin ── */
+.nav-admin-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--primary);
+    background: rgba(59, 130, 246, 0.1);
+    font-size: 1rem;
+    transition: var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.nav-admin-icon:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: rotate(45deg);
+}
+
+/* ── Botón avatar + nombre ── */
+.nav-avatar-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 50px;
+    transition: background 0.2s ease;
+    font-family: var(--font-main);
+    color: var(--text-main);
+}
+
+.nav-avatar-btn:hover {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.nav-avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    flex-shrink: 0;
+}
+
+.nav-user-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-main);
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-chevron {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    transition: transform 0.25s ease;
+}
+
+.nav-avatar-btn[aria-expanded="true"] .nav-chevron {
+    transform: rotate(180deg);
+}
+
+/* ── Dropdown del usuario ── */
+.nav-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 230px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    padding: 8px;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+}
+
+.nav-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.nav-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px 10px;
+}
+
+.nav-dropdown-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(59, 130, 246, 0.2);
+    flex-shrink: 0;
+}
+
+.nav-dropdown-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.nav-dropdown-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-dropdown-email {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.nav-badge-admin {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+.nav-dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+}
+
+.nav-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+    cursor: pointer;
+}
+
+.nav-dropdown-item:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: var(--primary);
+}
+
+.nav-dropdown-logout {
+    color: #ef4444;
+}
+
+.nav-dropdown-logout:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+}
+
+/* ── Mobile: auth dentro del menú hamburguesa ── */
+.nav-auth-mobile-li {
+    display: none; /* oculto en desktop */
+}
+
+.nav-mobile-username {
+    display: block;
+    padding: 8px 0 4px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    margin-top: 4px;
+}
+
+.nav-login-mobile,
+.nav-admin-mobile,
+.nav-logout-mobile {
+    display: block;
+    width: 100%;
+}
+
+.nav-logout-mobile {
+    color: #ef4444 !important;
+}
+
+/* ── Media query: mostrar auth mobile solo en < 769px ── */
+@media (max-width: 768px) {
+    .nav-auth-mobile-li {
+        display: block;
+        padding-top: 4px;
+    }
+
+    /* En mobile el dropdown desktop no existe, ocultarlo */
+    .nav-user-wrapper,
+    .nav-login-btn {
+        display: none !important;
+    }
+}
+
+/* ── Tablet / intermedio (769-960px): admin icon más pequeño ── */
+@media (min-width: 769px) and (max-width: 960px) {
+    .nav-login-btn {
+        font-size: 0.78rem;
+        padding: 8px 12px;
+    }
+
+    .nav-user-name {
+        display: none;
+    }
 }

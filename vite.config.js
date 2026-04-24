@@ -26,8 +26,8 @@ export default defineConfig({
             name: 'clean-url-dev',
             configureServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    // Si la ruta no tiene extensión y no es la raíz o la API, buscar .html
-                    if (req.url && !req.url.includes('.') && req.url !== '/' && !req.url.startsWith('/api')) {
+                    // Si la ruta no tiene extensión y no es la raíz o la API o Auth, buscar .html
+                    if (req.url && !req.url.includes('.') && req.url !== '/' && !req.url.startsWith('/api') && !req.url.startsWith('/auth')) {
                         req.url = req.url + '.html';
                     }
                     next();
@@ -69,6 +69,7 @@ export default defineConfig({
                 garantia:              'garantia.html',
                 notFound:              '404.html',
                 formateoOptimizacion:  'formateo-optimizacion-computadoras-cancun.html',
+                admin:                 'admin.html',
             },
         },
     },
@@ -80,6 +81,10 @@ export default defineConfig({
         port: 5173,
         proxy: {
             '/api': {
+                target:    'http://localhost:3000',
+                changeOrigin: true,
+            },
+            '/auth': {
                 target:    'http://localhost:3000',
                 changeOrigin: true,
             }
