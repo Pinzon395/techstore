@@ -189,7 +189,7 @@ function renderComments() {
                 <div class="card-stars">${starsHtml}</div>
                 <div class="card-date">${date}</div>
             </div>
-            <div class="card-text">${escapeHtml(c.text)}</div>
+            <div class="card-text" onclick="this.classList.toggle('expanded')" title="Haz clic para expandir o contraer">${escapeHtml(c.text)}</div>
             <div class="card-actions">
                 ${!isApproved ? `
                 <button class="btn-admin btn-approve" onclick="approveComment(${c.id})">
