@@ -69,6 +69,7 @@ export default defineConfig({
                 garantia:              'garantia.html',
                 notFound:              '404.html',
                 formateoOptimizacion:  'formateo-optimizacion-computadoras-cancun.html',
+                reparaciones:          'reparaciones.html',
                 admin:                 'admin.html',
             },
         },

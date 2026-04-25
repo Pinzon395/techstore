@@ -33,7 +33,7 @@ const {
 
 const app  = express();
 app.disable('x-powered-by');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 3000) : (process.env.PORT || 3001);
 
 /* ─────────────────────────────────────────────────────────────
    1. INICIALIZAR BASE DE DATOS Y EVENTOS (Síncrono)
@@ -372,6 +372,7 @@ if (process.env.NODE_ENV === 'production') {
         '/privacidad':            'privacidad.html',
         '/garantia':              'garantia.html',
         '/formateo-optimizacion-computadoras-cancun': 'formateo-optimizacion-computadoras-cancun.html',
+        '/reparaciones':          'reparaciones.html',
         '/admin':                 'admin.html',
     };
 
@@ -435,6 +436,7 @@ if (process.env.NODE_ENV === 'production') {
         '/privacidad':            'privacidad.html',
         '/garantia':              'garantia.html',
         '/formateo-optimizacion-computadoras-cancun': 'formateo-optimizacion-computadoras-cancun.html',
+        '/reparaciones':          'reparaciones.html',
         '/admin':                 'admin.html',
     };
 
