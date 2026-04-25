@@ -2,6 +2,17 @@
  * components/alerts/AlertBox.js
  * Web Component reutilizable para alertas visuales tipo info, warning, success.
  * Uso: <alert-box type="warning">Texto aquí</alert-box>
+ * 
+ * =========================================================================
+ * 🔒 COMPONENTE PROTEGIDO - NO MODIFICAR DISEÑO NI ESTRUCTURA 🔒
+ * =========================================================================
+ * Este componente ha sido bloqueado explícitamente para mantener consistencia
+ * visual en la sección de Paquetes Elite y futuras implementaciones.
+ * - NO alterar colores, bordes, espaciados ni tipografía.
+ * - NO modificar las reglas de flexbox ni márgenes.
+ * - NO refactorizar ni eliminar la estructura de shadow/light DOM interno.
+ * Cualquier cambio requiere confirmación explícita del propietario del sitio.
+ * =========================================================================
  */
 
 const ALERT_CONFIG = {
