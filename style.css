@@ -3756,46 +3756,68 @@ ul {
 ========================================= */
 @keyframes card-pulse-scatter {
     0% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.9); /* Más vibrante y visible (aparece más) */
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.9);
     }
     50% {
-        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); /* Menos expansiva (10px en lugar de 16px) */
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
     }
     100% {
         box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
     }
 }
 
-.specialty-card, 
+/* Respiración suave: las cards "respiran" para indicar que son clickeables */
+@keyframes card-breathe {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.018); }
+    100% { transform: scale(1); }
+}
+
+/* Cards secundarias: solo pulse de sombra */
 .home-build-card,
 #btn-diagnostico-clima,
 #btn-metal-liquido,
 #btn-express-24h {
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
     cursor: pointer;
-    animation: card-pulse-scatter 3s infinite;
+    animation: card-pulse-scatter 3s ease-in-out infinite;
 }
 
-/* Animación de ola (latido) uno por uno en la sección de Especialidades */
-#specialtiesContainer .specialty-card:nth-child(1) { animation-delay: 0.0s !important; }
-#specialtiesContainer .specialty-card:nth-child(2) { animation-delay: 0.5s !important; }
-#specialtiesContainer .specialty-card:nth-child(3) { animation-delay: 1.0s !important; }
-#specialtiesContainer .specialty-card:nth-child(4) { animation-delay: 1.5s !important; }
-#specialtiesContainer .specialty-card:nth-child(5) { animation-delay: 2.0s !important; }
-#specialtiesContainer .specialty-card:nth-child(6) { animation-delay: 2.5s !important; }
+/* Specialty cards: pulse de sombra + respiración suave en paralelo */
+.specialty-card {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    cursor: pointer;
+    animation:
+        card-pulse-scatter 3s ease-in-out infinite,
+        card-breathe 4s ease-in-out infinite;
+}
 
-.specialty-card:hover, .home-build-card:hover,
+/* Animación de ola escalonada — pulse delay, breathe delay */
+#specialtiesContainer .specialty-card:nth-child(1) { animation-delay: 0.0s, 0.0s !important; }
+#specialtiesContainer .specialty-card:nth-child(2) { animation-delay: 0.5s, 0.4s !important; }
+#specialtiesContainer .specialty-card:nth-child(3) { animation-delay: 1.0s, 0.8s !important; }
+#specialtiesContainer .specialty-card:nth-child(4) { animation-delay: 1.5s, 1.2s !important; }
+#specialtiesContainer .specialty-card:nth-child(5) { animation-delay: 2.0s, 1.6s !important; }
+#specialtiesContainer .specialty-card:nth-child(6) { animation-delay: 2.5s, 2.0s !important; }
+
+/* Al hacer hover: pausa animaciones y aplica lift limpio */
+.specialty-card:hover {
+    animation: none;
+    transform: translateY(-5px) scale(1);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+}
+.home-build-card:hover,
 #btn-diagnostico-clima:hover, #btn-metal-liquido:hover, #btn-express-24h:hover {
+    animation: none;
     transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
-    /* animation: none; Removido para no perder la sincronía de la cascada */
 }
 
 .specialty-card:active, .home-build-card:active,
 #btn-diagnostico-clima:active, #btn-metal-liquido:active, #btn-express-24h:active {
+    animation: none;
     transform: scale(0.96) translateY(0);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
-    /* animation: none; Removido para no perder la sincronía de la cascada */
 }
 
 /* =========================================
@@ -4052,4 +4074,66 @@ ul {
     .nav-user-name {
         display: none;
     }
+}
+/* Ajustes Hero Desktop y features font-weight solicitados */
+@media (min-width: 900px) {
+    .hero {
+        height: auto !important;
+        min-height: 65vh !important;
+        padding-top: 120px !important;
+        padding-bottom: 40px !important;
+    }
+}
+
+.hero-video-container {
+    position: fixed !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    z-index: -1 !important; /* Para que quede detrás de todo y las demás secciones lo tapen */
+}
+
+/* Evitamos que el header oculte cosas si tuviera overflow hidden estricto en desktop */
+.hero {
+    overflow: visible !important;
+}
+
+.feature-item span {
+    font-weight: 600 !important;
+    letter-spacing: 0.3px;
+}
+
+/* Fix Background Sections to hide fixed video on desktop */
+.section-padding, .services, #galeria, #faq, #contacto {
+    position: relative;
+    z-index: 1;
+    background-color: var(--bg-main);
+}
+
+/* Parallax Global */
+    .hero-video-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 0 !important;
+    }
+    .hero {
+        overflow: visible !important;
+        background: transparent !important;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 2 !important;
+    }
+
+/* Garantizar que TODAS las secciones y footer queden por encima del video fijado */
+section, footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* En caso de que alguna sección no tuviera fondo, forzamos que use el del body */
+section:not([style*="background"]):not(.climate-banner-section) {
+    background-color: var(--bg-main);
 }

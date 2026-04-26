@@ -52,12 +52,15 @@ window.addEventListener('scroll', () => {
         if (currentY > lastScrollY) {
             // Scroll hacia abajo → ocultar
             navbar.style.transform = 'translateY(-100%)';
+            document.body.classList.add('nav-hidden');
         } else {
             // Scroll hacia arriba → mostrar
             navbar.style.transform = 'translateY(0)';
+            document.body.classList.remove('nav-hidden');
         }
     } else {
         navbar.style.transform = 'translateY(0)';
+        document.body.classList.remove('nav-hidden');
     }
     lastScrollY = currentY;
 
@@ -239,7 +242,7 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         window.addEventListener('message', onYouTubeMessageHero);
 
-        // Fallback: Si YouTube tarda mucho o bloquea el evento
+                // Fallback: Si YouTube tarda mucho o bloquea el evento
         setTimeout(() => {
             if (poster && poster.parentNode) {
                 iframe.style.opacity = '1';
@@ -248,6 +251,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 window.removeEventListener('message', onYouTubeMessageHero);
             }
         }, 3500);
+
+        
     }
 });
 
@@ -553,12 +558,13 @@ window.toggleFaq = toggleFaq;
     lenisScript.src = 'https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js';
     lenisScript.onload = () => {
         const lenis = new Lenis({
-            duration: 1.4, // Suavidad extendida tipo Apple
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Curva suave y delicada
+            duration: 1.5,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             direction: 'vertical',
             gestureDirection: 'vertical',
             smooth: true,
             smoothTouch: false,
+            wheelMultiplier: 1,
             touchMultiplier: 2,
         });
 
