@@ -215,44 +215,45 @@ window.addEventListener('DOMContentLoaded', () => {
     const poster = document.getElementById('hero-poster');
     const wrapper = document.getElementById('hero-yt-wrapper');
     if (poster && wrapper) {
-        const iframe = document.createElement('iframe');
-        iframe.src = 'https://www.youtube.com/embed/cbKre_xAFlo?autoplay=1&mute=1&loop=1&playlist=cbKre_xAFlo&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1';
-        iframe.setAttribute('frameborder', '0');
-        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        iframe.setAttribute('allowfullscreen', '');
-        iframe.className = 'bg-video-iframe';
-        iframe.style.opacity = '0';
-        iframe.style.transition = 'opacity 0.8s ease-in-out';
-
-        wrapper.appendChild(iframe);
-
-        const onYouTubeMessageHero = (e) => {
-            if (e.origin !== "https://www.youtube.com") return;
-            try {
-                const data = JSON.parse(e.data);
-                if (data.event === 'infoDelivery' && data.info && data.info.playerState === 1) {
-                    if (e.source === iframe.contentWindow) {
-                        iframe.style.opacity = '1';
-                        poster.style.opacity = '0';
-                        setTimeout(() => poster.remove(), 800);
-                        window.removeEventListener('message', onYouTubeMessageHero);
-                    }
-                }
-            } catch(err) {}
-        };
-        window.addEventListener('message', onYouTubeMessageHero);
-
-                // Fallback: Si YouTube tarda mucho o bloquea el evento
+        // Deferir la carga del iframe del hero video para mejorar el LCP y reducir TBT
         setTimeout(() => {
-            if (poster && poster.parentNode) {
-                iframe.style.opacity = '1';
-                poster.style.opacity = '0';
-                setTimeout(() => poster.remove(), 800);
-                window.removeEventListener('message', onYouTubeMessageHero);
-            }
-        }, 3500);
+            const iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube-nocookie.com/embed/cbKre_xAFlo?autoplay=1&mute=1&loop=1&playlist=cbKre_xAFlo&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1';
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.className = 'bg-video-iframe';
+            iframe.style.opacity = '0';
+            iframe.style.transition = 'opacity 0.8s ease-in-out';
 
-        
+            wrapper.appendChild(iframe);
+
+            const onYouTubeMessageHero = (e) => {
+                if (e.origin !== "https://www.youtube.com") return;
+                try {
+                    const data = JSON.parse(e.data);
+                    if (data.event === 'infoDelivery' && data.info && data.info.playerState === 1) {
+                        if (e.source === iframe.contentWindow) {
+                            iframe.style.opacity = '1';
+                            poster.style.opacity = '0';
+                            setTimeout(() => poster.remove(), 800);
+                            window.removeEventListener('message', onYouTubeMessageHero);
+                        }
+                    }
+                } catch(err) {}
+            };
+            window.addEventListener('message', onYouTubeMessageHero);
+
+            // Fallback: Si YouTube tarda mucho o bloquea el evento
+            setTimeout(() => {
+                if (poster && poster.parentNode) {
+                    iframe.style.opacity = '1';
+                    poster.style.opacity = '0';
+                    setTimeout(() => poster.remove(), 800);
+                    window.removeEventListener('message', onYouTubeMessageHero);
+                }
+            }, 3500);
+        }, 1500); // 1.5s delay to clear the critical rendering path
     }
 });
 
@@ -306,7 +307,7 @@ function loadVideoFromThumb(thumb) {
 
     const iframe = document.createElement('iframe');
     // enablejsapi=1 es crucial para postMessage
-    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1`;
+    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1`;
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
     iframe.setAttribute('allowfullscreen', '');
