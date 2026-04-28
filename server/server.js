@@ -374,6 +374,9 @@ if (process.env.NODE_ENV === 'production') {
         '/formateo-optimizacion-computadoras-cancun': 'formateo-optimizacion-computadoras-cancun.html',
         '/reparaciones':          'reparaciones.html',
         '/admin':                 'admin.html',
+        '/optimizacion':          'optimizacion.html',
+        '/reparacion-bisagras':   'reparacion-bisagras.html',
+        '/reparacion-controles':  'reparacion-controles.html',
     };
 
     app.use(express.static(distPath, { maxAge: '1y', etag: true, index: false }));
@@ -438,6 +441,9 @@ if (process.env.NODE_ENV === 'production') {
         '/formateo-optimizacion-computadoras-cancun': 'formateo-optimizacion-computadoras-cancun.html',
         '/reparaciones':          'reparaciones.html',
         '/admin':                 'admin.html',
+        '/optimizacion':          'optimizacion.html',
+        '/reparacion-bisagras':   'reparacion-bisagras.html',
+        '/reparacion-controles':  'reparacion-controles.html',
     };
 
     app.get('*', (req, res, next) => {

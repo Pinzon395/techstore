@@ -233,10 +233,10 @@
 
 <body>
     <!-- ═══ NAVBAR ═══ -->
-                    <nav class="navbar" id="navbar">
+                                <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <img loading="lazy" src="assets/logos/Logo.svg" alt="Pixon PC Logo" style="height:60px;" id="navbar-logo"
+                <img src="assets/logos/Logo.svg" alt="Pixon PC Logo" style="height:60px;" id="navbar-logo"
                     class="brand-logo">
             </a>
             <div class="menu-toggle" id="mobile-menu">
@@ -943,80 +943,7 @@
     <script type="module" src="/script.js"></script>
     <script type="module" src="/comments.js"></script>
     <script type="module" src="/user-menu.js"></script>
-    <!-- Cookie Banner -->
+    <!-- ═══ Cookie Banner ═══ -->
     <script type="module" src="/components/cookies/CookieBanner.js"></script>
-    <!-- Buscador FAQ con aliases y sinónimos -->
-    <script>
-    (function() {
-        const input = document.getElementById('faq-search-input');
-        const noResults = document.getElementById('faq-no-results');
-        if (!input) return;
-
-        // Mapa de sinónimos: lo que escribe el usuario -> términos que debe encontrar
-        const aliases = [
-            { keys: ['telefono','teléfono','iphone','samsung','android','movil','móvil','smartphone','cel'], target: 'celular' },
-            { keys: ['pc','desktop','computadora','ordenador','torre'], target: 'computadora' },
-            { keys: ['note','portatil','portátil','macbook','mac'], target: 'laptop' },
-            { keys: ['printer','print'], target: 'impresora' },
-            { keys: ['xbox','ps4','ps5','playstation','nintendo','switch','consola'], target: 'consola' },
-            { keys: ['virus','malware','troyano','lento','lenta','lentitud','tarda'], target: 'virus lento rendimiento' },
-            { keys: ['pantalla azul','bsod','reinicia','se apaga','apaga solo'], target: 'diagnostico falla' },
-            { keys: ['no carga','no prende','no enciende','muerta','no arranca'], target: 'carga diagnostico encendido' },
-            { keys: ['garantia','garantía'], target: 'garantía' },
-            { keys: ['domicilio','recoleccion','recolección','entrega','vienen','recogen'], target: 'domicilio recolección' },
-            { keys: ['windows','win10','win11','formateo','formato','reinstalar'], target: 'windows formateo' },
-            { keys: ['precio','cuanto','cuesta','costo','cuánto'], target: 'costo precio' },
-            { keys: ['tiempo','cuanto tarda','cuánto tarda','rapido','rápido','express'], target: 'tiempo express horas' },
-            { keys: ['factura','cfdi','empresa','fiscal'], target: 'factura empresa' },
-            { keys: ['tarjeta','pago','credito','debito','transferencia'], target: 'tarjeta pago' },
-            { keys: ['gamer','gaming','fps','juego','jugar'], target: 'gamer gaming fps' },
-            { keys: ['calor','caliente','temperatura','sobrecalentar','fan','ventilador'], target: 'calor temperatura mantenimiento' },
-            { keys: ['pasta','thermal'], target: 'pasta térmica mantenimiento' },
-            { keys: ['datos','archivos','fotos','backup','respaldo'], target: 'archivos datos respaldo' },
-        ];
-
-        function expandQuery(q) {
-            let terms = new Set([q]);
-            aliases.forEach(function(a) {
-                a.keys.forEach(function(k) {
-                    if (q.includes(k)) a.target.split(' ').forEach(function(t){ terms.add(t); });
-                });
-            });
-            return Array.from(terms);
-        }
-
-        input.addEventListener('input', function() {
-            const raw = this.value.trim().toLowerCase();
-            const queries = raw ? expandQuery(raw) : [];
-            const items = document.querySelectorAll('.faq-item');
-            const categories = document.querySelectorAll('.faq-category-title');
-            let totalVisible = 0;
-
-            items.forEach(function(item) {
-                if (!raw) { item.style.display = ''; totalVisible++; return; }
-                const text = (item.querySelector('span') ? item.querySelector('span').textContent : '').toLowerCase();
-                const answer = (item.querySelector('.faq-answer-inner') ? item.querySelector('.faq-answer-inner').textContent : '').toLowerCase();
-                const combined = text + ' ' + answer;
-                const match = queries.some(function(q){ return combined.includes(q); });
-                item.style.display = match ? '' : 'none';
-                if (match) totalVisible++;
-            });
-
-            categories.forEach(function(cat) {
-                if (!raw) { cat.style.display = ''; return; }
-                var grid = cat.nextElementSibling;
-                var hasVisible = false;
-                if (grid) {
-                    grid.querySelectorAll('.faq-item').forEach(function(it){
-                        if (it.style.display !== 'none') hasVisible = true;
-                    });
-                }
-                cat.style.display = hasVisible ? '' : 'none';
-            });
-
-            if (noResults) noResults.style.display = (totalVisible === 0 && raw) ? 'block' : 'none';
-        });
-    })();
-    </script>
 </body>
 </html>

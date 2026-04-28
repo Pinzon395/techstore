@@ -11,7 +11,7 @@ files.forEach(f => {
     content = content.replace(/href="\/([^"]+)\.html"/g, 'href="/$1"');
     
     // Removes .html from relative links to known pages
-    const pages = ['index', 'paquetes', 'ensambles', 'catalogo', 'comentarios', 'contacto', 'mantenimiento-mac', 'preguntas-frecuentes', 'privacidad', 'garantia', 'formateo-optimizacion-computadoras-cancun'];
+    const pages = ['index', 'paquetes', 'ensambles', 'catalogo', 'comentarios', 'contacto', 'mantenimiento-mac', 'preguntas-frecuentes', 'privacidad', 'garantia', 'formateo-optimizacion-computadoras-cancun', 'optimizacion', 'reparacion-bisagras', 'reparacion-controles'];
     pages.forEach(p => {
         const regex = new RegExp(`href=["']${p}\\.html['"]`, 'g');
         content = content.replace(regex, `href="/${p}"`);
