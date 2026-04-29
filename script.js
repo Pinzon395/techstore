@@ -589,3 +589,44 @@ window.toggleFaq = toggleFaq;
     };
     document.head.appendChild(lenisScript);
 })();
+
+/* ══════════════════════════════════════════════════════════════
+   10. DEEP LINKING SMOOTH SCROLL (Intercepción en carga inicial)
+══════════════════════════════════════════════════════════════ */
+(function initDeepLinkScroll() {
+    if (window.location.hash) {
+        const hash = window.location.hash;
+        
+        // Quitar temporalmente el hash de la URL sin recargar para engañar al navegador y que no salte de golpe
+        window.history.replaceState(null, null, window.location.pathname + window.location.search);
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            // Forzar a estar en el top de la página inmediatamente
+            window.scrollTo(0, 0);
+            
+            // Esperar que la UI dibuje el inicio (ej. 800ms) y luego hacer scroll suave al objetivo
+            setTimeout(() => {
+                const target = document.querySelector(hash);
+                if (target) {
+                    // Mueve el foco también si es necesario
+                    const headerOffset = 100;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    if(window.innerWidth < 768) {
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: "smooth"
+                        });
+                    } else {
+                        // En desktop usa el scrollIntoView normal o la magia nativa si está el offset
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    
+                    // Restaurar el hash en la barra de direcciones 
+                    window.history.pushState(null, null, hash);
+                }
+            }, 800);
+        });
+    }
+})();
