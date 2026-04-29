@@ -36,7 +36,7 @@ const FA_NON_BLOCKING =
 const DNS_HINTS = `    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>\n    <link rel="dns-prefetch" href="//www.googletagmanager.com">\n    <link rel="dns-prefetch" href="//wa.me">\n    <link rel="dns-prefetch" href="//img.youtube.com">`;
 
 // Script to inject before </body>
-const PRIORITY_SCRIPT = `    <!-- ═══ Priority Loader — carga por zona de viewport ═══ -->\n    <script type="module" src="/priority-loader.js"></script>`;
+const PRIORITY_SCRIPT = `    <!-- ═══ Priority Loader — carga por zona de viewport ═══ -->\n    <script type="module" src="/scripts/priority-loader.js"></script>`;
 
 let patched = 0;
 let skipped = 0;

@@ -53,9 +53,9 @@ const unifiedFooter = `    <footer class="light-footer">
     </a>`;
 
 // Script de WhatsApp que estandariza todo al final del body
-const finalScripts = `<script type="module" src="/script.js"></script>
-    <script type="module" src="/comments.js"></script>
-    <script type="module" src="/user-menu.js"></script>
+const finalScripts = `<script type="module" src="/scripts/script.js"></script>
+    <script type="module" src="/scripts/comments.js"></script>
+    <script type="module" src="/scripts/user-menu.js"></script>
     <!-- ═══ Cookie Banner ═══ -->
     <script type="module" src="/components/cookies/CookieBanner.js"></script>
 </body>`;
@@ -123,7 +123,7 @@ files.forEach(f => {
 
     // Replace Scripts (ensure only 1 copy of CookieBanner and script.js at the bottom)
     // We'll clean up just before </body>
-    const scriptsStart = content.indexOf('<script type="module" src="/script.js"></script>');
+    const scriptsStart = content.indexOf('<script type="module" src="/scripts/script.js"></script>');
     if (scriptsStart !== -1 && scriptsStart > content.lastIndexOf('</section>')) {
         content = content.substring(0, scriptsStart).trimEnd() + '\n    ' + finalScripts + '\n</html>';
         // wait html tag is separate. Better approach:
