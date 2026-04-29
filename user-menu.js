@@ -242,9 +242,17 @@ function openProfileModal() {
     }, 10);
 }
 
-// Ejecutar cuando el DOM esté listo
+// Ejecutar cuando el DOM esté listo (Diferido para mejorar Performance / LCP)
+function runAuthUI() {
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initAuthUI);
+    } else {
+        setTimeout(initAuthUI, 200);
+    }
+}
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuthUI);
+    document.addEventListener('DOMContentLoaded', runAuthUI);
 } else {
-    initAuthUI();
+    runAuthUI();
 }

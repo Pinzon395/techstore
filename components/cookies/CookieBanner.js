@@ -268,16 +268,21 @@ function initCookieBanner() {
     initConsentModeDefault();
 
     const pref = getConsentPref();
+    
+    // Función para inyectar con rAF evitando Forced Reflow
+    const safeInject = () => {
+        requestAnimationFrame(() => {
+            injectBannerStyles();
+            mountBanner();
+        });
+    };
+
     if (!pref) {
         /* Primera visita — mostrar banner */
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                injectBannerStyles();
-                mountBanner();
-            });
+            document.addEventListener('DOMContentLoaded', safeInject);
         } else {
-            injectBannerStyles();
-            mountBanner();
+            safeInject();
         }
     } else if (pref === 'all') {
         /* Ya aceptó todo — actualizar consent directamente */
@@ -287,4 +292,13 @@ function initCookieBanner() {
     }
 }
 
-initCookieBanner();
+// Ejecutar cuando el hilo principal esté inactivo para no afectar el LCP
+function runCookieBanner() {
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initCookieBanner);
+    } else {
+        setTimeout(initCookieBanner, 300);
+    }
+}
+
+runCookieBanner();
