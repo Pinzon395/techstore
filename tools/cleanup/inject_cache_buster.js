@@ -30,7 +30,7 @@ const scriptToInject = `
 </script>
 `;
 
-const files = fs.readdirSync(__dirname).filter(f => f.endsWith('.html'));
+const files = fs.readdirSync(process.cwd()).filter(f => f.endsWith('.html'));
 
 let changed = 0;
 files.forEach(f => {
