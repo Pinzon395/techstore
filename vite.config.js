@@ -25,10 +25,36 @@ export default defineConfig({
         {
             name: 'clean-url-dev',
             configureServer(server) {
+                // Mapa de URLs públicas cortas -> ruta del archivo en el repo
+                const urlMap = {
+                    '/paquetes':              '/pages/servicios/paquetes.html',
+                    '/ensambles':             '/pages/servicios/ensambles.html',
+                    '/mantenimiento-mac':     '/pages/servicios/mantenimiento-mac.html',
+                    '/formateo-optimizacion': '/pages/servicios/formateo-optimizacion.html',
+                    '/reparaciones':          '/pages/servicios/reparaciones.html',
+                    '/optimizacion':          '/pages/servicios/optimizacion.html',
+                    '/reparacion-bisagras':   '/pages/servicios/reparacion-bisagras.html',
+                    '/reparacion-controles':  '/pages/servicios/reparacion-controles.html',
+                    '/catalogo':              '/pages/info/catalogo.html',
+                    '/comentarios':           '/pages/info/comentarios.html',
+                    '/contacto':              '/pages/info/contacto.html',
+                    '/preguntas-frecuentes':  '/pages/info/preguntas-frecuentes.html',
+                    '/privacidad':            '/pages/legal/privacidad.html',
+                    '/garantia':              '/pages/legal/garantia.html',
+                    '/admin':                 '/pages/admin/admin.html',
+                };
+
                 server.middlewares.use((req, res, next) => {
-                    // Si la ruta no tiene extensión y no es la raíz o la API o Auth, buscar .html
-                    if (req.url && !req.url.includes('.') && req.url !== '/' && !req.url.startsWith('/api') && !req.url.startsWith('/auth')) {
-                        req.url = req.url + '.html';
+                    if (!req.url) return next();
+                    const [pathOnly, queryStr] = req.url.split('?');
+                    // 1) Mapeo explicito a las nuevas ubicaciones
+                    if (urlMap[pathOnly]) {
+                        req.url = urlMap[pathOnly] + (queryStr ? '?' + queryStr : '');
+                        return next();
+                    }
+                    // 2) Si la ruta no tiene extension y no es la raiz/API/auth, anadir .html
+                    if (!pathOnly.includes('.') && pathOnly !== '/' && !pathOnly.startsWith('/api') && !pathOnly.startsWith('/auth')) {
+                        req.url = pathOnly + '.html' + (queryStr ? '?' + queryStr : '');
                     }
                     next();
                 });
@@ -58,22 +84,22 @@ export default defineConfig({
             // Todas las páginas HTML del sitio
             input: {
                 main:                  'index.html',
-                paquetes:              'paquetes.html',
-                ensambles:             'ensambles.html',
-                catalogo:              'catalogo.html',
-                comentarios:           'comentarios.html',
-                contacto:              'contacto.html',
-                mantenimientoMac:      'mantenimiento-mac.html',
-                preguntasFrecuentes:   'preguntas-frecuentes.html',
-                privacidad:            'privacidad.html',
-                garantia:              'garantia.html',
                 notFound:              '404.html',
-                formateoOptimizacion:  'formateo-optimizacion-computadoras-cancun.html',
-                reparaciones:          'reparaciones.html',
-                admin:                 'admin.html',
-                optimizacion:          'optimizacion.html',
-                reparacionBisagras:    'reparacion-bisagras.html',
-                reparacionControles:   'reparacion-controles.html',
+                paquetes:              'pages/servicios/paquetes.html',
+                ensambles:             'pages/servicios/ensambles.html',
+                mantenimientoMac:      'pages/servicios/mantenimiento-mac.html',
+                formateoOptimizacion:  'pages/servicios/formateo-optimizacion.html',
+                reparaciones:          'pages/servicios/reparaciones.html',
+                optimizacion:          'pages/servicios/optimizacion.html',
+                reparacionBisagras:    'pages/servicios/reparacion-bisagras.html',
+                reparacionControles:   'pages/servicios/reparacion-controles.html',
+                catalogo:              'pages/info/catalogo.html',
+                comentarios:           'pages/info/comentarios.html',
+                contacto:              'pages/info/contacto.html',
+                preguntasFrecuentes:   'pages/info/preguntas-frecuentes.html',
+                privacidad:            'pages/legal/privacidad.html',
+                garantia:              'pages/legal/garantia.html',
+                admin:                 'pages/admin/admin.html',
             },
         },
     },
