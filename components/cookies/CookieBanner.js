@@ -262,22 +262,40 @@ function hideBanner() {
     setTimeout(() => banner.remove(), 350);
 }
 
-/* ── 7. Inicializar ── */
+/* ── 7. Helper: ejecutar en tiempo idle (fallback Safari) ── */
+function whenIdle(cb) {
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(cb, { timeout: 2000 });
+    } else {
+        setTimeout(cb, 1);
+    }
+}
+
+/* ── 8. Inicializar ── */
 function initCookieBanner() {
-    /* Configurar consentimiento por defecto (antes de cualquier tag) */
+    /*
+     * IMPORTANTE: initConsentModeDefault() corre SINCRONO antes de
+     * cualquier tag de Google Analytics/Ads. No puede diferirse a
+     * idle porque GA registraria hits sin el default-denied
+     * establecido (problema de cumplimiento LFPDPPP/GDPR).
+     */
     initConsentModeDefault();
 
     const pref = getConsentPref();
     if (!pref) {
-        /* Primera visita — mostrar banner */
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                injectBannerStyles();
-                mountBanner();
-            });
-        } else {
+        /*
+         * Primera visita — montar banner cuando el navegador este idle
+         * para no colisionar con el calculo de estilos del navegador
+         * en el momento critico de carga (evita forced reflow / TBT).
+         */
+        const showBanner = () => whenIdle(() => {
             injectBannerStyles();
             mountBanner();
+        });
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', showBanner);
+        } else {
+            showBanner();
         }
     } else if (pref === 'all') {
         /* Ya aceptó todo — actualizar consent directamente */

@@ -17,23 +17,48 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-async function initAuthUI() {
-    let user = null;
+/**
+ * Defiere `cb` a tiempo idle del navegador para no robar recursos a la
+ * carga visual de la pagina. Fallback a setTimeout para Safari (no
+ * soporta requestIdleCallback) — el timeout de 2000ms garantiza que
+ * el callback corra como muy tarde 2s despues, incluso si el thread
+ * principal sigue ocupado.
+ */
+function whenIdle(cb) {
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(cb, { timeout: 2000 });
+    } else {
+        setTimeout(cb, 1);
+    }
+}
+
+async function fetchCurrentUser() {
     try {
         const res = await fetch('/api/me');
         const data = await res.json();
-        user = data.user || null;
+        return data.user || null;
     } catch (_) {
-        // API no disponible → mostrar login
+        return null;
     }
+}
 
-    renderDesktopAuth(user);
-    renderMobileAuth(user);
-    
-    // Configurar listeners del modal de perfil si el usuario está logueado
-    if (user) {
-        setupProfileListeners();
-    }
+function initAuthUI() {
+    // 1) Render inmediato del estado "no logueado" — reserva el espacio
+    //    del boton y evita layout shift mientras llega /api/me
+    renderDesktopAuth(null);
+    renderMobileAuth(null);
+
+    // 2) Defiere la llamada a /api/me hasta que el navegador este idle.
+    //    Si hay sesion activa, re-renderiza con el avatar; la mayoria
+    //    de visitas son anonimas y se quedan con el render inicial.
+    whenIdle(async () => {
+        const user = await fetchCurrentUser();
+        if (user) {
+            renderDesktopAuth(user);
+            renderMobileAuth(user);
+            setupProfileListeners();
+        }
+    });
 }
 
 /* ── Desktop: #nav-auth-area ── */
