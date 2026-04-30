@@ -2,32 +2,7 @@
 <html lang="es">
 <head>
 
-<script>
-  // Pixon Cache Buster - Obliga a recargar si la versión cambia
-  (function() {
-    var currentVersion = '2.1.0';
-    var userVersion = localStorage.getItem('pixon_version');
-    if (userVersion !== currentVersion) {
-      localStorage.clear();
-      sessionStorage.clear();
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          for (let name of names) caches.delete(name);
-        });
-      }
-      // Si existiera algún Service Worker viejo (de la PWA anterior), desinstalarlo
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-          }
-        });
-      }
-      localStorage.setItem('pixon_version', currentVersion);
-      window.location.reload(true);
-    }
-  })();
-</script>
+<script defer src="/cache-buster.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -7,31 +7,31 @@
 'use strict';
 
 require('dotenv').config();
-const express  = require('express');
-const cors     = require('cors');
-const path     = require('path');
-const fs       = require('fs');
-const session  = require('express-session');
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const SQLiteStore = require('better-sqlite3-session-store')(session);
 
-const { 
-    initDB, 
-    getDB, 
-    dbEmitter, 
+const {
+    initDB,
+    getDB,
+    dbEmitter,
     getAllComments,
     getAllCommentsAdmin,
     insertComment,
     approveComment,
     deleteComment,
-    findOrCreateGoogleUser, 
+    findOrCreateGoogleUser,
     getUserById,
     updateUserProfile,
     getAllUsersAdmin
 } = require('./database');
 
-const app  = express();
+const app = express();
 app.disable('x-powered-by');
 const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 3000) : (process.env.PORT || 3001);
 
@@ -62,7 +62,7 @@ dbEmitter.on('new-comment', (comment) => {
 dbEmitter.on('db-sync', () => {
     const payload = JSON.stringify({ action: 'reload' });
     for (const client of sseClients) {
-        try { client.res.write(`event: db-sync\ndata: ${payload}\n\n`); } catch(e){}
+        try { client.res.write(`event: db-sync\ndata: ${payload}\n\n`); } catch (e) { }
     }
 });
 
@@ -75,7 +75,7 @@ app.use(express.json({ limit: '10kb' }));
 // Esto permite acceder a localhost:3000 sin Vite (después del OAuth callback)
 if (process.env.NODE_ENV !== 'production') {
     const rootPath = path.join(__dirname, '..');
-    app.use(express.static(rootPath, { 
+    app.use(express.static(rootPath, {
         index: false, // No auto-servir index.html todavía, primero van las rutas API
         maxAge: 0     // Sin cache en desarrollo
     }));
@@ -106,7 +106,7 @@ app.use((req, res, next) => {
 app.set('trust proxy', 1); // <-- CRÍTICO para que la cookie de sesión funcione en producción detrás de Nginx con HTTPS
 app.use(session({
     store: new SQLiteStore({
-        client: getDB(), 
+        client: getDB(),
         expired: {
             clear: true,
             intervalMs: 900000 // Limpia cada 15 min
@@ -115,7 +115,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'default_secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
+    cookie: {
         secure: false, // Evita que la sesión se pierda si el proxy/hosting no pasa el header HTTPS correctamente
         maxAge: 7 * 24 * 60 * 60 * 1000, // 1 semana
         sameSite: 'lax'
@@ -193,7 +193,7 @@ app.post('/api/me/profile', requireAuth, (req, res) => {
     try {
         const { phone } = req.body;
         const cleanPhone = String(phone || '').trim().slice(0, 20);
-        
+
         if (cleanPhone.length < 10) {
             return res.status(400).json({ error: 'Número de celular inválido (mínimo 10 dígitos).' });
         }
@@ -233,7 +233,7 @@ app.get('/api/comments/stream', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); 
+    res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
 
     const clientId = ++sseIdCounter;
@@ -256,15 +256,15 @@ app.post('/api/comments', requireAuth, (req, res) => {
     try {
         const { name, stars, text } = req.body;
 
-        const cleanName  = String(name  || '').trim().slice(0, 60);
-        const cleanText  = String(text  || '').trim().slice(0, 500);
+        const cleanName = String(name || '').trim().slice(0, 60);
+        const cleanText = String(text || '').trim().slice(0, 500);
         const cleanStars = parseInt(stars, 10);
 
         const errors = [];
-        if (cleanName.length < 2)   errors.push('El nombre es muy corto.');
-        if (cleanText.length < 10)  errors.push('El comentario es muy corto.');
+        if (cleanName.length < 2) errors.push('El nombre es muy corto.');
+        if (cleanText.length < 10) errors.push('El comentario es muy corto.');
         if (isNaN(cleanStars) || cleanStars < 1 || cleanStars > 5)
-                                    errors.push('Estrellas invalidas (1-5).');
+            errors.push('Estrellas invalidas (1-5).');
 
         if (errors.length) return res.status(400).json({ errors });
 
@@ -340,7 +340,7 @@ app.get('/api/admin/comments/stream', requireAdmin, (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); 
+    res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
 
     const adminPendingListener = (comment) => {
@@ -361,22 +361,22 @@ if (process.env.NODE_ENV === 'production') {
     const distPath = path.join(__dirname, '../dist');
 
     const pages = {
-        '/':                      'index.html',
-        '/paquetes':              'pages/servicios/paquetes.html',
-        '/ensambles':             'pages/servicios/ensambles.html',
-        '/mantenimiento-mac':     'pages/servicios/mantenimiento-mac.html',
-        '/formateo-optimizacion': 'pages/servicios/formateo-optimizacion.html',
-        '/reparaciones':          'pages/servicios/reparaciones.html',
-        '/optimizacion':          'pages/servicios/optimizacion.html',
-        '/reparacion-bisagras':   'pages/servicios/reparacion-bisagras.html',
-        '/reparacion-controles':  'pages/servicios/reparacion-controles.html',
-        '/catalogo':              'pages/info/catalogo.html',
-        '/comentarios':           'pages/info/comentarios.html',
-        '/contacto':              'pages/info/contacto.html',
-        '/preguntas-frecuentes':  'pages/info/preguntas-frecuentes.html',
-        '/privacidad':            'pages/legal/privacidad.html',
-        '/garantia':              'pages/legal/garantia.html',
-        '/admin':                 'pages/admin/admin.html',
+        '/': 'index.html',
+        '/paquetes': 'pages/servicios/paquetes.html',
+        '/ensambles': 'pages/servicios/ensambles.html',
+        '/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
+        '/instalacion-windows': 'pages/servicios/instalacion-windows.html',
+        '/reparaciones': 'pages/servicios/reparaciones.html',
+        '/optimizacion': 'pages/servicios/optimizacion.html',
+        '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
+        '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
+        '/catalogo': 'pages/info/catalogo.html',
+        '/comentarios': 'pages/info/comentarios.html',
+        '/contacto': 'pages/info/contacto.html',
+        '/preguntas-frecuentes': 'pages/info/preguntas-frecuentes.html',
+        '/privacidad': 'pages/legal/privacidad.html',
+        '/garantia': 'pages/legal/garantia.html',
+        '/admin': 'pages/admin/admin.html',
     };
 
     app.use(express.static(distPath, { maxAge: '1y', etag: true, index: false }));
@@ -428,22 +428,22 @@ if (process.env.NODE_ENV === 'production') {
     const rootPath = path.join(__dirname, '..');
 
     const devPages = {
-        '/':                      'index.html',
-        '/paquetes':              'pages/servicios/paquetes.html',
-        '/ensambles':             'pages/servicios/ensambles.html',
-        '/mantenimiento-mac':     'pages/servicios/mantenimiento-mac.html',
-        '/formateo-optimizacion': 'pages/servicios/formateo-optimizacion.html',
-        '/reparaciones':          'pages/servicios/reparaciones.html',
-        '/optimizacion':          'pages/servicios/optimizacion.html',
-        '/reparacion-bisagras':   'pages/servicios/reparacion-bisagras.html',
-        '/reparacion-controles':  'pages/servicios/reparacion-controles.html',
-        '/catalogo':              'pages/info/catalogo.html',
-        '/comentarios':           'pages/info/comentarios.html',
-        '/contacto':              'pages/info/contacto.html',
-        '/preguntas-frecuentes':  'pages/info/preguntas-frecuentes.html',
-        '/privacidad':            'pages/legal/privacidad.html',
-        '/garantia':              'pages/legal/garantia.html',
-        '/admin':                 'pages/admin/admin.html',
+        '/': 'index.html',
+        '/paquetes': 'pages/servicios/paquetes.html',
+        '/ensambles': 'pages/servicios/ensambles.html',
+        '/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
+        '/instalacion-windows': 'pages/servicios/instalacion-windows.html',
+        '/reparaciones': 'pages/servicios/reparaciones.html',
+        '/optimizacion': 'pages/servicios/optimizacion.html',
+        '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
+        '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
+        '/catalogo': 'pages/info/catalogo.html',
+        '/comentarios': 'pages/info/comentarios.html',
+        '/contacto': 'pages/info/contacto.html',
+        '/preguntas-frecuentes': 'pages/info/preguntas-frecuentes.html',
+        '/privacidad': 'pages/legal/privacidad.html',
+        '/garantia': 'pages/legal/garantia.html',
+        '/admin': 'pages/admin/admin.html',
     };
 
     app.get('*', (req, res, next) => {

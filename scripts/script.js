@@ -135,11 +135,19 @@ if (mobileMenu && navMenu) {
         navMenu.classList.toggle('active');
     });
 
-    /* Cerrar menú al pulsar cualquier enlace */
+    /* Toggle dropdown en móvil y cerrar menú al pulsar enlace normal */
     document.querySelectorAll('.nav-links').forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.remove('active');
-            navMenu.classList.remove('active');
+        link.addEventListener('click', (e) => {
+            const parentLi = link.closest('.has-dropdown');
+            if (parentLi && window.innerWidth < 769) {
+                e.preventDefault();
+                parentLi.classList.toggle('open');
+                const dropdown = parentLi.querySelector('.dropdown-menu');
+                if (dropdown) dropdown.classList.toggle('active');
+            } else {
+                mobileMenu.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
         });
     });
 
@@ -215,6 +223,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const poster = document.getElementById('hero-poster');
     const wrapper = document.getElementById('hero-yt-wrapper');
     if (poster && wrapper) {
+        // En móviles (gama baja/media) el iframe de YouTube drena batería y datos, ralentizando todo.
+        // Optamos por dejar solo el poster de fondo estático.
+        if (window.innerWidth < 768) {
+            return;
+        }
+
         // Deferir la carga del iframe del hero video para mejorar el LCP y reducir TBT
         setTimeout(() => {
             const iframe = document.createElement('iframe');

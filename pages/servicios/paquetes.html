@@ -3,32 +3,7 @@
 
 <head>
 
-    <script>
-        // Pixon Cache Buster - Obliga a recargar si la versión cambia
-        (function () {
-            var currentVersion = '2.1.0';
-            var userVersion = localStorage.getItem('pixon_version');
-            if (userVersion !== currentVersion) {
-                localStorage.clear();
-                sessionStorage.clear();
-                if ('caches' in window) {
-                    caches.keys().then(function (names) {
-                        for (let name of names) caches.delete(name);
-                    });
-                }
-                // Si existiera algún Service Worker viejo (de la PWA anterior), desinstalarlo
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function (registrations) {
-                        for (let registration of registrations) {
-                            registration.unregister();
-                        }
-                    });
-                }
-                localStorage.setItem('pixon_version', currentVersion);
-                window.location.reload(true);
-            }
-        })();
-    </script>
+    <script defer src="/cache-buster.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,10 +57,15 @@
     <link rel="dns-prefetch" href="//www.googletagmanager.com">
     <link rel="dns-prefetch" href="//wa.me">
     <link rel="dns-prefetch" href="//img.youtube.com">
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+    <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap"
+        media="print" onload="this.media='all'">
     <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet">
     </noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         media="print" onload="this.media='all'">
@@ -122,12 +102,36 @@
                 <span class="bar bar-dark"></span>
             </div>
             <ul class="nav-menu">
-                <li><a href="/" class="nav-links ">Inicio</a></li>
-                <li><a href="/paquetes" class="nav-links active-link">Paquetes</a></li>
-                <li><a href="/ensambles" class="nav-links ">Ensambles PC</a></li>
-                <li><a href="/catalogo" class="nav-links ">Catálogo Video</a></li>
-                <li><a href="/preguntas-frecuentes" class="nav-links ">FAQ</a></li>
-                <li><a href="/contacto" class="nav-links ">Contacto</a></li>
+                <li><a href="/" class="nav-links">Inicio</a></li>
+                <li class="has-dropdown">
+                    <a href="#" class="nav-links">Servicios <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/reparaciones">Reparación General</a></li>
+                        <li><a href="/reparacion-bisagras">Reparación Bisagras</a></li>
+                        <li><a href="/reparacion-controles">Reparación Controles</a></li>
+                        <li><a href="/instalacion-windows">Instalación de Windows</a></li>
+                        <li><a href="/mantenimiento-mac">Mantenimiento Mac</a></li>
+                        <li><a href="/ensambles">Ensambles PC Gamer</a></li>
+                    </ul>
+                </li>
+                <li class="has-dropdown">
+                    <a href="#" class="nav-links">Paquetes <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/paquetes">Todos los Paquetes</a></li>
+                        <li><a href="/paquetes?section=paquetes">Mantenimiento Preventivo</a></li>
+                        <li><a href="/instalacion-windows#paquetes-optimizacion">Optimización del Sistema</a></li>
+                    </ul>
+                </li>
+                <li class="has-dropdown">
+                    <a href="#" class="nav-links">Información <i
+                            class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/preguntas-frecuentes">Preguntas Frecuentes</a></li>
+                        <li><a href="/comentarios">Reseñas de Clientes</a></li>
+                        <li><a href="/catalogo">Catálogo de Videos</a></li>
+                    </ul>
+                </li>
+                <li><a href="/contacto" class="nav-links">Contacto</a></li>
                 <li class="nav-auth-mobile-li" id="nav-auth-mobile-li">
                     <div id="nav-auth-area-mobile"></div>
                 </li>
@@ -182,7 +186,10 @@
                                 <p>Equipos de uso cotidiano y ofimática</p>
                             </div>
                             <div class="price">
-                                <p class="price-val" style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">$450 <span class="currency" style="font-size:1rem; font-weight:600; color:var(--text-muted);">MXN</span></p>
+                                <p class="price-val"
+                                    style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">
+                                    $450 <span class="currency"
+                                        style="font-size:1rem; font-weight:600; color:var(--text-muted);">MXN</span></p>
                                 <span style="font-size:0.85rem; color:var(--text-muted);">· pago único</span>
                             </div>
                             <div class="cpu-compat">
@@ -220,7 +227,10 @@
                                 <p>Equipos de uso intensivo y gaming</p>
                             </div>
                             <div class="price">
-                                <p class="price-val" style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">$850 <span class="currency" style="font-size:1rem; font-weight:600; color:var(--text-muted);">MXN</span></p>
+                                <p class="price-val"
+                                    style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">
+                                    $850 <span class="currency"
+                                        style="font-size:1rem; font-weight:600; color:var(--text-muted);">MXN</span></p>
                                 <span style="font-size:0.85rem; color:var(--text-muted);">· pago único</span>
                             </div>
                             <div class="cpu-compat">
@@ -261,7 +271,10 @@
                                 <p>Equipos de alta gama y workstations</p>
                             </div>
                             <div class="price">
-                                <p class="price-val" style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">$1,299 <span class="currency" style="font-size:1rem; font-weight:600; color:var(--text-muted);">MXN</span></p>
+                                <p class="price-val"
+                                    style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">
+                                    $1,299 <span class="currency"
+                                        style="font-size:1rem; font-weight:600; color:var(--text-muted);">MXN</span></p>
                                 <span style="font-size:0.85rem; color:var(--text-muted);">· pago único</span>
                             </div>
                             <div class="cpu-compat">
@@ -314,7 +327,9 @@
                                 <p>Equipos de uso cotidiano y administrativo</p>
                             </div>
                             <div class="price">
-                                <p class="price-val" style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">$2,400</p>
+                                <p class="price-val"
+                                    style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">
+                                    $2,400</p>
                                 <span>MXN · pago único</span>
                             </div>
                             <p class="b2b-calc">$400 por equipo</p>
@@ -356,7 +371,9 @@
                                 <p>Equipos de alta exigencia y software especializado</p>
                             </div>
                             <div class="price">
-                                <p class="price-val" style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">$5,000</p>
+                                <p class="price-val"
+                                    style="font-size:1.8rem; font-weight:800; color:var(--text-main); margin-bottom:0;">
+                                    $5,000</p>
                                 <span>MXN · pago único</span>
                             </div>
                             <p class="b2b-calc">$625 por equipo</p>
@@ -399,7 +416,9 @@
                                 <p>Todo tipo de equipos · Pixon PC como tu área de TI</p>
                             </div>
                             <div class="price">
-                                <p class="price-val" style="font-size:2rem; font-weight:800; color:var(--text-main); margin-bottom:0;">Desde <span style="font-size:2.5rem;">$2,000</span></p>
+                                <p class="price-val"
+                                    style="font-size:2rem; font-weight:800; color:var(--text-main); margin-bottom:0;">
+                                    Desde <span style="font-size:2.5rem;">$2,000</span></p>
                                 <span>MXN/mes · a cotizar según volumen</span>
                             </div>
                             <p class="b2b-calc" style="color:#d97706; font-weight:700;">Precio fijo mensual — cotizar
@@ -434,7 +453,8 @@
         </div>
     </section>
     <!-- ═══ METAL LÍQUIDO ═══ -->
-    <section class="section-padding" id="metal-liquido" style="background:#fff;">
+    <section class="section-padding" id="metal-liquido"
+        style="background: linear-gradient(to bottom, #ffffff 0%, #ffffff calc(100% - 60px), #0F172A 100%);">
         <div class="container">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;"
                 class="metal-liquido-grid">
@@ -484,142 +504,258 @@
             </div>
         </div>
     </section>
-    <!-- ═══ FAQ — PREGUNTAS FRECUENTES ═══ -->
-    <section class="faq-section section-padding" id="faq"
-        aria-label="Preguntas frecuentes sobre reparación de equipos en Cancún">
+    <section id="paquetes-optimizacion"
+        style="background: #0F172A; color: white; position: relative; padding: 20px 0;">
+        <div class="container" style="position: relative; z-index: 2; padding-top: 20px; padding-bottom: 20px;">
+            <div class="section-title text-center">
+                <h2 style="color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Paquetes de Optimización de PC (Vía
+                    Remota Internacional o Presencial)</h2>
+                <p style="color: #cbd5e1;">Servicio técnico online para acelerar Windows, mejorar rendimiento, reducir
+                    latencia y aumentar FPS en juegos. ¡Atendemos a todo el mundo! (Precios en USD).</p>
+            </div>
+
+            <div class="pricing-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px;">
+                <!-- Basic -->
+                <div class="pricing-card pack-basic"
+                    style="background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; position: relative; color: #e2e8f0; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.4)'; this.style.borderColor='rgba(255,255,255,0.3)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='rgba(255,255,255,0.1)';">
+                    <div class="card-header" style="margin-bottom: 20px;">
+                        <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 5px;">Basic Tune-Up Remoto</h3>
+                        <p style="color: #94a3b8; font-size: 0.9rem;">Ideal para acelerar equipos de oficina y estudio
+                            lentos a distancia.</p>
+                    </div>
+                    <div class="price" style="margin-bottom: 20px;">
+                        <h4 style="font-size: 2.5rem; color: #60a5fa; font-weight: 800; margin: 0;">$20 <span
+                                class="currency" style="font-size: 1rem; color: #94a3b8;">USD</span></h4>
+                    </div>
+                    <ul class="pricing-features" style="list-style: none; padding: 0; margin-bottom: 30px;">
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Limpieza profunda
+                            de archivos temporales de Windows</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Desactivación de
+                            programas de inicio y bloatware</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Eliminación de
+                            malware y virus online</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Actualización de
+                            drivers para solucionar lentitud</li>
+                    </ul>
+                    <button class="btn btn-outline"
+                        style="width: 100%; border-color: rgba(255,255,255,0.2); color: white; transition: all 0.3s ease;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.1)';"
+                        onmouseout="this.style.background='transparent';"
+                        onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20el%20paquete%20Basic%20Tune-Up%20Remoto')">Elegir
+                        Basic</button>
+                </div>
+
+                <!-- Pro -->
+                <div class="pricing-card pack-pro"
+                    style="background: rgba(59,130,246,0.1); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid #3b82f6; padding: 30px; position: relative; transform: scale(1.05); box-shadow: 0 0 20px rgba(59,130,246,0.3); color: white; transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                    onmouseover="this.style.transform='scale(1.05) translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(59,130,246,0.5), 0 0 30px rgba(59,130,246,0.4)';"
+                    onmouseout="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 20px rgba(59,130,246,0.3)';">
+                    <div
+                        style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #2563eb, #3b82f6); color: #fff; padding: 6px 20px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; box-shadow: 0 4px 10px rgba(37,99,235,0.5);">
+                        MÁS POPULAR</div>
+                    <div class="card-header" style="margin-bottom: 20px;">
+                        <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 5px;">Pro Gamer Online</h3>
+                        <p style="color: #bfdbfe; font-size: 0.9rem;">Perfecto para maximizar FPS y fluidez en Warzone,
+                            Valorant, Fortnite, etc.</p>
+                    </div>
+                    <div class="price" style="margin-bottom: 20px;">
+                        <h4 style="font-size: 2.5rem; color: #60a5fa; font-weight: 800; margin: 0;">$40 <span
+                                class="currency" style="font-size: 1rem; color: #bfdbfe;">USD</span></h4>
+                    </div>
+                    <ul class="pricing-features" style="list-style: none; padding: 0; margin-bottom: 30px;">
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> <strong>Todo lo
+                                del paquete Basic</strong></li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Debloat profundo
+                            de Windows 10/11 (Quitar procesos inútiles)</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Optimización de
+                            registro y telemetría para más rendimiento</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Configuración de
+                            perfiles de energía ocultos para máximo desempeño</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Reducción de
+                            latencia (Input Lag) y mejora de ping online</li>
+                    </ul>
+                    <button class="btn btn-primary"
+                        style="width: 100%; transition: all 0.3s ease; background: linear-gradient(90deg, #2563eb, #3b82f6); border: none;"
+                        onmouseover="this.style.boxShadow='0 0 15px #3b82f6';" onmouseout="this.style.boxShadow='none';"
+                        onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20el%20paquete%20Pro%20Gamer%20de%20optimizacion%20remota')">Elegir
+                        Pro Gamer</button>
+                </div>
+
+                <!-- Elite -->
+                <div class="pricing-card pack-elite"
+                    style="background: rgba(15,23,42,0.8); border-radius: 16px; border: 1px solid #334155; padding: 30px; position: relative; color: #fff; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.6)'; this.style.borderColor='#60a5fa';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#334155';">
+                    <div class="card-header" style="margin-bottom: 20px;">
+                        <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 5px;">Elite Enthusiast</h3>
+                        <p style="color: #94a3b8; font-size: 0.9rem;">Para los más exigentes. Undervolt, Overclock y
+                            hardware tuning a nivel experto.</p>
+                    </div>
+                    <div class="price" style="margin-bottom: 20px;">
+                        <h4 style="font-size: 2.5rem; color: #60a5fa; font-weight: 800; margin: 0;">$75 <span
+                                class="currency" style="font-size: 1rem; color: #94a3b8;">USD</span></h4>
+                    </div>
+                    <ul class="pricing-features"
+                        style="list-style: none; padding: 0; margin-bottom: 30px; color: #cbd5e1;">
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> <strong>Todo lo
+                                del paquete Pro Gamer</strong></li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Undervolting a
+                            CPU/GPU remoto para bajar temperaturas</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Overclocking
+                            seguro y estable para exprimir tu hardware</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Activación de
+                            XMP/EXPO y Resizable BAR en BIOS</li>
+                        <li
+                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
+                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Creación de curva
+                            de ventiladores personalizada</li>
+                    </ul>
+                    <button class="btn btn-outline"
+                        style="width: 100%; border-color: #60a5fa; color: #60a5fa; transition: all 0.3s ease;"
+                        onmouseover="this.style.background='rgba(96,165,250,0.1)';"
+                        onmouseout="this.style.background='transparent';"
+                        onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20el%20paquete%20Elite%20Enthusiast%20de%20optimizacion%20remota')">Elegir
+                        Elite</button>
+                </div>
+            </div>
+            <p class="text-center mt-4" style="color: #94a3b8; font-size: 0.9rem;"><em>Nota: Si los precios en dólares
+                    americanos no coinciden con tu presupuesto, contáctanos y te damos una cotización local.</em></p>
+        </div>
+    </section>
+
+    <!-- SEO SECTIONS -->
+    <section style="background: linear-gradient(to bottom, #0F172A 0%, #ffffff 80px, #ffffff 100%); padding-top: 100px; padding-bottom: 60px;">
         <div class="container">
-            <div class="section-title text-center" style="margin-bottom:2.5rem;">
-                <h2>Preguntas frecuentes sobre reparación en Cancún</h2>
-                <p>Resolvemos las dudas más comunes sobre reparación de laptops, computadoras, celulares y consolas en
-                    Cancún. Trabajamos con diagnóstico claro, atención directa y garantía real en cada servicio.</p>
+            <div class="row" style="display: flex; flex-wrap: wrap; gap: 40px; margin-bottom: 60px;">
+                <div class="col" style="flex: 1; min-width: 300px;">
+                    <h2 style="font-size: 2rem; color: #0f172a; margin-bottom: 20px;">Optimización de PC Remota: Acelera
+                        tu Windows a Distancia</h2>
+                    <p style="color: #475569; font-size: 1.05rem; line-height: 1.7; margin-bottom: 15px;">
+                        ¿Tu PC o Laptop se siente lenta? No importa en qué país del mundo te encuentres, nuestro
+                        servicio de <strong>optimización de PC remota</strong> soluciona problemas de lentitud extrema.
+                        Eliminamos "Bloatware" (programas preinstalados innecesarios), basura digital y servicios en
+                        segundo plano que asfixian tu procesador y RAM.
+                    </p>
+                    <p style="color: #475569; font-size: 1.05rem; line-height: 1.7;">
+                        Conectándonos de forma segura, un técnico especialista en <strong>aumentar FPS y reducir
+                            latencia</strong> realiza un ajuste fino ("debloat") a tu Windows 10 u 11. Perfecto para
+                        gamers que buscan eliminar el input lag y maximizar los fotogramas por segundo, o profesionales
+                        que necesitan que su equipo vuele.
+                    </p>
+                </div>
+                <div class="col" style="flex: 1; min-width: 300px;">
+                    <h3 style="font-size: 1.5rem; color: #0f172a; margin-bottom: 20px;">Verificación de Hardware
+                        Profesional</h3>
+                    <div style="background: #f8fafc; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                        <p style="color: #475569; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;">
+                            A veces, la lentitud no es solo software. Por eso, en todos nuestros paquetes realizamos una
+                            revisión del estado de salud de tus componentes:
+                        </p>
+                        <ul style="list-style: none; padding: 0; margin: 0; color: #475569; font-size: 0.95rem;">
+                            <li style="margin-bottom: 10px;"><i class="fa-solid fa-hard-drive"
+                                    style="color: #3b82f6; width: 25px;"></i> <strong>Salud del Almacenamiento:</strong>
+                                Detectamos sectores defectuosos en tu HDD o SSD.</li>
+                            <li style="margin-bottom: 10px;"><i class="fa-solid fa-memory"
+                                    style="color: #3b82f6; width: 25px;"></i> <strong>Test de Memoria RAM:</strong>
+                                Evita pantallas azules por RAM defectuosa.</li>
+                            <li><i class="fa-solid fa-temperature-full" style="color: #3b82f6; width: 25px;"></i>
+                                <strong>Temperaturas de CPU/GPU:</strong> Monitoreo para detectar problemas de
+                                enfriamiento.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="faq-grid">
 
-                <!-- FAQ Item 1 -->
-                <div class="faq-item" id="faq-1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span><i class="fa-solid fa-motorcycle faq-q-icon"></i> ¿Ofrecen recolección y servicio a
-                            domicilio para reparación de computadoras en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">
-                            Sí. Ofrecemos <strong>recolección y entrega a domicilio</strong> en Cancún para laptops,
-                            PCs, celulares, consolas e impresoras. Cubrimos Zona Hotelera, Huayacán, Haciendas,
-                            Supermanzanas, Polígono Sur y alrededores. Agenda tu servicio técnico fácilmente por
-                            WhatsApp y vamos por tu equipo.
-                        </div>
-                    </div>
+            <div class="row"
+                style="display: flex; flex-wrap: wrap; gap: 40px; align-items: center; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 40px; border-radius: 24px;">
+                <div class="col" style="flex: 1; min-width: 300px;">
+                    <h2 style="font-size: 2rem; color: #1e3a8a; margin-bottom: 20px;">Servicio Técnico de Software
+                        Online 100% Transparente</h2>
+                    <p style="color: #1e40af; font-size: 1.05rem; line-height: 1.7; margin-bottom: 20px;">
+                        Ofrecemos nuestro servicio de <strong>limpieza de virus, reparación de software y aceleración de
+                            PC de forma 100% remota</strong> a nivel internacional, utilizando herramientas seguras como
+                        TeamViewer o AnyDesk.
+                    </p>
+                    <p style="color: #1e40af; font-size: 1.05rem; line-height: 1.7;">
+                        Tú observas cada clic en tiempo real. Es el equivalente a tener a un experto en optimización
+                        gaming sentado junto a ti, configurando tu registro, perfiles de energía, y eliminando malware
+                        al instante, sin importar en qué ciudad o país residas.
+                    </p>
                 </div>
-
-                <!-- FAQ Item 2 -->
-                <div class="faq-item" id="faq-2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span><i class="fa-solid fa-user-doctor faq-q-icon"></i> ¿El diagnóstico de laptop o computadora
-                            en Cancún tiene costo?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">
-                            No. El diagnóstico de computadoras en Cancún es <strong>gratis y sin compromiso</strong>.
-                            Revisamos tu equipo a detalle, detectamos la falla real y te damos un precio claro antes de
-                            reparar. Si decides no continuar, te devolvemos tu equipo sin costo.
-                        </div>
-                    </div>
+                <div class="col" style="flex: 1; min-width: 300px; text-align: center;">
+                    <i class="fa-solid fa-network-wired" style="font-size: 6rem; color: #3b82f6; opacity: 0.8;"></i>
                 </div>
-
-                <!-- FAQ Item 3 -->
-                <div class="faq-item" id="faq-3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span><i class="fa-solid fa-shield-halved faq-q-icon"></i> ¿Se pierden mis archivos al reparar
-                            mi computadora o laptop?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">
-                            No. Cuidamos tu información en todo momento. No borramos archivos durante diagnósticos ni
-                            mantenimiento. Si el equipo requiere formateo, realizamos un <strong>respaldo profesional de
-                                tus datos</strong> antes de cualquier proceso, siempre con tu autorización.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ Item 4 -->
-                <div class="faq-item" id="faq-4">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span><i class="fa-solid fa-file-invoice faq-q-icon"></i> ¿Aceptan tarjeta y facturan servicios
-                            de reparación en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">
-                            Sí. Aceptamos <strong>tarjetas de crédito, débito y transferencias</strong>. También
-                            emitimos <strong>factura electrónica (CFDI)</strong> para empresas, negocios y clientes que
-                            lo requieran.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ Item 5 -->
-                <div class="faq-item" id="faq-5">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span><i class="fa-regular fa-clock faq-q-icon"></i> ¿Cuánto tarda una reparación de computadora
-                            o laptop en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">
-                            El diagnóstico suele tomar pocas horas. La mayoría de reparaciones se completan en
-                            <strong>24 a 48 horas</strong>, dependiendo del problema. También contamos con
-                            <strong>servicio express</strong> para casos urgentes.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ Item 6 -->
-                <div class="faq-item" id="faq-6">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span><i class="fa-solid fa-file-signature faq-q-icon"></i> ¿Dan garantía en la reparación de
-                            computadoras en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">
-                            Sí. Todos nuestros servicios incluyen <strong>garantía por escrito</strong>, tanto en
-                            mantenimiento como en refacciones instaladas. Trabajamos con procesos profesionales y
-                            respaldo técnico real.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ Item 7 -->
-                <div class="faq-item" id="faq-7">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span><i class="fa-solid fa-cloud-sun-rain faq-q-icon"></i> ¿Por qué las computadoras se dañan
-                            más rápido en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">
-                            El <strong>clima de Cancún afecta directamente a los equipos electrónicos</strong>: la
-                            humedad, el calor y el salitre provocan sulfatación, sobrecalentamiento y fallas internas.
-                            Por eso recomendamos <strong>mantenimiento preventivo cada 6 meses</strong> para evitar
-                            daños mayores.
-                        </div>
-                    </div>
-                </div>
-
             </div>
-            <div style="text-align:center;margin-top:2rem;">
-                <a href="/preguntas-frecuentes" class="btn"
-                    style="background:transparent;border:2px solid #3b82f6;color:#3b82f6;font-weight:700;padding:12px 30px;border-radius:30px;transition:all 0.3s;"
-                    onmouseover="this.style.background='#3b82f6';this.style.color='#fff';"
-                    onmouseout="this.style.background='transparent';this.style.color='#3b82f6';">
-                    Ver más preguntas frecuentes <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
-                </a>
+
+            <div style="margin-top: 60px;">
+                <h3 style="font-size: 1.5rem; color: #0f172a; margin-bottom: 20px; text-align: center;">Beneficios Clave
+                    de una PC Optimizada</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div
+                        style="background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; text-align: center;">
+                        <i class="fa-solid fa-bolt" style="font-size: 2rem; color: #f59e0b; margin-bottom: 15px;"></i>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 10px;">Mayor Fluidez</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">Aplicaciones y navegadores responden de inmediato,
+                            sin trabas frustrantes.</p>
+                    </div>
+                    <div
+                        style="background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; text-align: center;">
+                        <i class="fa-solid fa-gamepad"
+                            style="font-size: 2rem; color: #8b5cf6; margin-bottom: 15px;"></i>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 10px;">FPS Más Altos</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">Eliminamos el stuttering y aumentamos los cuadros
+                            por segundo en tus juegos favoritos.</p>
+                    </div>
+                    <div
+                        style="background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; text-align: center;">
+                        <i class="fa-solid fa-shield-halved"
+                            style="font-size: 2rem; color: #10b981; margin-bottom: 15px;"></i>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 10px;">Mayor Privacidad</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">Desactivamos la telemetría oculta que envía tus
+                            datos de uso y consume ancho de banda.</p>
+                    </div>
+                    <div
+                        style="background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; text-align: center;">
+                        <i class="fa-solid fa-hourglass-start"
+                            style="font-size: 2rem; color: #3b82f6; margin-bottom: 15px;"></i>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 10px;">Inicio Rápido</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">Tu computadora encenderá en segundos y estará
+                            lista para usarse de inmediato.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
+
 
     <!-- ═══ COMENTARIOS ═══ -->
     <section class="comments-section-container section-padding dark-bg" id="comentarios">
@@ -818,12 +954,12 @@
                     <a href="https://wa.me/529986690777"
                         onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20ven%C3%ADa%20de%20la%20web%20y%20quiero%20informaci%C3%B3n')"
                         title="WhatsApp Pixon PC"><i class="fa-brands fa-whatsapp"></i></a>
-                    <a href="https://www.facebook.com/people/Pixon-PC/61556271364935/" aria-label="Facebook Pixon PC" target="_blank"
-                        rel="noopener noreferrer"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/pixonpc/" aria-label="Instagram Pixon PC" target="_blank" rel="noopener noreferrer"><i
-                            class="fa-brands fa-instagram"></i></a>
-                    <a href="https://www.tiktok.com/@pixonpc" aria-label="TikTok Pixon PC" target="_blank" rel="noopener noreferrer"><i
-                            class="fa-brands fa-tiktok"></i></a>
+                    <a href="https://www.facebook.com/people/Pixon-PC/61556271364935/" aria-label="Facebook Pixon PC"
+                        target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/pixonpc/" aria-label="Instagram Pixon PC" target="_blank"
+                        rel="noopener noreferrer"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@pixonpc" aria-label="TikTok Pixon PC" target="_blank"
+                        rel="noopener noreferrer"><i class="fa-brands fa-tiktok"></i></a>
                 </div>
             </div>
         </div>
@@ -845,6 +981,63 @@
     <script type="module" src="/scripts/user-menu.js"></script>
     <!-- ═══ Cookie Banner ═══ -->
     <script type="module" src="/components/cookies/CookieBanner.js"></script>
+    <!-- ═══ SCHEMA PARA SERVICIO INTERNACIONAL (REMOTA) ═══ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Service",
+      "name": "Optimización de PC y Aceleración de Windows a Distancia",
+      "description": "Servicio técnico 100% online y remoto para acelerar Windows 10/11, aumentar FPS, reducir latencia (Input Lag) y eliminar virus. Válido a nivel internacional.",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Pixon PC",
+        "url": "https://pixon.com.mx",
+        "telephone": "+529986690777",
+        "image": "https://pixon.com.mx/assets/logos/Logo.svg",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Cancún",
+          "addressRegion": "Quintana Roo",
+          "addressCountry": "MX"
+        }
+      },
+      "serviceType": "Remote Technical Support",
+      "areaServed": [
+        { "@type": "Country", "name": "Mexico" },
+        { "@type": "Country", "name": "United States" },
+        { "@type": "Country", "name": "Spain" },
+        { "@type": "Country", "name": "Colombia" },
+        { "@type": "Country", "name": "Argentina" },
+        { "@type": "Country", "name": "Chile" },
+        { "@type": "Country", "name": "Peru" }
+      ],
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Basic Tune-Up Remoto",
+          "price": "20",
+          "priceCurrency": "USD",
+          "url": "https://pixon.com.mx/optimizacion",
+          "description": "Limpieza profunda de archivos temporales, desactivación de programas de inicio y bloatware."
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro Gamer Online",
+          "price": "40",
+          "priceCurrency": "USD",
+          "url": "https://pixon.com.mx/optimizacion",
+          "description": "Debloat profundo de Windows, optimización de registro, perfiles de energía para máximo desempeño y reducción de latencia (Input Lag)."
+        },
+        {
+          "@type": "Offer",
+          "name": "Elite Enthusiast",
+          "price": "75",
+          "priceCurrency": "USD",
+          "url": "https://pixon.com.mx/optimizacion",
+          "description": "Todo lo del paquete Pro Gamer más Undervolting a CPU/GPU, Overclocking seguro y Activación de XMP/EXPO."
+        }
+      ]
+    }
+    </script>
 </body>
-
 </html>

@@ -3,32 +3,7 @@
 
 <head>
 
-    <script>
-        // Pixon Cache Buster - Obliga a recargar si la versión cambia
-        (function () {
-            var currentVersion = '2.1.0';
-            var userVersion = localStorage.getItem('pixon_version');
-            if (userVersion !== currentVersion) {
-                localStorage.clear();
-                sessionStorage.clear();
-                if ('caches' in window) {
-                    caches.keys().then(function (names) {
-                        for (let name of names) caches.delete(name);
-                    });
-                }
-                // Si existiera algún Service Worker viejo (de la PWA anterior), desinstalarlo
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function (registrations) {
-                        for (let registration of registrations) {
-                            registration.unregister();
-                        }
-                    });
-                }
-                localStorage.setItem('pixon_version', currentVersion);
-                window.location.reload(true);
-            }
-        })();
-    </script>
+    <script defer src="/cache-buster.js"></script>
 
     <!-- ═══ META BÁSICOS ═══ -->
     <meta charset="UTF-8">
@@ -105,42 +80,45 @@
     </noscript>
     <link rel="stylesheet" href="/styles/style.css">
 
-    <!-- ═══ SCHEMA.ORG Organization (requerido por Google para mostrar logo) ═══ -->
+    <!-- ═══ WEBSITE + SEARCHACTION (sitelinks searchbox) ═══ -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": "WebSite",
       "name": "Pixon PC",
+      "url": "https://pixon.com.mx/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://pixon.com.mx/?s={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- ═══ SCHEMA.ORG LocalBusiness + ProfessionalService (incluye Organization, logo, sameAs) ═══ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["LocalBusiness", "ProfessionalService"],
+      "@id": "https://pixon.com.mx/#business",
+      "name": "Pixon PC",
+      "description": "Reparación de computadoras, laptops, celulares e impresoras en Cancún. Mantenimiento preventivo, ensamble de PCs gamer y soporte B2B empresarial. Garantía por escrito. English Spoken.",
       "url": "https://pixon.com.mx",
+      "telephone": "+529986690777",
+      "priceRange": "$$",
+      "image": "https://pixon.com.mx/LOGOCIRCULAR.png",
       "logo": {
         "@type": "ImageObject",
         "url": "https://pixon.com.mx/LOGOCIRCULAR.png",
         "width": 512,
         "height": 512
       },
-      "sameAs": [
-        "https://www.facebook.com/people/Pixon-PC/61556271364935/",
-        "https://www.instagram.com/pixonpc/",
-        "https://www.tiktok.com/@pixonpc",
-        "https://www.youtube.com/@pixonpc"
-      ]
-    }
-    </script>
-
-    <!-- ═══ SCHEMA.ORG (Google Local Business) + FAQ ═══ -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Pixon PC",
-      "description": "Reparación de computadoras, laptops, celulares e impresoras en Cancún. Mantenimiento preventivo, ensamble de PCs gamer y soporte B2B empresarial. Garantía por escrito. English Spoken.",
-      "url": "https://pixon.com.mx",
-      "telephone": "+529986690777",
-      "image": "https://pixon.com.mx/LOGOCIRCULAR.png",
-      "logo": "https://pixon.com.mx/LOGOCIRCULAR.png",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Haciendas",
+        "streetAddress": "Fraccionamiento Haciendas",
         "addressLocality": "Cancún",
         "addressRegion": "Quintana Roo",
         "postalCode": "77539",
@@ -322,12 +300,36 @@
                 <span class="bar bar-dark"></span>
             </div>
             <ul class="nav-menu">
-                <li><a href="/" class="nav-links active-link">Inicio</a></li>
-                <li><a href="/paquetes" class="nav-links ">Paquetes</a></li>
-                <li><a href="/ensambles" class="nav-links ">Ensambles PC</a></li>
-                <li><a href="/catalogo" class="nav-links ">Catálogo Video</a></li>
-                <li><a href="/preguntas-frecuentes" class="nav-links ">FAQ</a></li>
-                <li><a href="/contacto" class="nav-links ">Contacto</a></li>
+                <li><a href="/" class="nav-links">Inicio</a></li>
+                <li class="has-dropdown">
+                    <a href="#" class="nav-links">Servicios <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/reparaciones">Reparación General</a></li>
+                        <li><a href="/reparacion-bisagras">Reparación Bisagras</a></li>
+                        <li><a href="/reparacion-controles">Reparación Controles</a></li>
+                        <li><a href="/instalacion-windows">Instalación de Windows</a></li>
+                        <li><a href="/mantenimiento-mac">Mantenimiento Mac</a></li>
+                        <li><a href="/ensambles">Ensambles PC Gamer</a></li>
+                    </ul>
+                </li>
+                <li class="has-dropdown">
+                    <a href="#" class="nav-links">Paquetes <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/paquetes">Todos los Paquetes</a></li>
+                        <li><a href="/paquetes?section=paquetes">Mantenimiento Preventivo</a></li>
+                        <li><a href="/instalacion-windows#paquetes-optimizacion">Optimización del Sistema</a></li>
+                    </ul>
+                </li>
+                <li class="has-dropdown">
+                    <a href="#" class="nav-links">Información <i
+                            class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/preguntas-frecuentes">Preguntas Frecuentes</a></li>
+                        <li><a href="/comentarios">Reseñas de Clientes</a></li>
+                        <li><a href="/catalogo">Catálogo de Videos</a></li>
+                    </ul>
+                </li>
+                <li><a href="/contacto" class="nav-links">Contacto</a></li>
                 <li class="nav-auth-mobile-li" id="nav-auth-mobile-li">
                     <div id="nav-auth-area-mobile"></div>
                 </li>
@@ -662,8 +664,9 @@
                     style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative; height: 100%; min-height: 300px;">
                     <span
                         style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; z-index: 10;">ANTES</span>
-                    <img src="/assets/images/AntesBisagra.jpg" alt="Bisagra de laptop rota en Cancún - Pixon PC"
-                        width="1170" height="1557" style="width: 100%; height: 100%; object-fit: cover; display:block;">
+                    <img loading="lazy" src="/assets/images/AntesBisagra.jpg"
+                        alt="Bisagra de laptop rota en Cancún - Pixon PC" width="1170" height="1557"
+                        style="width: 100%; height: 100%; object-fit: cover; display:block;">
                 </div>
 
                 <!-- DESPUÉS -->
@@ -671,7 +674,7 @@
                     style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative; height: 100%; min-height: 300px; border: 2px solid #10b981;">
                     <span
                         style="position: absolute; top: 10px; left: 10px; background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; z-index: 10;">DESPUÉS</span>
-                    <img src="/assets/images/DespuesBisagra.jpg"
+                    <img loading="lazy" src="/assets/images/DespuesBisagra.jpg"
                         alt="Bisagra de laptop reconstruida con resina - Pixon PC Cancún" width="1170" height="1557"
                         style="width: 100%; height: 100%; object-fit: cover; display:block;">
                 </div>
@@ -926,7 +929,7 @@
                 </div>
 
                 <div class="express-banner-card" id="express-card-software"
-                    onclick="window.location.href='/formateo-optimizacion'" style="cursor:pointer;">
+                    onclick="window.location.href='/instalacion-windows'" style="cursor:pointer;">
                     <div class="express-card-icon" style="color:#8b5cf6; background:rgba(139,92,246,0.15);">
                         <i class="fa-solid fa-gear"></i>
                     </div>
@@ -937,7 +940,7 @@
                         <p>Eliminación de virus e instalación limpia de Windows. Tu computadora rápida como el primer
                             día.</p>
                         <div style="margin-top:15px;">
-                            <a href="/formateo-optimizacion" class="card-cta-btn" id="btn-formateo-windows">
+                            <a href="/instalacion-windows" class="card-cta-btn" id="btn-formateo-windows">
                                 Conocer formateo y optimización <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
