@@ -8,6 +8,7 @@
 
 require('dotenv').config();
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -69,6 +70,18 @@ dbEmitter.on('db-sync', () => {
 /* ─────────────────────────────────────────────────────────────
    2. MIDDLEWARES GLOBALES
 ───────────────────────────────────────────────────────────── */
+// gzip/deflate para todas las respuestas — reduce 70-85% el peso de HTML/CSS/JS
+// que viaja al cliente. La descompresión la hace el navegador.
+app.use(compression({
+    threshold: 1024,           // No comprimir respuestas <1KB (overhead innecesario)
+    level: 6,                  // Balance entre CPU y ratio de compresión (1-9)
+    filter: (req, res) => {
+        // Respeta el header del cliente cuando pide explícitamente sin compresión
+        if (req.headers['x-no-compression']) return false;
+        return compression.filter(req, res);
+    }
+}));
+
 app.use(express.json({ limit: '10kb' }));
 
 // En desarrollo, servir los archivos del proyecto directamente desde la raíz
@@ -370,6 +383,7 @@ if (process.env.NODE_ENV === 'production') {
         '/reparaciones': 'pages/servicios/reparaciones.html',
         '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
         '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
+        '/optimizacion': 'pages/servicios/optimizacion.html',
         '/catalogo': 'pages/info/catalogo.html',
         '/comentarios': 'pages/info/comentarios.html',
         '/contacto': 'pages/info/contacto.html',
@@ -379,16 +393,37 @@ if (process.env.NODE_ENV === 'production') {
         '/admin': 'pages/admin/admin.html',
     };
 
-    // Redirects 301 — URLs viejas consolidadas en /instalacion-windows
-    const legacyRedirects = ['/optimizacion', '/formateo-optimizacion'];
+    // Redirects 301 — URLs viejas consolidadas
+    const legacyRedirects = ['/formateo-optimizacion'];
     legacyRedirects.forEach(oldPath => {
         app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
     });
 
-    app.use(express.static(distPath, { maxAge: '1y', etag: true, index: false }));
+    // express.static sirve los assets bajo /assets/* con hash inmutable.
+    // Cache muy larga porque Vite genera nuevos nombres de archivo en cada build.
+    app.use(express.static(distPath, {
+        maxAge: '1y',
+        etag: true,
+        index: false,
+        setHeaders: (res, filePath) => {
+            // Normalizar separador en Windows para que los regex funcionen igual
+            const p = filePath.replace(/\\/g, '/');
+            // Assets de Vite con hash en el nombre → immutable seguro
+            if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/.test(p)) {
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            } else if (/\/(styles|scripts|components)\/.+\.(js|css|mjs)$/i.test(p)) {
+                // JS/CSS sin hash (cache-buster.js limpia localStorage al subir versión)
+                res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+            } else if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(p)) {
+                // Imágenes y fuentes → 1 día browser, 1 semana CDN
+                res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800');
+            }
+        }
+    }));
 
     app.get('/robots.txt', (_req, res) => {
         const file = path.join(distPath, 'robots.txt');
+        res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
         if (fs.existsSync(file)) {
             res.type('text/plain').sendFile(file);
         } else {
@@ -398,6 +433,7 @@ if (process.env.NODE_ENV === 'production') {
 
     app.get('/sitemap.xml', (_req, res) => {
         const file = path.join(distPath, 'sitemap.xml');
+        res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
         if (fs.existsSync(file)) {
             res.type('application/xml').sendFile(file);
         } else {
@@ -408,12 +444,13 @@ if (process.env.NODE_ENV === 'production') {
     app.get('*', (req, res, next) => {
         if (req.path.startsWith('/api') || req.path.startsWith('/auth')) return next();
 
+        // Páginas HTML: se cachean en Cloudflare 24h (s-maxage) y en navegador 10min.
+        // stale-while-revalidate permite servir respuesta previa mientras se revalida en
+        // background, sin bloquear al cliente. cache-buster.js limpia caches del cliente
+        // al cambiar la versión, así que es seguro cachear el HTML.
         const sendFileOptions = {
             headers: {
-                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0',
-                'Surrogate-Control': 'no-store'
+                'Cache-Control': 'public, max-age=600, s-maxage=86400, stale-while-revalidate=86400'
             }
         };
 
@@ -443,6 +480,7 @@ if (process.env.NODE_ENV === 'production') {
         '/reparaciones': 'pages/servicios/reparaciones.html',
         '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
         '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
+        '/optimizacion': 'pages/servicios/optimizacion.html',
         '/catalogo': 'pages/info/catalogo.html',
         '/comentarios': 'pages/info/comentarios.html',
         '/contacto': 'pages/info/contacto.html',
@@ -452,8 +490,8 @@ if (process.env.NODE_ENV === 'production') {
         '/admin': 'pages/admin/admin.html',
     };
 
-    // Redirects 301 — URLs viejas consolidadas en /instalacion-windows
-    const legacyDevRedirects = ['/optimizacion', '/formateo-optimizacion'];
+    // Redirects 301 — URLs viejas consolidadas
+    const legacyDevRedirects = ['/formateo-optimizacion'];
     legacyDevRedirects.forEach(oldPath => {
         app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
     });

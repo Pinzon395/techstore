@@ -564,44 +564,40 @@ window.toggleFaq = toggleFaq;
 
 /* ══════════════════════════════════════════════════════════════
    9. LENIS SMOOTH SCROLL (Apple-like Momentum Scrolling)
+   Bundleado localmente vía npm — sin fetch a unpkg, queda con
+   cache-control immutable 1 año en /assets/ con hash de Vite.
 ══════════════════════════════════════════════════════════════ */
-(function initLenis() {
+(async function initLenis() {
     // Evitar cargar en móviles porque el scroll nativo táctil ya es perfecto
     if (window.innerWidth < 768) return;
 
-    const lenisScript = document.createElement('script');
-    lenisScript.src = 'https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js';
-    lenisScript.onload = () => {
-        const lenis = new Lenis({
-            duration: 1.5,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            smooth: true,
-            smoothTouch: false,
-            wheelMultiplier: 1,
-            touchMultiplier: 2,
-        });
+    const { default: Lenis } = await import('lenis');
 
-        // Loop de animación
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
+    const lenis = new Lenis({
+        duration: 1.5,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        syncTouch: false,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
+    });
+
+    function raf(time) {
+        lenis.raf(time);
         requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
 
-        // Conectar Lenis con los enlaces internos (#) para que el salto también sea suave
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const targetId = this.getAttribute('href');
-                if (targetId !== '#') {
-                    e.preventDefault();
-                    lenis.scrollTo(targetId, { duration: 1.5 });
-                }
-            });
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href');
+            if (targetId !== '#') {
+                e.preventDefault();
+                lenis.scrollTo(targetId, { duration: 1.5 });
+            }
         });
-    };
-    document.head.appendChild(lenisScript);
+    });
 })();
 
 /* ══════════════════════════════════════════════════════════════
