@@ -44,40 +44,50 @@ const ALERT_CONFIG = {
 
 class AlertBox extends HTMLElement {
     connectedCallback() {
-        const type = this.getAttribute('type') || 'info';
-        const cfg = ALERT_CONFIG[type] || ALERT_CONFIG.info;
-        const text = this.textContent.trim().replace(/\s+/g, ' ');
+        if (this.hasAttribute('rendered')) return;
+        
+        // Wait a tick to ensure inner text is parsed if created dynamically
+        setTimeout(() => {
+            if (this.hasAttribute('rendered')) return;
+            this.setAttribute('rendered', 'true');
+            
+            const type = this.getAttribute('type') || 'info';
+            const cfg = ALERT_CONFIG[type] || ALERT_CONFIG.info;
+            
+            // Get original text before replacing innerHTML
+            const originalText = this.textContent.trim().replace(/\s+/g, ' ');
 
-        this.innerHTML = `
-            <div style="
-                display:flex;
-                align-items:flex-start;
-                gap:10px;
-                background:${cfg.bg};
-                border:1px solid ${cfg.border};
-                border-radius:10px;
-                padding:10px 14px;
-                margin-bottom:10px;
-                font-size:0.83rem;
-                color:${cfg.color};
-                font-weight:600;
-                line-height:1.5;
-            ">
-                <span style="
+            this.innerHTML = `
+                <div style="
                     display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    background:${cfg.iconBg};
-                    border-radius:50%;
-                    width:26px;
-                    height:26px;
-                    flex-shrink:0;
-                    margin-top:1px;
+                    align-items:flex-start;
+                    gap:10px;
+                    background:${cfg.bg};
+                    border:1px solid ${cfg.border};
+                    border-radius:10px;
+                    padding:10px 14px;
+                    margin-bottom:10px;
+                    font-size:0.83rem;
+                    color:${cfg.color};
+                    font-weight:600;
+                    line-height:1.5;
                 ">
-                    <i class="fa-solid ${cfg.icon}" style="color:${cfg.iconColor}; font-size:0.8rem;"></i>
-                </span>
-                <span>${text}</span>
-            </div>`;
+                    <span style="
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        background:${cfg.iconBg};
+                        border-radius:50%;
+                        width:26px;
+                        height:26px;
+                        flex-shrink:0;
+                        margin-top:1px;
+                    ">
+                        <i class="fa-solid ${cfg.icon}" style="color:${cfg.iconColor}; font-size:0.8rem;"></i>
+                    </span>
+                    <span>${originalText}</span>
+                </div>`;
+        }, 0);
     }
 }
 

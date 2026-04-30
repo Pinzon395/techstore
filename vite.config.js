@@ -27,12 +27,12 @@ export default defineConfig({
             configureServer(server) {
                 // Mapa de URLs públicas cortas -> ruta del archivo en el repo
                 const urlMap = {
+                    '/en':                    '/pages/en/index.html',
                     '/paquetes':              '/pages/servicios/paquetes.html',
                     '/ensambles':             '/pages/servicios/ensambles.html',
                     '/mantenimiento-mac':     '/pages/servicios/mantenimiento-mac.html',
-                    '/instalacion-windows': '/pages/servicios/instalacion-windows.html',
+                    '/instalacion-windows':   '/pages/servicios/instalacion-windows.html',
                     '/reparaciones':          '/pages/servicios/reparaciones.html',
-                    '/optimizacion':          '/pages/servicios/optimizacion.html',
                     '/reparacion-bisagras':   '/pages/servicios/reparacion-bisagras.html',
                     '/reparacion-controles':  '/pages/servicios/reparacion-controles.html',
                     '/catalogo':              '/pages/info/catalogo.html',
@@ -42,11 +42,21 @@ export default defineConfig({
                     '/privacidad':            '/pages/legal/privacidad.html',
                     '/garantia':              '/pages/legal/garantia.html',
                     '/admin':                 '/pages/admin/admin.html',
+                    '/optimizacion':          '/pages/servicios/optimizacion.html',
                 };
+
+                // URLs viejas que ahora redirigen 301 a /instalacion-windows
+                const legacyRedirects = new Set(['/formateo-optimizacion']);
 
                 server.middlewares.use((req, res, next) => {
                     if (!req.url) return next();
                     const [pathOnly, queryStr] = req.url.split('?');
+                    // 0) Redirects 301 de URLs legacy
+                    if (legacyRedirects.has(pathOnly)) {
+                        res.statusCode = 301;
+                        res.setHeader('Location', '/instalacion-windows');
+                        return res.end();
+                    }
                     // 1) Mapeo explicito a las nuevas ubicaciones
                     if (urlMap[pathOnly]) {
                         req.url = urlMap[pathOnly] + (queryStr ? '?' + queryStr : '');
@@ -85,12 +95,13 @@ export default defineConfig({
             input: {
                 main:                  'index.html',
                 notFound:              '404.html',
+                enHome:                'pages/en/index.html',
                 paquetes:              'pages/servicios/paquetes.html',
                 ensambles:             'pages/servicios/ensambles.html',
                 mantenimientoMac:      'pages/servicios/mantenimiento-mac.html',
-                instalacionWindows:  'pages/servicios/instalacion-windows.html',
-                reparaciones:          'pages/servicios/reparaciones.html',
+                instalacionWindows:    'pages/servicios/instalacion-windows.html',
                 optimizacion:          'pages/servicios/optimizacion.html',
+                reparaciones:          'pages/servicios/reparaciones.html',
                 reparacionBisagras:    'pages/servicios/reparacion-bisagras.html',
                 reparacionControles:   'pages/servicios/reparacion-controles.html',
                 catalogo:              'pages/info/catalogo.html',

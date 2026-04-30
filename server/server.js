@@ -362,12 +362,12 @@ if (process.env.NODE_ENV === 'production') {
 
     const pages = {
         '/': 'index.html',
+        '/en': 'pages/en/index.html',
         '/paquetes': 'pages/servicios/paquetes.html',
         '/ensambles': 'pages/servicios/ensambles.html',
         '/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
         '/instalacion-windows': 'pages/servicios/instalacion-windows.html',
         '/reparaciones': 'pages/servicios/reparaciones.html',
-        '/optimizacion': 'pages/servicios/optimizacion.html',
         '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
         '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
         '/catalogo': 'pages/info/catalogo.html',
@@ -378,6 +378,12 @@ if (process.env.NODE_ENV === 'production') {
         '/garantia': 'pages/legal/garantia.html',
         '/admin': 'pages/admin/admin.html',
     };
+
+    // Redirects 301 — URLs viejas consolidadas en /instalacion-windows
+    const legacyRedirects = ['/optimizacion', '/formateo-optimizacion'];
+    legacyRedirects.forEach(oldPath => {
+        app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
+    });
 
     app.use(express.static(distPath, { maxAge: '1y', etag: true, index: false }));
 
@@ -429,12 +435,12 @@ if (process.env.NODE_ENV === 'production') {
 
     const devPages = {
         '/': 'index.html',
+        '/en': 'pages/en/index.html',
         '/paquetes': 'pages/servicios/paquetes.html',
         '/ensambles': 'pages/servicios/ensambles.html',
         '/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
         '/instalacion-windows': 'pages/servicios/instalacion-windows.html',
         '/reparaciones': 'pages/servicios/reparaciones.html',
-        '/optimizacion': 'pages/servicios/optimizacion.html',
         '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
         '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
         '/catalogo': 'pages/info/catalogo.html',
@@ -445,6 +451,12 @@ if (process.env.NODE_ENV === 'production') {
         '/garantia': 'pages/legal/garantia.html',
         '/admin': 'pages/admin/admin.html',
     };
+
+    // Redirects 301 — URLs viejas consolidadas en /instalacion-windows
+    const legacyDevRedirects = ['/optimizacion', '/formateo-optimizacion'];
+    legacyDevRedirects.forEach(oldPath => {
+        app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
+    });
 
     app.get('*', (req, res, next) => {
         if (req.path.startsWith('/api') || req.path.startsWith('/auth')) return next();

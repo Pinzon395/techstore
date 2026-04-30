@@ -238,7 +238,7 @@
                     <ul class="dropdown-menu">
                         <li><a href="/paquetes">Todos los Paquetes</a></li>
                         <li><a href="/paquetes?section=paquetes">Mantenimiento Preventivo</a></li>
-                        <li><a href="/instalacion-windows#paquetes-optimizacion">Optimización del Sistema</a></li>
+                        <li><a href="/optimizacion?section=paquetes-optimizacion">Optimización del Sistema</a></li>
                     </ul>
                 </li>
                 <li class="has-dropdown">
@@ -288,12 +288,94 @@
     <!-- BUSCADOR DE PREGUNTAS -->
     <div class="faq-search-bar" id="faq-search-bar">
         <div class="container">
-            <div class="faq-search-wrap">
+            <div class="faq-search-wrap" style="position:relative;">
                 <span class="faq-search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
                 <input type="search" id="faq-search-input" placeholder="Busca: celular, laptop, garantia, domicilio, impresora..." autocomplete="off" aria-label="Buscar preguntas frecuentes">
+                <div id="faq-suggestions" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e2e8f0; border-top:none; border-radius:0 0 16px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.1); z-index:100; display:none; overflow:hidden;"></div>
             </div>
         </div>
     </div>
+    <script>
+    (function(){
+        var input = document.getElementById('faq-search-input');
+        var sugBox = document.getElementById('faq-suggestions');
+        var noResults = document.getElementById('faq-no-results');
+        if(!input) return;
+
+        // Collect all questions for suggestions
+        var allItems = Array.from(document.querySelectorAll('.faq-item'));
+        var allQuestions = allItems.map(function(item){
+            var btn = item.querySelector('.faq-question span');
+            return { el: item, text: btn ? btn.textContent.trim().toLowerCase() : '' };
+        });
+
+        function normalize(str){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+
+        function doSearch(){
+            var query = normalize(input.value);
+            var visible = 0;
+            var suggestions = [];
+
+            // Hide all category titles first, we'll show them if they have visible items
+            document.querySelectorAll('.faq-category-title').forEach(function(t){ t.style.display='none'; });
+
+            allQuestions.forEach(function(q){
+                if(!query){
+                    q.el.style.display = '';
+                    visible++;
+                } else if(normalize(q.text).indexOf(query) !== -1){
+                    q.el.style.display = '';
+                    visible++;
+                    if(suggestions.length < 2) suggestions.push(q);
+                } else {
+                    q.el.style.display = 'none';
+                }
+            });
+
+            // Show category titles that have visible items
+            document.querySelectorAll('.faq-page-grid').forEach(function(grid){
+                var hasVisible = Array.from(grid.querySelectorAll('.faq-item')).some(function(i){ return i.style.display !== 'none'; });
+                var title = grid.previousElementSibling;
+                while(title && !title.classList.contains('faq-category-title')) title = title.previousElementSibling;
+                if(title) title.style.display = hasVisible ? '' : 'none';
+            });
+
+            // Show/hide no results
+            if(noResults) noResults.style.display = (query && visible === 0) ? '' : 'none';
+
+            // Suggestions dropdown
+            if(query && query.length >= 2 && suggestions.length > 0){
+                sugBox.innerHTML = suggestions.map(function(s){
+                    var txt = s.el.querySelector('.faq-question span').textContent.trim();
+                    return '<div class="faq-sug-item" style="padding:12px 20px; cursor:pointer; font-size:0.95rem; color:#334155; border-bottom:1px solid #f1f5f9; transition:background 0.2s;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'#fff\'"><i class="fa-solid fa-magnifying-glass" style="color:#94a3b8; margin-right:10px; font-size:0.8rem;"></i>' + txt + '</div>';
+                }).join('');
+                sugBox.style.display = 'block';
+                // Click suggestion to scroll to that FAQ
+                sugBox.querySelectorAll('.faq-sug-item').forEach(function(item, idx){
+                    item.addEventListener('click', function(){
+                        var target = suggestions[idx].el;
+                        sugBox.style.display = 'none';
+                        input.value = '';
+                        doSearch(); // Reset filter
+                        target.scrollIntoView({ behavior:'smooth', block:'center' });
+                        var btn = target.querySelector('.faq-question');
+                        if(btn && btn.getAttribute('aria-expanded') !== 'true') btn.click();
+                    });
+                });
+            } else {
+                sugBox.style.display = 'none';
+            }
+        }
+
+        input.addEventListener('input', doSearch);
+        input.addEventListener('keydown', function(e){
+            if(e.key === 'Escape'){ sugBox.style.display='none'; input.value=''; doSearch(); }
+        });
+        document.addEventListener('click', function(e){
+            if(!e.target.closest('.faq-search-wrap')) sugBox.style.display='none';
+        });
+    })();
+    </script>
 
 <!-- MAIN FAQ CONTENT -->
 <section class="faq-page-content" id="preguntas-frecuentes-content">
