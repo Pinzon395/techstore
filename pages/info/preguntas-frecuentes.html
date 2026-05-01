@@ -295,6 +295,7 @@
             <div class="faq-search-wrap" style="position:relative;">
                 <span class="faq-search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
                 <input type="search" id="faq-search-input" placeholder="Busca: celular, laptop, garantia, domicilio, impresora..." autocomplete="off" aria-label="Buscar preguntas frecuentes">
+                <span id="faq-result-count" style="position:absolute; right:40px; top:50%; transform:translateY(-50%); font-size:0.8rem; color:#94a3b8; pointer-events:none; display:none;"></span>
                 <div id="faq-suggestions" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e2e8f0; border-top:none; border-radius:0 0 16px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.1); z-index:100; display:none; overflow:hidden;"></div>
             </div>
         </div>
@@ -304,23 +305,56 @@
         var input = document.getElementById('faq-search-input');
         var sugBox = document.getElementById('faq-suggestions');
         var noResults = document.getElementById('faq-no-results');
+        var resultCount = document.getElementById('faq-result-count');
+        var LS_KEY = 'pixon_faq_unanswered';
         if(!input) return;
 
-        // Collect all questions for suggestions
-        var allItems = Array.from(document.querySelectorAll('.faq-item'));
-        var allQuestions = allItems.map(function(item){
-            var btn = item.querySelector('.faq-question span');
-            return { el: item, text: btn ? btn.textContent.trim().toLowerCase() : '' };
-        });
-
+        // ═══ UTILIDAD: normalizar texto ═══
         function normalize(str){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
 
+        // ═══ GUARDAR BÚSQUEDA SIN RESULTADO ═══
+        function saveUnanswered(query) {
+            if(!query || query.length < 3) return;
+            try {
+                var db = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+                var key = normalize(query);
+                if(db[key]) {
+                    db[key].count++;
+                    db[key].last = new Date().toISOString();
+                    db[key].raw = query; // Keep latest raw form
+                } else {
+                    db[key] = { raw: query, count: 1, first: new Date().toISOString(), last: new Date().toISOString() };
+                }
+                localStorage.setItem(LS_KEY, JSON.stringify(db));
+            } catch(e){}
+        }
+
+        // ═══ COLLECT FAQ ITEMS LAZILY OR ON LOAD ═══
+        var allItems = [];
+        var allQuestions = [];
+
+        function initQuestions() {
+            if (allQuestions.length > 0) return;
+            allItems = Array.from(document.querySelectorAll('.faq-item'));
+            allQuestions = allItems.map(function(item){
+                var btn = item.querySelector('.faq-question span');
+                var ans = item.querySelector('.faq-answer-inner');
+                var tq = btn ? btn.textContent.trim().toLowerCase() : '';
+                var ta = ans ? ans.textContent.trim().toLowerCase() : '';
+                return { el: item, text: tq + " " + ta };
+            });
+        }
+
+        // ═══ DEBOUNCE PARA GUARDAR (espera 2s de inactividad) ═══
+        var saveTimer = null;
+        var lastSavedQuery = '';
+
         function doSearch(){
+            initQuestions();
             var query = normalize(input.value);
             var visible = 0;
             var suggestions = [];
 
-            // Hide all category titles first, we'll show them if they have visible items
             document.querySelectorAll('.faq-category-title').forEach(function(t){ t.style.display='none'; });
 
             allQuestions.forEach(function(q){
@@ -330,13 +364,13 @@
                 } else if(normalize(q.text).indexOf(query) !== -1){
                     q.el.style.display = '';
                     visible++;
-                    if(suggestions.length < 2) suggestions.push(q);
+                    if(suggestions.length < 5) suggestions.push(q);
                 } else {
                     q.el.style.display = 'none';
                 }
             });
 
-            // Show category titles that have visible items
+            // Show category titles with visible items
             document.querySelectorAll('.faq-page-grid').forEach(function(grid){
                 var hasVisible = Array.from(grid.querySelectorAll('.faq-item')).some(function(i){ return i.style.display !== 'none'; });
                 var title = grid.previousElementSibling;
@@ -344,8 +378,37 @@
                 if(title) title.style.display = hasVisible ? '' : 'none';
             });
 
-            // Show/hide no results
-            if(noResults) noResults.style.display = (query && visible === 0) ? '' : 'none';
+            // Contador de resultados
+            if(query && resultCount){
+                resultCount.textContent = visible + (visible === 1 ? ' resultado' : ' resultados');
+                resultCount.style.display = 'block';
+            } else if(resultCount){
+                resultCount.style.display = 'none';
+            }
+
+            // No results: guardar y mostrar con WhatsApp
+            if(noResults) {
+                if(query && visible === 0) {
+                    noResults.style.display = '';
+                    // Actualizar botón de WhatsApp con la búsqueda real
+                    var waBtn = noResults.querySelector('.btn-faq-wa');
+                    if(waBtn) {
+                        var encoded = encodeURIComponent('Hola, pregunté "' + input.value + '" en las FAQs y no encontré respuesta. ¿Me ayudan?');
+                        waBtn.href = 'https://wa.me/529986690777?text=' + encoded;
+                    }
+                    // Guardar la búsqueda sin resultado (debounced)
+                    clearTimeout(saveTimer);
+                    saveTimer = setTimeout(function(){
+                        if(normalize(input.value) !== lastSavedQuery) {
+                            saveUnanswered(input.value);
+                            lastSavedQuery = normalize(input.value);
+                        }
+                    }, 2000);
+                } else {
+                    noResults.style.display = 'none';
+                    clearTimeout(saveTimer);
+                }
+            }
 
             // Suggestions dropdown
             if(query && query.length >= 2 && suggestions.length > 0){
@@ -354,13 +417,12 @@
                     return '<div class="faq-sug-item" style="padding:12px 20px; cursor:pointer; font-size:0.95rem; color:#334155; border-bottom:1px solid #f1f5f9; transition:background 0.2s;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'#fff\'"><i class="fa-solid fa-magnifying-glass" style="color:#94a3b8; margin-right:10px; font-size:0.8rem;"></i>' + txt + '</div>';
                 }).join('');
                 sugBox.style.display = 'block';
-                // Click suggestion to scroll to that FAQ
                 sugBox.querySelectorAll('.faq-sug-item').forEach(function(item, idx){
                     item.addEventListener('click', function(){
                         var target = suggestions[idx].el;
                         sugBox.style.display = 'none';
                         input.value = '';
-                        doSearch(); // Reset filter
+                        doSearch();
                         target.scrollIntoView({ behavior:'smooth', block:'center' });
                         var btn = target.querySelector('.faq-question');
                         if(btn && btn.getAttribute('aria-expanded') !== 'true') btn.click();
@@ -371,15 +433,51 @@
             }
         }
 
-        input.addEventListener('input', doSearch);
-        input.addEventListener('keydown', function(e){
-            if(e.key === 'Escape'){ sugBox.style.display='none'; input.value=''; doSearch(); }
+        document.addEventListener('DOMContentLoaded', function() {
+            initQuestions(); // Initialize once the DOM is fully loaded
+            input.addEventListener('input', doSearch);
+            input.addEventListener('keydown', function(e){
+                if(e.key === 'Escape'){ sugBox.style.display='none'; input.value=''; doSearch(); }
+                if(e.key === 'Enter' && input.value.trim().length > 0){
+                    // Enter: forzar guardado inmediato si sin resultados
+                    var query = normalize(input.value);
+                    var hasResults = allQuestions.some(function(q){ return normalize(q.text).indexOf(query) !== -1; });
+                    if(!hasResults && input.value.length >= 3) { saveUnanswered(input.value); }
+                    sugBox.style.display = 'none';
+                }
+            });
+            document.addEventListener('click', function(e){
+                if(!e.target.closest('.faq-search-wrap')) sugBox.style.display='none';
+            });
         });
-        document.addEventListener('click', function(e){
-            if(!e.target.closest('.faq-search-wrap')) sugBox.style.display='none';
-        });
+
+        // ═══ PANEL ADMIN ═══
+        // Accesible via: /preguntas-frecuentes?admin=1
+        if(new URLSearchParams(window.location.search).get('admin') === '1') {
+            var db = {};
+            try { db = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e){}
+            var entries = Object.values(db).sort(function(a,b){ return b.count - a.count; });
+            var panel = document.createElement('div');
+            panel.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:#0f172a; color:#fff; padding:20px; z-index:9999; max-height:60vh; overflow-y:auto; border-top:3px solid #3b82f6; font-family:monospace; font-size:0.85rem;';
+            panel.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">' +
+                '<strong style="font-size:1rem; color:#60a5fa;">📊 Pixon FAQ — Búsquedas sin respuesta (' + entries.length + ')</strong>' +
+                '<div style="display:flex; gap:10px;"><button onclick="var d=JSON.parse(localStorage.getItem(\'pixon_faq_unanswered\')||\'{}\'); var csv=\'Pregunta,Veces,Primera vez,Última vez\\n\'+Object.values(d).map(function(r){return \'\"\'+r.raw+\'\"\'+\',\'+r.count+\',\'+r.first+\',\'+r.last}).join(\'\\n\'); var a=document.createElement(\'a\'); a.href=\'data:text/csv,\'+encodeURIComponent(csv); a.download=\'faq_unanswered.csv\'; a.click();" style="background:#3b82f6; color:#fff; border:none; border-radius:8px; padding:6px 14px; cursor:pointer; font-size:0.8rem;">⬇ CSV</button>' +
+                '<button onclick="if(confirm(\'¿Borrar TODO el historial?\')) { localStorage.removeItem(\'pixon_faq_unanswered\'); location.reload(); }" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:6px 14px; cursor:pointer; font-size:0.8rem;">🗑 Borrar</button>' +
+                '<button onclick="this.closest(\'div\').parentNode.parentNode.remove()" style="background:#475569; color:#fff; border:none; border-radius:8px; padding:6px 14px; cursor:pointer; font-size:0.8rem;">✕ Cerrar</button></div></div>' +
+                (entries.length === 0
+                    ? '<p style="color:#94a3b8;">No hay búsquedas sin respuesta registradas aún. 🎉</p>'
+                    : '<table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid #334155;"><th style="text-align:left; padding:6px 10px; color:#93c5fd;">Pregunta</th><th style="padding:6px 10px; color:#93c5fd;">Veces</th><th style="padding:6px 10px; color:#93c5fd;">Última</th></tr></thead><tbody>' +
+                    entries.map(function(r){
+                        var date = r.last ? new Date(r.last).toLocaleDateString('es-MX') : '-';
+                        return '<tr style="border-bottom:1px solid #1e293b;"><td style="padding:8px 10px;">' + r.raw + '</td><td style="text-align:center; padding:8px 10px; color:' + (r.count > 2 ? '#f87171' : '#fbbf24') + '; font-weight:700;">' + r.count + '</td><td style="padding:8px 10px; color:#64748b; font-size:0.8rem;">' + date + '</td></tr>';
+                    }).join('') +
+                    '</tbody></table>'
+                );
+            document.body.appendChild(panel);
+        }
     })();
     </script>
+
 
 <!-- MAIN FAQ CONTENT -->
 <section class="faq-page-content" id="preguntas-frecuentes-content">
@@ -989,12 +1087,13 @@
         </div>
 
         <!-- Mensaje sin resultados -->
-        <div class="faq-no-results" id="faq-no-results">
-            <span class="faq-no-icon"><i class="fa-solid fa-circle-question"></i></span>
-            <h3>¿No encontraste tu pregunta?</h3>
-            <p>No te preocupes, escríbenos directamente y te respondemos en minutos.</p>
-            <a href="https://wa.me/529986690777?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20servicio" class="btn-faq-wa" target="_blank" rel="noopener">
-                <i class="fa-brands fa-whatsapp"></i> Tengo una duda
+        <div class="faq-no-results" id="faq-no-results" style="background:#fff; border-radius:20px; padding:48px 28px; border:2px dashed #e2e8f0; box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+            <span class="faq-no-icon" style="font-size:2.8rem; display:block; margin-bottom:16px; color:#3b82f6;"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <h3 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin-bottom:8px;">No encontramos esa pregunta</h3>
+            <p style="color:#64748b; margin-bottom:6px;">Mándanosla por WhatsApp — te respondemos en minutos y <strong>la agregamos al FAQ</strong>.</p>
+            <p style="font-size:0.82rem; color:#94a3b8; margin-bottom:24px;"><i class="fa-solid fa-check-circle" style="color:#22c55e;"></i> Tu búsqueda fue guardada para mejorar esta sección.</p>
+            <a href="https://wa.me/529986690777?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20servicio" class="btn-faq-wa" target="_blank" rel="noopener" style="font-size:1rem; padding:14px 32px;">
+                <i class="fa-brands fa-whatsapp"></i> Preguntar por WhatsApp
             </a>
         </div>
 
