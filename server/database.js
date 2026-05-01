@@ -135,6 +135,25 @@ function initDB() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
+
+        -- 10. Preguntas Frecuentes (FAQs)
+        CREATE TABLE IF NOT EXISTS faqs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT NOT NULL,
+            icon TEXT NOT NULL,
+            question TEXT NOT NULL,
+            answer TEXT NOT NULL,
+            display_order INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- 11. Búsquedas de FAQ sin respuesta
+        CREATE TABLE IF NOT EXISTS faq_unanswered (
+            query TEXT PRIMARY KEY,
+            count INTEGER DEFAULT 1,
+            first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
     `);
 
     // Semilla de comentarios (solo si está vacía)
@@ -167,6 +186,26 @@ function initDB() {
     if (!userCols.some(c => c.name === 'phone')) {
         db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
         console.log('🔧  Migración: columna phone agregada a users.');
+    }
+
+    // Semilla de FAQs (solo si está vacía)
+    const faqCnt = db.prepare('SELECT COUNT(*) as c FROM faqs').get().c;
+    if (faqCnt === 0) {
+        try {
+            const fs = require('fs');
+            const faqsSeed = JSON.parse(fs.readFileSync(path.join(__dirname, 'faqs_seed.json'), 'utf8'));
+            const insertFaqStmt = db.prepare('INSERT INTO faqs (category, icon, question, answer, display_order) VALUES (?, ?, ?, ?, ?)');
+            const insertManyFaqs = db.transaction((faqsList) => {
+                let order = 0;
+                for (const f of faqsList) {
+                    insertFaqStmt.run(f.category, f.icon, f.question, f.answer, order++);
+                }
+            });
+            insertManyFaqs(faqsSeed);
+            console.log('🌱  Semilla de FAQs insertada (' + faqsSeed.length + ' preguntas).');
+        } catch(e) {
+            console.error('Error insertando semilla de FAQs:', e.message);
+        }
     }
 
     return Promise.resolve(db);
@@ -279,6 +318,54 @@ function getUserById(id) {
     return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   OPERACIONES DE FAQs
+───────────────────────────────────────────────────────────── */
+
+function getAllFaqs() {
+    return db.prepare('SELECT * FROM faqs ORDER BY display_order ASC, id ASC').all();
+}
+
+function insertFaq({ category, icon, question, answer, display_order }) {
+    const info = db.prepare(
+        'INSERT INTO faqs (category, icon, question, answer, display_order) VALUES (?, ?, ?, ?, ?)'
+    ).run(category, icon, question, answer, display_order || 0);
+    return db.prepare('SELECT * FROM faqs WHERE id = ?').get(info.lastInsertRowid);
+}
+
+function updateFaq(id, { category, icon, question, answer, display_order }) {
+    const info = db.prepare(
+        'UPDATE faqs SET category = ?, icon = ?, question = ?, answer = ?, display_order = ? WHERE id = ?'
+    ).run(category, icon, question, answer, display_order, id);
+    return info.changes > 0;
+}
+
+function deleteFaq(id) {
+    const info = db.prepare('DELETE FROM faqs WHERE id = ?').run(id);
+    return info.changes > 0;
+}
+
+function logUnansweredFaq(query) {
+    // Upsert
+    const stmt = db.prepare(`
+        INSERT INTO faq_unanswered (query, count, first_seen, last_seen) 
+        VALUES (?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT(query) DO UPDATE SET 
+            count = count + 1,
+            last_seen = CURRENT_TIMESTAMP
+    `);
+    stmt.run(query);
+}
+
+function getUnansweredFaqs() {
+    return db.prepare('SELECT * FROM faq_unanswered ORDER BY count DESC, last_seen DESC').all();
+}
+
+function clearUnansweredFaqs() {
+    const info = db.prepare('DELETE FROM faq_unanswered').run();
+    return info.changes;
+}
+
 module.exports = {
     initDB,
     getDB,
@@ -291,5 +378,12 @@ module.exports = {
     findOrCreateGoogleUser,
     getUserById,
     updateUserProfile,
-    getAllUsersAdmin
+    getAllUsersAdmin,
+    getAllFaqs,
+    insertFaq,
+    updateFaq,
+    deleteFaq,
+    logUnansweredFaq,
+    getUnansweredFaqs,
+    clearUnansweredFaqs
 };

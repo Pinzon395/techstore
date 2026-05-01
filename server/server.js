@@ -29,7 +29,14 @@ const {
     findOrCreateGoogleUser,
     getUserById,
     updateUserProfile,
-    getAllUsersAdmin
+    getAllUsersAdmin,
+    getAllFaqs,
+    insertFaq,
+    updateFaq,
+    deleteFaq,
+    logUnansweredFaq,
+    getUnansweredFaqs,
+    clearUnansweredFaqs
 } = require('./database');
 
 const app = express();
@@ -293,6 +300,28 @@ app.post('/api/comments', requireAuth, (req, res) => {
     }
 });
 
+app.get('/api/faqs', (_req, res) => {
+    try {
+        const faqs = getAllFaqs();
+        res.json(faqs);
+    } catch (err) {
+        console.error('GET /api/faqs error:', err);
+        res.status(500).json({ error: 'Error al cargar FAQs' });
+    }
+});
+
+app.post('/api/faqs/unanswered', (req, res) => {
+    try {
+        const { query } = req.body;
+        if (query && query.length >= 3) {
+            logUnansweredFaq(query);
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Error logging faq' });
+    }
+});
+
 /* ─────────────────────────────────────────────────────────────
    API REST — PANEL DE ADMINISTRACIÓN (Protegidas)
 ───────────────────────────────────────────────────────────── */
@@ -365,6 +394,52 @@ app.get('/api/admin/comments/stream', requireAdmin, (req, res) => {
     req.on('close', () => {
         dbEmitter.off('admin-pending', adminPendingListener);
     });
+});
+
+app.post('/api/admin/faqs', requireAdmin, (req, res) => {
+    try {
+        const faq = insertFaq(req.body);
+        res.status(201).json(faq);
+    } catch (error) {
+        res.status(500).json({ error: 'Error creando FAQ' });
+    }
+});
+
+app.put('/api/admin/faqs/:id', requireAdmin, (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const success = updateFaq(id, req.body);
+        res.json({ success });
+    } catch (error) {
+        res.status(500).json({ error: 'Error actualizando FAQ' });
+    }
+});
+
+app.delete('/api/admin/faqs/:id', requireAdmin, (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const success = deleteFaq(id);
+        res.json({ success });
+    } catch (error) {
+        res.status(500).json({ error: 'Error eliminando FAQ' });
+    }
+});
+
+app.get('/api/admin/faqs/unanswered', requireAdmin, (req, res) => {
+    try {
+        res.json(getUnansweredFaqs());
+    } catch (error) {
+        res.status(500).json({ error: 'Error' });
+    }
+});
+
+app.delete('/api/admin/faqs/unanswered', requireAdmin, (req, res) => {
+    try {
+        clearUnansweredFaqs();
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Error' });
+    }
 });
 
 /* ─────────────────────────────────────────────────────────────
