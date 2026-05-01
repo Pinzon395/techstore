@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -411,6 +411,82 @@
             .users-table th, .users-table td { padding: 10px; font-size: 0.85rem; }
         }
 
+        /* Modal Premium UI */
+        .admin-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
+            z-index: 2000; display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .admin-modal-overlay.show { opacity: 1; display: flex; }
+        
+        .admin-modal {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 20px; width: 90%; max-width: 600px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.2);
+            transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+        .admin-modal-overlay.show .admin-modal { transform: translateY(0) scale(1); }
+
+        .admin-modal-header {
+            padding: 20px 25px; border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        .admin-modal-header h2 { font-size: 1.4rem; color: #f1f5f9; margin: 0; }
+        .admin-modal-close {
+            background: none; border: none; color: #94a3b8; font-size: 1.5rem;
+            cursor: pointer; transition: color 0.2s;
+        }
+        .admin-modal-close:hover { color: #ef4444; }
+
+        .admin-modal-body { padding: 25px; overflow-y: auto; max-height: 70vh; }
+        .admin-form-group { margin-bottom: 20px; }
+        .admin-form-group label { display: block; margin-bottom: 8px; color: #cbd5e1; font-weight: 600; font-size: 0.9rem; }
+        .admin-input {
+            width: 100%; padding: 12px 15px; border-radius: 10px;
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #f8fafc; font-size: 1rem; transition: all 0.2s;
+        }
+        .admin-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .admin-input::placeholder { color: #64748b; }
+        textarea.admin-input { resize: vertical; min-height: 100px; font-family: inherit; }
+
+        .admin-modal-footer {
+            padding: 20px 25px; border-top: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex; justify-content: flex-end; gap: 15px; background: rgba(15, 23, 42, 0.5);
+        }
+        .admin-btn {
+            padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .admin-btn-cancel { background: transparent; color: #cbd5e1; border: 1px solid #64748b; }
+        .admin-btn-cancel:hover { background: rgba(100, 116, 139, 0.1); color: #fff; }
+        .admin-btn-save { background: #6366f1; color: #fff; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
+        .admin-btn-save:hover { background: #4f46e5; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4); }
+
+        /* Dashboard Overview */
+        .dashboard-stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 16px; padding: 25px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .stat-number { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 1.1rem; color: #cbd5e1; margin-top: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+
+        /* Faq Category Group */
+        .faq-admin-category { font-size: 1.5rem; color: #818cf8; margin: 40px 0 20px 0; border-bottom: 1px solid rgba(99,102,241,0.2); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        
+        .faq-search-bar { width: 100%; max-width: 400px; padding: 12px 20px; border-radius: 30px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(99, 102, 241, 0.4); color: #fff; font-size: 1rem; margin-bottom: 20px; }
+        .faq-search-bar:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 10px rgba(99,102,241,0.3); }
+
+
     </style>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; block-all-mixed-content">
 </head>
@@ -440,12 +516,32 @@
 
         <main class="admin-container">
             <div class="admin-tabs">
-                <button class="admin-tab active" data-view="comments">Comentarios</button>
+                <button class="admin-tab active" data-view="dashboard">Vista General</button>
+                <button class="admin-tab" data-view="comments">Comentarios</button>
                 <button class="admin-tab" data-view="users">Usuarios</button>
+                <button class="admin-tab" data-view="faqs">Preguntas Frecuentes</button>
+            </div>
+
+            <!-- VISTA DASHBOARD -->
+            <div id="view-dashboard">
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-comments-pending">0</div>
+                        <div class="stat-label">Comentarios Pendientes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-users">0</div>
+                        <div class="stat-label">Usuarios Registrados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-faqs-unanswered">0</div>
+                        <div class="stat-label">Dudas sin Resolver</div>
+                    </div>
+                </div>
             </div>
 
             <!-- VISTA COMENTARIOS -->
-            <div id="view-comments">
+            <div id="view-comments" style="display: none;">
                 <div class="filters">
                     <button class="filter-btn active" data-filter="all">Todos</button>
                     <button class="filter-btn" data-filter="pending">Pendientes</button>
@@ -476,7 +572,92 @@
                     </table>
                 </div>
             </div>
+
+            <!-- VISTA PREGUNTAS FRECUENTES -->
+            <div id="view-faqs" style="display: none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Búsquedas sin respuesta</h2>
+                    <button class="btn-admin btn-delete" style="max-width: 150px; padding: 6px 12px; font-size: 0.8rem;" onclick="clearUnanswered()">
+                        <i class="fa-solid fa-trash"></i> Limpiar Registro
+                    </button>
+                </div>
+                <div class="users-table-wrapper" style="margin-bottom: 40px;">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Término Buscado</th>
+                                <th>Búsquedas</th>
+                                <th>Última Vez</th>
+                            </tr>
+                        </thead>
+                        <tbody id="unanswered-tbody">
+                            <!-- Unanswered searches se renderizan aquí -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display:flex; flex-wrap: wrap; justify-content:space-between; align-items:center; margin-bottom: 20px; gap: 15px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Gestionar Preguntas Frecuentes</h2>
+                    <div style="display:flex; gap: 15px; align-items:center; flex-grow:1; justify-content:flex-end;">
+                        <input type="text" id="faqSearchInput" class="faq-search-bar" placeholder="Buscar preguntas, respuestas o categorías..." style="margin:0;">
+                        <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="addNewFaq()">
+                            <i class="fa-solid fa-plus"></i> Nueva Pregunta
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="faqs-container">
+                    <!-- Faqs se renderizan agrupadas por categoría aquí -->
+                </div>
+            </div>
         </main>
+    </div>
+
+    <!-- Modal para FAQs -->
+    <div id="faqModalOverlay" class="admin-modal-overlay">
+        <div class="admin-modal">
+            <div class="admin-modal-header">
+                <h2 id="faqModalTitle">Nueva Pregunta</h2>
+                <button class="admin-modal-close" onclick="closeFaqModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <input type="hidden" id="faqId">
+                <div class="admin-form-group">
+                    <label for="faqCategory">Categoría</label>
+                    <input type="text" id="faqCategory" class="admin-input" list="faqCategoriesList" placeholder="Selecciona una de la lista o escribe una nueva..." required>
+                    <datalist id="faqCategoriesList"></datalist>
+                </div>
+                <div class="admin-form-group">
+                    <label for="faqIcon">Ícono para esta categoría</label>
+                    <select id="faqIcon" class="admin-input">
+                        <option value="fa-solid fa-circle-question">Pregunta (General) ❓</option>
+                        <option value="fa-solid fa-wrench">Reparación o Mantenimiento 🔧</option>
+                        <option value="fa-brands fa-apple">Apple / Mac 🍏</option>
+                        <option value="fa-brands fa-windows">Windows 🪟</option>
+                        <option value="fa-solid fa-gamepad">Consolas y Controles 🎮</option>
+                        <option value="fa-solid fa-mobile-screen">Celulares 📱</option>
+                        <option value="fa-solid fa-microchip">Componentes Internos 💾</option>
+                        <option value="fa-solid fa-handshake">Garantía o Confianza 🤝</option>
+                    </select>
+                </div>
+                <div class="admin-form-group">
+                    <label for="faqQuestion">Pregunta</label>
+                    <input type="text" id="faqQuestion" class="admin-input" placeholder="Ej. ¿Tienen servicio a domicilio?" required>
+                </div>
+                <div class="admin-form-group">
+                    <label for="faqAnswer">Respuesta detallada</label>
+                    <textarea id="faqAnswer" class="admin-input" placeholder="Escribe la respuesta. Usa la tecla Enter para separar párrafos o agregar saltos de línea..." style="white-space: pre-wrap;" required></textarea>
+                </div>
+                <div class="admin-form-group">
+                    <label for="faqOrder">Orden de Visualización (0 es primero, 1 después, etc.)</label>
+                    <input type="number" id="faqOrder" class="admin-input" placeholder="0" value="0">
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-cancel" onclick="closeFaqModal()">Cancelar</button>
+                <button class="admin-btn admin-btn-save" onclick="saveFaqModal()">Guardar Cambios</button>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="/scripts/admin.js"></script>
