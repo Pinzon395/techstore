@@ -279,7 +279,8 @@ async function getAllRepairsAdmin() {
 ───────────────────────────────────────────────────────────── */
 async function getAllBuildsAdmin() {
     const [rows] = await pool.execute(`
-        SELECT p.*, b.build_category, b.performance_tier 
+        SELECT p.*, b.build_category, b.performance_tier,
+               (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) as image_url
         FROM products p
         JOIN builds b ON p.id = b.id
         WHERE p.deleted_at IS NULL

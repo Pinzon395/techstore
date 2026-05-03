@@ -285,6 +285,11 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.json({ success: true });
     }));
 
+    app.get('/api/builds', ah(async (_req, res) => {
+        const builds = await getAllBuildsAdmin();
+        res.json(builds);
+    }));
+
     /* ─────────────────────────────────────────────────────────
        PANEL DE ADMINISTRACIÓN
     ───────────────────────────────────────────────────────── */
@@ -377,15 +382,24 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             '/': 'index.html',
             '/en': 'pages/en/index.html',
             '/paquetes': 'pages/servicios/paquetes.html',
+            '/servicios/paquetes': 'pages/servicios/paquetes.html',
             '/ensambles': 'pages/servicios/ensambles.html',
+            '/servicios/ensambles': 'pages/servicios/ensambles.html',
             '/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
+            '/servicios/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
             '/instalacion-windows': 'pages/servicios/instalacion-windows.html',
+            '/servicios/instalacion-windows': 'pages/servicios/instalacion-windows.html',
             '/reparaciones': 'pages/servicios/reparaciones.html',
+            '/servicios/reparaciones': 'pages/servicios/reparaciones.html',
             '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
+            '/servicios/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
             '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
+            '/servicios/reparacion-controles': 'pages/servicios/reparacion-controles.html',
             '/b2b': 'pages/servicios/b2b.html',
             '/B2B': 'pages/servicios/b2b.html',
+            '/servicios/b2b': 'pages/servicios/b2b.html',
             '/optimizacion': 'pages/servicios/optimizacion.html',
+            '/servicios/optimizacion': 'pages/servicios/optimizacion.html',
             '/catalogo': 'pages/info/catalogo.html',
             '/comentarios': 'pages/info/comentarios.html',
             '/contacto': 'pages/info/contacto.html',

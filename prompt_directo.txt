@@ -1,0 +1,206 @@
+Hola Claude, hazme las siguientes tareas:
+- [ Actúa como un auditor senior de software, arquitecto full-stack y revisor de calidad de código. 
+Tu tarea es escanear TODO mi proyecto de forma exhaustiva, detectar cualquier fallo, inconsistencia o parte desconectada, y decirme exactamente qué está mal, dónde está, por qué falla y cómo verificarlo.
+
+Quiero que revises el proyecto como si fueras a ponerlo en producción y no pudiera fallar nada. 
+No te limites a una revisión superficial. Analiza cada parte del sistema y conecta mentalmente frontend, backend, base de datos, rutas, componentes, variables de entorno, sesiones, autenticación, archivos estáticos, seguridad, migraciones y dependencias.
+
+CONTEXTO DEL PROYECTO
+- Proyecto web moderno.
+- Usa Node.js / Express / frontend estático o Next.js según corresponda.
+- Base de datos migrada o en proceso de migración a MariaDB.
+- Hay autenticación, panel administrativo, comentarios, formularios, rutas públicas y privadas.
+- Puede haber integración con Google OAuth, sesiones, roles, archivos estáticos, SSE, APIs y componentes del frontend.
+
+OBJETIVO PRINCIPAL
+Quiero un escaneo total del proyecto para dejarlo 100% conectado y funcional.
+Quiero que encuentres:
+- Errores de código
+- Imports faltantes
+- Funciones no definidas
+- Variables no declaradas
+- Rutas rotas
+- Endpoints que no coinciden con el frontend
+- Problemas con MariaDB
+- Problemas con SQLite si aún queda algo
+- Fallos de autenticación o sesión
+- Errores de configuración
+- Problemas de seguridad
+- Inconsistencias de nombres
+- Archivos que ya no se usan
+- Dependencias faltantes o innecesarias
+- Problemas con build, producción y despliegue
+
+FORMA DE TRABAJO
+1. Revisa el proyecto por capas:
+   - estructura de carpetas
+   - package.json
+   - variables de entorno
+   - backend
+   - base de datos
+   - frontend
+   - autenticación
+   - rutas
+   - seguridad
+   - producción
+
+2. Para cada hallazgo, dame siempre:
+   - archivo exacto
+   - línea o bloque afectado
+   - qué está mal
+   - por qué está mal
+   - qué impacto tiene
+   - cómo corregirlo
+   - cómo verificar que quedó bien
+
+3. No asumas que algo funciona solo porque “parece correcto”.
+   Verifica:
+   - imports/exportaciones
+   - nombres de funciones
+   - rutas GET/POST/PUT/DELETE
+   - uso de req/res/next
+   - conexión con la base de datos
+   - queries SQL
+   - manejo de errores
+   - consistencia entre frontend y backend
+   - uso de sesiones y cookies
+   - permisos de admin
+   - assets y archivos públicos
+
+4. Si detectas un error encadenado, explícalo completo.
+   Ejemplo:
+   - causa original
+   - error secundario
+   - qué archivo depende del otro
+   - qué se rompe si no se corrige
+
+ÁREAS QUE QUIERO QUE REVISES EN DETALLE
+
+A. BACKEND
+- Revisa server.js y todos los archivos del backend.
+- Confirma que no existan funciones como getDB, initDB, findOrCreateUser, updateUserProfile, insertComment, approveComment u otras sin definir o sin importar.
+- Revisa que cada ruta use los middlewares correctos.
+- Revisa async/await, manejo de promesas y try/catch.
+- Revisa que no haya rutas duplicadas o mal protegidas.
+
+B. BASE DE DATOS
+- Revisa que la conexión a MariaDB esté bien configurada.
+- Confirma que el pool, usuario, password, host, puerto y nombre de base estén correctos.
+- Revisa si aún queda lógica vieja de SQLite mezclada con MariaDB.
+- Revisa migraciones, seeds, schema SQL y scripts de backup.
+- Detecta tablas faltantes, claves foráneas mal hechas, índices ausentes y nombres inconsistentes.
+- Valida que las consultas coincidan con la estructura real de las tablas.
+
+C. AUTENTICACIÓN Y SESIONES
+- Revisa Google OAuth o cualquier login.
+- Confirma que serializeUser y deserializeUser estén bien.
+- Verifica que req.isAuthenticated() se use correctamente.
+- Verifica control real de admin, no solo ocultar botones.
+- Revisa cookies, sesiones y persistencia.
+- Detecta riesgos por exponer datos del usuario.
+
+D. FRONTEND
+- Revisa que las llamadas fetch, formularios y componentes consuman los endpoints correctos.
+- Detecta rutas rotas, URLs mal escritas y nombres cambiados.
+- Revisa que el frontend no dependa de respuestas que el backend ya no devuelve.
+- Revisa que no haya assets o scripts en rutas inseguras.
+- Revisa que comentarios, FAQ, admin y paneles estén sincronizados.
+
+E. PRODUCCIÓN
+- Revisa diferencias entre desarrollo y producción.
+- Revisa express.static, cache, index.html, dist, rutas HTML, redirects y fallbacks.
+- Verifica que no existan referencias a rutas locales que romperían en producción.
+- Revisa compatibilidad con Windows, Linux y despliegue.
+- Revisa configuración para Nginx, proxies o hosting.
+
+F. SEGURIDAD
+- Detecta XSS, CSRF, exposición de datos, rutas abiertas y cualquier vector de abuso.
+- Revisa sanitización de entrada y encoding de salida.
+- Revisa subida de archivos, exposición de .js, rutas públicas y carpetas sensibles.
+- Revisa que no haya secretos hardcodeados.
+- Revisa que root no se use desde la app si no es necesario.
+
+G. CALIDAD GENERAL
+- Revisa naming, duplicación de código, archivos obsoletos y funciones muertas.
+- Revisa dependencias en package.json.
+- Revisa scripts npm.
+- Revisa logs y mensajes de error.
+- Revisa consistencia de estilo y estructura.
+
+FORMATO DE SALIDA OBLIGATORIO
+Quiero el reporte con esta estructura:
+
+1. Resumen ejecutivo
+   - estado general del proyecto
+   - si está listo o no para producción
+   - riesgos principales
+
+2. Lista de errores críticos
+   Para cada error:
+   - severidad
+   - archivo
+   - línea
+   - descripción
+   - causa
+   - impacto
+   - corrección exacta
+   - cómo verificarlo
+
+3. Lista de errores medios
+
+4. Lista de errores bajos
+
+5. Dependencias y configuración
+   - paquetes faltantes
+   - paquetes obsoletos
+   - scripts npm
+   - variables de entorno faltantes o mal nombradas
+
+6. Base de datos
+   - estado de la conexión
+   - problemas de schema
+   - problemas de migración
+   - problemas de compatibilidad
+
+7. Rutas y conectividad
+   - frontend → backend
+   - backend → DB
+   - auth → sesiones
+   - admin → permisos
+
+8. Checklist final de verificación
+   - comandos para probar
+   - rutas para testear
+   - validaciones manuales
+   - qué debo revisar yo después
+
+REGLAS IMPORTANTES
+- No te inventes cosas.
+- Si algo no existe, dilo claramente.
+- Si algo está bien, también dilo.
+- Si encuentras algo ambiguo, marca “requiere verificación”.
+- No des soluciones vagas.
+- Dame correcciones concretas.
+- Si hay varios errores relacionados, agrúpalos.
+- Si una corrección puede romper otra parte, adviértelo.
+- Enfócate en que el proyecto quede bien conectado de extremo a extremo.
+
+AL FINAL
+Quiero que me entregues:
+- una lista priorizada de lo que debo arreglar primero
+- una lista de comandos para verificar cada cambio
+- una conclusión clara sobre si el proyecto está listo o no para seguir avanzando
+
+Empieza revisando primero:
+1) package.json
+2) estructura de carpetas
+3) server/server.js
+4) server/database.js
+5) archivos SQL
+6) .env y .env.example
+7) frontend que consume la API
+y luego continúa con el resto del proyecto.] Tarea 1
+- [ ] Tarea 2
+- [ ] Tarea 3
+
+Te las entrego antes de las 18:00.
