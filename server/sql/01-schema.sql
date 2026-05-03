@@ -3,9 +3,12 @@
 -- Ejecutar como: mysql -u root -p < 01-schema.sql
 -- ═══════════════════════════════════════════════════════════════════════════
 
+-- COLLATE: utf8mb4_uca1400_ai_ci es el equivalente moderno de MariaDB 10.10+.
+-- Si tu MariaDB es 10.5–10.9, cambia a utf8mb4_unicode_520_ci.
+-- NUNCA uses utf8mb4_0900_ai_ci aquí: esa collation es exclusiva de MySQL 8.
 CREATE DATABASE IF NOT EXISTS pixon_db
   DEFAULT CHARACTER SET utf8mb4
-  COLLATE utf8mb4_0900_ai_ci;
+  COLLATE utf8mb4_uca1400_ai_ci;
 
 USE pixon_db;
 

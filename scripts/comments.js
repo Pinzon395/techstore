@@ -42,13 +42,11 @@
 
     /* ────────────────────────────────────────────────────────
        API BASE
+       Siempre relativo: en producción Express sirve la API en el
+       mismo host; en dev Vite (5173) proxea /api → Express :3001
+       (ver vite.config.js → server.proxy). Nunca hardcodear puertos.
     ──────────────────────────────────────────────────────── */
-    const API_BASE = (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-    )
-        ? `${window.location.protocol}//${window.location.hostname}:3000/api`
-        : '/api';
+    const API_BASE = '/api';
 
     /* ────────────────────────────────────────────────────────
        COMENTARIOS SEMILLA (fallback offline)
