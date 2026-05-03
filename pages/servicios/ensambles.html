@@ -1778,8 +1778,9 @@
 
             // ─────────────────────────────────────────────────────────
             // Power Bar — score ponderado por componente (no por precio)
-            // Pesos: GPU domina el gaming, CPU lo soporta, RAM/Base/SSD complementan.
-            // GPU 0.50 · CPU 0.28 · RAM 0.10 · Base 0.08 · SSD 0.04 = 1.00
+            // Pesos (suma 1.00):  GPU 0.50 · CPU 0.28 · RAM 0.10 · Base 0.08 · SSD 0.04
+            // Tiers:  Ultra >=80 · Alta >=60 · Media >=40 · Entrada >=20 · Basica <20
+            // Cuando faltan componentes muestra "Parcial • <tier>" + qué falta.
             // ─────────────────────────────────────────────────────────
             const powerBar = document.getElementById('power-bar');
             const powerLabel = document.getElementById('power-label');
@@ -1797,9 +1798,10 @@
             if (powerBar && powerLabel && powerDesc) {
                 if (count === 0) {
                     powerBar.style.width = '0%';
-                    powerLabel.textContent = 'Básico';
+                    powerBar.style.background = 'linear-gradient(90deg,#3b82f6,#10b981)';
+                    powerLabel.textContent = 'Sin selección';
                     powerLabel.style.color = '#64748b';
-                    powerDesc.textContent = 'Selecciona componentes para ver el rendimiento.';
+                    powerDesc.textContent = 'Selecciona componentes para ver el rendimiento estimado.';
                 } else {
                     const cpuPerf  = perfOf(cpu);
                     const gpuPerf  = perfOf(gpu);
@@ -1807,7 +1809,7 @@
                     const ssdPerf  = perfOf(ssd);
                     const basePerf = perfOf(base);
 
-                    // Score base ponderado (cada componente faltante cuenta 0)
+                    // Score ponderado (componentes faltantes valen 0).
                     let score = (gpuPerf * 0.50) + (cpuPerf * 0.28) + (ramPerf * 0.10)
                               + (basePerf * 0.08) + (ssdPerf * 0.04);
 
@@ -1819,36 +1821,32 @@
 
                     // Sin GPU dedicada Y CPU sin gráficos integrados → no hay video posible
                     if (gpu.value !== '' && !gpuDedicated && cpu.value !== '' && !cpuHasIgpu) {
-                        score = Math.min(score, 8);  // forzar a "no jugable"
+                        score = Math.min(score, 8);
                     }
-
-                    // PSU 500W con GPU de gama alta (perf >= 78 = RTX 4070+) → riesgo de cortes
+                    // PSU 500W con GPU de gama alta (perf ≥ 78 = RTX 4070+) → riesgo
                     if (psuWatts > 0 && psuWatts < 650 && gpuPerf >= 78) {
                         score *= 0.85;
                     }
 
                     score = Math.max(0, Math.min(100, Math.round(score)));
-                    const pct = Math.max(count > 0 ? 5 : 0, score);
-
-                    powerBar.style.width = pct + '%';
 
                     let tierText, tierColor, tierGradient, tierDesc;
-                    if (score >= 85) {
+                    if (score >= 80) {
                         tierGradient = 'linear-gradient(90deg,#8b5cf6,#d946ef)';
                         tierText  = 'Ultra / 4K';
                         tierColor = '#d946ef';
-                        tierDesc  = '144+ FPS en Ultra 1440p. Listo para 4K y streaming pro.';
-                    } else if (score >= 65) {
+                        tierDesc  = '144+ FPS en 1440p Ultra. Listo para 4K y streaming pro.';
+                    } else if (score >= 60) {
                         tierGradient = 'linear-gradient(90deg,#3b82f6,#10b981)';
                         tierText  = 'Gama Alta / 1440p';
                         tierColor = '#10b981';
                         tierDesc  = '1440p Ultra estable; 1080p competitivo a 240Hz.';
-                    } else if (score >= 45) {
+                    } else if (score >= 40) {
                         tierGradient = 'linear-gradient(90deg,#0ea5e9,#2dd4bf)';
                         tierText  = 'Gama Media / 1080p';
                         tierColor = '#2dd4bf';
                         tierDesc  = '1080p High–Ultra y eSports a alta tasa de FPS.';
-                    } else if (score >= 25) {
+                    } else if (score >= 20) {
                         tierGradient = 'linear-gradient(90deg,#0ea5e9,#3b82f6)';
                         tierText  = 'Gama Entrada';
                         tierColor = '#60a5fa';
@@ -1859,14 +1857,25 @@
                         tierColor = '#94a3b8';
                         tierDesc  = 'Tareas diarias y juegos ligeros a 720p–1080p Low.';
                     }
+
+                    // Estado parcial vs final
+                    const isPartial = count < 5;
+                    const missing = [];
+                    if (cpu.value === '')  missing.push('CPU');
+                    if (gpu.value === '')  missing.push('GPU');
+                    if (ram.value === '')  missing.push('RAM');
+                    if (ssd.value === '')  missing.push('SSD');
+                    if (base.value === '') missing.push('Kit Base');
+
+                    powerBar.style.width = score + '%';
                     powerBar.style.background = tierGradient;
-                    powerLabel.textContent = tierText;
+                    powerLabel.textContent = (isPartial ? 'Parcial • ' : '') + tierText;
                     powerLabel.style.color = tierColor;
 
-                    // Detección de cuellos de botella → warning amarillo bajo la descripción
+                    // Detección de cuellos de botella
                     const warns = [];
                     if (gpu.value !== '' && !gpuDedicated && cpu.value !== '' && !cpuHasIgpu) {
-                        warns.push('Sin GPU + CPU sin gráficos integrados: no habrá video. Cambia a Ryzen 5600G o agrega una GPU dedicada.');
+                        warns.push('Sin GPU + CPU sin gráficos integrados: no habrá video. Usa Ryzen 5600G o agrega una GPU dedicada.');
                     }
                     if (cpu.value !== '' && gpu.value !== '' && gpuPerf >= 78 && cpuPerf < 60) {
                         warns.push('Tu CPU limitará a esta GPU (cuello de botella). Sube a 13600K, 7800X3D o 14700K.');
@@ -1878,7 +1887,10 @@
                         warns.push('La fuente de 500W puede quedarse corta con esta GPU. Sube al Kit Intermedio (650W) o Avanzado (850W).');
                     }
 
-                    let descHtml = tierDesc;
+                    let descHtml = '<strong style="color:#cbd5e1;">Score: ' + score + '/100</strong> · ' + tierDesc;
+                    if (isPartial) {
+                        descHtml += '<br><span style="color:#60a5fa;">Falta seleccionar: ' + missing.join(', ') + '.</span>';
+                    }
                     if (warns.length) {
                         descHtml += '<br><span style="color:#f59e0b;font-weight:700;">⚠ ' + warns.join(' · ') + '</span>';
                     }
