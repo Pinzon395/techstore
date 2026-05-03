@@ -47,7 +47,8 @@ const {
     insertRepairAdmin,
     getAllBuildsAdmin,
     getAllBuildsPublic,
-    insertBuildAdmin
+    insertBuildAdmin,
+    logAdminAction
 } = require('./database');
 
 const app = express();
@@ -267,6 +268,20 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.redirect('/?adminRequired=1');
     }
 
+    // SECURITY-3 (M6) — wrapper que extrae datos del req para admin_logs.
+    // Llamar despues de la mutacion: audit(req, 'delete', 'comment', id)
+    function audit(req, action, entity, entity_id, diff) {
+        return logAdminAction({
+            user_id:    req.user?.id,
+            action,
+            entity,
+            entity_id,
+            diff,
+            ip:         req.ip,
+            user_agent: req.get('user-agent')
+        });
+    }
+
     /* ─────────────────────────────────────────────────────────
        AUTH
     ───────────────────────────────────────────────────────── */
@@ -407,6 +422,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     app.post('/api/admin/repairs', requireAdmin, ah(async (req, res) => {
         const repair = await insertRepairAdmin(req.body);
+        await audit(req, 'create', 'repair', repair?.id, { ticket_code: repair?.ticket_code });
         res.status(201).json({ success: true, repair });
     }));
 
@@ -417,6 +433,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     app.post('/api/admin/builds', requireAdmin, ah(async (req, res) => {
         const build = await insertBuildAdmin(req.body);
+        await audit(req, 'create', 'build', build?.id, { title: build?.title, price: build?.price });
         res.status(201).json({ success: true, build });
     }));
 
@@ -428,15 +445,19 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     app.post('/api/admin/comments/:id/approve', requireAdmin, ah(async (req, res) => {
         const id = parseInt(req.params.id, 10);
         const success = await approveComment(id);
-        if (success) res.json({ success: true });
-        else res.status(404).json({ error: 'Comentario no encontrado' });
+        if (success) {
+            await audit(req, 'approve', 'comment', id);
+            res.json({ success: true });
+        } else res.status(404).json({ error: 'Comentario no encontrado' });
     }));
 
     app.delete('/api/admin/comments/:id', requireAdmin, ah(async (req, res) => {
         const id = parseInt(req.params.id, 10);
         const success = await deleteComment(id);
-        if (success) res.json({ success: true });
-        else res.status(404).json({ error: 'Comentario no encontrado' });
+        if (success) {
+            await audit(req, 'delete', 'comment', id);
+            res.json({ success: true });
+        } else res.status(404).json({ error: 'Comentario no encontrado' });
     }));
 
     app.get('/api/admin/comments/stream', requireAdmin, (req, res) => {
@@ -455,18 +476,21 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     app.post('/api/admin/faqs', requireAdmin, ah(async (req, res) => {
         const faq = await insertFaq(req.body);
+        await audit(req, 'create', 'faq', faq?.id, { question: faq?.question, category: faq?.category });
         res.status(201).json(faq);
     }));
 
     app.put('/api/admin/faqs/:id', requireAdmin, ah(async (req, res) => {
         const id = parseInt(req.params.id, 10);
         const success = await updateFaq(id, req.body);
+        if (success) await audit(req, 'update', 'faq', id, { category: req.body?.category, question: req.body?.question });
         res.json({ success });
     }));
 
     app.delete('/api/admin/faqs/:id', requireAdmin, ah(async (req, res) => {
         const id = parseInt(req.params.id, 10);
         const success = await deleteFaq(id);
+        if (success) await audit(req, 'delete', 'faq', id);
         res.json({ success });
     }));
 
@@ -474,8 +498,9 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.json(await getUnansweredFaqs());
     }));
 
-    app.delete('/api/admin/faqs/unanswered', requireAdmin, ah(async (_req, res) => {
-        await clearUnansweredFaqs();
+    app.delete('/api/admin/faqs/unanswered', requireAdmin, ah(async (req, res) => {
+        const count = await clearUnansweredFaqs();
+        await audit(req, 'clear', 'faq_unanswered', null, { rows_deleted: count });
         res.json({ success: true });
     }));
 

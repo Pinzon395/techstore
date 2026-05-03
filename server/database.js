@@ -145,6 +145,36 @@ async function deleteComment(id) {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   ADMIN_LOGS — auditoria de acciones admin (SECURITY-3 M6)
+───────────────────────────────────────────────────────────── */
+
+/**
+ * Registra una accion administrativa en admin_logs.
+ * Llamarlo desde los handlers admin tras la operacion.
+ *   logAdminAction({ user_id, action, entity, entity_id, diff, ip, user_agent })
+ */
+async function logAdminAction({ user_id, action, entity, entity_id, diff, ip, user_agent }) {
+    try {
+        await pool.execute(
+            `INSERT INTO admin_logs (user_id, action, entity, entity_id, diff, ip, user_agent)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+                user_id || null,
+                String(action).slice(0, 64),
+                String(entity).slice(0, 64),
+                entity_id != null ? String(entity_id).slice(0, 64) : null,
+                diff ? JSON.stringify(diff) : null,
+                ip ? String(ip).slice(0, 45) : null,
+                user_agent ? String(user_agent).slice(0, 255) : null
+            ]
+        );
+    } catch (e) {
+        // El logging nunca debe romper la operacion principal
+        console.error('admin_log fail:', e.message);
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
    USUARIOS (OAuth + perfil)
 ───────────────────────────────────────────────────────────── */
 
@@ -413,5 +443,6 @@ module.exports = {
     insertRepairAdmin,
     getAllBuildsAdmin,
     getAllBuildsPublic,
-    insertBuildAdmin
+    insertBuildAdmin,
+    logAdminAction
 };
