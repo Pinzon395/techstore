@@ -14,6 +14,8 @@ require('dotenv').config();
 const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 const session = require('express-session');
@@ -86,14 +88,49 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     /* ─────────────────────────────────────────────────────────
        MIDDLEWARES GLOBALES
     ───────────────────────────────────────────────────────── */
+
+    // SECURITY-2 (M1+C2) — Helmet con CSP pragmatica.
+    // El sitio tiene 207+ inline event handlers (onclick=...) y multiples
+    // <script> inline. Refactorizar todo a addEventListener es un proyecto
+    // aparte, asi que CSP usa 'unsafe-inline' para script-src y style-src,
+    // pero estricto en TODO lo demas: bloquea scripts/iframes/forms a otros
+    // origenes y cierra defaultSrc a 'self'. Combinado con C1 (sanitizar
+    // FAQ HTML) y CSRF (M8), el riesgo de XSS persistente cae fuerte.
+    app.use(helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc:    ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+                // Helmet por default pone script-src-attr 'none' que romperia
+                // los 207+ inline onclick=, onmouseover=, etc. del sitio.
+                // Necesario hasta que se refactoren a addEventListener.
+                scriptSrcAttr: ["'unsafe-inline'"],
+                styleSrc:   ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+                fontSrc:    ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
+                imgSrc:     ["'self'", "data:", "https:"],
+                connectSrc: ["'self'"],
+                frameAncestors: ["'none'"],
+                baseUri:    ["'self'"],
+                formAction: ["'self'", "https://accounts.google.com"],
+                objectSrc:  ["'none'"],
+                upgradeInsecureRequests: []
+            }
+        },
+        // Helmet emite por defecto: X-Content-Type-Options, X-Frame-Options,
+        // Strict-Transport-Security, Referrer-Policy, X-DNS-Prefetch-Control,
+        // X-Download-Options, X-Permitted-Cross-Domain-Policies.
+        crossOriginEmbedderPolicy: false,            // permite imagenes externas
+        crossOriginResourcePolicy: { policy: 'same-site' },
+        referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+        strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true }
+    }));
+
     app.use(compression({
         threshold: 1024,
         level: 6,
         filter: (req, res) => {
             if (req.headers['x-no-compression']) return false;
-            // B6 — SSE no se comprime: la compresion buferea chunks y rompe
-            // el flujo en tiempo real (eventos llegan tarde o en lote).
-            if (req.path.endsWith('/stream')) return false;
+            if (req.path.endsWith('/stream')) return false; // B6
             return compression.filter(req, res);
         }
     }));
@@ -105,7 +142,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         app.use(express.static(rootPath, { index: false, maxAge: 0 }));
     }
 
-    // M2 — CORS con metodos completos. El admin usa PUT/DELETE para FAQs y comentarios.
+    // M2 — CORS con metodos completos
     app.use(cors({
         origin: [
             'http://localhost:5173',
@@ -119,11 +156,23 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         credentials: true
     }));
 
-    app.use((req, res, next) => {
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('X-Frame-Options', 'DENY');
-        next();
+    // SECURITY-2 (B2) — Rate-limit. Protege OAuth callback de brute-force
+    // y endpoints publicos de spam.
+    const authLimiter = rateLimit({
+        windowMs: 10 * 60 * 1000,    // 10 min
+        max: 30,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: { error: 'Demasiados intentos. Espera unos minutos.' }
     });
+    const writeLimiter = rateLimit({
+        windowMs: 60 * 1000,         // 1 min
+        max: 10,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: { error: 'Demasiadas peticiones. Espera un momento.' }
+    });
+    app.use('/auth/', authLimiter);
 
     /* ─────────────────────────────────────────────────────────
        SESIONES + PASSPORT
@@ -210,14 +259,33 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.status(403).json({ error: 'Prohibido' });
     }
 
+    // SECURITY-2 (M2) — gate del HTML del panel admin a nivel servidor.
+    // Antes la proteccion era solo client-side (admin.js mostraba "Acceso
+    // Denegado"). Ahora ni siquiera se sirve el HTML a no-admins.
+    function gateAdminPage(req, res, next) {
+        if (req.isAuthenticated() && req.user?.role === 'admin') return next();
+        res.redirect('/?adminRequired=1');
+    }
+
     /* ─────────────────────────────────────────────────────────
        AUTH
     ───────────────────────────────────────────────────────── */
     app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
+    // SECURITY-2 (M5) — regenerar la sesion previene session fixation:
+    // un atacante no puede preparar una cookie y heredarla autenticada.
     app.get('/auth/google/callback',
         passport.authenticate('google', { failureRedirect: '/' }),
-        (req, res) => res.redirect('/')
+        (req, res, next) => {
+            const user = req.user;
+            req.session.regenerate((err) => {
+                if (err) return next(err);
+                req.login(user, (err2) => {
+                    if (err2) return next(err2);
+                    res.redirect('/');
+                });
+            });
+        }
     );
 
     app.get('/auth/logout', (req, res, next) => {
@@ -284,7 +352,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         });
     });
 
-    app.post('/api/comments', requireAuth, ah(async (req, res) => {
+    app.post('/api/comments', writeLimiter, requireAuth, ah(async (req, res) => {
         const { name, stars, text } = req.body;
         const cleanName = String(name || '').trim().slice(0, 60);
         const cleanText = String(text || '').trim().slice(0, 500);
@@ -310,7 +378,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.json(faqs);
     }));
 
-    app.post('/api/faqs/unanswered', ah(async (req, res) => {
+    app.post('/api/faqs/unanswered', writeLimiter, ah(async (req, res) => {
         const { query } = req.body;
         if (query && query.length >= 3) {
             await logUnansweredFaq(query);
@@ -454,6 +522,13 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         // M6 — canonicaliza /B2B -> /b2b para evitar URLs duplicadas en SEO
         app.get('/B2B', (_req, res) => res.redirect(301, '/b2b'));
 
+        // SECURITY-2 (M2) — gate del HTML admin antes del catch-all
+        app.get('/admin', gateAdminPage, (_req, res) => {
+            res.sendFile(path.join(distPath, 'pages/admin/admin.html'), {
+                headers: { 'Cache-Control': 'no-store' }
+            });
+        });
+
         app.use(express.static(distPath, {
             maxAge: '1y',
             etag: true,
@@ -550,6 +625,13 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         });
         // M6 — canonicaliza /B2B -> /b2b en dev tambien
         app.get('/B2B', (_req, res) => res.redirect(301, '/b2b'));
+
+        // SECURITY-2 (M2) — gate del HTML admin tambien en dev
+        app.get('/admin', gateAdminPage, (_req, res) => {
+            res.sendFile(path.join(rootPath, 'pages/admin/admin.html'), {
+                headers: { 'Cache-Control': 'no-store' }
+            });
+        });
 
         app.get('*', (req, res, next) => {
             if (req.path.startsWith('/api') || req.path.startsWith('/auth')) return next();

@@ -17,10 +17,26 @@
 
 require('dotenv').config();
 const mysql = require('mysql2/promise');
+const DOMPurify = require('isomorphic-dompurify');
 const { EventEmitter } = require('events');
 const crypto = require('crypto');
 
 const dbEmitter = new EventEmitter();
+
+// SECURITY-2 (C1) — Allow-list para HTML de respuestas de FAQ.
+// Solo etiquetas de formato basico. Sin script, iframe, on*, etc.
+const FAQ_HTML_CONFIG = {
+    ALLOWED_TAGS: ['br', 'b', 'i', 'strong', 'em', 'a', 'code', 'p', 'ul', 'ol', 'li'],
+    ALLOWED_ATTR: ['href', 'rel', 'target'],
+    ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|tel:|#|\/)/i
+};
+function sanitizeFaqAnswer(html) {
+    return DOMPurify.sanitize(String(html || ''), FAQ_HTML_CONFIG);
+}
+// Icon de FAQ es solo clases Font Awesome: deja a-z 0-9 espacio guion.
+function sanitizeFaqIcon(icon) {
+    return String(icon || 'fa-solid fa-circle-question').replace(/[^a-z0-9\- ]/gi, '').slice(0, 64);
+}
 
 let pool = null;
 
@@ -224,18 +240,24 @@ async function getAllFaqs() {
 }
 
 async function insertFaq({ category, icon, question, answer, display_order }) {
+    // C1 — sanitiza answer y icon antes de guardar
+    const cleanAnswer = sanitizeFaqAnswer(answer);
+    const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
         'INSERT INTO faqs (category, icon, question, answer, display_order) VALUES (?, ?, ?, ?, ?)',
-        [category, icon, question, answer, display_order || 0]
+        [category, cleanIcon, question, cleanAnswer, display_order || 0]
     );
     const [[newRow]] = await pool.execute('SELECT * FROM faqs WHERE id = ?', [info.insertId]);
     return newRow;
 }
 
 async function updateFaq(id, { category, icon, question, answer, display_order }) {
+    // C1 — sanitiza tambien al actualizar
+    const cleanAnswer = sanitizeFaqAnswer(answer);
+    const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
         'UPDATE faqs SET category = ?, icon = ?, question = ?, answer = ?, display_order = ? WHERE id = ?',
-        [category, icon, question, answer, display_order, id]
+        [category, cleanIcon, question, cleanAnswer, display_order, id]
     );
     return info.affectedRows > 0;
 }
