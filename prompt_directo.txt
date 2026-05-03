@@ -1,206 +1,123 @@
 Hola Claude, hazme las siguientes tareas:
-- [ Actúa como un auditor senior de software, arquitecto full-stack y revisor de calidad de código. 
-Tu tarea es escanear TODO mi proyecto de forma exhaustiva, detectar cualquier fallo, inconsistencia o parte desconectada, y decirme exactamente qué está mal, dónde está, por qué falla y cómo verificarlo.
+- [ sin importar qué componentes (procesador, tarjeta gráfica, RAM, etc.) se seleccionen. El usuario quiere que esto sea **completamente funcional**: al seleccionar componentes, la barra debe reflejar un rendimiento estimado realista (por ejemplo: Básico → Medio → Alto → Ultra), basado en los componentes elegidos.
 
-Quiero que revises el proyecto como si fueras a ponerlo en producción y no pudiera fallar nada. 
-No te limites a una revisión superficial. Analiza cada parte del sistema y conecta mentalmente frontend, backend, base de datos, rutas, componentes, variables de entorno, sesiones, autenticación, archivos estáticos, seguridad, migraciones y dependencias.
+### Archivos clave que debes investigar para esto:
+- `pages/` — busca la página de "Arma tu PC" o "Ensambles" o "Builds" o "Builder" (posiblemente `pages/builds.html`, `pages/builder.html`, o `pages/index.html` con secciones).
+- `scripts/` — busca `builder.js`, `ensambles.js`, `builds.js` o similar que maneje la lógica de selección de componentes y cálculo de rendimiento.
+- `server/server.js` y `server/database.js` — endpoints como `/api/components`, `/api/builder`, `/api/builds` que alimentan datos de componentes (CPU, GPU, RAM, almacenamiento, etc.) y builds predefinidas.
+- `server/sql/01-schema.sql` — tablas `components`, `products`, `builds`, `build_components` (chequea estructura de atributos, precios, performance_tier, etc.).
+- `server/sql/03-builder-schema.sql` — posible schema duplicado con `hardware_components`, `hardware_categories`, `price_history` (debe ser eliminado o unificado según B2, pero primero entiende si el builder actual usa estas tablas o las de `01-schema.sql`).
 
-CONTEXTO DEL PROYECTO
-- Proyecto web moderno.
-- Usa Node.js / Express / frontend estático o Next.js según corresponda.
-- Base de datos migrada o en proceso de migración a MariaDB.
-- Hay autenticación, panel administrativo, comentarios, formularios, rutas públicas y privadas.
-- Puede haber integración con Google OAuth, sesiones, roles, archivos estáticos, SSE, APIs y componentes del frontend.
+### Posibles causas del mal funcionamiento:
+1. **Lógica de cálculo de rendimiento no implementada**: puede que solo haya un placeholder "Básico" en el HTML y ningún JavaScript que recalcule el rendimiento al cambiar componentes.
+2. **Falta de datos**: los componentes en la base de datos quizás no tienen campos de rendimiento (como `performance_tier`, `benchmark_score`, `gaming_rating`, etc.).
+3. **Eventos no enlazados**: los `<select>` o botones de selección de componentes quizás no disparan ninguna función de actualización de la barra.
+4. **Endpoint inexistente**: el frontend puede estar esperando un endpoint como `/api/calculate-performance` que no existe en el backend.
+5. **Tablas incorrectas**: el builder puede estar apuntando a las tablas `hardware_*` del schema duplicado (03) que quizás no están pobladas, mientras que los datos reales están en `components` del schema 01.
 
-OBJETIVO PRINCIPAL
-Quiero un escaneo total del proyecto para dejarlo 100% conectado y funcional.
-Quiero que encuentres:
-- Errores de código
-- Imports faltantes
-- Funciones no definidas
-- Variables no declaradas
-- Rutas rotas
-- Endpoints que no coinciden con el frontend
-- Problemas con MariaDB
-- Problemas con SQLite si aún queda algo
-- Fallos de autenticación o sesión
-- Errores de configuración
-- Problemas de seguridad
-- Inconsistencias de nombres
-- Archivos que ya no se usan
-- Dependencias faltantes o innecesarias
-- Problemas con build, producción y despliegue
+### Lo que debes hacer (paso a paso):
+1. **Ubica la página de Ensambles/Builder** en el frontend (`pages/`) y su script asociado (`scripts/`).
+2. **Analiza la estructura HTML** de la barra de rendimiento: IDs, clases, atributos `data-*`.
+3. **Revisa el JavaScript** que maneja la selección de componentes y actualiza la barra.
+4. **Revisa los endpoints de API** que el builder consume (`/api/components`, `/api/builds`, etc.).
+5. **Revisa la estructura de la tabla `components`** en `01-schema.sql`: ¿tiene campo de rendimiento o tier?
+6. **Diseña e implementa una fórmula o mapeo de rendimiento**:
+   - Podrías asignar un puntaje base a cada componente (o usar un campo `performance_score` en la DB).
+   - Calcular un score combinado (CPU + GPU + RAM + almacenamiento) y mapearlo a un tier: Básico (< 30), Medio (30-55), Alto (55-75), Ultra (> 75).
+   - Mostrar el tier en la barra con estilo visual (color, ancho de barra, texto).
+7. **Asegura que los componentes disponibles** en los selects se carguen dinámicamente desde la API y reflejen los productos reales.
+8. **Prueba que funcione**: al cargar la página, barra en estado inicial. Al seleccionar CPU, la barra se actualiza. Al añadir GPU, RAM, etc., la barra refleja el rendimiento combinado.
 
-FORMA DE TRABAJO
-1. Revisa el proyecto por capas:
-   - estructura de carpetas
-   - package.json
-   - variables de entorno
-   - backend
-   - base de datos
-   - frontend
-   - autenticación
-   - rutas
-   - seguridad
-   - producción
+## Instrucciones para el nuevo Claude
+- Empieza por **revisar los archivos listados arriba** para entender el estado actual de "Ensambles".
+- Luego **aplica los bloques MEDIOS y LIMPIEZA** de la auditoría (M1–M8, B1–B6), ya que son correcciones importantes.
+- **Después de eso, enfócate en hacer completamente funcional la sección de "Arma tu PC a la carta" y su barra de rendimiento.**
+- No es necesario rotar secretos (eso lo hará el usuario). Asume que la base de datos MariaDB ya está operativa.
+- Haz commits separados y claros.
+- Si encuentras que el schema `03-builder-schema.sql` está interfiriendo, elimínalo o unifícalo con `01-schema.sql` (previa confirmación con el usuario si hay dudas).
+- Asegura que todo funcione tanto en dev (`npm run dev` + `npm run dev:vite`) como en producción.
 
-2. Para cada hallazgo, dame siempre:
-   - archivo exacto
-   - línea o bloque afectado
-   - qué está mal
-   - por qué está mal
-   - qué impacto tiene
-   - cómo corregirlo
-   - cómo verificar que quedó bien
+## Notas adicionales
+- El proyecto tiene un panel de administración en `/admin` protegido con Google OAuth.
+- Los estilos visuales y diseño NO deben modificarse, solo la funcionalidad.
+- Todas las rutas API deben ser relativas (`/api/...`), nunca hardcodear puertos.
+- La sesión usa `express-mysql-session` con tabla `sessions` (no tocar).
+- Cualquier endpoint nuevo debe seguir el patrón de los existentes (async handler, mismo formato de respuesta JSON).] Tarea 1
+- [Actúa como un arquitecto senior de ciberseguridad y desarrollador full-stack especializado en aplicaciones web modernas. Tu tarea es hacer una auditoría defensiva y una propuesta de mejora para una app construida con Next.js App Router, TypeScript, middleware, server actions y una capa de autenticación moderna.
 
-3. No asumas que algo funciona solo porque “parece correcto”.
-   Verifica:
-   - imports/exportaciones
-   - nombres de funciones
-   - rutas GET/POST/PUT/DELETE
-   - uso de req/res/next
-   - conexión con la base de datos
-   - queries SQL
-   - manejo de errores
-   - consistencia entre frontend y backend
-   - uso de sesiones y cookies
-   - permisos de admin
-   - assets y archivos públicos
+Quiero que revises la aplicación con mentalidad de producción y me entregues un informe claro, profesional y accionable. No me des teoría vieja ni soluciones obsoletas. Prioriza prácticas actuales, seguras y mantenibles.
 
-4. Si detectas un error encadenado, explícalo completo.
-   Ejemplo:
-   - causa original
-   - error secundario
-   - qué archivo depende del otro
-   - qué se rompe si no se corrige
+Enfócate especialmente en estos puntos:
 
-ÁREAS QUE QUIERO QUE REVISES EN DETALLE
+1. Prevención de XSS
 
-A. BACKEND
-- Revisa server.js y todos los archivos del backend.
-- Confirma que no existan funciones como getDB, initDB, findOrCreateUser, updateUserProfile, insertComment, approveComment u otras sin definir o sin importar.
-- Revisa que cada ruta use los middlewares correctos.
-- Revisa async/await, manejo de promesas y try/catch.
-- Revisa que no haya rutas duplicadas o mal protegidas.
+* Detecta posibles puntos de inyección en navbar, comentarios, formularios, parámetros de URL, renderizado HTML y contenido dinámico.
+* Recomienda encoding de salida, validación de entrada, sanitización cuando aplique y uso seguro de componentes.
+* Sugiere una Content Security Policy estricta y moderna.
+* Indica qué partes deben renderizarse del lado servidor para reducir superficie de ataque.
 
-B. BASE DE DATOS
-- Revisa que la conexión a MariaDB esté bien configurada.
-- Confirma que el pool, usuario, password, host, puerto y nombre de base estén correctos.
-- Revisa si aún queda lógica vieja de SQLite mezclada con MariaDB.
-- Revisa migraciones, seeds, schema SQL y scripts de backup.
-- Detecta tablas faltantes, claves foráneas mal hechas, índices ausentes y nombres inconsistentes.
-- Valida que las consultas coincidan con la estructura real de las tablas.
+2. Autenticación y autorización
 
-C. AUTENTICACIÓN Y SESIONES
-- Revisa Google OAuth o cualquier login.
-- Confirma que serializeUser y deserializeUser estén bien.
-- Verifica que req.isAuthenticated() se use correctamente.
-- Verifica control real de admin, no solo ocultar botones.
-- Revisa cookies, sesiones y persistencia.
-- Detecta riesgos por exponer datos del usuario.
+* No asumir que ocultar rutas o “encriptar URLs” es suficiente.
+* Propón autenticación real con una librería moderna.
+* Separa autenticación, sesión y autorización.
+* Protege rutas privadas, panel admin, comentarios, edición, borrado y cualquier acción sensible.
+* Revisa que cada endpoint valide permisos en el servidor, no solo en el frontend.
+* Sugiere control por roles si aplica.
 
-D. FRONTEND
-- Revisa que las llamadas fetch, formularios y componentes consuman los endpoints correctos.
-- Detecta rutas rotas, URLs mal escritas y nombres cambiados.
-- Revisa que el frontend no dependa de respuestas que el backend ya no devuelve.
-- Revisa que no haya assets o scripts en rutas inseguras.
-- Revisa que comentarios, FAQ, admin y paneles estén sincronizados.
+3. Protección de rutas
 
-E. PRODUCCIÓN
-- Revisa diferencias entre desarrollo y producción.
-- Revisa express.static, cache, index.html, dist, rutas HTML, redirects y fallbacks.
-- Verifica que no existan referencias a rutas locales que romperían en producción.
-- Revisa compatibilidad con Windows, Linux y despliegue.
-- Revisa configuración para Nginx, proxies o hosting.
+* Identifica rutas públicas que deberían ser privadas.
+* Sugiere protección con middleware o controles server-side.
+* Verifica que no se pueda acceder a páginas sensibles solo cambiando la URL.
 
-F. SEGURIDAD
-- Detecta XSS, CSRF, exposición de datos, rutas abiertas y cualquier vector de abuso.
-- Revisa sanitización de entrada y encoding de salida.
-- Revisa subida de archivos, exposición de .js, rutas públicas y carpetas sensibles.
-- Revisa que no haya secretos hardcodeados.
-- Revisa que root no se use desde la app si no es necesario.
+4. CSRF y acciones sensibles
 
-G. CALIDAD GENERAL
-- Revisa naming, duplicación de código, archivos obsoletos y funciones muertas.
-- Revisa dependencias en package.json.
-- Revisa scripts npm.
-- Revisa logs y mensajes de error.
-- Revisa consistencia de estilo y estructura.
+* Revisa formularios, server actions, POST/PUT/PATCH/DELETE y cualquier cambio de estado.
+* Propón defensas contra CSRF y validación del origen.
+* Recomienda cookies seguras, HttpOnly, SameSite y validaciones de sesión.
 
-FORMATO DE SALIDA OBLIGATORIO
-Quiero el reporte con esta estructura:
+5. Subida y manejo de archivos
 
-1. Resumen ejecutivo
-   - estado general del proyecto
-   - si está listo o no para producción
-   - riesgos principales
+* Detecta riesgos por subir archivos dentro de carpetas públicas o accesibles.
+* No permitir guardar archivos ejecutables o JavaScript en rutas públicas.
+* Recomienda lista blanca de extensiones, validación real del tipo de archivo, límite de tamaño, renombrado seguro, almacenamiento fuera de webroot y análisis de archivos cuando sea posible.
+* Advierte sobre archivos maliciosos, traversal, ejecución accidental y exposición de recursos.
 
-2. Lista de errores críticos
-   Para cada error:
-   - severidad
-   - archivo
-   - línea
-   - descripción
-   - causa
-   - impacto
-   - corrección exacta
-   - cómo verificarlo
+6. Configuración segura
 
-3. Lista de errores medios
+* Revisa headers de seguridad.
+* Recomienda CSP, protección contra clickjacking, políticas de origen, control de caching donde sea necesario y endurecimiento de configuración.
+* Señala cualquier mala práctica como confiar en datos del cliente o en rutas “ocultas”.
 
-4. Lista de errores bajos
+7. URL, admin y exposición de información
 
-5. Dependencias y configuración
-   - paquetes faltantes
-   - paquetes obsoletos
-   - scripts npm
-   - variables de entorno faltantes o mal nombradas
+* No depender de ofuscación como medida de seguridad.
+* Recomienda controles reales de acceso para paneles y recursos administrativos.
+* Revisa exposición de endpoints, IDs predecibles, parámetros manipulables y datos sensibles en la UI o en la respuesta del servidor.
 
-6. Base de datos
-   - estado de la conexión
-   - problemas de schema
-   - problemas de migración
-   - problemas de compatibilidad
+8. Arquitectura moderna recomendada
 
-7. Rutas y conectividad
-   - frontend → backend
-   - backend → DB
-   - auth → sesiones
-   - admin → permisos
+* Si propones refactor, prioriza Next.js App Router, TypeScript, validación fuerte de datos, middleware, auth library moderna, server components cuando ayuden a reducir exposición, y separación clara entre UI, lógica y acceso a datos.
+* Evita soluciones anticuadas o demasiada lógica manual si hay una forma más segura y mantenible de hacerlo con herramientas actuales.
 
-8. Checklist final de verificación
-   - comandos para probar
-   - rutas para testear
-   - validaciones manuales
-   - qué debo revisar yo después
+Quiero que el resultado final esté dividido así:
 
-REGLAS IMPORTANTES
-- No te inventes cosas.
-- Si algo no existe, dilo claramente.
-- Si algo está bien, también dilo.
-- Si encuentras algo ambiguo, marca “requiere verificación”.
-- No des soluciones vagas.
-- Dame correcciones concretas.
-- Si hay varios errores relacionados, agrúpalos.
-- Si una corrección puede romper otra parte, adviértelo.
-- Enfócate en que el proyecto quede bien conectado de extremo a extremo.
+* Resumen ejecutivo
+* Riesgos críticos
+* Riesgos medios
+* Riesgos bajos
+* Qué deberías cambiar primero
+* Recomendación de stack moderno
+* Ejemplos de implementación segura a nivel conceptual
+* Checklist final de seguridad
 
-AL FINAL
-Quiero que me entregues:
-- una lista priorizada de lo que debo arreglar primero
-- una lista de comandos para verificar cada cambio
-- una conclusión clara sobre si el proyecto está listo o no para seguir avanzando
+Importante:
 
-Empieza revisando primero:
-1) package.json
-2) estructura de carpetas
-3) server/server.js
-4) server/database.js
-5) archivos SQL
-6) .env y .env.example
-7) frontend que consume la API
-y luego continúa con el resto del proyecto.] Tarea 1
-- [ ] Tarea 2
+* No me des instrucciones ofensivas ni explotación paso a paso.
+* No me des teoría genérica sin aterrizarla a la app.
+* Si detectas algo inseguro, dime exactamente que se cambio y ya.
+* Si hay varias opciones, elige la más moderna, mantenible y segura.
+* Escribe en tono claro, profesional y directo.
+ ] Tarea 2
 - [ ] Tarea 3
-
-Te las entrego antes de las 18:00.
