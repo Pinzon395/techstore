@@ -12,11 +12,12 @@ cd /d "C:\Users\Pinzon\Documents\techstore"
 echo.
 echo Limpiando conexiones anteriores (Puerto 3000 y Cloudflare)...
 taskkill /F /IM cloudflared.exe >nul 2>&1
-powershell -Command "try { Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue).OwningProcess -Force -ErrorAction SilentlyContinue } catch {}"
+powershell -Command "try { Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000, 3001 -ErrorAction SilentlyContinue).OwningProcess -Force -ErrorAction SilentlyContinue } catch {}"
 timeout /t 2 /nobreak > nul
 
 echo.
-echo 1) Levantando Base de Datos SQLite y Sitio Web...
+echo 1) Levantando Base de Datos MariaDB y Sitio Web...
+net start MariaDB >nul 2>&1
 start "Node Server Pixon PC" cmd /k "npm run start"
 
 :: Dar tiempo a que Node encienda antes del tunel

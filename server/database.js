@@ -1,370 +1,338 @@
 /**
  * ============================================================
- *  server/database.js  — SQLite via better-sqlite3
+ *  server/database.js  — MariaDB via mysql2/promise (pool)
  * ============================================================
  *
- *  Migración completada a better-sqlite3.
- *  Evita el error 'disk image malformed' en Windows y mejora
- *  drásticamente la concurrencia usando el modo WAL.
+ *  Reemplaza la versión anterior basada en better-sqlite3.
+ *  API pública (nombres de funciones) es la misma, pero todas
+ *  las funciones ahora son ASYNC. Los handlers en server.js
+ *  deben usar await.
  *
- *  ESQUEMA COMPLETO - FASE 1:
- *  - users, comments, addresses, products, services
- *  - cart_items, orders, order_items, reviews
+ *  Variables de entorno requeridas:
+ *    DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME
  * ============================================================
  */
 
 'use strict';
 
-const Database = require('better-sqlite3');
-const path = require('path');
+require('dotenv').config();
+const mysql = require('mysql2/promise');
 const { EventEmitter } = require('events');
 const crypto = require('crypto');
 
 const dbEmitter = new EventEmitter();
-const DB_PATH = path.join(__dirname, 'pixon.db');
 
-let db = null;
+let pool = null;
 
-function initDB() {
-    // Abrir o crear la base de datos
-    db = new Database(DB_PATH);
-    
-    // Configurar modo WAL (Write-Ahead Logging) para mejor rendimiento/concurrencia y cero bloqueos
-    db.pragma('journal_mode = WAL');
-    
-    console.log('🗄️  Base de datos cargada/creada con better-sqlite3:', DB_PATH);
+/* ─────────────────────────────────────────────────────────────
+   INICIALIZACIÓN
+───────────────────────────────────────────────────────────── */
 
-    // Crear el Schema Completo (Fase 1 y Futuro)
-    db.exec(`
-        -- 1. Usuarios y Autenticación
-        CREATE TABLE IF NOT EXISTS users (
-            id TEXT PRIMARY KEY,
-            google_id TEXT UNIQUE,
-            email TEXT UNIQUE NOT NULL,
-            name TEXT,
-            avatar TEXT,
-            role TEXT DEFAULT 'user',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
+async function initDB() {
+    pool = mysql.createPool({
+        host:               process.env.DB_HOST     || '127.0.0.1',
+        port:               +(process.env.DB_PORT   || 3306),
+        user:               process.env.DB_USER     || 'pixon_app',
+        password:           process.env.DB_PASSWORD || '',
+        database:           process.env.DB_NAME     || 'pixon',
+        waitForConnections: true,
+        connectionLimit:    10,
+        queueLimit:         0,
+        charset:            'utf8mb4',
+        timezone:           'Z',
+        dateStrings:        true,        // fechas como strings ISO (consistente con SQLite)
+        namedPlaceholders:  false
+    });
 
-        -- 2. Comentarios (Reseñas del inicio - RÍO DE COMENTARIOS)
-        CREATE TABLE IF NOT EXISTS comments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            stars INTEGER NOT NULL CHECK(stars BETWEEN 1 AND 5),
-            text TEXT NOT NULL,
-            approved INTEGER NOT NULL DEFAULT 1,
-            user_email TEXT,
-            created_at TEXT DEFAULT (datetime('now', 'localtime'))
-        );
-        CREATE INDEX IF NOT EXISTS idx_comments_date ON comments(created_at DESC);
-
-        -- 3. Direcciones
-        CREATE TABLE IF NOT EXISTS addresses (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            street TEXT,
-            city TEXT,
-            state TEXT,
-            zip TEXT,
-            phone TEXT,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        );
-
-        -- 4. Productos (Catálogo)
-        CREATE TABLE IF NOT EXISTS products (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            description TEXT,
-            price REAL NOT NULL,
-            stock INTEGER DEFAULT 0,
-            image_url TEXT,
-            category TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-
-        -- 5. Servicios
-        CREATE TABLE IF NOT EXISTS services (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            base_price REAL,
-            description TEXT
-        );
-
-        -- 6. Carrito de Compras
-        CREATE TABLE IF NOT EXISTS cart_items (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            product_id TEXT NOT NULL,
-            quantity INTEGER DEFAULT 1,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-        );
-
-        -- 7. Órdenes
-        CREATE TABLE IF NOT EXISTS orders (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            total REAL NOT NULL,
-            status TEXT DEFAULT 'pending', -- pending, paid, shipped, delivered, cancelled
-            shipping_address_id TEXT,
-            stripe_session_id TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-        );
-
-        -- 8. Items de la orden
-        CREATE TABLE IF NOT EXISTS order_items (
-            id TEXT PRIMARY KEY,
-            order_id TEXT NOT NULL,
-            product_id TEXT,
-            service_id TEXT,
-            quantity INTEGER NOT NULL,
-            price_at_time REAL NOT NULL,
-            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-        );
-
-        -- 9. Reseñas de Productos/Servicios
-        CREATE TABLE IF NOT EXISTS reviews (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            product_id TEXT,
-            service_id TEXT,
-            rating INTEGER CHECK(rating BETWEEN 1 AND 5),
-            comment TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        );
-
-        -- 10. Preguntas Frecuentes (FAQs)
-        CREATE TABLE IF NOT EXISTS faqs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            category TEXT NOT NULL,
-            icon TEXT NOT NULL,
-            question TEXT NOT NULL,
-            answer TEXT NOT NULL,
-            display_order INTEGER DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-
-        -- 11. Búsquedas de FAQ sin respuesta
-        CREATE TABLE IF NOT EXISTS faq_unanswered (
-            query TEXT PRIMARY KEY,
-            count INTEGER DEFAULT 1,
-            first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-            last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-    `);
-
-    // Semilla de comentarios (solo si está vacía)
-    const cnt = db.prepare('SELECT COUNT(*) as c FROM comments').get().c;
-    if (cnt === 0) {
-        const insertStmt = db.prepare('INSERT INTO comments (name, stars, text) VALUES (?, ?, ?)');
-        const seedComments = [
-            ['Eduardo Álvarez',    5, 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.'],
-            ['Ana Maria Martínez', 5, 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.'],
-            ['Carlos Rodríguez',   5, 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.'],
-            ['Laura Gómez',        5, 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.'],
-        ];
-        
-        const insertMany = db.transaction((comments) => {
-            for (const c of comments) insertStmt.run(c[0], c[1], c[2]);
-        });
-        insertMany(seedComments);
-        console.log('🌱  Semilla de comentarios insertada.');
+    // Probar conexión real
+    const [rows] = await pool.query('SELECT 1 AS ok');
+    if (!rows[0] || rows[0].ok !== 1) {
+        throw new Error('MariaDB no respondió a SELECT 1');
     }
 
-    // MIGRACIÓN: agregar user_email si la columna no existe (bases de datos antiguas)
-    const cols = db.prepare('PRAGMA table_info(comments)').all();
-    if (!cols.some(c => c.name === 'user_email')) {
-        db.exec('ALTER TABLE comments ADD COLUMN user_email TEXT');
-        console.log('🔧  Migración: columna user_email agregada a comments.');
-    }
-
-    // MIGRACIÓN: agregar phone a users
-    const userCols = db.prepare('PRAGMA table_info(users)').all();
-    if (!userCols.some(c => c.name === 'phone')) {
-        db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
-        console.log('🔧  Migración: columna phone agregada a users.');
-    }
-
-    // Semilla de FAQs (solo si está vacía)
-    const faqCnt = db.prepare('SELECT COUNT(*) as c FROM faqs').get().c;
-    if (faqCnt === 0) {
-        try {
-            const fs = require('fs');
-            const faqsSeed = JSON.parse(fs.readFileSync(path.join(__dirname, 'faqs_seed.json'), 'utf8'));
-            const insertFaqStmt = db.prepare('INSERT INTO faqs (category, icon, question, answer, display_order) VALUES (?, ?, ?, ?, ?)');
-            const insertManyFaqs = db.transaction((faqsList) => {
-                let order = 0;
-                for (const f of faqsList) {
-                    insertFaqStmt.run(f.category, f.icon, f.question, f.answer, order++);
-                }
-            });
-            insertManyFaqs(faqsSeed);
-            console.log('🌱  Semilla de FAQs insertada (' + faqsSeed.length + ' preguntas).');
-        } catch(e) {
-            console.error('Error insertando semilla de FAQs:', e.message);
-        }
-    }
-
-    return Promise.resolve(db);
+    console.log(`🗄️  MariaDB conectada → ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+    return pool;
 }
 
-// Exponer instancia de DB pura (útil para better-sqlite3-session-store)
+/** Devuelve el pool. Útil para integraciones externas (session store). */
 function getDB() {
-    return db;
+    if (!pool) throw new Error('Pool no inicializado. Llama a initDB() primero.');
+    return pool;
+}
+
+/** Convierte avatar_url → avatar para mantener compat con el código antiguo. */
+function mapUserCompat(row) {
+    if (!row) return null;
+    return { ...row, avatar: row.avatar_url ?? null };
 }
 
 /* ─────────────────────────────────────────────────────────────
-   OPERACIONES DE USUARIOS
+   COMENTARIOS
 ───────────────────────────────────────────────────────────── */
 
-function updateUserProfile(id, { phone }) {
-    if (!id) return false;
-    const info = db.prepare('UPDATE users SET phone = ? WHERE id = ?').run(phone, id);
-    return info.changes > 0;
-}
-
-function getAllUsersAdmin() {
-    return db.prepare('SELECT id, name, email, avatar, role, phone, created_at FROM users ORDER BY created_at DESC').all();
-}
-
-/* ─────────────────────────────────────────────────────────────
-   OPERACIONES DE COMENTARIOS
-───────────────────────────────────────────────────────────── */
-
-function getAllComments() {
-    return db.prepare(`
+async function getAllComments() {
+    const [rows] = await pool.execute(`
         SELECT id, name, stars, text, created_at
-        FROM comments WHERE approved = 1
+        FROM comments
+        WHERE approved = 1
         ORDER BY created_at DESC
-    `).all();
+    `);
+    return rows;
 }
 
-function insertComment({ name, stars, text, user_email }) {
-    // Los comentarios entran como pendientes (approved=0) hasta que el admin los apruebe
-    const info = db.prepare(
-        'INSERT INTO comments (name, stars, text, approved, user_email) VALUES (?, ?, ?, 0, ?)'
-    ).run(name, stars, text, user_email || null);
-    const newRow = db.prepare(
-        'SELECT id, name, stars, text, approved, user_email, created_at FROM comments WHERE id = ?'
-    ).get(info.lastInsertRowid);
-
-    // NO emitimos 'new-comment' todavía: el admin debe aprobar primero
-    // Notificar solo al admin panel (si está escuchando)
-    dbEmitter.emit('admin-pending', newRow);
-
-    return newRow;
-}
-
-// Útil para un futuro endpoint de borrado desde panel admin
-function deleteComment(id) {
-    const info = db.prepare('DELETE FROM comments WHERE id = ?').run(id);
-    if (info.changes > 0) {
-        dbEmitter.emit('db-sync'); // Fuerza a recargar carrusel en todos los clientes
-    }
-    return info.changes > 0;
-}
-
-// Retorna TODOS los comentarios (pendientes + aprobados) para el panel admin
-// Incluye user_email para trazabilidad
-function getAllCommentsAdmin() {
-    return db.prepare(`
+async function getAllCommentsAdmin() {
+    const [rows] = await pool.execute(`
         SELECT id, name, stars, text, approved, user_email, created_at
         FROM comments
         ORDER BY created_at DESC
-    `).all();
+    `);
+    return rows;
 }
 
-// Aprobar un comentario: lo pone visible en el carrusel público
-function approveComment(id) {
-    const info = db.prepare('UPDATE comments SET approved = 1 WHERE id = ?').run(id);
-    if (info.changes > 0) {
-        const comment = db.prepare('SELECT id, name, stars, text, created_at FROM comments WHERE id = ?').get(id);
-        dbEmitter.emit('new-comment', comment); // Transmitir al río de comentarios público
+async function insertComment({ name, stars, text, user_email }) {
+    // Los comentarios entran como pendientes (approved=0)
+    const [info] = await pool.execute(
+        'INSERT INTO comments (name, stars, text, approved, user_email) VALUES (?, ?, ?, 0, ?)',
+        [name, stars, text, user_email || null]
+    );
+    const [[newRow]] = await pool.execute(
+        'SELECT id, name, stars, text, approved, user_email, created_at FROM comments WHERE id = ?',
+        [info.insertId]
+    );
+    // Notificar SOLO al panel admin (espera aprobación antes de salir al carrusel público)
+    dbEmitter.emit('admin-pending', newRow);
+    return newRow;
+}
+
+async function approveComment(id) {
+    const [info] = await pool.execute(
+        'UPDATE comments SET approved = 1 WHERE id = ?',
+        [id]
+    );
+    if (info.affectedRows > 0) {
+        const [[comment]] = await pool.execute(
+            'SELECT id, name, stars, text, created_at FROM comments WHERE id = ?',
+            [id]
+        );
+        dbEmitter.emit('new-comment', comment); // río de comentarios público
     }
-    return info.changes > 0;
+    return info.affectedRows > 0;
+}
+
+async function deleteComment(id) {
+    const [info] = await pool.execute('DELETE FROM comments WHERE id = ?', [id]);
+    if (info.affectedRows > 0) {
+        dbEmitter.emit('db-sync'); // fuerza recarga del carrusel
+    }
+    return info.affectedRows > 0;
 }
 
 /* ─────────────────────────────────────────────────────────────
-   OPERACIONES DE USUARIOS (OAuth)
+   USUARIOS (OAuth + perfil)
 ───────────────────────────────────────────────────────────── */
 
-function findOrCreateGoogleUser(profile) {
-    let user = db.prepare('SELECT * FROM users WHERE google_id = ?').get(profile.id);
-    const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
-    const name = profile.displayName;
-    const avatar = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
-    
-    // Asignar rol admin si el correo coincide con el del .env
-    const role = (email === process.env.ADMIN_EMAIL) ? 'admin' : 'user';
+async function findOrCreateGoogleUser(profile) {
+    const email  = profile.emails?.[0]?.value || null;
+    const name   = profile.displayName;
+    const avatar = profile.photos?.[0]?.value || null;
+    // role_id 1 = admin, 4 = cliente (ver tabla `roles`)
+    const role_id = (email === process.env.ADMIN_EMAIL) ? 1 : 4;
+
+    let [[user]] = await pool.execute(
+        `SELECT u.*, r.code AS role
+         FROM users u
+         LEFT JOIN roles r ON r.id = u.role_id
+         WHERE u.google_id = ?`,
+        [profile.id]
+    );
 
     if (!user) {
         const newId = crypto.randomUUID();
-        db.prepare('INSERT INTO users (id, google_id, email, name, avatar, role) VALUES (?, ?, ?, ?, ?, ?)')
-          .run(newId, profile.id, email, name, avatar, role);
-        user = db.prepare('SELECT * FROM users WHERE id = ?').get(newId);
-    } else if (user.role !== role || user.avatar !== avatar) {
-        // Actualizar el rol o avatar si cambió
-        db.prepare('UPDATE users SET role = ?, avatar = ? WHERE id = ?').run(role, avatar, user.id);
-        user.role = role;
-        user.avatar = avatar;
+        await pool.execute(
+            `INSERT INTO users (id, google_id, email, name, avatar_url, role_id, last_login_at)
+             VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+            [newId, profile.id, email, name, avatar, role_id]
+        );
+        [[user]] = await pool.execute(
+            `SELECT u.*, r.code AS role
+             FROM users u
+             LEFT JOIN roles r ON r.id = u.role_id
+             WHERE u.id = ?`,
+            [newId]
+        );
+    } else if (user.role_id !== role_id || user.avatar_url !== avatar) {
+        await pool.execute(
+            'UPDATE users SET role_id = ?, avatar_url = ?, last_login_at = NOW() WHERE id = ?',
+            [role_id, avatar, user.id]
+        );
+        user.role_id    = role_id;
+        user.avatar_url = avatar;
+        user.role       = role_id === 1 ? 'admin' : 'cliente';
+    } else {
+        await pool.execute('UPDATE users SET last_login_at = NOW() WHERE id = ?', [user.id]);
     }
-    return user;
+
+    return mapUserCompat(user);
 }
 
-function getUserById(id) {
-    return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+async function getUserById(id) {
+    const [[user]] = await pool.execute(
+        `SELECT u.*, r.code AS role
+         FROM users u
+         LEFT JOIN roles r ON r.id = u.role_id
+         WHERE u.id = ? AND u.deleted_at IS NULL`,
+        [id]
+    );
+    return mapUserCompat(user);
+}
+
+async function updateUserProfile(id, { phone }) {
+    if (!id) return false;
+    const [info] = await pool.execute(
+        'UPDATE users SET phone = ? WHERE id = ?',
+        [phone, id]
+    );
+    return info.affectedRows > 0;
+}
+
+async function getAllUsersAdmin() {
+    const [rows] = await pool.execute(
+        `SELECT u.id, u.name, u.email, u.avatar_url AS avatar, r.code AS role,
+                u.phone, u.created_at, u.is_active, u.last_login_at
+         FROM users u
+         LEFT JOIN roles r ON r.id = u.role_id
+         WHERE u.deleted_at IS NULL
+         ORDER BY u.created_at DESC`
+    );
+    return rows;
 }
 
 /* ─────────────────────────────────────────────────────────────
-   OPERACIONES DE FAQs
+   FAQs
 ───────────────────────────────────────────────────────────── */
 
-function getAllFaqs() {
-    return db.prepare('SELECT * FROM faqs ORDER BY display_order ASC, id ASC').all();
+async function getAllFaqs() {
+    const [rows] = await pool.execute(
+        'SELECT * FROM faqs ORDER BY display_order ASC, id ASC'
+    );
+    return rows;
 }
 
-function insertFaq({ category, icon, question, answer, display_order }) {
-    const info = db.prepare(
-        'INSERT INTO faqs (category, icon, question, answer, display_order) VALUES (?, ?, ?, ?, ?)'
-    ).run(category, icon, question, answer, display_order || 0);
-    return db.prepare('SELECT * FROM faqs WHERE id = ?').get(info.lastInsertRowid);
+async function insertFaq({ category, icon, question, answer, display_order }) {
+    const [info] = await pool.execute(
+        'INSERT INTO faqs (category, icon, question, answer, display_order) VALUES (?, ?, ?, ?, ?)',
+        [category, icon, question, answer, display_order || 0]
+    );
+    const [[newRow]] = await pool.execute('SELECT * FROM faqs WHERE id = ?', [info.insertId]);
+    return newRow;
 }
 
-function updateFaq(id, { category, icon, question, answer, display_order }) {
-    const info = db.prepare(
-        'UPDATE faqs SET category = ?, icon = ?, question = ?, answer = ?, display_order = ? WHERE id = ?'
-    ).run(category, icon, question, answer, display_order, id);
-    return info.changes > 0;
+async function updateFaq(id, { category, icon, question, answer, display_order }) {
+    const [info] = await pool.execute(
+        'UPDATE faqs SET category = ?, icon = ?, question = ?, answer = ?, display_order = ? WHERE id = ?',
+        [category, icon, question, answer, display_order, id]
+    );
+    return info.affectedRows > 0;
 }
 
-function deleteFaq(id) {
-    const info = db.prepare('DELETE FROM faqs WHERE id = ?').run(id);
-    return info.changes > 0;
+async function deleteFaq(id) {
+    const [info] = await pool.execute('DELETE FROM faqs WHERE id = ?', [id]);
+    return info.affectedRows > 0;
 }
 
-function logUnansweredFaq(query) {
-    // Upsert
-    const stmt = db.prepare(`
-        INSERT INTO faq_unanswered (query, count, first_seen, last_seen) 
-        VALUES (?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        ON CONFLICT(query) DO UPDATE SET 
-            count = count + 1,
-            last_seen = CURRENT_TIMESTAMP
+async function logUnansweredFaq(query) {
+    await pool.execute(
+        `INSERT INTO faq_unanswered (query, count, first_seen, last_seen)
+         VALUES (?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+         ON DUPLICATE KEY UPDATE count = count + 1, last_seen = CURRENT_TIMESTAMP`,
+        [query]
+    );
+}
+
+async function getUnansweredFaqs() {
+    const [rows] = await pool.execute(
+        'SELECT * FROM faq_unanswered ORDER BY count DESC, last_seen DESC'
+    );
+    return rows;
+}
+
+async function clearUnansweredFaqs() {
+    const [info] = await pool.execute('DELETE FROM faq_unanswered');
+    return info.affectedRows;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TALLER Y TICKETS (Repairs)
+───────────────────────────────────────────────────────────── */
+async function getAllRepairsAdmin() {
+    const [rows] = await pool.execute(`
+        SELECT r.*, u.name as user_name, u.email as user_email
+        FROM repairs r
+        LEFT JOIN users u ON u.id = r.user_id
+        ORDER BY r.created_at DESC
     `);
-    stmt.run(query);
+    return rows;
 }
 
-function getUnansweredFaqs() {
-    return db.prepare('SELECT * FROM faq_unanswered ORDER BY count DESC, last_seen DESC').all();
+/* ─────────────────────────────────────────────────────────────
+   ENSAMBLES Y PRODUCTOS (Builds)
+───────────────────────────────────────────────────────────── */
+async function getAllBuildsAdmin() {
+    const [rows] = await pool.execute(`
+        SELECT p.*, b.build_category, b.performance_tier 
+        FROM products p
+        JOIN builds b ON p.id = b.id
+        WHERE p.deleted_at IS NULL
+        ORDER BY p.created_at DESC
+    `);
+    return rows;
 }
 
-function clearUnansweredFaqs() {
-    const info = db.prepare('DELETE FROM faq_unanswered').run();
-    return info.changes;
+async function insertBuildAdmin({ title, description, price, build_category, performance_tier, image_url }) {
+    // Generar un slug simple
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+    
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        
+        // 1. Insertar producto
+        const [pInfo] = await connection.execute(
+            'INSERT INTO products (type, title, slug, description, price) VALUES (?, ?, ?, ?, ?)',
+            ['build', title, slug, description || '', price || 0]
+        );
+        const productId = pInfo.insertId;
+        
+        // 2. Insertar build
+        await connection.execute(
+            'INSERT INTO builds (id, build_category, performance_tier) VALUES (?, ?, ?)',
+            [productId, build_category || 'gaming', performance_tier || 'mid']
+        );
+        
+        // 3. Insertar imagen si hay
+        if (image_url) {
+            await connection.execute(
+                'INSERT INTO product_images (product_id, url, is_primary) VALUES (?, ?, 1)',
+                [productId, image_url]
+            );
+        }
+        
+        await connection.commit();
+        
+        const [[newRow]] = await connection.execute(`
+            SELECT p.*, b.build_category, b.performance_tier 
+            FROM products p JOIN builds b ON p.id = b.id WHERE p.id = ?`, 
+            [productId]
+        );
+        return newRow;
+    } catch (e) {
+        await connection.rollback();
+        throw e;
+    } finally {
+        connection.release();
+    }
 }
+
 
 module.exports = {
     initDB,
@@ -385,5 +353,8 @@ module.exports = {
     deleteFaq,
     logUnansweredFaq,
     getUnansweredFaqs,
-    clearUnansweredFaqs
+    clearUnansweredFaqs,
+    getAllRepairsAdmin,
+    getAllBuildsAdmin,
+    insertBuildAdmin
 };

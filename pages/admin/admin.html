@@ -515,8 +515,10 @@
         </header>
 
         <main class="admin-container">
-            <div class="admin-tabs">
+            <div class="admin-tabs" style="overflow-x: auto; white-space: nowrap; justify-content: flex-start; padding-bottom: 5px;">
                 <button class="admin-tab active" data-view="dashboard">Vista General</button>
+                <button class="admin-tab" data-view="repairs">Taller (Tickets)</button>
+                <button class="admin-tab" data-view="builds">Ensambles</button>
                 <button class="admin-tab" data-view="comments">Comentarios</button>
                 <button class="admin-tab" data-view="users">Usuarios</button>
                 <button class="admin-tab" data-view="faqs">Preguntas Frecuentes</button>
@@ -537,6 +539,47 @@
                         <div class="stat-number" id="stat-faqs-unanswered">0</div>
                         <div class="stat-label">Dudas sin Resolver</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- VISTA TALLER (REPAIRS) -->
+            <div id="view-repairs" style="display: none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Tickets de Reparación</h2>
+                    <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;">
+                        <i class="fa-solid fa-plus"></i> Nuevo Ticket
+                    </button>
+                </div>
+                <div class="users-table-wrapper">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Cliente</th>
+                                <th>Dispositivo</th>
+                                <th>Falla Reportada</th>
+                                <th>Estatus</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repairs-tbody">
+                            <tr><td colspan="6" style="text-align: center; color: #64748b;">No hay tickets de reparación aún.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VISTA ENSAMBLES (BUILDS) -->
+            <div id="view-builds" style="display: none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Catálogo de Ensambles y Paquetes</h2>
+                    <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="openBuildModal()">
+                        <i class="fa-solid fa-plus"></i> Nuevo Ensamble
+                    </button>
+                </div>
+                <div class="admin-grid" id="builds-grid">
+                    <!-- Los ensambles se renderizarán aquí -->
+                    <div style="text-align: center; color: #64748b; grid-column: 1 / -1; padding: 40px;">No hay ensambles creados.</div>
                 </div>
             </div>
 
@@ -615,47 +658,57 @@
 
     <!-- Modal para FAQs -->
     <div id="faqModalOverlay" class="admin-modal-overlay">
+        <!-- ... (existing faq modal content) ... -->
+    </div>
+
+    <!-- Modal para Ensambles -->
+    <div id="buildModalOverlay" class="admin-modal-overlay">
         <div class="admin-modal">
             <div class="admin-modal-header">
-                <h2 id="faqModalTitle">Nueva Pregunta</h2>
-                <button class="admin-modal-close" onclick="closeFaqModal()">&times;</button>
+                <h2>Nuevo Paquete / Ensamble</h2>
+                <button class="admin-modal-close" onclick="closeBuildModal()">&times;</button>
             </div>
             <div class="admin-modal-body">
-                <input type="hidden" id="faqId">
                 <div class="admin-form-group">
-                    <label for="faqCategory">Categoría</label>
-                    <input type="text" id="faqCategory" class="admin-input" list="faqCategoriesList" placeholder="Selecciona una de la lista o escribe una nueva..." required>
-                    <datalist id="faqCategoriesList"></datalist>
+                    <label>Título del Ensamble</label>
+                    <input type="text" id="buildTitle" class="admin-input" placeholder="Ej. PC Gamer RTX 4060" required>
                 </div>
                 <div class="admin-form-group">
-                    <label for="faqIcon">Ícono para esta categoría</label>
-                    <select id="faqIcon" class="admin-input">
-                        <option value="fa-solid fa-circle-question">Pregunta (General) ❓</option>
-                        <option value="fa-solid fa-wrench">Reparación o Mantenimiento 🔧</option>
-                        <option value="fa-brands fa-apple">Apple / Mac 🍏</option>
-                        <option value="fa-brands fa-windows">Windows 🪟</option>
-                        <option value="fa-solid fa-gamepad">Consolas y Controles 🎮</option>
-                        <option value="fa-solid fa-mobile-screen">Celulares 📱</option>
-                        <option value="fa-solid fa-microchip">Componentes Internos 💾</option>
-                        <option value="fa-solid fa-handshake">Garantía o Confianza 🤝</option>
-                    </select>
+                    <label>Descripción</label>
+                    <textarea id="buildDescription" class="admin-input" placeholder="Componentes incluidos..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Precio ($ MXN)</label>
+                        <input type="number" id="buildPrice" class="admin-input" placeholder="Ej. 15000" required>
+                    </div>
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Categoría</label>
+                        <select id="buildCategory" class="admin-input">
+                            <option value="gaming">Gaming</option>
+                            <option value="office">Oficina / Estudiante</option>
+                            <option value="workstation">Workstation (Diseño/Edición)</option>
+                            <option value="starter">Starter PC</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Rendimiento</label>
+                        <select id="buildTier" class="admin-input">
+                            <option value="entry">Entrada</option>
+                            <option value="mid">Gama Media</option>
+                            <option value="high">Gama Alta</option>
+                            <option value="enthusiast">Entusiasta</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="admin-form-group">
-                    <label for="faqQuestion">Pregunta</label>
-                    <input type="text" id="faqQuestion" class="admin-input" placeholder="Ej. ¿Tienen servicio a domicilio?" required>
-                </div>
-                <div class="admin-form-group">
-                    <label for="faqAnswer">Respuesta detallada</label>
-                    <textarea id="faqAnswer" class="admin-input" placeholder="Escribe la respuesta. Usa la tecla Enter para separar párrafos o agregar saltos de línea..." style="white-space: pre-wrap;" required></textarea>
-                </div>
-                <div class="admin-form-group">
-                    <label for="faqOrder">Orden de Visualización (0 es primero, 1 después, etc.)</label>
-                    <input type="number" id="faqOrder" class="admin-input" placeholder="0" value="0">
+                    <label>URL de Imagen (Opcional)</label>
+                    <input type="text" id="buildImage" class="admin-input" placeholder="https://ejemplo.com/imagen.jpg">
                 </div>
             </div>
             <div class="admin-modal-footer">
-                <button class="admin-btn admin-btn-cancel" onclick="closeFaqModal()">Cancelar</button>
-                <button class="admin-btn admin-btn-save" onclick="saveFaqModal()">Guardar Cambios</button>
+                <button class="admin-btn admin-btn-cancel" onclick="closeBuildModal()">Cancelar</button>
+                <button class="admin-btn admin-btn-save" onclick="saveBuild()">Guardar Ensamble</button>
             </div>
         </div>
     </div>

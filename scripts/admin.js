@@ -2,6 +2,8 @@
 
 const API_BASE = '/api';
 let allComments = [];
+let allRepairs = [];
+let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -45,6 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         await fetchUsers();
         await fetchFaqs();
         await fetchUnanswered();
+        await fetchRepairs();
+        await fetchBuilds();
         
         // 3. Conectar SSE para notificaciones en vivo
         connectSSE();
@@ -65,6 +69,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const viewComments = document.getElementById('view-comments');
         const viewUsers = document.getElementById('view-users');
         const viewFaqs = document.getElementById('view-faqs');
+        const viewRepairs = document.getElementById('view-repairs');
+        const viewBuilds = document.getElementById('view-builds');
         const subtitle = document.getElementById('admin-subtitle');
 
         function updateDashboardStats() {
@@ -84,6 +90,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 viewComments.style.display = 'none';
                 viewUsers.style.display = 'none';
                 viewFaqs.style.display = 'none';
+                if(viewRepairs) viewRepairs.style.display = 'none';
+                if(viewBuilds) viewBuilds.style.display = 'none';
 
                 if (targetView === 'dashboard') {
                     viewDashboard.style.display = 'block';
@@ -98,6 +106,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else if (targetView === 'faqs') {
                     viewFaqs.style.display = 'block';
                     subtitle.textContent = 'Gestiona las preguntas frecuentes y las dudas sin responder.';
+                } else if (targetView === 'repairs') {
+                    if(viewRepairs) viewRepairs.style.display = 'block';
+                    subtitle.textContent = 'Administra los tickets de reparación y mantenimientos.';
+                } else if (targetView === 'builds') {
+                    if(viewBuilds) viewBuilds.style.display = 'block';
+                    subtitle.textContent = 'Gestiona los paquetes y ensambles pre-configurados.';
                 }
             });
         });
@@ -528,6 +542,154 @@ window.deleteAdminFaq = async function(id) {
         if (!res.ok) throw new Error('Error al eliminar FAQ');
         await fetchFaqs();
     } catch (err) {
+        alert(err.message);
+    }
+};
+
+/* ─────────────────────────────────────────────────────────────
+   TALLER (REPAIRS) LOGIC
+───────────────────────────────────────────────────────────── */
+async function fetchRepairs() {
+    try {
+        const res = await fetch(`${API_BASE}/admin/repairs`);
+        if (!res.ok) throw new Error('Error al cargar tickets');
+        allRepairs = await res.json();
+        renderRepairs();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function renderRepairs() {
+    const tbody = document.getElementById('repairs-tbody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+
+    if (allRepairs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">No hay tickets de reparación aún.</td></tr>`;
+        return;
+    }
+
+    allRepairs.forEach(r => {
+        const date = new Date(r.created_at).toLocaleString('es-MX', { 
+            day: '2-digit', month: 'short', year: 'numeric'
+        });
+
+        const statusColors = {
+            'received': '#3b82f6', // blue
+            'diagnosing': '#f59e0b', // yellow
+            'quoted': '#8b5cf6', // purple
+            'approved': '#10b981', // green
+            'in_progress': '#f97316', // orange
+            'waiting_parts': '#64748b', // slate
+            'ready': '#14b8a6', // teal
+            'delivered': '#059669', // emerald
+            'cancelled': '#ef4444' // red
+        };
+
+        const color = statusColors[r.status] || '#cbd5e1';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="font-weight: 700; color: #818cf8;">#${r.ticket_code}</td>
+            <td>${escapeHtml(r.user_name || 'Cliente sin registrar')}</td>
+            <td>${escapeHtml(r.device_type)} ${escapeHtml(r.device_brand || '')}</td>
+            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(r.reported_issue)}</td>
+            <td><span class="user-role-badge" style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">${r.status.toUpperCase()}</span></td>
+            <td>${date}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ENSAMBLES (BUILDS) LOGIC
+───────────────────────────────────────────────────────────── */
+async function fetchBuilds() {
+    try {
+        const res = await fetch(`${API_BASE}/admin/builds`);
+        if (!res.ok) throw new Error('Error al cargar ensambles');
+        allBuilds = await res.json();
+        renderBuilds();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function renderBuilds() {
+    const grid = document.getElementById('builds-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+
+    if (allBuilds.length === 0) {
+        grid.innerHTML = `<div style="text-align: center; color: #64748b; grid-column: 1 / -1; padding: 40px;">No hay ensambles creados.</div>`;
+        return;
+    }
+
+    allBuilds.forEach(b => {
+        const card = document.createElement('div');
+        card.className = `admin-card`;
+        card.innerHTML = `
+            <div class="card-header">
+                <div>
+                    <div class="card-user" style="font-size: 1.1rem; color: #60a5fa;">${escapeHtml(b.title)}</div>
+                    <div class="card-email">SKU: ${b.sku || 'SIN-SKU'} | ${b.build_category.toUpperCase()}</div>
+                </div>
+                <div class="status-badge status-approved">
+                    $${Number(b.price).toLocaleString('es-MX')}
+                </div>
+            </div>
+            <div class="card-text" style="margin-top:10px;">${escapeHtml(b.description)}</div>
+            <div style="font-size: 0.85rem; color:#94a3b8; margin-top:10px;">
+                Rendimiento: <strong>${b.performance_tier.toUpperCase()}</strong>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+window.openBuildModal = function() {
+    document.getElementById('buildTitle').value = '';
+    document.getElementById('buildDescription').value = '';
+    document.getElementById('buildPrice').value = '';
+    document.getElementById('buildCategory').value = 'gaming';
+    document.getElementById('buildTier').value = 'mid';
+    document.getElementById('buildImage').value = '';
+    document.getElementById('buildModalOverlay').classList.add('show');
+};
+
+window.closeBuildModal = function() {
+    document.getElementById('buildModalOverlay').classList.remove('show');
+};
+
+window.saveBuild = async function() {
+    const title = document.getElementById('buildTitle').value.trim();
+    const description = document.getElementById('buildDescription').value.trim();
+    const price = document.getElementById('buildPrice').value.trim();
+    const build_category = document.getElementById('buildCategory').value;
+    const performance_tier = document.getElementById('buildTier').value;
+    const image_url = document.getElementById('buildImage').value.trim();
+
+    if(!title || !price || !description) {
+        alert('Título, descripción y precio son obligatorios.');
+        return;
+    }
+
+    const payload = {
+        title, description, price, build_category, performance_tier, image_url
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/admin/builds`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error('Error al guardar el ensamble');
+        
+        await fetchBuilds();
+        closeBuildModal();
+    } catch(err) {
         alert(err.message);
     }
 };
