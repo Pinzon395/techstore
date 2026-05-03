@@ -238,7 +238,7 @@ function openProfileModal() {
             try {
                 const res = await fetch('/api/me/profile', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
                     body: JSON.stringify({ phone })
                 });
                 const data = await res.json();

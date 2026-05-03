@@ -314,7 +314,7 @@
             if(!query || query.length < 3) return;
             fetch('/api/faqs/unanswered', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
                 body: JSON.stringify({ query: query })
             }).catch(e => {});
         }
@@ -410,7 +410,7 @@
 
             fetch('/api/admin/faqs/' + id, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
                 body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order||0) })
             }).then(r => r.json()).then(res => {
                 if(res.success) location.reload();
@@ -420,7 +420,7 @@
 
         window.deleteFaq = function(id) {
             if(!confirm('¿Seguro que deseas eliminar esta pregunta?')) return;
-            fetch('/api/admin/faqs/' + id, { method: 'DELETE' })
+            fetch('/api/admin/faqs/' + id, { method: 'DELETE', headers: { 'X-Requested-With': 'fetch' } })
             .then(r => r.json()).then(res => {
                 if(res.success) location.reload();
                 else alert('Error: Asegúrate de estar logueado como administrador.');
@@ -436,7 +436,7 @@
 
             fetch('/api/admin/faqs', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
                 body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order||0) })
             }).then(r => {
                 if(r.status === 201) location.reload();

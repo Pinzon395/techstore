@@ -6,6 +6,11 @@ let allRepairs = [];
 let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
 
+// M8 — header CSRF que el backend exige en POST/PUT/DELETE.
+// Helper para no olvidarlo en ninguna llamada de escritura.
+const CSRF_HEADER = { 'X-Requested-With': 'fetch' };
+const JSON_HEADERS = { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' };
+
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Verificar permisos
     const authLoading = document.getElementById('auth-loading');
@@ -246,7 +251,7 @@ function renderComments() {
 window.approveComment = async function(id) {
     if (!confirm('¿Seguro que deseas aprobar este comentario para que aparezca públicamente?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/comments/${id}/approve`, { method: 'POST' });
+        const res = await fetch(`${API_BASE}/admin/comments/${id}/approve`, { method: 'POST', headers: CSRF_HEADER });
         if (!res.ok) throw new Error('Error al aprobar');
         
         // Actualizar estado local
@@ -261,7 +266,7 @@ window.approveComment = async function(id) {
 window.deleteComment = async function(id) {
     if (!confirm('¿Seguro que deseas eliminar definitivamente este comentario?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/comments/${id}`, { method: 'DELETE' });
+        const res = await fetch(`${API_BASE}/admin/comments/${id}`, { method: 'DELETE', headers: CSRF_HEADER });
         if (!res.ok) throw new Error('Error al eliminar');
         
         // Eliminar localmente
@@ -460,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.clearUnanswered = async function() {
     if (!confirm('¿Seguro que deseas vaciar el registro de búsquedas sin respuesta?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/faqs/unanswered`, { method: 'DELETE' });
+        const res = await fetch(`${API_BASE}/admin/faqs/unanswered`, { method: 'DELETE', headers: CSRF_HEADER });
         if (!res.ok) throw new Error('Error al limpiar');
         allUnanswered = [];
         renderUnanswered();
@@ -524,7 +529,7 @@ window.saveFaqModal = async function() {
     try {
         const res = await fetch(url, {
             method: method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: JSON_HEADERS,
             body: JSON.stringify(payload)
         });
         if(!res.ok) throw new Error('Error al guardar la FAQ');
@@ -538,7 +543,7 @@ window.saveFaqModal = async function() {
 window.deleteAdminFaq = async function(id) {
     if (!confirm('¿Seguro que deseas eliminar esta pregunta frecuente?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/faqs/${id}`, { method: 'DELETE' });
+        const res = await fetch(`${API_BASE}/admin/faqs/${id}`, { method: 'DELETE', headers: CSRF_HEADER });
         if (!res.ok) throw new Error('Error al eliminar FAQ');
         await fetchFaqs();
     } catch (err) {
@@ -638,11 +643,11 @@ window.saveRepair = async function() {
     try {
         const res = await fetch(`${API_BASE}/admin/repairs`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: JSON_HEADERS,
             body: JSON.stringify(payload)
         });
         if(!res.ok) throw new Error('Error al crear el ticket');
-        
+
         await fetchRepairs();
         closeRepairModal();
     } catch(err) {
@@ -726,7 +731,7 @@ window.saveBuild = async function() {
     try {
         const res = await fetch(`${API_BASE}/admin/builds`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: JSON_HEADERS,
             body: JSON.stringify(payload)
         });
         if(!res.ok) throw new Error('Error al guardar el ensamble');

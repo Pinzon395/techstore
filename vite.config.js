@@ -36,7 +36,6 @@ export default defineConfig({
                     '/reparacion-bisagras':   '/pages/servicios/reparacion-bisagras.html',
                     '/reparacion-controles':  '/pages/servicios/reparacion-controles.html',
                     '/b2b':                   '/pages/servicios/b2b.html',
-                    '/B2B':                   '/pages/servicios/b2b.html',
                     '/catalogo':              '/pages/info/catalogo.html',
                     '/comentarios':           '/pages/info/comentarios.html',
                     '/contacto':              '/pages/info/contacto.html',
@@ -57,6 +56,12 @@ export default defineConfig({
                     if (legacyRedirects.has(pathOnly)) {
                         res.statusCode = 301;
                         res.setHeader('Location', '/instalacion-windows');
+                        return res.end();
+                    }
+                    // M6 — canonicaliza /B2B -> /b2b
+                    if (pathOnly === '/B2B') {
+                        res.statusCode = 301;
+                        res.setHeader('Location', '/b2b' + (queryStr ? '?' + queryStr : ''));
                         return res.end();
                     }
                     // 1) Mapeo explicito a las nuevas ubicaciones

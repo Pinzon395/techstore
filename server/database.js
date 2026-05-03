@@ -89,11 +89,12 @@ async function getAllCommentsAdmin() {
     return rows;
 }
 
-async function insertComment({ name, stars, text, user_email }) {
+async function insertComment({ name, stars, text, user_id, user_email }) {
     // Los comentarios entran como pendientes (approved=0)
+    // M4 — guardar user_id ademas de email (FK SET NULL si el usuario se borra)
     const [info] = await pool.execute(
-        'INSERT INTO comments (name, stars, text, approved, user_email) VALUES (?, ?, ?, 0, ?)',
-        [name, stars, text, user_email || null]
+        'INSERT INTO comments (user_id, name, stars, text, approved, user_email) VALUES (?, ?, ?, ?, 0, ?)',
+        [user_id || null, name, stars, text, user_email || null]
     );
     const [[newRow]] = await pool.execute(
         'SELECT id, name, stars, text, approved, user_email, created_at FROM comments WHERE id = ?',
@@ -147,6 +148,7 @@ async function findOrCreateGoogleUser(profile) {
     );
 
     if (!user) {
+        // Usuario nuevo: solo aqui se asigna role_id segun ADMIN_EMAIL.
         const newId = crypto.randomUUID();
         await pool.execute(
             `INSERT INTO users (id, google_id, email, name, avatar_url, role_id, last_login_at)
@@ -160,16 +162,19 @@ async function findOrCreateGoogleUser(profile) {
              WHERE u.id = ?`,
             [newId]
         );
-    } else if (user.role_id !== role_id || user.avatar_url !== avatar) {
-        await pool.execute(
-            'UPDATE users SET role_id = ?, avatar_url = ?, last_login_at = NOW() WHERE id = ?',
-            [role_id, avatar, user.id]
-        );
-        user.role_id    = role_id;
-        user.avatar_url = avatar;
-        user.role       = role_id === 1 ? 'admin' : 'cliente';
     } else {
-        await pool.execute('UPDATE users SET last_login_at = NOW() WHERE id = ?', [user.id]);
+        // M5 — usuario existente: NO sobrescribir role_id en cada login.
+        // Si manana promueves manualmente a un usuario en el panel, no se pierde.
+        // Solo refrescamos avatar y last_login_at.
+        if (user.avatar_url !== avatar) {
+            await pool.execute(
+                'UPDATE users SET avatar_url = ?, last_login_at = NOW() WHERE id = ?',
+                [avatar, user.id]
+            );
+            user.avatar_url = avatar;
+        } else {
+            await pool.execute('UPDATE users SET last_login_at = NOW() WHERE id = ?', [user.id]);
+        }
     }
 
     return mapUserCompat(user);
@@ -300,6 +305,22 @@ async function getAllBuildsAdmin() {
     return rows;
 }
 
+// M3 — version publica: nunca expone cost, compare_price, stock_alert, sku.
+// Solo campos seguros para mostrar en /api/builds y la tienda.
+async function getAllBuildsPublic() {
+    const [rows] = await pool.execute(`
+        SELECT p.id, p.title, p.slug, p.description, p.price, p.is_featured,
+               b.build_category, b.performance_tier,
+               b.estimated_fps_1080p, b.estimated_fps_1440p, b.warranty_months,
+               (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) AS image_url
+        FROM products p
+        JOIN builds b ON p.id = b.id
+        WHERE p.deleted_at IS NULL AND p.is_active = 1
+        ORDER BY p.is_featured DESC, p.created_at DESC
+    `);
+    return rows;
+}
+
 async function insertBuildAdmin({ title, description, price, build_category, performance_tier, image_url }) {
     // Generar un slug simple
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
@@ -369,5 +390,6 @@ module.exports = {
     getAllRepairsAdmin,
     insertRepairAdmin,
     getAllBuildsAdmin,
+    getAllBuildsPublic,
     insertBuildAdmin
 };

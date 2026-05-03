@@ -44,6 +44,7 @@ const {
     getAllRepairsAdmin,
     insertRepairAdmin,
     getAllBuildsAdmin,
+    getAllBuildsPublic,
     insertBuildAdmin
 } = require('./database');
 
@@ -101,14 +102,17 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         app.use(express.static(rootPath, { index: false, maxAge: 0 }));
     }
 
+    // M2 — CORS con metodos completos. El admin usa PUT/DELETE para FAQs y comentarios.
     app.use(cors({
         origin: [
             'http://localhost:5173',
             'http://localhost:5174',
             'http://localhost:3000',
+            'http://localhost:3001',
             'https://pixon.com.mx',
         ],
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'X-Requested-With'],
         credentials: true
     }));
 
@@ -124,6 +128,8 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     ───────────────────────────────────────────────────────── */
     app.set('trust proxy', 1);
 
+    const isProd = process.env.NODE_ENV === 'production';
+
     app.use(session({
         store: new MySQLStore({
             clearExpired: true,
@@ -134,9 +140,12 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: false,
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            sameSite: 'lax'
+            // M1 — secure dinámica. En prod Cloudflare entrega HTTPS y trust proxy=1
+            // ya hace que Express vea X-Forwarded-Proto correctamente.
+            secure:   isProd,
+            httpOnly: true,
+            sameSite: 'lax',
+            maxAge:   7 * 24 * 60 * 60 * 1000
         }
     }));
 
@@ -169,6 +178,21 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     app.use(passport.initialize());
     app.use(passport.session());
+
+    /* ─────────────────────────────────────────────────────────
+       M8 — CSRF mínimo: cualquier request que muta estado debe
+       traer header X-Requested-With:fetch. Esto bloquea CSRF clásico
+       basado en formularios cross-site (no pueden setear ese header
+       sin pasar por preflight CORS).
+    ───────────────────────────────────────────────────────── */
+    app.use((req, res, next) => {
+        if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+        if (req.path.startsWith('/auth/')) return next();
+        if (req.get('X-Requested-With') !== 'fetch') {
+            return res.status(403).json({ error: 'CSRF: header X-Requested-With requerido' });
+        }
+        next();
+    });
 
     /* ─────────────────────────────────────────────────────────
        AUTORIZACIÓN
@@ -206,10 +230,10 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     app.post('/api/me/profile', requireAuth, ah(async (req, res) => {
         const { phone } = req.body;
-        const cleanPhone = String(phone || '').trim().slice(0, 20);
-
-        if (cleanPhone.length < 10) {
-            return res.status(400).json({ error: 'Número de celular inválido (mínimo 10 dígitos).' });
+        // M7 — validar phone con regex (10-15 digitos, opcional + al inicio)
+        const cleanPhone = String(phone || '').trim().replace(/[^\d+]/g, '').slice(0, 16);
+        if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
+            return res.status(400).json({ error: 'Número de celular inválido (10–15 dígitos, opcional + al inicio).' });
         }
 
         const success = await updateUserProfile(req.user.id, { phone: cleanPhone });
@@ -271,8 +295,10 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
         if (errors.length) return res.status(400).json({ errors });
 
+        // M4 — guardar user_id ademas de email para no perder trazabilidad
+        const user_id    = req.user?.id    || null;
         const user_email = req.user?.email || null;
-        const created = await insertComment({ name: cleanName, stars: cleanStars, text: cleanText, user_email });
+        const created = await insertComment({ name: cleanName, stars: cleanStars, text: cleanText, user_id, user_email });
         res.status(201).json({ success: true, message: 'Comentario enviado para revisión.', comment: created });
     }));
 
@@ -289,8 +315,9 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.json({ success: true });
     }));
 
+    // M3 — endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
     app.get('/api/builds', ah(async (_req, res) => {
-        const builds = await getAllBuildsAdmin();
+        const builds = await getAllBuildsPublic();
         res.json(builds);
     }));
 
@@ -405,7 +432,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
             '/servicios/reparacion-controles': 'pages/servicios/reparacion-controles.html',
             '/b2b': 'pages/servicios/b2b.html',
-            '/B2B': 'pages/servicios/b2b.html',
             '/servicios/b2b': 'pages/servicios/b2b.html',
             '/optimizacion': 'pages/servicios/optimizacion.html',
             '/servicios/optimizacion': 'pages/servicios/optimizacion.html',
@@ -422,6 +448,8 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         legacyRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
+        // M6 — canonicaliza /B2B -> /b2b para evitar URLs duplicadas en SEO
+        app.get('/B2B', (_req, res) => res.redirect(301, '/b2b'));
 
         app.use(express.static(distPath, {
             maxAge: '1y',
@@ -501,7 +529,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
             '/servicios/reparacion-controles': 'pages/servicios/reparacion-controles.html',
             '/b2b': 'pages/servicios/b2b.html',
-            '/B2B': 'pages/servicios/b2b.html',
             '/servicios/b2b': 'pages/servicios/b2b.html',
             '/optimizacion': 'pages/servicios/optimizacion.html',
             '/servicios/optimizacion': 'pages/servicios/optimizacion.html',
@@ -518,6 +545,8 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         legacyDevRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
+        // M6 — canonicaliza /B2B -> /b2b en dev tambien
+        app.get('/B2B', (_req, res) => res.redirect(301, '/b2b'));
 
         app.get('*', (req, res, next) => {
             if (req.path.startsWith('/api') || req.path.startsWith('/auth')) return next();

@@ -87,7 +87,7 @@
     async function saveComment(data) {
         const res = await fetch(`${API_BASE}/comments`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
             body: JSON.stringify(data),
             signal: AbortSignal.timeout(6000)
         });
