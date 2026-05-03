@@ -91,6 +91,9 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         level: 6,
         filter: (req, res) => {
             if (req.headers['x-no-compression']) return false;
+            // B6 — SSE no se comprime: la compresion buferea chunks y rompe
+            // el flujo en tiempo real (eventos llegan tarde o en lote).
+            if (req.path.endsWith('/stream')) return false;
             return compression.filter(req, res);
         }
     }));
