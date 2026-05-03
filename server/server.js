@@ -40,7 +40,11 @@ const {
     deleteFaq,
     logUnansweredFaq,
     getUnansweredFaqs,
-    clearUnansweredFaqs
+    clearUnansweredFaqs,
+    getAllRepairsAdmin,
+    insertRepairAdmin,
+    getAllBuildsAdmin,
+    insertBuildAdmin
 } = require('./database');
 
 const app = express();
@@ -301,6 +305,11 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     app.get('/api/admin/repairs', requireAdmin, ah(async (_req, res) => {
         const repairs = await getAllRepairsAdmin();
         res.json(repairs);
+    }));
+
+    app.post('/api/admin/repairs', requireAdmin, ah(async (req, res) => {
+        const repair = await insertRepairAdmin(req.body);
+        res.status(201).json({ success: true, repair });
     }));
 
     app.get('/api/admin/builds', requireAdmin, ah(async (_req, res) => {

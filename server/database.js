@@ -274,6 +274,17 @@ async function getAllRepairsAdmin() {
     return rows;
 }
 
+async function insertRepairAdmin({ user_name, device_type, device_brand, reported_issue, contact_phone }) {
+    const ticket_code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const [info] = await pool.execute(
+        `INSERT INTO repairs (ticket_code, device_type, device_brand, reported_issue, contact_phone, notes_internal, status)
+         VALUES (?, ?, ?, ?, ?, ?, 'received')`,
+        [ticket_code, device_type, device_brand || '', reported_issue, contact_phone, 'Cliente manual: ' + user_name]
+    );
+    const [[newRow]] = await pool.execute('SELECT * FROM repairs WHERE id = ?', [info.insertId]);
+    return newRow;
+}
+
 /* ─────────────────────────────────────────────────────────────
    ENSAMBLES Y PRODUCTOS (Builds)
 ───────────────────────────────────────────────────────────── */
@@ -356,6 +367,7 @@ module.exports = {
     getUnansweredFaqs,
     clearUnansweredFaqs,
     getAllRepairsAdmin,
+    insertRepairAdmin,
     getAllBuildsAdmin,
     insertBuildAdmin
 };

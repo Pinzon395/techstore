@@ -605,6 +605,50 @@ function renderRepairs() {
 /* ─────────────────────────────────────────────────────────────
    ENSAMBLES (BUILDS) LOGIC
 ───────────────────────────────────────────────────────────── */
+
+window.openRepairModal = function() {
+    document.getElementById('repairCustomer').value = '';
+    document.getElementById('repairType').value = 'Laptop';
+    document.getElementById('repairBrand').value = '';
+    document.getElementById('repairIssue').value = '';
+    document.getElementById('repairPhone').value = '';
+    document.getElementById('repairModalOverlay').classList.add('show');
+};
+
+window.closeRepairModal = function() {
+    document.getElementById('repairModalOverlay').classList.remove('show');
+};
+
+window.saveRepair = async function() {
+    const user_name = document.getElementById('repairCustomer').value.trim();
+    const device_type = document.getElementById('repairType').value;
+    const device_brand = document.getElementById('repairBrand').value.trim();
+    const reported_issue = document.getElementById('repairIssue').value.trim();
+    const contact_phone = document.getElementById('repairPhone').value.trim();
+
+    if(!user_name || !device_brand || !reported_issue || !contact_phone) {
+        alert('Por favor, completa todos los campos requeridos.');
+        return;
+    }
+
+    const payload = {
+        user_name, device_type, device_brand, reported_issue, contact_phone
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/admin/repairs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error('Error al crear el ticket');
+        
+        await fetchRepairs();
+        closeRepairModal();
+    } catch(err) {
+        alert(err.message);
+    }
+};
 async function fetchBuilds() {
     try {
         const res = await fetch(`${API_BASE}/admin/builds`);
