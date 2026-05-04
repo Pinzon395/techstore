@@ -15,7 +15,7 @@ const ASSEMBLIES = {
     'gaming-mid': {
         name: 'PC Gamer Mid-Range',
         subtitle: 'La bestia del 1080p — frame rate extremo',
-        image: '/assets/images/PcGamerRoja.jpeg',
+        image: '/assets/images/ensamble-pc-gamer-cancun.jpeg',
         price: '$18,500',
         badge: 'Más vendida',
         badgeColor: '#3b82f6',
@@ -36,7 +36,7 @@ const ASSEMBLIES = {
     'gaming-high': {
         name: 'PC Gamer High-End',
         subtitle: 'Sin compromisos — máximo FPS en 1440p',
-        image: '/assets/images/PcGamerRoja.jpeg',
+        image: '/assets/images/ensamble-pc-gamer-cancun.jpeg',
         price: '$32,000',
         badge: 'Top Performance',
         badgeColor: '#f59e0b',

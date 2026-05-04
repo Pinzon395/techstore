@@ -44,7 +44,7 @@ const newSections = `    <!-- ════════════════�
                     </ul>
                 </div>
                 <div style="flex:1; min-width:300px; text-align:center;">
-                    <img src="assets/images/FotoMetalLiquido.jpeg" alt="Interior de PC Gamer ensamblada con piezas actualizables" style="width:100%; max-width:400px; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.3); object-fit:cover; height:300px;">
+                    <img src="assets/images/mantenimiento-metal-liquido-cancun.jpeg" alt="Interior de PC Gamer ensamblada con piezas actualizables" style="width:100%; max-width:400px; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.3); object-fit:cover; height:300px;">
                 </div>
             </div>
             

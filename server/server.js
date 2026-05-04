@@ -67,6 +67,12 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     const sseClients = new Set();
     let sseIdCounter = 0;
 
+    const sseStats = {
+        date: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City' }),
+        visits: 0,
+        totalTimeSec: 0
+    };
+
     function broadcastComment(comment) {
         const payload = JSON.stringify(comment);
         for (const client of sseClients) {
@@ -101,7 +107,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc:    ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+                scriptSrc:    ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://static.cloudflareinsights.com", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
                 // Helmet por default pone script-src-attr 'none' que romperia
                 // los 207+ inline onclick=, onmouseover=, etc. del sitio.
                 // Necesario hasta que se refactoren a addEventListener.
@@ -109,7 +115,8 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
                 styleSrc:   ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
                 fontSrc:    ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
                 imgSrc:     ["'self'", "data:", "https:"],
-                connectSrc: ["'self'"],
+                connectSrc: ["'self'", "https://cloudflareinsights.com", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.googletagmanager.com"],
+                frameSrc:   ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://maps.google.com"],
                 frameAncestors: ["'none'"],
                 baseUri:    ["'self'"],
                 formAction: ["'self'", "https://accounts.google.com"],
@@ -353,8 +360,12 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
         const clientId = ++sseIdCounter;
         const client = { id: clientId, res };
+        const connectTime = Date.now();
+        client.connectTime = connectTime;
         sseClients.add(client);
-        console.log(`SSE #${clientId} conectado (total: ${sseClients.size})`);
+        
+        const connectTimeStr = new Date(connectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City', hour12: false });
+        console.log(`[${connectTimeStr}] SSE #${clientId} conectado (total activos: ${sseClients.size})`);
 
         const keepalive = setInterval(() => {
             try { res.write(': ping\n\n'); } catch (e) { clearInterval(keepalive); }
@@ -363,7 +374,24 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         req.on('close', () => {
             clearInterval(keepalive);
             sseClients.delete(client);
-            console.log(`SSE #${clientId} desconectado (total: ${sseClients.size})`);
+            
+            const disconnectTime = Date.now();
+            const durationSec = Math.round((disconnectTime - client.connectTime) / 1000);
+            const currentDate = new Date(disconnectTime).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City' });
+            
+            if (sseStats.date !== currentDate) {
+                sseStats.date = currentDate;
+                sseStats.visits = 0;
+                sseStats.totalTimeSec = 0;
+            }
+            
+            sseStats.visits++;
+            sseStats.totalTimeSec += durationSec;
+            const avgTimeSec = Math.round(sseStats.totalTimeSec / sseStats.visits);
+            const disconnectTimeStr = new Date(disconnectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City', hour12: false });
+            
+            console.log(`[${disconnectTimeStr}] SSE #${clientId} desconectado. Duró: ${durationSec}s. ` +
+                        `Subtotal Hoy -> Visitas: ${sseStats.visits} | Promedio: ${avgTimeSec}s | Tiempo Total: ${sseStats.totalTimeSec}s`);
         });
     });
 
@@ -527,7 +555,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             '/servicios/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
             '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
             '/servicios/reparacion-controles': 'pages/servicios/reparacion-controles.html',
-            '/b2b': 'pages/servicios/b2b.html',
+            '/B2B': 'pages/servicios/b2b.html',
             '/servicios/b2b': 'pages/servicios/b2b.html',
             '/optimizacion': 'pages/servicios/optimizacion.html',
             '/servicios/optimizacion': 'pages/servicios/optimizacion.html',
@@ -544,8 +572,11 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         legacyRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
-        // M6 — canonicaliza /B2B -> /b2b para evitar URLs duplicadas en SEO
-        app.get('/B2B', (_req, res) => res.redirect(301, '/b2b'));
+        // M6 — canonicaliza /b2b -> /B2B (Preferencia del usuario por Mayúsculas)
+        app.get('/b2b', (req, res, next) => {
+            if (req.path === '/b2b') return res.redirect(301, '/B2B');
+            next();
+        });
 
         // SECURITY-2 (M2) — gate del HTML admin antes del catch-all
         app.get('/admin', gateAdminPage, (_req, res) => {
@@ -631,7 +662,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             '/servicios/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
             '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
             '/servicios/reparacion-controles': 'pages/servicios/reparacion-controles.html',
-            '/b2b': 'pages/servicios/b2b.html',
+            '/B2B': 'pages/servicios/b2b.html',
             '/servicios/b2b': 'pages/servicios/b2b.html',
             '/optimizacion': 'pages/servicios/optimizacion.html',
             '/servicios/optimizacion': 'pages/servicios/optimizacion.html',
@@ -648,8 +679,11 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         legacyDevRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
-        // M6 — canonicaliza /B2B -> /b2b en dev tambien
-        app.get('/B2B', (_req, res) => res.redirect(301, '/b2b'));
+        // M6 — canonicaliza /b2b -> /B2B en dev tambien
+        app.get('/b2b', (req, res, next) => {
+            if (req.path === '/b2b') return res.redirect(301, '/B2B');
+            next();
+        });
 
         // SECURITY-2 (M2) — gate del HTML admin tambien en dev
         app.get('/admin', gateAdminPage, (_req, res) => {
