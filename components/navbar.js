@@ -16,7 +16,7 @@ const NAVBAR_HTML = `
 <nav class="navbar" id="navbar">
     <div class="nav-container">
         <a href="/" class="logo">
-            <img src="/assets/logos/Logo.svg" alt="Pixon PC Logo" style="height:60px;" id="navbar-logo"
+            <img src="/assets/logos/Logo.svg?v=2" alt="Pixon PC Logo" style="height:60px;" id="navbar-logo"
                 class="brand-logo">
         </a>
         <div class="menu-toggle" id="mobile-menu">

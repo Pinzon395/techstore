@@ -11,12 +11,59 @@
 
 import { defineConfig } from 'vite';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Plugin: copia archivos estáticos que Vite no bundlea automáticamente
+// (scripts referenciados como type="module" en HTML se bundlean, pero
+//  los que se cargan dinámicamente o en rutas externas necesitan estar
+//  presentes en dist/ para que Express los sirva en producción)
+function copyStaticPlugin() {
+    // Helper: copia todos los archivos de srcDir a destDir (solo archivos, no recursivo)
+    function copyDir(srcDir, destDir, label) {
+        if (!fs.existsSync(srcDir)) return;
+        if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+        fs.readdirSync(srcDir).forEach(file => {
+            const srcFile  = path.join(srcDir, file);
+            const destFile = path.join(destDir, file);
+            if (fs.statSync(srcFile).isFile()) {
+                fs.copyFileSync(srcFile, destFile);
+                console.log(`[copy-static] ${label}/${file} → dist/${label}/${file}`);
+            }
+        });
+    }
+
+    return {
+        name: 'copy-static-components',
+        closeBundle() {
+            // 1. components/*.js  →  dist/components/
+            copyDir(
+                path.join(__dirname, 'components'),
+                path.join(__dirname, 'dist', 'components'),
+                'components'
+            );
+            // 2. assets/logos/*   →  dist/assets/logos/
+            //    El navbar referencia /assets/logos/Logo.svg directamente;
+            //    Vite no lo copia porque no está en una ruta procesada por el bundler.
+            copyDir(
+                path.join(__dirname, 'assets', 'logos'),
+                path.join(__dirname, 'dist', 'assets', 'logos'),
+                'assets/logos'
+            );
+        }
+    };
+}
+
 export default defineConfig({
     // La raíz del proyecto es el directorio actual
     root: '.',
     appType: 'mpa', // Especifica que es multi-página
 
     plugins: [
+        copyStaticPlugin(),
         ViteImageOptimizer({
             png: { quality: 80, compressionLevel: 8 },
             jpeg: { quality: 80, progressive: true },
