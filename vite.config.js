@@ -44,6 +44,8 @@ export default defineConfig({
                     '/garantia':              '/pages/legal/garantia.html',
                     '/admin':                 '/pages/admin/admin.html',
                     '/optimizacion':          '/pages/servicios/optimizacion.html',
+                    '/limpieza-laptop-liquido': '/pages/servicios/limpieza-laptop-liquido.html',
+                    '/antisulfatacion':       '/pages/servicios/antisulfatacion.html',
                 };
 
                 // URLs viejas que ahora redirigen 301 a /instalacion-windows
@@ -119,6 +121,8 @@ export default defineConfig({
                 privacidad:            'pages/legal/privacidad.html',
                 garantia:              'pages/legal/garantia.html',
                 admin:                 'pages/admin/admin.html',
+                limpiezaLiquido:       'pages/servicios/limpieza-laptop-liquido.html',
+                antisulfatacion:       'pages/servicios/antisulfatacion.html',
             },
         },
     },
