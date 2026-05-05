@@ -116,7 +116,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
                 fontSrc:    ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
                 imgSrc:     ["'self'", "data:", "https:"],
                 connectSrc: ["'self'", "https://cloudflareinsights.com", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.googletagmanager.com"],
-                frameSrc:   ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://maps.google.com"],
+                frameSrc:   ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://maps.google.com", "https://www.google.com"],
                 frameAncestors: ["'none'"],
                 baseUri:    ["'self'"],
                 formAction: ["'self'", "https://accounts.google.com"],

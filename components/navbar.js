@@ -37,6 +37,7 @@ const NAVBAR_HTML = `
                     <li><a href="/reparacion-controles">Reparación Controles</a></li>
                     <li><a href="/instalacion-windows">Instalación de Windows</a></li>
                     <li><a href="/mantenimiento-mac">Mantenimiento Mac</a></li>
+                    <li><a href="/limpieza-laptop-liquido">Limpieza por Líquido</a></li>
                     <li><a href="/ensambles">Ensambles PC Gamer</a></li>
                 </ul>
             </li>
@@ -55,6 +56,7 @@ const NAVBAR_HTML = `
                     <li><a href="/preguntas-frecuentes">Preguntas Frecuentes</a></li>
                     <li><a href="/comentarios">Reseñas de Clientes</a></li>
                     <li><a href="/catalogo">Catálogo de Videos</a></li>
+                    <li><a href="/antisulfatacion">Antisulfatación</a></li>
                 </ul>
             </li>
             <li><a href="/contacto" class="nav-links">Contacto</a></li>
