@@ -75,11 +75,20 @@ const NAVBAR_HTML = `
 `;
 
 (function injectNavbar() {
-    const placeholder = document.getElementById('nav-placeholder');
-    if (placeholder) {
-        placeholder.outerHTML = NAVBAR_HTML;
+    function tryInject() {
+        const placeholder = document.getElementById('nav-placeholder');
+        if (placeholder) {
+            placeholder.outerHTML = NAVBAR_HTML;
+        } else {
+            // Fallback: si la página no trae placeholder, lo inserta al inicio del body
+            document.body.insertAdjacentHTML('afterbegin', NAVBAR_HTML);
+        }
+    }
+
+    // Si el DOM aún no está listo, esperar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', tryInject);
     } else {
-        // Fallback: si la página no trae placeholder, lo inserta al inicio del body
-        document.body.insertAdjacentHTML('afterbegin', NAVBAR_HTML);
+        tryInject();
     }
 })();

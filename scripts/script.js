@@ -21,8 +21,10 @@
 'use strict';
 
 /* ══════════════════════════════════════════════════════════════
-   1. NAVBAR — Compactar al hacer scroll
-   Cambia padding y sombra cuando el usuario baja más de 50px
+   1. NAVBAR — Compactar y auto-ocultar al hacer scroll
+   Toggle de clases (.is-scrolled / .is-hidden) — los estilos están
+   en styles/style.css. El handler usa requestAnimationFrame para
+   evitar layout thrashing en scrolls rápidos.
 ══════════════════════════════════════════════════════════════ */
 const navbar  = document.getElementById('navbar');
 const waFloat = document.getElementById('whatsapp-float');
@@ -31,53 +33,46 @@ const waFloat = document.getElementById('whatsapp-float');
 const paquetesSection = document.getElementById('paquetes');
 
 let lastScrollY = 0;
+let scrollTicking = false;
 
-window.addEventListener('scroll', () => {
+function onScroll() {
     if (!navbar) return;
     const currentY = window.scrollY;
 
-    // Compactar navbar al bajar de 50px
-    if (currentY > 50) {
-        navbar.style.background = 'rgba(255,255,255,0.98)';
-        navbar.style.boxShadow  = '0 4px 20px rgba(0,0,0,0.08)';
-        navbar.style.padding    = '10px 20px';
-    } else {
-        navbar.style.background = 'rgba(255,255,255,0.9)';
-        navbar.style.boxShadow  = 'none';
-        navbar.style.padding    = '15px 20px';
-    }
+    // Compactar al bajar de 50px
+    navbar.classList.toggle('is-scrolled', currentY > 50);
 
-    // Auto-hide navbar: desaparece al bajar, aparece al subir
-    if (currentY > 120) {
-        if (currentY > lastScrollY) {
-            // Scroll hacia abajo → ocultar
-            navbar.style.transform = 'translateY(-100%)';
-            document.body.classList.add('nav-hidden');
-        } else {
-            // Scroll hacia arriba → mostrar
-            navbar.style.transform = 'translateY(0)';
-            document.body.classList.remove('nav-hidden');
-        }
+    // Auto-hide: ocultar al bajar > 120px, mostrar al subir / cerca del top
+    let hidden = false;
+    if (currentY > 120 && currentY > lastScrollY + 2) {
+        hidden = true;
+    } else if (currentY < lastScrollY - 2 || currentY <= 120) {
+        hidden = false;
     } else {
-        navbar.style.transform = 'translateY(0)';
-        document.body.classList.remove('nav-hidden');
+        // delta menor a la histéresis → mantener estado actual
+        hidden = navbar.classList.contains('is-hidden');
     }
+    navbar.classList.toggle('is-hidden', hidden);
+    document.body.classList.toggle('nav-hidden', hidden);
+
     lastScrollY = currentY;
 
-    /* WhatsApp flotante: aparece al llegar a #paquetes en el home,
-       o simplemente al bajar 300px en otras páginas */
+    // WhatsApp flotante
     if (waFloat) {
         const threshold = paquetesSection
             ? paquetesSection.offsetTop + 200
             : 300;
         waFloat.classList.toggle('visible', currentY > threshold);
     }
-}, { passive: true });
-
-// Agregar CSS para transition de navbar si no existe
-if (navbar) {
-    navbar.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease, box-shadow 0.3s ease, background 0.3s ease';
+    scrollTicking = false;
 }
+
+window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+        scrollTicking = true;
+        requestAnimationFrame(onScroll);
+    }
+}, { passive: true });
 
 /* ══════════════════════════════════════════════════════════════
    2. SCROLL-SPY — Resalta el nav-link de la sección visible
