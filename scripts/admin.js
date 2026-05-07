@@ -251,8 +251,12 @@ function renderComments() {
 window.approveComment = async function(id) {
     if (!confirm('¿Seguro que deseas aprobar este comentario para que aparezca públicamente?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/comments/${id}/approve`, { method: 'POST', headers: CSRF_HEADER });
-        if (!res.ok) throw new Error('Error al aprobar');
+        const res = await fetch(`${API_BASE}/admin/comments/${id}/approve`, { method: 'POST', headers: CSRF_HEADER, credentials: 'include' });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => null);
+            const errMsg = errData?.error || `Error al aprobar (HTTP ${res.status})`;
+            throw new Error(errMsg);
+        }
         
         // Actualizar estado local
         const comment = allComments.find(c => c.id === id);
@@ -266,8 +270,12 @@ window.approveComment = async function(id) {
 window.deleteComment = async function(id) {
     if (!confirm('¿Seguro que deseas eliminar definitivamente este comentario?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/comments/${id}`, { method: 'DELETE', headers: CSRF_HEADER });
-        if (!res.ok) throw new Error('Error al eliminar');
+        const res = await fetch(`${API_BASE}/admin/comments/${id}`, { method: 'DELETE', headers: CSRF_HEADER, credentials: 'include' });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => null);
+            const errMsg = errData?.error || `Error al eliminar (HTTP ${res.status})`;
+            throw new Error(errMsg);
+        }
         
         // Eliminar localmente
         allComments = allComments.filter(c => c.id !== id);
