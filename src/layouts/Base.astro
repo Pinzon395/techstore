@@ -1,0 +1,187 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  schema?: object[];
+  lang?: 'es' | 'en';
+}
+
+const {
+  title,
+  description,
+  canonical = Astro.url.pathname,
+  image = '/LOGOCIRCULAR.png',
+  schema = [],
+  lang = 'es',
+} = Astro.props;
+
+const siteUrl = 'https://pixon.com.mx';
+const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
+const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
+
+const defaultSchema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Pixon PC",
+    "url": siteUrl,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteUrl}/?s={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": ["LocalBusiness", "ProfessionalService"],
+    "@id": `${siteUrl}/#business`,
+    "name": "Pixon PC",
+    "description": "Servicio técnico privado de reparación de computadoras, laptops, celulares e impresoras a domicilio en Cancún. Recolección y entrega en toda la ciudad. Mantenimiento preventivo, ensamble de PCs gamer y soporte B2B empresarial. Garantía por escrito. English Spoken.",
+    "url": siteUrl,
+    "telephone": "+529986690777",
+    "priceRange": "$$",
+    "image": `${siteUrl}/LOGOCIRCULAR.png`,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteUrl}/LOGOCIRCULAR.png`,
+      "width": 512,
+      "height": 512
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Circuito Hacienda Chimay, Fraccionamiento Haciendas Real del Caribe",
+      "addressLocality": "Cancún",
+      "addressRegion": "Quintana Roo",
+      "postalCode": "77539",
+      "addressCountry": "MX"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 21.1375,
+      "longitude": -86.8462
+    },
+    "areaServed": [
+      { "@type": "City", "name": "Cancún" },
+      { "@type": "Place", "name": "Zona Hotelera Cancún" },
+      { "@type": "Place", "name": "Supermanzanas Cancún" },
+      { "@type": "Place", "name": "Polígono Sur Cancún" },
+      { "@type": "Place", "name": "Huayacán Cancún" },
+      { "@type": "Place", "name": "Puerto Morelos" }
+    ],
+    "serviceArea": {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 21.1375,
+        "longitude": -86.8462
+      },
+      "geoRadius": "25000"
+    },
+    "openingHoursSpecification": [{
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      "opens": "09:00",
+      "closes": "19:00"
+    }],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "47",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "sameAs": [
+      "https://www.facebook.com/people/Pixon-PC/61556271364935/",
+      "https://www.instagram.com/pixonpc/",
+      "https://www.tiktok.com/@pixonpc",
+      "https://www.youtube.com/@pixonpc"
+    ]
+  }
+];
+
+const allSchema = [...defaultSchema, ...schema];
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href={fullCanonical} />
+
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="any">
+  <link rel="icon" type="image/png" sizes="192x192" href="/LOGOCIRCULAR.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#2563eb">
+
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content={fullCanonical}>
+  <meta property="og:image" content={fullImage}>
+  <meta property="og:locale" content={lang === 'en' ? 'en_US' : 'es_MX'}>
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  <meta name="twitter:description" content={description}>
+  <meta name="twitter:image" content={fullImage}>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="dns-prefetch" href="//www.googletagmanager.com">
+  <link rel="dns-prefetch" href="//wa.me">
+  <link rel="dns-prefetch" href="//img.youtube.com">
+  <link rel="dns-prefetch" href="//www.youtube.com">
+
+  <link rel="alternate" hreflang="es-MX" href={`${siteUrl}/`} />
+  <link rel="alternate" hreflang="en" href={`${siteUrl}/en`} />
+  <link rel="alternate" hreflang="x-default" href={`${siteUrl}/`} />
+
+  <link rel="preload"
+    href="https://fonts.googleapis.com/css2?family=Fugaz+One&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap"
+    as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fugaz+One&family=Red+Hat+Display:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet">
+  </noscript>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </noscript>
+
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-ZRD2NG8MKH', { anonymize_ip: true });
+    window.addEventListener('load', function () {
+      var s = document.createElement('script');
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZRD2NG8MKH';
+      s.async = true;
+      document.head.appendChild(s);
+    });
+  </script>
+
+  {allSchema.map((s) => (
+    <script type="application/ld+json" set:html={JSON.stringify(s)} />
+  ))}
+
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; block-all-mixed-content">
+</head>
+<body class="light-theme">
+  <slot />
+</body>
+</html>
