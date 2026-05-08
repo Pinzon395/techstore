@@ -1,7 +1,8 @@
 ---
-import '../layouts/Base.astro';
-import '../components/Navbar.astro';
-import '../components/Footer.astro';
+import Base from '../layouts/Base.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
 ---
 
 <Base
@@ -92,22 +93,7 @@ import '../components/Footer.astro';
 >
   <Navbar />
 <!-- ═══ NAVBAR ═══ -->
-<!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="breadcrumb-container" style="background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 12px 0;">
-        <div class="container">
-            <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList" style="margin:0; padding:0; display:flex; list-style:none; font-size:0.9rem;">
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display:flex; align-items:center;">
-                    <a href="/" itemprop="item" style="color:var(--text-muted); text-decoration:none;"><span itemprop="name">Inicio</span></a>
-                    <span style="margin:0 10px; color:#cbd5e1;">/</span>
-                    <meta itemprop="position" content="1">
-                </li>
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
-                    <span itemprop="name" style="color:var(--primary); font-weight:600;">Centro de Ayuda / Preguntas</span>
-                    <meta itemprop="position" content="2">
-                </li>
-            </ol>
-        </div>
-    </nav>
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Centro de Ayuda / Preguntas' }]} />
 
     <!-- HERO -->
     <header class="faq-hero">
@@ -130,15 +116,15 @@ import '../components/Footer.astro';
     </div>
     <script>
     (function(){
-        var input = document.getElementById('faq-search-input');
-        var sugBox = document.getElementById('faq-suggestions');
-        var noResults = document.getElementById('faq-no-results');
-        var resultCount = document.getElementById('faq-result-count');
+        var input = document.getElementById('faq-search-input') as HTMLInputElement;
+        var sugBox = document.getElementById('faq-suggestions') as HTMLElement;
+        var noResults = document.getElementById('faq-no-results') as HTMLElement;
+        var resultCount = document.getElementById('faq-result-count') as HTMLElement;
         if(!input) return;
 
-        function normalize(str){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+        function normalize(str: string){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
 
-        function saveUnanswered(query) {
+        function saveUnanswered(query: string) {
             if(!query || query.length < 3) return;
             fetch('/api/faqs/unanswered', {
                 method: 'POST',
@@ -147,8 +133,8 @@ import '../components/Footer.astro';
             }).catch(e => {});
         }
 
-        var allItems = [];
-        var allQuestions = [];
+        var allItems: any[] = [];
+        var allQuestions: any[] = [];
 
         function initQuestions() {
             allItems = Array.from(document.querySelectorAll('.faq-item'));
@@ -161,7 +147,7 @@ import '../components/Footer.astro';
             });
         }
 
-        function renderFaqs(faqs) {
+        function renderFaqs(faqs: any[]) {
             const container = document.getElementById('dynamic-faqs-container');
             if(!container) return;
             
@@ -180,7 +166,7 @@ import '../components/Footer.astro';
             script.textContent = JSON.stringify(schema);
             document.head.appendChild(script);
 
-            const grouped = {};
+            const grouped: Record<string, { icon: string; items: any[] }> = {};
             faqs.forEach(f => {
                 if(!grouped[f.category]) grouped[f.category] = { icon: f.icon, items: [] };
                 grouped[f.category].items.push(f);
@@ -192,7 +178,7 @@ import '../components/Footer.astro';
             for(const [cat, data] of Object.entries(grouped)) {
                 html += '<h2 class="faq-category-title"><i class="' + data.icon + '"></i> ' + cat + '</h2>';
                 html += '<div class="faq-page-grid" data-cat="' + cat + '" data-icon="' + data.icon + '">';
-                data.items.forEach(item => {
+                data.items.forEach((item: any) => {
                     html += '<div class="faq-item" id="faq-' + item.id + '">';
                     if(isAdmin) {
                         html += '<div style="background:#3b82f6;color:#fff;padding:4px 8px;font-size:12px;display:flex;justify-content:space-between;border-radius:15px 15px 0 0;">' +
@@ -219,7 +205,7 @@ import '../components/Footer.astro';
             if(isAdmin) injectAdminUnanswered();
         }
 
-        window.editFaq = function(id) {
+        (window as any).editFaq = function(id: number) {
             var item = allItems.find(i => i.id === 'faq-' + id) || document.getElementById('faq-' + id);
             if(!item) return;
             var question = item.querySelector('.faq-question span').textContent;
@@ -239,23 +225,23 @@ import '../components/Footer.astro';
             fetch('/api/admin/faqs/' + id, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
-                body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order||0) })
-            }).then(r => r.json()).then(res => {
+                body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order || '0') })
+            }).then(r => r.json()).then((res: any) => {
                 if(res.success) location.reload();
                 else alert('Error: Asegúrate de estar logueado como administrador.');
             });
         };
 
-        window.deleteFaq = function(id) {
+        (window as any).deleteFaq = function(id: number) {
             if(!confirm('¿Seguro que deseas eliminar esta pregunta?')) return;
             fetch('/api/admin/faqs/' + id, { method: 'DELETE', headers: { 'X-Requested-With': 'fetch' } })
-            .then(r => r.json()).then(res => {
+            .then(r => r.json()).then((res: any) => {
                 if(res.success) location.reload();
                 else alert('Error: Asegúrate de estar logueado como administrador.');
             });
         };
 
-        window.addFaq = function(cat, icon) {
+        (window as any).addFaq = function(cat: string, icon: string) {
             var newQ = prompt('Nueva pregunta:');
             if(!newQ) return;
             var newA = prompt('Respuesta (acepta HTML):');
@@ -265,7 +251,7 @@ import '../components/Footer.astro';
             fetch('/api/admin/faqs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
-                body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order||0) })
+                body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order || '0') })
             }).then(r => {
                 if(r.status === 201) location.reload();
                 else alert('Error: Asegúrate de estar logueado como administrador.');
@@ -274,7 +260,7 @@ import '../components/Footer.astro';
 
         function injectAdminUnanswered() {
             if(document.getElementById('faq-admin-panel')) return;
-            fetch('/api/admin/faqs/unanswered').then(r => r.json()).then(entries => {
+            fetch('/api/admin/faqs/unanswered').then(r => r.json()).then((entries: any) => {
                 if(!Array.isArray(entries)) return;
                 var panel = document.createElement('div');
                 panel.id = 'faq-admin-panel';
@@ -299,22 +285,23 @@ import '../components/Footer.astro';
 
         fetch('/api/faqs')
             .then(res => res.json())
-            .then(data => {
+            .then((data: any) => {
                 if(data && data.length > 0) renderFaqs(data);
                 else initQuestions();
             })
             .catch(() => initQuestions());
 
-        var saveTimer = null;
+        var saveTimer: number | null = null;
         var lastSavedQuery = '';
 
         function doSearch(){
             if(allQuestions.length === 0) initQuestions();
+            if(!input) return;
             var query = normalize(input.value);
             var visible = 0;
-            var suggestions = [];
+            var suggestions: any[] = [];
 
-            document.querySelectorAll('.faq-category-title').forEach(function(t){ t.style.display='none'; });
+            document.querySelectorAll('.faq-category-title').forEach(function(t){ (t as HTMLElement).style.display='none'; });
 
             allQuestions.forEach(function(q){
                 if(!query){
@@ -330,37 +317,37 @@ import '../components/Footer.astro';
             });
 
             document.querySelectorAll('.faq-page-grid').forEach(function(grid){
-                var hasVisible = Array.from(grid.querySelectorAll('.faq-item')).some(function(i){ return i.style.display !== 'none'; });
+                var hasVisible = Array.from(grid.querySelectorAll('.faq-item')).some(function(i){ return (i as HTMLElement).style.display !== 'none'; });
                 var title = grid.previousElementSibling;
                 while(title && !title.classList.contains('faq-category-title')) title = title.previousElementSibling;
-                if(title) title.style.display = hasVisible ? '' : 'none';
+                if(title) (title as HTMLElement).style.display = hasVisible ? '' : 'none';
             });
 
             if(query && resultCount){
                 resultCount.textContent = visible + (visible === 1 ? ' resultado' : ' resultados');
-                resultCount.style.display = 'block';
+                (resultCount as HTMLElement).style.display = 'block';
             } else if(resultCount){
-                resultCount.style.display = 'none';
+                (resultCount as HTMLElement).style.display = 'none';
             }
 
             if(noResults) {
                 if(query && visible === 0) {
-                    noResults.style.display = '';
+                    (noResults as HTMLElement).style.display = '';
                     var waBtn = noResults.querySelector('.btn-faq-wa');
                     if(waBtn) {
                         var encoded = encodeURIComponent('Hola, pregunté "' + input.value + '" en las FAQs y no encontré respuesta. ¿Me ayudan?');
-                        waBtn.href = 'https://wa.me/529986690777?text=' + encoded;
+                        (waBtn as HTMLAnchorElement).href = 'https://wa.me/529986690777?text=' + encoded;
                     }
-                    clearTimeout(saveTimer);
-                    saveTimer = setTimeout(function(){
+                    clearTimeout(saveTimer ?? undefined);
+                    saveTimer = window.setTimeout(function(){
                         if(normalize(input.value) !== lastSavedQuery) {
                             saveUnanswered(input.value);
                             lastSavedQuery = normalize(input.value);
                         }
                     }, 2000);
                 } else {
-                    noResults.style.display = 'none';
-                    clearTimeout(saveTimer);
+                    (noResults as HTMLElement).style.display = 'none';
+                    clearTimeout(saveTimer ?? undefined);
                 }
             }
 
@@ -369,11 +356,11 @@ import '../components/Footer.astro';
                     var txt = s.el.querySelector('.faq-question span').textContent.trim();
                     return '<div class="faq-sug-item" style="padding:12px 20px; cursor:pointer; font-size:0.95rem; color:#334155; border-bottom:1px solid #f1f5f9; transition:background 0.2s;" onmouseover="this.style.background=\\\'#f1f5f9\\\'" onmouseout="this.style.background=\\\'#fff\\\'"><i class="fa-solid fa-magnifying-glass" style="color:#94a3b8; margin-right:10px; font-size:0.8rem;"></i>' + txt + '</div>';
                 }).join('');
-                sugBox.style.display = 'block';
+                (sugBox as HTMLElement).style.display = 'block';
                 sugBox.querySelectorAll('.faq-sug-item').forEach(function(item, idx){
                     item.addEventListener('click', function(){
                         var target = suggestions[idx].el;
-                        sugBox.style.display = 'none';
+                        (sugBox as HTMLElement).style.display = 'none';
                         input.value = '';
                         doSearch();
                         target.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -382,23 +369,23 @@ import '../components/Footer.astro';
                     });
                 });
             } else {
-                sugBox.style.display = 'none';
+                (sugBox as HTMLElement).style.display = 'none';
             }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('input', doSearch);
             input.addEventListener('keydown', function(e){
-                if(e.key === 'Escape'){ sugBox.style.display='none'; input.value=''; doSearch(); }
+                if(e.key === 'Escape'){ (sugBox as HTMLElement).style.display='none'; input.value=''; doSearch(); }
                 if(e.key === 'Enter' && input.value.trim().length > 0){
                     var query = normalize(input.value);
-                    var hasResults = allQuestions.some(function(q){ return normalize(q.text).indexOf(query) !== -1; });
+                    var hasResults = allQuestions.some(function(q: any){ return normalize(q.text).indexOf(query) !== -1; });
                     if(!hasResults && input.value.length >= 3) { saveUnanswered(input.value); }
-                    sugBox.style.display = 'none';
+                    (sugBox as HTMLElement).style.display = 'none';
                 }
             });
             document.addEventListener('click', function(e){
-                if(!e.target.closest('.faq-search-wrap')) sugBox.style.display='none';
+                if(!(e.target as HTMLElement).closest('.faq-search-wrap')) (sugBox as HTMLElement).style.display='none';
             });
         });
     })();

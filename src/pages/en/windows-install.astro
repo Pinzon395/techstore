@@ -1,7 +1,8 @@
 ---
-import '../../layouts/Base.astro';
-import '../../components/Navbar.astro';
-import '../../components/Footer.astro';
+import Base from '../../layouts/Base.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 ---
 
 <Base
@@ -225,26 +226,7 @@ import '../../components/Footer.astro';
   lang="en"
 >
   <Navbar lang="en" />
-<!-- Breadcrumb -->
-    <nav aria-label="breadcrumb"
-        style="background:#030f22; border-bottom:1px solid rgba(255,255,255,0.08); padding:12px 0;">
-        <div class="container">
-            <ol itemscope itemtype="https://schema.org/BreadcrumbList"
-                style="margin:0; padding:0; display:flex; list-style:none; font-size:0.9rem;">
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"
-                    style="display:flex; align-items:center;">
-                    <a href="/" itemprop="item" style="color:#94a3b8; text-decoration:none;"><span
-                            itemprop="name">Inicio</span></a>
-                    <span style="margin:0 10px; color:#64748b;">/</span>
-                    <meta itemprop="position" content="1">
-                </li>
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
-                    <span itemprop="name" style="color:#3b82f6; font-weight:600;">Formateo y Optimización</span>
-                    <meta itemprop="position" content="2">
-                </li>
-            </ol>
-        </div>
-    </nav>
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Formateo y Optimización' }]} />
 
     <!-- ═══ HERO ═══ -->
     <header class="win-hero">
@@ -549,9 +531,10 @@ import '../../components/Footer.astro';
                 entries.forEach(function (e) {
                     if (e.isIntersecting) {
                         // Stagger siblings by index
+                        if (!e.target.parentElement) return;
                         var siblings = e.target.parentElement.querySelectorAll('.wave-el');
                         var idx = Array.prototype.indexOf.call(siblings, e.target);
-                        e.target.style.transitionDelay = (idx * 0.12) + 's';
+                        (e.target as HTMLElement).style.transitionDelay = (idx * 0.12) + 's';
                         e.target.classList.add('is-visible');
                         io.unobserve(e.target);
                     }

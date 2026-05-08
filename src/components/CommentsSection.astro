@@ -46,7 +46,7 @@ const { id = 'comentarios' } = Astro.props;
   let selectedRating = 0;
   document.querySelectorAll('#star-rating .fa-star').forEach((star) => {
     star.addEventListener('click', () => {
-      selectedRating = parseInt(star.dataset.val || '0');
+      selectedRating = parseInt((star as HTMLElement).dataset.val || '0');
       document.querySelectorAll('#star-rating .fa-star').forEach((s, i) => {
         s.classList.toggle('active', i < selectedRating);
       });
@@ -54,8 +54,8 @@ const { id = 'comentarios' } = Astro.props;
   });
   document.getElementById('addCommentForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = document.getElementById('commenterName')?.value;
-    const text = document.getElementById('commenterText')?.value;
+    const name = (document.getElementById('commenterName') as HTMLInputElement | null)?.value;
+    const text = (document.getElementById('commenterText') as HTMLTextAreaElement | null)?.value;
     if (!name || !text || selectedRating === 0) return;
     try {
       const res = await fetch('/api/comments', {
@@ -66,7 +66,7 @@ const { id = 'comentarios' } = Astro.props;
       });
       if (res.ok) {
         alert('¡Comentario enviado! Será revisado antes de publicarse.');
-        e.target.reset();
+        (e.target as HTMLFormElement).reset();
         selectedRating = 0;
         document.querySelectorAll('#star-rating .fa-star').forEach((s) => s.classList.remove('active'));
       }

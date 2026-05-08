@@ -1,7 +1,8 @@
 ---
-import '../layouts/Base.astro';
-import '../components/Navbar.astro';
-import '../components/Footer.astro';
+import Base from '../layouts/Base.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
 ---
 
 <Base
@@ -48,21 +49,7 @@ import '../components/Footer.astro';
 ]}
 >
   <Navbar />
-<!-- ═══ BREADCRUMB ═══ -->
-    <nav aria-label="breadcrumb" class="breadcrumb-container">
-        <div class="container">
-            <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                    <a href="/" itemprop="item"><span itemprop="name">Inicio</span></a>
-                    <meta itemprop="position" content="1">
-                </li>
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
-                    <span itemprop="name">Ensambles PC</span>
-                    <meta itemprop="position" content="2">
-                </li>
-            </ol>
-        </div>
-    </nav>
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Ensambles PC' }]} />
 
     <!-- Hero -->
     <section id="ensamble-pc" class="builds-hero" style="text-align: left; padding-bottom: 90px;">
@@ -105,8 +92,8 @@ import '../components/Footer.astro';
                     style="position: absolute; inset: 0; background: radial-gradient(circle, rgba(59,130,246,0.4) 0%, rgba(0,0,0,0) 70%); transform: scale(1.2); z-index: 0; border-radius: 50%; filter: blur(40px);">
                 </div>
 
-                <img src="/assets/images/ensamble-pc-gamer-cancun.jpeg" alt="PC Gamer ensamblada por Pixon PC Cancún"
-                    style="max-width: 100%; height: auto; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); border: 2px solid rgba(59, 130, 246, 0.3); position: relative; z-index: 1; transform: perspective(1000px) rotateY(-5deg); transition: transform 0.5s ease;"
+<img fetchpriority="high" loading="eager" src="/assets/images/ensamble-pc-gamer-cancun.jpeg" alt="PC Gamer ensamblada por Pixon PC Cancún"
+    style="max-width: 100%; height: auto; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); border: 2px solid rgba(59, 130, 246, 0.3); position: relative; z-index: 1; transform: perspective(1000px) rotateY(-5deg); transition: transform 0.5s ease;"
                     onmouseover="this.style.transform='perspective(1000px) rotateY(0deg) scale(1.02)'"
                     onmouseout="this.style.transform='perspective(1000px) rotateY(-5deg)'">
             </div>
@@ -969,7 +956,7 @@ import '../components/Footer.astro';
                 // Usamos fragmento o generamos un string completo primero para insertarlo UNA sola vez
                 let dynamicHtml = '';
 
-                builds.forEach(build => {
+                builds.forEach((build: any) => {
                     const priceStr = '$' + build.price.toLocaleString('es-MX');
                     const wpMsg = encodeURIComponent(`Hola Pixon, me interesa el ensamble: ${build.title} por ${priceStr}`);
 
@@ -1026,15 +1013,15 @@ import '../components/Footer.astro';
 
         // Lógica del Configurador de PC a la Carta
         function updateBuilder() {
-            const cpu = document.getElementById('b-cpu');
-            const gpu = document.getElementById('b-gpu');
-            const ram = document.getElementById('b-ram');
-            const ssd = document.getElementById('b-ssd');
-            const base = document.getElementById('b-base');
+            const cpu = document.getElementById('b-cpu') as HTMLSelectElement | null;
+            const gpu = document.getElementById('b-gpu') as HTMLSelectElement | null;
+            const ram = document.getElementById('b-ram') as HTMLSelectElement | null;
+            const ssd = document.getElementById('b-ssd') as HTMLSelectElement | null;
+            const base = document.getElementById('b-base') as HTMLSelectElement | null;
             if (!cpu || !gpu || !ram || !ssd || !base) return;
 
-            const warranty = document.getElementById('addon-warranty');
-            const windows = document.getElementById('addon-windows');
+            const warranty = document.getElementById('addon-warranty') as HTMLInputElement | null;
+            const windows = document.getElementById('addon-windows') as HTMLInputElement | null;
 
             let total = 0;
             let summaryHtml = '';
@@ -1095,8 +1082,10 @@ import '../components/Footer.astro';
                 summaryHtml = '<li style="color:#64748b;font-style:italic;font-size:0.88rem;text-align:center;padding:15px 0;">Aún no has seleccionado componentes...</li>';
             }
 
-            document.getElementById('builder-summary').innerHTML = summaryHtml;
-            document.getElementById('builder-total').innerHTML = '$' + total.toLocaleString('es-MX') + ' <span style="font-size:0.9rem;font-weight:600;color:#64748b;">MXN</span>';
+            var builderSummary = document.getElementById('builder-summary');
+            var builderTotal = document.getElementById('builder-total');
+            if (builderSummary && builderTotal) { builderSummary.innerHTML = summaryHtml;
+            builderTotal.innerHTML = '$' + total.toLocaleString('es-MX') + ' <span style="font-size:0.9rem;font-weight:600;color:#64748b;">MXN</span>'; }
             const cc = document.getElementById('cart-count');
             if (cc) cc.textContent = count + (count === 1 ? ' pieza' : ' piezas');
 
@@ -1110,11 +1099,11 @@ import '../components/Footer.astro';
             const powerLabel = document.getElementById('power-label');
             const powerDesc = document.getElementById('power-desc');
 
-            const perfOf = (sel) => {
+            const perfOf = (sel: HTMLSelectElement | null) => {
                 if (!sel || sel.value === '' || sel.selectedIndex < 0) return 0;
-                return parseInt(sel.options[sel.selectedIndex].getAttribute('data-perf')) || 0;
+                return parseInt(sel.options[sel.selectedIndex].getAttribute('data-perf') || '0') || 0;
             };
-            const dataAttr = (sel, attr) => {
+            const dataAttr = (sel: HTMLSelectElement | null, attr: string) => {
                 if (!sel || sel.value === '' || sel.selectedIndex < 0) return '0';
                 return sel.options[sel.selectedIndex].getAttribute(attr) || '0';
             };
@@ -1239,20 +1228,20 @@ import '../components/Footer.astro';
             }
         }
 
-        window.updateBuilder = updateBuilder;
+        (window as any).updateBuilder = updateBuilder;
 
         // Cross-sell modal
         let crossSellSelected = false;
 
-        window.showCrossSellModal = function () {
+        (window as any).showCrossSellModal = function () {
             const m = document.getElementById('cross-sell-modal');
             if (m) m.style.display = 'flex';
         };
-        window.closeCrossSellModal = function () {
+        (window as any).closeCrossSellModal = function () {
             const m = document.getElementById('cross-sell-modal');
             if (m) m.style.display = 'none';
         };
-        window.toggleAddon = function (addonId) {
+        (window as any).toggleAddon = function (addonId: string) {
             crossSellSelected = !crossSellSelected;
             const container = document.getElementById('addon-' + addonId);
             const check = document.getElementById('addon-kit-check');
@@ -1273,15 +1262,16 @@ import '../components/Footer.astro';
             }
         };
 
-        window.finishConfigWithAddons = function () {
-            window.closeCrossSellModal();
-            const cpu = document.getElementById('b-cpu');
-            const gpu = document.getElementById('b-gpu');
-            const ram = document.getElementById('b-ram');
-            const ssd = document.getElementById('b-ssd');
-            const base = document.getElementById('b-base');
-            const warranty = document.getElementById('addon-warranty');
-            const windows = document.getElementById('addon-windows');
+        (window as any).finishConfigWithAddons = function () {
+            (window as any).closeCrossSellModal();
+            const cpu = document.getElementById('b-cpu') as HTMLSelectElement | null;
+            const gpu = document.getElementById('b-gpu') as HTMLSelectElement | null;
+            const ram = document.getElementById('b-ram') as HTMLSelectElement | null;
+            const ssd = document.getElementById('b-ssd') as HTMLSelectElement | null;
+            const base = document.getElementById('b-base') as HTMLSelectElement | null;
+            const warranty = document.getElementById('addon-warranty') as HTMLInputElement | null;
+            const windows = document.getElementById('addon-windows') as HTMLInputElement | null;
+            if (!cpu || !gpu || !ram || !ssd || !base) return;
 
             let msg = '¡Hola Pixon PC! 🛠️ He armado mi PC en su web y quiero verificar disponibilidad:\n\n';
             if (cpu.value) msg += '🔲 CPU: ' + cpu.options[cpu.selectedIndex].getAttribute('data-name') + '\n';
@@ -1295,13 +1285,13 @@ import '../components/Footer.astro';
             if (crossSellSelected) msg += '🎹 Kit Gamer (Teclado + Mouse RGB): $599\n';
             msg += '\n⚡ Optimización +FPS: INCLUIDA GRATIS\n';
 
-            const totalText = document.getElementById('builder-total').innerText.replace(/[^\d]/g, '');
+            const totalText = (document.getElementById('builder-total') as HTMLElement | null)?.innerText.replace(/[^\d]/g, '') || '0';
             let finalTotal = parseInt(totalText) || 0;
             if (crossSellSelected) finalTotal += 599;
             msg += '\n💰 Total Estimado: $' + finalTotal.toLocaleString('es-MX') + ' MXN';
 
             const url = 'https://wa.me/529986690777?text=' + encodeURIComponent(msg);
-            if (window.smartWaRedirect) window.smartWaRedirect(url);
+            if ((window as any).smartWaRedirect) (window as any).smartWaRedirect(url);
             else window.open(url, '_blank');
         };
     </script>

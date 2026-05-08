@@ -1,7 +1,8 @@
 ---
-import '../../layouts/Base.astro';
-import '../../components/Navbar.astro';
-import '../../components/Footer.astro';
+import Base from '../../layouts/Base.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 ---
 
 <Base
@@ -97,20 +98,7 @@ import '../../components/Footer.astro';
   lang="en"
 >
   <Navbar lang="en" />
-<nav aria-label="breadcrumb" class="breadcrumb-container">
-        <div class="container">
-            <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a href="/"
-                        itemprop="item"><span itemprop="name">Inicio</span></a>
-                    <meta itemprop="position" content="1">
-                </li>
-                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
-                    <span itemprop="name">Reparación de Controles</span>
-                    <meta itemprop="position" content="2">
-                </li>
-            </ol>
-        </div>
-    </nav>
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Reparación de Controles' }]} />
     <!-- ═══ HERO ═══ -->
     <header class="ctrl-hero">
         <div class="container">
@@ -707,7 +695,7 @@ import '../../components/Footer.astro';
             class="fa-brands fa-whatsapp"></i></a>
     <script>
         // FAQ toggle behavior
-        document.querySelectorAll('.faq-item').forEach(function (d) { d.addEventListener('toggle', function () { var icon = d.querySelector('.fa-chevron-down'); if (icon) icon.style.transform = d.open ? 'rotate(180deg)' : ''; }); });
+        document.querySelectorAll('.faq-item').forEach(function (d) { d.addEventListener('toggle', function () { var icon = (d as HTMLDetailsElement).querySelector('.fa-chevron-down'); if (icon) (icon as HTMLElement).style.transform = (d as HTMLDetailsElement).open ? 'rotate(180deg)' : ''; }); });
 
         // Wave Animation Observer
         document.addEventListener('DOMContentLoaded', () => {
@@ -736,7 +724,7 @@ import '../../components/Footer.astro';
                 // To animate whole groups (grids) sequentially
                 if (el.classList.contains('rel-card') || el.classList.contains('card-servicio')) {
                     // if it's not wrapped in a specific grid container, handle the parent
-                    waveObserver.observe(el.parentElement);
+                    if (el.parentElement) waveObserver.observe(el.parentElement);
                 } else {
                     waveObserver.observe(el);
                 }
