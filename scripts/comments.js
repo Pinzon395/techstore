@@ -62,17 +62,45 @@
        CAPA DE DATOS
     ═══════════════════════════════════════════════════════ */
 
-    /** Obtiene todos los comentarios de la API (sin caché) */
+    /** Obtiene todos los comentarios de la API + reseñas de Google (sin caché) */
     async function fetchComments() {
         try {
-            const res = await fetch(`${API_BASE}/comments?r=${Date.now()}`, {
-                signal: AbortSignal.timeout(4000)
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
+            const [localRes, googleRes] = await Promise.all([
+                fetch(`${API_BASE}/comments?r=${Date.now()}`, {
+                    signal: AbortSignal.timeout(4000)
+                }),
+                fetch(`${API_BASE}/reviews/google?r=${Date.now()}`, {
+                    signal: AbortSignal.timeout(4000)
+                })
+            ]);
+
+            let local = [];
+            let googleReviews = [];
+
+            if (localRes.ok) {
+                local = await localRes.json();
+            }
+
+            if (googleRes.ok) {
+                const googleData = await googleRes.json();
+                if (googleData.reviews && googleData.reviews.length > 0) {
+                    googleReviews = googleData.reviews.map(r => ({
+                        id: r.id,
+                        name: r.name,
+                        stars: r.rating,
+                        text: r.text,
+                        source: 'google',
+                        created_at: new Date(r.time * 1000).toISOString()
+                    }));
+                }
+            }
+
+            // Merge: Google reviews first, then local comments
+            const merged = [...googleReviews, ...local];
+
             // Guardar copia offline
-            try { localStorage.setItem('pixon_comments_v3', JSON.stringify(data)); } catch (_) {}
-            return data;
+            try { localStorage.setItem('pixon_comments_v3', JSON.stringify(merged)); } catch (_) {}
+            return merged;
         } catch (err) {
             console.info('API no disponible, usando caché local:', err.message);
             try {
@@ -288,14 +316,27 @@
     /* ═══════════════════════════════════════════════════════
        HELPERS UI
     ═══════════════════════════════════════════════════════ */
-    function starsHTML(n) {
-        let html = '';
+    function starsHTML(n, source) {
+        n = parseFloat(n) || 0;
+        let html = '<span class="star-display">';
         for (let i = 1; i <= 5; i++) {
-            html += i <= n
-                ? '<i class="fa-solid fa-star"></i>'
-                : '<i class="fa-regular fa-star"></i>';
+            if (n >= i) {
+                html += '<span class="star-full"></span>';
+            } else if (n >= i - 0.5) {
+                html += '<span class="star-half"></span>';
+            } else {
+                html += '<span class="star-empty"></span>';
+            }
         }
+        html += '</span>';
         return html;
+    }
+
+    function sourceBadgeHTML(source) {
+        if (source === 'google') {
+            return '<span class="badge-google"><i class="fa-brands fa-google"></i> Google</span>';
+        }
+        return '';
     }
 
     function esc(str) {
@@ -311,10 +352,12 @@
         const card = document.createElement('div');
         card.className = 'comment-item';
         card.dataset.id = c.id || '';
+        const source = c.source || 'local';
+        const badge = sourceBadgeHTML(source);
         card.innerHTML = `
             <div class="header">
-                <h5>${esc(c.name)}</h5>
-                <div class="stars">${starsHTML(c.stars)}</div>
+                <h5>${esc(c.name)}${badge}</h5>
+                <div class="stars">${starsHTML(c.stars, source)}</div>
             </div>
             <p>"${esc(c.text)}"</p>
         `;

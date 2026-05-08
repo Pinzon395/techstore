@@ -411,6 +411,62 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.json(comments);
     }));
 
+    /* ─────────────────────────────────────────────────────────
+       GOOGLE PLACES API — Reseñas reales de Google Maps
+    ───────────────────────────────────────────────────────── */
+    app.get('/api/reviews/google', ah(async (_req, res) => {
+        const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+        const placeId = process.env.GOOGLE_PLACE_ID || 'ChIJN4L6OljvUY8RGwJFBGXOXuM';
+
+        if (!apiKey) {
+            return res.json({ source: 'demo', reviews: [], rating: 0, total: 0 });
+        }
+
+        try {
+            const https = require('https');
+            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,reviews,user_ratings_total&language=es&key=${apiKey}`;
+
+            const data = await new Promise((resolve, reject) => {
+                https.get(url, (resp) => {
+                    let body = '';
+                    resp.on('data', (chunk) => body += chunk);
+                    resp.on('end', () => {
+                        try { resolve(JSON.parse(body)); }
+                        catch (e) { reject(e); }
+                    });
+                }).on('error', reject);
+            });
+
+            if (data.status !== 'OK') {
+                return res.json({ source: 'error', error: data.status, reviews: [], rating: 0, total: 0 });
+            }
+
+            const result = data.result;
+            const reviews = (result.reviews || []).map(r => ({
+                id: `google-${r.time}`,
+                name: r.author_name,
+                text: r.text,
+                rating: r.rating,
+                relative_time: r.relative_time_description,
+                time: r.time,
+                profile_photo_url: r.profile_photo_url,
+                source: 'google',
+                verified: true
+            }));
+
+            res.json({
+                source: 'google',
+                place_name: result.name,
+                rating: result.rating,
+                total: result.user_ratings_total,
+                reviews
+            });
+        } catch (err) {
+            console.error('Google Places API error:', err.message);
+            res.json({ source: 'error', error: err.message, reviews: [], rating: 0, total: 0 });
+        }
+    }));
+
     app.get('/api/comments/stream', (req, res) => {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
