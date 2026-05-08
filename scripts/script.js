@@ -21,6 +21,16 @@
 'use strict';
 
 /* ══════════════════════════════════════════════════════════════
+   SW — Service Worker para caché offline/instantánea
+══════════════════════════════════════════════════════════════ */
+if ('serviceWorker' in navigator && !document.documentElement.classList.contains('low-end-mode')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}
+
+
+/* ══════════════════════════════════════════════════════════════
    1. NAVBAR — Compactar y auto-ocultar al hacer scroll
    Toggle de clases (.is-scrolled / .is-hidden) — los estilos están
    en styles/style.css. El handler usa requestAnimationFrame para
@@ -217,16 +227,23 @@ function openTab(evt, tabId) {
 window.addEventListener('DOMContentLoaded', () => {
     const poster = document.getElementById('hero-poster');
     const wrapper = document.getElementById('hero-yt-wrapper');
-    if (poster && wrapper) {
-        // En móviles (gama baja/media) el iframe de YouTube drena batería y datos, ralentizando todo.
-        // Optamos por dejar solo el poster de fondo estático.
-        if (window.innerWidth < 768) {
-            return;
-        }
+    if (!poster || !wrapper) return;
 
-        // Deferir la carga del iframe del hero video para mejorar el LCP y reducir TBT
+    // No cargar el video si es móvil (poster estático basta)
+    // o modo gama baja extremo (ahorra datos/batería)
+    if (window.innerWidth < 768 || document.body.classList.contains('low-end-mode')) return;
+
+    // Deferir usando IntersectionObserver para cargar solo cuando el hero esté cerca
+    let loaded = false;
+    function loadHeroVideo() {
+        if (loaded) return;
+        loaded = true;
+        observer.disconnect();
+
+        // Pequeño delay extra para no competir con LCP
         setTimeout(() => {
             const iframe = document.createElement('iframe');
+            iframe.loading = 'lazy';
             iframe.src = 'https://www.youtube-nocookie.com/embed/cbKre_xAFlo?autoplay=1&mute=1&loop=1&playlist=cbKre_xAFlo&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1';
             iframe.setAttribute('frameborder', '0');
             iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
@@ -261,9 +278,15 @@ window.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => poster.remove(), 800);
                     window.removeEventListener('message', onYouTubeMessageHero);
                 }
-            }, 3500);
-        }, 1500); // 1.5s delay to clear the critical rendering path
+            }, 4000);
+        }, 500);
     }
+
+    // Observar cuando el hero esté a 200px del viewport
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) loadHeroVideo();
+    }, { rootMargin: '200px' });
+    observer.observe(wrapper);
 });
 
 /**
@@ -563,8 +586,9 @@ window.toggleFaq = toggleFaq;
    cache-control immutable 1 año en /assets/ con hash de Vite.
 ══════════════════════════════════════════════════════════════ */
 (async function initLenis() {
-    // Evitar cargar en móviles porque el scroll nativo táctil ya es perfecto
-    if (window.innerWidth < 768) return;
+    // Evitar cargar en móviles (el scroll nativo ya es perfecto)
+    // y en gama baja (reduce jank)
+    if (window.innerWidth < 768 || document.body.classList.contains('low-end-mode')) return;
 
     const { default: Lenis } = await import('lenis');
 
@@ -634,4 +658,40 @@ window.toggleFaq = toggleFaq;
             }, 800);
         });
     }
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   11. COUPON STICKER — Diagnóstico gratis flotante (estilo Temu)
+   Aparece tras 3s, guarda localStorage 7 días al cerrar.
+══════════════════════════════════════════════════════════════ */
+(function initCouponSticker() {
+  var sticker = document.getElementById('coupon-sticker');
+  if (!sticker) return;
+  if (document.body.classList.contains('low-end-mode')) return;
+
+  try {
+    var dismissed = localStorage.getItem('pixon-coupon-dismissed');
+    if (dismissed) {
+      var daysAgo = (Date.now() - parseInt(dismissed, 10)) / 86400000;
+      if (daysAgo < 7) return;
+      localStorage.removeItem('pixon-coupon-dismissed');
+    }
+  } catch(e) {}
+
+  var showTimer = setTimeout(function() {
+    sticker.classList.add('visible');
+  }, 3000);
+
+  document.getElementById('coupon-close').addEventListener('click', function(e) {
+    e.stopPropagation();
+    sticker.classList.remove('visible');
+    try { localStorage.setItem('pixon-coupon-dismissed', Date.now().toString()); } catch(e) {}
+    clearTimeout(showTimer);
+  });
+
+  document.getElementById('coupon-claim').addEventListener('click', function() {
+    smartWaRedirect('https://wa.me/529986690777?text=Quiero%20reclamar%20mi%20cup%C3%B3n%20de%20diagn%C3%B3stico%20GRATIS');
+    sticker.classList.remove('visible');
+    try { localStorage.setItem('pixon-coupon-dismissed', Date.now().toString()); } catch(e) {}
+  });
 })();

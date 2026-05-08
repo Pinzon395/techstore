@@ -133,6 +133,22 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true }
     }));
 
+    // WebP content negotiation: si el browser acepta WebP y existe .webp, servirlo
+    app.use((req, res, next) => {
+        const pathname = req.path;
+        if (/\.(jpe?g|png)$/i.test(pathname) && req.accepts('image/webp')) {
+            const webpPath = pathname.replace(/\.(jpe?g|png)$/i, '.webp');
+            const fullPath = isProd
+                ? path.join(distPath, webpPath)
+                : path.join(rootPath, webpPath);
+            if (fs.existsSync(fullPath)) {
+                req.url = webpPath;
+                res.setHeader('Vary', 'Accept');
+            }
+        }
+        next();
+    });
+
     app.use(compression({
         threshold: 1024,
         level: 6,

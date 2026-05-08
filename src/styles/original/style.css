@@ -24,6 +24,9 @@
   padding: 0;
   box-sizing: border-box
 }
+html {
+  overflow-x: hidden
+}
 body {
   background-color: var(--bg-main);
   color: var(--text-main);
@@ -737,7 +740,7 @@ ul {
   text-shadow: 0 1px 6px rgba(0, 0, 0, .5)
 }
 .hero-features {
-  --icon-size: 26px;
+  --icon-size: 34px;
   --text-size: 0.85rem;
   --row-spacing: 16px;
   --item-spacing: 24px;
@@ -765,9 +768,10 @@ ul {
   gap: 8px;
   width: var(--item-width)
 }
-.feature-item i {
+.feature-item i, .feature-item .fa-icon {
   font-size: var(--icon-size);
   color: #fff;
+  fill: #fff;
   width: auto;
   text-align: center;
   display: inline-block
@@ -1957,7 +1961,7 @@ ul {
     margin-bottom: 20px
   }
   .hero-features {
-    --icon-size: 22px;
+    --icon-size: 29px;
     --text-size: 0.72rem;
     --row-spacing: 20px;
     --item-spacing: 20px;
@@ -1978,7 +1982,7 @@ ul {
     width: var(--item-width);
     min-width: 0
   }
-  .feature-item i {
+  .feature-item i, .feature-item .fa-icon {
     font-size: var(--icon-size)
   }
   .feature-item span {
@@ -3676,4 +3680,210 @@ html {
         gap: 20px;
     }
 }
-
+
+/* ══════════════════════════════════════════════════════════════
+   PERFORMANCE OPTIMIZATIONS – Pixon PC
+   ══════════════════════════════════════════════════════════════ */
+
+/* 1. content-visibility: auto — solo renderiza secciones visibles.
+   La página tiene 10+ secciones; el browser salta el layout/paint
+   de lo que no está en viewport. Ganancia enorme en gama baja. */
+section[id]:not(.hero):not(#inicio) {
+  content-visibility: auto;
+  contain-intrinsic-size: 400px 1px;
+}
+
+/* 2. Modo ahorro: quita backdrop-filter (causa jank GPU en gama baja)
+   cuando el usuario activa "reduce motion" o data-ahorro="true" */
+.reduced-motion .navbar,
+.reduced-motion #specialty-overlay,
+.reduced-motion [style*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 3. Clase .low-end-mode — se activa por JS en celulares gama baja */
+.low-end-mode * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+.low-end-mode .navbar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(255,255,255,0.98) !important;
+}
+.low-end-mode #specialty-overlay {
+  backdrop-filter: none !important;
+}
+.low-end-mode [style*="backdrop-filter"] {
+  backdrop-filter: none !important;
+}
+.low-end-mode .animated-counter {
+  animation: none !important;
+}
+.low-end-mode .pulse-whatsapp {
+  animation: none !important;
+}
+.low-end-mode .hover-scale:hover {
+  transform: none !important;
+}
+.low-end-mode .specialty-card:hover {
+  transform: none !important;
+}
+
+/* 4. will-change optimizado — solo en hover, no siempre */
+.specialty-card,
+.express-banner-card,
+.step-card {
+  will-change: auto;
+}
+
+/* 5. Imágenes: evita layout shift mientras cargan */
+img[loading="lazy"] {
+  aspect-ratio: auto;
+}
+
+/* 6. Reducir requestAnimationFrame en scroll para gama baja */
+.low-end-mode #navbar,
+.low-end-mode .whatsapp-float {
+  transition: none !important;
+}
+
+/* 7. Hero poster: transición optimizada */
+#hero-poster {
+  transition: opacity 0.4s ease-in-out;
+}
+
+/* ═══ Font Awesome reemplazado por SVG sprite (.fa-icon) ═══ */
+.fa-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  vertical-align: -0.125em;
+  overflow: visible;
+  pointer-events: none;
+}
+.fa-icon.fa-brands {
+  vertical-align: -0.15em;
+}
+
+/* ═══ COUPON STICKER — Diagnóstico gratis flotante ═══ */
+.coupon-sticker {
+  position: fixed;
+  bottom: 110px;
+  right: 20px;
+  z-index: 9001;
+  background: linear-gradient(145deg, rgba(15,23,42,0.94), rgba(30,41,59,0.94));
+  border: 1px solid rgba(245,158,11,0.4);
+  border-radius: 16px;
+  padding: 16px 20px 14px;
+  min-width: 210px;
+  max-width: 240px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  opacity: 0;
+  transform: translateY(24px) scale(0.95);
+  transition: opacity 0.5s cubic-bezier(0.22,0.68,0,1.2), transform 0.5s cubic-bezier(0.22,0.68,0,1.2);
+  pointer-events: none;
+}
+.coupon-sticker.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+.coupon-close {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.coupon-close:hover {
+  color: rgba(255,255,255,0.6);
+}
+.coupon-content {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.coupon-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #fbbf24;
+  text-transform: uppercase;
+}
+.coupon-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.coupon-old-price {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.35);
+  text-decoration: line-through;
+}
+.coupon-free {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-family: var(--font-heading);
+  background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+.coupon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  font-family: var(--font-main);
+  cursor: pointer;
+  background: linear-gradient(135deg, #b45309, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%, #b45309);
+  background-size: 200% 100%;
+  color: #1a1200;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.25);
+  box-shadow: 0 2px 12px rgba(245,158,11,0.35), 0 0 0 1px rgba(245,158,11,0.25) inset;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.coupon-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 4px 20px rgba(245,158,11,0.55), 0 0 0 1px rgba(245,158,11,0.4) inset;
+}
+.coupon-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 35%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: rotate(25deg);
+  animation: coupon-shimmer 3s ease-in-out infinite;
+}
+@keyframes coupon-shimmer {
+  0% { left: -60%; }
+  70% { left: 120%; }
+  100% { left: 120%; }
+}
+@media (max-width: 480px) {
+  .coupon-sticker { display: none; }
+}

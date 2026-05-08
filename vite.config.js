@@ -53,6 +53,13 @@ function copyStaticPlugin() {
                 path.join(__dirname, 'dist', 'assets', 'logos'),
                 'assets/logos'
             );
+            // 3. public/assets/icons/*.svg  →  dist/assets/icons/
+            //    SVG sprite para reemplazar Font Awesome
+            copyDir(
+                path.join(__dirname, 'public', 'assets', 'icons'),
+                path.join(__dirname, 'dist', 'assets', 'icons'),
+                'assets/icons'
+            );
         }
     };
 }
@@ -147,6 +154,7 @@ export default defineConfig({
         cssCodeSplit: true,
 
         rollupOptions: {
+            treeshake: false,
             // Todas las páginas HTML del sitio
             input: {
                 main:                  'index.html',
