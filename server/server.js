@@ -133,6 +133,9 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true }
     }));
 
+    const rootPath = path.join(__dirname, '..');
+    const distPath = path.join(__dirname, '../dist');
+
     // WebP content negotiation: si el browser acepta WebP y existe .webp, servirlo
     app.use((req, res, next) => {
         const pathname = req.path;
@@ -162,7 +165,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     app.use(express.json({ limit: '10kb' }));
 
     if (process.env.NODE_ENV !== 'production') {
-        const rootPath = path.join(__dirname, '..');
         app.use(express.static(rootPath, { index: false, maxAge: 0 }));
     }
 
@@ -552,8 +554,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
        ARCHIVOS ESTATICOS Y RUTAS HTML
     ───────────────────────────────────────────────────────── */
     if (process.env.NODE_ENV === 'production') {
-        const distPath = path.join(__dirname, '../dist');
-
         const pages = {
             '/': 'index.html',
             '/en': 'pages/en/index.html',
@@ -663,8 +663,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             res.sendFile(path.join(distPath, 'index.html'), sendFileOptions);
         });
     } else {
-        const rootPath = path.join(__dirname, '..');
-
         const devPages = {
             '/': 'index.html',
             '/en': 'pages/en/index.html',
