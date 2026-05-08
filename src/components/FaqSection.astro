@@ -1,0 +1,45 @@
+---
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  items: FaqItem[];
+  viewMoreHref?: string;
+  viewMoreLabel?: string;
+  faqAccent?: string;
+  id?: string;
+}
+
+const { title, description, items, viewMoreHref, viewMoreLabel, faqAccent = '#3b82f6', id } = Astro.props;
+---
+
+<section class="section-padding" style="background:#f8fafc;" id={id}>
+  <div class="container" style="max-width: 800px;">
+    <div class="section-title text-center">
+      <h2>{title}</h2>
+      {description && <p>{description}</p>}
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      {items.map((item) => (
+        <details style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:22px 28px;">
+          <summary
+            style="font-weight:700; color:#0f172a; cursor:pointer; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;"
+          >
+            {item.question}
+            <span style="color:{faqAccent}; font-size:1.4rem; flex-shrink:0;">+</span>
+          </summary>
+          <p style="color:#475569; margin-top:14px; line-height:1.7; font-size:0.98rem;" set:html={item.answer}></p>
+        </details>
+      ))}
+    </div>
+    {viewMoreHref && viewMoreLabel && (
+      <div class="text-center" style="margin-top:30px;">
+        <a href={viewMoreHref} class="btn btn-outline"><i class="fa-solid fa-comments"></i> {viewMoreLabel}</a>
+      </div>
+    )}
+  </div>
+</section>

@@ -1,0 +1,77 @@
+---
+interface Props {
+  id?: string;
+}
+
+const { id = 'comentarios' } = Astro.props;
+---
+
+<section class="comments-section-container section-padding" style="background:linear-gradient(to bottom, #ffffff 0%, #f1f5f9 40px, #f1f5f9 100%);" id={id}>
+  <div class="container comments-section">
+    <div class="section-title text-center">
+      <h2>¿Qué opinan nuestros clientes?</h2>
+      <p>Déjanos un comentario y calificación sobre nuestro servicio.</p>
+    </div>
+    <div class="comment-form-container">
+      <h4>Deja tu Comentario</h4>
+      <div class="stars-input" id="star-rating">
+        <i class="fa-solid fa-star" data-val="1"></i>
+        <i class="fa-solid fa-star" data-val="2"></i>
+        <i class="fa-solid fa-star" data-val="3"></i>
+        <i class="fa-solid fa-star" data-val="4"></i>
+        <i class="fa-solid fa-star" data-val="5"></i>
+      </div>
+      <form id="addCommentForm">
+        <div class="form-group">
+          <input type="text" id="commenterName" placeholder="Tu Nombre" required autocomplete="name" />
+        </div>
+        <div class="form-group mt-3">
+          <textarea id="commenterText" rows="3" placeholder="Muy buen servicio, mi equipo quedó como nuevo..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3" id="submitCommentBtn">
+          <i class="fa-solid fa-paper-plane"></i> Publicar Comentario
+        </button>
+      </form>
+    </div>
+    <div class="comments-marquee-container" id="commentsCarousel">
+      <div class="comment-list" id="commentsBox"></div>
+    </div>
+    <div class="text-center mt-4">
+      <button id="loadMoreComments" class="btn btn-outline" style="display:none;">Ver más comentarios</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  let selectedRating = 0;
+  document.querySelectorAll('#star-rating .fa-star').forEach((star) => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.val || '0');
+      document.querySelectorAll('#star-rating .fa-star').forEach((s, i) => {
+        s.classList.toggle('active', i < selectedRating);
+      });
+    });
+  });
+  document.getElementById('addCommentForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('commenterName')?.value;
+    const text = document.getElementById('commenterText')?.value;
+    if (!name || !text || selectedRating === 0) return;
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'include',
+        body: JSON.stringify({ name, text, rating: selectedRating }),
+      });
+      if (res.ok) {
+        alert('¡Comentario enviado! Será revisado antes de publicarse.');
+        e.target.reset();
+        selectedRating = 0;
+        document.querySelectorAll('#star-rating .fa-star').forEach((s) => s.classList.remove('active'));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+</script>

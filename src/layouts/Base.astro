@@ -176,12 +176,42 @@ const allSchema = [...defaultSchema, ...schema];
   </script>
 
   {allSchema.map((s) => (
-    <script type="application/ld+json" set:html={JSON.stringify(s)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(s)} />
   ))}
 
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; block-all-mixed-content">
+
+  <script is:inline>
+    function smartWaRedirect(url) {
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) { window.location.href = url; } else { window.open(url, '_blank'); }
+    }
+  </script>
 </head>
 <body class="light-theme">
   <slot />
+
+  <script>
+    import { initSmoothScroll, scrollToSection } from '../lib/smooth-scroll';
+    initSmoothScroll();
+
+    const params = new URLSearchParams(window.location.search);
+    const sectionId = params.get('section');
+    if (sectionId) {
+      setTimeout(() => {
+        const fixedHeader = document.querySelector('#navbar');
+        const offset = fixedHeader ? fixedHeader.offsetHeight + 20 : 80;
+        scrollToSection(sectionId, offset);
+        if (window.history.replaceState) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }, 400);
+    }
+    if (window.location.hash) {
+      setTimeout(() => {
+        scrollToSection(window.location.hash.slice(1), 80);
+      }, 400);
+    }
+  </script>
 </body>
 </html>

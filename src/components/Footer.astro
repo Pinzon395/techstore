@@ -1,0 +1,114 @@
+---
+interface Props {
+  lang?: 'es' | 'en';
+}
+
+const { lang = 'es' } = Astro.props;
+
+const footerLinks = lang === 'en' ? {
+  pages: {
+    title: 'Pages',
+    home: 'Home',
+    packages: 'Packages',
+    builds: 'PC Builds',
+    reviews: 'Reviews',
+    contact: 'Contact',
+  },
+  legal: {
+    title: 'Legal',
+    privacy: 'Privacy Policy',
+    warranty: 'Warranty Policy',
+  },
+  social: 'Follow Us',
+  description: 'Real work recorded from the workshop. Specialists in computer repair Cancún.',
+  rights: 'Pixon PC / Rentalap. All rights reserved.',
+} : {
+  pages: {
+    title: 'Páginas',
+    home: 'Inicio',
+    packages: 'Paquetes',
+    builds: 'Ensambles',
+    reviews: 'Reseñas',
+    contact: 'Contacto',
+  },
+  legal: {
+    title: 'Legal',
+    privacy: 'Política de Privacidad',
+    warranty: 'Política de Garantía',
+  },
+  social: 'Síguenos',
+  description: 'Trabajos reales grabados desde el taller. Especialistas en <strong>reparación de computadoras Cancún</strong>.',
+  rights: 'Pixon PC / Rentalap. Todos los derechos reservados.',
+};
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="light-footer">
+  <div class="container footer-content">
+    <div class="footer-logo">
+      <a href={lang === 'en' ? '/en' : '/'} class="logo text-dark">
+        <img src="/assets/logos/Logo.svg" alt="Pixon PC Logo" height="35" class="brand-logo">
+      </a>
+      <p set:html={footerLinks.description}></p>
+    </div>
+    <div class="footer-links">
+      <p style="font-weight:700; font-size:1.1rem; margin-bottom:15px;">{footerLinks.pages.title}</p>
+      <ul>
+        <li><a href={lang === 'en' ? '/en' : '/'}>{footerLinks.pages.home}</a></li>
+        <li><a href="/paquetes">{footerLinks.pages.packages}</a></li>
+        <li><a href="/ensambles">{footerLinks.pages.builds}</a></li>
+        <li><a href="/comentarios">{footerLinks.pages.reviews}</a></li>
+        <li><a href="/contacto">{footerLinks.pages.contact}</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <p style="font-weight:700; font-size:1.1rem; margin-bottom:15px;">{footerLinks.legal.title}</p>
+      <ul>
+        <li><a href="/privacidad">{footerLinks.legal.privacy}</a></li>
+        <li><a href="/garantia">{footerLinks.legal.warranty}</a></li>
+      </ul>
+    </div>
+    <div class="footer-social">
+      <p style="font-weight:700; font-size:1.1rem; margin-bottom:15px;">{footerLinks.social}</p>
+      <div class="social-icons">
+        <a href="https://wa.me/529986690777" title="WhatsApp Pixon PC">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        <a href="https://www.facebook.com/people/Pixon-PC/61556271364935/" aria-label="Facebook Pixon PC" target="_blank" rel="noopener noreferrer">
+          <i class="fa-brands fa-facebook-f"></i>
+        </a>
+        <a href="https://www.instagram.com/pixonpc/" aria-label="Instagram Pixon PC" target="_blank" rel="noopener noreferrer">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="https://www.tiktok.com/@pixonpc" aria-label="TikTok Pixon PC" target="_blank" rel="noopener noreferrer">
+          <i class="fa-brands fa-tiktok"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; {currentYear} {footerLinks.rights} |
+      <a href="/privacidad" style="color:var(--text-muted); text-decoration: underline;">{footerLinks.legal.privacy}</a> ·
+      <a href="/garantia" style="color:var(--text-muted); text-decoration: underline;">{footerLinks.legal.warranty}</a>
+    </p>
+  </div>
+</footer>
+
+<a href="https://wa.me/529986690777" class="whatsapp-float" id="whatsapp-float" title="Contáctanos por WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<div id="specialty-overlay" style="position:fixed; inset:0; background:rgba(15,23,42,0.7); backdrop-filter:blur(4px); z-index:9000; opacity:0; pointer-events:none; transition:opacity 0.3s ease;"></div>
+
+<script>
+  const whatsappFloat = document.getElementById('whatsapp-float');
+  
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      whatsappFloat?.classList.add('visible');
+    } else {
+      whatsappFloat?.classList.remove('visible');
+    }
+  });
+</script>

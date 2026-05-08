@@ -1,0 +1,314 @@
+---
+import '../../layouts/Base.astro';
+import '../../components/Navbar.astro';
+import '../../components/Footer.astro';
+---
+
+<Base
+  title="Panel de Administración | Pixon PC"
+  description=""
+  canonical="https://pixon.com.mx/admin"
+  image="/LOGOCIRCULAR.png"
+>
+  <Navbar />
+<nav class="admin-navbar">
+        <a href="/" class="admin-logo">
+            <img src="/assets/logos/Logo.svg" alt="Pixon PC Logo">
+            <span>Admin</span>
+        </a>
+        <div id="admin-user-area"></div>
+    </nav>
+
+    <div id="auth-loading">
+        <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: #6366f1;"></i>
+        <p>Verificando permisos...</p>
+    </div>
+
+    <div id="admin-content">
+        <header class="admin-header">
+            <h1>Panel de Administración</h1>
+            <p style="color: #94a3b8;" id="admin-subtitle">Revisa, aprueba y gestiona tu plataforma.</p>
+            <div class="live-indicator" id="live-indicator" style="display: none;">
+                <div class="live-dot"></div> Conectado en tiempo real
+            </div>
+        </header>
+
+        <main class="admin-container">
+            <div class="admin-tabs" style="overflow-x: auto; white-space: nowrap; justify-content: flex-start; padding-bottom: 5px;">
+                <button class="admin-tab active" data-view="dashboard">Vista General</button>
+                <button class="admin-tab" data-view="repairs">Taller (Tickets)</button>
+                <button class="admin-tab" data-view="builds">Ensambles</button>
+                <button class="admin-tab" data-view="comments">Comentarios</button>
+                <button class="admin-tab" data-view="users">Usuarios</button>
+                <button class="admin-tab" data-view="faqs">Preguntas Frecuentes</button>
+            </div>
+
+            <!-- VISTA DASHBOARD -->
+            <div id="view-dashboard">
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-comments-pending">0</div>
+                        <div class="stat-label">Comentarios Pendientes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-users">0</div>
+                        <div class="stat-label">Usuarios Registrados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-faqs-unanswered">0</div>
+                        <div class="stat-label">Dudas sin Resolver</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA TALLER (REPAIRS) -->
+            <div id="view-repairs" style="display: none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Tickets de Reparación</h2>
+                    <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="openRepairModal()">
+                        <i class="fa-solid fa-plus"></i> Nuevo Ticket
+                    </button>
+                </div>
+                <div class="users-table-wrapper">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Cliente</th>
+                                <th>Dispositivo</th>
+                                <th>Falla Reportada</th>
+                                <th>Estatus</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repairs-tbody">
+                            <tr><td colspan="6" style="text-align: center; color: #64748b;">No hay tickets de reparación aún.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VISTA ENSAMBLES (BUILDS) -->
+            <div id="view-builds" style="display: none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Catálogo de Ensambles y Paquetes</h2>
+                    <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="openBuildModal()">
+                        <i class="fa-solid fa-plus"></i> Nuevo Ensamble
+                    </button>
+                </div>
+                <div class="admin-grid" id="builds-grid">
+                    <!-- Los ensambles se renderizarán aquí -->
+                    <div style="text-align: center; color: #64748b; grid-column: 1 / -1; padding: 40px;">No hay ensambles creados.</div>
+                </div>
+            </div>
+
+            <!-- VISTA COMENTARIOS -->
+            <div id="view-comments" style="display: none;">
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="pending">Pendientes</button>
+                    <button class="filter-btn" data-filter="approved">Aprobados</button>
+                </div>
+
+                <div class="admin-grid" id="comments-grid">
+                    <!-- Comentarios se renderizan aquí -->
+                </div>
+            </div>
+
+            <!-- VISTA USUARIOS -->
+            <div id="view-users" style="display: none;">
+                <div class="users-table-wrapper">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Celular</th>
+                                <th>Rol</th>
+                                <th>Fecha de Registro</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <!-- Usuarios se renderizan aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VISTA PREGUNTAS FRECUENTES -->
+            <div id="view-faqs" style="display: none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Búsquedas sin respuesta</h2>
+                    <button class="btn-admin btn-delete" style="max-width: 150px; padding: 6px 12px; font-size: 0.8rem;" onclick="clearUnanswered()">
+                        <i class="fa-solid fa-trash"></i> Limpiar Registro
+                    </button>
+                </div>
+                <div class="users-table-wrapper" style="margin-bottom: 40px;">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Término Buscado</th>
+                                <th>Búsquedas</th>
+                                <th>Última Vez</th>
+                            </tr>
+                        </thead>
+                        <tbody id="unanswered-tbody">
+                            <!-- Unanswered searches se renderizan aquí -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display:flex; flex-wrap: wrap; justify-content:space-between; align-items:center; margin-bottom: 20px; gap: 15px;">
+                    <h2 style="font-size:1.5rem; color:#f8fafc;">Gestionar Preguntas Frecuentes</h2>
+                    <div style="display:flex; gap: 15px; align-items:center; flex-grow:1; justify-content:flex-end;">
+                        <input type="text" id="faqSearchInput" class="faq-search-bar" placeholder="Buscar preguntas, respuestas o categorías..." style="margin:0;">
+                        <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="addNewFaq()">
+                            <i class="fa-solid fa-plus"></i> Nueva Pregunta
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="faqs-container">
+                    <!-- Faqs se renderizan agrupadas por categoría aquí -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para FAQs -->
+    <div id="faqModalOverlay" class="admin-modal-overlay">
+        <div class="admin-modal">
+            <div class="admin-modal-header">
+                <h2 id="faqModalTitle">Nueva Pregunta</h2>
+                <button class="admin-modal-close" onclick="closeFaqModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <input type="hidden" id="faqId">
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                    <div class="admin-form-group" style="flex:2; min-width:200px;">
+                        <label>Categoría</label>
+                        <input type="text" id="faqCategory" class="admin-input" list="faqCategoriesList" placeholder="Ej. Servicios, Garantía…" required>
+                        <datalist id="faqCategoriesList"></datalist>
+                    </div>
+                    <div class="admin-form-group" style="flex:1; min-width:120px;">
+                        <label>Orden</label>
+                        <input type="number" id="faqOrder" class="admin-input" value="0" min="0">
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label>Ícono (clase Font Awesome)</label>
+                    <input type="text" id="faqIcon" class="admin-input" placeholder="fa-solid fa-circle-question" value="fa-solid fa-circle-question">
+                </div>
+                <div class="admin-form-group">
+                    <label>Pregunta</label>
+                    <input type="text" id="faqQuestion" class="admin-input" placeholder="Ej. ¿Cuánto tarda una reparación?" required>
+                </div>
+                <div class="admin-form-group">
+                    <label>Respuesta <span style="color:#64748b; font-weight:400; font-size:0.8rem;">(los saltos de línea se convierten a &lt;br&gt;)</span></label>
+                    <textarea id="faqAnswer" class="admin-input" rows="6" placeholder="Escribe la respuesta aquí…" required></textarea>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-cancel" onclick="closeFaqModal()">Cancelar</button>
+                <button class="admin-btn admin-btn-save" onclick="saveFaqModal()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Tickets -->
+    <div id="repairModalOverlay" class="admin-modal-overlay">
+        <div class="admin-modal">
+            <div class="admin-modal-header">
+                <h2>Nuevo Ticket de Reparación</h2>
+                <button class="admin-modal-close" onclick="closeRepairModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="admin-form-group">
+                    <label>Nombre del Cliente</label>
+                    <input type="text" id="repairCustomer" class="admin-input" placeholder="Ej. Juan Pérez" required>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Tipo de Dispositivo</label>
+                        <select id="repairType" class="admin-input">
+                            <option value="Laptop">Laptop</option>
+                            <option value="PC de Escritorio">PC de Escritorio</option>
+                            <option value="Consola">Consola</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Marca / Modelo</label>
+                        <input type="text" id="repairBrand" class="admin-input" placeholder="Ej. Dell Inspiron" required>
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label>Falla Reportada</label>
+                    <textarea id="repairIssue" class="admin-input" placeholder="Ej. No enciende, pantalla rota..." required></textarea>
+                </div>
+                <div class="admin-form-group">
+                    <label>Teléfono / WhatsApp</label>
+                    <input type="text" id="repairPhone" class="admin-input" placeholder="Ej. 9981234567" required>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-cancel" onclick="closeRepairModal()">Cancelar</button>
+                <button class="admin-btn admin-btn-save" onclick="saveRepair()">Crear Ticket</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Ensambles -->
+    <div id="buildModalOverlay" class="admin-modal-overlay">
+        <div class="admin-modal">
+            <div class="admin-modal-header">
+                <h2>Nuevo Paquete / Ensamble</h2>
+                <button class="admin-modal-close" onclick="closeBuildModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="admin-form-group">
+                    <label>Título del Ensamble</label>
+                    <input type="text" id="buildTitle" class="admin-input" placeholder="Ej. PC Gamer RTX 4060" required>
+                </div>
+                <div class="admin-form-group">
+                    <label>Descripción</label>
+                    <textarea id="buildDescription" class="admin-input" placeholder="Componentes incluidos..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Precio ($ MXN)</label>
+                        <input type="number" id="buildPrice" class="admin-input" placeholder="Ej. 15000" required>
+                    </div>
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Categoría</label>
+                        <select id="buildCategory" class="admin-input">
+                            <option value="gaming">Gaming</option>
+                            <option value="office">Oficina / Estudiante</option>
+                            <option value="workstation">Workstation (Diseño/Edición)</option>
+                            <option value="starter">Starter PC</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>Rendimiento</label>
+                        <select id="buildTier" class="admin-input">
+                            <option value="entry">Entrada</option>
+                            <option value="mid">Gama Media</option>
+                            <option value="high">Gama Alta</option>
+                            <option value="enthusiast">Entusiasta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label>URL de Imagen (Opcional)</label>
+                    <input type="text" id="buildImage" class="admin-input" placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-cancel" onclick="closeBuildModal()">Cancelar</button>
+                <button class="admin-btn admin-btn-save" onclick="saveBuild()">Guardar Ensamble</button>
+            </div>
+        </div>
+    </div>
+</Base>
+
+

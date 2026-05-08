@@ -18,7 +18,7 @@ export default defineConfig({
   },
   redirects: {
     '/formateo-optimizacion': '/instalacion-windows',
-    '/B2B': '/b2b',
+    '/b2b': '/empresas',
   },
   vite: {
     plugins: [
@@ -33,14 +33,6 @@ export default defineConfig({
       sourcemap: false,
       minify: 'esbuild',
       cssCodeSplit: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            fa: ['@fortawesome/fontawesome-free'],
-            vendor: ['lenis'],
-          },
-        },
-      },
     },
     server: {
       port: 4321,

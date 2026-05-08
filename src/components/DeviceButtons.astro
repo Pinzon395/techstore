@@ -1,0 +1,58 @@
+---
+interface Device {
+  icon: string;
+  label: string;
+  waText: string;
+  color: string;
+  isPrimary?: boolean;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  devices: Device[];
+  extraLinks?: { href: string; label: string; icon: string }[];
+}
+
+const { title, description, devices, extraLinks } = Astro.props;
+---
+
+<section class="section-padding" style="background: #ffffff; border-bottom: 1px solid #f1f5f9;">
+  <div class="container" style="max-width: 900px; text-align: center;">
+    <span
+      style="display:inline-block; background:rgba(59,130,246,0.1); color:#2563eb; padding:6px 14px; border-radius:20px; font-size:0.8rem; font-weight:700; margin-bottom:15px; text-transform: uppercase; letter-spacing: 1px;"
+    >
+      Soporte Técnico Especializado
+    </span>
+    <h2 style="font-size: 2.2rem; color: #0f172a; margin-bottom: 15px;">{title}</h2>
+    <p style="color: #64748b; font-size: 1.05rem; margin-bottom: 40px;">{description}</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
+      {devices.map((device) => (
+        <button
+          onclick={`smartWaRedirect('https://wa.me/529986690777?text=${device.waText}')`}
+          style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 25px 10px; border-radius: 16px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px;"
+          onmouseover="this.style.borderColor='{device.color}'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+          onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"
+        >
+          <i class="{device.icon}" style="font-size: 2.5rem; color: {device.color};"></i>
+          <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">{device.label}</span>
+        </button>
+      ))}
+    </div>
+
+    {extraLinks && (
+      <div style="margin-top: 25px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+        {extraLinks.map((link) => (
+          <a
+            href={link.href}
+            class="btn btn-outline"
+            style="border-radius: 20px; padding: 6px 16px; font-size: 0.9rem;"
+          >
+            <i class={link.icon}></i> {link.label}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
