@@ -319,6 +319,73 @@ async function clearUnansweredFaqs() {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   PAGE VIEWS — Analytics
+───────────────────────────────────────────────────────────── */
+
+async function trackPageView({ path, title, referrer, user_agent, ip, session_id, user_id }) {
+    const ipBin = ip ? Buffer.from(ip.split('.').map(n => parseInt(n, 10))) : null;
+    await pool.execute(
+        `INSERT INTO page_views (path, title, referrer, user_agent, ip, session_id, user_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [path, title || null, referrer || null, user_agent || null, ipBin, session_id || null, user_id || null]
+    );
+    // Upsert daily aggregate
+    const today = new Date().toISOString().slice(0, 10);
+    await pool.execute(
+        `INSERT INTO page_views_daily (date, path, views, unique_visitors)
+         VALUES (?, ?, 1, 1)
+         ON DUPLICATE KEY UPDATE views = views + 1, unique_visitors = unique_visitors + 1`,
+        [today, path]
+    );
+}
+
+async function getPageViewsDaily(days = 30) {
+    const [rows] = await pool.execute(
+        `SELECT date, SUM(views) as views, SUM(unique_visitors) as unique_visitors
+         FROM page_views_daily
+         WHERE date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+         GROUP BY date
+         ORDER BY date DESC`,
+        [days]
+    );
+    return rows;
+}
+
+async function getPageViewsTop(limit = 20, days = 30) {
+    const [rows] = await pool.execute(
+        `SELECT path, SUM(views) as views, SUM(unique_visitors) as unique_visitors
+         FROM page_views_daily
+         WHERE date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+         GROUP BY path
+         ORDER BY views DESC
+         LIMIT ?`,
+        [days, limit]
+    );
+    return rows;
+}
+
+async function getPageViewsSummary() {
+    const [totalViews] = await pool.execute('SELECT COUNT(*) as total FROM page_views');
+    const [todayViews] = await pool.execute(
+        `SELECT COUNT(*) as total FROM page_views WHERE DATE(created_at) = CURDATE()`
+    );
+    const [uniqueToday] = await pool.execute(
+        `SELECT COUNT(DISTINCT session_id) as total FROM page_views WHERE DATE(created_at) = CURDATE()`
+    );
+    const [topReferrer] = await pool.execute(
+        `SELECT referrer, COUNT(*) as total FROM page_views
+         WHERE referrer IS NOT NULL AND referrer != ''
+         GROUP BY referrer ORDER BY total DESC LIMIT 5`
+    );
+    return {
+        totalViews: totalViews[0].total,
+        todayViews: todayViews[0].total,
+        uniqueToday: uniqueToday[0].total,
+        topReferrers: topReferrer
+    };
+}
+
+/* ─────────────────────────────────────────────────────────────
    TALLER Y TICKETS (Repairs)
 ───────────────────────────────────────────────────────────── */
 async function getAllRepairsAdmin() {
@@ -444,5 +511,12 @@ module.exports = {
     getAllBuildsAdmin,
     getAllBuildsPublic,
     insertBuildAdmin,
-    logAdminAction
+    logAdminAction,
+    /* ─────────────────────────────────────────────────────────
+       PAGE VIEWS — Analytics
+    ───────────────────────────────────────────────────────── */
+    trackPageView,
+    getPageViewsDaily,
+    getPageViewsTop,
+    getPageViewsSummary
 };

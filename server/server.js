@@ -48,7 +48,11 @@ const {
     getAllBuildsAdmin,
     getAllBuildsPublic,
     insertBuildAdmin,
-    logAdminAction
+    logAdminAction,
+    trackPageView,
+    getPageViewsDaily,
+    getPageViewsTop,
+    getPageViewsSummary
 } = require('./database');
 
 const app = express();
@@ -166,6 +170,44 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     if (process.env.NODE_ENV !== 'production') {
         app.use(express.static(rootPath, { index: false, maxAge: 0 }));
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+        app.use(express.static(distPath, {
+            maxAge: '1y',
+            etag: true,
+            index: false,
+            setHeaders: (res, filePath) => {
+                const p = filePath.replace(/\\/g, '/');
+                if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/.test(p)) {
+                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                } else if (/\/(styles|scripts|components)\/.+\.(js|css|mjs)$/i.test(p)) {
+                    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+                } else if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(p)) {
+                    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800');
+                }
+            }
+        }));
+
+        app.get('/robots.txt', (_req, res) => {
+            const file = path.join(distPath, 'robots.txt');
+            res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+            if (fs.existsSync(file)) {
+                res.type('text/plain').sendFile(file);
+            } else {
+                res.type('text/plain').send('User-agent: *\nAllow: /\n\nSitemap: https://pixon.com.mx/sitemap.xml\n');
+            }
+        });
+
+        app.get('/sitemap.xml', (_req, res) => {
+            const file = path.join(distPath, 'sitemap.xml');
+            res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+            if (fs.existsSync(file)) {
+                res.type('application/xml').sendFile(file);
+            } else {
+                res.status(404).send('Sitemap not found');
+            }
+        });
     }
 
     // M2 — CORS con metodos completos
@@ -454,7 +496,27 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     }));
 
     /* ─────────────────────────────────────────────────────────
-       PANEL DE ADMINISTRACIÓN
+        ANALYTICS — Page View Tracking
+    ───────────────────────────────────────────────────────── */
+    app.post('/api/track/view', (req, res) => {
+        const { path, title, referrer } = req.body;
+        if (!path) return res.status(400).json({ error: 'path required' });
+        const session_id = req.sessionID || null;
+        const user_id = req.user?.id || null;
+        trackPageView({
+            path,
+            title,
+            referrer,
+            user_agent: req.get('user-agent'),
+            ip: req.ip,
+            session_id,
+            user_id
+        }).catch(e => console.error('track error:', e.message));
+        res.json({ ok: true });
+    });
+
+    /* ─────────────────────────────────────────────────────────
+        PANEL DE ADMINISTRACIÓN
     ───────────────────────────────────────────────────────── */
     app.get('/api/admin/users', requireAdmin, ah(async (_req, res) => {
         const users = await getAllUsersAdmin();
@@ -551,7 +613,25 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     }));
 
     /* ─────────────────────────────────────────────────────────
-       ARCHIVOS ESTATICOS Y RUTAS HTML
+        ADMIN ANALYTICS
+    ───────────────────────────────────────────────────────── */
+    app.get('/api/admin/analytics/summary', requireAdmin, ah(async (_req, res) => {
+        res.json(await getPageViewsSummary());
+    }));
+
+    app.get('/api/admin/analytics/daily', requireAdmin, ah(async (req, res) => {
+        const days = parseInt(req.query.days, 10) || 30;
+        res.json(await getPageViewsDaily(days));
+    }));
+
+    app.get('/api/admin/analytics/top-pages', requireAdmin, ah(async (req, res) => {
+        const days = parseInt(req.query.days, 10) || 30;
+        const limit = parseInt(req.query.limit, 10) || 20;
+        res.json(await getPageViewsTop(limit, days));
+    }));
+
+    /* ─────────────────────────────────────────────────────────
+        ARCHIVOS ESTATICOS Y RUTAS HTML
     ───────────────────────────────────────────────────────── */
     if (process.env.NODE_ENV === 'production') {
         const pages = {
@@ -603,42 +683,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             res.sendFile(path.join(distPath, 'pages/admin/admin.html'), {
                 headers: { 'Cache-Control': 'no-store' }
             });
-        });
-
-        app.use(express.static(distPath, {
-            maxAge: '1y',
-            etag: true,
-            index: false,
-            setHeaders: (res, filePath) => {
-                const p = filePath.replace(/\\/g, '/');
-                if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-                } else if (/\/(styles|scripts|components)\/.+\.(js|css|mjs)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
-                } else if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800');
-                }
-            }
-        }));
-
-        app.get('/robots.txt', (_req, res) => {
-            const file = path.join(distPath, 'robots.txt');
-            res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-            if (fs.existsSync(file)) {
-                res.type('text/plain').sendFile(file);
-            } else {
-                res.type('text/plain').send('User-agent: *\nAllow: /\n\nSitemap: https://pixon.com.mx/sitemap.xml\n');
-            }
-        });
-
-        app.get('/sitemap.xml', (_req, res) => {
-            const file = path.join(distPath, 'sitemap.xml');
-            res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-            if (fs.existsSync(file)) {
-                res.type('application/xml').sendFile(file);
-            } else {
-                res.status(404).send('Sitemap not found');
-            }
         });
 
         app.get('*', (req, res, next) => {

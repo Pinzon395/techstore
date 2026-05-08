@@ -644,6 +644,35 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   KEY idx_contact_status (status, created_at DESC)
 ) ENGINE=InnoDB;
 
+-- ════════════════════════════════════════════════════════════
+-- PAGE VIEWS — Analytics de tráfico
+-- ════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS page_views (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  path        VARCHAR(255) NOT NULL,
+  title       VARCHAR(255) DEFAULT NULL,
+  referrer    VARCHAR(512) DEFAULT NULL,
+  user_agent  VARCHAR(512) DEFAULT NULL,
+  ip          VARBINARY(16) DEFAULT NULL,
+  session_id  VARCHAR(128) DEFAULT NULL,
+  user_id     CHAR(36) DEFAULT NULL,
+  created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_page_views_date (created_at),
+  KEY idx_page_views_path (path(64), created_at),
+  KEY idx_page_views_session (session_id(64))
+) ENGINE=InnoDB;
+
+-- Tabla agregada diaria para dashboards rápidos
+CREATE TABLE IF NOT EXISTS page_views_daily (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  date        DATE NOT NULL,
+  path        VARCHAR(255) NOT NULL,
+  views       INT UNSIGNED NOT NULL DEFAULT 0,
+  unique_visitors INT UNSIGNED NOT NULL DEFAULT 0,
+  UNIQUE KEY idx_daily_path (date, path(64)),
+  KEY idx_daily_date (date, views DESC)
+) ENGINE=InnoDB;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 SELECT 'Esquema creado correctamente' AS resultado;

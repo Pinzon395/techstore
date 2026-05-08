@@ -60,6 +60,13 @@ function copyStaticPlugin() {
                 path.join(__dirname, 'dist', 'assets', 'icons'),
                 'assets/icons'
             );
+            // 4. assets/images/responsive/*.webp  →  dist/assets/images/responsive/
+            //    WebP responsivos para sección ensambles (performance)
+            copyDir(
+                path.join(__dirname, 'assets', 'images', 'responsive'),
+                path.join(__dirname, 'dist', 'assets', 'images', 'responsive'),
+                'assets/images/responsive'
+            );
         }
     };
 }

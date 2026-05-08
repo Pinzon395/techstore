@@ -5,6 +5,7 @@ let allComments = [];
 let allRepairs = [];
 let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
+let analyticsData = null;
 
 // M8 — header CSRF que el backend exige en POST/PUT/DELETE.
 // Helper para no olvidarlo en ninguna llamada de escritura.
@@ -48,12 +49,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
 
         // 2. Cargar datos iniciales
-        await fetchComments();
-        await fetchUsers();
-        await fetchFaqs();
-        await fetchUnanswered();
-        await fetchRepairs();
-        await fetchBuilds();
+        await Promise.all([
+            fetchComments(),
+            fetchUsers(),
+            fetchFaqs(),
+            fetchUnanswered(),
+            fetchRepairs(),
+            fetchBuilds(),
+            fetchAnalytics()
+        ]);
         
         // 3. Conectar SSE para notificaciones en vivo
         connectSSE();
@@ -83,6 +87,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('stat-comments-pending').textContent = pendingComments;
             document.getElementById('stat-users').textContent = document.querySelectorAll('#users-tbody tr').length;
             document.getElementById('stat-faqs-unanswered').textContent = allUnanswered.length;
+
+            if (analyticsData) {
+                document.getElementById('stat-total-views').textContent = analyticsData.totalViews.toLocaleString('es-MX');
+                document.getElementById('stat-today-views').textContent = analyticsData.todayViews.toLocaleString('es-MX');
+                document.getElementById('stat-unique-today').textContent = analyticsData.uniqueToday.toLocaleString('es-MX');
+                renderTopPages();
+                renderDailyChart();
+            }
         }
 
         tabBtns.forEach(btn => {
@@ -303,10 +315,106 @@ function connectSSE() {
                     allComments.unshift(newComment); // Añadir al principio
                     renderComments();
                 }
-            } catch(err) {
-                console.error("SSE parse error", err);
-            }
-        };
+    } catch(err) {
+        alert(err.message);
+    }
+};
+
+/* ─────────────────────────────────────────────────────────────
+   ANALYTICS
+───────────────────────────────────────────────────────────── */
+async function fetchAnalytics() {
+    try {
+        const [summary, topPages] = await Promise.all([
+            fetch(`${API_BASE}/admin/analytics/summary`).then(r => r.json()),
+            fetch(`${API_BASE}/admin/analytics/top-pages?days=30&limit=10`).then(r => r.json())
+        ]);
+        analyticsData = { ...summary, topPages };
+        updateDashboardStats();
+    } catch (err) {
+        console.error('Analytics error:', err);
+    }
+}
+
+function renderTopPages() {
+    const container = document.getElementById('analytics-top-pages');
+    if (!container || !analyticsData?.topPages) return;
+    container.innerHTML = '';
+
+    if (analyticsData.topPages.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">Sin datos aún. Las visitas se registran cuando los usuarios navegan.</div>';
+        return;
+    }
+
+    const list = document.createElement('div');
+    list.style.cssText = 'display:flex; flex-direction:column; gap:8px;';
+
+    analyticsData.topPages.forEach((page, i) => {
+        const path = page.path || '/';
+        const displayPath = path.length > 40 ? path.slice(0, 40) + '…' : path;
+        const maxWidth = Math.min((page.views / analyticsData.topPages[0].views) * 100, 100);
+
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; align-items:center; gap:10px;';
+        row.innerHTML = `
+            <span style="color:#64748b; font-weight:700; min-width:24px;">${i + 1}</span>
+            <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="color:#f1f5f9; font-size:0.9rem;">${escapeHtml(displayPath)}</span>
+                    <span style="color:#60a5fa; font-weight:600;">${page.views.toLocaleString('es-MX')}</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                    <div style="height:100%; width:${maxWidth}%; background:linear-gradient(90deg,#3b82f6,#6366f1); border-radius:3px; transition:width 0.5s ease;"></div>
+                </div>
+            </div>
+        `;
+        list.appendChild(row);
+    });
+
+    container.appendChild(list);
+}
+
+function renderDailyChart() {
+    const ctx = document.getElementById('analytics-chart');
+    if (!ctx) return;
+
+    fetch(`${API_BASE}/admin/analytics/daily?days=14`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.length === 0) return;
+
+            const labels = data.map(d => {
+                const parts = d.date.split('-');
+                return parts[2] + '/' + parts[1];
+            }).reverse();
+
+            const views = data.map(d => d.views).reverse();
+            const uniques = data.map(d => d.unique_visitors).reverse();
+
+            const maxVal = Math.max(...views, 1);
+            const barHeight = 160;
+
+            const barsContainer = ctx.querySelector('.chart-bars') || document.createElement('div');
+            barsContainer.className = 'chart-bars';
+            barsContainer.style.cssText = 'display:flex; align-items:flex-end; gap:4px; height:' + barHeight + 'px; padding:0 4px;';
+
+            barsContainer.innerHTML = views.map((v, i) => {
+                const h = (v / maxVal) * barHeight;
+                const w = Math.max(20, Math.min(40, 600 / data.length));
+                return `
+                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                        <span style="font-size:0.65rem; color:#94a3b8;">${v}</span>
+                        <div style="width:100%; height:${h}px; background:linear-gradient(180deg,#3b82f6,#6366f1); border-radius:3px 3px 0 0; transition:height 0.3s ease; min-height:2px;"></div>
+                        <span style="font-size:0.6rem; color:#64748b; margin-top:2px;">${labels[i]}</span>
+                    </div>
+                `;
+            }).join('');
+
+            ctx.innerHTML = '';
+            ctx.appendChild(barsContainer);
+        })
+        .catch(() => {});
+};
 
         sse.onerror = () => {
             liveIndicator.style.display = 'none';
