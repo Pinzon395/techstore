@@ -574,7 +574,7 @@ CREATE TABLE IF NOT EXISTS comments (
   id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id     CHAR(36) NULL,
   name        VARCHAR(120) NOT NULL,
-  stars       TINYINT UNSIGNED NOT NULL CHECK (stars BETWEEN 1 AND 5),
+  stars       DECIMAL(2,1) UNSIGNED NOT NULL CHECK (stars >= 0.5 AND stars <= 5.0 AND (stars * 2) = FLOOR(stars * 2)),
   text        TEXT NOT NULL,
   approved    TINYINT(1) NOT NULL DEFAULT 0,
   user_email  VARCHAR(190),

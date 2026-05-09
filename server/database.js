@@ -67,6 +67,23 @@ async function initDB() {
     }
 
     console.log(`🗄️  MariaDB conectada → ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+
+    // Migración: comments.stars TINYINT -> DECIMAL(2,1) (soporta medias estrellas)
+    try {
+        const [cols] = await pool.query(
+            "SELECT DATA_TYPE, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'comments' AND COLUMN_NAME = 'stars'"
+        );
+        if (cols[0] && cols[0].DATA_TYPE === 'tinyint') {
+            console.log('🔧 Migrando comments.stars TINYINT → DECIMAL(2,1) para soportar medias estrellas...');
+            await pool.query(
+                'ALTER TABLE comments MODIFY COLUMN stars DECIMAL(2,1) UNSIGNED NOT NULL'
+            );
+            console.log('✅ Columna comments.stars migrada a DECIMAL(2,1)');
+        }
+    } catch (err) {
+        console.warn('⚠️  No se pudo verificar/migrar comments.stars:', err.message);
+    }
+
     return pool;
 }
 

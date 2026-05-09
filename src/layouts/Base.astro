@@ -136,14 +136,43 @@ const allSchema = [...defaultSchema, ...schema];
   <meta name="twitter:description" content={description}>
   <meta name="twitter:image" content={fullImage}>
 
-  <style is:inline>:root{--bg-main:#f8f9fc;--bg-darker:#fff;--bg-card:#fff;--border-color:#e2e8f0;--primary:#3b82f6;--primary-hover:#2563eb;--secondary:#6366f1;--accent:#8b5cf6;--gold:#f59e0b;--text-main:#0f172a;--text-muted:#475569;--font-heading:'Kanit',sans-serif;--font-main:'Red Hat Display',sans-serif;--section-padding:40px 0;--transition:all .3s ease}*{margin:0;padding:0;box-sizing:border-box}body{background-color:var(--bg-main);color:var(--text-main);line-height:1.6;font-family:var(--font-main);overflow-x:hidden}.container{max-width:1200px;margin:0 auto;padding:0 clamp(30px,3vw,20px)}.navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:8px 20px;background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.05)}.nav-container{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;min-height:50px}.logo{font-size:1.5rem;color:var(--text-main);display:flex;align-items:center;gap:8px;font-family:var(--font-heading);text-decoration:none}.nav-menu{display:flex;gap:30px;align-items:center;list-style:none}.nav-links{font-size:.95rem;font-weight:700;color:var(--text-main);opacity:.8;text-decoration:none}.low-end-mode .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(255,255,255,.98)!important}.low-end-mode *{animation-duration:.01ms!important;transition-duration:.01ms!important}.reduced-motion .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}</style>
+  <style is:inline>:root{--bg-main:#f8f9fc;--bg-darker:#fff;--bg-card:#fff;--border-color:#e2e8f0;--primary:#3b82f6;--primary-hover:#2563eb;--secondary:#6366f1;--accent:#8b5cf6;--gold:#f59e0b;--text-main:#0f172a;--text-muted:#475569;--font-heading:'Kanit',sans-serif;--font-main:'Red Hat Display',sans-serif;--section-padding:40px 0;--transition:all .3s ease}*{margin:0;padding:0;box-sizing:border-box}body{background-color:var(--bg-main);color:var(--text-main);line-height:1.6;font-family:var(--font-main);overflow-x:hidden}.container{max-width:1200px;margin:0 auto;padding:0 clamp(30px,3vw,20px)}.navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:8px 20px;background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.05)}.nav-container{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;min-height:50px}.logo{font-size:1.5rem;color:var(--text-main);display:flex;align-items:center;gap:8px;font-family:var(--font-heading);text-decoration:none}.nav-menu{display:flex;gap:30px;align-items:center;list-style:none}.nav-links{font-size:.95rem;font-weight:700;color:var(--text-main);opacity:.8;text-decoration:none}.low-end-mode .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(255,255,255,.98)!important}.low-end-mode *{animation-duration:.01ms!important;transition-duration:.01ms!important}.reduced-motion .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.svc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;margin-bottom:20px;flex-shrink:0}</style>
   <link rel="stylesheet" href={globalCss} media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href={globalCss}></noscript>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script type="module" src="/scripts/AlertBox.js"></script>
+  <script is:inline>
+  (function(){
+    if(customElements.get('alert-box'))return;
+    var ICO={
+      warning:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23d97706'%3E%3Cpath d='M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S489.9 480 475.7 480H36.3c-14.2 0-27.2-7.5-34.5-19.8s-7.1-27.8 .2-40.1l216-368C225.1 39.5 238.2 32 252.4 32h3.6zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0-64 0 32 32 0 1 0 64 0z'/%3E%3C/svg%3E",
+      info:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%232563eb'%3E%3Cpath d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z'/%3E%3C/svg%3E",
+      success:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%2310b981'%3E%3Cpath d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z'/%3E%3C/svg%3E"
+    };
+    var CFG={
+      warning:{bg:'#fffbeb',border:'#fcd34d',color:'#92400e',iconBg:'#fef3c7'},
+      info:{bg:'#eff6ff',border:'#93c5fd',color:'#1e3a5f',iconBg:'#dbeafe'},
+      success:{bg:'#ecfdf5',border:'#6ee7b7',color:'#065f46',iconBg:'#d1fae5'}
+    };
+    class AlertBox extends HTMLElement{
+      connectedCallback(){
+        if(this.dataset.r)return;this.dataset.r='1';
+        var self=this;
+        requestAnimationFrame(function(){
+          var t=self.getAttribute('type')||'info';
+          var c=CFG[t]||CFG.info;
+          var ico=ICO[t]||ICO.info;
+          var html=self.innerHTML.trim();
+          self.style.display='block';
+          self.innerHTML='<div style="display:flex;align-items:flex-start;gap:10px;background:'+c.bg+';border:1px solid '+c.border+';border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:.83rem;color:'+c.color+';font-weight:600;line-height:1.5"><span style="display:inline-flex;align-items:center;justify-content:center;background:'+c.iconBg+';border-radius:50%;width:26px;height:26px;min-width:26px;flex-shrink:0;margin-top:1px;background-image:url('+ico+');background-size:14px 14px;background-repeat:no-repeat;background-position:center"></span><span>'+html+'</span></div>';
+        });
+      }
+    }
+    customElements.define('alert-box',AlertBox);
+  })();
+  </script>
 
   <link rel="alternate" hreflang="es-MX" href={`${siteUrl}/`} />
   <link rel="alternate" hreflang="en" href={`${siteUrl}/en`} />

@@ -413,18 +413,36 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     /* ─────────────────────────────────────────────────────────
        GOOGLE PLACES API — Reseñas reales de Google Maps
+       Cacheado 1h en memoria (Places API es billable, ~$17/1000 calls)
     ───────────────────────────────────────────────────────── */
+    const googleReviewsCache = { data: null, expires: 0 };
+    const GOOGLE_REVIEWS_TTL = 60 * 60 * 1000; // 1 hora
+
     app.get('/api/reviews/google', ah(async (_req, res) => {
         const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-        const placeId = process.env.GOOGLE_PLACE_ID || 'ChIJN4L6OljvUY8RGwJFBGXOXuM';
+        const placeId = process.env.GOOGLE_PLACE_ID;
 
-        if (!apiKey) {
-            return res.json({ source: 'demo', reviews: [], rating: 0, total: 0 });
+        // Si no hay API key configurada, devolver respuesta clara para el frontend
+        if (!apiKey || !placeId) {
+            return res.json({
+                source: 'unconfigured',
+                configured: false,
+                place_id: placeId || null,
+                reviews: [],
+                rating: 0,
+                total: 0,
+                hint: 'Configura GOOGLE_PLACES_API_KEY y GOOGLE_PLACE_ID en .env para mostrar reseñas reales de Google Maps.'
+            });
+        }
+
+        // Servir desde caché si aún es válido (evita llamadas billables repetidas)
+        if (googleReviewsCache.data && Date.now() < googleReviewsCache.expires) {
+            return res.json({ ...googleReviewsCache.data, cached: true });
         }
 
         try {
             const https = require('https');
-            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,reviews,user_ratings_total&language=es&key=${apiKey}`;
+            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=name,rating,reviews,user_ratings_total&language=es&key=${apiKey}`;
 
             const data = await new Promise((resolve, reject) => {
                 https.get(url, (resp) => {
@@ -438,7 +456,14 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             });
 
             if (data.status !== 'OK') {
-                return res.json({ source: 'error', error: data.status, reviews: [], rating: 0, total: 0 });
+                return res.json({
+                    source: 'error',
+                    configured: true,
+                    place_id: placeId,
+                    error: data.status,
+                    error_message: data.error_message || null,
+                    reviews: [], rating: 0, total: 0
+                });
             }
 
             const result = data.result;
@@ -454,16 +479,29 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
                 verified: true
             }));
 
-            res.json({
+            const payload = {
                 source: 'google',
+                configured: true,
+                place_id: placeId,
                 place_name: result.name,
                 rating: result.rating,
                 total: result.user_ratings_total,
                 reviews
-            });
+            };
+
+            googleReviewsCache.data = payload;
+            googleReviewsCache.expires = Date.now() + GOOGLE_REVIEWS_TTL;
+
+            res.json(payload);
         } catch (err) {
             console.error('Google Places API error:', err.message);
-            res.json({ source: 'error', error: err.message, reviews: [], rating: 0, total: 0 });
+            res.json({
+                source: 'error',
+                configured: true,
+                place_id: placeId,
+                error: err.message,
+                reviews: [], rating: 0, total: 0
+            });
         }
     }));
 
@@ -515,13 +553,14 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         const { name, stars, text } = req.body;
         const cleanName = String(name || '').trim().slice(0, 60);
         const cleanText = String(text || '').trim().slice(0, 500);
-        const cleanStars = parseInt(stars, 10);
+        // stars admite incrementos de 0.5 entre 0.5 y 5
+        const cleanStars = Math.round(parseFloat(stars) * 2) / 2;
 
         const errors = [];
         if (cleanName.length < 2) errors.push('El nombre es muy corto.');
         if (cleanText.length < 10) errors.push('El comentario es muy corto.');
-        if (isNaN(cleanStars) || cleanStars < 1 || cleanStars > 5)
-            errors.push('Estrellas invalidas (1-5).');
+        if (isNaN(cleanStars) || cleanStars < 0.5 || cleanStars > 5)
+            errors.push('Estrellas invalidas (0.5 - 5).');
 
         if (errors.length) return res.status(400).json({ errors });
 
@@ -690,38 +729,63 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         ARCHIVOS ESTATICOS Y RUTAS HTML
     ───────────────────────────────────────────────────────── */
     if (process.env.NODE_ENV === 'production') {
+        // Las páginas Astro emiten archivos planos en dist/<ruta>.html
+        // (build.format = 'file' en astro.config.ts). Las únicas páginas
+        // que aún vienen del build legacy de Vite son la home (index.html),
+        // la home en inglés y el panel admin.
         const pages = {
-            '/': 'index.html',
-            '/en': 'pages/en/index.html',
-            '/paquetes': 'pages/servicios/paquetes.html',
-            '/servicios/paquetes': 'pages/servicios/paquetes.html',
-            '/ensambles': 'pages/servicios/ensambles.html',
-            '/servicios/ensambles': 'pages/servicios/ensambles.html',
-            '/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
-            '/servicios/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
-            '/instalacion-windows': 'pages/servicios/instalacion-windows.html',
-            '/servicios/instalacion-windows': 'pages/servicios/instalacion-windows.html',
-            '/reparaciones': 'pages/servicios/reparaciones.html',
-            '/servicios/reparaciones': 'pages/servicios/reparaciones.html',
-            '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
-            '/servicios/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
-            '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
-            '/servicios/reparacion-controles': 'pages/servicios/reparacion-controles.html',
-            '/limpieza-laptop-liquido': 'pages/servicios/limpieza-laptop-liquido.html',
-            '/servicios/limpieza-laptop-liquido': 'pages/servicios/limpieza-laptop-liquido.html',
-            '/B2B': 'pages/servicios/b2b.html',
-            '/servicios/b2b': 'pages/servicios/b2b.html',
-            '/optimizacion': 'pages/servicios/optimizacion.html',
-            '/antisulfatacion': 'pages/servicios/antisulfatacion.html',
-            '/servicios/antisulfatacion': 'pages/servicios/antisulfatacion.html',
-            '/servicios/optimizacion': 'pages/servicios/optimizacion.html',
-            '/catalogo': 'pages/info/catalogo.html',
-            '/comentarios': 'pages/info/comentarios.html',
-            '/contacto': 'pages/info/contacto.html',
-            '/preguntas-frecuentes': 'pages/info/preguntas-frecuentes.html',
-            '/privacidad': 'pages/legal/privacidad.html',
-            '/garantia': 'pages/legal/garantia.html',
-            '/admin': 'pages/admin/admin.html',
+            // Legacy Vite (sin equivalente Astro todavía)
+            '/':                            'index.html',
+            '/en':                          'pages/en/index.html',
+            '/admin':                       'pages/admin/admin.html',
+            // Astro SSG (src/pages/*.astro -> dist/*.html via build.format='file')
+            '/paquetes':                    'paquetes.html',
+            '/servicios/paquetes':          'paquetes.html',
+            '/ensambles':                   'ensambles.html',
+            '/servicios/ensambles':         'ensambles.html',
+            '/mantenimiento-mac':           'mantenimiento-mac.html',
+            '/servicios/mantenimiento-mac': 'mantenimiento-mac.html',
+            '/instalacion-windows':         'instalacion-windows.html',
+            '/servicios/instalacion-windows':'instalacion-windows.html',
+            '/reparaciones':                'reparaciones.html',
+            '/servicios/reparaciones':      'reparaciones.html',
+            '/reparacion-bisagras':         'reparacion-bisagras.html',
+            '/servicios/reparacion-bisagras':'reparacion-bisagras.html',
+            '/reparacion-controles':        'reparacion-controles.html',
+            '/servicios/reparacion-controles':'reparacion-controles.html',
+            '/limpieza-laptop-liquido':     'limpieza-laptop-liquido.html',
+            '/servicios/limpieza-laptop-liquido':'limpieza-laptop-liquido.html',
+            '/empresas':                    'empresas.html',
+            '/B2B':                         'empresas.html',
+            '/servicios/b2b':               'empresas.html',
+            '/optimizacion':                'optimizacion.html',
+            '/servicios/optimizacion':      'optimizacion.html',
+            '/antisulfatacion':             'antisulfatacion.html',
+            '/servicios/antisulfatacion':   'antisulfatacion.html',
+            '/catalogo':                    'catalogo.html',
+            '/comentarios':                 'comentarios.html',
+            '/contacto':                    'contacto.html',
+            '/preguntas-frecuentes':        'preguntas-frecuentes.html',
+            '/privacidad':                  'privacidad.html',
+            '/garantia':                    'garantia.html',
+            // Páginas en inglés (Astro)
+            '/en/packages':                 'en/packages.html',
+            '/en/pc-builds':                'en/pc-builds.html',
+            '/en/repairs':                  'en/repairs.html',
+            '/en/hinge-repair':             'en/hinge-repair.html',
+            '/en/controller-repair':        'en/controller-repair.html',
+            '/en/liquid-damage':            'en/liquid-damage.html',
+            '/en/mac-maintenance':          'en/mac-maintenance.html',
+            '/en/windows-install':          'en/windows-install.html',
+            '/en/optimization':             'en/optimization.html',
+            '/en/anti-sulfatation':         'en/anti-sulfatation.html',
+            '/en/corporate':                'en/corporate.html',
+            '/en/contact':                  'en/contact.html',
+            '/en/catalog':                  'en/catalog.html',
+            '/en/reviews':                  'en/reviews.html',
+            '/en/faq':                      'en/faq.html',
+            '/en/privacy':                  'en/privacy.html',
+            '/en/warranty':                 'en/warranty.html',
         };
 
         const legacyRedirects = ['/formateo-optimizacion'];

@@ -1,12 +1,13 @@
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
+// Astro como SSG: emite HTML estático a dist-astro/. Un script post-build
+// (tools/merge-astro-build.mjs) mergea esos HTML en dist/ junto al output
+// de vite, que sigue construyendo index.html y las pocas páginas legacy
+// que aún no tienen equivalente Astro (admin, en/index).
 export default defineConfig({
-  output: 'server',
-  adapter: node({
-    mode: 'standalone',
-  }),
+  output: 'static',
+  outDir: './dist-astro',
   site: 'https://pixon.com.mx',
   i18n: {
     defaultLocale: 'es',
@@ -19,6 +20,9 @@ export default defineConfig({
   redirects: {
     '/formateo-optimizacion': '/instalacion-windows',
     '/b2b': '/empresas',
+  },
+  build: {
+    format: 'file', // emite /comentarios.html en vez de /comentarios/index.html
   },
   vite: {
     plugins: [

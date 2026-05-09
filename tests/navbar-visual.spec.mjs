@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test';
  * - Funcionalidad en ambos viewports
  */
 
-const BASE_URL = 'http://localhost:5174'; // Vite dev server
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5173'; // Vite dev server (vite.config.js port)
 
 // Configuraciones de viewport
 const VIEWPORTS = {

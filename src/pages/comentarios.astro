@@ -134,12 +134,16 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 
             <div class="comment-form-container">
                 <h4>Deja tu Comentario</h4>
-                <div class="stars-input" id="star-rating">
-                    <i class="fa-solid fa-star" data-val="1"></i>
-                    <i class="fa-solid fa-star" data-val="2"></i>
-                    <i class="fa-solid fa-star" data-val="3"></i>
-                    <i class="fa-solid fa-star" data-val="4"></i>
-                    <i class="fa-solid fa-star" data-val="5"></i>
+                <div class="stars-input half" id="star-rating" role="radiogroup" aria-label="Calificación en estrellas">
+                    {[1, 2, 3, 4, 5].map((base) => (
+                      <span class="star-slot" data-base={base}>
+                        <svg class="star-bg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
+                        <svg class="star-fg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
+                        <button type="button" class="star-zone left"  data-val={(base - 0.5).toString()} aria-label={`${base - 0.5} estrellas`}></button>
+                        <button type="button" class="star-zone right" data-val={base.toString()}          aria-label={`${base} estrellas`}></button>
+                      </span>
+                    ))}
+                    <span class="rating-label" aria-live="polite"></span>
                 </div>
                 <form id="addCommentForm">
                     <div class="form-group">
@@ -198,26 +202,4 @@ import Breadcrumb from '../components/Breadcrumb.astro';
     <!-- ═══ Cookie Banner ═══ -->
 </Base>
 
-<script>
-
-  let selectedRating = 0;
-  document.querySelectorAll('#star-rating .fa-star').forEach((star: Element) => {
-    star.addEventListener('click', () => {
-      selectedRating = parseInt((star as HTMLElement).dataset.val || '0');
-      document.querySelectorAll('#star-rating .fa-star').forEach((s: Element, i: number) => {
-        s.classList.toggle('active', i < selectedRating);
-      });
-    });
-  });
-  document.getElementById('addCommentForm')?.addEventListener('submit', async (e: Event) => {
-    e.preventDefault();
-    const name = (document.getElementById('commenterName') as HTMLInputElement)?.value;
-    const text = (document.getElementById('commenterText') as HTMLTextAreaElement)?.value;
-    if (!name || !text || selectedRating === 0) return;
-    try {
-      const res = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'include', body: JSON.stringify({ name, text, rating: selectedRating }) });
-      if (res.ok) { alert('¡Comentario enviado! Será revisado antes de publicarse.'); (e.target as HTMLFormElement).reset(); selectedRating = 0; document.querySelectorAll('#star-rating .fa-star').forEach(s => s.classList.remove('active')); }
-    } catch (err) { console.error(err); }
-  });
-
-</script>
+<script src="/scripts/comments.js" is:inline defer></script>

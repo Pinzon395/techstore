@@ -162,29 +162,14 @@ export default defineConfig({
 
         rollupOptions: {
             treeshake: false,
-            // Todas las páginas HTML del sitio
+            // Solo las páginas que NO tienen equivalente Astro todavía:
+            // index.html (home ES), pages/en/index.html (home EN), pages/admin/admin.html
+            // y 404.html. El resto las construye Astro desde src/pages/*.astro.
             input: {
-                main:                  'index.html',
-                notFound:              '404.html',
-                enHome:                'pages/en/index.html',
-                paquetes:              'pages/servicios/paquetes.html',
-                ensambles:             'pages/servicios/ensambles.html',
-                mantenimientoMac:      'pages/servicios/mantenimiento-mac.html',
-                instalacionWindows:    'pages/servicios/instalacion-windows.html',
-                optimizacion:          'pages/servicios/optimizacion.html',
-                reparaciones:          'pages/servicios/reparaciones.html',
-                reparacionBisagras:    'pages/servicios/reparacion-bisagras.html',
-                reparacionControles:   'pages/servicios/reparacion-controles.html',
-                b2b:                   'pages/servicios/b2b.html',
-                catalogo:              'pages/info/catalogo.html',
-                comentarios:           'pages/info/comentarios.html',
-                contacto:              'pages/info/contacto.html',
-                preguntasFrecuentes:   'pages/info/preguntas-frecuentes.html',
-                privacidad:            'pages/legal/privacidad.html',
-                garantia:              'pages/legal/garantia.html',
-                admin:                 'pages/admin/admin.html',
-                limpiezaLiquido:       'pages/servicios/limpieza-laptop-liquido.html',
-                antisulfatacion:       'pages/servicios/antisulfatacion.html',
+                main:     'index.html',
+                notFound: '404.html',
+                enHome:   'pages/en/index.html',
+                admin:    'pages/admin/admin.html',
             },
         },
     },
