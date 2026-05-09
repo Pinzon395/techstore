@@ -1,0 +1,163 @@
+---
+interface Props {
+  lang?: 'es' | 'en';
+}
+
+const { lang = 'es' } = Astro.props;
+
+const navItems = lang === 'en' ? {
+  home: 'Home',
+  services: 'Services',
+  packages: 'Packages',
+  info: 'Info',
+  contact: 'Contact',
+  b2b: 'B2B',
+  dropdown: {
+    repair: 'General Repair',
+    optimization: 'System Optimization',
+    consoles: 'Console Cleaning',
+    maintenance: 'Preventive Maintenance',
+    hinges: 'Hinge Repair',
+    controllers: 'Controller Repair',
+    windows: 'Windows Installation',
+    mac: 'Mac Maintenance',
+    liquid: 'Liquid Damage Cleaning',
+    builds: 'PC Gamer Builds',
+    allPackages: 'All Packages',
+    faq: 'FAQ',
+    reviews: 'Client Reviews',
+    catalog: 'Video Catalog',
+    antisulfatation: 'Anti-Sulfatation',
+  }
+} : {
+  home: 'Inicio',
+  services: 'Servicios',
+  packages: 'Paquetes',
+  info: 'Información',
+  contact: 'Contacto',
+  b2b: 'B2B',
+  dropdown: {
+    repair: 'Reparación General',
+    optimization: 'Optimización del Sistema',
+    consoles: 'Limpieza de Consolas',
+    maintenance: 'Mantenimiento Preventivo',
+    hinges: 'Reparación Bisagras',
+    controllers: 'Reparación Controles',
+    windows: 'Instalación de Windows',
+    mac: 'Mantenimiento Mac',
+    liquid: 'Limpieza por Líquido',
+    builds: 'Ensambles PC Gamer',
+    allPackages: 'Todos los Paquetes',
+    faq: 'Preguntas Frecuentes',
+    reviews: 'Reseñas de Clientes',
+    catalog: 'Catálogo de Videos',
+    antisulfatation: 'Antisulfatación',
+  }
+};
+---
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href={lang === 'en' ? '/en' : '/'} class="logo">
+      <img src="/assets/logos/Logo.svg?v=2" alt="Pixon PC Logo" style="height:42px;" id="navbar-logo" class="brand-logo">
+    </a>
+    <div class="menu-toggle" id="mobile-menu">
+      <span class="bar bar-dark"></span>
+      <span class="bar bar-dark"></span>
+      <span class="bar bar-dark"></span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href={lang === 'en' ? '/en' : '/'} class="nav-links">{navItems.home}</a></li>
+      <li class="has-dropdown">
+        <a href="#" class="nav-links">{navItems.services} <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="/reparaciones">{navItems.dropdown.repair}</a></li>
+          <li><a href="/optimizacion">{navItems.dropdown.optimization}</a></li>
+          <li><a href="/reparaciones?section=consolas">{navItems.dropdown.consoles}</a></li>
+          <li><a href="/paquetes?section=paquetes">{navItems.dropdown.maintenance}</a></li>
+          <li><a href="/reparacion-bisagras">{navItems.dropdown.hinges}</a></li>
+          <li><a href="/reparacion-controles">{navItems.dropdown.controllers}</a></li>
+          <li><a href="/instalacion-windows">{navItems.dropdown.windows}</a></li>
+          <li><a href="/mantenimiento-mac">{navItems.dropdown.mac}</a></li>
+          <li><a href="/limpieza-laptop-liquido">{navItems.dropdown.liquid}</a></li>
+          <li><a href="/ensambles">{navItems.dropdown.builds}</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#" class="nav-links">{navItems.packages} <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="/paquetes">{navItems.dropdown.allPackages}</a></li>
+          <li><a href="/paquetes?section=paquetes">{navItems.dropdown.maintenance}</a></li>
+          <li><a href="/optimizacion?section=paquetes-optimizacion">{navItems.dropdown.optimization}</a></li>
+        </ul>
+      </li>
+      <li class="has-dropdown">
+        <a href="#" class="nav-links">{navItems.info} <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="/preguntas-frecuentes">{navItems.dropdown.faq}</a></li>
+          <li><a href="/comentarios">{navItems.dropdown.reviews}</a></li>
+          <li><a href="/catalogo">{navItems.dropdown.catalog}</a></li>
+          <li><a href="/antisulfatacion">{navItems.dropdown.antisulfatation}</a></li>
+        </ul>
+      </li>
+      <li><a href="/contacto" class="nav-links">{navItems.contact}</a></li>
+      <li>
+        <a href="/empresas" class="nav-links b2b-btn-premium">
+          <i class="fa-solid fa-building-shield"></i> {navItems.b2b}
+        </a>
+      </li>
+      <li class="nav-auth-mobile-li" id="nav-auth-mobile-li">
+        <div id="nav-auth-area-mobile"></div>
+      </li>
+    </ul>
+    <div class="nav-actions">
+      <div id="nav-auth-area"></div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const mobileMenu = document.getElementById('mobile-menu');
+  const navMenu = document.querySelector('.nav-menu');
+
+  mobileMenu?.addEventListener('click', () => {
+    mobileMenu.classList.toggle('active');
+    navMenu?.classList.toggle('active');
+  });
+
+  const dropdowns = document.querySelectorAll('.has-dropdown > a');
+  dropdowns.forEach((dropdown) => {
+    dropdown.addEventListener('click', (e) => {
+      if (window.innerWidth <= 750) {
+        e.preventDefault();
+        const parent = dropdown.parentElement;
+        if (parent) {
+          parent.classList.toggle('open');
+          const menu = parent.querySelector('.dropdown-menu');
+          menu?.classList.toggle('active');
+        }
+      }
+    });
+  });
+
+  let lastScroll = 0;
+  const navbar = document.getElementById('navbar');
+
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+
+    if (currentScroll > 100) {
+      navbar?.classList.add('is-scrolled');
+    } else {
+      navbar?.classList.remove('is-scrolled');
+    }
+
+    if (currentScroll > lastScroll && currentScroll > 200) {
+      navbar?.classList.add('is-hidden');
+    } else {
+      navbar?.classList.remove('is-hidden');
+    }
+
+    lastScroll = currentScroll;
+  });
+</script>
