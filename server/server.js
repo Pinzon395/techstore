@@ -924,9 +924,14 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             // Solo si la ruta es "segura" (sin .. ni caracteres raros).
             if (/^\/[a-zA-Z0-9/_-]+$/.test(cleanPath)) {
                 const candidate = path.join(distPath, cleanPath + '.html');
-                // Asegurar que candidate esté dentro de distPath (anti path traversal)
                 if (candidate.startsWith(distPath) && fs.existsSync(candidate)) {
                     return res.sendFile(candidate, sendFileOptions);
+                }
+                
+                const astroDistPath = path.join(__dirname, '../dist-astro');
+                const astroCandidate = path.join(astroDistPath, cleanPath + '.html');
+                if (astroCandidate.startsWith(astroDistPath) && fs.existsSync(astroCandidate)) {
+                    return res.sendFile(astroCandidate, sendFileOptions);
                 }
             }
 
