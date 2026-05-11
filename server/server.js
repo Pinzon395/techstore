@@ -52,7 +52,8 @@ const {
     trackPageView,
     getPageViewsDaily,
     getPageViewsTop,
-    getPageViewsSummary
+    getPageViewsSummary,
+    getLiveAnalytics
 } = require('./database');
 
 const app = express();
@@ -145,9 +146,8 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         const pathname = req.path;
         if (/\.(jpe?g|png)$/i.test(pathname) && req.accepts('image/webp')) {
             const webpPath = pathname.replace(/\.(jpe?g|png)$/i, '.webp');
-            const fullPath = isProd
-                ? path.join(distPath, webpPath)
-                : path.join(rootPath, webpPath);
+            // Tras cutover a Astro, dev y prod sirven de dist/ — un solo path.
+            const fullPath = path.join(distPath, webpPath);
             if (fs.existsSync(fullPath)) {
                 req.url = webpPath;
                 res.setHeader('Vary', 'Accept');
@@ -168,15 +168,41 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     app.use(express.json({ limit: '10kb' }));
 
-    if (process.env.NODE_ENV !== 'production') {
-        app.use(express.static(rootPath, { index: false, maxAge: 0 }));
+    // SECURITY-2 — bloquear /admin* a no-admins ANTES de cualquier static.
+    // Sin este pre-gate, /admin/admin.html y /admin/ se servían sin auth.
+    // Hooks de auth aún no existen aquí (passport va más abajo) por lo que
+    // re-evaluamos la sesión cuando ya esté inicializada (req.isAuthenticated
+    // existe solo después de session+passport), pero los handlers reales en
+    // app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, …)
+    // se montan después de passport y bloquean la entrada.
+    app.use((req, res, next) => {
+        const p = req.path;
+        if (p === '/admin' || p === '/admin/' || p === '/admin/admin.html') {
+            // Marcar para que el static middleware lo deje pasar al handler con gate.
+            req._skipStatic = true;
+        }
+        next();
+    });
+
+    function staticSkipAdmin(staticHandler) {
+        return (req, res, next) => {
+            if (req._skipStatic) return next();
+            return staticHandler(req, res, next);
+        };
     }
 
-    if (process.env.NODE_ENV === 'production') {
-        app.use(express.static(distPath, {
+    // Tras el cutover a Astro (mayo 2026), TANTO dev como prod sirven de dist/.
+    // La diferencia es solo cache: dev = 0, prod = larga.
+    // Para ver cambios: correr `npm run build` (o `npm run build:astro` solo).
+    const isProd = process.env.NODE_ENV === 'production';
+    if (!isProd) {
+        app.use(staticSkipAdmin(express.static(distPath, { index: false, maxAge: 0, etag: false, redirect: false })));
+    } else {
+        app.use(staticSkipAdmin(express.static(distPath, {
             maxAge: '1y',
             etag: true,
             index: false,
+            redirect: false,
             setHeaders: (res, filePath) => {
                 const p = filePath.replace(/\\/g, '/');
                 if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/.test(p)) {
@@ -187,7 +213,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
                     res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800');
                 }
             }
-        }));
+        })));
 
         app.get('/robots.txt', (_req, res) => {
             const file = path.join(distPath, 'robots.txt');
@@ -248,8 +274,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     ───────────────────────────────────────────────────────── */
     app.set('trust proxy', 1);
 
-    const isProd = process.env.NODE_ENV === 'production';
-
     app.use(session({
         store: new MySQLStore({
             clearExpired: true,
@@ -308,6 +332,10 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     app.use((req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
         if (req.path.startsWith('/auth/')) return next();
+        // /api/track/view es fire-and-forget vía navigator.sendBeacon que NO
+        // permite setear headers custom. Es lectura-pasiva (no muta cuentas
+        // ni privilegios), por lo que no necesita CSRF.
+        if (req.path === '/api/track/view') return next();
         if (req.get('X-Requested-With') !== 'fetch') {
             return res.status(403).json({ error: 'CSRF: header X-Requested-With requerido' });
         }
@@ -719,6 +747,18 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.json(await getPageViewsDaily(days));
     }));
 
+    /**
+     * Live analytics: visitantes activos (últimos 5 min), vistas por minuto
+     * (últimos 30 min para sparkline) y últimas N páginas vistas.
+     * Polling-friendly desde el dashboard cada ~10 s.
+     */
+    app.get('/api/admin/analytics/live', requireAdmin, ah(async (req, res) => {
+        const window = Math.min(120, Math.max(5, parseInt(req.query.window, 10) || 30));
+        const limit  = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
+        res.set('Cache-Control', 'no-store');
+        res.json(await getLiveAnalytics(window, limit));
+    }));
+
     app.get('/api/admin/analytics/top-pages', requireAdmin, ah(async (req, res) => {
         const days = parseInt(req.query.days, 10) || 30;
         const limit = parseInt(req.query.limit, 10) || 20;
@@ -727,8 +767,10 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 
     /* ─────────────────────────────────────────────────────────
         ARCHIVOS ESTATICOS Y RUTAS HTML
+        Tras el cutover Astro, dev y prod sirven el MISMO árbol dist/.
+        Por eso la tabla de rutas y el handler son únicos.
     ───────────────────────────────────────────────────────── */
-    if (process.env.NODE_ENV === 'production') {
+    {
         // Las páginas Astro emiten archivos planos en dist/<ruta>.html
         // (build.format = 'file' en astro.config.ts). Las únicas páginas
         // que aún vienen del build legacy de Vite son la home (index.html),
@@ -737,7 +779,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             // Legacy Vite (sin equivalente Astro todavía)
             '/':                            'index.html',
             '/en':                          'pages/en/index.html',
-            '/admin':                       'pages/admin/admin.html',
+            '/admin':                       'admin/admin.html',
             // Astro SSG (src/pages/*.astro -> dist/*.html via build.format='file')
             '/paquetes':                    'paquetes.html',
             '/servicios/paquetes':          'paquetes.html',
@@ -768,6 +810,10 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             '/preguntas-frecuentes':        'preguntas-frecuentes.html',
             '/privacidad':                  'privacidad.html',
             '/garantia':                    'garantia.html',
+            // VISTAS DE PRUEBAS — no listadas en sitemap, pero sirven con HTTP 200
+            '/test-navbar-3':               'test-navbar-3.html',
+            // Hub general de servicios
+            '/servicios':                   'servicios/index.html',
             // Páginas en inglés (Astro)
             '/en/packages':                 'en/packages.html',
             '/en/pc-builds':                'en/pc-builds.html',
@@ -798,9 +844,11 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             next();
         });
 
-        // SECURITY-2 (M2) — gate del HTML admin antes del catch-all
-        app.get('/admin', gateAdminPage, (_req, res) => {
-            res.sendFile(path.join(distPath, 'pages/admin/admin.html'), {
+        // SECURITY-2 (M2) — gate del HTML admin antes del catch-all.
+        // Acepta /admin y /admin/ (con trailing slash) y bloquea acceso directo
+        // a /admin/admin.html (que el static middleware serviría sin gate).
+        app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, (_req, res) => {
+            res.sendFile(path.join(distPath, 'admin/admin.html'), {
                 headers: { 'Cache-Control': 'no-store' }
             });
         });
@@ -824,75 +872,18 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
                 }
             }
 
-            res.sendFile(path.join(distPath, 'index.html'), sendFileOptions);
-        });
-    } else {
-        const devPages = {
-            '/': 'index.html',
-            '/en': 'pages/en/index.html',
-            '/paquetes': 'pages/servicios/paquetes.html',
-            '/servicios/paquetes': 'pages/servicios/paquetes.html',
-            '/ensambles': 'pages/servicios/ensambles.html',
-            '/servicios/ensambles': 'pages/servicios/ensambles.html',
-            '/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
-            '/servicios/mantenimiento-mac': 'pages/servicios/mantenimiento-mac.html',
-            '/instalacion-windows': 'pages/servicios/instalacion-windows.html',
-            '/servicios/instalacion-windows': 'pages/servicios/instalacion-windows.html',
-            '/reparaciones': 'pages/servicios/reparaciones.html',
-            '/servicios/reparaciones': 'pages/servicios/reparaciones.html',
-            '/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
-            '/servicios/reparacion-bisagras': 'pages/servicios/reparacion-bisagras.html',
-            '/reparacion-controles': 'pages/servicios/reparacion-controles.html',
-            '/servicios/reparacion-controles': 'pages/servicios/reparacion-controles.html',
-            '/limpieza-laptop-liquido': 'pages/servicios/limpieza-laptop-liquido.html',
-            '/servicios/limpieza-laptop-liquido': 'pages/servicios/limpieza-laptop-liquido.html',
-            '/B2B': 'pages/servicios/b2b.html',
-            '/servicios/b2b': 'pages/servicios/b2b.html',
-            '/optimizacion': 'pages/servicios/optimizacion.html',
-            '/antisulfatacion': 'pages/servicios/antisulfatacion.html',
-            '/servicios/antisulfatacion': 'pages/servicios/antisulfatacion.html',
-            '/servicios/optimizacion': 'pages/servicios/optimizacion.html',
-            '/catalogo': 'pages/info/catalogo.html',
-            '/comentarios': 'pages/info/comentarios.html',
-            '/contacto': 'pages/info/contacto.html',
-            '/preguntas-frecuentes': 'pages/info/preguntas-frecuentes.html',
-            '/privacidad': 'pages/legal/privacidad.html',
-            '/garantia': 'pages/legal/garantia.html',
-            '/admin': 'pages/admin/admin.html',
-        };
-
-        const legacyDevRedirects = ['/formateo-optimizacion'];
-        legacyDevRedirects.forEach(oldPath => {
-            app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
-        });
-        // M6 — canonicaliza /b2b -> /B2B en dev tambien
-        app.get('/b2b', (req, res, next) => {
-            if (req.path === '/b2b') return res.redirect(301, '/B2B');
-            next();
-        });
-
-        // SECURITY-2 (M2) — gate del HTML admin tambien en dev
-        app.get('/admin', gateAdminPage, (_req, res) => {
-            res.sendFile(path.join(rootPath, 'pages/admin/admin.html'), {
-                headers: { 'Cache-Control': 'no-store' }
-            });
-        });
-
-        app.get('*', (req, res, next) => {
-            if (req.path.startsWith('/api') || req.path.startsWith('/auth')) return next();
-            if (req.path.includes('.')) return next();
-
-            const cleanPath = req.path === '/' ? '/' : req.path.replace(/\/$/, '');
-            const htmlFile = devPages[cleanPath];
-
-            if (htmlFile) {
-                const fullPath = path.join(rootPath, htmlFile);
-                if (fs.existsSync(fullPath)) {
-                    return res.sendFile(fullPath);
+            // Resolución dinámica para rutas Astro (build.format='file' emite <ruta>.html)
+            // Ej: /servicios/laptop/cambio-pantalla -> dist/servicios/laptop/cambio-pantalla.html
+            // Solo si la ruta es "segura" (sin .. ni caracteres raros).
+            if (/^\/[a-zA-Z0-9/_-]+$/.test(cleanPath)) {
+                const candidate = path.join(distPath, cleanPath + '.html');
+                // Asegurar que candidate esté dentro de distPath (anti path traversal)
+                if (candidate.startsWith(distPath) && fs.existsSync(candidate)) {
+                    return res.sendFile(candidate, sendFileOptions);
                 }
             }
 
-            res.sendFile(path.join(rootPath, 'index.html'));
+            res.sendFile(path.join(distPath, 'index.html'), sendFileOptions);
         });
     }
 

@@ -1,350 +1,674 @@
 ---
+/**
+ * Admin Panel v2.1 — Sidebar lateral colapsada por default + hover-expand
+ * - Solo logo circular en sidebar (sin texto al lado)
+ * - Expandir al pasar el cursor o tocar
+ * - body sin .light-theme (sin preload sprite, ya que el admin no lo usa)
+ */
 import Base from '../../layouts/Base.astro';
-import Navbar from '../../components/Navbar.astro';
-import Footer from '../../components/Footer.astro';
 import '../../styles/admin.css';
 ---
 
 <Base
   title="Panel de Administración | Pixon PC"
-  description=""
+  description="Panel administrativo Pixon PC"
   canonical="https://pixon.com.mx/admin"
   image="/LOGOCIRCULAR.png"
+  bodyClass="admin-body"
+  preloadSprite={false}
 >
-  <Navbar />
-<nav class="admin-navbar">
-        <a href="/" class="admin-logo">
-            <img src="/assets/logos/Logo.svg" alt="Pixon PC Logo">
-            <span>Admin</span>
-        </a>
-        <div id="admin-user-area"></div>
-    </nav>
+  <!-- Pantalla de carga mientras admin.js verifica permisos -->
+  <div id="auth-loading">
+    <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: #22d3ee;"></i>
+    <p>Verificando permisos…</p>
+  </div>
 
-    <div id="auth-loading">
-        <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: #6366f1;"></i>
-        <p>Verificando permisos...</p>
-    </div>
+  <div class="admin-shell sb-collapsed" id="admin-shell">
 
-    <div id="admin-content">
-        <header class="admin-header">
-            <h1>Panel de Administración</h1>
-            <p style="color: #94a3b8;" id="admin-subtitle">Revisa, aprueba y gestiona tu plataforma.</p>
-            <div class="live-indicator" id="live-indicator" style="display: none;">
-                <div class="live-dot"></div> Conectado en tiempo real
-            </div>
-        </header>
+    <!-- ═══════════════════════════════════════════════════════════════
+         SIDEBAR — colapsada por default (solo iconos + logo circular).
+         Al hover, se expande temporalmente mostrando textos.
+    ═══════════════════════════════════════════════════════════════ -->
+    <aside class="admin-sidebar" id="admin-sidebar" data-collapsed="true">
+      <a href="/" class="admin-brand" aria-label="Inicio Pixon PC" title="Pixon PC">
+        <img src="/LOGOCIRCULAR.png" alt="Pixon PC" width="36" height="36" />
+      </a>
 
-        <main class="admin-container">
-            <div class="admin-tabs" style="overflow-x: auto; white-space: nowrap; justify-content: flex-start; padding-bottom: 5px;">
-                <button class="admin-tab active" data-view="dashboard">Vista General</button>
-                <button class="admin-tab" data-view="repairs">Taller (Tickets)</button>
-                <button class="admin-tab" data-view="builds">Ensambles</button>
-                <button class="admin-tab" data-view="comments">Comentarios</button>
-                <button class="admin-tab" data-view="users">Usuarios</button>
-                <button class="admin-tab" data-view="faqs">Preguntas Frecuentes</button>
-            </div>
-
-            <!-- VISTA DASHBOARD -->
-            <div id="view-dashboard">
-                <div class="dashboard-stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-comments-pending">0</div>
-                        <div class="stat-label">Comentarios Pendientes</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-users">0</div>
-                        <div class="stat-label">Usuarios Registrados</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-faqs-unanswered">0</div>
-                        <div class="stat-label">Dudas sin Resolver</div>
-                    </div>
-                    <div class="stat-card" style="border-left:3px solid #3b82f6;">
-                        <div class="stat-number" id="stat-total-views" style="color:#60a5fa;">0</div>
-                        <div class="stat-label">Visitas Totales</div>
-                    </div>
-                    <div class="stat-card" style="border-left:3px solid #10b981;">
-                        <div class="stat-number" id="stat-today-views" style="color:#34d399;">0</div>
-                        <div class="stat-label">Visitas Hoy</div>
-                    </div>
-                    <div class="stat-card" style="border-left:3px solid #8b5cf6;">
-                        <div class="stat-number" id="stat-unique-today" style="color:#a78bfa;">0</div>
-                        <div class="stat-label">Visitantes Únicos Hoy</div>
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;">
-                    <div class="admin-card" style="padding:20px;">
-                        <h3 style="color:#f1f5f9; font-size:1rem; margin-bottom:15px;">
-                            <i class="fa-solid fa-ranking-star" style="color:#f59e0b;"></i> Páginas más visitadas (30 días)
-                        </h3>
-                        <div id="analytics-top-pages">
-                            <div style="text-align:center; color:#64748b; padding:20px;">Cargando...</div>
-                        </div>
-                    </div>
-                    <div class="admin-card" style="padding:20px;">
-                        <h3 style="color:#f1f5f9; font-size:1rem; margin-bottom:15px;">
-                            <i class="fa-solid fa-chart-line" style="color:#3b82f6;"></i> Tráfico Diario (14 días)
-                        </h3>
-                        <div id="analytics-chart">
-                            <div style="text-align:center; color:#64748b; padding:20px;">Cargando...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VISTA TALLER (REPAIRS) -->
-            <div id="view-repairs" style="display: none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                    <h2 style="font-size:1.5rem; color:#f8fafc;">Tickets de Reparación</h2>
-                    <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="openRepairModal()">
-                        <i class="fa-solid fa-plus"></i> Nuevo Ticket
-                    </button>
-                </div>
-                <div class="users-table-wrapper">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Cliente</th>
-                                <th>Dispositivo</th>
-                                <th>Falla Reportada</th>
-                                <th>Estatus</th>
-                                <th>Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody id="repairs-tbody">
-                            <tr><td colspan="6" style="text-align: center; color: #64748b;">No hay tickets de reparación aún.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- VISTA ENSAMBLES (BUILDS) -->
-            <div id="view-builds" style="display: none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                    <h2 style="font-size:1.5rem; color:#f8fafc;">Catálogo de Ensambles y Paquetes</h2>
-                    <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="openBuildModal()">
-                        <i class="fa-solid fa-plus"></i> Nuevo Ensamble
-                    </button>
-                </div>
-                <div class="admin-grid" id="builds-grid">
-                    <!-- Los ensambles se renderizarán aquí -->
-                    <div style="text-align: center; color: #64748b; grid-column: 1 / -1; padding: 40px;">No hay ensambles creados.</div>
-                </div>
-            </div>
-
-            <!-- VISTA COMENTARIOS -->
-            <div id="view-comments" style="display: none;">
-                <div class="filters">
-                    <button class="filter-btn active" data-filter="all">Todos</button>
-                    <button class="filter-btn" data-filter="pending">Pendientes</button>
-                    <button class="filter-btn" data-filter="approved">Aprobados</button>
-                </div>
-
-                <div class="admin-grid" id="comments-grid">
-                    <!-- Comentarios se renderizan aquí -->
-                </div>
-            </div>
-
-            <!-- VISTA USUARIOS -->
-            <div id="view-users" style="display: none;">
-                <div class="users-table-wrapper">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Email</th>
-                                <th>Celular</th>
-                                <th>Rol</th>
-                                <th>Fecha de Registro</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-tbody">
-                            <!-- Usuarios se renderizan aquí -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- VISTA PREGUNTAS FRECUENTES -->
-            <div id="view-faqs" style="display: none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                    <h2 style="font-size:1.5rem; color:#f8fafc;">Búsquedas sin respuesta</h2>
-                    <button class="btn-admin btn-delete" style="max-width: 150px; padding: 6px 12px; font-size: 0.8rem;" onclick="clearUnanswered()">
-                        <i class="fa-solid fa-trash"></i> Limpiar Registro
-                    </button>
-                </div>
-                <div class="users-table-wrapper" style="margin-bottom: 40px;">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Término Buscado</th>
-                                <th>Búsquedas</th>
-                                <th>Última Vez</th>
-                            </tr>
-                        </thead>
-                        <tbody id="unanswered-tbody">
-                            <!-- Unanswered searches se renderizan aquí -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div style="display:flex; flex-wrap: wrap; justify-content:space-between; align-items:center; margin-bottom: 20px; gap: 15px;">
-                    <h2 style="font-size:1.5rem; color:#f8fafc;">Gestionar Preguntas Frecuentes</h2>
-                    <div style="display:flex; gap: 15px; align-items:center; flex-grow:1; justify-content:flex-end;">
-                        <input type="text" id="faqSearchInput" class="faq-search-bar" placeholder="Buscar preguntas, respuestas o categorías..." style="margin:0;">
-                        <button class="btn-admin btn-approve" style="max-width: 180px; padding: 10px 15px; font-size: 0.95rem; white-space:nowrap;" onclick="addNewFaq()">
-                            <i class="fa-solid fa-plus"></i> Nueva Pregunta
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="faqs-container">
-                    <!-- Faqs se renderizan agrupadas por categoría aquí -->
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modal para FAQs -->
-    <div id="faqModalOverlay" class="admin-modal-overlay">
-        <div class="admin-modal">
-            <div class="admin-modal-header">
-                <h2 id="faqModalTitle">Nueva Pregunta</h2>
-                <button class="admin-modal-close" onclick="closeFaqModal()">&times;</button>
-            </div>
-            <div class="admin-modal-body">
-                <input type="hidden" id="faqId">
-                <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                    <div class="admin-form-group" style="flex:2; min-width:200px;">
-                        <label>Categoría</label>
-                        <input type="text" id="faqCategory" class="admin-input" list="faqCategoriesList" placeholder="Ej. Servicios, Garantía…" required>
-                        <datalist id="faqCategoriesList"></datalist>
-                    </div>
-                    <div class="admin-form-group" style="flex:1; min-width:120px;">
-                        <label>Orden</label>
-                        <input type="number" id="faqOrder" class="admin-input" value="0" min="0">
-                    </div>
-                </div>
-                <div class="admin-form-group">
-                    <label>Ícono (clase Font Awesome)</label>
-                    <input type="text" id="faqIcon" class="admin-input" placeholder="fa-solid fa-circle-question" value="fa-solid fa-circle-question">
-                </div>
-                <div class="admin-form-group">
-                    <label>Pregunta</label>
-                    <input type="text" id="faqQuestion" class="admin-input" placeholder="Ej. ¿Cuánto tarda una reparación?" required>
-                </div>
-                <div class="admin-form-group">
-                    <label>Respuesta <span style="color:#64748b; font-weight:400; font-size:0.8rem;">(los saltos de línea se convierten a &lt;br&gt;)</span></label>
-                    <textarea id="faqAnswer" class="admin-input" rows="6" placeholder="Escribe la respuesta aquí…" required></textarea>
-                </div>
-            </div>
-            <div class="admin-modal-footer">
-                <button class="admin-btn admin-btn-cancel" onclick="closeFaqModal()">Cancelar</button>
-                <button class="admin-btn admin-btn-save" onclick="saveFaqModal()">Guardar</button>
-            </div>
+      <nav class="admin-nav" aria-label="Navegación admin">
+        <div class="nav-group">
+          <p class="nav-section-title">Principal</p>
+          <button class="nav-link active" data-view="dashboard" title="Dashboard">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span class="nav-link-label">Dashboard</span>
+          </button>
         </div>
-    </div>
 
-    <!-- Modal para Tickets -->
-    <div id="repairModalOverlay" class="admin-modal-overlay">
-        <div class="admin-modal">
-            <div class="admin-modal-header">
-                <h2>Nuevo Ticket de Reparación</h2>
-                <button class="admin-modal-close" onclick="closeRepairModal()">&times;</button>
-            </div>
-            <div class="admin-modal-body">
-                <div class="admin-form-group">
-                    <label>Nombre del Cliente</label>
-                    <input type="text" id="repairCustomer" class="admin-input" placeholder="Ej. Juan Pérez" required>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>Tipo de Dispositivo</label>
-                        <select id="repairType" class="admin-input">
-                            <option value="Laptop">Laptop</option>
-                            <option value="PC de Escritorio">PC de Escritorio</option>
-                            <option value="Consola">Consola</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>Marca / Modelo</label>
-                        <input type="text" id="repairBrand" class="admin-input" placeholder="Ej. Dell Inspiron" required>
-                    </div>
-                </div>
-                <div class="admin-form-group">
-                    <label>Falla Reportada</label>
-                    <textarea id="repairIssue" class="admin-input" placeholder="Ej. No enciende, pantalla rota..." required></textarea>
-                </div>
-                <div class="admin-form-group">
-                    <label>Teléfono / WhatsApp</label>
-                    <input type="text" id="repairPhone" class="admin-input" placeholder="Ej. 9981234567" required>
-                </div>
-            </div>
-            <div class="admin-modal-footer">
-                <button class="admin-btn admin-btn-cancel" onclick="closeRepairModal()">Cancelar</button>
-                <button class="admin-btn admin-btn-save" onclick="saveRepair()">Crear Ticket</button>
-            </div>
+        <div class="nav-group">
+          <p class="nav-section-title">Gestión</p>
+          <button class="nav-link" data-view="repairs" title="Taller (Tickets)">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <span class="nav-link-label">Taller (Tickets)</span>
+          </button>
+          <button class="nav-link" data-view="builds" title="Ensambles">
+            <i class="fa-solid fa-microchip"></i>
+            <span class="nav-link-label">Ensambles</span>
+          </button>
+          <button class="nav-link" data-view="comments" title="Comentarios">
+            <i class="fa-solid fa-comments"></i>
+            <span class="nav-link-label">Comentarios</span>
+            <span class="badge warn" id="nav-badge-comments" style="display:none;">0</span>
+          </button>
+          <button class="nav-link" data-view="users" title="Usuarios">
+            <i class="fa-solid fa-users"></i>
+            <span class="nav-link-label">Usuarios</span>
+          </button>
+          <button class="nav-link" data-view="faqs" title="Preguntas Frecuentes">
+            <i class="fa-solid fa-circle-question"></i>
+            <span class="nav-link-label">Preguntas Frecuentes</span>
+          </button>
         </div>
-    </div>
 
-    <!-- Modal para Ensambles -->
-    <div id="buildModalOverlay" class="admin-modal-overlay">
-        <div class="admin-modal">
-            <div class="admin-modal-header">
-                <h2>Nuevo Paquete / Ensamble</h2>
-                <button class="admin-modal-close" onclick="closeBuildModal()">&times;</button>
-            </div>
-            <div class="admin-modal-body">
-                <div class="admin-form-group">
-                    <label>Título del Ensamble</label>
-                    <input type="text" id="buildTitle" class="admin-input" placeholder="Ej. PC Gamer RTX 4060" required>
-                </div>
-                <div class="admin-form-group">
-                    <label>Descripción</label>
-                    <textarea id="buildDescription" class="admin-input" placeholder="Componentes incluidos..." required></textarea>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>Precio ($ MXN)</label>
-                        <input type="number" id="buildPrice" class="admin-input" placeholder="Ej. 15000" required>
-                    </div>
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>Categoría</label>
-                        <select id="buildCategory" class="admin-input">
-                            <option value="gaming">Gaming</option>
-                            <option value="office">Oficina / Estudiante</option>
-                            <option value="workstation">Workstation (Diseño/Edición)</option>
-                            <option value="starter">Starter PC</option>
-                        </select>
-                    </div>
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>Rendimiento</label>
-                        <select id="buildTier" class="admin-input">
-                            <option value="entry">Entrada</option>
-                            <option value="mid">Gama Media</option>
-                            <option value="high">Gama Alta</option>
-                            <option value="enthusiast">Entusiasta</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="admin-form-group">
-                    <label>URL de Imagen (Opcional)</label>
-                    <input type="text" id="buildImage" class="admin-input" placeholder="https://ejemplo.com/imagen.jpg">
-                </div>
-            </div>
-            <div class="admin-modal-footer">
-                <button class="admin-btn admin-btn-cancel" onclick="closeBuildModal()">Cancelar</button>
-                <button class="admin-btn admin-btn-save" onclick="saveBuild()">Guardar Ensamble</button>
-            </div>
+        <div class="nav-group">
+          <p class="nav-section-title">Sistema</p>
+          <a href="/" class="nav-link" target="_blank" rel="noopener" title="Ver sitio público">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span class="nav-link-label">Ver sitio público</span>
+          </a>
         </div>
-    </div>
+      </nav>
 
-    <!-- Scripts del admin (sin estos, las pestañas/secciones no cargan datos) -->
-    <script src="/scripts/admin.js" defer></script>
-    <script src="/scripts/user-menu.js" defer></script>
+      <!-- Bloque de usuario actual -->
+      <div class="admin-user-block" id="admin-user-block">
+        <div class="admin-avatar-fallback" id="admin-user-avatar">A</div>
+        <div class="admin-user-info">
+          <span class="name" id="admin-user-name">Cargando…</span>
+          <span class="role">Admin</span>
+        </div>
+      </div>
+
+      <!-- Logout separado y con peso visual distinto al menú -->
+      <a href="/auth/logout" class="admin-logout" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span class="admin-logout-text">Cerrar sesión</span>
+      </a>
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MAIN
+    ═══════════════════════════════════════════════════════════════ -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar-left">
+          <button class="admin-mobile-toggle" id="adminMobileToggle" aria-label="Abrir menú">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <h1 class="admin-page-title" id="admin-page-title">Dashboard</h1>
+            <p class="admin-page-sub" id="admin-subtitle">Revisa, aprueba y gestiona tu plataforma.</p>
+          </div>
+        </div>
+        <div class="admin-topbar-right">
+          <div class="live-indicator" id="live-indicator" style="display:none;">
+            <div class="live-dot"></div> En vivo
+          </div>
+          <div id="admin-user-area"></div>
+        </div>
+      </header>
+
+      <div class="admin-content" id="admin-content">
+
+        <!-- ═══ VISTA DASHBOARD ═══ -->
+        <section id="view-dashboard" class="admin-section">
+          <div class="dashboard-stats">
+            <div class="stat-card">
+              <div class="stat-number" id="stat-comments-pending">0</div>
+              <div class="stat-label">Comentarios Pendientes</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="stat-users">0</div>
+              <div class="stat-label">Usuarios Registrados</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="stat-faqs-unanswered">0</div>
+              <div class="stat-label">Dudas sin Resolver</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="stat-total-views">0</div>
+              <div class="stat-label">Visitas Totales</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="stat-today-views">0</div>
+              <div class="stat-label">Visitas Hoy</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="stat-unique-today">0</div>
+              <div class="stat-label">Visitantes Únicos Hoy</div>
+            </div>
+          </div>
+
+          <!-- BLOQUE LIVE — actualiza cada 10s -->
+          <div class="admin-card live-card" id="live-card">
+            <div class="live-card-head">
+              <h3>
+                <span class="live-pulse" aria-hidden="true"></span>
+                Actividad en vivo
+              </h3>
+              <div class="live-card-stats">
+                <div class="live-stat">
+                  <span class="live-stat-num" id="live-active">0</span>
+                  <span class="live-stat-label">viendo ahora</span>
+                </div>
+                <div class="live-stat">
+                  <span class="live-stat-num" id="live-window-views">0</span>
+                  <span class="live-stat-label">vistas últimos 30 min</span>
+                </div>
+                <div class="live-stat">
+                  <span class="live-stat-num" id="live-window-visitors">0</span>
+                  <span class="live-stat-label">visitantes únicos</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sparkline SVG (últimos 30 min, 1 barra por minuto) -->
+            <div class="live-spark-wrap">
+              <svg id="live-sparkline" class="live-spark" viewBox="0 0 600 120" preserveAspectRatio="none" aria-label="Vistas por minuto últimos 30 minutos"></svg>
+              <div class="live-spark-axis">
+                <span>-30 min</span>
+                <span>-15 min</span>
+                <span>ahora</span>
+              </div>
+            </div>
+
+            <!-- Feed de últimas vistas -->
+            <div class="live-feed-head">
+              <span><i class="fa-solid fa-stream"></i> Últimas páginas vistas</span>
+              <small id="live-updated">—</small>
+            </div>
+            <ul class="live-feed" id="live-feed">
+              <li class="empty-state">Cargando…</li>
+            </ul>
+          </div>
+
+          <div class="admin-grid-2">
+            <div class="admin-card">
+              <h3>
+                <i class="fa-solid fa-ranking-star"></i>
+                Páginas más visitadas (30 días)
+              </h3>
+              <div id="analytics-top-pages">
+                <div class="empty-state">Cargando…</div>
+              </div>
+            </div>
+            <div class="admin-card">
+              <h3>
+                <i class="fa-solid fa-chart-line"></i>
+                Tráfico Diario (14 días)
+              </h3>
+              <div id="analytics-chart">
+                <div class="empty-state">Cargando…</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ VISTA TALLER (REPAIRS) ═══ -->
+        <section id="view-repairs" class="admin-section" style="display:none;">
+          <div class="admin-section-header">
+            <h2>Tickets de Reparación</h2>
+            <button class="btn-admin btn-approve" type="button" onclick="window.openRepairModal && openRepairModal()">
+              <i class="fa-solid fa-plus"></i> Nuevo Ticket
+            </button>
+          </div>
+          <div class="users-table-wrapper">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Cliente</th>
+                  <th>Dispositivo</th>
+                  <th>Falla Reportada</th>
+                  <th>Estatus</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="repairs-tbody">
+                <tr><td colspan="6" class="empty-row">No hay tickets de reparación aún.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══ VISTA ENSAMBLES (BUILDS) ═══ -->
+        <section id="view-builds" class="admin-section" style="display:none;">
+          <div class="admin-section-header">
+            <h2>Catálogo de Ensambles y Paquetes</h2>
+            <button class="btn-admin btn-approve" type="button" onclick="window.openBuildModal && openBuildModal()">
+              <i class="fa-solid fa-plus"></i> Nuevo Ensamble
+            </button>
+          </div>
+          <div class="admin-grid" id="builds-grid">
+            <div class="empty-state full-grid">No hay ensambles creados.</div>
+          </div>
+        </section>
+
+        <!-- ═══ VISTA COMENTARIOS ═══ -->
+        <section id="view-comments" class="admin-section" style="display:none;">
+          <div class="admin-section-header">
+            <h2>Moderación de Comentarios</h2>
+          </div>
+          <div class="filters">
+            <button class="filter-btn active" type="button" data-filter="all">Todos</button>
+            <button class="filter-btn" type="button" data-filter="pending">Pendientes</button>
+            <button class="filter-btn" type="button" data-filter="approved">Aprobados</button>
+          </div>
+          <div class="admin-grid" id="comments-grid"></div>
+        </section>
+
+        <!-- ═══ VISTA USUARIOS ═══ -->
+        <section id="view-users" class="admin-section" style="display:none;">
+          <div class="admin-section-header">
+            <h2>Usuarios Registrados</h2>
+          </div>
+          <div class="users-table-wrapper">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Email</th>
+                  <th>Celular</th>
+                  <th>Rol</th>
+                  <th>Fecha de Registro</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══ VISTA FAQs ═══ -->
+        <section id="view-faqs" class="admin-section" style="display:none;">
+          <div class="admin-section-header">
+            <h2>Búsquedas sin respuesta</h2>
+            <button class="btn-admin btn-delete" type="button" onclick="window.clearUnanswered && clearUnanswered()">
+              <i class="fa-solid fa-trash"></i> Limpiar Registro
+            </button>
+          </div>
+          <div class="users-table-wrapper" style="margin-bottom:32px;">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Término Buscado</th>
+                  <th>Búsquedas</th>
+                  <th>Última Vez</th>
+                </tr>
+              </thead>
+              <tbody id="unanswered-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="admin-section-header">
+            <h2>Gestionar Preguntas Frecuentes</h2>
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <input type="text" id="faqSearchInput" class="faq-search-bar" placeholder="Buscar pregunta…" aria-label="Buscar pregunta" />
+              <button class="btn-admin btn-approve" type="button" onclick="window.addNewFaq && addNewFaq()">
+                <i class="fa-solid fa-plus"></i> Nueva
+              </button>
+            </div>
+          </div>
+          <div id="faqs-container"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MODALES — labels con for + inputs con id matching
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Modal FAQ -->
+  <div id="faqModalOverlay" class="admin-modal-overlay">
+    <div class="admin-modal">
+      <div class="admin-modal-header">
+        <h2 id="faqModalTitle">Nueva Pregunta</h2>
+        <button class="admin-modal-close" type="button" onclick="window.closeFaqModal && closeFaqModal()">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <input type="hidden" id="faqId" />
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <div class="admin-form-group" style="flex:2; min-width:200px;">
+            <label for="faqCategory">Categoría</label>
+            <input type="text" id="faqCategory" class="admin-input" list="faqCategoriesList" placeholder="Ej. Servicios, Garantía…" required />
+            <datalist id="faqCategoriesList"></datalist>
+          </div>
+          <div class="admin-form-group" style="flex:1; min-width:120px;">
+            <label for="faqOrder">Orden</label>
+            <input type="number" id="faqOrder" class="admin-input" value="0" min="0" />
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label for="faqIcon">Ícono (clase Font Awesome)</label>
+          <input type="text" id="faqIcon" class="admin-input" placeholder="fa-solid fa-circle-question" value="fa-solid fa-circle-question" />
+        </div>
+        <div class="admin-form-group">
+          <label for="faqQuestion">Pregunta</label>
+          <input type="text" id="faqQuestion" class="admin-input" placeholder="Ej. ¿Cuánto tarda una reparación?" required />
+        </div>
+        <div class="admin-form-group">
+          <label for="faqAnswer">Respuesta <span style="color:var(--a-text-dim); font-weight:400; font-size:.78rem;">(saltos de línea = &lt;br&gt;)</span></label>
+          <textarea id="faqAnswer" class="admin-input" rows="6" required></textarea>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="admin-btn admin-btn-cancel" type="button" onclick="window.closeFaqModal && closeFaqModal()">Cancelar</button>
+        <button class="admin-btn admin-btn-save" type="button" onclick="window.saveFaqModal && saveFaqModal()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tickets -->
+  <div id="repairModalOverlay" class="admin-modal-overlay">
+    <div class="admin-modal">
+      <div class="admin-modal-header">
+        <h2>Nuevo Ticket de Reparación</h2>
+        <button class="admin-modal-close" type="button" onclick="window.closeRepairModal && closeRepairModal()">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <div class="admin-form-group">
+          <label for="repairCustomer">Nombre del Cliente</label>
+          <input type="text" id="repairCustomer" class="admin-input" placeholder="Ej. Juan Pérez" required />
+        </div>
+        <div style="display:flex; gap:14px;">
+          <div class="admin-form-group" style="flex:1;">
+            <label for="repairType">Tipo de Dispositivo</label>
+            <select id="repairType" class="admin-input">
+              <option value="Laptop">Laptop</option>
+              <option value="PC de Escritorio">PC de Escritorio</option>
+              <option value="Consola">Consola</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="admin-form-group" style="flex:1;">
+            <label for="repairBrand">Marca / Modelo</label>
+            <input type="text" id="repairBrand" class="admin-input" placeholder="Ej. Dell Inspiron" required />
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label for="repairIssue">Falla Reportada</label>
+          <textarea id="repairIssue" class="admin-input" placeholder="Ej. No enciende, pantalla rota…" required></textarea>
+        </div>
+        <div class="admin-form-group">
+          <label for="repairPhone">Teléfono / WhatsApp</label>
+          <input type="text" id="repairPhone" class="admin-input" placeholder="Ej. 9981234567" required />
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="admin-btn admin-btn-cancel" type="button" onclick="window.closeRepairModal && closeRepairModal()">Cancelar</button>
+        <button class="admin-btn admin-btn-save" type="button" onclick="window.saveRepair && saveRepair()">Crear Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ensambles -->
+  <div id="buildModalOverlay" class="admin-modal-overlay">
+    <div class="admin-modal">
+      <div class="admin-modal-header">
+        <h2>Nuevo Paquete / Ensamble</h2>
+        <button class="admin-modal-close" type="button" onclick="window.closeBuildModal && closeBuildModal()">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <div class="admin-form-group">
+          <label for="buildTitle">Título del Ensamble</label>
+          <input type="text" id="buildTitle" class="admin-input" placeholder="Ej. PC Gamer RTX 4060" required />
+        </div>
+        <div class="admin-form-group">
+          <label for="buildDescription">Descripción</label>
+          <textarea id="buildDescription" class="admin-input" placeholder="Componentes incluidos…" required></textarea>
+        </div>
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <div class="admin-form-group" style="flex:1; min-width:140px;">
+            <label for="buildPrice">Precio ($ MXN)</label>
+            <input type="number" id="buildPrice" class="admin-input" placeholder="15000" required />
+          </div>
+          <div class="admin-form-group" style="flex:1; min-width:140px;">
+            <label for="buildCategory">Categoría</label>
+            <select id="buildCategory" class="admin-input">
+              <option value="gaming">Gaming</option>
+              <option value="office">Oficina / Estudiante</option>
+              <option value="workstation">Workstation</option>
+              <option value="starter">Starter PC</option>
+            </select>
+          </div>
+          <div class="admin-form-group" style="flex:1; min-width:140px;">
+            <label for="buildTier">Rendimiento</label>
+            <select id="buildTier" class="admin-input">
+              <option value="entry">Entrada</option>
+              <option value="mid">Gama Media</option>
+              <option value="high">Gama Alta</option>
+              <option value="enthusiast">Entusiasta</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label for="buildImage">URL de Imagen (opcional)</label>
+          <input type="text" id="buildImage" class="admin-input" placeholder="https://…" />
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="admin-btn admin-btn-cancel" type="button" onclick="window.closeBuildModal && closeBuildModal()">Cancelar</button>
+        <button class="admin-btn admin-btn-save" type="button" onclick="window.saveBuild && saveBuild()">Guardar Ensamble</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SIDEBAR INTERACTIONS — hover-expand + tab switching + mobile
+  ═══════════════════════════════════════════════════════════════ -->
+  <script is:inline>
+    (function () {
+      const shell = document.getElementById('admin-shell');
+      const sidebar = document.getElementById('admin-sidebar');
+      const mobileToggle = document.getElementById('adminMobileToggle');
+      const pageTitle = document.getElementById('admin-page-title');
+      const subtitle  = document.getElementById('admin-subtitle');
+
+      // Hover-expand: en desktop, al pasar el cursor sobre la sidebar se expande.
+      // Al salir, vuelve a colapsada. En mobile se ignora (se usa toggle).
+      let hoverTimer = null;
+      function isDesktop() { return window.innerWidth >= 1024; }
+
+      sidebar.addEventListener('mouseenter', () => {
+        if (!isDesktop()) return;
+        clearTimeout(hoverTimer);
+        shell.classList.remove('sb-collapsed');
+        shell.classList.add('sb-hover');
+      });
+      sidebar.addEventListener('mouseleave', () => {
+        if (!isDesktop()) return;
+        clearTimeout(hoverTimer);
+        // Pequeño delay para evitar flicker al salir y volver a entrar
+        hoverTimer = setTimeout(() => {
+          shell.classList.add('sb-collapsed');
+          shell.classList.remove('sb-hover');
+        }, 180);
+      });
+
+      // Tab switching
+      const VIEW_TITLES = {
+        dashboard: { title: 'Dashboard',            sub: 'Revisa, aprueba y gestiona tu plataforma.' },
+        repairs:   { title: 'Taller (Tickets)',     sub: 'Tickets de reparación activos y completados.' },
+        builds:    { title: 'Ensambles',            sub: 'Catálogo de ensambles y paquetes ofertados.' },
+        comments:  { title: 'Comentarios',          sub: 'Modera reseñas pendientes y aprobadas.' },
+        users:     { title: 'Usuarios',             sub: 'Lista de usuarios registrados y roles.' },
+        faqs:      { title: 'Preguntas Frecuentes', sub: 'Gestiona FAQs y revisa búsquedas sin respuesta.' },
+      };
+
+      function switchView(view) {
+        document.querySelectorAll('.nav-link[data-view]').forEach(l => l.classList.toggle('active', l.dataset.view === view));
+        document.querySelectorAll('.admin-section').forEach(s => {
+          s.style.display = (s.id === 'view-' + view) ? '' : 'none';
+        });
+        const meta = VIEW_TITLES[view];
+        if (meta) {
+          pageTitle.textContent = meta.title;
+          subtitle.textContent  = meta.sub;
+        }
+        if (window.innerWidth < 1024) shell.classList.remove('sb-open');
+        try { sessionStorage.setItem('admin_view', view); } catch (_) {}
+      }
+
+      document.querySelectorAll('.nav-link[data-view]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          switchView(link.dataset.view);
+        });
+      });
+
+      // Restaurar última vista
+      try {
+        const saved = sessionStorage.getItem('admin_view');
+        if (saved && VIEW_TITLES[saved]) switchView(saved);
+      } catch (_) {}
+
+      // Mobile toggle
+      mobileToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        shell.classList.toggle('sb-open');
+      });
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth < 1024 && shell.classList.contains('sb-open')) {
+          if (!sidebar.contains(e.target) && e.target !== mobileToggle && !mobileToggle?.contains(e.target)) {
+            shell.classList.remove('sb-open');
+          }
+        }
+      });
+
+      // Llenar el bloque de usuario en sidebar tan pronto como /api/me responda.
+      fetch('/api/me', { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          if (!data?.user) return;
+          const u = data.user;
+          const nameEl = document.getElementById('admin-user-name');
+          const avatarEl = document.getElementById('admin-user-avatar');
+          if (nameEl) nameEl.textContent = u.name || u.email || 'Admin';
+          if (avatarEl) {
+            if (u.avatar_url || u.avatar) {
+              const img = document.createElement('img');
+              img.src = u.avatar_url || u.avatar;
+              img.alt = u.name || 'Admin';
+              img.id = 'admin-user-avatar';
+              avatarEl.replaceWith(img);
+            } else {
+              avatarEl.textContent = (u.name || u.email || 'A').charAt(0).toUpperCase();
+            }
+          }
+        })
+        .catch(() => {});
+    })();
+  </script>
+
+  <!-- Scripts del admin (sin estos, las pestañas/secciones no cargan datos) -->
+  <!-- Live analytics: polling cada 10s, sparkline SVG manual (sin libs) -->
+  <script is:inline>
+    (function () {
+      const cardEl    = document.getElementById('live-card');
+      if (!cardEl) return;
+      const activeEl  = document.getElementById('live-active');
+      const winViews  = document.getElementById('live-window-views');
+      const winVis    = document.getElementById('live-window-visitors');
+      const updatedEl = document.getElementById('live-updated');
+      const feedEl    = document.getElementById('live-feed');
+      const svgEl     = document.getElementById('live-sparkline');
+
+      function relTime(iso) {
+        const t = new Date(iso).getTime();
+        const diffSec = Math.max(0, (Date.now() - t) / 1000);
+        if (diffSec < 60)        return Math.floor(diffSec) + 's';
+        if (diffSec < 3600)      return Math.floor(diffSec / 60) + ' min';
+        if (diffSec < 86400)     return Math.floor(diffSec / 3600) + ' h';
+        return Math.floor(diffSec / 86400) + ' d';
+      }
+
+      function renderSparkline(perMinute, windowMin) {
+        if (!svgEl) return;
+        // Construir un array de 30 minutos (rellenar huecos con 0)
+        const buckets = new Array(windowMin).fill(0);
+        const now = Date.now();
+        perMinute.forEach((p) => {
+          const minute = new Date(p.minute).getTime();
+          const ago = Math.floor((now - minute) / 60000);
+          const idx = windowMin - 1 - ago;
+          if (idx >= 0 && idx < windowMin) buckets[idx] = p.views;
+        });
+        const max = Math.max(1, ...buckets);
+        const W = 600, H = 120;
+        const barW = W / windowMin;
+        let bars = '';
+        for (let i = 0; i < windowMin; i++) {
+          const v = buckets[i];
+          const h = v === 0 ? 2 : Math.max(2, (v / max) * (H - 4));
+          const x = i * barW + 1;
+          const y = H - h;
+          const op = v === 0 ? 0.18 : 0.85;
+          bars += `<rect x="${x}" y="${y}" width="${Math.max(1, barW - 2)}" height="${h}" rx="2" fill="url(#liveGrad)" opacity="${op}"><title>${v} vista(s)</title></rect>`;
+        }
+        svgEl.innerHTML =
+          '<defs><linearGradient id="liveGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="#22d3ee"/>' +
+          '<stop offset="100%" stop-color="#0891b2"/>' +
+          '</linearGradient></defs>' + bars;
+      }
+
+      function renderFeed(items) {
+        if (!feedEl) return;
+        if (!items || !items.length) {
+          feedEl.innerHTML = '<li class="empty-state">Aún no hay vistas registradas.</li>';
+          return;
+        }
+        feedEl.innerHTML = items.map((v) => {
+          const path = (v.path || '/').replace(/[<>"']/g, '');
+          return '<li class="live-feed-item">' +
+            '<span class="live-feed-dot"></span>' +
+            '<span class="live-feed-path">' + path + '</span>' +
+            '<span class="live-feed-time">hace ' + relTime(v.created_at) + '</span>' +
+          '</li>';
+        }).join('');
+      }
+
+      let timer = null;
+      async function tick() {
+        try {
+          const r = await fetch('/api/admin/analytics/live?window=30&limit=12', { credentials: 'include' });
+          if (!r.ok) return;
+          const data = await r.json();
+          if (activeEl)  activeEl.textContent  = data.active ?? 0;
+          const totalViews    = (data.per_minute || []).reduce((s, p) => s + Number(p.views || 0), 0);
+          const totalVisitors = (data.per_minute || []).reduce((s, p) => s + Number(p.visitors || 0), 0);
+          if (winViews) winViews.textContent = totalViews;
+          if (winVis)   winVis.textContent   = totalVisitors;
+          if (updatedEl) updatedEl.textContent = 'actualizado ' + new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          renderSparkline(data.per_minute || [], data.window_minutes || 30);
+          renderFeed(data.last_views || []);
+        } catch (_) {}
+      }
+
+      // Iniciar y refrescar cada 10s solo si la pestaña Dashboard está visible
+      function start() {
+        tick();
+        timer = setInterval(() => {
+          const dash = document.getElementById('view-dashboard');
+          if (dash && dash.style.display !== 'none' && document.visibilityState === 'visible') tick();
+        }, 10000);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start, { once: true });
+      } else {
+        start();
+      }
+    })();
+  </script>
+
+  <script src="/scripts/admin.js" is:inline defer></script>
+  <script src="/scripts/user-menu.js" is:inline defer></script>
 </Base>
-
-

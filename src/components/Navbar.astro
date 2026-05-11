@@ -1,128 +1,337 @@
 ---
+/**
+ * Navbar 2.0 — Megamenu por categoría de dispositivo
+ *
+ * Original respaldado en Navbar1_legacy.astro (no usar, solo backup).
+ *
+ * Categorías de servicios:
+ *  - Celulares (iPhone, Samsung, pantallas, baterías)
+ *  - Laptops (mantenimiento, bisagras, líquido, Windows, optimización)
+ *  - PC Desktop (ensambles, optimización, antisulfatación)
+ *  - Consolas (PS5, Xbox, Switch, joystick drift)
+ *  - Impresoras / Otros (impresoras, tablets, audífonos, recuperación de datos)
+ *
+ * Botón B2B preservado al lado derecho.
+ */
 interface Props {
   lang?: 'es' | 'en';
 }
 
 const { lang = 'es' } = Astro.props;
 
-const navItems = lang === 'en' ? {
+const t = lang === 'en' ? {
   home: 'Home',
   services: 'Services',
   packages: 'Packages',
   info: 'Info',
+  reviews: 'Reviews',
   contact: 'Contact',
   b2b: 'B2B',
-  dropdown: {
-    repair: 'General Repair',
-    optimization: 'System Optimization',
-    consoles: 'Console Cleaning',
-    maintenance: 'Preventive Maintenance',
-    hinges: 'Hinge Repair',
-    controllers: 'Controller Repair',
-    windows: 'Windows Installation',
-    mac: 'Mac Maintenance',
-    liquid: 'Liquid Damage Cleaning',
-    builds: 'PC Gamer Builds',
-    allPackages: 'All Packages',
-    faq: 'FAQ',
-    reviews: 'Client Reviews',
-    catalog: 'Video Catalog',
-    antisulfatation: 'Anti-Sulfatation',
-  }
+  catLaptop: 'Laptop',
+  catCellphone: 'Cell Phone',
+  catPC: 'Desktop PC',
+  catConsole: 'Console & Gaming',
+  catPrinterOther: 'Printer & Other',
+  catFeatured: 'Featured',
+  laptopRepair: 'General Laptop Repair',
+  laptopHinges: 'Hinge Repair',
+  laptopLiquid: 'Liquid Damage Cleaning',
+  laptopWindows: 'Windows Installation',
+  laptopMac: 'Mac Maintenance',
+  laptopOptim: 'System Optimization',
+  cellRepair: 'Cell Phone Repair',
+  cellScreen: 'iPhone Screen Replacement',
+  cellBattery: 'iPhone Battery',
+  cellSamsung: 'Samsung Repair',
+  cellWater: 'Cell Phone Water Damage',
+  pcBuilds: 'Custom PC Builds',
+  pcOptim: 'Desktop PC Optimization',
+  pcAnti: 'Anti-Sulfatation',
+  pcMaintenance: 'Preventive Maintenance',
+  consolePS5: 'PlayStation Repair',
+  consoleXbox: 'Xbox Repair',
+  consoleSwitch: 'Nintendo Switch Repair',
+  consoleControllers: 'Controller Drift Repair',
+  consoleClean: 'Console Cleaning',
+  printerRepair: 'Printer Repair',
+  tablets: 'Tablet Repair',
+  dataRecovery: 'Data Recovery',
+  allPackages: 'All Packages',
+  packagesMaint: 'Maintenance Packages',
+  packagesOptim: 'Optimization Plans',
+  faq: 'FAQ',
+  videoGallery: 'Video Catalog',
+  warranty: 'Warranty',
+  freeQuote: 'Free Quote',
 } : {
   home: 'Inicio',
   services: 'Servicios',
   packages: 'Paquetes',
   info: 'Información',
+  reviews: 'Reseñas',
   contact: 'Contacto',
   b2b: 'B2B',
-  dropdown: {
-    repair: 'Reparación General',
-    optimization: 'Optimización del Sistema',
-    consoles: 'Limpieza de Consolas',
-    maintenance: 'Mantenimiento Preventivo',
-    hinges: 'Reparación Bisagras',
-    controllers: 'Reparación Controles',
-    windows: 'Instalación de Windows',
-    mac: 'Mantenimiento Mac',
-    liquid: 'Limpieza por Líquido',
-    builds: 'Ensambles PC Gamer',
-    allPackages: 'Todos los Paquetes',
-    faq: 'Preguntas Frecuentes',
-    reviews: 'Reseñas de Clientes',
-    catalog: 'Catálogo de Videos',
-    antisulfatation: 'Antisulfatación',
-  }
+  catLaptop: 'Laptops',
+  catCellphone: 'Celulares',
+  catPC: 'PC Desktop',
+  catConsole: 'Consolas',
+  catPrinterOther: 'Impresoras y Otros',
+  catFeatured: 'Más buscados',
+  laptopRepair: 'Reparación de Laptop',
+  laptopHinges: 'Reparación de Bisagras',
+  laptopLiquid: 'Limpieza por Líquido',
+  laptopWindows: 'Instalación de Windows',
+  laptopMac: 'Mantenimiento Mac',
+  laptopOptim: 'Optimización del Sistema',
+  cellRepair: 'Reparación de Celular',
+  cellScreen: 'Cambio de Pantalla iPhone',
+  cellBattery: 'Cambio de Batería iPhone',
+  cellSamsung: 'Reparación Samsung',
+  cellWater: 'Daño por Líquido en Celular',
+  pcBuilds: 'Ensambles PC Gamer',
+  pcOptim: 'Optimización PC Desktop',
+  pcAnti: 'Antisulfatación',
+  pcMaintenance: 'Mantenimiento Preventivo',
+  consolePS5: 'Reparación PlayStation',
+  consoleXbox: 'Reparación Xbox',
+  consoleSwitch: 'Reparación Nintendo Switch',
+  consoleControllers: 'Reparación de Controles (Drift)',
+  consoleClean: 'Limpieza de Consolas',
+  printerRepair: 'Reparación de Impresoras',
+  tablets: 'Reparación de Tablets',
+  dataRecovery: 'Recuperación de Datos',
+  allPackages: 'Todos los Paquetes',
+  packagesMaint: 'Paquetes de Mantenimiento',
+  packagesOptim: 'Planes de Optimización',
+  faq: 'Preguntas Frecuentes',
+  videoGallery: 'Catálogo en Video',
+  warranty: 'Garantía',
+  freeQuote: 'Cotizar gratis',
 };
+
+const home = lang === 'en' ? '/en' : '/';
+// Para servicios sin landing dedicada todavía, anclamos a la página principal de reparaciones por categoría.
+const cellAnchor = lang === 'en' ? '/en/repairs' : '/reparaciones?section=celulares';
+const consoleAnchor = lang === 'en' ? '/en/repairs' : '/reparaciones?section=consolas';
+const printerAnchor = lang === 'en' ? '/en/repairs' : '/reparaciones?section=impresoras';
+const tabletAnchor = lang === 'en' ? '/en/repairs' : '/reparaciones';
 ---
 
-<nav class="navbar" id="navbar">
+<nav class="navbar navbar-v2" id="navbar">
   <div class="nav-container">
-    <a href={lang === 'en' ? '/en' : '/'} class="logo">
+    <a href={home} class="logo" aria-label="Pixon PC inicio">
       <img src="/assets/logos/Logo.svg?v=2" alt="Pixon PC Logo" style="height:42px;" id="navbar-logo" class="brand-logo">
     </a>
-    <div class="menu-toggle" id="mobile-menu">
+
+    <button class="menu-toggle" id="mobile-menu" aria-label="Abrir menú" aria-expanded="false">
       <span class="bar bar-dark"></span>
       <span class="bar bar-dark"></span>
       <span class="bar bar-dark"></span>
-    </div>
-    <ul class="nav-menu">
-      <li><a href={lang === 'en' ? '/en' : '/'} class="nav-links">{navItems.home}</a></li>
+    </button>
+
+    <ul class="nav-menu" id="nav-menu">
+      <li><a href={home} class="nav-links">{t.home}</a></li>
+
+      <!-- SERVICIOS — megamenu por categoría -->
+      <li class="has-dropdown has-mega-menu">
+        <a href="#" class="nav-links" aria-haspopup="true">
+          {t.services} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
+        <div class="mega-menu" role="menu">
+          <div class="mega-grid">
+            <div class="mega-col">
+              <span class="mega-col-title"><i class="fa-solid fa-laptop" aria-hidden="true"></i> {t.catLaptop}</span>
+              <a href={lang === 'en' ? '/en/repairs' : '/reparaciones'} class="mega-link">{t.laptopRepair}</a>
+              <a href={lang === 'en' ? '/en/hinge-repair' : '/reparacion-bisagras'} class="mega-link">{t.laptopHinges}</a>
+              <a href={lang === 'en' ? '/en/liquid-damage' : '/limpieza-laptop-liquido'} class="mega-link">{t.laptopLiquid}</a>
+              <a href={lang === 'en' ? '/en/windows-install' : '/instalacion-windows'} class="mega-link">{t.laptopWindows}</a>
+              <a href={lang === 'en' ? '/en/mac-maintenance' : '/mantenimiento-mac'} class="mega-link">{t.laptopMac}</a>
+              <a href={lang === 'en' ? '/en/optimization' : '/optimizacion'} class="mega-link">{t.laptopOptim}</a>
+            </div>
+            <div class="mega-col">
+              <span class="mega-col-title"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> {t.catCellphone}</span>
+              <a href={cellAnchor} class="mega-link">{t.cellRepair}</a>
+              <a href={cellAnchor} class="mega-link">{t.cellScreen}</a>
+              <a href={cellAnchor} class="mega-link">{t.cellBattery}</a>
+              <a href={cellAnchor} class="mega-link">{t.cellSamsung}</a>
+              <a href={cellAnchor} class="mega-link">{t.cellWater}</a>
+            </div>
+            <div class="mega-col">
+              <span class="mega-col-title"><i class="fa-solid fa-desktop" aria-hidden="true"></i> {t.catPC}</span>
+              <a href={lang === 'en' ? '/en/pc-builds' : '/ensambles'} class="mega-link">{t.pcBuilds}</a>
+              <a href={lang === 'en' ? '/en/optimization' : '/optimizacion'} class="mega-link">{t.pcOptim}</a>
+              <a href={lang === 'en' ? '/en/anti-sulfatation' : '/antisulfatacion'} class="mega-link">{t.pcAnti}</a>
+              <a href={lang === 'en' ? '/en/packages' : '/paquetes'} class="mega-link">{t.pcMaintenance}</a>
+            </div>
+            <div class="mega-col">
+              <span class="mega-col-title"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> {t.catConsole}</span>
+              <a href={consoleAnchor} class="mega-link">{t.consolePS5}</a>
+              <a href={consoleAnchor} class="mega-link">{t.consoleXbox}</a>
+              <a href={consoleAnchor} class="mega-link">{t.consoleSwitch}</a>
+              <a href={lang === 'en' ? '/en/controller-repair' : '/reparacion-controles'} class="mega-link">{t.consoleControllers}</a>
+              <a href={consoleAnchor} class="mega-link">{t.consoleClean}</a>
+            </div>
+            <div class="mega-col">
+              <span class="mega-col-title"><i class="fa-solid fa-print" aria-hidden="true"></i> {t.catPrinterOther}</span>
+              <a href={printerAnchor} class="mega-link">{t.printerRepair}</a>
+              <a href={tabletAnchor} class="mega-link">{t.tablets}</a>
+              <a href={lang === 'en' ? '/en/repairs' : '/reparaciones'} class="mega-link">{t.dataRecovery}</a>
+              <a href={lang === 'en' ? '/en/anti-sulfatation' : '/antisulfatacion'} class="mega-link">{t.pcAnti}</a>
+            </div>
+          </div>
+          <div class="mega-cta">
+            <a href={lang === 'en' ? '/en/contact' : '/contacto'} class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> {t.freeQuote}
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- PAQUETES -->
       <li class="has-dropdown">
-        <a href="#" class="nav-links">{navItems.services} <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+        <a href="#" class="nav-links" aria-haspopup="true">
+          {t.packages} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
         <ul class="dropdown-menu">
-          <li><a href="/reparaciones">{navItems.dropdown.repair}</a></li>
-          <li><a href="/optimizacion">{navItems.dropdown.optimization}</a></li>
-          <li><a href="/reparaciones?section=consolas">{navItems.dropdown.consoles}</a></li>
-          <li><a href="/paquetes?section=paquetes">{navItems.dropdown.maintenance}</a></li>
-          <li><a href="/reparacion-bisagras">{navItems.dropdown.hinges}</a></li>
-          <li><a href="/reparacion-controles">{navItems.dropdown.controllers}</a></li>
-          <li><a href="/instalacion-windows">{navItems.dropdown.windows}</a></li>
-          <li><a href="/mantenimiento-mac">{navItems.dropdown.mac}</a></li>
-          <li><a href="/limpieza-laptop-liquido">{navItems.dropdown.liquid}</a></li>
-          <li><a href="/ensambles">{navItems.dropdown.builds}</a></li>
+          <li><a href={lang === 'en' ? '/en/packages' : '/paquetes'}>{t.allPackages}</a></li>
+          <li><a href={lang === 'en' ? '/en/packages' : '/paquetes?section=paquetes'}>{t.packagesMaint}</a></li>
+          <li><a href={lang === 'en' ? '/en/optimization' : '/optimizacion?section=paquetes-optimizacion'}>{t.packagesOptim}</a></li>
         </ul>
       </li>
+
+      <!-- INFO -->
       <li class="has-dropdown">
-        <a href="#" class="nav-links">{navItems.packages} <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+        <a href="#" class="nav-links" aria-haspopup="true">
+          {t.info} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
         <ul class="dropdown-menu">
-          <li><a href="/paquetes">{navItems.dropdown.allPackages}</a></li>
-          <li><a href="/paquetes?section=paquetes">{navItems.dropdown.maintenance}</a></li>
-          <li><a href="/optimizacion?section=paquetes-optimizacion">{navItems.dropdown.optimization}</a></li>
+          <li><a href={lang === 'en' ? '/en/faq' : '/preguntas-frecuentes'}>{t.faq}</a></li>
+          <li><a href={lang === 'en' ? '/en/reviews' : '/comentarios'}>{t.reviews}</a></li>
+          <li><a href={lang === 'en' ? '/en/catalog' : '/catalogo'}>{t.videoGallery}</a></li>
+          <li><a href={lang === 'en' ? '/en/warranty' : '/garantia'}>{t.warranty}</a></li>
         </ul>
       </li>
-      <li class="has-dropdown">
-        <a href="#" class="nav-links">{navItems.info} <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
-        <ul class="dropdown-menu">
-          <li><a href="/preguntas-frecuentes">{navItems.dropdown.faq}</a></li>
-          <li><a href="/comentarios">{navItems.dropdown.reviews}</a></li>
-          <li><a href="/catalogo">{navItems.dropdown.catalog}</a></li>
-          <li><a href="/antisulfatacion">{navItems.dropdown.antisulfatation}</a></li>
-        </ul>
-      </li>
-      <li><a href="/contacto" class="nav-links">{navItems.contact}</a></li>
+
+      <li><a href={lang === 'en' ? '/en/contact' : '/contacto'} class="nav-links">{t.contact}</a></li>
+
+      <!-- B2B (preservado del navbar original — el usuario lo pidió mantener) -->
       <li>
-        <a href="/empresas" class="nav-links b2b-btn-premium">
-          <i class="fa-solid fa-building-shield"></i> {navItems.b2b}
+        <a href={lang === 'en' ? '/en/corporate' : '/empresas'} class="nav-links b2b-btn-premium">
+          <i class="fa-solid fa-building-shield" aria-hidden="true"></i> {t.b2b}
         </a>
       </li>
+
       <li class="nav-auth-mobile-li" id="nav-auth-mobile-li">
         <div id="nav-auth-area-mobile"></div>
       </li>
     </ul>
+
     <div class="nav-actions">
       <div id="nav-auth-area"></div>
     </div>
   </div>
 </nav>
 
+<style>
+  /* Megamenu específico de Navbar 2.0 — convive con .navbar2 legacy. */
+  .navbar-v2 .has-mega-menu { position: static !important; }
+  .navbar-v2 .mega-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255,255,255,0.98);
+    border-bottom: 3px solid #3b82f6;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+    z-index: 1000;
+    padding: 28px 24px 22px;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .navbar-v2 .has-mega-menu:hover .mega-menu,
+  .navbar-v2 .has-mega-menu:focus-within .mega-menu {
+    display: block;
+  }
+  .navbar-v2 .mega-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .navbar-v2 .mega-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .navbar-v2 .mega-col-title {
+    font-size: .82rem;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .navbar-v2 .mega-col-title i { color: #3b82f6; font-size: .9rem; }
+  .navbar-v2 .mega-link {
+    font-size: .86rem;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+    transition: all .15s ease;
+    line-height: 1.35;
+  }
+  .navbar-v2 .mega-link:hover {
+    background: #eff6ff;
+    color: #2563eb;
+    padding-left: 12px;
+  }
+  .navbar-v2 .mega-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .navbar-v2 .mega-cta .btn-sm {
+    padding: 8px 18px;
+    font-size: .9rem;
+  }
+
+  @media (max-width: 1100px) {
+    .navbar-v2 .mega-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  }
+  @media (max-width: 750px) {
+    .navbar-v2 .mega-menu {
+      position: static;
+      box-shadow: none;
+      border-bottom: none;
+      padding: 8px 0 0 16px;
+      background: transparent;
+    }
+    .navbar-v2 .mega-grid { grid-template-columns: 1fr; gap: 12px; }
+    .navbar-v2 .has-mega-menu .mega-menu { display: none; }
+    .navbar-v2 .has-mega-menu.open .mega-menu { display: block; }
+    .navbar-v2 .mega-cta { display: none; }
+  }
+</style>
+
 <script>
   const mobileMenu = document.getElementById('mobile-menu');
   const navMenu = document.querySelector('.nav-menu');
 
   mobileMenu?.addEventListener('click', () => {
-    mobileMenu.classList.toggle('active');
+    const expanded = mobileMenu.classList.toggle('active');
     navMenu?.classList.toggle('active');
+    mobileMenu.setAttribute('aria-expanded', expanded ? 'true' : 'false');
   });
 
   const dropdowns = document.querySelectorAll('.has-dropdown > a');
@@ -133,7 +342,7 @@ const navItems = lang === 'en' ? {
         const parent = dropdown.parentElement;
         if (parent) {
           parent.classList.toggle('open');
-          const menu = parent.querySelector('.dropdown-menu');
+          const menu = parent.querySelector('.dropdown-menu') || parent.querySelector('.mega-menu');
           menu?.classList.toggle('active');
         }
       }
@@ -145,19 +354,10 @@ const navItems = lang === 'en' ? {
 
   window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
-
-    if (currentScroll > 100) {
-      navbar?.classList.add('is-scrolled');
-    } else {
-      navbar?.classList.remove('is-scrolled');
-    }
-
-    if (currentScroll > lastScroll && currentScroll > 200) {
-      navbar?.classList.add('is-hidden');
-    } else {
-      navbar?.classList.remove('is-hidden');
-    }
-
+    if (currentScroll > 100) navbar?.classList.add('is-scrolled');
+    else navbar?.classList.remove('is-scrolled');
+    if (currentScroll > lastScroll && currentScroll > 200) navbar?.classList.add('is-hidden');
+    else navbar?.classList.remove('is-hidden');
     lastScroll = currentScroll;
   });
 </script>

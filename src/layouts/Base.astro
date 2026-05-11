@@ -8,6 +8,8 @@ interface Props {
   image?: string;
   schema?: object[];
   lang?: 'es' | 'en';
+  bodyClass?: string;
+  preloadSprite?: boolean;
 }
 
 const {
@@ -17,6 +19,8 @@ const {
   image = '/LOGOCIRCULAR.png',
   schema = [],
   lang = 'es',
+  bodyClass = 'light-theme',
+  preloadSprite = true,
 } = Astro.props;
 
 const siteUrl = 'https://pixon.com.mx';
@@ -186,7 +190,7 @@ const allSchema = [...defaultSchema, ...schema];
       href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Red+Hat+Display:wght@400;600;700&display=swap"
       rel="stylesheet">
   </noscript>
-  <link rel="preload" as="image" href="/assets/icons/sprite.svg" />
+  {preloadSprite && <link rel="preload" as="image" href="/assets/icons/sprite.svg" />}
 
   <script is:inline>
     window.dataLayer = window.dataLayer || [];
@@ -228,7 +232,7 @@ const allSchema = [...defaultSchema, ...schema];
     }
   </script>
 </head>
-<body class="light-theme">
+<body class={bodyClass}>
   <slot />
 
   <script>

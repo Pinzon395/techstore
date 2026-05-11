@@ -1,0 +1,845 @@
+---
+/**
+ * Navbar 3.0 — Premium · Cascade Dropdown · Mobile-First
+ *
+ * ✅ Servicios → dropdown de categorías → sub-menú en cascada (desktop)
+ * ✅ Mobile: acordeón nativo, sin bugs, animado con max-height
+ * ✅ Micro-animaciones: fade-slide entrada, hover glows, flecha rotante
+ * ✅ Sticky + hide-on-scroll
+ * ✅ Accesibilidad: aria-expanded, roles, focus-visible
+ * ✅ Data source: src/data/services.ts (single source of truth)
+ */
+import { SERVICE_CATEGORIES } from '../data/services';
+
+interface Props {
+  lang?: 'es' | 'en';
+}
+const { lang = 'es' } = Astro.props;
+const home = lang === 'en' ? '/en' : '/';
+
+const t = lang === 'en' ? {
+  home: 'Home',
+  services: 'Services',
+  packages: 'Packages',
+  info: 'Info',
+  contact: 'Contact',
+  b2b: 'B2B',
+  faq: 'FAQ',
+  reviews: 'Reviews',
+  catalog: 'Video Catalog',
+  warranty: 'Warranty',
+} : {
+  home: 'Inicio',
+  services: 'Servicios',
+  packages: 'Paquetes',
+  info: 'Información',
+  contact: 'Contacto',
+  b2b: 'B2B',
+  faq: 'Preguntas Frecuentes',
+  reviews: 'Reseñas',
+  catalog: 'Catálogo en video',
+  warranty: 'Garantía',
+};
+---
+
+<nav class="navbar navbar-v3" id="navbar" role="navigation" aria-label="Menú principal">
+  <div class="nav-container">
+
+    <!-- Logo -->
+    <a href={home} class="logo" aria-label="Pixon PC — Inicio">
+      <img src="/assets/logos/Logo.svg?v=3" alt="Pixon PC Logo" style="height:42px;" id="navbar-logo" class="brand-logo">
+    </a>
+
+    <!-- Hamburger (mobile only) -->
+    <button
+      class="menu-toggle"
+      id="mobile-menu"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      <span class="bar bar-dark"></span>
+      <span class="bar bar-dark"></span>
+      <span class="bar bar-dark"></span>
+    </button>
+
+    <!-- ── Nav links ── -->
+    <ul class="nav-menu" id="nav-menu" role="menubar">
+
+      <li role="none"><a href={home} class="nav-links" role="menuitem">{t.home}</a></li>
+
+      <!-- ══ SERVICIOS ══ Cascade Dropdown -->
+      <li class="has-dropdown has-cascade" role="none" id="dd-servicios">
+        <a
+          href="/servicios"
+          class="nav-links nav-dd-trigger"
+          role="menuitem"
+          aria-haspopup="true"
+          aria-expanded="false"
+          id="dd-servicios-trigger"
+        >
+          {t.services}
+          <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
+
+        <!-- Nivel 1: Categorías -->
+        <ul class="v3-cascade-l1" role="menu" aria-label="Categorías de servicio" id="dd-servicios-menu">
+          {SERVICE_CATEGORIES.map((cat) => (
+            <li class="cascade-item" role="none" data-cat={cat.id} id={`dd-cat-${cat.id}`}>
+              <a
+                href={`/servicios/${cat.slug}`}
+                class="cascade-cat-link"
+                role="menuitem"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                <span class="cascade-cat-icon-wrap">
+                  <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
+                </span>
+                <span class="cascade-cat-label">{cat.title}</span>
+                <i class="fa-solid fa-chevron-right cascade-arrow" aria-hidden="true"></i>
+              </a>
+
+              <!-- Nivel 2: Subservicios -->
+              <ul
+                class="v3-cascade-l2"
+                role="menu"
+                aria-label={`Servicios de ${cat.title}`}
+              >
+                <li class="v3-l2-header" role="presentation">
+                  <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
+                  <span>{cat.title}</span>
+                </li>
+                {cat.services.map((s) => (
+                  <li role="none">
+                    <a
+                      href={s.customUrl ? s.customUrl : `/servicios/${cat.slug}/${s.slug}`}
+                      class="v3-sub-link"
+                      role="menuitem"
+                    >
+                      <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+                <li class="v3-l2-footer" role="none">
+                  <a href={`/servicios/${cat.slug}`} class="v3-all-link">
+                    Ver todos los servicios de {cat.title}
+                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </li>
+
+      <!-- ══ PAQUETES ══ -->
+      <li class="has-dropdown has-cascade" role="none">
+        <a href="#" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+          {t.packages} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
+        <ul class="v3-cascade-l1" role="menu">
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/packages' : '/paquetes'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{lang === 'en' ? 'All packages' : 'Todos los Paquetes'}</span>
+            </a>
+          </li>
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/packages' : '/paquetes?section=paquetes'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{lang === 'en' ? 'Maintenance' : 'Mantenimiento'}</span>
+            </a>
+          </li>
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/optimization' : '/optimizacion?section=paquetes-optimizacion'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{lang === 'en' ? 'Optimization' : 'Optimización'}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- ══ INFORMACIÓN ══ -->
+      <li class="has-dropdown has-cascade" role="none">
+        <a href="#" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+          {t.info} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
+        <ul class="v3-cascade-l1" role="menu">
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/faq' : '/preguntas-frecuentes'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{t.faq}</span>
+            </a>
+          </li>
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/reviews' : '/comentarios'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{t.reviews}</span>
+            </a>
+          </li>
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/catalog' : '/catalogo'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-video" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{t.catalog}</span>
+            </a>
+          </li>
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/warranty' : '/garantia'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{t.warranty}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- ══ CONTACTO ══ -->
+      <li class="has-dropdown has-cascade" role="none">
+        <a href={lang === 'en' ? '/en/contact' : '/contacto'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+          {t.contact} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+        </a>
+        <ul class="v3-cascade-l1" role="menu">
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/contact' : '/contacto'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{lang === 'en' ? 'Send a message' : 'Enviar mensaje'}</span>
+            </a>
+          </li>
+          <li class="cascade-item" role="none">
+            <a href="https://wa.me/529983412586" target="_blank" rel="noopener noreferrer" class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap" style="color: #25d366; border-color: #25d36640; background: #25d36615;"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">WhatsApp Directo</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- B2B -->
+      <li role="none">
+        <a href={lang === 'en' ? '/en/corporate' : '/empresas'} class="nav-links b2b-btn-premium" role="menuitem">
+          <i class="fa-solid fa-building-shield" aria-hidden="true"></i> {t.b2b}
+        </a>
+      </li>
+
+      <!-- Auth (mobile) -->
+      <li class="nav-auth-mobile-li" id="nav-auth-mobile-li" role="none">
+        <div id="nav-auth-area-mobile"></div>
+      </li>
+    </ul>
+
+    <!-- Actions (desktop) -->
+    <div class="nav-actions">
+      <a
+        href="/admin"
+        class="nav-admin-gear"
+        id="nav-admin-gear"
+        title="Panel de administración"
+        aria-label="Ir al panel de administración"
+        style="display:none;"
+      >
+        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+      </a>
+      <div id="nav-auth-area"></div>
+    </div>
+
+  </div>
+</nav>
+
+<style is:global>
+/* ═══════════════════════════════════════════════════════════════════
+   Navbar 3.0 — PREMIUM CASCADE — Desktop & Mobile
+   Scope: .navbar-v3 → no afecta otros componentes
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Tuerca admin ── */
+.navbar-v3 .nav-admin-gear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #64748b;
+  text-decoration: none;
+  transition: background .15s, color .15s, transform .25s cubic-bezier(.34,1.56,.64,1);
+  margin-right: 4px;
+}
+.navbar-v3 .nav-admin-gear:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  transform: rotate(30deg);
+}
+.navbar-v3 .nav-admin-gear i { font-size: 1rem; }
+
+/* ══════════════════════════════
+   DESKTOP CASCADE (≥ 751px)
+══════════════════════════════ */
+@media (min-width: 751px) {
+
+  /* ── Nivel 1: el dropdown de categorías */
+  .navbar-v3 .has-cascade { position: relative; }
+
+  .navbar-v3 .v3-cascade-l1 {
+    list-style: none;
+    margin: 0;
+    /* Estilo propio — NO hereda .dropdown-menu para evitar conflictos */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 230px;
+    padding: 8px 0;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,.05);
+    box-shadow: 0 10px 30px rgba(0,0,0,.1);
+    z-index: 1050;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition:
+      opacity .2s cubic-bezier(.4,0,.2,1),
+      transform .2s cubic-bezier(.4,0,.2,1),
+      visibility .2s;
+    pointer-events: none;
+  }
+
+  /* Desktop: abrir L1 con :hover */
+  .navbar-v3 .has-cascade:hover > .v3-cascade-l1,
+  .navbar-v3 .has-cascade:focus-within > .v3-cascade-l1 {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  /* Rotar flecha al hover */
+  .navbar-v3 .has-cascade:hover > .nav-links .dropdown-arrow,
+  .navbar-v3 .has-cascade:focus-within > .nav-links .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Cada fila de categoría */
+  .navbar-v3 .cascade-item {
+    position: relative;
+  }
+
+  .navbar-v3 .cascade-cat-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 9px 14px 9px 12px !important;
+    color: #1e293b !important;
+    font-weight: 600;
+    font-size: .88rem;
+    text-decoration: none;
+    border-radius: 0;
+    transition: background .12s, color .12s;
+    cursor: pointer;
+  }
+
+  .navbar-v3 .cascade-cat-icon-wrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-size: .9rem;
+    flex-shrink: 0;
+    transition: background .12s, border-color .12s, box-shadow .12s;
+  }
+
+  .navbar-v3 .cascade-cat-label { flex: 1; }
+
+  .navbar-v3 .cascade-arrow {
+    margin-left: auto;
+    font-size: .65rem;
+    color: #cbd5e1;
+    flex-shrink: 0;
+    transition: transform .15s, color .12s;
+  }
+
+  /* Hover / focus en fila de categoría */
+  .navbar-v3 .cascade-item:hover > .cascade-cat-link,
+  .navbar-v3 .cascade-item:focus-within > .cascade-cat-link {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+  }
+  .navbar-v3 .cascade-item:hover .cascade-cat-icon-wrap,
+  .navbar-v3 .cascade-item:focus-within .cascade-cat-icon-wrap {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(37, 99, 235, .3);
+  }
+  .navbar-v3 .cascade-item:hover .cascade-arrow,
+  .navbar-v3 .cascade-item:focus-within .cascade-arrow {
+    color: #2563eb;
+    transform: translateX(3px);
+  }
+
+  /* ── Nivel 2: sub-menú lateral ── */
+  .navbar-v3 .v3-cascade-l2 {
+    list-style: none;
+    margin: 0;
+    /* Base compartida con .dropdown-menu (bg, shadow, border-radius) */
+    position: absolute;
+    top: -8px;
+    left: calc(100% + 2px);
+    min-width: 250px;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 8px 0;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,.05);
+    box-shadow: 0 16px 40px rgba(15,23,42,.14), 0 0 0 1px rgba(15,23,42,.06);
+    z-index: 1100;
+
+    /* Animación de entrada */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(6px);
+    transition:
+      opacity .18s cubic-bezier(.4,0,.2,1),
+      transform .18s cubic-bezier(.4,0,.2,1),
+      visibility .18s;
+    pointer-events: none;
+  }
+
+  .navbar-v3 .cascade-item:hover > .v3-cascade-l2,
+  .navbar-v3 .cascade-item:focus-within > .v3-cascade-l2 {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  /* Header del sub-menú */
+  .navbar-v3 .v3-l2-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 10px;
+    font-size: .75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #94a3b8;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 4px;
+  }
+  .navbar-v3 .v3-l2-header i { color: #2563eb; font-size: .85rem; }
+
+  /* Links del sub-menú */
+  .navbar-v3 .v3-sub-link {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px !important;
+    color: #1e293b !important;
+    font-size: .87rem !important;
+    font-weight: 600;
+    transition: background .1s, color .1s, padding-left .15s;
+  }
+  .navbar-v3 .v3-sub-link:hover {
+    background: #f1f5f9 !important;
+    color: #2563eb !important;
+    padding-left: 20px !important;
+  }
+  .navbar-v3 .v3-sub-arrow {
+    font-size: .6rem;
+    color: #cbd5e1;
+    flex-shrink: 0;
+    transition: color .1s, transform .1s;
+  }
+  .navbar-v3 .v3-sub-link:hover .v3-sub-arrow {
+    color: #2563eb;
+    transform: translateX(2px);
+  }
+
+  /* Footer "Ver todos" del sub-menú */
+  .navbar-v3 .v3-l2-footer {
+    padding: 8px 14px 4px;
+    margin-top: 4px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .navbar-v3 .v3-all-link {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: .78rem !important;
+    font-weight: 700;
+    color: #2563eb !important;
+    padding: 6px 8px !important;
+    border-radius: 8px;
+    background: #eff6ff;
+    transition: background .12s, box-shadow .12s;
+  }
+  .navbar-v3 .v3-all-link:hover {
+    background: #2563eb !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, .25);
+  }
+  .navbar-v3 .v3-all-link:hover i { color: #fff; }
+  .navbar-v3 .v3-all-link i { font-size: .75rem; transition: transform .15s; }
+  .navbar-v3 .v3-all-link:hover i { transform: translateX(3px); }
+
+} /* end @media desktop */
+
+
+/* ══════════════════════════════
+   MOBILE (≤ 750px)  — Acordeón
+══════════════════════════════ */
+@media (max-width: 750px) {
+
+  /* ────────────────────────────────────────────────
+     NIVEL 1 cascade: reset desktop props
+  ──────────────────────────────────────────────── */
+  .navbar-v3 .v3-cascade-l1 {
+    position: static !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    display: none;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 4px 0 0 !important;
+  }
+  .navbar-v3 .v3-cascade-l1.active {
+    display: block;
+  }
+
+  /* ────────────────────────────────────────────────
+     CATEGORÍAS — filas compactas, LEFT-ALIGNED
+     Icono ▸ Nombre ▸ Flecha — todo junto
+  ──────────────────────────────────────────────── */
+  .navbar-v3 .cascade-item {
+    margin: 0 16px; /* Separado de los bordes de la pantalla */
+    padding: 0;
+    border-left: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: background .15s ease;
+  }
+  .navbar-v3 .cascade-item + .cascade-item {
+    margin-top: 6px; /* Más separación entre categorías */
+  }
+  .navbar-v3 .cascade-item.open {
+    background: #f0f5ff;
+  }
+
+  .navbar-v3 .cascade-cat-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;  /* LEFT aligned, not centered */
+    text-align: left !important;
+    gap: 14px !important; /* Más espacio entre icono y nombre */
+    padding: 14px 16px !important; /* Zonas clickeables más amplias */
+    color: #0f172a !important;               /* Texto muy oscuro */
+    font-weight: 700;
+    font-size: 1.05rem !important; /* Letra más grande y legible */
+    width: 100%;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background .12s ease;
+  }
+  .navbar-v3 .cascade-cat-link:active {
+    background: #e8f0fe;
+  }
+
+  /* Icono cuadrado al LADO del nombre */
+  .navbar-v3 .cascade-cat-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: all .15s ease;
+  }
+  .navbar-v3 .cascade-item.open .cascade-cat-icon-wrap {
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+  }
+
+  /* Nombre: NO ocupa todo el espacio libre para que la flecha no se aleje */
+  .navbar-v3 .cascade-cat-label {
+    flex: 0 1 auto; /* Cambiado: antes era flex: 1 */
+    text-align: left !important;
+    line-height: 1.2;
+  }
+
+  /* Flecha: CERCA del nombre (no pegada al borde derecho) */
+  .navbar-v3 .cascade-arrow {
+    font-size: .75rem;
+    color: #64748b;
+    flex-shrink: 0;
+    margin-left: 0;   /* pegada al nombre */
+    transition: transform .25s cubic-bezier(.4,0,.2,1), color .15s;
+  }
+  .navbar-v3 .cascade-item.open > .cascade-cat-link .cascade-arrow {
+    transform: rotate(90deg);
+    color: #2563eb;
+  }
+
+  /* ────────────────────────────────────────────────
+     SUB-MENÚ L2: acordeón con fondo claro y texto legible
+  ──────────────────────────────────────────────── */
+  .navbar-v3 .v3-cascade-l2 {
+    position: static !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    pointer-events: auto !important;
+
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1),
+                padding .2s ease;
+
+    background: #f8fafc;
+    border-radius: 0 0 10px 10px;
+    box-shadow: none !important;
+    border: none !important;
+    border-top: 1px solid #e2e8f0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .navbar-v3 .cascade-item.open > .v3-cascade-l2 {
+    max-height: 850px; /* Más alto por si el espaciado empuja todo abajo */
+    padding: 8px 0 14px !important;
+  }
+
+  /* Header del L2 en mobile — oculto */
+  .navbar-v3 .v3-l2-header {
+    display: none;
+  }
+
+  /* ── Links de subservicios — texto OSCURO y legible, MUCHO ESPACIO ── */
+  .navbar-v3 .v3-sub-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    gap: 12px;
+    padding: 14px 16px 14px 30px !important; /* Más separación vertical y sangría */
+    font-size: 1rem !important; /* Letra más grande */
+    color: #0f172a !important;               /* Texto oscuro, nada de grises claros */
+    font-weight: 500;
+    border-radius: 6px;
+    margin: 4px 10px; /* Separación de bloque */
+    transition: background .1s ease, color .1s ease;
+  }
+  .navbar-v3 .v3-sub-link .v3-sub-arrow {
+    font-size: .65rem;
+    color: #3b82f6; /* Flechas más azules */
+    flex-shrink: 0;
+  }
+  .navbar-v3 .v3-sub-link:hover,
+  .navbar-v3 .v3-sub-link:active {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+  }
+  .navbar-v3 .v3-sub-link:hover .v3-sub-arrow,
+  .navbar-v3 .v3-sub-link:active .v3-sub-arrow {
+    color: #2563eb;
+  }
+
+  /* ── Footer "Ver todos" en mobile ── */
+  .navbar-v3 .v3-l2-footer {
+    padding: 12px 12px 6px;
+    margin-top: 8px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .navbar-v3 .v3-all-link {
+    font-size: .95rem !important; /* Letra más grande */
+    font-weight: 700;
+    color: #2563eb !important;
+    padding: 14px 14px !important; /* Más clickeable */
+    background: #eff6ff !important;
+    border-radius: 8px;
+    gap: 6px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: background .12s ease;
+  }
+  .navbar-v3 .v3-all-link:hover,
+  .navbar-v3 .v3-all-link:active {
+    background: #dbeafe !important;
+  }
+  .navbar-v3 .v3-all-link i {
+    font-size: .7rem;
+  }
+
+} /* end @media mobile */
+</style>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  Navbar 3.0 — JavaScript completo
+//  · Hamburger toggle
+//  · Dropdowns: desktop vía CSS, mobile vía JS (class toggle)
+//  · Cascade Servicios: acordeón en mobile, cascada en desktop
+//  · Click fuera = cierra todo
+//  · Sticky + hide-on-scroll
+//  · Admin gear
+// ════════════════════════════════════════════════════════
+
+const IS_MOBILE = () => window.innerWidth <= 750;
+
+// ── 1. HAMBURGER ──────────────────────────────────────
+const mobileMenuBtn = document.getElementById('mobile-menu') as HTMLButtonElement | null;
+const navMenu       = document.getElementById('nav-menu') as HTMLUListElement | null;
+
+mobileMenuBtn?.addEventListener('click', () => {
+  const isOpen = mobileMenuBtn.classList.toggle('active');
+  navMenu?.classList.toggle('active');
+  mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+});
+
+// ── 2. DROPDOWNS ESTÁNDAR (Paquetes, Información) ──────
+// En mobile, toggle la clase .active en el .dropdown-menu hijo
+// (el CSS base ya reconoce .dropdown-menu.active en mobile)
+document.querySelectorAll<HTMLElement>('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').forEach((trigger) => {
+  trigger.addEventListener('click', (e) => {
+    if (!IS_MOBILE()) return; // desktop usa :hover puro de CSS
+    e.preventDefault();
+
+    const parent = trigger.parentElement!;
+    const menu   = parent.querySelector<HTMLElement>('.dropdown-menu');
+    if (!menu) return;
+
+    const isOpen = parent.classList.toggle('open');
+    // Activar/desactivar .active en el menu para el CSS mobile
+    menu.classList.toggle('active', isOpen);
+    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+    // Cerrar otros dropdowns del mismo nivel
+    document.querySelectorAll<HTMLElement>('.has-dropdown.open').forEach((el) => {
+      if (el !== parent) {
+        el.classList.remove('open');
+        el.querySelector('.dropdown-menu')?.classList.remove('active');
+        el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+});
+
+// ── 3. CASCADE DROPDOWNS (Servicios, Paquetes, Info, etc.) ──
+document.querySelectorAll<HTMLElement>('.has-cascade > .nav-dd-trigger').forEach((trigger) => {
+  trigger.addEventListener('click', (e) => {
+    if (!IS_MOBILE()) return; // desktop: CSS :hover ya lo maneja
+    e.preventDefault();
+
+    const parent = trigger.parentElement!;
+    const menu   = parent.querySelector<HTMLElement>('.v3-cascade-l1');
+    if (!menu) return;
+
+    const isOpen = parent.classList.toggle('open');
+    menu.classList.toggle('active', isOpen);
+    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+    // Cerrar otros cascade dropdowns
+    document.querySelectorAll<HTMLElement>('.has-cascade.open').forEach((el) => {
+      if (el !== parent) {
+        el.classList.remove('open');
+        el.querySelector('.v3-cascade-l1')?.classList.remove('active');
+        el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+});
+
+// ── 4. CASCADE NIVEL 2: cada categoría (solo mobile) ────
+document.querySelectorAll<HTMLElement>('.cascade-cat-link').forEach((link) => {
+  link.addEventListener('click', (e) => {
+    if (!IS_MOBILE()) return; // Desktop: navegar al href de la categoría normalmente
+
+    const item = link.parentElement as HTMLElement;
+    const submenu = item.querySelector('.v3-cascade-l2');
+    
+    // Si NO tiene submenú (ej. Paquetes, Info), dejar que navegue de forma natural
+    if (!submenu) return;
+
+    e.preventDefault(); // en mobile expandimos, no navegamos
+
+    const isOpen = item.classList.toggle('open');
+    link.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+    // Cerrar hermanos para acordeón exclusivo
+    item.parentElement?.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((sib) => {
+      if (sib !== item) {
+        sib.classList.remove('open');
+        sib.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+});
+
+// ── 5. CLICK FUERA = CERRAR TODO ───────────────────────
+document.addEventListener('click', (e) => {
+  const target = e.target as Node;
+
+  // Cerrar todos los dropdowns abiertos (normales y cascade)
+  document.querySelectorAll<HTMLElement>('.has-dropdown.open').forEach((el) => {
+    if (!el.contains(target)) {
+      el.classList.remove('open');
+      el.querySelector('.dropdown-menu')?.classList.remove('active');
+      el.querySelector('.v3-cascade-l1')?.classList.remove('active');
+      el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Cerrar cascade items abiertos si click fuera del navbar
+  const navbar = document.getElementById('navbar');
+  if (navbar && !navbar.contains(target)) {
+    document.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((el) => {
+      el.classList.remove('open');
+      el.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+    });
+  }
+});
+
+// ── 6. ADMIN GEAR ──────────────────────────────────────
+const adminGear = document.getElementById('nav-admin-gear') as HTMLAnchorElement | null;
+if (adminGear) {
+  fetch('/api/me', { credentials: 'include' })
+    .then((r) => r.json())
+    .then((data: any) => {
+      if (data?.user?.role === 'admin') adminGear.style.display = 'inline-flex';
+    })
+    .catch(() => {});
+}
+
+// ── 7. STICKY + HIDE-ON-SCROLL ─────────────────────────
+let lastScroll = 0;
+const navbarEl  = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const curr = window.pageYOffset;
+  if (curr > 80)  navbarEl?.classList.add('is-scrolled');
+  else            navbarEl?.classList.remove('is-scrolled');
+
+  // Ocultar al scrollear hacia abajo, mostrar al subir
+  if (curr > lastScroll && curr > 220) navbarEl?.classList.add('is-hidden');
+  else                                  navbarEl?.classList.remove('is-hidden');
+
+  lastScroll = Math.max(curr, 0);
+}, { passive: true });
+</script>

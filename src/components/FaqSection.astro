@@ -17,29 +17,110 @@ interface Props {
 const { title, description, items, viewMoreHref, viewMoreLabel, faqAccent = '#3b82f6', id } = Astro.props;
 ---
 
-<section class="section-padding" style="background:#f8fafc;" id={id}>
-  <div class="container" style="max-width: 800px;">
-    <div class="section-title text-center">
-      <h2>{title}</h2>
-      {description && <p>{description}</p>}
+<section class="section-padding faq-page-content" id={id} style="background:transparent; padding: 60px 0;">
+  <div class="container" style="max-width: 900px;">
+    <div class="section-title text-center" style="margin-bottom:40px;">
+      <h2 style="color:var(--text-main); font-weight:800; font-family:'Kanit', sans-serif;">{title}</h2>
+      {description && <p style="color:var(--text-muted); font-size:1.1rem;">{description}</p>}
     </div>
-    <div style="display:flex; flex-direction:column; gap:16px;">
-      {items.map((item) => (
-        <details style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:22px 28px;">
-          <summary
-            style="font-weight:700; color:#0f172a; cursor:pointer; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;"
-          >
-            {item.question}
-            <span style="color:{faqAccent}; font-size:1.4rem; flex-shrink:0;">+</span>
-          </summary>
-          <p style="color:#475569; margin-top:14px; line-height:1.7; font-size:0.98rem;" set:html={item.answer}></p>
-        </details>
+    
+    <div class="faq-page-grid">
+      {items.map((item, index) => (
+        <div class="faq-item" id={`faq-${id || 'section'}-${index}`}>
+          <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+            <span>{item.question}</span>
+            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+          </button>
+          <div class="faq-answer" aria-hidden="true">
+            <div class="faq-answer-inner" set:html={item.answer}></div>
+          </div>
+        </div>
       ))}
     </div>
+
     {viewMoreHref && viewMoreLabel && (
       <div class="text-center" style="margin-top:30px;">
-        <a href={viewMoreHref} class="btn btn-outline"><i class="fa-solid fa-comments"></i> {viewMoreLabel}</a>
+        <a href={viewMoreHref} class="btn btn-outline" style="border:1px solid rgba(255,255,255,0.2); color:#fff;"><i class="fa-solid fa-comments"></i> {viewMoreLabel}</a>
       </div>
     )}
   </div>
 </section>
+
+<script is:inline>
+  if (typeof window !== 'undefined' && !(window as any).toggleFaq) {
+    (window as any).toggleFaq = function(button) {
+      const item = button.closest('.faq-item');
+      const answer = item?.querySelector('.faq-answer');
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+      
+      // Close all others
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('faq-item--open');
+        const q = i.querySelector('.faq-question'); if (q) q.setAttribute('aria-expanded', 'false');
+        const a = i.querySelector('.faq-answer'); if (a) (a).style.maxHeight = '';
+      });
+      
+      // Open clicked one
+      if (!isExpanded && item) {
+        button.setAttribute('aria-expanded', 'true');
+        item.classList.add('faq-item--open');
+        if (answer) answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    };
+  }
+</script>
+
+<style is:global>
+  .faq-page-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .faq-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .faq-item:hover {
+    border-color: rgba(56,189,248,0.3);
+  }
+  .faq-item--open {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(56,189,248,0.5);
+  }
+  .faq-question {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .faq-chevron {
+    color: #38BDF8;
+    transition: transform 0.3s ease;
+  }
+  .faq-item--open .faq-chevron {
+    transform: rotate(180deg);
+  }
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .faq-answer-inner {
+    padding: 0 24px 24px;
+    color: #94A3B8;
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+</style>

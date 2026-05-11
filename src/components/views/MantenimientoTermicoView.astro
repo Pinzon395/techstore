@@ -1,0 +1,430 @@
+---
+// MantenimientoTermicoView.astro
+const { service, category } = Astro.props;
+
+// Componentes útiles que podemos reusar
+import FaqSection from '../FaqSection.astro';
+import ContactSection from '../ContactSection.astro';
+
+// FAQs personalizadas para este tema térmico
+const termicoFaqs = [
+  { question: '¿Cuándo debo considerar un mantenimiento térmico o cambiar el ventilador?', answer: 'Si tu equipo (PC, Consola o Laptop) suena como turbina de avión, se calienta al tacto, o se apaga repentinamente al jugar, es urgente. El ventilador y la pasta térmica ya no están regulando el calor.' },
+  { question: '¿El ruido fuerte siempre significa que debo cambiar el ventilador?', answer: 'No siempre. A veces es una obstrucción masiva de polvo en el disipador que obliga al ventilador a girar al 100%. Un diagnóstico físico determina si basta con limpieza profunda o si los rodamientos del ventilador ya están dañados.' },
+  { question: '¿El exceso de calor puede dañar otras piezas?', answer: 'Sí. El "Throttling" térmico (lentitud) es la primera advertencia. Si ignoras el calor, el procesador (APU/CPU/GPU) puede desoldarse de la placa madre, provocando un daño casi irreparable.' },
+  { question: '¿Cuánto tiempo tarda un mantenimiento de este tipo?', answer: 'Generalmente de 24 a 48 horas. Requerimos desarmar el equipo por completo, retirar pasta vieja, aplicar nueva (Arctic MX-4 o Metal Líquido) y hacer pruebas de estrés para garantizar la baja temperatura.' }
+];
+
+const waMessage = "Hola, me interesa el servicio de diagnóstico y mantenimiento térmico para mi equipo.";
+---
+
+<div class="mantenimiento-termico-wrapper theme-premium-dark">
+
+  <!-- 1. HERO / PORTADA INFORMATIVA -->
+  <section class="mt-hero">
+    <div class="mt-glow"></div>
+    <div class="container mt-hero-container">
+      <div class="mt-hero-text">
+        <span class="ux-badge"><i class="fa-solid fa-temperature-arrow-down"></i> Centro de Salud Térmica Pixon</span>
+        <h1 class="ux-h1" style="font-size: clamp(1.8rem, 4vw, 2.1rem) !important; line-height: 1.15 !important; margin-bottom: 12px !important; max-width: 700px; margin-left: auto; margin-right: auto;">
+          Mantenimiento Térmico y <br>
+          <span class="ux-gradient-text">Solución de Sobrecalentamiento</span>
+        </h1>
+        <h2 class="mt-hook" style="font-size: 1.2rem !important; font-weight: 500; margin-bottom: 24px;">El enemigo #1 de tu equipo no es el uso, es el calor, el polvo y la obstrucción.</h2>
+        <p class="mt-intro">
+          Una ventilación deficiente ahoga tu procesador. Ya sea que tu consola suene como turbina, tu PC reduzca sus FPS, o tu laptop hierva al tacto, no es solo "cambiar el ventilador": es <strong>recuperar el flujo de aire y salvar tu inversión</strong> antes de un daño permanente.
+        </p>
+
+        <div class="mt-trust-badges">
+          <span><i class="fa-solid fa-fan"></i> Repuestos OEM</span>
+          <span><i class="fa-solid fa-flask"></i> Pastas Premium</span>
+          <span><i class="fa-solid fa-shield-check"></i> Garantía Pixon</span>
+        </div>
+
+        <div class="mt-hero-ctas">
+          <a href={`https://wa.me/529986690777?text=${waMessage}`} class="ux-btn-primary pulse" target="_blank">
+            <i class="fa-brands fa-whatsapp"></i> Solicitar Diagnóstico Térmico
+          </a>
+          <div class="mt-hero-links">
+            <span class="link-label">Soluciones directas:</span>
+            <a href="/servicios/pc" class="inline-link">Mantenimiento PC <i class="fa-solid fa-chevron-right"></i></a>
+            <a href="/servicios/laptop" class="inline-link">Mantenimiento Laptops <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-hero-visual">
+        <div class="mt-visual-card">
+          <img src="/assets/images/reparacion-controles-xbox.jpeg" alt="Mantenimiento Térmico PS5 PC Laptop" loading="eager" />
+          <div class="mt-temp-badge before"><i class="fa-solid fa-fire"></i> 95°C Antes</div>
+          <div class="mt-temp-badge after"><i class="fa-solid fa-snowflake"></i> 65°C Después</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. EXPLICACIÓN DEL PROBLEMA -->
+  <section class="mt-problem bg-light">
+    <div class="container mt-problem-container">
+      <div class="mt-problem-visual">
+        <img src="/assets/images/reparacion-mac-cancun.jpeg" alt="Polvo en disipadores y ventilador" loading="lazy" />
+      </div>
+      <div class="mt-problem-text">
+        <span class="ux-eyebrow" style="color:#2563EB;">Entiende la Falla</span>
+        <h2 class="ux-h2" style="color:#0E1629 !important;">¿Por qué tu equipo está "sufriendo"?</h2>
+        <p class="mt-desc" style="color:#4B5563;">
+          A diferencia de un fallo de software, el sobrecalentamiento es un problema físico que se agrava cada día.
+        </p>
+        <div class="mt-causes-grid">
+          <div class="mt-cause-item">
+            <div class="icon"><i class="fa-solid fa-wind"></i></div>
+            <div class="content">
+              <h4>Obstrucción por Polvo</h4>
+              <p>El polvo se calcifica en las aletas del disipador, creando un muro que impide la salida del aire caliente. El equipo se asfixia.</p>
+            </div>
+          </div>
+          <div class="mt-cause-item">
+            <div class="icon"><i class="fa-solid fa-droplet-slash"></i></div>
+            <div class="content">
+              <h4>Degradación Térmica</h4>
+              <p>Después de 18 meses, la pasta y los pads térmicos se secan. Dejan de transferir el calor del chip al disipador de cobre.</p>
+            </div>
+          </div>
+          <div class="mt-cause-item">
+            <div class="icon"><i class="fa-solid fa-gear"></i></div>
+            <div class="content">
+              <h4>Desgaste del Ventilador</h4>
+              <p>Un ventilador ruidoso (que hace clac-clac) indica rodamientos destruidos por girar forzados. Si se detiene, el equipo corre riesgo crítico.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. RELACIÓN ENTRE CONSOLA, PC Y LAPTOP -->
+  <section class="mt-crosslink">
+    <div class="container">
+      <div class="text-center" style="max-width: 800px; margin: 0 auto;">
+        <span class="ux-eyebrow" style="color: #60A5FA;">No importa tu plataforma</span>
+        <h2 class="ux-h2" style="margin-bottom: 20px;">El problema térmico nos afecta a todos</h2>
+        <p style="color: #94A3B8; font-size: 1.1rem; line-height: 1.6;">Los principios de refrigeración son los mismos en todos los sistemas. Selecciona tu dispositivo para ver cómo aplicamos nuestra ingeniería térmica para solucionarlo.</p>
+      </div>
+      
+      <div class="mt-devices-grid">
+        <a href="/servicios/consola" class="mt-device-card">
+          <div class="device-icon"><i class="fa-solid fa-gamepad"></i></div>
+          <h4 style="color:#FFFFFF; font-family:'Kanit', sans-serif; font-size:1.3rem; margin-bottom:10px;">Consolas</h4>
+          <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:20px; line-height:1.5;">PS5, Xbox Series X/S y Nintendo Switch. Eliminación de ruido de avión y apagados repentinos.</p>
+          <span class="device-cta">Ver servicios <i class="fa-solid fa-arrow-right"></i></span>
+        </a>
+        <a href="/servicios/pc/limpieza-profunda" class="mt-device-card">
+          <div class="device-icon"><i class="fa-solid fa-desktop"></i></div>
+          <h4 style="color:#FFFFFF; font-family:'Kanit', sans-serif; font-size:1.3rem; margin-bottom:10px;">PC Gamer & Armadas</h4>
+          <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:20px; line-height:1.5;">Limpieza de radiadores, cambio de pasta en CPU/GPU y gestión de flujo de aire.</p>
+          <span class="device-cta">Ver servicios <i class="fa-solid fa-arrow-right"></i></span>
+        </a>
+        <a href="/servicios/laptop" class="mt-device-card">
+          <div class="device-icon"><i class="fa-solid fa-laptop"></i></div>
+          <h4 style="color:#FFFFFF; font-family:'Kanit', sans-serif; font-size:1.3rem; margin-bottom:10px;">Laptops</h4>
+          <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:20px; line-height:1.5;">Desobstrucción de disipadores ultradelgados y prevención de throttling térmico.</p>
+          <span class="device-cta">Ver servicios <i class="fa-solid fa-arrow-right"></i></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. QUÉ INCLUYE EL PROCESO / DIAGNÓSTICO -->
+  <section class="mt-process bg-light">
+    <div class="container">
+      <div class="ux-section-header text-center">
+        <span class="ux-eyebrow" style="color:#2563EB;">Transparencia Pixon</span>
+        <h2 class="ux-h2" style="color:#0E1629 !important;">Proceso de Intervención Térmica</h2>
+      </div>
+      
+      <div class="mt-process-steps">
+        <div class="mt-step">
+          <div class="step-num">01</div>
+          <div class="step-info">
+            <h4 style="color:#1E293B;">Test de Estrés y Ruido</h4>
+            <p style="color:#4B5563;">Medimos RPM del ventilador y picos de temperatura antes de abrir. Documentamos el zumbido o ruido anómalo.</p>
+          </div>
+        </div>
+        <div class="mt-step">
+          <div class="step-num">02</div>
+          <div class="step-info">
+            <h4 style="color:#1E293B;">Desarmado e Inspección</h4>
+            <p style="color:#4B5563;">Retiramos disipadores para evaluar si el ventilador requiere limpieza ultrasónica o un reemplazo total por falla en rodamientos.</p>
+          </div>
+        </div>
+        <div class="mt-step">
+          <div class="step-num">03</div>
+          <div class="step-info">
+            <h4 style="color:#1E293B;">Sustitución y Limpieza</h4>
+            <p style="color:#4B5563;">Aspiramos el polvo calcificado. Si el ventilador no sirve, instalamos uno OEM. Cambiamos la pasta térmica a grado premium.</p>
+          </div>
+        </div>
+        <div class="mt-step">
+          <div class="step-num">04</div>
+          <div class="step-info">
+            <h4 style="color:#1E293B;">Prueba Comparativa Final</h4>
+            <p style="color:#4B5563;">Sometemos el equipo a carga máxima durante 30 mins para asegurar que el procesador no sufre Throttling y el ruido desapareció.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. IMÁGENES BIEN USADAS -->
+  <section class="mt-gallery">
+    <div class="container">
+      <div class="text-center mb-8">
+        <span class="ux-eyebrow" style="color: #38BDF8;">Transparencia Total</span>
+        <h2 class="ux-h2">El proceso térmico en imágenes</h2>
+        <p style="color: #94A3B8; max-width: 600px; margin: 0 auto;">Conoce exactamente cómo tratamos tus componentes internos con máxima delicadeza.</p>
+      </div>
+      <div class="mt-gallery-grid-new">
+        <div class="mt-g-card">
+          <div class="g-img-wrapper"><img src="/assets/images/reparacion-mac-cancun.jpeg" alt="Desmontaje de Disipador" loading="lazy" /></div>
+          <div class="g-card-content">
+            <h4>1. Desmontaje Seguro</h4>
+            <p>Retiramos el disipador viejo con cuidado extremo para no fracturar los núcleos del procesador ni arrancar pistas de la placa base.</p>
+          </div>
+        </div>
+        <div class="mt-g-card">
+          <div class="g-img-wrapper"><img src="/assets/images/reparacion-mac-liquido.jpeg" alt="Limpieza Estructural" loading="lazy" /></div>
+          <div class="g-card-content">
+            <h4>2. Limpieza Ultrasónica</h4>
+            <p>Eliminamos toda la suciedad, polvo y restos de pasta reseca usando químicos dieléctricos que no dañan los microcomponentes.</p>
+          </div>
+        </div>
+        <div class="mt-g-card">
+          <div class="g-img-wrapper"><img src="/assets/images/reparacion-celulares.jpeg" alt="Aplicación de Pasta Térmica" loading="lazy" /></div>
+          <div class="g-card-content">
+            <h4>3. Renovación Térmica</h4>
+            <p>Aplicamos pasta térmica premium de alta conductividad para asegurar la mejor transferencia de calor entre el chip y el disipador.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. BENEFICIOS DEL MANTENIMIENTO -->
+  <section class="mt-benefits">
+    <div class="container">
+      <div class="mt-benefits-inner">
+        <div class="mt-benefits-text">
+          <span class="ux-eyebrow" style="color: #60A5FA;">Resultados Garantizados</span>
+          <h2 class="ux-h2">Lo que ganas tras un Mantenimiento Térmico</h2>
+          <p>Un equipo limpio y bien refrigerado no solo funciona mejor, sino que te ahorra miles de pesos en reparaciones catastróficas. Aquí están los resultados reales:</p>
+          
+          <div class="mt-b-grid">
+            <div class="mt-b-card">
+              <i class="fa-solid fa-volume-xmark b-icon"></i>
+              <h4>Cero ruido molesto</h4>
+              <p>Vuelve a usar tu equipo en completo silencio sin parecer un avión despegando.</p>
+            </div>
+            <div class="mt-b-card">
+              <i class="fa-solid fa-gauge-high b-icon"></i>
+              <h4>Recuperación de FPS</h4>
+              <p>Adiós a los bajones de rendimiento en pleno juego (Thermal Throttling).</p>
+            </div>
+            <div class="mt-b-card">
+              <i class="fa-solid fa-shield-virus b-icon"></i>
+              <h4>Evita la muerte súbita</h4>
+              <p>Evita que la placa madre sufra daños irreversibles por soldadura derretida.</p>
+            </div>
+            <div class="mt-b-card">
+              <i class="fa-solid fa-battery-full b-icon"></i>
+              <h4>Mayor vida útil</h4>
+              <p>Un equipo con flujo de aire óptimo dura años adicionales sin fallar.</p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-benefits-action">
+          <div class="glass-promo">
+            <h3>¿Listo para enfriar tu equipo?</h3>
+            <p>Agenda tu diagnóstico en Cancún y recibe una comparativa de temperaturas antes y después del servicio.</p>
+            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="ux-btn-primary pulse w-full mt-4">
+              Agendar Revisión <i class="fa-brands fa-whatsapp"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. REDIRECCIÓN A SERVICIOS RELACIONADOS -->
+  <section class="mt-related bg-light">
+    <div class="container text-center">
+      <h2 class="ux-h2" style="color:#0E1629 !important; font-size:1.8rem; margin-bottom: 30px;">Explora Soluciones Específicas</h2>
+      <div class="mt-pills-grid">
+        <a href="/servicios/consola/limpieza-interna" class="mt-pill">Limpieza Consolas</a>
+        <a href="/servicios/laptop/pasta-termica" class="mt-pill">Cambio de Pasta Laptops</a>
+        <a href="/paquetes" class="mt-pill">Paquetes Mantenimiento PC</a>
+        <a href="/servicios/consola/diagnostico" class="mt-pill">Diagnóstico Avanzado</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. PREGUNTAS FRECUENTES -->
+  <FaqSection 
+    title="Preguntas Frecuentes sobre Calor y Ventilación"
+    description="Aclaramos tus dudas técnicas sobre el mantenimiento térmico."
+    items={termicoFaqs}
+    faqAccent="#38BDF8"
+  />
+
+  <!-- 9. CIERRE CON CTA INTELIGENTE -->
+  <section class="mt-cta">
+    <div class="container text-center">
+      <h2 class="ux-h2">No dejes que tu equipo se queme</h2>
+      <p class="mb-8 max-w-2xl mx-auto" style="color:#94A3B8;">Si has notado exceso de calor o ruido inusual, escríbenos ahora. Te brindaremos orientación profesional sin compromiso para proteger tu inversión tecnológica.</p>
+      <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="ux-btn-primary pulse px-8 py-4" style="font-size: 1.1rem;">
+        <i class="fa-brands fa-whatsapp"></i> Contactar Soporte Pixon
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<style is:global>
+  /* ─── VARIABLES Y OVERRIDES ─── */
+  .mantenimiento-termico-wrapper {
+    background: #0B1120 !important;
+    color: #E2E8F0 !important;
+    font-family: 'Inter', sans-serif;
+  }
+  .bg-light { background: #F8FAFC !important; }
+  .ux-badge {
+    display: inline-block; padding: 6px 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38BDF8; border-radius: 30px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 24px;
+  }
+  .ux-h1 { font-family: 'Kanit', sans-serif; font-size: 2.1rem; line-height: 1.15; color: #FFFFFF; font-weight: 800; margin-bottom: 15px; }
+  .ux-h2 { font-family: 'Kanit', sans-serif; font-size: 1.8rem; line-height: 1.2; font-weight: 700; color: #FFFFFF; margin-bottom: 12px; }
+  .ux-gradient-text { background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .ux-eyebrow { display: block; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.9rem; margin-bottom: 12px; }
+  
+  .ux-btn-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #fff;
+    padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 1rem;
+    text-decoration: none; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .ux-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(37,99,235,0.4); color:#fff; }
+  .w-full { width: 100%; } .mt-4 { margin-top: 1rem; } .mb-8 { margin-bottom: 2rem; } .max-w-2xl { max-width: 42rem; } .mx-auto { margin-left: auto; margin-right: auto; } .px-8 { padding-left: 2rem; padding-right: 2rem; } .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+
+  /* 1. HERO */
+  .mt-hero { position: relative; padding: 60px 0 50px; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.05); background-color: #0B1120 !important; }
+  .mt-glow { position: absolute; top: -20%; left: 10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(11,17,32,0) 70%); border-radius: 50%; pointer-events: none; }
+  .mt-hero-container { display: flex; align-items: center; gap: 60px; position: relative; z-index: 2; }
+  .mt-hero-text { flex: 1.2; }
+  .mt-hook { font-size: 1.4rem; color: #CBD5E1; font-weight: 500; line-height: 1.4; margin-bottom: 20px; }
+  .mt-intro { font-size: 1.05rem; color: #94A3B8; line-height: 1.7; margin-bottom: 30px; }
+  .mt-intro strong { color: #E2E8F0; }
+  
+  .mt-trust-badges { display: flex; gap: 20px; margin-bottom: 36px; flex-wrap: wrap; }
+  .mt-trust-badges span { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 600; color: #94A3B8; }
+  .mt-trust-badges span i { color: #38BDF8; }
+
+  .mt-hero-ctas { display: flex; flex-direction: column; gap: 20px; }
+  .mt-hero-links { display: flex; align-items: center; gap: 16px; font-size: 0.95rem; }
+  .link-label { color: #64748B; }
+  .inline-link { color: #38BDF8; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+  .inline-link:hover { color: #60A5FA; }
+  .inline-link i { font-size: 0.8rem; }
+
+  .mt-hero-visual { flex: 0.8; }
+  .mt-visual-card { position: relative; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+  .mt-visual-card img { width: 100%; height: auto; display: block; object-fit: cover; }
+  .mt-temp-badge { position: absolute; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
+  .mt-temp-badge.before { top: 20px; right: 20px; background: rgba(239, 68, 68, 0.8); color: white; }
+  .mt-temp-badge.after { bottom: 20px; left: 20px; background: rgba(16, 185, 129, 0.9); color: white; border: 1px solid rgba(255,255,255,0.2); }
+
+  /* 2. EXPLICACION PROBLEMA */
+  .mt-problem { padding: 60px 0; }
+  .mt-problem-container { display: flex; align-items: center; gap: 60px; }
+  .mt-problem-visual { flex: 1; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+  .mt-problem-visual img { width: 100%; height: auto; display: block; }
+  .mt-problem-text { flex: 1; }
+  .mt-desc { font-size: 1.1rem; line-height: 1.7; margin-bottom: 32px; }
+  .mt-causes-grid { display: flex; flex-direction: column; gap: 24px; }
+  .mt-cause-item { display: flex; gap: 20px; align-items: flex-start; }
+  .mt-cause-item .icon { width: 50px; height: 50px; border-radius: 12px; background: #DBEAFE; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+  .mt-cause-item h4 { color: #1E293B; font-family: 'Kanit', sans-serif; font-size: 1.15rem; margin-bottom: 6px; }
+  .mt-cause-item p { color: #4B5563; font-size: 0.95rem; line-height: 1.6; margin: 0; }
+
+  /* 3. CROSSLINK DEVICES */
+  .mt-crosslink { padding: 70px 0; border-bottom: 1px solid rgba(255,255,255,0.05); background-color: #0B1120 !important; }
+  .mt-devices-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+  .mt-device-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 40px 30px; text-align: center; transition: all 0.3s ease; text-decoration: none; display: flex; flex-direction: column; height: 100%; }
+  .mt-device-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-5px); border-color: rgba(56,189,248,0.3); }
+  .device-icon { font-size: 3rem; color: #38BDF8; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; }
+  .mt-device-card h3 { font-family: 'Kanit', sans-serif; color: #fff; font-size: 1.4rem; margin-bottom: 12px; }
+  .mt-device-card p { color: #94A3B8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
+  .device-cta { color: #60A5FA; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  /* 4. PROCESO */
+  .mt-process { padding: 60px 0; }
+  .mt-process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 40px; }
+  .mt-step { background: #fff; border-radius: 16px; padding: 30px 24px; border: 1px solid #E2E8F0; box-shadow: 0 10px 20px rgba(0,0,0,0.03); position: relative; }
+  .step-num { position: absolute; top: -16px; left: 24px; background: #2563EB; color: #fff; font-weight: 800; font-family: 'Kanit', sans-serif; padding: 6px 12px; border-radius: 8px; font-size: 1rem; box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
+  .step-info { margin-top: 16px; }
+  .step-info h4 { font-family: 'Kanit', sans-serif; font-size: 1.15rem; margin-bottom: 10px; }
+  .step-info p { font-size: 0.92rem; line-height: 1.6; margin: 0; }
+
+  /* 5. GALLERY */
+  .mt-gallery { padding: 60px 0; border-top: 1px solid rgba(255,255,255,0.05); background-color: #0B1120 !important; }
+  .mt-gallery-grid-new { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  .mt-g-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; overflow: hidden; transition: transform 0.3s ease; }
+  .mt-g-card:hover { transform: translateY(-5px); border-color: rgba(56,189,248,0.3); }
+  .g-img-wrapper { height: 200px; width: 100%; overflow: hidden; }
+  .g-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .mt-g-card:hover .g-img-wrapper img { transform: scale(1.05); }
+  .g-card-content { padding: 24px; }
+  .g-card-content h4 { color: #fff; font-family: 'Kanit', sans-serif; font-size: 1.1rem; margin-bottom: 12px; }
+  .g-card-content p { color: #94A3B8; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+
+  /* 6. BENEFITS */
+  .mt-benefits { padding: 60px 0; border-top: 1px solid rgba(255,255,255,0.05); background-color: #0B1120 !important; }
+  .mt-benefits-inner { display: flex; align-items: center; gap: 60px; }
+  .mt-benefits-text { flex: 1.5; }
+  .mt-benefits-text p { color: #94A3B8; font-size: 1.1rem; margin-bottom: 30px; }
+  .mt-b-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .mt-b-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 24px; border-radius: 16px; transition: all 0.3s; }
+  .mt-b-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(96,165,250,0.3); }
+  .b-icon { font-size: 1.8rem; color: #60A5FA; margin-bottom: 16px; display: block; }
+  .mt-b-card h4 { color: #fff; font-size: 1.05rem; margin-bottom: 8px; font-weight: 700; }
+  .mt-b-card p { color: #94A3B8; font-size: 0.9rem; margin: 0; line-height: 1.5; }
+
+  .mt-benefits-action { flex: 1; }
+  .glass-promo { background: rgba(37,99,235,0.05); border: 1px solid rgba(56,189,248,0.2); border-radius: 24px; padding: 40px; text-align: center; }
+  .glass-promo h3 { font-family: 'Kanit', sans-serif; font-size: 1.6rem; color: #fff; margin-bottom: 12px; }
+  .glass-promo p { color: #94A3B8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
+
+  /* 7. RELATED PILLS */
+  .mt-related { padding: 50px 0; }
+  .mt-pills-grid { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; }
+  .mt-pill { background: #fff; border: 1px solid #CBD5E1; color: #4B5563; padding: 12px 24px; border-radius: 30px; font-weight: 600; text-decoration: none; transition: all 0.2s; font-size: 0.95rem; }
+  .mt-pill:hover { background: #F1F5F9; color: #1E293B; border-color: #94A3B8; transform: translateY(-2px); }
+
+  /* 9. CTA */
+  .mt-cta { padding: 70px 0; border-top: 1px solid rgba(255,255,255,0.05); background: linear-gradient(to bottom, #0B1120 0%, #0F172A 100%); }
+
+  @media (max-width: 1024px) {
+    .mt-hero-container, .mt-problem-container, .mt-benefits-inner { flex-direction: column; text-align: center; gap: 40px; }
+    .mt-trust-badges { justify-content: center; }
+    .mt-hero-links { justify-content: center; }
+    .mt-gallery-grid-new { grid-template-columns: repeat(2, 1fr); }
+    .mt-devices-grid { grid-template-columns: repeat(2, 1fr); }
+    .mt-process-steps { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  }
+  @media (max-width: 768px) {
+    .ux-h1 { font-size: 1.8rem; }
+    .ux-h2 { font-size: 1.5rem; }
+    .mt-devices-grid, .mt-process-steps, .mt-gallery-grid-new, .mt-b-grid { grid-template-columns: 1fr; }
+    .mt-hero { padding: 40px 0; }
+    .mt-hero-container { gap: 30px; }
+    .mt-problem { padding: 40px 0; }
+    .mt-benefits-list { grid-template-columns: 1fr; }
+  }
+</style>

@@ -381,6 +381,45 @@ async function getPageViewsTop(limit = 20, days = 30) {
     return rows;
 }
 
+/**
+ * Datos para el dashboard "live" del admin:
+ *  - active: sesiones únicas con actividad en los últimos 5 min
+ *  - per_minute: vistas agrupadas por minuto en los últimos 30 min (para sparkline)
+ *  - last_views: últimas N vistas con path + tiempo relativo
+ */
+async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
+    const [active] = await pool.execute(
+        `SELECT COUNT(DISTINCT session_id) AS active
+         FROM page_views
+         WHERE created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)`
+    );
+    const [perMinute] = await pool.execute(
+        `SELECT
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:00') AS minute,
+            COUNT(*) AS views,
+            COUNT(DISTINCT session_id) AS visitors
+         FROM page_views
+         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+         GROUP BY minute
+         ORDER BY minute ASC`,
+        [minutesWindow]
+    );
+    const [lastViews] = await pool.execute(
+        `SELECT path, title, created_at
+         FROM page_views
+         ORDER BY created_at DESC
+         LIMIT ?`,
+        [recentLimit]
+    );
+    return {
+        active: active[0]?.active ?? 0,
+        per_minute: perMinute,
+        last_views: lastViews,
+        window_minutes: minutesWindow,
+        ts: Date.now(),
+    };
+}
+
 async function getPageViewsSummary() {
     const [totalViews] = await pool.execute('SELECT COUNT(*) as total FROM page_views');
     const [todayViews] = await pool.execute(
@@ -535,5 +574,6 @@ module.exports = {
     trackPageView,
     getPageViewsDaily,
     getPageViewsTop,
-    getPageViewsSummary
+    getPageViewsSummary,
+    getLiveAnalytics
 };

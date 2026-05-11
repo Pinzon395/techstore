@@ -1,0 +1,277 @@
+---
+/**
+ * Hub general de servicios — /servicios
+ * Tarjetas grandes para las 5 categorías. Paleta brand #020617.
+ */
+import Base from '../../layouts/Base.astro';
+import Navbar3_0 from '../../components/Navbar3_0.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import CommentsSection from '../../components/CommentsSection.astro';
+import { SERVICE_CATEGORIES } from '../../data/services';
+
+const canonical = 'https://pixon.com.mx/servicios';
+const totalServices = SERVICE_CATEGORIES.reduce((acc, c) => acc + c.services.length, 0);
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio',    item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Servicios', item: canonical },
+    ],
+  },
+];
+---
+
+<Base
+  title="Servicios de Reparación en Cancún | Pixon PC"
+  description={`${totalServices} servicios profesionales de reparación: laptop, PC, teléfono, consola e impresora. Diagnóstico gratis y garantía por escrito.`}
+  canonical={canonical}
+  image="/LOGOCIRCULAR.png"
+  schema={schema}
+>
+  <Navbar3_0 />
+
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios' },
+  ]} />
+
+  <section class="svc-hub">
+    <div class="svc-hub-bg" aria-hidden="true">
+      <div class="svc-hub-glow"></div>
+    </div>
+
+    <div class="container svc-hub-inner">
+
+      <header class="svc-hub-header">
+        <span class="svc-hub-eyebrow">
+          <i class="fa-solid fa-bolt"></i> Catálogo completo
+        </span>
+        <h1>Nuestros <span class="svc-hub-accent">servicios</span></h1>
+        <p>
+          {totalServices} servicios profesionales agrupados en 5 categorías.
+          <strong>Diagnóstico siempre gratis</strong> y garantía por escrito en cada uno.
+        </p>
+      </header>
+
+      <div class="svc-hub-grid">
+        {SERVICE_CATEGORIES.map((cat) => (
+          <a href={`/servicios/${cat.slug}`} class="svc-hub-cat-card">
+            <div class="svc-hub-cat-bg" style={`background: ${cat.heroBg};`}></div>
+            <div class="svc-hub-cat-content">
+              <div class="svc-hub-cat-icon">
+                <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
+              </div>
+              <h2>{cat.title}</h2>
+              <p>{cat.blurb}</p>
+              <div class="svc-hub-cat-footer">
+                <span class="svc-hub-cat-count">{cat.services.length} servicios</span>
+                <span class="svc-hub-cat-arrow">
+                  <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+
+    </div>
+  </section>
+
+  <CommentsSection viewMoreHref="/comentarios" />
+
+  <Footer />
+
+  <style is:global>
+    /* ═══ Hub general /servicios — paleta brand #020617 ═══ */
+    .svc-hub {
+      position: relative;
+      padding: 110px 0 90px;
+      background: #020617;
+      color: #f1f5f9;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .svc-hub-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .svc-hub-glow {
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(59,130,246,.25) 0%, rgba(139,92,246,.1) 40%, transparent 70%);
+      filter: blur(80px);
+    }
+    .svc-hub-inner { position: relative; z-index: 1; }
+
+    .svc-hub-header {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 56px;
+    }
+    .svc-hub-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--gold, #f59e0b);
+      background: rgba(245, 158, 11, .1);
+      border: 1px solid rgba(245, 158, 11, .25);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 22px;
+    }
+    .svc-hub-header h1 {
+      font-family: var(--font-heading, 'Kanit', sans-serif);
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin: 0 0 16px;
+    }
+    .svc-hub-accent {
+      background: linear-gradient(135deg, #fbbf24 0%, #fde68a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .svc-hub-header p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: rgba(241, 245, 249, .82);
+      margin: 0;
+    }
+    .svc-hub-header strong {
+      color: var(--gold, #fbbf24);
+      font-weight: 700;
+    }
+
+    /* Grid de categorías */
+    .svc-hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .svc-hub-cat-card {
+      position: relative;
+      border-radius: 20px;
+      text-decoration: none;
+      color: #ffffff;
+      transition: all .25s ease;
+      overflow: hidden;
+      isolation: isolate;
+      min-height: 260px;
+      display: flex;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .svc-hub-cat-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      transition: transform .35s ease;
+    }
+    .svc-hub-cat-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(2,6,23,.35) 0%, rgba(2,6,23,.85) 100%);
+    }
+    .svc-hub-cat-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255,255,255,.25);
+      box-shadow: 0 24px 48px rgba(0,0,0,.55);
+    }
+    .svc-hub-cat-card:hover .svc-hub-cat-bg {
+      transform: scale(1.06);
+    }
+    .svc-hub-cat-content {
+      position: relative;
+      z-index: 1;
+      padding: 26px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      gap: 14px;
+    }
+    .svc-hub-cat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.5rem;
+      backdrop-filter: blur(8px);
+    }
+    .svc-hub-cat-card h2 {
+      font-family: var(--font-heading, 'Kanit', sans-serif);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+      line-height: 1.1;
+    }
+    .svc-hub-cat-card p {
+      color: rgba(255,255,255,.85);
+      font-size: .92rem;
+      margin: 0;
+      line-height: 1.45;
+    }
+    .svc-hub-cat-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 8px;
+    }
+    .svc-hub-cat-count {
+      background: rgba(245, 158, 11, .25);
+      color: #fde68a;
+      font-size: .74rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 158, 11, .3);
+    }
+    .svc-hub-cat-arrow {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: .9rem;
+      transition: all .2s;
+    }
+    .svc-hub-cat-card:hover .svc-hub-cat-arrow {
+      background: var(--gold, #fbbf24);
+      color: #020617;
+      transform: translateX(3px) rotate(-8deg);
+    }
+
+    @media (max-width: 768px) {
+      .svc-hub { padding: 70px 0 60px; }
+      .svc-hub-header { margin-bottom: 36px; }
+      .svc-hub-grid { grid-template-columns: 1fr; gap: 14px; }
+      .svc-hub-cat-card { min-height: 200px; }
+    }
+  </style>
+</Base>
