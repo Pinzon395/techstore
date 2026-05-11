@@ -213,9 +213,21 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
                     res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800');
                 }
             }
-        })));
+})));
+    }
 
-        app.get('/robots.txt', (_req, res) => {
+    // Fallback: servir desde dist-astro/ para páginas generadas por Astro
+    const astroDistPath = path.join(rootPath, 'dist-astro');
+    if (fs.existsSync(astroDistPath)) {
+        app.use(staticSkipAdmin(express.static(astroDistPath, { 
+            index: false, 
+            maxAge: isProd ? '1y' : 0,
+            etag: true,
+            redirect: false
+        })));
+    }
+
+    app.get('/robots.txt', (_req, res) => {
             const file = path.join(distPath, 'robots.txt');
             res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
             if (fs.existsSync(file)) {
@@ -234,7 +246,6 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
                 res.status(404).send('Sitemap not found');
             }
         });
-    }
 
     // M2 — CORS con metodos completos
     app.use(cors({
@@ -599,6 +610,40 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         res.status(201).json({ success: true, message: 'Comentario enviado para revisión.', comment: created });
     }));
 
+    // ═══════════════════════════════════════════════════════════════
+    // TICKETS — Crear ticket de servicio con auth
+    // ═══════════════════════════════════════════════════════════════
+    app.post('/api/tickets', requireAuth, ah(async (req, res) => {
+        const { device_type, device_brand, device_model, reported_issue, contact_phone } = req.body;
+        
+        // Validaciones
+        const errors = [];
+        if (!device_type || device_type.length < 2) errors.push('El tipo de equipo es requerido.');
+        if (!device_brand || device_brand.length < 2) errors.push('La marca del equipo es requerida.');
+        if (!reported_issue || reported_issue.length < 10) errors.push('La descripción del problema debe tener al menos 10 caracteres.');
+        if (!contact_phone || contact_phone.length < 8) errors.push('El teléfono de contacto es requerido.');
+        
+        if (errors.length > 0) {
+            return res.status(400).json({ success: false, message: errors.join(' ') });
+        }
+        
+        // Crear ticket con user_id del usuario autenticado
+        const user_id = req.user?.id || null;
+        const user_name = req.user?.name || null;
+        
+        const ticket = await insertRepairAdmin({
+            user_id,
+            user_name,
+            device_type: String(device_type).trim(),
+            device_brand: String(device_brand).trim(),
+            device_model: device_model ? String(device_model).trim() : null,
+            reported_issue: String(reported_issue).trim().slice(0, 2000),
+            contact_phone: String(contact_phone).trim().slice(0, 20)
+        });
+        
+        res.status(201).json({ success: true, message: 'Ticket creado exitosamente.', ticket });
+    }));
+
     app.get('/api/faqs', ah(async (_req, res) => {
         const faqs = await getAllFaqs();
         res.json(faqs);
@@ -800,6 +845,8 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             '/empresas':                    'empresas.html',
             '/B2B':                         'empresas.html',
             '/servicios/b2b':               'empresas.html',
+            '/servicios/laptop/cambio-bateria': 'cambio-bateria.html',
+            '/servicios/telefono/cambio-bateria': 'servicios/telefono/cambio-bateria.html',
             '/optimizacion':                'optimizacion.html',
             '/servicios/optimizacion':      'optimizacion.html',
             '/antisulfatacion':             'antisulfatacion.html',

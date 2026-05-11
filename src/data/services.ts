@@ -9,6 +9,35 @@
  * Para agregar un nuevo subservicio: añade un objeto a `services[]` de
  * la categoría correspondiente. Astro generará la ruta automáticamente
  * y el navbar lo mostrará en el megamenú.
+ *
+ * ⚠️ PRECAUCIÓN — REGLAS DE ESTE ARCHIVO:
+ *
+ * 1. RUTAS GENERADAS DINÁMICAMENTE:
+ *    - Categorías: /servicios/{category.slug}  → [categoria]/index.astro
+ *    - Subservicios: /servicios/{cat.slug}/{s.slug} → [categoria]/[servicio].astro
+ *    Si cambias un 'slug' en este archivo, la URL cambia → enlaces rotos + pérdida SEO.
+ *    Para renombrar un slug, añade un redirect 301 en astro.config.ts ANTES de cambiar.
+ *
+ * 2. customUrl — USO CORRECTO:
+ *    Si un servicio ya tiene su propia página dedicada (ej. /reparaciones, /paquetes),
+ *    usa customUrl para apuntar a ella. Esto hace que:
+ *      a) El navbar enlace directamente a esa página en lugar de generar una nueva.
+ *      b) [servicio].astro NO genera esa ruta (la omite en getStaticPaths).
+ *      c) El hub de categoría (/servicios/laptop) la muestra como "Servicio dedicado".
+ *
+ * 3. RUTAS CON PÁGINAS ESTÁTICAS DEDICADAS (sobrescriben la dinámica):
+ *    - /servicios/laptop/upgrade   → src/pages/servicios/laptop/upgrade.astro
+ *    - /servicios/laptop/cambio-bateria → src/pages/servicios/laptop/cambio-bateria.astro
+ *    Estas páginas tienen PRIORIDAD sobre [servicio].astro para esas rutas.
+ *    Si agregas 'customUrl' a esos servicios en este archivo, el navbar
+ *    ya no apuntará a /servicios/laptop/upgrade sino al customUrl.
+ *
+ * 4. SLUGS DUPLICADOS entre categorías están permitidos (cada uno tiene su propia
+ *    ruta porque incluyen la categoría en la URL: /servicios/laptop/diagnostico
+ *    vs /servicios/pc/diagnostico). Son páginas separadas con contexto diferente.
+ *
+ * 5. NAVBAR 3.0: Este archivo es la ÚNICA fuente de verdad para las rutas
+ *    del megamenú de Navbar3_0.astro. No codifiques rutas manualmente allá.
  */
 
 export interface ServiceItem {
@@ -64,6 +93,14 @@ export interface ServiceItem {
   screenTypes?: { label: string; desc: string }[];
   /** Antes/Después comparativa */
   beforeAfter?: { before: string[]; after: string[] };
+  /** Imagen destacada para hero de upgrade u otros */
+  featuredImage?: string;
+  /** Imágenes por sección */
+  sectionImages?: {
+    whyUs?: string;
+    process?: string;
+    [key: string]: string | undefined;
+  };
 }
 
 export interface ServiceCategory {
@@ -211,6 +248,12 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       {
         slug: 'cambio-bateria',
         label: 'Cambio de batería',
+        // ⚠️ customUrl REQUERIDO: la página dedicada está en
+        //   src/pages/servicios/laptop/cambio-bateria.astro
+        //   (importa CambioBateriaView con diseño premium).
+        //   Sin este customUrl, [servicio].astro genera un conflicto de ruta
+        //   y la página dinámica gana con un título incorrecto.
+        customUrl: '/servicios/laptop/cambio-bateria',
         seoKeyword: 'Cambio de batería de laptop en Cancún',
         hook: '¿Tu laptop dura 30 minutos desconectada o ya no carga? Recupera 4-8 horas de autonomía con batería nueva certificada.',
         intro: 'Reemplazo de batería interna por una nueva. Recuperas autonomía completa y ciclos de carga frescos.',
@@ -331,6 +374,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       {
         slug: 'upgrade',
         label: 'Upgrade SSD / RAM',
+        // ⚠️ customUrl REQUERIDO: la página dedicada está en
+        //   src/pages/servicios/laptop/upgrade.astro
+        //   (diseño premium con planes de upgrade y galeria).
+        //   Sin este customUrl, [servicio].astro genera un conflicto de ruta.
+        customUrl: '/servicios/laptop/upgrade',
         seoKeyword: 'Upgrade de SSD y RAM para laptop en Cancún',
         hook: 'Tu laptop puede ser hasta 5x más rápida. Migración a SSD NVMe + ampliación de RAM con clonado de tu Windows actual — sin perder NADA.',
         intro: 'Migración a SSD NVMe/SATA y/o ampliación de memoria RAM. Tu equipo arranca en segundos y multiplica su rendimiento.',
@@ -656,6 +704,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       },
 
       { slug: 'optimizacion',            label: 'Optimización del Sistema',customUrl: '/optimizacion' },
+      { slug: 'antisulfatacion',         label: 'Antisulfatación',         customUrl: '/antisulfatacion' },
     ],
   },
   {
@@ -969,7 +1018,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   {
     id: 'telefono',
     slug: 'telefono',
-    title: 'Teléfono',
+    title: 'Celular',
     icon: 'fa-mobile-screen-button',
     blurb: 'iPhone, Samsung y más',
     heroBg: 'linear-gradient(135deg, #0e7490 0%, #06b6d4 100%)',

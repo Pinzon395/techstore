@@ -1,0 +1,1204 @@
+---
+// CambioBateriaView.astro - Premium redesign for laptop battery replacement
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import ContactSection from '../ContactSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import TicketForm from '../TicketForm.astro';
+
+const waMessage = encodeURIComponent(`Hola, necesito el servicio de ${service.label} para mi ${category.title}. ¿Me podrían cotizar?`);
+
+// FAQ personalizada para batería
+const bateriaFaqs = [
+  { question: '¿Cuánto tiempo toma el cambio de batería en Cancún?', answer: 'Normalmente Takes 24-48 horas. Hacemos diagnóstico completo, verificamos ciclos reales, cotizamos, reemplazamos con batería certificada, calibramos y entregamos tu laptop funcionando como nueva.' },
+  { question: '¿Mi laptop está segura durante el proceso?', answer: 'Sí. Trabajamos en área antiestática certificada. No desinstalamos datos, no tocamos tu información personal, y garantizamos la integridad de todos los componentes durante el desarmado y reensamble.' },
+  { question: '¿Qué garantía ofrecen?', answer: '6 meses por escrito en mano de obra y batería. Si la batería presenta fallas de capacidad prematura, la reemplazamos sin costo adicional durante el período de garantía.' },
+  { question: '¿Qué marcas de laptops trabajan en Cancún?', answer: 'Dell, HP, Lenovo, Asus, Acer, Toshiba, Sony, Samsung, Apple MacBook, y más. Tenemos experiencia con modelos Windows y Mac de los últimos 10 años.' }
+];
+
+// Síntomas para la sección de diagnóstico visual
+const sintomas = [
+  { icon: 'fa-battery-empty', title: 'Batería dura poco', desc: 'Se agota en 20-30 min en lugar de horas' },
+  { icon: 'fa-power-off', title: 'Apagados inesperados', desc: 'Se apaga sin warning cuando está desconectada' },
+  { icon: 'fa-triangle-exclamation', title: 'Batería inflada', desc: 'El equipo se levanta o la tapa no cierra' },
+  { icon: 'fa-plug', title: 'Carga inestable', desc: 'No carga o se desconecta solos while charging' },
+  { icon: 'fa-temperature-high', title: 'Sobrecalentamiento', desc: 'Se calienta más de lo normal al usar' },
+  { icon: 'fa-bolt', title: 'Windows avisa', desc: 'Rebplacement battery recommended' },
+  { icon: 'fa-tachometer-alt', title: 'Lentitud', desc: 'El equipo va lento por bajo rendimiento' }
+];
+
+// Beneficios
+const beneficios = [
+  { icon: 'fa-battery-full', title: 'Autonomía real', desc: '4-8 horas de uso sin cargar' },
+  { icon: 'fa-temperature-low', title: 'Menos calor', desc: 'Batería eficiente genera menos temperatura' },
+  { icon: 'fa-shield-check', title: 'Estabilidad', desc: 'Sin apagones ni fluctuaciones de energía' },
+  { icon: 'fa-chart-line', title: 'Mejor rendimiento', desc: 'Procesador recibe energía consistente' },
+  { icon: 'fa-heart-pulse', title: 'Ciclos saludables', desc: 'Batería nueva con 0 ciclos de uso' },
+  { icon: 'fa-microchip', title: 'Protección', desc: 'Circuito protegido contra sobrecargas' }
+];
+
+// Proceso / Metodología
+const proceso = [
+  { step: '01', title: 'Diagnóstico inicial', desc: 'Medimos capacidad real, ciclos y desgaste de la batería actual' },
+  { step: '02', title: 'Test de batería', desc: 'Ejecutamos pruebas de carga, descarga y verificación de celdas' },
+  { step: '03', title: 'Revisión térmica', desc: 'Verificamos estado del sistema de ventilación y temperatura' },
+  { step: '04', title: 'Cotización', desc: 'Te damos opciones de batería original o certificada con precios' },
+  { step: '05', title: 'Reemplazo', desc: 'Desarmado profesional, intercambio de batería, conexiones seguras' },
+  { step: '06', title: 'Calibración', desc: 'Carga completa, descarga y recarga para optimizar ciclos del SO' },
+  { step: '07', title: 'Entrega', desc: 'Pruebas de autonomie y estabilidad antes de entregarte el equipo' }
+];
+
+// Tips de cuidado
+const tips = [
+  { icon: 'fa-percentage', title: 'Regla 20-80', desc: 'Evita cargar al 100% constantemente. Ideal mantener entre 20-80%.' },
+  { icon: 'fa-sun', title: 'Evita calor extremo', desc: 'No uses la laptop en superficies blandas que bloqueen ventilación.' },
+  { icon: 'fa-fan', title: 'Ventilación', desc: 'Mantén libres las rejillas de ventilación y limpia polvo regularmente.' },
+  { icon: 'fa-rotate', title: 'Calibración', desc: 'Cada 2-3 meses haz una carga completa para recalibrar el medidor.' },
+  { icon: 'fa-wrench', title: 'Mantenimiento', desc: 'El mantenimiento térmico ayuda a que la batería trabaje fría.' },
+  { icon: 'fa-plug', title: 'Cargador correcto', desc: 'Usa siempre el cargador original o uno con el voltaje correcto.' }
+];
+
+// Marcas
+const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Toshiba', 'MSI', 'Razer'];
+---
+
+<div class="cambio-bateria-wrapper theme-premium-dark">
+  
+  <!-- SECCIÓN 1: HERO PREMIUM -->
+  <section class="cb-hero">
+    <div class="cb-hero-glow"></div>
+    <div class="container cb-hero-container">
+      <div class="cb-hero-content">
+        <span class="cb-badge"><i class="fa-solid fa-battery-full"></i> Servicio Especializado</span>
+        <h1 class="cb-h1">Cambio de batería de laptop en <span class="cb-gradient-text">Cancún</span></h1>
+        <h2 class="cb-h2">Recupera la autonomía, estabilidad y rendimiento de tu laptop con un reemplazo profesional y baterías certificadas</h2>
+        <p class="cb-intro">Si tu laptop ya no dura desconectada, se apaga inesperadamente, se calienta demasiado o Windows recomienda reemplazar la batería, realizamos diagnóstico completo, reemplazo seguro y calibración profesional para devolverle autonomía real y un funcionamiento mucho más estable a tu equipo en Cancún.</p>
+        
+        <div class="cb-trust-bar">
+          <div class="cb-trust-item"><i class="fa-solid fa-star"></i> 5.0 en Google</div>
+          <div class="cb-trust-item"><i class="fa-solid fa-shield-halved"></i> Garantía 6 meses</div>
+          <div class="cb-trust-item"><i class="fa-solid fa-stopwatch"></i> 24-48 horas</div>
+        </div>
+
+        <div class="cb-cta-group">
+          <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="cb-btn-primary pulse">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar Servicio
+          </a>
+          <a href="#proceso" class="cb-btn-secondary">
+            Ver Proceso <i class="fa-solid fa-arrow-down"></i>
+          </a>
+        </div>
+
+        <div class="cb-price-badge">
+          <span>Inversión desde</span>
+          <strong>{service.fromPrice || '$950 MXN'}</strong>
+        </div>
+      </div>
+
+      <div class="cb-hero-visual">
+        <div class="cb-glass-card">
+          <div class="cb-glass-header">
+            <i class="fa-solid fa-clipboard-check"></i>
+            <span>¿Qué Incluye?</span>
+          </div>
+          <ul class="cb-checklist">
+            <li><i class="fa-solid fa-circle-check"></i> Batería con celdas nuevas</li>
+            <li><i class="fa-solid fa-circle-check"></i> Calibración de carga</li>
+            <li><i class="fa-solid fa-circle-check"></i> Reciclaje de batería vieja</li>
+            <li><i class="fa-solid fa-circle-check"></i> Garantía 6 meses</li>
+            <li><i class="fa-solid fa-circle-check"></i> Capacidad mayor o igual</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: SÍNTOMAS Y PROBLEMAS -->
+  <section class="cb-sintomas section-pad">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</span>
+        <h2 class="cb-h2-section">¿Tu laptop presenta alguno de estos síntomas?</h2>
+        <p class="cb-desc">Muchos problemas de autonomía, sobrecalentamiento o apagados repentinos comienzan con una batería degradada, ciclos agotados o un sistema térmico descuidado. Detectar estas señales a tiempo puede evitar daños mayores en la laptop y mejorar considerablemente el rendimiento diario del equipo.</p>
+      </div>
+
+      <div class="cb-sintomas-grid">
+        {sintomas.map((s, i) => (
+          <div class={`cb-sintoma-card ${i % 2 === 0 ? 'align-top' : 'align-bottom'}`}>
+            <div class="cb-sintoma-icon"><i class={`fa-solid ${s.icon}`}></i></div>
+            <div class="cb-sintoma-content">
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: BENEFICIOS -->
+  <section class="cb-beneficios section-pad" style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-rocket"></i> Resultados</span>
+        <h2 class="cb-h2-section">¿Qué mejoras obtienes al reemplazar la batería?</h2>
+        <p class="cb-desc">Un reemplazo profesional no solo mejora la duración de carga. También ayuda a reducir problemas de estabilidad, disminuye el estrés térmico sobre otros componentes y mejora la experiencia general de uso, especialmente en laptops con desgaste avanzado o años de uso continuo.</p>
+      </div>
+
+      <div class="cb-beneficios-showcase">
+        {beneficios.map((b, i) => (
+          <div class="cb-beneficio-item">
+            <div class="cb-beneficio-icon"><i class={`fa-solid ${b.icon}`}></i></div>
+            <h3>{b.title}</h3>
+            <p>{b.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: METODOLOGÍA / PROCESO -->
+  <section class="cb-proceso section-pad" id="proceso">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-list-check"></i> Proceso</span>
+        <h2 class="cb-h2-section">Nuestra metodología de trabajo</h2>
+        <p class="cb-desc">Realizamos un proceso completo de diagnóstico, revisión térmica y calibración para garantizar que la nueva batería funcione correctamente, mantenga ciclos saludables y entregue un rendimiento estable desde el primer día.</p>
+      </div>
+
+      <div class="cb-timeline">
+        {proceso.map((p, i) => (
+          <div class="cb-timeline-item">
+            <div class="cb-timeline-marker">{p.step}</div>
+            <div class="cb-timeline-content">
+              <h3>{p.title}</h3>
+              <p>{p.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: EDUCACIÓN / CUIDADO -->
+  <section class="cb-cuidado section-pad" style="background: #0f172a;">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-graduation-cap"></i> Guía</span>
+        <h2 class="cb-h2-section">Cómo alargar la vida útil de tu nueva batería</h2>
+        <p class="cb-desc">El cuidado diario influye directamente en la duración y estabilidad de la batería. Mantener buenas prácticas de carga, controlar la temperatura y realizar mantenimiento preventivo ayuda a conservar la autonomía durante mucho más tiempo y reduce el desgaste prematuro de las celdas.</p>
+      </div>
+
+      <div class="cb-tips-grid">
+        {tips.map((t, i) => (
+          <div class="cb-tip-card">
+            <div class="cb-tip-icon"><i class={`fa-solid ${t.icon}`}></i></div>
+            <h3>{t.title}</h3>
+            <p>{t.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 6: SOBRECALENTAMIENTO (NUEVA) -->
+  <section class="cb-sobrecalentamiento section-pad">
+    <div class="container">
+      <div class="cb-split-layout">
+        <div class="cb-split-content">
+          <span class="cb-eyebrow"><i class="fa-solid fa-temperature-high"></i> Attention</span>
+          <h2 class="cb-h2-section">El sobrecalentamiento también afecta la batería</h2>
+          <p class="cb-desc">El exceso de temperatura acelera el desgaste químico de la batería y puede reducir drásticamente su vida útil. El polvo acumulado, la pasta térmica degradada y una ventilación deficiente generan temperaturas más altas que terminan afectando tanto el rendimiento como la autonomía del equipo.</p>
+          <div class="cb-heat-factors">
+            <div class="cb-factor"><i class="fa-solid fa-dust"></i> Polvo acumulado</div>
+            <div class="cb-factor"><i class="fa-solid fa-fire"></i> Pasta térmica</div>
+            <div class="cb-factor"><i class="fa-solid fa-wind"></i> Ventilación bloqueada</div>
+          </div>
+          <a href="/servicios/laptop/pasta-termica" class="cb-btn-outline">
+            <i class="fa-solid fa-wrench"></i> Ver Mantenimiento Térmico
+          </a>
+        </div>
+        <div class="cb-split-visual">
+          <div class="cb-heat-visual">
+            <i class="fa-solid fa-temperature-high"></i>
+            <span>Temp elevada = Vida útil reducida</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 7: GALERÍA / PROCESO VISUAL -->
+  <section class="cb-galeria section-pad" style="background: #0B1120;">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-images"></i> Portfolio</span>
+        <h2 class="cb-h2-section">Así realizamos el reemplazo y mantenimiento interno</h2>
+        <p class="cb-desc">Mostramos parte del proceso real de desmontaje, revisión, limpieza, calibración y pruebas posteriores al cambio de batería para garantizar seguridad, estabilidad y una mejor experiencia de uso.</p>
+      </div>
+
+      <div class="cb-gallery-collage">
+        <div class="cb-gallery-main">
+          <img src="/assets/images/mantenimiento-macbook-cancun.jpeg" alt="Cambio de batería proceso" />
+          <div class="cb-gallery-overlay">
+            <i class="fa-solid fa-battery-charging"></i>
+            <span>Reemplazo Profesional</span>
+          </div>
+        </div>
+        <div class="cb-gallery-side">
+          <div class="cb-gallery-item"><img src="/assets/images/AntesBisagra.jpg" alt="Antes" /></div>
+          <div class="cb-gallery-item"><img src="/assets/images/DespuesBisagra.jpg" alt="Después" /></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 8: POR QUÉ ELEGIRNOS -->
+  <section class="cb-porque section-pad">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-award"></i> Diferencial</span>
+        <h2 class="cb-h2-section">¿Por qué elegir nuestro servicio?</h2>
+        <p class="cb-desc">No utilizamos baterías genéricas de baja calidad ni realizamos reemplazos rápidos sin diagnóstico. Revisamos el estado térmico del equipo, verificamos ciclos reales, calibramos correctamente el sistema y trabajamos con componentes certificados para asegurar un funcionamiento estable y duradero.</p>
+      </div>
+
+      <div class="cb-porque-grid">
+        <div class="cb-porque-card">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h3>Garantía 6 meses</h3>
+          <p>Por escrito en mano de obra y batería</p>
+        </div>
+        <div class="cb-porque-card">
+          <i class="fa-solid fa-sliders"></i>
+          <h3>Calibración incluida</h3>
+          <p>Optimizamos ciclos del sistema operativo</p>
+        </div>
+        <div class="cb-porque-card">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <h3>Diagnóstico real</h3>
+          <p>Medimos ciclos y capacidad antes de cambiar</p>
+        </div>
+        <div class="cb-porque-card">
+          <i class="fa-solid fa-certificate"></i>
+          <h3>Baterías certificadas</h3>
+          <p>Celdas nuevas con capacidad igual o superior</p>
+        </div>
+        <div class="cb-porque-card">
+          <i class="fa-solid fa-recycle"></i>
+          <h3>Reciclaje gratis</h3>
+          <p>Desecho seguro de tu batería vieja</p>
+        </div>
+        <div class="cb-porque-card">
+          <i class="fa-solid fa-headset"></i>
+          <h3>Soporte post-servicio</h3>
+          <p>Te ayudamos con dudas después de la entrega</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 9: DIAGNÓSTICO FRECUENTE -->
+  <section class="cb-diagnostico section-pad" style="background: #0f172a;">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-question-circle"></i> Info</span>
+        <h2 class="cb-h2-section">Problemas comunes y soluciones reales</h2>
+        <p class="cb-desc">Muchos síntomas relacionados con batería, temperatura o rendimiento pueden confundirse entre sí. Por eso realizamos diagnóstico real antes de reemplazar componentes innecesariamente, identificando si el problema proviene de la batería, el sistema de carga, temperatura excesiva o desgaste interno.</p>
+      </div>
+
+      <div class="cb-diagnostico-list">
+        <div class="cb-diagnostico-item">
+          <div class="cb-diag-problem">Batería dura poco pero carga</div>
+          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="cb-diag-solution">Reemplazo de batería (ciclos agotados)</div>
+        </div>
+        <div class="cb-diagnostico-item">
+          <div class="cb-diag-problem">No enciende sin cargador</div>
+          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="cb-diag-solution">Diagnóstico de placa / circuito de carga</div>
+        </div>
+        <div class="cb-diagnostico-item">
+          <div class="cb-diag-problem">Se apaga a 20% de batería</div>
+          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="cb-diag-solution">Calibración o reemplazo según diagnóstico</div>
+        </div>
+        <div class="cb-diagnostico-item">
+          <div class="cb-diag-problem">Batería inflada / laptop levantada</div>
+          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="cb-diag-solution">URGENTE - reemplazo inmediato por seguridad</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 10: COBERTURA DE MARCAS -->
+  <section class="cb-marcas section-pad">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-laptop"></i> Marcas</span>
+        <h2 class="cb-h2-section">Trabajamos con las principales marcas de laptops</h2>
+        <p class="cb-desc">Realizamos reemplazo de batería y mantenimiento en equipos Windows y MacBook, utilizando componentes compatibles y procedimientos adecuados para cada modelo.</p>
+      </div>
+
+      <div class="cb-marcas-wrap">
+        {marcas.map((m) => (
+          <div class="cb-marca-tag">{m}</div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 11: SERVICIOS RELACIONADOS -->
+  <section class="cb-relacionados section-pad" style="background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);">
+    <div class="container">
+      <div class="cb-section-header text-center">
+        <span class="cb-eyebrow"><i class="fa-solid fa-link"></i> Complementos</span>
+        <h2 class="cb-h2-section">Servicios recomendados para mejorar tu laptop</h2>
+        <p class="cb-desc">Además del cambio de batería, existen otros servicios que ayudan a reducir temperatura, mejorar estabilidad y extender la vida útil del equipo, especialmente en laptops con varios años de uso o problemas de rendimiento.</p>
+      </div>
+
+      <div class="cb-relacionados-grid">
+        <a href="/servicios/laptop/pasta-termica" class="cb-relacionado-card">
+          <i class="fa-solid fa-temperature-arrow-down"></i>
+          <h3>Pasta Térmica</h3>
+          <p>Reduce temperatura y mejora rendimiento</p>
+        </a>
+        <a href="/servicios/laptop/limpieza-interna" class="cb-relacionado-card">
+          <i class="fa-solid fa-broom"></i>
+          <h3>Limpieza Interna</h3>
+          <p>Elimina polvo y mejora ventilación</p>
+        </a>
+        <a href="/servicios/laptop/diagnostico" class="cb-relacionado-card">
+          <i class="fa-solid fa-stethoscope"></i>
+          <h3>Diagnóstico Completo</h3>
+          <p>Evaluación total del estado de tu laptop</p>
+        </a>
+        <a href="/paquetes" class="cb-relacionado-card">
+          <i class="fa-solid fa-box"></i>
+          <h3>Paquetes de Mantenimiento</h3>
+          <p>Combina servicios con descuento</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 12: FAQ -->
+  <section class="cb-faq section-pad" style="background: #0B1120;">
+    <div class="container">
+      <FaqSection 
+        title="Preguntas frecuentes sobre cambio de batería de laptop"
+        description="Respondemos las dudas más comunes relacionadas con autonomía, compatibilidad, calibración, temperatura, tiempos de reparación y rendimiento para ayudarte a tomar una decisión más segura antes de reemplazar la batería de tu laptop."
+        items={bateriaFaqs}
+        faqAccent="#3b82f6"
+      />
+    </div>
+  </section>
+
+  <!-- SECCIÓN 13: COMENTARIOS -->
+  <section class="cb-comentarios">
+    <CommentsSection 
+      title="Experiencias reales de nuestros clientes"
+      description="Clientes en Cancún confían en nuestro servicio de diagnóstico, mantenimiento y reemplazo profesional para recuperar la autonomía y estabilidad de sus laptops sin riesgos innecesarios."
+      dark={true}
+    />
+  </section>
+
+  <!-- SECCIÓN 14: CTA FINAL -->
+  <section class="cb-cta-final section-pad">
+    <div class="container">
+      <div class="cb-cta-final-content text-center">
+        <h2 class="cb-h2-section">Recupera la autonomía y estabilidad de tu laptop</h2>
+        <p class="cb-desc">Realizamos diagnóstico profesional, reemplazo seguro y mantenimiento preventivo para ayudarte a extender la vida útil de tu laptop y mejorar su rendimiento diario en Cancún.</p>
+        
+        <div class="cb-cta-final-buttons">
+          <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="cb-btn-primary">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar Servicio
+          </a>
+<a href="/servicios/laptop/pasta-termica" class="cb-btn-secondary">
+            Ver Mantenimiento <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 15: TICKET DE SERVICIO -->
+  <TicketForm id="ticket-bateria" title="Crear Ticket de Servicio" description="Inicia sesión con Google para crear un ticket de reparación y dar seguimiento a tu equipo" serviceSlug="cambio-bateria" dark={true} />
+
+</div>
+
+<style is:global>
+/* Theme Variables */
+.cambio-bateria-wrapper {
+  --cb-primary: #3b82f6;
+  --cb-primary-hover: #2563eb;
+  --cb-secondary: #6366f1;
+  --cb-accent: #8b5cf6;
+  --cb-dark: #0f172a;
+  --cb-darker: #0B1120;
+  --cb-light: #1e293b;
+  --cb-text: #f8fafc;
+  --cb-text-muted: #94a3b8;
+  --cb-success: #22c55e;
+}
+
+/* SECTION 1: HERO PREMIUM */
+.cb-hero {
+  position: relative;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  padding: 80px 0 60px;
+  overflow: hidden;
+}
+
+.cb-hero-glow {
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cb-hero-container {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.cb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.cb-h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.cb-gradient-text {
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cb-h2 {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 16px;
+  max-width: 600px;
+}
+
+.cb-intro {
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  max-width: 550px;
+}
+
+.cb-trust-bar {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.cb-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.cb-trust-item i {
+  color: #f59e0b;
+}
+
+.cb-cta-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.cb-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #3b82f6;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.cb-btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.cb-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.cb-btn-secondary:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.cb-price-badge {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 12px 20px;
+  border-radius: 10px;
+}
+
+.cb-price-badge span {
+  display: block;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.cb-price-badge strong {
+  font-size: 1.4rem;
+  color: #60a5fa;
+}
+
+/* Hero Visual / Glass Card */
+.cb-glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.cb-glass-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #60a5fa;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cb-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cb-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e2e8f0;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cb-checklist li:last-child {
+  border-bottom: none;
+}
+
+.cb-checklist i {
+  color: #22c55e;
+  font-size: 0.9rem;
+}
+
+/* SECTION 2: SÍNTOMAS */
+.cb-sintomas {
+  background: #f8fafc;
+}
+
+.cb-section-header {
+  margin-bottom: 50px;
+}
+
+.cb-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #3b82f6;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.cb-h2-section {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+.cb-desc {
+  color: #475569;
+  font-size: 1.05rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.cb-sintomas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.cb-sintoma-card {
+  display: flex;
+  gap: 16px;
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s;
+}
+
+.cb-sintoma-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.cb-sintoma-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.cb-sintoma-content h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.cb-sintoma-content p {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* SECTION 3: BENEFICIOS */
+.cb-beneficios-showcase {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.cb-beneficio-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.cb-beneficio-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.cb-beneficio-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.4rem;
+  margin: 0 auto 16px;
+}
+
+.cb-beneficio-item h3 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cb-beneficio-item p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* SECTION 4: PROCESO / TIMELINE */
+.cb-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cb-timeline::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+}
+
+.cb-timeline-item {
+  display: flex;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.cb-timeline-marker {
+  width: 50px;
+  height: 50px;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.cb-timeline-content {
+  padding-top: 8px;
+}
+
+.cb-timeline-content h3 {
+  color: #0f172a;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.cb-timeline-content p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* SECTION 5: CUIDADO / TIPS */
+.cb-tips-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.cb-tip-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+
+.cb-tip-card:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.cb-tip-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.cb-tip-card h3 {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.cb-tip-card p {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* SECTION 6: SOBRECALENTAMIENTO */
+.cb-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.cb-split-content h2 {
+  color: #0f172a;
+}
+
+.cb-split-content p {
+  color: #475569;
+}
+
+.cb-heat-factors {
+  display: flex;
+  gap: 16px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.cb-factor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cb-factor i {
+  color: #f59e0b;
+}
+
+.cb-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.cb-btn-outline:hover {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.cb-heat-visual {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: 20px;
+  padding: 60px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.cb-heat-visual i {
+  font-size: 4rem;
+  color: #f59e0b;
+}
+
+.cb-heat-visual span {
+  color: #92400e;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* SECTION 7: GALERÍA */
+.cb-gallery-collage {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.cb-gallery-main {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.cb-gallery-main img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+
+.cb-gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  padding: 40px 24px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+
+.cb-gallery-overlay i {
+  font-size: 1.5rem;
+  color: #22c55e;
+}
+
+.cb-gallery-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cb-gallery-item {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.cb-gallery-item img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+}
+
+/* SECTION 8: POR QUÉ ELEGIRNOS */
+.cb-porque-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.cb-porque-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.cb-porque-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.cb-porque-card i {
+  font-size: 2.5rem;
+  color: #3b82f6;
+  margin-bottom: 16px;
+}
+
+.cb-porque-card h3 {
+  color: #0f172a;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cb-porque-card p {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* SECTION 9: DIAGNÓSTICO */
+.cb-diagnostico-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cb-diagnostico-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.cb-diag-problem {
+  color: #f87171;
+  font-weight: 600;
+  flex: 1;
+}
+
+.cb-diag-arrow {
+  color: #64748b;
+}
+
+.cb-diag-solution {
+  color: #22c55e;
+  font-weight: 600;
+  flex: 1;
+  text-align: right;
+}
+
+/* SECTION 10: MARCAS */
+.cb-marcas-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cb-marca-tag {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #475569;
+  transition: all 0.3s;
+}
+
+.cb-marca-tag:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* SECTION 11: RELACIONADOS */
+.cb-relacionados-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.cb-relacionado-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.cb-relacionado-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #3b82f6;
+}
+
+.cb-relacionado-card i {
+  font-size: 2rem;
+  color: #60a5fa;
+  margin-bottom: 16px;
+}
+
+.cb-relacionado-card h3 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cb-relacionado-card p {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+/* SECCIÓN 13: COMENTARIOS */
+.cb-comentarios {
+  margin-top: -40px;
+}
+
+/* SECCIÓN 14: CTA FINAL */
+.cb-cta-final {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.cb-cta-final .cb-h2-section {
+  color: #fff;
+}
+
+.cb-cta-final .cb-desc {
+  color: #94a3b8;
+}
+
+.cb-cta-final-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .cb-hero-container {
+    grid-template-columns: 1fr;
+  }
+  .cb-beneficios-showcase,
+  .cb-tips-grid,
+  .cb-porque-grid,
+  .cb-relacionados-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cb-split-layout {
+    grid-template-columns: 1fr;
+  }
+  .cb-gallery-collage {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .cb-beneficios-showcase,
+  .cb-tips-grid,
+  .cb-porque-grid,
+  .cb-relacionados-grid {
+    grid-template-columns: 1fr;
+  }
+  .cb-timeline::before {
+    display: none;
+  }
+  .cb-cta-final-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+</style>

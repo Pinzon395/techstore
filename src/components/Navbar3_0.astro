@@ -8,6 +8,32 @@
  * ✅ Sticky + hide-on-scroll
  * ✅ Accesibilidad: aria-expanded, roles, focus-visible
  * ✅ Data source: src/data/services.ts (single source of truth)
+ *
+ * ⚠️ PRECAUCIÓN — REGLAS QUE NO DEBEN ROMPERSE:
+ *
+ * 1. RUTAS DE SERVICIOS: Todas las rutas de categorías y subservicios se generan
+ *    automáticamente desde src/data/services.ts (SERVICE_CATEGORIES).
+ *    NO codifiques rutas manualmente aquí — edita services.ts.
+ *
+ * 2. CLASES CSS CRTICAS: Las clases .navbar-v3, .has-cascade, .v3-cascade-l1,
+ *    .v3-cascade-l2, .cascade-item, .cascade-cat-link son la espina dorsal
+ *    del megamenú. Si cambias alguna, debes actualizar TODO el CSS scope
+ *    que está al final de este archivo (único lugar donde se definen).
+ *
+ * 3. IDs CRÍTICOS: #navbar, #mobile-menu, #nav-menu, #nav-auth-area,
+ *    #nav-auth-area-mobile, #nav-admin-gear, #dd-servicios, #dd-servicios-trigger,
+ *    #dd-servicios-menu. Estos son referenciados por el JS del navbar.
+ *
+ * 4. JAVASCRIPT: El script al final de este archivo maneja hamburger, dropdowns
+ *    en mobile, cascade L2, click-fuera, sticky+scroll y admin gear.
+ *    Depende de IS_MOBILE() y de las clases .has-cascade, .has-dropdown.
+ *    NO muevas ese script a otro archivo sin probar mobile completamente.
+ *
+ * 5. ESTE NAVBAR está usado en:
+ *    - /test-navbar-3 (vista de prueba)
+ *    - /servicios, /servicios/[categoria], /servicios/[categoria]/[servicio]
+ *    - /servicios/laptop/upgrade, /servicios/laptop/cambio-bateria
+ *    Cambios aquí afectan TODAS esas páginas simultaneamente.
  */
 import { SERVICE_CATEGORIES } from '../data/services';
 
@@ -82,7 +108,20 @@ const t = lang === 'en' ? {
           <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
 
-        <!-- Nivel 1: Categorías -->
+        <!-- ====== SERVICIOS DROPDOWN ======
+             ⚠️ PRECAUCIÓN: Este dropdown se genera dinámicamente desde
+             src/data/services.ts. Para agregar/quitar categorías o subservicios,
+             edita ese archivo. NO modifiques este HTML a mano.
+
+             Rutas generadas automáticamente:
+             - Categorías: /servicios/{cat.slug}
+             - Subservicios: /servicios/{cat.slug}/{s.slug}
+             - Con customUrl: se redirige a la página existente definida en customUrl
+
+             El botón de categoría (cascade-cat-link) en MOBILE hace toggle del acordeón
+             (e.preventDefault() en JS). En DESKTOP navega al href normalmente.
+        -->
+        <!-- Nivel 1: Categóras -->
         <ul class="v3-cascade-l1" role="menu" aria-label="Categorías de servicio" id="dd-servicios-menu">
           {SERVICE_CATEGORIES.map((cat) => (
             <li class="cascade-item" role="none" data-cat={cat.id} id={`dd-cat-${cat.id}`}>
@@ -134,9 +173,14 @@ const t = lang === 'en' ? {
         </ul>
       </li>
 
-      <!-- ══ PAQUETES ══ -->
+      <!-- ====== PAQUETES ======
+           ⚠️ PRECAUCIÓN: El trigger href apunta a /paquetes (hub de paquetes).
+           Los subitems del dropdown apuntan a /paquetes?section=... y /optimizacion.
+           El dropdown en DESKTOP se abre con :hover (CSS). En MOBILE el JS hace toggle.
+           La clase .has-cascade activa el comportamiento de cascade dropdown en el JS.
+      -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href="#" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href={lang === 'en' ? '/en/packages' : '/paquetes'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.packages} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
@@ -161,9 +205,13 @@ const t = lang === 'en' ? {
         </ul>
       </li>
 
-      <!-- ══ INFORMACIÓN ══ -->
+      <!-- ====== INFORMACIÓN ======
+           ⚠️ PRECAUCIÓN: El trigger href apunta a /preguntas-frecuentes.
+           Subitems: FAQ, Reseñas, Catálogo en video, Garantía.
+           Si agregas/quitas subitems, verifica que las páginas de destino existan.
+      -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href="#" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href={lang === 'en' ? '/en/faq' : '/preguntas-frecuentes'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.info} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
@@ -194,7 +242,11 @@ const t = lang === 'en' ? {
         </ul>
       </li>
 
-      <!-- ══ CONTACTO ══ -->
+      <!-- ====== CONTACTO ======
+           ⚠️ PRECAUCIÓN: Este ítem navega directamente a /contacto.
+           El dropdown tiene 2 subitems: formulario y WhatsApp directo.
+           El número de WhatsApp es 529986690777.
+      -->
       <li class="has-dropdown has-cascade" role="none">
         <a href={lang === 'en' ? '/en/contact' : '/contacto'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.contact} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
@@ -207,7 +259,7 @@ const t = lang === 'en' ? {
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href="https://wa.me/529983412586" target="_blank" rel="noopener noreferrer" class="cascade-cat-link" role="menuitem">
+            <a href="https://wa.me/529986690777" target="_blank" rel="noopener noreferrer" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap" style="color: #25d366; border-color: #25d36640; background: #25d36615;"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">WhatsApp Directo</span>
             </a>
@@ -215,7 +267,11 @@ const t = lang === 'en' ? {
         </ul>
       </li>
 
-      <!-- B2B -->
+      <!-- ====== B2B ======
+           ⚠️ PRECAUCIÓN: Enlace simple sin dropdown. Apunta a /empresas.
+           No tiene clase .has-cascade ni .has-dropdown — no agregar dropdown
+           sin probar que el CSS no colisione con el resto del menú.
+      -->
       <li role="none">
         <a href={lang === 'en' ? '/en/corporate' : '/empresas'} class="nav-links b2b-btn-premium" role="menuitem">
           <i class="fa-solid fa-building-shield" aria-hidden="true"></i> {t.b2b}
@@ -700,6 +756,12 @@ const t = lang === 'en' ? {
 //  · Click fuera = cierra todo
 //  · Sticky + hide-on-scroll
 //  · Admin gear
+//
+//  ⚠️ PRECAUCIÓN: Este script depende de IDs y clases del HTML de arriba.
+//  Cambiar cualquiera de estos sin actualizar el otro rompe la navegación:
+//    HTML ID: #mobile-menu, #nav-menu, #navbar, #nav-admin-gear
+//    HTML clases: .has-cascade, .has-dropdown, .v3-cascade-l1, .cascade-item
+//    HTML clases: .cascade-cat-link, .nav-dd-trigger, .v3-cascade-l2
 // ════════════════════════════════════════════════════════
 
 const IS_MOBILE = () => window.innerWidth <= 750;
@@ -746,6 +808,16 @@ document.querySelectorAll<HTMLElement>('.has-dropdown:not(.has-cascade) > .nav-d
 document.querySelectorAll<HTMLElement>('.has-cascade > .nav-dd-trigger').forEach((trigger) => {
   trigger.addEventListener('click', (e) => {
     if (!IS_MOBILE()) return; // desktop: CSS :hover ya lo maneja
+
+    const target = e.target as HTMLElement;
+    const isArrow = target.classList.contains('dropdown-arrow') || !!target.closest('.dropdown-arrow');
+    const href = trigger.getAttribute('href');
+    
+    // Permitir navegación si NO fue clic en la flecha y SI hay un href válido
+    if (!isArrow && href && href !== '#' && !href.startsWith('javascript')) {
+      return; 
+    }
+
     e.preventDefault();
 
     const parent = trigger.parentElement!;
@@ -777,6 +849,15 @@ document.querySelectorAll<HTMLElement>('.cascade-cat-link').forEach((link) => {
     
     // Si NO tiene submenú (ej. Paquetes, Info), dejar que navegue de forma natural
     if (!submenu) return;
+
+    const target = e.target as HTMLElement;
+    const isArrow = target.classList.contains('cascade-arrow') || !!target.closest('.cascade-arrow');
+    const href = link.getAttribute('href');
+    
+    // Permitir navegación si NO fue clic en la flecha y SI hay un href válido
+    if (!isArrow && href && href !== '#' && !href.startsWith('javascript')) {
+      return;
+    }
 
     e.preventDefault(); // en mobile expandimos, no navegamos
 

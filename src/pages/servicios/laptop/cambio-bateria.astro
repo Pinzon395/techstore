@@ -1,0 +1,32 @@
+---
+// Static page for cambio-bateria service
+import Base from '../../../layouts/Base.astro';
+import Navbar3_0 from '../../../components/Navbar3_0.astro';
+import Footer from '../../../components/Footer.astro';
+import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
+
+// Get the service data manually
+import { SERVICE_CATEGORIES } from '../../../data/services';
+
+const laptopCategory = SERVICE_CATEGORIES.find(c => c.slug === 'laptop');
+const service = laptopCategory?.services.find(s => s.slug === 'cambio-bateria');
+const category = laptopCategory;
+
+if (!service || !category) {
+  return Astro.redirect('/404');
+}
+
+const seoTitle = `Cambio de batería de laptop en Cancún | Pixon PC`;
+const description = `Recupera la autonomía completa de tu laptop con baterías certificadas en Cancún. Diagnóstico gratis, garantía 6 meses.`;
+---
+
+<Base
+  title={seoTitle}
+  description={description}
+  canonical={`https://pixon.com.mx/servicios/laptop/cambio-bateria`}
+  image="/assets/images/reparacion-mac-cancun.jpeg"
+>
+  <Navbar3_0 />
+  <CambioBateriaView service={service} category={category} />
+  <Footer />
+</Base>

@@ -1,0 +1,349 @@
+---
+/**
+ * TicketForm - Formulario de tickets con autenticación Google
+ * Reutilizable en cualquier página del sitio
+ */
+interface Props {
+  id?: string;
+  title?: string;
+  description?: string;
+  serviceSlug?: string; // Para pre-seleccionar tipo de servicio
+  dark?: boolean;
+}
+
+const {
+  id = 'ticket-form',
+  title = 'Crear Ticket de Servicio',
+  description = 'Inicia sesión para crear un ticket y dar seguimiento a tu reparación',
+  serviceSlug,
+  dark = false
+} = Astro.props;
+
+const sectionStyle = dark
+  ? 'background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 60px 0;'
+  : 'background: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%); padding: 60px 0;';
+
+const titleColor = dark ? '#ffffff' : '#0f172a';
+const descColor = dark ? '#94a3b8' : '#475569';
+const labelColor = dark ? '#ffffff' : '#0f172a';
+const inputBg = dark ? 'rgba(0,0,0,0.3)' : '#ffffff';
+const inputBorder = dark ? 'rgba(255,255,255,0.15)' : '#e2e8f0';
+const inputColor = dark ? '#ffffff' : '#0f172a';
+---
+
+<section id={id} style={sectionStyle}>
+  <div class="container" style="max-width: 600px;">
+    
+    <!-- Título -->
+    <div class="text-center" style="margin-bottom: 30px;">
+      <h2 style={`color: ${titleColor}; font-family: 'Kanit', sans-serif; font-weight: 800; font-size: 1.8rem; margin-bottom: 10px;`}>
+        {title}
+      </h2>
+      <p style={`color: ${descColor}; font-size: 1rem;`}>{description}</p>
+    </div>
+
+    <!-- Login required message (shown when not authenticated) -->
+    <div id="ticket-login-required" class="ticket-auth-section" style="text-align: center; padding: 40px 20px;">
+      <div style="margin-bottom: 20px;">
+        <i class="fa-brands fa-google" style="font-size: 3rem; color: #3b82f6;"></i>
+      </div>
+      <h3 style={`color: ${titleColor}; margin-bottom: 15px; font-size: 1.3rem;`}>Inicia sesión con Google</h3>
+      <p style={`color: ${descColor}; margin-bottom: 25px;`}>Necesitas iniciar sesión para crear un ticket y darle seguimiento</p>
+      <a href="/auth/google" class="btn-google-login" style="
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        color: #333;
+        padding: 14px 28px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 1rem;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+      ">
+        <i class="fa-brands fa-google"></i>
+        Iniciar sesión con Google
+      </a>
+    </div>
+
+    <!-- Ticket form (shown when authenticated) -->
+    <div id="ticket-form-container" class="ticket-form-section" style="display: none;">
+      <form id="ticketForm" class="ticket-form" style="
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
+        padding: 30px;
+      ">
+        <!-- User Info (pre-filled from session) -->
+        <div id="user-info-display" style="margin-bottom: 25px; padding: 15px; background: rgba(59,130,246,0.1); border-radius: 10px; display: none;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img id="user-avatar" src="" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;" />
+            <div>
+              <p id="user-name" style="color: #ffffff; font-weight: 600; margin: 0;"></p>
+              <p id="user-email" style="color: #94a3b8; font-size: 0.85rem; margin: 0;"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Device Type -->
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label style={`color: ${labelColor}; font-weight: 600; display: block; margin-bottom: 8px;`}>
+            <i class="fa-solid fa-laptop"></i> ¿Qué tipo de equipo necesitas atender?
+          </label>
+          <select id="device_type" required style="
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid ${inputBorder};
+            background: ${inputBg};
+            color: ${inputColor};
+            font-size: 1rem;
+            cursor: pointer;
+          ">
+            <option value="">Selecciona el tipo de equipo...</option>
+            <option value="laptop">Laptop / MacBook</option>
+            <option value="pc">PC de Escritorio</option>
+            <option value="consola">Consola (PS4/PS5/Xbox)</option>
+            <option value="celular">Celular / Tablet</option>
+            <option value="impresora">Impresora</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+
+        <!-- Device Brand -->
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label style={`color: ${labelColor}; font-weight: 600; display: block; margin-bottom: 8px;`}>
+            <i class="fa-solid fa-tag"></i> Marca del equipo
+          </label>
+          <select id="device_brand" style="
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid ${inputBorder};
+            background: ${inputBg};
+            color: ${inputColor};
+            font-size: 1rem;
+            cursor: pointer;
+          ">
+            <option value="">Selecciona marca...</option>
+            <option value="apple">Apple (MacBook/Mac)</option>
+            <option value="dell">Dell</option>
+            <option value="hp">HP</option>
+            <option value="lenovo">Lenovo</option>
+            <option value="asus">Asus</option>
+            <option value="acer">Acer</option>
+            <option value="samsung">Samsung</option>
+            <option value="sony">Sony</option>
+            <option value="microsoft">Microsoft (Surface)</option>
+            <option value="otro">Otra marca</option>
+          </select>
+        </div>
+
+        <!-- Device Model (Optional) -->
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label style={`color: ${labelColor}; font-weight: 600; display: block; margin-bottom: 8px;`}>
+            <i class="fa-solid fa-hashtag"></i> Modelo (Opcional)
+          </label>
+          <input 
+            type="text" 
+            id="device_model" 
+            placeholder="Ej: MacBook Pro 14&quot; M3, Dell XPS 15..."
+            style="
+              width: 100%;
+              padding: 14px 16px;
+              border-radius: 10px;
+              border: 1px solid ${inputBorder};
+              background: ${inputBg};
+              color: ${inputColor};
+              font-size: 1rem;
+            "
+          />
+        </div>
+
+        <!-- Service Type (if provided) -->
+        {serviceSlug && (
+          <input type="hidden" id="service_slug" value={serviceSlug} />
+        )}
+
+        <!-- Reported Issue -->
+        <div class="form-group" style="margin-bottom: 25px;">
+          <label style={`color: ${labelColor}; font-weight: 600; display: block; margin-bottom: 8px;`}>
+            <i class="fa-solid fa-message"></i> Describe el problema
+          </label>
+          <textarea 
+            id="reported_issue" 
+            rows="4" 
+            required
+            placeholder="¿Qué le pasa a tu equipo? Describe los síntomas, cuándo empezó el problema, si has intentado algo..."
+            style="
+              width: 100%;
+              padding: 14px 16px;
+              border-radius: 10px;
+              border: 1px solid ${inputBorder};
+              background: ${inputBg};
+              color: ${inputColor};
+              font-size: 1rem;
+              resize: vertical;
+              min-height: 120px;
+            "
+          ></textarea>
+        </div>
+
+        <!-- Contact Phone -->
+        <div class="form-group" style="margin-bottom: 25px;">
+          <label style={`color: ${labelColor}; font-weight: 600; display: block; margin-bottom: 8px;`}>
+            <i class="fa-solid fa-phone"></i> Teléfono de contacto
+          </label>
+          <input 
+            type="tel" 
+            id="contact_phone" 
+            required
+            placeholder="+52 998 123 4567"
+            style="
+              width: 100%;
+              padding: 14px 16px;
+              border-radius: 10px;
+              border: 1px solid ${inputBorder};
+              background: ${inputBg};
+              color: ${inputColor};
+              font-size: 1rem;
+            "
+          />
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          id="submitTicketBtn"
+          style="
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+          "
+        >
+          <i class="fa-solid fa-ticket"></i> Crear Ticket
+        </button>
+
+        <!-- Success Message -->
+        <div id="ticket-success" style="display: none; text-align: center; padding: 30px;">
+          <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: #22c55e; margin-bottom: 20px;"></i>
+          <h3 style={`color: ${titleColor}; margin-bottom: 10px;`}>¡Ticket creado exitosamente!</h3>
+          <p style={`color: ${descColor}; margin-bottom: 20px;`}>Tu ticket ha sido creado. Puedes dar seguimiento en tu panel de usuario.</p>
+          <p id="ticket-code-display" style="font-size: 1.5rem; font-weight: 800; color: #3b82f6;"></p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="ticket-error" style="display: none; text-align: center; padding: 20px; background: rgba(239,68,68,0.1); border-radius: 10px; margin-top: 15px;">
+          <i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i>
+          <p id="ticket-error-text" style="color: #ef4444; margin: 10px 0 0 0;"></p>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<script is:inline>
+(function() {
+  'use strict';
+  
+  const API_BASE = '/api';
+  
+  // Check authentication status on load
+  async function checkAuth() {
+    try {
+      const res = await fetch(`${API_BASE}/me`, { credentials: 'include' });
+      if (res.ok) {
+        const user = await res.json();
+        showTicketForm(user);
+      } else {
+        showLoginRequired();
+      }
+    } catch (e) {
+      showLoginRequired();
+    }
+  }
+  
+  function showLoginRequired() {
+    document.getElementById('ticket-login-required').style.display = 'block';
+    document.getElementById('ticket-form-container').style.display = 'none';
+  }
+  
+  function showTicketForm(user) {
+    document.getElementById('ticket-login-required').style.display = 'none';
+    document.getElementById('ticket-form-container').style.display = 'block';
+    
+    // Pre-fill user info
+    if (user) {
+      const userInfoDisplay = document.getElementById('user-info-display');
+      const userAvatar = document.getElementById('user-avatar');
+      const userName = document.getElementById('user-name');
+      const userEmail = document.getElementById('user-email');
+      
+      if (userInfoDisplay && user.avatar_url) {
+        userInfoDisplay.style.display = 'block';
+        userAvatar.src = user.avatar_url || '/assets/images/default-avatar.png';
+        userName.textContent = user.name || 'Usuario';
+        userEmail.textContent = user.email || '';
+      }
+    }
+  }
+  
+  // Handle form submission
+  const form = document.getElementById('ticketForm');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitTicketBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...';
+      
+      const data = {
+        device_type: document.getElementById('device_type').value,
+        device_brand: document.getElementById('device_brand').value,
+        device_model: document.getElementById('device_model').value || null,
+        reported_issue: document.getElementById('reported_issue').value,
+        contact_phone: document.getElementById('contact_phone').value
+      };
+      
+      try {
+        const res = await fetch(`${API_BASE}/tickets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        
+        const result = await res.json();
+        
+        if (res.ok && result.success) {
+          document.getElementById('ticketForm').style.display = 'none';
+          document.getElementById('ticket-success').style.display = 'block';
+          document.getElementById('ticket-code-display').textContent = 'Ticket: ' + result.ticket.ticket_code;
+        } else {
+          throw new Error(result.message || 'Error al crear ticket');
+        }
+      } catch (err) {
+        document.getElementById('ticket-error').style.display = 'block';
+        document.getElementById('ticket-error-text').textContent = err.message;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-ticket"></i> Crear Ticket';
+      }
+    });
+  }
+  
+  // Initialize
+  checkAuth();
+})();
+</script>

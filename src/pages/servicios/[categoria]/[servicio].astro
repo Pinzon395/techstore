@@ -6,6 +6,7 @@ import Breadcrumb from '../../../components/Breadcrumb.astro';
 import CommentsSection from '../../../components/CommentsSection.astro';
 import ContactSection from '../../../components/ContactSection.astro';
 import MantenimientoTermicoView from '../../../components/views/MantenimientoTermicoView.astro';
+import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
 
 export function getStaticPaths() {
@@ -86,6 +87,8 @@ const faqItems = [
 
   {service.slug === 'ventilacion' ? (
     <MantenimientoTermicoView service={service} category={category} />
+  ) : service.slug === 'cambio-bateria' ? (
+    <CambioBateriaView service={service} category={category} />
   ) : (
     <div class="theme-premium-dark">
       <!-- 1. HERO SECTION (Dark Premium) -->
@@ -520,7 +523,7 @@ const faqItems = [
         <div class="faq-grid">
           {service.faqs.map((item: any) => (
             <div class="faq-item">
-              <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+              <button class="faq-question" aria-expanded="false" onclick="toggleSvcFaqItem(this)">
                 <span><i class="fa-solid fa-circle-question faq-q-icon"></i> {item.question}</span>
                 <i class="fa-solid fa-chevron-down faq-chevron"></i>
               </button>
@@ -562,26 +565,42 @@ const faqItems = [
   <Footer />
 
   <!-- ─── FAQ Toggle Script ─── -->
+  <!-- ⚠️ PRECAUCIÓN: Esta función controla el acordeón de FAQs en las landing pages
+       de servicios (/servicios/[categoria]/[servicio]).
+       - El onclick en el botón usa 'toggleSvcFaqItem'
+       - Los selectores apuntan a .faq-item, .faq-question, .faq-answer
+       - NO cambiar estos nombres sin actualizar el onclick en el botón arriba -->
   <script>
-    function toggleSvcFaq(btn) {
-      const item = btn.closest('.faq-item-svc');
-      const ans = item.querySelector('.faq-ans');
+    function toggleSvcFaqItem(btn: HTMLButtonElement) {
+      const item = btn.closest('.faq-item') as HTMLElement | null;
+      if (!item) return;
+      const ans = item.querySelector('.faq-answer') as HTMLElement | null;
+      if (!ans) return;
       const isOpen = btn.getAttribute('aria-expanded') === 'true';
-      // Cerrar todos
-      document.querySelectorAll('.faq-item-svc .faq-q-btn').forEach(b => {
-        b.setAttribute('aria-expanded', 'false');
-        const a = b.closest('.faq-item-svc').querySelector('.faq-ans');
-        if (a) { a.style.maxHeight = '0'; a.setAttribute('aria-hidden', 'true'); }
-      });
-      // Abrir el clicked si estaba cerrado
+
+      // Cerrar todos los items abiertos del mismo contenedor
+      const container = item.closest('.faq-grid');
+      if (container) {
+        container.querySelectorAll<HTMLElement>('.faq-item').forEach(el => {
+          const q = el.querySelector<HTMLButtonElement>('.faq-question');
+          const a = el.querySelector<HTMLElement>('.faq-answer');
+          if (q) q.setAttribute('aria-expanded', 'false');
+          if (a) {
+            a.style.maxHeight = '0';
+            a.setAttribute('aria-hidden', 'true');
+          }
+        });
+      }
+
+      // Abrir el clickeado solo si estaba cerrado
       if (!isOpen) {
         btn.setAttribute('aria-expanded', 'true');
         ans.style.maxHeight = ans.scrollHeight + 'px';
         ans.setAttribute('aria-hidden', 'false');
       }
     }
-    // Inyectar al global
-    (window as any).toggleSvcFaq = toggleSvcFaq;
+    // Exponer al scope global para que el onclick inline funcione
+    (window as any).toggleSvcFaqItem = toggleSvcFaqItem;
   </script>
   )}
 </Base>

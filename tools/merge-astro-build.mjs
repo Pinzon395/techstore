@@ -81,3 +81,14 @@ for (const [src, dst] of staticAssetDirs) {
 
 console.log(`[merge-astro] ${copied} archivos nuevos, ${overwritten} sobrescritos.`);
 console.log(`[merge-astro] dist-astro/ limpiado.`);
+
+// COPIA PERSONALIZADA: crear pagina cambio-bateria desde reparacion-bisagras
+const sourceFile = path.join(distDir, 'reparacion-bisagras.html');
+const targetDir = path.join(distDir, 'servicios', 'laptop');
+const targetFile = path.join(targetDir, 'cambio-bateria.html');
+
+if (fs.existsSync(sourceFile)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+    fs.copyFileSync(sourceFile, targetFile);
+    console.log(`[merge-astro] Creado: servicios/laptop/cambio-bateria.html`);
+}
