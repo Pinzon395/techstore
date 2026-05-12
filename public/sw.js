@@ -1,6 +1,6 @@
 // Versionar SW por build: cuando se publica nuevo HTML/CSS, se invalidan caches
 // previas. Bumpear esta constante cada vez que cambien recursos críticos cacheados.
-const VERSION = '2026-05-11-2';
+const VERSION = '2026-05-11-3';
 const CACHE = `pixon-${VERSION}`;
 const STATIC_CACHE = `pixon-static-${VERSION}`;
 

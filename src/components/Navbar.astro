@@ -97,7 +97,7 @@ const t = lang === 'en' ? {
       <!-- ══ SERVICIOS ══ Cascade Dropdown -->
       <li class="has-dropdown has-cascade" role="none" id="dd-servicios">
         <a
-          href="/servicios"
+          href="#"
           class="nav-links nav-dd-trigger"
           role="menuitem"
           aria-haspopup="true"
@@ -126,7 +126,7 @@ const t = lang === 'en' ? {
           {SERVICE_CATEGORIES.map((cat) => (
             <li class="cascade-item" role="none" data-cat={cat.id} id={`dd-cat-${cat.id}`}>
               <a
-                href={`/servicios/${cat.slug}`}
+                href="#"
                 class="cascade-cat-link"
                 role="menuitem"
                 aria-haspopup="true"
@@ -170,6 +170,13 @@ const t = lang === 'en' ? {
               </ul>
             </li>
           ))}
+          <li class="cascade-item" role="none">
+            <a href="/servicios" class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{lang === 'en' ? 'View all services' : 'Todos nuestros servicios'}</span>
+              <i class="fa-solid fa-arrow-right cascade-arrow" aria-hidden="true"></i>
+            </a>
+          </li>
         </ul>
       </li>
 
@@ -180,16 +187,10 @@ const t = lang === 'en' ? {
            La clase .has-cascade activa el comportamiento de cascade dropdown en el JS.
       -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href={lang === 'en' ? '/en/packages' : '/paquetes'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href="#" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.packages} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
-          <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en/packages' : '/paquetes'} class="cascade-cat-link" role="menuitem">
-              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
-              <span class="cascade-cat-label">{lang === 'en' ? 'All packages' : 'Todos los Paquetes'}</span>
-            </a>
-          </li>
           <li class="cascade-item" role="none">
             <a href={lang === 'en' ? '/en/packages' : '/paquetes?section=paquetes'} class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i></span>
@@ -202,6 +203,13 @@ const t = lang === 'en' ? {
               <span class="cascade-cat-label">{lang === 'en' ? 'Optimization' : 'Optimización'}</span>
             </a>
           </li>
+          <li class="cascade-item" role="none">
+            <a href={lang === 'en' ? '/en/packages' : '/paquetes'} class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">{lang === 'en' ? 'All packages' : 'Todos los Paquetes'}</span>
+              <i class="fa-solid fa-arrow-right cascade-arrow" aria-hidden="true"></i>
+            </a>
+          </li>
         </ul>
       </li>
 
@@ -211,7 +219,7 @@ const t = lang === 'en' ? {
            Si agregas/quitas subitems, verifica que las páginas de destino existan.
       -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href={lang === 'en' ? '/en/faq' : '/preguntas-frecuentes'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href="#" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.info} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
@@ -248,7 +256,7 @@ const t = lang === 'en' ? {
            El número de WhatsApp es 529986690777.
       -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href={lang === 'en' ? '/en/contact' : '/contacto'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href="#" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.contact} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
@@ -361,17 +369,19 @@ const t = lang === 'en' ? {
     pointer-events: none;
   }
 
-  /* Desktop: abrir L1 con :hover */
+  /* Desktop: abrir L1 con :hover O con .open (click toggle) */
   .navbar-v3 .has-cascade:hover > .v3-cascade-l1,
-  .navbar-v3 .has-cascade:focus-within > .v3-cascade-l1 {
+  .navbar-v3 .has-cascade:focus-within > .v3-cascade-l1,
+  .navbar-v3 .has-cascade.open > .v3-cascade-l1 {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     pointer-events: auto;
   }
-  /* Rotar flecha al hover */
+  /* Rotar flecha al hover O al .open */
   .navbar-v3 .has-cascade:hover > .nav-links .dropdown-arrow,
-  .navbar-v3 .has-cascade:focus-within > .nav-links .dropdown-arrow {
+  .navbar-v3 .has-cascade:focus-within > .nav-links .dropdown-arrow,
+  .navbar-v3 .has-cascade.open > .nav-links .dropdown-arrow {
     transform: rotate(180deg);
   }
 
@@ -468,7 +478,8 @@ const t = lang === 'en' ? {
   }
 
   .navbar-v3 .cascade-item:hover > .v3-cascade-l2,
-  .navbar-v3 .cascade-item:focus-within > .v3-cascade-l2 {
+  .navbar-v3 .cascade-item:focus-within > .v3-cascade-l2,
+  .navbar-v3 .cascade-item.open > .v3-cascade-l2 {
     opacity: 1;
     visibility: visible;
     transform: translateX(0);
@@ -569,6 +580,9 @@ const t = lang === 'en' ? {
     border: none !important;
     padding: 0 !important;
     margin: 4px 0 0 !important;
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   .navbar-v3 .v3-cascade-l1.active {
     display: block;
@@ -749,16 +763,18 @@ const t = lang === 'en' ? {
 
 <script>
 // ════════════════════════════════════════════════════════
-//  Navbar 3.0 — JavaScript completo
-//  · Hamburger toggle
-//  · Dropdowns: desktop vía CSS, mobile vía JS (class toggle)
-//  · Cascade Servicios: acordeón en mobile, cascada en desktop
-//  · Click fuera = cierra todo
-//  · Sticky + hide-on-scroll
-//  · Admin gear
+//  Navbar 3.0 — JavaScript completo (v3.1 — UX Overhaul)
+//
+//  Cambios v3.1:
+//  · Triggers principales (Servicios, Paquetes, Info, Contacto) SIEMPRE
+//    abren/cierran el dropdown — NUNCA navegan.
+//  · cascade-cat-link CON submenú (.v3-cascade-l2) → toggle acordeón.
+//  · cascade-cat-link SIN submenú → navega normalmente al href.
+//  · Toda la fila es clickeable (no solo la flecha).
+//  · Desktop: hover CSS sigue funcionando, click también toggle.
+//  · Flecha rota vía clase .open (CSS ya lo maneja).
 //
 //  ⚠️ PRECAUCIÓN: Este script depende de IDs y clases del HTML de arriba.
-//  Cambiar cualquiera de estos sin actualizar el otro rompe la navegación:
 //    HTML ID: #mobile-menu, #nav-menu, #navbar, #nav-admin-gear
 //    HTML clases: .has-cascade, .has-dropdown, .v3-cascade-l1, .cascade-item
 //    HTML clases: .cascade-cat-link, .nav-dd-trigger, .v3-cascade-l2
@@ -776,12 +792,12 @@ mobileMenuBtn?.addEventListener('click', () => {
   mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 });
 
-// ── 2. DROPDOWNS ESTÁNDAR (Paquetes, Información) ──────
-// En mobile, toggle la clase .active en el .dropdown-menu hijo
-// (el CSS base ya reconoce .dropdown-menu.active en mobile)
+// ── 2. DROPDOWNS ESTÁNDAR (sin cascade) ────────────────
+// Solo aplica a .has-dropdown:not(.has-cascade) — actualmente no hay ninguno,
+// pero se mantiene por compatibilidad futura.
 document.querySelectorAll<HTMLElement>('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').forEach((trigger) => {
   trigger.addEventListener('click', (e) => {
-    if (!IS_MOBILE()) return; // desktop usa :hover puro de CSS
+    if (!IS_MOBILE()) return;
     e.preventDefault();
 
     const parent = trigger.parentElement!;
@@ -789,11 +805,10 @@ document.querySelectorAll<HTMLElement>('.has-dropdown:not(.has-cascade) > .nav-d
     if (!menu) return;
 
     const isOpen = parent.classList.toggle('open');
-    // Activar/desactivar .active en el menu para el CSS mobile
     menu.classList.toggle('active', isOpen);
     trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 
-    // Cerrar otros dropdowns del mismo nivel
+    // Cerrar hermanos
     document.querySelectorAll<HTMLElement>('.has-dropdown.open').forEach((el) => {
       if (el !== parent) {
         el.classList.remove('open');
@@ -804,21 +819,13 @@ document.querySelectorAll<HTMLElement>('.has-dropdown:not(.has-cascade) > .nav-d
   });
 });
 
-// ── 3. CASCADE DROPDOWNS (Servicios, Paquetes, Info, etc.) ──
+// ── 3. CASCADE TRIGGERS (Servicios, Paquetes, Info, Contacto) ──
+// Click en el trigger principal SIEMPRE abre/cierra el dropdown.
+// NUNCA navega (href="#" en el HTML).
 document.querySelectorAll<HTMLElement>('.has-cascade > .nav-dd-trigger').forEach((trigger) => {
   trigger.addEventListener('click', (e) => {
-    if (!IS_MOBILE()) return; // desktop: CSS :hover ya lo maneja
-
-    const target = e.target as HTMLElement;
-    const isArrow = target.classList.contains('dropdown-arrow') || !!target.closest('.dropdown-arrow');
-    const href = trigger.getAttribute('href');
-    
-    // Permitir navegación si NO fue clic en la flecha y SI hay un href válido
-    if (!isArrow && href && href !== '#' && !href.startsWith('javascript')) {
-      return; 
-    }
-
     e.preventDefault();
+    e.stopPropagation(); // Evitar que el click-fuera cierre inmediatamente
 
     const parent = trigger.parentElement!;
     const menu   = parent.querySelector<HTMLElement>('.v3-cascade-l1');
@@ -828,43 +835,54 @@ document.querySelectorAll<HTMLElement>('.has-cascade > .nav-dd-trigger').forEach
     menu.classList.toggle('active', isOpen);
     trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 
-    // Cerrar otros cascade dropdowns
+    // Cerrar otros cascade dropdowns abiertos (acordeón exclusivo nivel 0)
     document.querySelectorAll<HTMLElement>('.has-cascade.open').forEach((el) => {
       if (el !== parent) {
         el.classList.remove('open');
         el.querySelector('.v3-cascade-l1')?.classList.remove('active');
         el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+        // También cerrar sub-acordeones internos
+        el.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((sub) => {
+          sub.classList.remove('open');
+          sub.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+        });
       }
     });
   });
 });
 
-// ── 4. CASCADE NIVEL 2: cada categoría (solo mobile) ────
+// ── 4. CASCADE CATEGORÍAS (Laptop, PC, Celular, etc.) ──────
+// Si tiene .v3-cascade-l2 → toggle acordeón (expandir/colapsar submenú).
+// Si NO tiene .v3-cascade-l2 → navegar al href (ej. "Mantenimiento", "FAQ", "Todos...").
 document.querySelectorAll<HTMLElement>('.cascade-cat-link').forEach((link) => {
   link.addEventListener('click', (e) => {
-    if (!IS_MOBILE()) return; // Desktop: navegar al href de la categoría normalmente
-
-    const item = link.parentElement as HTMLElement;
+    const item    = link.parentElement as HTMLElement;
     const submenu = item.querySelector('.v3-cascade-l2');
-    
-    // Si NO tiene submenú (ej. Paquetes, Info), dejar que navegue de forma natural
-    if (!submenu) return;
 
-    const target = e.target as HTMLElement;
-    const isArrow = target.classList.contains('cascade-arrow') || !!target.closest('.cascade-arrow');
-    const href = link.getAttribute('href');
-    
-    // Permitir navegación si NO fue clic en la flecha y SI hay un href válido
-    if (!isArrow && href && href !== '#' && !href.startsWith('javascript')) {
-      return;
+    if (!submenu) {
+      // ── SIN submenú: navegar normalmente ──
+      // Aplica a: Mantenimiento, Optimización, FAQ, Reseñas, WhatsApp,
+      // "Todos nuestros servicios", "Todos los Paquetes", etc.
+      const href = link.getAttribute('href');
+      if (href && href !== '#') {
+        // Para links externos (WhatsApp), respetar target="_blank"
+        if (link.getAttribute('target') === '_blank') {
+          window.open(href, '_blank', 'noopener,noreferrer');
+        } else {
+          window.location.href = href;
+        }
+      }
+      return; // Dejar que navegue — NO prevenir default
     }
 
-    e.preventDefault(); // en mobile expandimos, no navegamos
+    // ── CON submenú: toggle acordeón ──
+    e.preventDefault();
+    e.stopPropagation();
 
     const isOpen = item.classList.toggle('open');
     link.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 
-    // Cerrar hermanos para acordeón exclusivo
+    // Cerrar hermanos (acordeón exclusivo dentro del mismo dropdown)
     item.parentElement?.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((sib) => {
       if (sib !== item) {
         sib.classList.remove('open');
@@ -877,25 +895,39 @@ document.querySelectorAll<HTMLElement>('.cascade-cat-link').forEach((link) => {
 // ── 5. CLICK FUERA = CERRAR TODO ───────────────────────
 document.addEventListener('click', (e) => {
   const target = e.target as Node;
+  const navbar = document.getElementById('navbar');
 
-  // Cerrar todos los dropdowns abiertos (normales y cascade)
-  document.querySelectorAll<HTMLElement>('.has-dropdown.open').forEach((el) => {
+  // Si click fuera del navbar, cerrar todo
+  if (navbar && !navbar.contains(target)) {
+    // Cerrar dropdowns de nivel 0
+    document.querySelectorAll<HTMLElement>('.has-dropdown.open, .has-cascade.open').forEach((el) => {
+      el.classList.remove('open');
+      el.querySelector('.dropdown-menu')?.classList.remove('active');
+      el.querySelector('.v3-cascade-l1')?.classList.remove('active');
+      el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+    });
+    // Cerrar sub-acordeones
+    document.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((el) => {
+      el.classList.remove('open');
+      el.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+    });
+    return;
+  }
+
+  // Click dentro del navbar pero fuera de un dropdown abierto
+  document.querySelectorAll<HTMLElement>('.has-dropdown.open, .has-cascade.open').forEach((el) => {
     if (!el.contains(target)) {
       el.classList.remove('open');
       el.querySelector('.dropdown-menu')?.classList.remove('active');
       el.querySelector('.v3-cascade-l1')?.classList.remove('active');
       el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+      // Cerrar sub-acordeones de este dropdown
+      el.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((sub) => {
+        sub.classList.remove('open');
+        sub.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+      });
     }
   });
-
-  // Cerrar cascade items abiertos si click fuera del navbar
-  const navbar = document.getElementById('navbar');
-  if (navbar && !navbar.contains(target)) {
-    document.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((el) => {
-      el.classList.remove('open');
-      el.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
-    });
-  }
 });
 
 // ── 6. ADMIN GEAR ──────────────────────────────────────
@@ -917,7 +949,6 @@ window.addEventListener('scroll', () => {
   if (curr > 80)  navbarEl?.classList.add('is-scrolled');
   else            navbarEl?.classList.remove('is-scrolled');
 
-  // Ocultar al scrollear hacia abajo, mostrar al subir
   if (curr > lastScroll && curr > 220) navbarEl?.classList.add('is-hidden');
   else                                  navbarEl?.classList.remove('is-hidden');
 

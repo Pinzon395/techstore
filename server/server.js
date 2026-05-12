@@ -216,16 +216,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 })));
     }
 
-    // Fallback: servir desde dist-astro/ para páginas generadas por Astro
-    const astroDistPath = path.join(rootPath, 'dist-astro');
-    if (fs.existsSync(astroDistPath)) {
-        app.use(staticSkipAdmin(express.static(astroDistPath, { 
-            index: false, 
-            maxAge: isProd ? '1y' : 0,
-            etag: true,
-            redirect: false
-        })));
-    }
+
 
     app.get('/robots.txt', (_req, res) => {
             const file = path.join(distPath, 'robots.txt');
