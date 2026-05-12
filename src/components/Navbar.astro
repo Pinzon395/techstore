@@ -431,19 +431,22 @@ const t = lang === 'en' ? {
 
   /* Hover / focus en fila de categoría */
   .navbar-v3 .cascade-item:hover > .cascade-cat-link,
-  .navbar-v3 .cascade-item:focus-within > .cascade-cat-link {
+  .navbar-v3 .cascade-item:focus-within > .cascade-cat-link,
+  .navbar-v3 .cascade-item.intent-open > .cascade-cat-link {
     background: #eff6ff !important;
     color: #2563eb !important;
   }
   .navbar-v3 .cascade-item:hover .cascade-cat-icon-wrap,
-  .navbar-v3 .cascade-item:focus-within .cascade-cat-icon-wrap {
+  .navbar-v3 .cascade-item:focus-within .cascade-cat-icon-wrap,
+  .navbar-v3 .cascade-item.intent-open .cascade-cat-icon-wrap {
     background: #2563eb;
     border-color: #2563eb;
     color: #fff;
     box-shadow: 0 3px 10px rgba(37, 99, 235, .3);
   }
   .navbar-v3 .cascade-item:hover .cascade-arrow,
-  .navbar-v3 .cascade-item:focus-within .cascade-arrow {
+  .navbar-v3 .cascade-item:focus-within .cascade-arrow,
+  .navbar-v3 .cascade-item.intent-open .cascade-arrow {
     color: #2563eb;
     transform: translateX(3px);
   }
@@ -479,6 +482,7 @@ const t = lang === 'en' ? {
 
   .navbar-v3 .cascade-item:hover > .v3-cascade-l2,
   .navbar-v3 .cascade-item:focus-within > .v3-cascade-l2,
+  .navbar-v3 .cascade-item.intent-open > .v3-cascade-l2,
   .navbar-v3 .cascade-item.open > .v3-cascade-l2 {
     opacity: 1;
     visibility: visible;
@@ -580,12 +584,24 @@ const t = lang === 'en' ? {
     border: none !important;
     padding: 0 !important;
     margin: 4px 0 0 !important;
-    max-height: 60vh;
-    overflow-y: auto;
-    overflow-x: hidden;
+    max-height: none;
+    overflow: visible;
   }
   .navbar-v3 .v3-cascade-l1.active {
     display: block;
+  }
+
+  .navbar-v3 .nav-menu.active {
+    max-height: calc(100dvh - 50px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  .navbar-v3 .nav-menu.active.is-menu-peeking {
+    opacity: .86;
+    transform: translateY(-8px);
   }
 
   /* ────────────────────────────────────────────────
@@ -708,40 +724,27 @@ const t = lang === 'en' ? {
     justify-content: flex-start !important;
     text-align: left !important;
     gap: 12px;
-    padding: 14px 16px 14px 30px !important; /* Más separación vertical y sangría */
-    font-size: 1rem !important; /* Letra más grande */
-    color: #0f172a !important;               /* Texto oscuro, nada de grises claros */
+    padding: 14px 16px 14px 30px !important;
+    font-size: 1rem !important;
+    color: #0f172a !important;
     font-weight: 500;
     border-radius: 6px;
-    margin: 4px 10px; /* Separación de bloque */
+    margin: 4px 10px;
     transition: background .1s ease, color .1s ease;
   }
-  .navbar-v3 .v3-sub-link .v3-sub-arrow {
-    font-size: .65rem;
-    color: #3b82f6; /* Flechas más azules */
-    flex-shrink: 0;
-  }
+  .navbar-v3 .v3-sub-link .v3-sub-arrow { font-size: .65rem; color: #3b82f6; flex-shrink: 0; }
   .navbar-v3 .v3-sub-link:hover,
-  .navbar-v3 .v3-sub-link:active {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-  }
+  .navbar-v3 .v3-sub-link:active { background: #eff6ff !important; color: #2563eb !important; }
   .navbar-v3 .v3-sub-link:hover .v3-sub-arrow,
-  .navbar-v3 .v3-sub-link:active .v3-sub-arrow {
-    color: #2563eb;
-  }
+  .navbar-v3 .v3-sub-link:active .v3-sub-arrow { color: #2563eb; }
 
   /* ── Footer "Ver todos" en mobile ── */
-  .navbar-v3 .v3-l2-footer {
-    padding: 12px 12px 6px;
-    margin-top: 8px;
-    border-top: 1px solid #e2e8f0;
-  }
+  .navbar-v3 .v3-l2-footer { padding: 12px 12px 6px; margin-top: 8px; border-top: 1px solid #e2e8f0; }
   .navbar-v3 .v3-all-link {
-    font-size: .95rem !important; /* Letra más grande */
+    font-size: .95rem !important;
     font-weight: 700;
     color: #2563eb !important;
-    padding: 14px 14px !important; /* Más clickeable */
+    padding: 14px !important;
     background: #eff6ff !important;
     border-radius: 8px;
     gap: 6px;
@@ -751,207 +754,303 @@ const t = lang === 'en' ? {
     transition: background .12s ease;
   }
   .navbar-v3 .v3-all-link:hover,
-  .navbar-v3 .v3-all-link:active {
-    background: #dbeafe !important;
-  }
-  .navbar-v3 .v3-all-link i {
-    font-size: .7rem;
-  }
+  .navbar-v3 .v3-all-link:active { background: #dbeafe !important; }
+  .navbar-v3 .v3-all-link i { font-size: .7rem; }
 
 } /* end @media mobile */
+
+/* Opacidad parcial antes del hide completo */
+.navbar.is-scrolling-down:not(.is-hidden) {
+  opacity: 0.85;
+  transition: opacity .3s ease;
+}
 </style>
 
 <script>
 // ════════════════════════════════════════════════════════
-//  Navbar 3.0 — JavaScript completo (v3.1 — UX Overhaul)
-//
-//  Cambios v3.1:
-//  · Triggers principales (Servicios, Paquetes, Info, Contacto) SIEMPRE
-//    abren/cierran el dropdown — NUNCA navegan.
-//  · cascade-cat-link CON submenú (.v3-cascade-l2) → toggle acordeón.
-//  · cascade-cat-link SIN submenú → navega normalmente al href.
-//  · Toda la fila es clickeable (no solo la flecha).
-//  · Desktop: hover CSS sigue funcionando, click también toggle.
-//  · Flecha rota vía clase .open (CSS ya lo maneja).
-//
-//  ⚠️ PRECAUCIÓN: Este script depende de IDs y clases del HTML de arriba.
-//    HTML ID: #mobile-menu, #nav-menu, #navbar, #nav-admin-gear
-//    HTML clases: .has-cascade, .has-dropdown, .v3-cascade-l1, .cascade-item
-//    HTML clases: .cascade-cat-link, .nav-dd-trigger, .v3-cascade-l2
+//  Navbar 3.0 — JavaScript v3.2 — Full UX Overhaul
+//  · Desktop: 4s auto-close, 2s cross-section, 3s exit grace
+//  · Mobile: stable accordion, no accidental close on scroll
+//  · Gap tolerance 400ms between nested items
+//  · Click-outside closes all (including mobile hamburger)
+//  · Progressive scroll-hide (2 scrolls to fully hide)
+//  · All routes unchanged
 // ════════════════════════════════════════════════════════
 
 const IS_MOBILE = () => window.innerWidth <= 750;
 
-// ── 1. HAMBURGER ──────────────────────────────────────
-const mobileMenuBtn = document.getElementById('mobile-menu') as HTMLButtonElement | null;
-const navMenu       = document.getElementById('nav-menu') as HTMLUListElement | null;
-
+// 1. HAMBURGER
+const mobileMenuBtn = document.getElementById('mobile-menu');
+const navMenu = document.getElementById('nav-menu');
 mobileMenuBtn?.addEventListener('click', () => {
+  navbarEl?.classList.remove('is-hidden', 'is-scrolling-down');
   const isOpen = mobileMenuBtn.classList.toggle('active');
   navMenu?.classList.toggle('active');
+  navMenu?.classList.remove('is-menu-peeking');
   mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  if (!isOpen) closeAllCascades();
 });
 
-// ── 2. DROPDOWNS ESTÁNDAR (sin cascade) ────────────────
-// Solo aplica a .has-dropdown:not(.has-cascade) — actualmente no hay ninguno,
-// pero se mantiene por compatibilidad futura.
-document.querySelectorAll<HTMLElement>('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').forEach((trigger) => {
+// 2. DROPDOWNS ESTÁNDAR (sin cascade — compatibilidad futura)
+document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').forEach((trigger) => {
   trigger.addEventListener('click', (e) => {
     if (!IS_MOBILE()) return;
     e.preventDefault();
-
-    const parent = trigger.parentElement!;
-    const menu   = parent.querySelector<HTMLElement>('.dropdown-menu');
+    const parent = trigger.parentElement;
+    const menu = parent?.querySelector('.dropdown-menu');
     if (!menu) return;
-
     const isOpen = parent.classList.toggle('open');
     menu.classList.toggle('active', isOpen);
     trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-
-    // Cerrar hermanos
-    document.querySelectorAll<HTMLElement>('.has-dropdown.open').forEach((el) => {
+    document.querySelectorAll('.has-dropdown.open').forEach((el) => {
       if (el !== parent) {
         el.classList.remove('open');
         el.querySelector('.dropdown-menu')?.classList.remove('active');
-        el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+        el.querySelector('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
       }
     });
   });
 });
 
-// ── 3. CASCADE TRIGGERS (Servicios, Paquetes, Info, Contacto) ──
-// Click en el trigger principal SIEMPRE abre/cierra el dropdown.
-// NUNCA navega (href="#" en el HTML).
-document.querySelectorAll<HTMLElement>('.has-cascade > .nav-dd-trigger').forEach((trigger) => {
+// ── Shared state ──
+let autoCloseTimer = null;
+let crossSectionTimer = null;
+let lastOpenedCascade = null;
+
+function clearTimers() {
+  if (autoCloseTimer)    { clearTimeout(autoCloseTimer);    autoCloseTimer = null; }
+  if (crossSectionTimer) { clearTimeout(crossSectionTimer); crossSectionTimer = null; }
+}
+
+function openCascade(parent) {
+  if (!parent) return;
+  closeAllCascades(parent);
+  parent.classList.add('open');
+  parent.querySelector('.v3-cascade-l1')?.classList.add('active');
+  parent.querySelector('.nav-dd-trigger')?.setAttribute('aria-expanded', 'true');
+  lastOpenedCascade = parent;
+}
+
+function closeCascade(el) {
+  el.classList.remove('open');
+  el.querySelector('.v3-cascade-l1')?.classList.remove('active');
+  el.querySelector('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
+  el.querySelectorAll('.cascade-item.open').forEach((sub) => {
+    sub.classList.remove('open');
+    sub.querySelector('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+  });
+  el.querySelectorAll('.cascade-item.intent-open').forEach((sub) => sub.classList.remove('intent-open'));
+}
+
+function closeAllCascades(except) {
+  document.querySelectorAll('.has-cascade.open').forEach((el) => {
+    if (el !== except) closeCascade(el);
+  });
+}
+
+function closeMobileMenu() {
+  navMenu?.classList.remove('active', 'is-menu-peeking');
+  mobileMenuBtn?.classList.remove('active');
+  mobileMenuBtn?.setAttribute('aria-expanded', 'false');
+  closeAllCascades();
+  lastOpenedCascade = null;
+}
+
+// 3. CASCADE TRIGGERS
+document.querySelectorAll('.has-cascade > .nav-dd-trigger').forEach((trigger) => {
+  const parent = trigger.parentElement;
+
   trigger.addEventListener('click', (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Evitar que el click-fuera cierre inmediatamente
+    e.stopPropagation();
+    const wasOpen = parent.classList.contains('open');
+    clearTimers();
+    navbarEl?.classList.remove('is-hidden', 'is-scrolling-down');
+    if (wasOpen) { closeCascade(parent); lastOpenedCascade = null; return; }
+    openCascade(parent);
+    // Desktop: auto-cierre 4s si el cursor nunca entra
+    if (!IS_MOBILE()) {
+      autoCloseTimer = setTimeout(() => {
+        if (!parent.matches(':hover')) { closeCascade(parent); if (lastOpenedCascade === parent) lastOpenedCascade = null; }
+      }, 4000);
+    }
+  });
 
-    const parent = trigger.parentElement!;
-    const menu   = parent.querySelector<HTMLElement>('.v3-cascade-l1');
-    if (!menu) return;
-
-    const isOpen = parent.classList.toggle('open');
-    menu.classList.toggle('active', isOpen);
-    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-
-    // Cerrar otros cascade dropdowns abiertos (acordeón exclusivo nivel 0)
-    document.querySelectorAll<HTMLElement>('.has-cascade.open').forEach((el) => {
-      if (el !== parent) {
-        el.classList.remove('open');
-        el.querySelector('.v3-cascade-l1')?.classList.remove('active');
-        el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
-        // También cerrar sub-acordeones internos
-        el.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((sub) => {
-          sub.classList.remove('open');
-          sub.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
-        });
-      }
-    });
+  let exitTimer = null;
+  parent.addEventListener('mouseenter', () => {
+    if (IS_MOBILE()) return;
+    clearTimers();
+    if (exitTimer) { clearTimeout(exitTimer); exitTimer = null; }
+  });
+  parent.addEventListener('mouseleave', () => {
+    if (IS_MOBILE() || !parent.classList.contains('open')) return;
+    exitTimer = setTimeout(() => {
+      if (!parent.matches(':hover')) { closeCascade(parent); if (lastOpenedCascade === parent) lastOpenedCascade = null; }
+    }, 3000);
+  });
+  trigger.addEventListener('mouseenter', () => {
+    if (IS_MOBILE()) return;
+    if (lastOpenedCascade && lastOpenedCascade !== parent) {
+      clearTimeout(crossSectionTimer);
+      crossSectionTimer = setTimeout(() => {
+        if (lastOpenedCascade && lastOpenedCascade !== parent && parent.matches(':hover')) {
+          clearTimers();
+          openCascade(parent);
+        }
+      }, 140);
+    }
+  });
+  trigger.addEventListener('mouseleave', () => {
+    if (IS_MOBILE()) return;
+    if (crossSectionTimer) { clearTimeout(crossSectionTimer); crossSectionTimer = null; }
   });
 });
 
-// ── 4. CASCADE CATEGORÍAS (Laptop, PC, Celular, etc.) ──────
-// Si tiene .v3-cascade-l2 → toggle acordeón (expandir/colapsar submenú).
-// Si NO tiene .v3-cascade-l2 → navegar al href (ej. "Mantenimiento", "FAQ", "Todos...").
-document.querySelectorAll<HTMLElement>('.cascade-cat-link').forEach((link) => {
-  link.addEventListener('click', (e) => {
-    const item    = link.parentElement as HTMLElement;
-    const submenu = item.querySelector('.v3-cascade-l2');
+// 4. TOLERANCIA DE GAPS — L1 panel: 3s de gracia
+document.querySelectorAll('.v3-cascade-l1').forEach((l1) => {
+  let l1Timer = null;
+  l1.addEventListener('mouseenter', () => { clearTimers(); if (l1Timer) { clearTimeout(l1Timer); l1Timer = null; } });
+  l1.addEventListener('mouseleave', () => {
+    if (IS_MOBILE()) return;
+    const pc = l1.closest('.has-cascade');
+    if (!pc?.classList.contains('open')) return;
+    l1Timer = setTimeout(() => {
+      if (!pc.matches(':hover')) { closeCascade(pc); if (lastOpenedCascade === pc) lastOpenedCascade = null; }
+    }, 3000);
+  });
+});
 
+// L2 items: 400ms de gracia entre opciones
+document.querySelectorAll('.cascade-item').forEach((item) => {
+  let gapTimer = null;
+  item.addEventListener('mouseenter', () => {
+    if (IS_MOBILE()) return;
+    if (gapTimer) { clearTimeout(gapTimer); gapTimer = null; }
+    if (item.querySelector('.v3-cascade-l2')) item.classList.add('intent-open');
+  });
+  item.addEventListener('mouseleave', () => {
+    if (IS_MOBILE()) return;
+    const l2 = item.querySelector('.v3-cascade-l2');
+    if (!l2) return;
+    gapTimer = setTimeout(() => {
+      if (!item.matches(':hover') && !l2.matches(':hover')) {
+        item.classList.remove('intent-open');
+        item.classList.remove('open');
+        item.querySelector('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+      }
+    }, 450);
+  });
+});
+
+// 5. CASCADE CATEGORÍAS
+document.querySelectorAll('.cascade-cat-link').forEach((link) => {
+  link.addEventListener('click', (e) => {
+    const item = link.parentElement;
+    const submenu = item?.querySelector('.v3-cascade-l2');
     if (!submenu) {
-      // ── SIN submenú: navegar normalmente ──
-      // Aplica a: Mantenimiento, Optimización, FAQ, Reseñas, WhatsApp,
-      // "Todos nuestros servicios", "Todos los Paquetes", etc.
       const href = link.getAttribute('href');
       if (href && href !== '#') {
-        // Para links externos (WhatsApp), respetar target="_blank"
-        if (link.getAttribute('target') === '_blank') {
-          window.open(href, '_blank', 'noopener,noreferrer');
-        } else {
-          window.location.href = href;
-        }
+        link.getAttribute('target') === '_blank'
+          ? window.open(href, '_blank', 'noopener,noreferrer')
+          : (window.location.href = href);
       }
-      return; // Dejar que navegue — NO prevenir default
+      return;
     }
-
-    // ── CON submenú: toggle acordeón ──
     e.preventDefault();
     e.stopPropagation();
-
     const isOpen = item.classList.toggle('open');
     link.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-
-    // Cerrar hermanos (acordeón exclusivo dentro del mismo dropdown)
-    item.parentElement?.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((sib) => {
-      if (sib !== item) {
-        sib.classList.remove('open');
-        sib.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
-      }
+    item.parentElement?.querySelectorAll('.cascade-item.open').forEach((sib) => {
+      if (sib !== item) { sib.classList.remove('open'); sib.querySelector('.cascade-cat-link')?.setAttribute('aria-expanded', 'false'); }
     });
   });
 });
 
-// ── 5. CLICK FUERA = CERRAR TODO ───────────────────────
+// 6. CLICK FUERA
 document.addEventListener('click', (e) => {
-  const target = e.target as Node;
   const navbar = document.getElementById('navbar');
-
-  // Si click fuera del navbar, cerrar todo
-  if (navbar && !navbar.contains(target)) {
-    // Cerrar dropdowns de nivel 0
-    document.querySelectorAll<HTMLElement>('.has-dropdown.open, .has-cascade.open').forEach((el) => {
-      el.classList.remove('open');
-      el.querySelector('.dropdown-menu')?.classList.remove('active');
-      el.querySelector('.v3-cascade-l1')?.classList.remove('active');
-      el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
-    });
-    // Cerrar sub-acordeones
-    document.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((el) => {
-      el.classList.remove('open');
-      el.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
-    });
+  if (navbar && !navbar.contains(e.target)) {
+    clearTimers();
+    if (IS_MOBILE() && navMenu?.classList.contains('active')) closeMobileMenu();
+    else { closeAllCascades(); lastOpenedCascade = null; }
     return;
   }
-
-  // Click dentro del navbar pero fuera de un dropdown abierto
-  document.querySelectorAll<HTMLElement>('.has-dropdown.open, .has-cascade.open').forEach((el) => {
-    if (!el.contains(target)) {
-      el.classList.remove('open');
-      el.querySelector('.dropdown-menu')?.classList.remove('active');
-      el.querySelector('.v3-cascade-l1')?.classList.remove('active');
-      el.querySelector<HTMLElement>('.nav-dd-trigger')?.setAttribute('aria-expanded', 'false');
-      // Cerrar sub-acordeones de este dropdown
-      el.querySelectorAll<HTMLElement>('.cascade-item.open').forEach((sub) => {
-        sub.classList.remove('open');
-        sub.querySelector<HTMLElement>('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
-      });
-    }
-  });
+  document.querySelectorAll('.has-cascade.open').forEach((el) => { if (!el.contains(e.target)) closeCascade(el); });
 });
 
-// ── 6. ADMIN GEAR ──────────────────────────────────────
-const adminGear = document.getElementById('nav-admin-gear') as HTMLAnchorElement | null;
+let mobileEdgeScrollCount = 0;
+let touchStartY = 0;
+let edgeResetTimer = null;
+let lastEdgeRegisterAt = 0;
+function registerMobileEdgeScroll(direction) {
+  if (!IS_MOBILE() || !navMenu?.classList.contains('active')) return;
+  if (Math.abs(direction) < 6) return;
+  const atTop = navMenu.scrollTop <= 1;
+  const atBottom = navMenu.scrollTop + navMenu.clientHeight >= navMenu.scrollHeight - 1;
+  if ((direction > 0 && !atBottom) || (direction < 0 && !atTop)) {
+    mobileEdgeScrollCount = 0;
+    navMenu.classList.remove('is-menu-peeking');
+    return;
+  }
+  const now = Date.now();
+  if (now - lastEdgeRegisterAt < 350) return;
+  lastEdgeRegisterAt = now;
+  mobileEdgeScrollCount += 1;
+  navMenu.classList.add('is-menu-peeking');
+  clearTimeout(edgeResetTimer);
+  edgeResetTimer = setTimeout(() => {
+    mobileEdgeScrollCount = 0;
+    navMenu?.classList.remove('is-menu-peeking');
+  }, 900);
+  if (mobileEdgeScrollCount >= 2) {
+    closeMobileMenu();
+    mobileEdgeScrollCount = 0;
+  }
+}
+
+navMenu?.addEventListener('wheel', (e) => {
+  registerMobileEdgeScroll(e.deltaY);
+}, { passive: true });
+navMenu?.addEventListener('touchstart', (e) => {
+  touchStartY = e.touches[0]?.clientY || 0;
+}, { passive: true });
+navMenu?.addEventListener('touchmove', (e) => {
+  const currentY = e.touches[0]?.clientY || touchStartY;
+  registerMobileEdgeScroll(touchStartY - currentY);
+}, { passive: true });
+
+// 7. ADMIN GEAR
+const adminGear = document.getElementById('nav-admin-gear');
 if (adminGear) {
   fetch('/api/me', { credentials: 'include' })
-    .then((r) => r.json())
-    .then((data: any) => {
-      if (data?.user?.role === 'admin') adminGear.style.display = 'inline-flex';
-    })
+    .then((r) => r.json()).then((d) => { if (d?.user?.role === 'admin') adminGear.style.display = 'inline-flex'; })
     .catch(() => {});
 }
 
-// ── 7. STICKY + HIDE-ON-SCROLL ─────────────────────────
-let lastScroll = 0;
-const navbarEl  = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
+// 8. SCROLL HIDE progresivo
+let lastScroll = 0, ticking = false, scrollDownCount = 0;
+const navbarEl = document.getElementById('navbar');
+function handleScroll() {
   const curr = window.pageYOffset;
-  if (curr > 80)  navbarEl?.classList.add('is-scrolled');
-  else            navbarEl?.classList.remove('is-scrolled');
-
-  if (curr > lastScroll && curr > 220) navbarEl?.classList.add('is-hidden');
-  else                                  navbarEl?.classList.remove('is-hidden');
-
+  const delta = curr - lastScroll;
+  if (curr > 80) navbarEl?.classList.add('is-scrolled'); else navbarEl?.classList.remove('is-scrolled');
+  const menuOpen = IS_MOBILE() && navMenu?.classList.contains('active');
+  if (menuOpen && Math.abs(delta) > 4) {
+    navMenu?.classList.add('is-menu-peeking');
+    window.setTimeout(() => closeMobileMenu(), 180);
+  } else if (!menuOpen) {
+    if (delta > 4 && curr > 220) {
+      scrollDownCount++;
+      navbarEl?.classList.add('is-scrolling-down');
+      if (scrollDownCount >= 2) { navbarEl?.classList.add('is-hidden'); closeAllCascades(); lastOpenedCascade = null; }
+    } else if (delta < -4) {
+      scrollDownCount = 0;
+      navbarEl?.classList.remove('is-hidden');
+      navbarEl?.classList.remove('is-scrolling-down');
+    }
+  }
   lastScroll = Math.max(curr, 0);
-}, { passive: true });
+  ticking = false;
+}
+window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(handleScroll); ticking = true; } }, { passive: true });
 </script>
