@@ -581,43 +581,8 @@ function toggleFaq(button) {
 window.toggleFaq = toggleFaq;
 
 /* ══════════════════════════════════════════════════════════════
-   9. LENIS SMOOTH SCROLL (Apple-like Momentum Scrolling)
-   Bundleado localmente vía npm — sin fetch a unpkg, queda con
-   cache-control immutable 1 año en /assets/ con hash de Vite.
+   9. LENIS SMOOTH SCROLL - Removido por conflicto (Ahora es manejado en src/lib/smooth-scroll.ts)
 ══════════════════════════════════════════════════════════════ */
-(async function initLenis() {
-    // Evitar cargar en móviles (el scroll nativo ya es perfecto)
-    // y en gama baja (reduce jank)
-    if (window.innerWidth < 768 || document.body.classList.contains('low-end-mode')) return;
-
-    const { default: Lenis } = await import('lenis');
-
-    const lenis = new Lenis({
-        duration: 1.5,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        orientation: 'vertical',
-        gestureOrientation: 'vertical',
-        syncTouch: false,
-        wheelMultiplier: 1,
-        touchMultiplier: 2,
-    });
-
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            const targetId = this.getAttribute('href');
-            if (targetId !== '#') {
-                e.preventDefault();
-                lenis.scrollTo(targetId, { duration: 1.5 });
-            }
-        });
-    });
-})();
 
 /* ══════════════════════════════════════════════════════════════
    10. DEEP LINKING SMOOTH SCROLL (Intercepción en carga inicial)

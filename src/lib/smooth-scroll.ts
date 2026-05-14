@@ -8,7 +8,7 @@ export function initSmoothScroll(): void {
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isTabletOrMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
-  const isTouchPrimary = window.matchMedia('(pointer: coarse)').matches;
+  const isTouchPrimary = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   const isLowEndMode = document.documentElement.classList.contains('low-end-mode');
   const connection = (navigator as Navigator & {
     connection?: { saveData?: boolean; effectiveType?: string; downlink?: number };
@@ -25,12 +25,12 @@ export function initSmoothScroll(): void {
   if (shouldUseNativeScroll) return;
 
   lenis = new Lenis({
-    duration: 1.9,
+    duration: 1.0,
     easing: (t: number) => 1 - Math.pow(1 - t, 4),
     orientation: 'vertical',
     gestureOrientation: 'vertical',
     smoothWheel: true,
-    wheelMultiplier: 0.48,
+    wheelMultiplier: 0.3,
     touchMultiplier: 1,
   });
 
@@ -63,7 +63,7 @@ export function scrollToSection(sectionId: string, offset = 0): void {
   if (!target) return;
   const top = target.getBoundingClientRect().top + window.scrollY - offset;
   if (lenis) {
-    lenis.scrollTo(top, { duration: 1.9 });
+    lenis.scrollTo(top, { duration: 1.0 });
     return;
   }
   window.scrollTo({
