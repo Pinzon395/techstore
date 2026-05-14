@@ -394,7 +394,7 @@
     /* ═══════════════════════════════════════════════════════
        INICIALIZACIÓN
     ═══════════════════════════════════════════════════════ */
-    document.addEventListener('DOMContentLoaded', () => {
+    function initComments() {
 
         const commentBox  = document.getElementById('commentsBox');
         const commentForm = document.getElementById('addCommentForm');
@@ -424,14 +424,14 @@
                 starSlots.forEach((slot, idx) => {
                     const base = idx + 1; // 1..5
                     const fg = slot.querySelector('.star-fg');
-                    let clip = 'inset(0 100% 0 0)';
+                    const fillPercent = Math.max(0, Math.min(1, rating - (base - 1))) * 100;
+                    const hiddenPercent = 100 - fillPercent;
+                    const clip = 'inset(0 ' + hiddenPercent + '% 0 0)';
                     slot.classList.remove('full', 'half');
-                    if (rating >= base) {
+                    if (fillPercent === 100) {
                         slot.classList.add('full');
-                        clip = 'inset(0 0 0 0)';
-                    } else if (rating >= base - 0.5) {
+                    } else if (fillPercent === 50) {
                         slot.classList.add('half');
-                        clip = 'inset(0 50% 0 0)';
                     }
                     if (fg) {
                         fg.style.color = '#f59e0b';
@@ -442,7 +442,7 @@
                 });
                 if (ratingLabel) {
                     if (rating > 0) {
-                        ratingLabel.textContent = rating.toFixed(1) + ' / 5';
+                        ratingLabel.textContent = rating.toFixed(1) + ' / 5.0';
                         ratingLabel.classList.add('has-value');
                     } else {
                         ratingLabel.textContent = '';
@@ -878,6 +878,12 @@
         window.addEventListener('beforeunload', () => {
             if (sseSource) sseSource.close();
         });
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initComments, { once: true });
+    } else {
+        initComments();
+    }
 
 })();

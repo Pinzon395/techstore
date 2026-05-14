@@ -1,4 +1,4 @@
----
+﻿---
 import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
@@ -354,13 +354,27 @@ const homeFaqs = [
 ]}
 >
   <Navbar />
+<style is:inline>
+  @supports (content-visibility: auto) {
+    .hero ~ section:not(#comentarios) {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 900px;
+    }
+    .hero ~ section#comentarios.comments-section-container {
+      content-visibility: visible !important;
+    }
+  }
+</style>
 <header class="hero" id="inicio">
         <div class="hero-video-container">
             <!-- Portada que cubre el video hasta que esté listo -->
             <!-- fetchpriority=high: imagen hero es LCP, máxima prioridad -->
-            <div id="hero-poster"
-                style="position:absolute; inset:0; background-image: url('/assets/images/image-mobile.webp'); background-size:cover; background-position:center; background-repeat:no-repeat; filter:brightness(0.35) saturate(1.2); z-index:1; transition: opacity 0.8s ease-in-out;">
-            </div>
+            <picture id="hero-poster" style="position:absolute; inset:0; z-index:1; transition: opacity 0.8s ease-in-out;">
+                <source srcset="/assets/images/image-mobile.webp" media="(max-width: 768px)" />
+                <source srcset="/assets/images/image-desktop.webp" media="(min-width: 769px)" />
+                <img src="/assets/images/image.webp" alt="" aria-hidden="true" fetchpriority="high" decoding="async"
+                    style="width:100%; height:100%; object-fit:cover; filter:brightness(0.35) saturate(1.2);" />
+            </picture>
             <!-- Contenedor del Iframe -->
             <div id="hero-yt-wrapper" style="position:absolute; inset:0; z-index:0; overflow:hidden;"></div>
 
@@ -1655,32 +1669,32 @@ const homeFaqs = [
                 <p style="font-size:1.1rem; font-weight:700; margin-bottom:15px;">Deja tu Comentario</p>
                 <div class="stars-input half" id="star-rating" role="radiogroup" aria-label="Calificación en estrellas">
                     <span class="star-slot" data-base="1">
-                        <span class="star-bg" aria-hidden="true">★</span>
-                        <span class="star-fg" aria-hidden="true">★</span>
+                        <svg class="star-bg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
+                        <svg class="star-fg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
                         <button type="button" class="star-zone left"  data-val="0.5" aria-label="0.5 estrellas"></button>
                         <button type="button" class="star-zone right" data-val="1"   aria-label="1 estrella"></button>
                     </span>
                     <span class="star-slot" data-base="2">
-                        <span class="star-bg" aria-hidden="true">★</span>
-                        <span class="star-fg" aria-hidden="true">★</span>
+                        <svg class="star-bg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
+                        <svg class="star-fg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
                         <button type="button" class="star-zone left"  data-val="1.5" aria-label="1.5 estrellas"></button>
                         <button type="button" class="star-zone right" data-val="2"   aria-label="2 estrellas"></button>
                     </span>
                     <span class="star-slot" data-base="3">
-                        <span class="star-bg" aria-hidden="true">★</span>
-                        <span class="star-fg" aria-hidden="true">★</span>
+                        <svg class="star-bg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
+                        <svg class="star-fg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
                         <button type="button" class="star-zone left"  data-val="2.5" aria-label="2.5 estrellas"></button>
                         <button type="button" class="star-zone right" data-val="3"   aria-label="3 estrellas"></button>
                     </span>
                     <span class="star-slot" data-base="4">
-                        <span class="star-bg" aria-hidden="true">★</span>
-                        <span class="star-fg" aria-hidden="true">★</span>
+                        <svg class="star-bg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
+                        <svg class="star-fg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
                         <button type="button" class="star-zone left"  data-val="3.5" aria-label="3.5 estrellas"></button>
                         <button type="button" class="star-zone right" data-val="4"   aria-label="4 estrellas"></button>
                     </span>
                     <span class="star-slot" data-base="5">
-                        <span class="star-bg" aria-hidden="true">★</span>
-                        <span class="star-fg" aria-hidden="true">★</span>
+                        <svg class="star-bg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
+                        <svg class="star-fg" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-star" /></svg>
                         <button type="button" class="star-zone left"  data-val="4.5" aria-label="4.5 estrellas"></button>
                         <button type="button" class="star-zone right" data-val="5"   aria-label="5 estrellas"></button>
                     </span>
@@ -1923,30 +1937,50 @@ const homeFaqs = [
     if (!poster || !wrapper || !hero) return;
 
     let heroIsVisible = true;
-    const iframe = document.createElement('iframe');
+    let iframe: HTMLIFrameElement | null = null;
+    let iframeLoaded = false;
     const command = (func: 'playVideo' | 'pauseVideo') => {
-      iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
+      iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
     };
 
-    iframe.src = `https://www.youtube-nocookie.com/embed/cbKre_xAFlo?autoplay=1&mute=1&loop=1&playlist=cbKre_xAFlo&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
-    iframe.className = 'bg-video-iframe';
-    iframe.title = 'Video de fondo Pixon PC';
-    iframe.loading = 'eager';
-    iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
-    iframe.style.opacity = '0';
-    iframe.style.transition = 'opacity 0.8s ease-in-out';
+    const loadHeroVideo = () => {
+      if (iframeLoaded || !heroIsVisible) return;
+      iframeLoaded = true;
+      iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/cbKre_xAFlo?autoplay=1&mute=1&loop=1&playlist=cbKre_xAFlo&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
+      iframe.className = 'bg-video-iframe';
+      iframe.title = 'Video de fondo Pixon PC';
+      iframe.loading = 'lazy';
+      iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+      iframe.style.opacity = '0';
+      iframe.style.transition = 'opacity 0.8s ease-in-out';
 
-    iframe.addEventListener('load', () => {
-      iframe.style.opacity = '1';
-      poster.style.opacity = '0';
-      window.setTimeout(() => poster.remove(), 800);
-      if (heroIsVisible) {
-        command('playVideo');
-        window.setTimeout(() => command('playVideo'), 600);
-      }
-    });
+      iframe.addEventListener('load', () => {
+        if (!iframe) return;
+        iframe.style.opacity = '1';
+        poster.style.opacity = '0';
+        window.setTimeout(() => poster.remove(), 800);
+        if (heroIsVisible) {
+          command('playVideo');
+          window.setTimeout(() => command('playVideo'), 600);
+        }
+      });
 
-    wrapper.appendChild(iframe);
+      wrapper.appendChild(iframe);
+    };
+
+    const scheduleHeroVideo = () => {
+      const ric = (window as Window & { requestIdleCallback?: (cb: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
+      window.setTimeout(() => {
+        if (ric) {
+          ric(loadHeroVideo, { timeout: 1800 });
+        } else {
+          loadHeroVideo();
+        }
+      }, 1200);
+    };
+
+    scheduleHeroVideo();
 
     if ('IntersectionObserver' in window) {
       const heroVideoObserver = new IntersectionObserver((entries) => {
@@ -1979,3 +2013,4 @@ const homeFaqs = [
   });
 
 </script>
+
