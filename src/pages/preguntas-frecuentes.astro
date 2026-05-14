@@ -305,7 +305,7 @@ import Breadcrumb from '../components/Breadcrumb.astro';
             },
             {
                 "@type": "Question",
-                "name": "Mi computadora está muy lenta, ¿qué puedo do?",
+                "name": "Mi computadora está muy lenta, ¿qué puedo hacer?",
                 "acceptedAnswer": {
                     "@type": "Answer",
                     "text": "Ofrecemos optimización del sistema desde $350 MXN. Incluye limpieza de archivos basura, desfragmentación y revisión de salud del disco duro."
@@ -366,11 +366,54 @@ import Breadcrumb from '../components/Breadcrumb.astro';
     (function(){
         var input = document.getElementById('faq-search-input') as HTMLInputElement;
         var sugBox = document.getElementById('faq-suggestions') as HTMLElement;
-        var noResults = document.getElementById('faq-no-results') as HTMLElement;
-        var resultCount = document.getElementById('faq-result-count') as HTMLElement;
+        var noResults = document.getElementById('faq-no-results') as HTMLElement | null;
+        var resultCount = document.getElementById('faq-result-count') as HTMLElement | null;
+        var isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
         if(!input) return;
 
         function normalize(str: string){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+
+        function closeFaqItem(item: Element) {
+            item.classList.remove('faq-item--open');
+            var question = item.querySelector('.faq-question');
+            var answer = item.querySelector('.faq-answer') as HTMLElement | null;
+            if(question) question.setAttribute('aria-expanded', 'false');
+            if(answer) {
+                answer.setAttribute('aria-hidden', 'true');
+                answer.style.maxHeight = '0px';
+            }
+        }
+
+        function openFaqItem(item: Element, button: Element) {
+            var answer = item.querySelector('.faq-answer') as HTMLElement | null;
+            button.setAttribute('aria-expanded', 'true');
+            item.classList.add('faq-item--open');
+            if(answer) {
+                answer.setAttribute('aria-hidden', 'false');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            }
+        }
+
+        function toggleFaq(button: Element) {
+            var item = button.closest('.faq-item');
+            if(!item) return;
+            var root = item.closest('#preguntas-frecuentes-content') || document;
+            var wasOpen = button.getAttribute('aria-expanded') === 'true';
+
+            root.querySelectorAll('.faq-item').forEach(function(i){
+                closeFaqItem(i);
+            });
+
+            if(!wasOpen) openFaqItem(item, button);
+        }
+
+        (window as any).toggleFaq = toggleFaq;
+
+        window.addEventListener('resize', function(){
+            document.querySelectorAll('.faq-item--open .faq-answer').forEach(function(answer){
+                (answer as HTMLElement).style.maxHeight = (answer as HTMLElement).scrollHeight + 'px';
+            });
+        });
 
         function saveUnanswered(query: string) {
             if(!query || query.length < 3) return;
@@ -421,7 +464,6 @@ import Breadcrumb from '../components/Breadcrumb.astro';
             });
 
             let html = '';
-            const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
 
             for(const [cat, data] of Object.entries(grouped)) {
                 html += '<h2 class="faq-category-title"><i class="' + data.icon + '"></i> ' + cat + '</h2>';
@@ -531,13 +573,15 @@ import Breadcrumb from '../components/Breadcrumb.astro';
             }).catch(e => console.error(e));
         }
 
-        fetch('/api/faqs')
-            .then(res => res.json())
-            .then((data: any) => {
-                if(data && data.length > 0) renderFaqs(data);
-                else initQuestions();
-            })
-            .catch(() => initQuestions());
+        function loadAdminFaqs() {
+            fetch('/api/faqs')
+                .then(res => res.json())
+                .then((data: any) => {
+                    if(data && data.length > 0) renderFaqs(data);
+                    else initQuestions();
+                })
+                .catch(() => initQuestions());
+        }
 
         var saveTimer: number | null = null;
         var lastSavedQuery = '';
@@ -560,6 +604,7 @@ import Breadcrumb from '../components/Breadcrumb.astro';
                     visible++;
                     if(suggestions.length < 5) suggestions.push(q);
                 } else {
+                    closeFaqItem(q.el);
                     q.el.style.display = 'none';
                 }
             });
@@ -580,7 +625,7 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 
             if(noResults) {
                 if(query && visible === 0) {
-                    (noResults as HTMLElement).style.display = '';
+                    (noResults as HTMLElement).style.display = 'block';
                     var waBtn = noResults.querySelector('.btn-faq-wa');
                     if(waBtn) {
                         var encoded = encodeURIComponent('Hola, pregunté "' + input.value + '" en las FAQs y no encontré respuesta. ¿Me ayudan?');
@@ -602,7 +647,7 @@ import Breadcrumb from '../components/Breadcrumb.astro';
             if(query && query.length >= 2 && suggestions.length > 0){
                 sugBox.innerHTML = suggestions.map(function(s){
                     var txt = s.el.querySelector('.faq-question span').textContent.trim();
-                    return '<div class="faq-sug-item" style="padding:12px 20px; cursor:pointer; font-size:0.95rem; color:#334155; border-bottom:1px solid #f1f5f9; transition:background 0.2s;" onmouseover="this.style.background=\\\'#f1f5f9\\\'" onmouseout="this.style.background=\\\'#fff\\\'"><i class="fa-solid fa-magnifying-glass" style="color:#94a3b8; margin-right:10px; font-size:0.8rem;"></i>' + txt + '</div>';
+                    return '<div class="faq-sug-item" style="padding:12px 20px; cursor:pointer; font-size:0.95rem; color:#334155; border-bottom:1px solid #f1f5f9; transition:background 0.2s;"><i class="fa-solid fa-magnifying-glass" style="color:#94a3b8; margin-right:10px; font-size:0.8rem;"></i>' + txt + '</div>';
                 }).join('');
                 (sugBox as HTMLElement).style.display = 'block';
                 sugBox.querySelectorAll('.faq-sug-item').forEach(function(item, idx){
@@ -622,6 +667,10 @@ import Breadcrumb from '../components/Breadcrumb.astro';
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            noResults = document.getElementById('faq-no-results') as HTMLElement | null;
+            resultCount = document.getElementById('faq-result-count') as HTMLElement | null;
+            initQuestions();
+            if(isAdmin) loadAdminFaqs();
             input.addEventListener('input', doSearch);
             input.addEventListener('keydown', function(e){
                 if(e.key === 'Escape'){ (sugBox as HTMLElement).style.display='none'; input.value=''; doSearch(); }
@@ -639,6 +688,89 @@ import Breadcrumb from '../components/Breadcrumb.astro';
     })();
     </script>
 
+<style is:inline>
+  #preguntas-frecuentes-content .faq-page-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  #preguntas-frecuentes-content .faq-item {
+    padding: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color .25s ease, box-shadow .25s ease;
+  }
+
+  #preguntas-frecuentes-content .faq-item--open {
+    border-color: #2563eb;
+    box-shadow: 0 10px 28px rgba(37, 99, 235, .12);
+  }
+
+  #preguntas-frecuentes-content .faq-question {
+    min-height: 64px;
+    width: 100%;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: transparent;
+    border: 0;
+    color: #0f172a;
+    cursor: pointer;
+    font: 800 .98rem/1.35 var(--font-main);
+    text-align: left;
+  }
+
+  #preguntas-frecuentes-content .faq-question > span {
+    min-width: 0;
+    display: block;
+  }
+
+  #preguntas-frecuentes-content .faq-chevron {
+    flex: 0 0 auto;
+    color: #2563eb;
+    transition: transform .25s ease;
+  }
+
+  #preguntas-frecuentes-content .faq-item--open .faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  #preguntas-frecuentes-content .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+  }
+
+  #preguntas-frecuentes-content .faq-answer-inner {
+    padding: 0 22px 22px;
+    color: #475569;
+    font-size: .96rem;
+    line-height: 1.7;
+  }
+
+  #faq-suggestions .faq-sug-item:hover {
+    background: #f1f5f9;
+  }
+
+  @media (max-width: 640px) {
+    #preguntas-frecuentes-content .faq-question {
+      min-height: 58px;
+      padding: 16px 18px;
+      font-size: .92rem;
+    }
+
+    #preguntas-frecuentes-content .faq-answer-inner {
+      padding: 0 18px 18px;
+      font-size: .92rem;
+    }
+  }
+</style>
+
 
 <!-- MAIN FAQ CONTENT -->
 <section class="faq-page-content" id="preguntas-frecuentes-content">
@@ -646,7 +778,7 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 
         <div id="dynamic-faqs-container">
             <!-- Contenido estático de respaldo — visible para Google y usuarios sin JS -->
-            <!-- El JS cargará las FAQs dinámicas desde /api/faqs y reemplazará este contenido -->
+            <!-- La vista pública conserva el FAQ completo; /api/faqs solo reemplaza este bloque en modo admin. -->
 
             <h2 class="faq-category-title"><i class="fa-solid fa-laptop"></i> Laptops y Computadoras</h2>
             <div class="faq-page-grid">
@@ -1101,22 +1233,3 @@ import Breadcrumb from '../components/Breadcrumb.astro';
     <!-- ═══ Cookie Banner ═══ -->
 </Base>
 
-<script>
-
-  function toggleFaq(button: Element) {
-    const item = button.closest('.faq-item');
-    const answer = item?.querySelector('.faq-answer');
-    const isExpanded = button.getAttribute('aria-expanded') === 'true';
-    document.querySelectorAll('.faq-item').forEach(i => {
-      i.classList.remove('faq-item--open');
-      const q = i.querySelector('.faq-question'); if (q) q.setAttribute('aria-expanded', 'false');
-      const a = i.querySelector('.faq-answer'); if (a) (a as HTMLElement).style.maxHeight = '';
-    });
-    if (!isExpanded && item) {
-      button.setAttribute('aria-expanded', 'true');
-      item.classList.add('faq-item--open');
-      if (answer) (answer as HTMLElement).style.maxHeight = answer.scrollHeight + 'px';
-    }
-  }
-
-</script>

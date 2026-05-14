@@ -58,7 +58,20 @@ const {
 
 const app = express();
 app.disable('x-powered-by');
-const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 3000) : (process.env.PORT || 3001);
+
+const resolvePort = () => {
+    const rawPort = process.env.PORT || '3000';
+    const port = Number(rawPort);
+
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+        console.error(`[server] PORT invalido: "${rawPort}". Usa un numero entre 1 y 65535.`);
+        process.exit(1);
+    }
+
+    return port;
+};
+
+const PORT = resolvePort();
 
 // Helper para envolver handlers async sin perder errores en Express 4
 const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -66,7 +79,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 /* ─────────────────────────────────────────────────────────────
    BOOTSTRAP — todo el setup que necesita la DB lista va dentro
 ───────────────────────────────────────────────────────────── */
-(async () => {
+async function bootstrap() {
     await initDB();
 
     const sseClients = new Set();
@@ -112,7 +125,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc:    ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://static.cloudflareinsights.com", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+                scriptSrc:    ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://static.cloudflareinsights.com", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
                 // Helmet por default pone script-src-attr 'none' que romperia
                 // los 207+ inline onclick=, onmouseover=, etc. del sitio.
                 // Necesario hasta que se refactoren a addEventListener.
@@ -166,6 +179,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         }
     }));
 
+    app.use('/api/track/view', express.text({ type: '*/*', limit: '10kb' }));
     app.use(express.json({ limit: '10kb' }));
 
     // SECURITY-2 — bloquear /admin* a no-admins ANTES de cualquier static.
@@ -382,7 +396,13 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     /* ─────────────────────────────────────────────────────────
        AUTH
     ───────────────────────────────────────────────────────── */
-    app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+    app.get('/auth/google', (req, res, next) => {
+        const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '';
+        if (returnTo.startsWith('/') && !returnTo.startsWith('//')) {
+            req.session.returnTo = returnTo.slice(0, 240);
+        }
+        passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+    });
 
     // SECURITY-2 (M5) — regenerar la sesion previene session fixation:
     // un atacante no puede preparar una cookie y heredarla autenticada.
@@ -390,11 +410,12 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         passport.authenticate('google', { failureRedirect: '/' }),
         (req, res, next) => {
             const user = req.user;
+            const returnTo = req.session.returnTo || '/';
             req.session.regenerate((err) => {
                 if (err) return next(err);
                 req.login(user, (err2) => {
                     if (err2) return next(err2);
-                    res.redirect('/');
+                    res.redirect(returnTo);
                 });
             });
         }
@@ -605,12 +626,14 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     // TICKETS — Crear ticket de servicio con auth
     // ═══════════════════════════════════════════════════════════════
     app.post('/api/tickets', requireAuth, ah(async (req, res) => {
-        const { device_type, device_brand, device_model, reported_issue, contact_phone } = req.body;
+        const { customer_name, device_type, device_brand, device_model, reported_issue, contact_phone, issue_kind, service_slug } = req.body;
         
         // Validaciones
         const errors = [];
+        if (!customer_name || String(customer_name).trim().length < 2) errors.push('El nombre es requerido.');
         if (!device_type || device_type.length < 2) errors.push('El tipo de equipo es requerido.');
         if (!device_brand || device_brand.length < 2) errors.push('La marca del equipo es requerida.');
+        if (!issue_kind || String(issue_kind).trim().length < 2) errors.push('Selecciona que sucedio o que servicio necesitas.');
         if (!reported_issue || reported_issue.length < 10) errors.push('La descripción del problema debe tener al menos 10 caracteres.');
         if (!contact_phone || contact_phone.length < 8) errors.push('El teléfono de contacto es requerido.');
         
@@ -620,7 +643,14 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         
         // Crear ticket con user_id del usuario autenticado
         const user_id = req.user?.id || null;
-        const user_name = req.user?.name || null;
+        const user_name = String(customer_name || req.user?.name || '').trim();
+        const details = [
+            `Cliente: ${user_name}`,
+            `Tipo de solicitud: ${String(issue_kind).trim()}`,
+            service_slug ? `Servicio relacionado: ${String(service_slug).trim()}` : '',
+            '',
+            String(reported_issue).trim()
+        ].filter(Boolean).join('\n');
         
         const ticket = await insertRepairAdmin({
             user_id,
@@ -628,7 +658,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
             device_type: String(device_type).trim(),
             device_brand: String(device_brand).trim(),
             device_model: device_model ? String(device_model).trim() : null,
-            reported_issue: String(reported_issue).trim().slice(0, 2000),
+            reported_issue: details.slice(0, 2000),
             contact_phone: String(contact_phone).trim().slice(0, 20)
         });
         
@@ -658,7 +688,12 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
         ANALYTICS — Page View Tracking
     ───────────────────────────────────────────────────────── */
     app.post('/api/track/view', (req, res) => {
-        const { path, title, referrer } = req.body;
+        const payload = typeof req.body === 'string'
+            ? (() => {
+                try { return JSON.parse(req.body || '{}'); } catch (_e) { return {}; }
+            })()
+            : (req.body || {});
+        const { path, title, referrer } = payload;
         if (!path) return res.status(400).json({ error: 'path required' });
         const session_id = req.sessionID || null;
         const user_id = req.user?.id || null;
@@ -943,7 +978,7 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
     /* ─────────────────────────────────────────────────────────
        ARRANCAR
     ───────────────────────────────────────────────────────── */
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         const mode = process.env.NODE_ENV || 'development';
         console.log(`
 +--------------------------------------------------+
@@ -953,10 +988,37 @@ const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 |  OAuth -> http://localhost:${PORT}/auth/google
 +--------------------------------------------------+`);
     });
-})().catch(err => {
-    console.error('✗ Bootstrap fallido:', err.message);
-    console.error(err.stack);
-    process.exit(1);
-});
+    server.on('error', (error) => {
+        if (error.code === 'EADDRINUSE') {
+            console.error(`
+[server] El puerto ${PORT} ya esta en uso.
+
+Probablemente ya tienes otra instancia del servidor abierta.
+
+Windows PowerShell:
+  netstat -ano | findstr :${PORT}
+  taskkill /PID <PID> /F
+
+Alternativa para arrancar en otro puerto:
+  $env:PORT=3001; npm start
+`);
+            process.exit(1);
+            return;
+        }
+
+        console.error('[server] Error al iniciar el servidor:', error.message);
+        console.error(error);
+        process.exit(1);
+    });
+}
+
+if (require.main === module) {
+    bootstrap().catch(err => {
+        console.error('Bootstrap fallido:', err.message);
+        console.error(err.stack);
+        process.exit(1);
+    });
+}
 
 module.exports = app;
+module.exports.bootstrap = bootstrap;

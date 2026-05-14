@@ -37,7 +37,8 @@
         RESUME_DRAG_MS:  1300,
         RESUME_CLICK_MS: 900,
         DT_CAP:          0.05,  // evita jumps al volver al tab
-        DUPLICATES:      8,     // veces que se duplica el track para el loop
+        MIN_LOOP_CARDS:  14,
+        MAX_DUPLICATES:  4,
     };
 
     /* ────────────────────────────────────────────────────────
@@ -138,7 +139,8 @@
     ═══════════════════════════════════════════════════════ */
     function mountCarousel(container, track) {
         const S = CONFIG.SCROLL_SPEED;
-        let paused = false;
+        let paused = true;
+        let running = false;
         let rafId  = null;
         let lastTs = null;
         let timer  = null;
@@ -151,8 +153,21 @@
             halfWidth = track.scrollWidth / 2;
         }));
 
+        function stopLoop() {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = null;
+            running = false;
+            lastTs = null;
+        }
+
+        function startLoop() {
+            if (dead || running || paused) return;
+            running = true;
+            rafId = requestAnimationFrame(step);
+        }
+
         function step(ts) {
-            if (dead) return;
+            if (dead) { stopLoop(); return; }
             if (!lastTs) lastTs = ts;
             const dt = Math.min((ts - lastTs) / 1000, CONFIG.DT_CAP);
             lastTs = ts;
@@ -173,14 +188,18 @@
                     container.scrollLeft -= halfWidth;
                 }
             }
-            rafId = requestAnimationFrame(step);
+            if (!paused) {
+                rafId = requestAnimationFrame(step);
+            } else {
+                stopLoop();
+            }
         }
-        rafId = requestAnimationFrame(step);
 
         function pause() {
             paused = true;
             lastInteraction = Date.now();
             clearTimeout(timer);
+            stopLoop();
         }
 
         function resume(delay) {
@@ -190,8 +209,9 @@
                 if (!track.querySelector('.comment-item.lifted')) {
                     paused = false;
                     lastTs = null;
+                    startLoop();
                 }
-            }, delay || CONFIG.RESUME_HOVER_MS);
+            }, delay ?? CONFIG.RESUME_HOVER_MS);
         }
 
         function onMouseEnter() { pause(); }
@@ -303,7 +323,7 @@
             recalc() { halfWidth = track.scrollWidth / 2; },
             destroy() {
                 dead = true;
-                cancelAnimationFrame(rafId);
+                stopLoop();
                 clearTimeout(timer);
                 mutObs.disconnect();
                 container.removeEventListener('mouseenter',  onMouseEnter);
@@ -403,9 +423,22 @@
             if (isHalfMode) {
                 starSlots.forEach((slot, idx) => {
                     const base = idx + 1; // 1..5
+                    const fg = slot.querySelector('.star-fg');
+                    let clip = 'inset(0 100% 0 0)';
                     slot.classList.remove('full', 'half');
-                    if (rating >= base) slot.classList.add('full');
-                    else if (rating >= base - 0.5) slot.classList.add('half');
+                    if (rating >= base) {
+                        slot.classList.add('full');
+                        clip = 'inset(0 0 0 0)';
+                    } else if (rating >= base - 0.5) {
+                        slot.classList.add('half');
+                        clip = 'inset(0 50% 0 0)';
+                    }
+                    if (fg) {
+                        fg.style.color = '#f59e0b';
+                        fg.style.fill = 'currentColor';
+                        fg.style.clipPath = clip;
+                        fg.style.webkitClipPath = clip;
+                    }
                 });
                 if (ratingLabel) {
                     if (rating > 0) {
@@ -460,11 +493,16 @@
             if (!comments.length) {
                 commentBox.innerHTML = '<div class="comment-item" style="min-width:260px;text-align:center;opacity:0.6;">Sé el primero en comentar 🌟</div>';
             } else {
-                // Duplicar CONFIG.DUPLICATES veces para el loop infinito
                 commentBox.innerHTML = '';
-                for (let d = 0; d < CONFIG.DUPLICATES; d++) {
-                    comments.forEach(c => commentBox.appendChild(buildCard(c)));
+                const repeats = Math.max(
+                    2,
+                    Math.min(CONFIG.MAX_DUPLICATES, Math.ceil(CONFIG.MIN_LOOP_CARDS / comments.length))
+                );
+                const fragment = document.createDocumentFragment();
+                for (let d = 0; d < repeats; d++) {
+                    comments.forEach(c => fragment.appendChild(buildCard(c)));
                 }
+                commentBox.appendChild(fragment);
             }
 
             setTimeout(() => {

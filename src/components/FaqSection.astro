@@ -2,6 +2,7 @@
 interface FaqItem {
   question: string;
   answer: string;
+  icon?: string;
 }
 
 interface Props {
@@ -12,23 +13,44 @@ interface Props {
   viewMoreLabel?: string;
   faqAccent?: string;
   id?: string;
+  ariaLabel?: string;
+  sectionClass?: string;
+  gridClass?: string;
+  backgroundColor?: string;
+  questionColor?: string;
 }
 
-const { title, description, items, viewMoreHref, viewMoreLabel, faqAccent = '#3b82f6', id } = Astro.props;
+const {
+  title,
+  description,
+  items,
+  viewMoreHref,
+  viewMoreLabel,
+  faqAccent = '#3b82f6',
+  id,
+  ariaLabel,
+  sectionClass = '',
+  gridClass = '',
+  backgroundColor = 'transparent',
+  questionColor = '#fff',
+} = Astro.props;
 ---
 
-<section class="section-padding faq-page-content" id={id} style="background:transparent; padding: 60px 0;">
+<section class={`section-padding faq-page-content ${sectionClass}`} id={id} aria-label={ariaLabel} style={`background:${backgroundColor}; --faq-question-color:${questionColor}; padding: 60px 0;`}>
   <div class="container" style="max-width: 900px;">
     <div class="section-title text-center" style="margin-bottom:40px;">
       <h2 style="color:var(--text-main); font-weight:800; font-family:'Kanit', sans-serif;">{title}</h2>
       {description && <p style="color:var(--text-muted); font-size:1.1rem;">{description}</p>}
     </div>
     
-    <div class="faq-page-grid">
+    <div class={`faq-page-grid ${gridClass}`}>
       {items.map((item, index) => (
         <div class="faq-item" id={`faq-${id || 'section'}-${index}`}>
           <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-            <span>{item.question}</span>
+            <span>
+              {item.icon && <i class={`${item.icon} faq-q-icon`}></i>}
+              {item.question}
+            </span>
             <i class="fa-solid fa-chevron-down faq-chevron"></i>
           </button>
           <div class="faq-answer" aria-hidden="true">
@@ -47,26 +69,51 @@ const { title, description, items, viewMoreHref, viewMoreLabel, faqAccent = '#3b
 </section>
 
 <script is:inline>
-  if (typeof window !== 'undefined' && !(window as any).toggleFaq) {
-    (window as any).toggleFaq = function(button) {
+  if (typeof window !== 'undefined') {
+    const closeFaqItems = (scope = document) => {
+      scope.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('faq-item--open');
+        const q = i.querySelector('.faq-question');
+        if (q) q.setAttribute('aria-expanded', 'false');
+        const a = i.querySelector('.faq-answer');
+        if (a) {
+          a.style.maxHeight = '';
+          a.setAttribute('aria-hidden', 'true');
+        }
+      });
+    };
+
+    window.toggleFaq = function(button) {
       const item = button.closest('.faq-item');
       const answer = item?.querySelector('.faq-answer');
       const isExpanded = button.getAttribute('aria-expanded') === 'true';
-      
-      // Close all others
-      document.querySelectorAll('.faq-item').forEach(i => {
-        i.classList.remove('faq-item--open');
-        const q = i.querySelector('.faq-question'); if (q) q.setAttribute('aria-expanded', 'false');
-        const a = i.querySelector('.faq-answer'); if (a) (a).style.maxHeight = '';
-      });
-      
-      // Open clicked one
+
+      closeFaqItems();
+
       if (!isExpanded && item) {
         button.setAttribute('aria-expanded', 'true');
         item.classList.add('faq-item--open');
-        if (answer) answer.style.maxHeight = answer.scrollHeight + 'px';
+        if (answer) {
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+          answer.setAttribute('aria-hidden', 'false');
+        }
       }
     };
+
+    if (!window.__pixonFaqAutoClose) {
+      window.__pixonFaqAutoClose = true;
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        if (target.closest('.faq-page-content')) return;
+        closeFaqItems();
+      });
+
+      window.addEventListener('scroll', () => {
+        if (document.querySelector('.faq-item--open')) closeFaqItems();
+      }, { passive: true });
+    }
   }
 </script>
 
@@ -99,11 +146,14 @@ const { title, description, items, viewMoreHref, viewMoreLabel, faqAccent = '#3b
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #fff;
+    color: var(--faq-question-color, #fff);
     font-size: 1.05rem;
     font-weight: 700;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
+  }
+  .faq-page-content .faq-item--open .faq-question {
+    color: var(--faq-question-color, #fff);
   }
   .faq-chevron {
     color: #38BDF8;
