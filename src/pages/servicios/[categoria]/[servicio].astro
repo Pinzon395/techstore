@@ -3,6 +3,7 @@ import Base from '../../../layouts/Base.astro';
 import Navbar from '../../../components/Navbar.astro';
 import Footer from '../../../components/Footer.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
+import FaqSection from '../../../components/FaqSection.astro';
 import CommentsSection from '../../../components/CommentsSection.astro';
 import ContactSection from '../../../components/ContactSection.astro';
 import MantenimientoTermicoView from '../../../components/views/MantenimientoTermicoView.astro';
@@ -26,11 +27,14 @@ export function getStaticPaths() {
 const { category, service } = Astro.props;
 
 const canonical = `https://pixon.com.mx/servicios/${category.slug}/${service.slug}`;
+const isLaptopScreenReplacement = category.slug === 'laptop' && service.slug === 'cambio-pantalla';
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
-const seoTitle = `${seoKeyword} para ${category.title} en Cancún | Pixon PC`;
+const seoTitle = isLaptopScreenReplacement
+  ? `${seoKeyword} con garantía en Cancún | Pixon PC`
+  : `${seoKeyword} para ${category.title} en Cancún | Pixon PC`;
 const description = service.intro
-  ? `${service.intro} Cotización gratis y reparación profesional en Cancún.`
+  ? `${service.intro} Cotización gratis, diagnóstico claro y reparación profesional en Cancún.`
   : `Servicio especializado de ${service.label} para ${category.title} en Cancún. Diagnóstico profundo y garantía por escrito.`;
 
 const waMessage = encodeURIComponent(`Hola, necesito el servicio de ${service.label} para mi ${category.title}. ¿Me podrían cotizar?`);
@@ -61,6 +65,75 @@ const faqItems = [
     answer: 'Contamos con taller físico en Cancún donde atendemos diagnósticos presenciales. Para ciertos servicios también podemos coordinar recogida. Contáctanos por WhatsApp para más detalles.',
   },
 ];
+
+const getRelatedIcon = (item: any) => {
+  const key = `${item.slug || ''} ${item.label || ''} ${item.customUrl || ''}`.toLowerCase();
+
+  if (key.includes('bateria')) return 'fa-battery-three-quarters';
+  if (key.includes('teclado')) return 'fa-keyboard';
+  if (key.includes('pasta') || key.includes('termica') || key.includes('mantenimiento')) return 'fa-temperature-three-quarters';
+  if (key.includes('diagnostico')) return 'fa-stethoscope';
+  if (key.includes('bisagra')) return 'fa-laptop';
+  if (key.includes('upgrade')) return 'fa-memory';
+  if (key.includes('optimizacion')) return 'fa-gauge-high';
+  if (key.includes('windows') || key.includes('sistema')) return 'fa-window-restore';
+  if (key.includes('mac')) return 'fa-laptop-code';
+  if (key.includes('liquido')) return 'fa-droplet';
+  if (key.includes('reparacion')) return 'fa-screwdriver-wrench';
+
+  return category.icon;
+};
+
+const relatedSlugItems = (service.relatedSlugs || [])
+  .filter((slug: string) => slug !== service.slug)
+  .map((slug: string) => {
+    const rel = category.services.find((item: any) => item.slug === slug);
+    if (!rel) return null;
+    return {
+      href: rel.customUrl ?? `/servicios/${category.slug}/${rel.slug}`,
+      icon: getRelatedIcon(rel),
+      label: rel.label,
+      cta: 'Ver servicio →',
+      isExternal: false,
+    };
+  })
+  .filter(Boolean);
+
+const relatedExternalItems = (service.relatedExternal || []).map((ext: any) => ({
+  href: ext.href,
+  icon: ext.icon,
+  label: ext.label,
+  desc: ext.desc,
+  cta: 'Ver más →',
+  isExternal: true,
+}));
+
+const usedRelatedHrefs = new Set([
+  ...relatedSlugItems.map((item: any) => item.href),
+  ...relatedExternalItems.map((item: any) => item.href),
+  canonical,
+]);
+
+const moreLaptopRelatedItems = isLaptopScreenReplacement
+  ? category.services
+      .filter((item: any) => item.slug !== service.slug)
+      .map((item: any) => ({
+        href: item.customUrl ?? `/servicios/${category.slug}/${item.slug}`,
+        icon: getRelatedIcon(item),
+        label: item.label,
+        cta: 'Ver servicio →',
+        isExternal: false,
+      }))
+      .filter((item: any) => {
+        if (usedRelatedHrefs.has(item.href)) return false;
+        usedRelatedHrefs.add(item.href);
+        return true;
+      })
+  : [];
+
+const relatedCards = [...relatedSlugItems, ...relatedExternalItems, ...moreLaptopRelatedItems];
+const relatedInitialLimit = isLaptopScreenReplacement ? 8 : 6;
+const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
 ---
 
 <Base title={seoTitle} description={description} canonical={canonical}>
@@ -77,13 +150,16 @@ const faqItems = [
     main, .main-content, #main, .page-wrapper { background-color: #0B1120 !important; }
   </style>
   <Navbar />
+  {isLaptopScreenReplacement && <div class="screen-navbar-offset" aria-hidden="true"></div>}
 
-  <Breadcrumb items={[
-    { label: 'Inicio',         href: '/' },
-    { label: 'Servicios',      href: '/servicios' },
-    { label: category.title,   href: `/servicios/${category.slug}` },
-    { label: service.label },
-  ]} />
+  {!isLaptopScreenReplacement && (
+    <Breadcrumb items={[
+      { label: 'Inicio',         href: '/' },
+      { label: 'Servicios',      href: '/servicios' },
+      { label: category.title,   href: `/servicios/${category.slug}` },
+      { label: service.label },
+    ]} />
+  )}
 
   {service.slug === 'ventilacion' ? (
     <MantenimientoTermicoView service={service} category={category} />
@@ -92,15 +168,20 @@ const faqItems = [
   ) : (
     <div class="theme-premium-dark">
       <!-- 1. HERO SECTION (Dark Premium) -->
-    <section class="ux-hero">
+    <section class={`ux-hero ${isLaptopScreenReplacement ? 'screen-hero' : ''}`}>
       <div class="ux-glow-hero"></div>
       <div class="container ux-hero-inner">
         <div class="ux-hero-content">
-          <span class="ux-badge"><i class={`fa-solid ${category.icon}`}></i> Especialistas en {category.title} en Cancún</span>
+          <span class="ux-badge">
+            <i class={`fa-solid ${category.icon}`}></i>
+            {isLaptopScreenReplacement ? 'Pantallas para laptop en Cancún' : `Especialistas en ${category.title} en Cancún`}
+          </span>
           
           <h1 class="ux-h1">
-            {seoKeyword} <br>
-            <span class="ux-gradient-text">Profesional</span>
+            {isLaptopScreenReplacement ? 'Cambio de pantalla de laptop en Cancún' : seoKeyword} <br>
+            <span class="ux-gradient-text">
+              {isLaptopScreenReplacement ? 'con diagnóstico y garantía' : 'Profesional'}
+            </span>
           </h1>
           
           <h2 class="ux-hero-hook">{hook}</h2>
@@ -109,6 +190,14 @@ const faqItems = [
             {service.intro || `Solucionamos problemas de ${service.label.toLowerCase()} de forma definitiva. Trabajamos con equipo especializado y refacciones certificadas en Cancún.`}
           </p>
 
+          {isLaptopScreenReplacement && (
+            <div class="screen-hero-tags" aria-label="Detalles del servicio de cambio de pantalla">
+              <span><i class="fa-solid fa-display"></i> LCD, LED, FHD, táctil y OLED</span>
+              <span><i class="fa-solid fa-location-dot"></i> Taller local en Cancún</span>
+              <span><i class="fa-solid fa-magnifying-glass"></i> Revisamos flex y video antes de cotizar</span>
+            </div>
+          )}
+
           <div class="ux-trust-bar">
             <div class="trust-item"><i class="fa-solid fa-star"></i> 5.0 en Google Maps</div>
             <div class="trust-item"><i class="fa-solid fa-shield-halved"></i> Garantía por escrito</div>
@@ -116,11 +205,11 @@ const faqItems = [
           </div>
 
           <div class="ux-hero-ctas">
-            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="ux-btn-primary pulse">
-              <i class="fa-brands fa-whatsapp"></i> Cotizar Servicio
+            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopScreenReplacement ? '' : 'pulse'}`}>
+              <i class="fa-brands fa-whatsapp"></i> {isLaptopScreenReplacement ? 'Cotizar pantalla por WhatsApp' : 'Cotizar Servicio'}
             </a>
-            <a href="#proceso" class="ux-btn-secondary">
-              Ver Proceso <i class="fa-solid fa-arrow-down"></i>
+            <a href="#proceso" class="ux-btn-secondary" data-screen-scroll={isLaptopScreenReplacement ? 'proceso' : undefined}>
+              {isLaptopScreenReplacement ? 'Ver proceso técnico' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
             </a>
           </div>
         </div>
@@ -128,8 +217,8 @@ const faqItems = [
         <div class="ux-hero-visual">
           <div class="ux-glass-panel">
             <div class="glass-header">
-              <i class="fa-solid fa-clipboard-list"></i>
-              <span>¿Qué Incluye?</span>
+              <i class={`fa-solid ${isLaptopScreenReplacement ? 'fa-display' : 'fa-clipboard-list'}`}></i>
+              <span>{isLaptopScreenReplacement ? 'Servicio para pantallas LCD, LED y táctiles' : '¿Qué Incluye?'}</span>
             </div>
             <ul class="ux-check-list">
               {service.bullets && service.bullets.length > 0 ? (
@@ -148,6 +237,7 @@ const faqItems = [
             <div class="glass-price">
               <span>Inversión desde:</span>
               <strong>{service.fromPrice || 'Previa Revisión'}</strong>
+              {isLaptopScreenReplacement && <small>El precio final depende del modelo y tipo de pantalla de tu laptop.</small>}
             </div>
           </div>
         </div>
@@ -156,17 +246,40 @@ const faqItems = [
 
     <!-- 1.5 TRUST STRIP CON STATS -->
     {service.trustStats && service.trustStats.length > 0 && (
-      <section class="svc-trust-strip">
+      <section class={`svc-trust-strip ${isLaptopScreenReplacement ? 'screen-proof-strip' : ''}`}>
         <div class="container">
+          {isLaptopScreenReplacement && (
+            <div class="screen-proof-heading">
+              <span class="ux-eyebrow">Servicio local verificado</span>
+              <h2 class="ux-h2">Cambio de pantalla de laptop en Cancún con proceso claro</h2>
+              <p>Atendemos cambio de pantalla de laptop en Cancún con diagnóstico previo del panel, flex de video y salida a monitor externo. Te confirmamos compatibilidad, costo y tiempo antes de pedir o instalar la pieza.</p>
+            </div>
+          )}
           <div class="trust-stats-grid">
-            {service.trustStats.map((stat) => (
+            {service.trustStats.map((stat, index) => (
               <div class="trust-stat-item">
                 <div class="trust-stat-icon"><i class={`fa-solid ${stat.icon}`}></i></div>
                 <div class="trust-stat-value">{stat.value}</div>
                 <div class="trust-stat-label">{stat.label}</div>
+                {isLaptopScreenReplacement && (
+                  <p class="trust-stat-note">
+                    {[
+                      'Revisamos si la falla real está en display, cable flex, bisagra, retroiluminación o tarjeta de video.',
+                      'La garantía aplica sobre la pantalla instalada y se entrega por escrito al finalizar el servicio.',
+                      'Coordinamos recepción, recolección o entrega según zona y disponibilidad operativa en Cancún.',
+                      'El tiempo puede variar si el panel debe pedirse fuera de Cancún o si el modelo requiere pieza especial.',
+                    ][index]}
+                  </p>
+                )}
               </div>
             ))}
           </div>
+          {isLaptopScreenReplacement && (
+            <div class="screen-proof-footer">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>El plazo de entrega depende del modelo exacto, tipo de pantalla y disponibilidad de la refacción en Cancún. Si la pieza está local, avanzamos más rápido; si se pide fuera, te avisamos antes de confirmar.</span>
+            </div>
+          )}
         </div>
       </section>
     )}
@@ -198,8 +311,14 @@ const faqItems = [
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow">Tipos de Pantalla</span>
-            <h2 class="ux-h2">Trabajamos con todos los <span class="ux-text-accent">tipos de panel</span></h2>
-            <p>Identificamos el modelo exacto antes de cotizar para que la pieza sea 100% compatible.</p>
+            <h2 class="ux-h2">
+              {isLaptopScreenReplacement ? (
+                <>Tipos de pantalla de laptop que instalamos en <span class="ux-text-accent">Cancún</span></>
+              ) : (
+                <>Trabajamos con todos los <span class="ux-text-accent">tipos de panel</span></>
+              )}
+            </h2>
+            <p>Identificamos el modelo exacto antes de cotizar para que la pieza sea compatible con tu laptop.</p>
           </div>
           <div class="screen-types-grid">
             {service.screenTypes.map((type) => (
@@ -215,26 +334,69 @@ const faqItems = [
 
     <!-- 1.8 ANTES / DESPUÉS (Comparativa) -->
     {service.beforeAfter && (
-      <section class="svc-before-after section-pad" style="background:#0F172A;">
+      <section class={`svc-before-after section-pad ${isLaptopScreenReplacement ? 'screen-result-section' : ''}`} style="background:#0F172A;">
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow">Resultado real</span>
-            <h2 class="ux-h2">Tu laptop antes vs. <span class="ux-text-accent">después</span></h2>
+            <h2 class="ux-h2">
+              {isLaptopScreenReplacement ? (
+                <>Antes y después del cambio de pantalla de <span class="ux-text-accent">laptop</span></>
+              ) : (
+                <>Tu laptop antes vs. <span class="ux-text-accent">después</span></>
+              )}
+            </h2>
+            {isLaptopScreenReplacement && (
+              <p>Mostramos el cambio esperado después de instalar el display correcto, validar flex de video y probar imagen antes de entregar.</p>
+            )}
           </div>
           <div class="ba-comparison">
             <div class="ba-col ba-col--before">
+              {isLaptopScreenReplacement && (
+                <div class="ba-status-pill">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  Equipo con falla visible
+                </div>
+              )}
               <h3><i class="fa-solid fa-circle-xmark"></i> Antes</h3>
+              {isLaptopScreenReplacement && (
+                <p class="ba-col-desc">Síntomas que revisamos para confirmar si el daño viene del panel, flex, bisagras o tarjeta de video.</p>
+              )}
               {service.beforeAfter.before.map((item) => (
                 <div class="ba-item"><i class="fa-solid fa-xmark"></i> {item}</div>
               ))}
             </div>
             <div class="ba-col ba-col--after">
+              {isLaptopScreenReplacement && (
+                <div class="ba-status-pill ba-status-pill--ok">
+                  <i class="fa-solid fa-screwdriver-wrench"></i>
+                  Pantalla instalada y probada
+                </div>
+              )}
               <h3><i class="fa-solid fa-circle-check"></i> Después</h3>
+              {isLaptopScreenReplacement && (
+                <p class="ba-col-desc">Resultado que buscamos antes de cerrar el equipo: imagen limpia, brillo estable y funcionamiento continuo.</p>
+              )}
               {service.beforeAfter.after.map((item) => (
                 <div class="ba-item"><i class="fa-solid fa-check"></i> {item}</div>
               ))}
             </div>
           </div>
+          {isLaptopScreenReplacement && (
+            <div class="ba-validation-row" aria-label="Validaciones posteriores al cambio de pantalla">
+              <div class="ba-validation-item">
+                <i class="fa-solid fa-display"></i>
+                <span>Prueba de imagen continua</span>
+              </div>
+              <div class="ba-validation-item">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Brillo, color y contraste revisados</span>
+              </div>
+              <div class="ba-validation-item">
+                <i class="fa-solid fa-file-shield"></i>
+                <span>Garantía por escrito en Cancún</span>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     )}
@@ -336,11 +498,20 @@ const faqItems = [
     )}
 
     <!-- 5. PROCESO DE TRABAJO (Dynamic or Fallback) -->
-    <section class="ux-process" id="proceso">
+    <section class={`ux-process ${isLaptopScreenReplacement ? 'screen-process' : ''}`} id="proceso">
       <div class="container">
         <div class="ux-section-header text-center">
-          <span class="ux-eyebrow">Transparencia Total</span>
-          <h2 class="ux-h2">Nuestra Metodología de <span class="ux-text-accent">Trabajo</span></h2>
+          <span class="ux-eyebrow">{isLaptopScreenReplacement ? 'Reemplazo profesional' : 'Transparencia Total'}</span>
+          <h2 class="ux-h2">
+            {isLaptopScreenReplacement ? (
+              <>Proceso para cambio de pantalla de laptop en <span class="ux-text-accent">Cancún</span></>
+            ) : (
+              <>Nuestra Metodología de <span class="ux-text-accent">Trabajo</span></>
+            )}
+          </h2>
+          {isLaptopScreenReplacement && (
+            <p>Dejamos claro si la falla viene del panel, flex de video, bisagra o tarjeta de video antes de comprar cualquier pieza.</p>
+          )}
         </div>
 
         <div class="ux-timeline">
@@ -390,15 +561,24 @@ const faqItems = [
       </div>
     </section>    <!-- 5.5 EDUCATIONAL BLOCKS (Opcional, Claro/Oscuro alterno) -->
     {service.educationalBlocks && service.educationalBlocks.length > 0 && service.educationalBlocks.map((block: any, index: number) => (
-      <section class={`svc-educational ${index % 2 === 0 ? 'bg-light' : 'bg-dark'}`}>
+      <section class={`svc-educational ${index % 2 === 0 ? 'bg-light' : 'bg-dark'} ${isLaptopScreenReplacement && index === 0 ? 'screen-care-section' : ''}`}>
         <div class={`container educational-container ${block.reverse ? 'row-reverse' : ''}`}>
           <div class="educational-text">
             <span class="ux-eyebrow" style={index % 2 === 0 ? "color:#2563EB;" : "color:#60A5FA;"}>{block.eyebrow}</span>
             <h2 class="ux-h2" style={index % 2 === 0 ? "color:#0E1629 !important;" : ""}>{block.title}</h2>
             <p class="educational-intro" style={index % 2 === 0 ? "color:#4B5563;" : ""}>{block.intro}</p>
+            {isLaptopScreenReplacement && index === 0 && (
+              <div class="screen-care-note">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Estas recomendaciones ayudan a conservar el brillo, la capa anti-reflejante y las bisagras después del cambio de pantalla.</span>
+              </div>
+            )}
             <div class="educational-points">
-              {block.points.map((point: any) => (
+              {block.points.map((point: any, pointIndex: number) => (
                 <div class="edu-point">
+                  {isLaptopScreenReplacement && index === 0 && (
+                    <span class="care-step-count">{String(pointIndex + 1).padStart(2, '0')}</span>
+                  )}
                   <div class="edu-icon" style={index % 2 === 0 ? "background:#DBEAFE;color:#2563EB;" : ""}><i class={`fa-solid ${point.icon}`}></i></div>
                   <div class="edu-content">
                     <h4 style={index % 2 === 0 ? "color:#1E293B;" : ""}>{point.title}</h4>
@@ -410,6 +590,13 @@ const faqItems = [
           </div>
           <div class="educational-image">
             <img src={block.imgSrc} alt={block.imgAlt} loading="lazy" />
+            {isLaptopScreenReplacement && index === 0 && (
+              <div class="screen-care-kit">
+                <span><i class="fa-solid fa-check"></i> Microfibra</span>
+                <span><i class="fa-solid fa-check"></i> Agua destilada</span>
+                <span><i class="fa-solid fa-xmark"></i> Sin alcohol</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -417,11 +604,17 @@ const faqItems = [
 
     <!-- 6. WHY US - Claro -->
     {service.whyUs && service.whyUs.length > 0 && (
-      <section class="svc-whyus">
+      <section class={`svc-whyus ${isLaptopScreenReplacement ? 'screen-whyus-compact' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow" style="color:#2563EB;">Ventaja Pixon</span>
-            <h2 class="ux-h2" style="color:#0E1629 !important;">¿Por qué elegir nuestro <span style="color:#2563EB;">{service.label.toLowerCase()}</span>?</h2>
+            <h2 class="ux-h2" style="color:#0E1629 !important;">
+              {isLaptopScreenReplacement ? (
+                <>¿Por qué elegir nuestro <span style="color:#2563EB;">cambio de pantalla de laptop en Cancún</span>?</>
+              ) : (
+                <>¿Por qué elegir nuestro <span style="color:#2563EB;">{service.label.toLowerCase()}</span>?</>
+              )}
+            </h2>
           </div>
           <div class="whyus-grid">
             {service.whyUs.map((item: any) => (
@@ -438,27 +631,79 @@ const faqItems = [
 
     <!-- 7. PROBLEMAS COMUNES - Oscuro -->
     {service.commonProblems && service.commonProblems.length > 0 && (
-      <section class="svc-problems">
+      <section class={`svc-problems ${isLaptopScreenReplacement ? 'screen-problems-section' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow">Diagnóstico Frecuente</span>
-            <h2 class="ux-h2">Problemas comunes → <span class="ux-text-accent">Soluciones reales</span></h2>
+            <h2 class="ux-h2">
+              {isLaptopScreenReplacement ? (
+                <>Fallas de pantalla de laptop que resolvemos en <span class="ux-text-accent">Cancún</span></>
+              ) : (
+                <>Problemas comunes → <span class="ux-text-accent">Soluciones reales</span></>
+              )}
+            </h2>
+            {isLaptopScreenReplacement && (
+              <p>No todas las fallas visibles requieren el mismo cambio. Revisamos panel, flex, retroiluminación y salida de video para cotizar solo la pieza correcta.</p>
+            )}
           </div>
+          {isLaptopScreenReplacement && (
+            <div class="screen-diagnostic-strip" aria-label="Puntos de diagnóstico de pantalla">
+              <div>
+                <i class="fa-solid fa-display"></i>
+                <span>Panel</span>
+              </div>
+              <div>
+                <i class="fa-solid fa-plug-circle-bolt"></i>
+                <span>Flex de video</span>
+              </div>
+              <div>
+                <i class="fa-solid fa-lightbulb"></i>
+                <span>Retroiluminación</span>
+              </div>
+              <div>
+                <i class="fa-solid fa-tv"></i>
+                <span>Monitor externo</span>
+              </div>
+            </div>
+          )}
           <div class="problems-list">
-            {service.commonProblems.map((item: any) => (
+            {service.commonProblems.map((item: any, index: number) => (
               <div class="problem-row">
+                {isLaptopScreenReplacement && (
+                  <div class="problem-code">
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <i class={`fa-solid ${['fa-burst', 'fa-grip-lines-vertical', 'fa-moon', 'fa-droplet'][index] || 'fa-display'}`}></i>
+                  </div>
+                )}
                 <div class="problem-left">
                   <i class="fa-solid fa-circle-xmark"></i>
-                  <span>{item.problem}</span>
+                  <span>
+                    {isLaptopScreenReplacement && <small>Falla detectada</small>}
+                    {item.problem}
+                  </span>
                 </div>
                 <div class="problem-arrow"><i class="fa-solid fa-arrow-right"></i></div>
                 <div class="problem-right">
                   <i class="fa-solid fa-circle-check"></i>
-                  <span>{item.solution}</span>
+                  <span>
+                    {isLaptopScreenReplacement && <small>Ruta técnica</small>}
+                    {item.solution}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
+          {isLaptopScreenReplacement && (
+            <div class="screen-diagnostic-summary">
+              <div>
+                <strong>Diagnóstico antes de venderte una pantalla</strong>
+                <span>Si el problema es flex, bisagra, retroiluminación o video, te lo decimos antes de comprar el panel.</span>
+              </div>
+              <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">
+                <i class="fa-brands fa-whatsapp"></i> Revisar mi laptop
+              </a>
+            </div>
+          )}
         </div>
       </section>
     )}
@@ -468,7 +713,9 @@ const faqItems = [
       <section class="svc-compat">
         <div class="container text-center">
           <span class="ux-eyebrow" style="color:#2563EB;">Cobertura Total</span>
-          <h2 class="ux-h2" style="color:#0E1629 !important;">Hacemos {service.label.toLowerCase()} en estas marcas</h2>
+          <h2 class="ux-h2" style="color:#0E1629 !important;">
+            {isLaptopScreenReplacement ? 'Cambio de pantalla para laptops HP, Dell, Lenovo, Asus, Acer y MacBook' : `Hacemos ${service.label.toLowerCase()} en estas marcas`}
+          </h2>
           <div class="compat-brands">
             {service.compatibleBrands.map((b: string) => (
               <span class="brand-chip">{b}</span>
@@ -479,70 +726,56 @@ const faqItems = [
     )}
 
     <!-- 9. SERVICIOS RELACIONADOS - Oscuro -->
-    {(service.relatedSlugs?.length > 0 || service.relatedExternal?.length > 0) && (
-      <section class="svc-related">
+    {relatedCards.length > 0 && (
+      <section class={`svc-related ${isLaptopScreenReplacement ? 'screen-related-compact' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow">Servicios Complementarios</span>
             <h2 class="ux-h2">Otros servicios que podrían <span class="ux-text-accent">interesarte</span></h2>
           </div>
           <div class="related-grid">
-            {service.relatedSlugs?.filter((s: string) => s !== service.slug).slice(0, 3).map((slug: string) => {
-              const rel = category.services.find((s: any) => s.slug === slug);
-              if (!rel) return null;
-              const href = rel.customUrl ?? `/servicios/${category.slug}/${rel.slug}`;
-              return (
-                <a href={href} class="related-card">
-                  <i class={`fa-solid ${category.icon}`}></i>
-                  <h4>{rel.label}</h4>
-                  <span>Ver servicio →</span>
-                </a>
-              );
-            })}
-            {service.relatedExternal?.slice(0, 3).map((ext: any) => (
-              <a href={ext.href} class="related-card related-card--ext">
-                <i class={`fa-solid ${ext.icon}`}></i>
-                <h4>{ext.label}</h4>
-                <p>{ext.desc}</p>
-                <span>Ver más →</span>
+            {relatedCards.map((item: any, index: number) => (
+              <a
+                href={item.href}
+                class={`related-card ${item.isExternal ? 'related-card--ext' : ''} ${index >= relatedInitialLimit ? 'related-card--extra' : ''}`}
+                data-related-extra={index >= relatedInitialLimit ? 'true' : undefined}
+              >
+                <i class={`fa-solid ${item.icon}`}></i>
+                <h4>{item.label}</h4>
+                {item.desc && <p>{item.desc}</p>}
+                <span>{item.cta}</span>
               </a>
             ))}
           </div>
+          {hasExpandableRelated && (
+            <div class="related-toggle-wrap">
+              <button class="related-toggle" type="button" data-related-toggle aria-expanded="false">
+                <span data-related-toggle-text>Ver más servicios</span>
+                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+              </button>
+            </div>
+          )}
         </div>
       </section>
     )}
 
-    <!-- 10. FAQ — Home pattern (conditional) -->
+    <!-- 10. FAQ — contenedor reutilizable -->
     {service.faqs && (
-    <section class="faq-section section-padding" id="faq" aria-label={`Preguntas frecuentes sobre ${service.label} en Cancún`}>
-      <div class="container">
-        <div class="section-title text-center" style="margin-bottom:2.5rem;">
-          <h2>Preguntas frecuentes sobre {service.label} en Cancún</h2>
-          <p>Resolvemos las dudas más comunes sobre {service.label} en Cancún. Diagnóstico claro, atención directa y garantía real.</p>
-        </div>
-        <div class="faq-grid">
-          {service.faqs.map((item: any) => (
-            <div class="faq-item">
-              <button class="faq-question" aria-expanded="false" onclick="toggleSvcFaqItem(this)">
-                <span><i class="fa-solid fa-circle-question faq-q-icon"></i> {item.question}</span>
-                <i class="fa-solid fa-chevron-down faq-chevron"></i>
-              </button>
-              <div class="faq-answer" aria-hidden="true">
-                <div class="faq-answer-inner" set:html={item.answer}></div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div class="text-center" style="margin-top:2.5rem;">
-          <a href="/preguntas-frecuentes"
-            style="background:transparent;border:2px solid #3b82f6;color:#3b82f6;font-weight:700;padding:12px 30px;border-radius:30px;transition:all 0.3s;text-decoration:none;display:inline-block;"
-            onmouseover="this.style.background='#3b82f6';this.style.color='#fff';"
-            onmouseout="this.style.background='transparent';this.style.color='#3b82f6';">
-            Ver más preguntas frecuentes <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
-          </a>
-        </div>
-      </div>
-    </section>
+      <FaqSection
+        id="faq"
+        title={`Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
+        description={`Resolvemos las dudas más comunes antes de hacer ${service.label.toLowerCase()} en Cancún: diagnóstico, compatibilidad, tiempos, garantía y recolección.`}
+        viewMoreHref="/preguntas-frecuentes"
+        viewMoreLabel="Ver más preguntas frecuentes"
+        items={service.faqs}
+        ariaLabel={`Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
+        sectionClass="faq-section"
+        gridClass="faq-grid"
+        backgroundColor="#F8F9FC"
+        questionColor="#0F2A4A"
+        itemGap="8px"
+        questionPadding="16px 18px"
+      />
     )}
 
     <!-- 10b. COMENTARIOS + CONTACTO -->
@@ -552,56 +785,67 @@ const faqItems = [
     </div>
 
     <!-- 12. CTA FINAL -->
-    <section class="ux-cta-band">
-      <div class="container text-center">
-        <h2 class="ux-h2">¿Listo para solucionar el problema de tu {category.title}?</h2>
-        <p>Agenda tu revisión hoy mismo en nuestro taller especializado en Cancún.</p>
-        <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="ux-btn-primary giant pulse">
-          <i class="fa-brands fa-whatsapp"></i> Agendar Diagnóstico Ahora
-        </a>
-      </div>
-    </section>
+    {!isLaptopScreenReplacement && (
+      <section class="ux-cta-band">
+        <div class="container text-center">
+          <h2 class="ux-h2">¿Listo para solucionar el problema de tu {category.title}?</h2>
+          <p>Agenda tu revisión hoy mismo en nuestro taller especializado en Cancún.</p>
+          <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="ux-btn-primary giant pulse">
+            <i class="fa-brands fa-whatsapp"></i> Agendar Diagnóstico Ahora
+          </a>
+        </div>
+      </section>
+    )}
   </div>
   <Footer />
 
-  <!-- ─── FAQ Toggle Script ─── -->
-  <!-- ⚠️ PRECAUCIÓN: Esta función controla el acordeón de FAQs en las landing pages
-       de servicios (/servicios/[categoria]/[servicio]).
-       - El onclick en el botón usa 'toggleSvcFaqItem'
-       - Los selectores apuntan a .faq-item, .faq-question, .faq-answer
-       - NO cambiar estos nombres sin actualizar el onclick en el botón arriba -->
-  <script>
-    function toggleSvcFaqItem(btn: HTMLButtonElement) {
-      const item = btn.closest('.faq-item') as HTMLElement | null;
-      if (!item) return;
-      const ans = item.querySelector('.faq-answer') as HTMLElement | null;
-      if (!ans) return;
-      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+  <script is:inline>
+    (() => {
+      if (window.location.pathname !== '/servicios/laptop/cambio-pantalla') return;
 
-      // Cerrar todos los items abiertos del mismo contenedor
-      const container = item.closest('.faq-grid');
-      if (container) {
-        container.querySelectorAll<HTMLElement>('.faq-item').forEach(el => {
-          const q = el.querySelector<HTMLButtonElement>('.faq-question');
-          const a = el.querySelector<HTMLElement>('.faq-answer');
-          if (q) q.setAttribute('aria-expanded', 'false');
-          if (a) {
-            a.style.maxHeight = '0';
-            a.setAttribute('aria-hidden', 'true');
+        const baseUrl = window.location.pathname + window.location.search;
+        const removeProcesoHash = () => {
+          if (window.location.hash !== '#proceso') return;
+          history.replaceState(null, '', baseUrl);
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        };
+
+        removeProcesoHash();
+
+        window.addEventListener('load', () => {
+          const navigationEntry = performance.getEntriesByType('navigation')[0];
+          if (!navigationEntry || navigationEntry.type === 'reload') {
+            removeProcesoHash();
           }
         });
-      }
 
-      // Abrir el clickeado solo si estaba cerrado
-      if (!isOpen) {
-        btn.setAttribute('aria-expanded', 'true');
-        ans.style.maxHeight = ans.scrollHeight + 'px';
-        ans.setAttribute('aria-hidden', 'false');
-      }
-    }
-    // Exponer al scope global para que el onclick inline funcione
-    (window as any).toggleSvcFaqItem = toggleSvcFaqItem;
+        document.querySelectorAll('[data-screen-scroll="proceso"]').forEach((button) => {
+          button.addEventListener('click', (event) => {
+            event.preventDefault();
+            const target = document.getElementById('proceso');
+            if (!target) return;
+
+            const navbarOffset = 96;
+            const targetTop = target.getBoundingClientRect().top + window.scrollY - navbarOffset;
+            window.scrollTo({ top: targetTop, behavior: 'smooth' });
+            history.replaceState(null, '', baseUrl);
+          });
+        });
+
+        document.querySelectorAll('[data-related-toggle]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const section = button.closest('.svc-related');
+            const label = button.querySelector('[data-related-toggle-text]');
+            if (!section || !label) return;
+
+            const isExpanded = section.classList.toggle('is-expanded');
+            button.setAttribute('aria-expanded', String(isExpanded));
+            label.textContent = isExpanded ? 'Ver menos servicios' : 'Ver más servicios';
+          });
+        });
+    })();
   </script>
+
   )}
 </Base>
 
@@ -613,6 +857,12 @@ const faqItems = [
   .theme-premium-dark {
     background-color: #0B1120 !important;
     color: #E2E8F0 !important;
+  }
+
+  .screen-navbar-offset {
+    height: 86px;
+    background: #0B1120;
+    pointer-events: none;
   }
   
   
@@ -880,6 +1130,238 @@ const faqItems = [
     color: #38BDF8;
     line-height: 1;
   }
+  .glass-price small {
+    color: #94A3B8;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-top: 8px;
+  }
+
+  /* Cambio de pantalla: primera vista más clara y local */
+  .screen-hero {
+    margin-top: 0;
+    padding: 26px 0 32px;
+    background:
+      linear-gradient(135deg, rgba(11,17,32,0.94) 0%, rgba(14,42,74,0.9) 52%, rgba(11,17,32,0.98) 100%),
+      radial-gradient(circle at 78% 18%, rgba(56,189,248,0.18), transparent 34%) !important;
+  }
+  .screen-hero .ux-hero-inner {
+    align-items: stretch;
+    gap: 22px;
+    flex-wrap: nowrap;
+  }
+  .screen-hero .ux-hero-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1 1 58%;
+    max-width: 720px;
+  }
+  .screen-hero .ux-badge {
+    width: fit-content;
+    background: rgba(56,189,248,0.14);
+    border-color: rgba(125,211,252,0.38);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+  .screen-hero .ux-h1 {
+    font-size: clamp(1.85rem, 3.6vw, 3.1rem);
+    letter-spacing: 0;
+    max-width: 780px;
+    margin-bottom: 8px;
+  }
+  .screen-hero .ux-hero-hook {
+    color: #D8EAFE !important;
+    font-size: clamp(0.96rem, 1.35vw, 1.12rem);
+    max-width: 720px;
+    margin-bottom: 10px;
+  }
+  .screen-hero .ux-hero-desc {
+    max-width: 680px;
+    color: #BFD0E6 !important;
+    font-size: 0.94rem;
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .screen-hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .screen-hero-tags span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #D8EAFE;
+    background: rgba(15,23,42,0.58);
+    border: 1px solid rgba(148,163,184,0.18);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .screen-hero-tags i {
+    color: #38BDF8;
+  }
+  .screen-hero .ux-trust-bar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .screen-hero .trust-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 7px 9px;
+    color: #F8FAFC;
+    font-size: 0.82rem;
+  }
+  .screen-hero .ux-hero-ctas {
+    gap: 8px;
+  }
+  .screen-hero .ux-btn-primary,
+  .screen-hero .ux-btn-secondary {
+    padding: 11px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .screen-hero .ux-hero-visual {
+    flex: 0 1 42%;
+    justify-content: stretch;
+    min-width: 360px;
+  }
+  .screen-hero .ux-glass-panel {
+    height: 100%;
+    border-radius: 12px;
+    border-color: rgba(125,211,252,0.22);
+    background: linear-gradient(180deg, rgba(15,42,74,0.82), rgba(15,23,42,0.96));
+    padding: 18px;
+    max-width: none;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+  .screen-hero .glass-header {
+    align-items: flex-start;
+    font-size: 1rem;
+    line-height: 1.25;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+  .screen-hero .ux-check-list {
+    gap: 8px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-content: start;
+  }
+  .screen-hero .ux-check-list li {
+    font-size: 0.9rem;
+    line-height: 1.28;
+    gap: 9px;
+  }
+  .screen-hero .glass-price {
+    padding: 13px;
+    border-radius: 10px;
+    align-self: end;
+  }
+  .screen-hero .glass-price strong {
+    font-size: 1.42rem;
+  }
+  .screen-hero .glass-price small {
+    max-width: 320px;
+    color: #CBD5E1;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 7px;
+  }
+
+  .screen-proof-strip {
+    background:
+      linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 50%, #F8FAFC 100%) !important;
+    border-top: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 46px 0;
+  }
+  .screen-proof-heading {
+    max-width: 820px;
+    margin: 0 auto 22px;
+    text-align: center;
+  }
+  .screen-proof-heading .ux-eyebrow {
+    color: #2563EB;
+  }
+  .screen-proof-heading .ux-h2 {
+    color: #0F172A !important;
+    font-size: clamp(1.65rem, 2.7vw, 2.35rem);
+    line-height: 1.1;
+  }
+  .screen-proof-heading p {
+    color: #475569 !important;
+    max-width: 760px;
+    margin: 12px auto 0;
+    line-height: 1.6;
+    font-weight: 650;
+  }
+  .screen-proof-strip .trust-stats-grid {
+    gap: 12px;
+  }
+  .screen-proof-strip .trust-stat-item {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 16px;
+    align-items: flex-start;
+    text-align: left;
+    box-shadow: 0 10px 24px rgba(15,42,74,0.05);
+  }
+  .screen-proof-strip .trust-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: #DBEAFE;
+    color: #2563EB;
+    margin-bottom: 8px;
+  }
+  .screen-proof-strip .trust-stat-value {
+    color: #0F172A !important;
+    font-size: 1.48rem;
+    line-height: 1;
+  }
+  .screen-proof-strip .trust-stat-label {
+    color: #475569 !important;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 4px;
+  }
+  .trust-stat-note {
+    color: #64748B !important;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    margin: 10px 0 0;
+  }
+  .screen-proof-footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 980px;
+    margin: 14px auto 0;
+    color: #0F2A4A;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-weight: 750;
+    line-height: 1.5;
+  }
+  .screen-proof-footer i {
+    color: #2563EB;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
 
   /* --- 2. SINTOMAS --- */
   .ux-symptoms {
@@ -1096,6 +1578,81 @@ const faqItems = [
     margin: 0;
   }
 
+  .screen-process {
+    background: #0B1120 !important;
+    padding: 53px 0;
+  }
+  .screen-process .ux-section-header {
+    max-width: 860px;
+  }
+  .screen-process .ux-section-header p {
+    color: #B6C6DA !important;
+  }
+  .screen-process .ux-timeline {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+  .screen-process .timeline-item {
+    min-height: 260px;
+    border-radius: 8px;
+    padding: 24px 18px 20px;
+    background: linear-gradient(180deg, rgba(15,42,74,0.72), rgba(15,23,42,0.94));
+    border-color: rgba(148,163,184,0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .screen-process .timeline-item:hover {
+    transform: translateY(-3px);
+    background: linear-gradient(180deg, rgba(30,64,175,0.34), rgba(15,23,42,0.96));
+  }
+  .screen-process .timeline-num {
+    position: static;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #38BDF8;
+    color: #082F49;
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-bottom: 22px;
+  }
+  .screen-process .timeline-content h4 {
+    font-size: 1.12rem;
+    margin-bottom: 12px;
+  }
+  .screen-process .timeline-content p {
+    color: #B6C6DA !important;
+    font-size: 0.94rem;
+  }
+  @media (max-width: 1100px) {
+    .screen-process .ux-timeline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .screen-navbar-offset {
+      height: 78px;
+    }
+
+    .screen-process .ux-timeline,
+    .screen-hero .ux-trust-bar {
+      grid-template-columns: 1fr;
+    }
+    .screen-hero .ux-hero-inner {
+      flex-wrap: wrap;
+    }
+    .screen-hero .ux-hero-visual {
+      min-width: 0;
+      flex-basis: 100%;
+    }
+    .screen-process .timeline-item {
+      min-height: auto;
+    }
+  }
+
   /* --- 9. CTA BAND --- */
   .ux-cta-band {
     padding: 100px 0;
@@ -1177,6 +1734,68 @@ const faqItems = [
   }
   .whyus-card h4 { font-family: 'Kanit', sans-serif; color: #0E1629 !important; font-size: 1.2rem; margin-bottom: 10px; }
   .whyus-card p  { color: #64748B !important; font-size: 0.95rem; margin: 0; line-height: 1.5; }
+  .screen-whyus-compact {
+    padding: 42px 0;
+  }
+  .screen-whyus-compact .ux-section-header {
+    margin-bottom: 20px;
+    max-width: 760px;
+  }
+  .screen-whyus-compact .ux-eyebrow {
+    display: inline-flex;
+    margin-bottom: 8px;
+    font-size: 0.78rem;
+  }
+  .screen-whyus-compact .ux-h2 {
+    font-size: clamp(1.45rem, 2.5vw, 2.05rem);
+    line-height: 1.12;
+  }
+  .screen-whyus-compact .whyus-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .screen-whyus-compact .whyus-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: flex-start;
+    gap: 10px 12px;
+    text-align: left;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .screen-whyus-compact .whyus-card:hover {
+    transform: translateY(-2px);
+  }
+  .screen-whyus-compact .whyus-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  .screen-whyus-compact .whyus-card h4 {
+    font-size: 1rem;
+    line-height: 1.15;
+    margin: 0;
+  }
+  .screen-whyus-compact .whyus-card p {
+    grid-column: 1 / -1;
+    font-size: 0.86rem;
+    line-height: 1.42;
+  }
+  @media (max-width: 980px) {
+    .screen-whyus-compact .whyus-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .screen-whyus-compact {
+      padding: 34px 0;
+    }
+    .screen-whyus-compact .whyus-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 
   /* === PROBLEMAS COMUNES (OSCURO) === */
   .svc-problems {
@@ -1203,6 +1822,229 @@ const faqItems = [
   .problem-right i { color: #10B981; flex-shrink: 0; margin-top: 3px; }
   .problem-right span { color: #E2E8F0; font-weight: 600; }
 
+  .screen-problems-section {
+    background:
+      radial-gradient(circle at 18% 8%, rgba(56,189,248,0.12), transparent 32%),
+      linear-gradient(180deg, #0B1120 0%, #0F172A 48%, #111827 100%) !important;
+    padding: 68px 0;
+  }
+  .screen-problems-section .ux-section-header {
+    max-width: 820px;
+    margin-bottom: 22px;
+  }
+  .screen-problems-section .ux-section-header p {
+    color: #AFC2DA !important;
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 760px;
+    margin: 12px auto 0;
+  }
+  .screen-diagnostic-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    max-width: 980px;
+    margin: 0 auto 18px;
+  }
+  .screen-diagnostic-strip div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: #D8EAFE;
+    background: rgba(15,23,42,0.78);
+    border: 1px solid rgba(125,211,252,0.16);
+    border-radius: 10px;
+    padding: 12px 10px;
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .screen-diagnostic-strip i {
+    color: #38BDF8;
+  }
+  .screen-problems-section .problems-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .screen-problems-section .problem-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: stretch;
+    gap: 14px;
+    background: linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.68));
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 14px;
+    padding: 16px;
+    min-height: 190px;
+    overflow: hidden;
+  }
+  .screen-problems-section .problem-row:hover {
+    background: linear-gradient(180deg, rgba(15,42,74,0.84), rgba(15,23,42,0.72));
+    border-color: rgba(56,189,248,0.25);
+  }
+  .screen-problems-section .problem-code {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    justify-items: center;
+    gap: 10px;
+    width: 52px;
+  }
+  .screen-problems-section .problem-code span {
+    color: #0F2A4A;
+    background: #7DD3FC;
+    border-radius: 8px;
+    padding: 5px 7px;
+    font-size: 0.78rem;
+    line-height: 1;
+    font-weight: 900;
+  }
+  .screen-problems-section .problem-code i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #F8FAFC;
+    background: rgba(239,68,68,0.18);
+    border: 1px solid rgba(248,113,113,0.22);
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+  .screen-problems-section .problem-left,
+  .screen-problems-section .problem-right {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .screen-problems-section .problem-left {
+    background: rgba(127,29,29,0.12);
+    border: 1px solid rgba(248,113,113,0.13);
+  }
+  .screen-problems-section .problem-right {
+    grid-column: 2;
+    background: rgba(6,95,70,0.14);
+    border: 1px solid rgba(52,211,153,0.16);
+  }
+  .screen-problems-section .problem-left span,
+  .screen-problems-section .problem-right span {
+    display: grid;
+    gap: 4px;
+  }
+  .screen-problems-section .problem-left span {
+    color: #F8FAFC;
+    font-weight: 900;
+  }
+  .screen-problems-section .problem-right span {
+    color: #D8FBE8;
+    font-weight: 700;
+  }
+  .screen-problems-section .problem-left small,
+  .screen-problems-section .problem-right small {
+    color: #94A3B8;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+  .screen-problems-section .problem-arrow {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 12px;
+    height: 12px;
+  }
+  .screen-problems-section .problem-arrow i {
+    color: #7DD3FC;
+    transform: rotate(90deg);
+    font-size: 0.92rem;
+  }
+  .screen-diagnostic-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    max-width: 1080px;
+    margin: 18px auto 0;
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(125,211,252,0.18);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .screen-diagnostic-summary div {
+    display: grid;
+    gap: 4px;
+  }
+  .screen-diagnostic-summary strong {
+    color: #F8FAFC;
+    font-size: 1rem;
+  }
+  .screen-diagnostic-summary span {
+    color: #AFC2DA;
+    line-height: 1.45;
+  }
+  .screen-diagnostic-summary a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #07111F;
+    background: #38BDF8;
+    border-radius: 9px;
+    padding: 11px 14px;
+    text-decoration: none;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  @media (max-width: 820px) {
+    .screen-diagnostic-strip,
+    .screen-problems-section .problems-list {
+      grid-template-columns: 1fr;
+    }
+    .screen-diagnostic-strip {
+      max-width: 520px;
+    }
+    .screen-diagnostic-summary {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .screen-diagnostic-summary a {
+      width: 100%;
+    }
+  }
+  @media (max-width: 520px) {
+    .screen-problems-section {
+      padding: 48px 0;
+    }
+    .screen-problems-section .problem-row {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding: 14px;
+    }
+    .screen-problems-section .problem-code {
+      width: auto;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto;
+      justify-items: start;
+      align-items: center;
+    }
+    .screen-problems-section .problem-code i {
+      width: 38px;
+      height: 38px;
+    }
+    .screen-problems-section .problem-left,
+    .screen-problems-section .problem-right,
+    .screen-problems-section .problem-arrow {
+      grid-column: 1;
+    }
+  }
+
   /* === MARCAS COMPATIBLES (CLARO) === */
   .svc-compat {
     background: #fff !important;
@@ -1226,6 +2068,12 @@ const faqItems = [
     padding: 90px 0;
   }
   .svc-related .ux-section-header { margin: 0 auto 50px; }
+  .screen-related-compact {
+    padding: 54px 0;
+  }
+  .screen-related-compact .ux-section-header {
+    margin-bottom: 30px;
+  }
   .related-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -1248,6 +2096,42 @@ const faqItems = [
   .related-card p  { color: #94A3B8 !important; font-size: 0.9rem; margin: 0; flex: 1; }
   .related-card span { color: #38BDF8; font-weight: 700; font-size: 0.9rem; }
   .related-card--ext { border-style: dashed; }
+  .related-grid .related-card--extra {
+    display: none;
+  }
+  .svc-related.is-expanded .related-grid .related-card--extra {
+    display: flex;
+  }
+  .related-toggle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .related-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid rgba(56,189,248,0.35);
+    background: rgba(56,189,248,0.1);
+    color: #E0F2FE;
+    border-radius: 12px;
+    padding: 13px 20px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s, transform 0.25s;
+  }
+  .related-toggle:hover {
+    background: rgba(56,189,248,0.18);
+    border-color: rgba(56,189,248,0.55);
+    transform: translateY(-2px);
+  }
+  .related-toggle i {
+    transition: transform 0.25s;
+  }
+  .svc-related.is-expanded .related-toggle i {
+    transform: rotate(180deg);
+  }
 
   /* === FAQ ESTILO PREGUNTAS-FRECUENTES (CLARO) === */
   .svc-faq {
@@ -1337,7 +2221,7 @@ const faqItems = [
   }
 
   /* === TIPOS DE PANTALLA (Cards con badge) === */
-  .svc-screen-types { padding: 90px 0; }
+  .svc-screen-types { padding: 54px 0; }
   .screen-types-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
   }
@@ -1355,7 +2239,7 @@ const faqItems = [
   .screen-type-card p { color: #94A3B8 !important; font-size: 0.9rem; margin: 0; line-height: 1.4; }
 
   /* === ANTES / DESPUÉS (Comparativa 2 columnas) === */
-  .svc-before-after { padding: 90px 0; }
+  .svc-before-after { padding: 54px 0; }
   .ba-comparison {
     display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 900px; margin: 0 auto;
   }
@@ -1383,8 +2267,144 @@ const faqItems = [
   .ba-item i { flex-shrink: 0; margin-top: 3px; }
   .ba-col--before .ba-item i { color: #EF4444; }
   .ba-col--after .ba-item i { color: #10B981; }
+  .screen-result-section {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, #0F172A 0%, #111827 55%, #0B1120 100%) !important;
+  }
+  .screen-result-section .ux-section-header {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .screen-result-section .ux-section-header p {
+    color: #AFC2DA !important;
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 12px auto 0;
+    max-width: 700px;
+  }
+  .screen-result-section .ba-comparison {
+    position: relative;
+    max-width: 1040px;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .screen-result-section .ba-comparison::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 42px;
+    height: 42px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #38BDF8;
+    box-shadow: 0 12px 30px rgba(56,189,248,0.28);
+    z-index: 2;
+  }
+  .screen-result-section .ba-comparison::after {
+    content: "\f061";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    color: #07111F;
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 1rem;
+  }
+  .screen-result-section .ba-col {
+    position: relative;
+    border-radius: 14px;
+    padding: 24px;
+    min-height: 100%;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.18);
+  }
+  .screen-result-section .ba-col--before {
+    background:
+      linear-gradient(180deg, rgba(127,29,29,0.22), rgba(15,23,42,0.76)),
+      rgba(239,68,68,0.06);
+    border-color: rgba(248,113,113,0.24);
+  }
+  .screen-result-section .ba-col--after {
+    background:
+      linear-gradient(180deg, rgba(6,95,70,0.24), rgba(15,23,42,0.78)),
+      rgba(16,185,129,0.06);
+    border-color: rgba(52,211,153,0.28);
+  }
+  .screen-result-section .ba-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #FCA5A5;
+    background: rgba(127,29,29,0.24);
+    border: 1px solid rgba(248,113,113,0.22);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .screen-result-section .ba-status-pill--ok {
+    color: #86EFAC;
+    background: rgba(6,95,70,0.22);
+    border-color: rgba(52,211,153,0.26);
+  }
+  .screen-result-section .ba-col h3 {
+    margin-bottom: 8px;
+  }
+  .screen-result-section .ba-col-desc {
+    color: #AFC2DA !important;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin: 0 0 14px;
+  }
+  .screen-result-section .ba-item {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.055);
+    border-bottom: 1px solid rgba(255,255,255,0.055);
+    border-radius: 8px;
+    margin-top: 8px;
+    padding: 11px 12px;
+  }
+  .ba-validation-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    max-width: 1040px;
+    margin: 18px auto 0;
+  }
+  .ba-validation-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #E2E8F0;
+    background: rgba(15,23,42,0.76);
+    border: 1px solid rgba(125,211,252,0.14);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .ba-validation-item i {
+    color: #38BDF8;
+    flex-shrink: 0;
+  }
   @media (max-width: 640px) {
     .ba-comparison { grid-template-columns: 1fr; }
+    .screen-result-section .ba-comparison::before,
+    .screen-result-section .ba-comparison::after {
+      display: none;
+    }
+    .screen-result-section .ba-col {
+      padding: 20px;
+    }
+    .ba-validation-row {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* ═══ FAQ — PREGUNTAS FRECUENTES (servicio) ═══ */
@@ -1434,6 +2454,36 @@ const faqItems = [
   }
   .faq-answer-inner strong { color: #CBD5E1; }
 
+  .faq-page-content.faq-section {
+    background: #F8F9FC !important;
+  }
+  .faq-page-content.faq-section .section-title h2 {
+    color: #0F172A !important;
+  }
+  .faq-page-content.faq-section .section-title p,
+  .faq-page-content.faq-section .faq-answer-inner {
+    color: #475569 !important;
+  }
+  .faq-page-content.faq-section .faq-item {
+    background: #fff;
+    border: 1px solid rgba(15,42,74,0.14);
+    border-radius: 8px;
+  }
+  .faq-page-content.faq-section .faq-question {
+    color: #0F2A4A !important;
+    font-family: 'Inter', sans-serif;
+  }
+  .faq-page-content.faq-section .faq-q-icon,
+  .faq-page-content.faq-section .faq-chevron {
+    color: #2563EB;
+  }
+  .faq-page-content.faq-section .faq-answer[aria-hidden="false"] {
+    padding: 0;
+  }
+  .faq-page-content.faq-section .faq-answer-inner strong {
+    color: #0F172A;
+  }
+
   /* ─── EDUCATIONAL BLOCKS ─── */
   .svc-educational { padding: 80px 0; border-top: 1px solid rgba(255,255,255,0.05); }
   .educational-container { display: flex; align-items: center; gap: 60px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -1451,31 +2501,167 @@ const faqItems = [
   
   .educational-image { flex: 1; border-radius: 24px; overflow: hidden; position: relative; }
   .educational-image img { width: 100%; height: auto; display: block; object-fit: cover; }
+
+  .screen-care-section {
+    padding: 58px 0;
+    background:
+      linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 48%, #F8FAFC 100%) !important;
+    border-top: 1px solid #DDE9F7;
+  }
+  .screen-care-section .educational-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.78fr);
+    align-items: stretch;
+    gap: 22px;
+  }
+  .screen-care-section .educational-text {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid #DBEAFE;
+    border-radius: 14px;
+    padding: 26px;
+    box-shadow: 0 18px 45px rgba(15,42,74,0.08);
+  }
+  .screen-care-section .ux-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #DBEAFE;
+    border: 1px solid #BFDBFE;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    margin-bottom: 10px;
+  }
+  .screen-care-section .ux-h2 {
+    font-size: clamp(1.7rem, 3vw, 2.35rem);
+    line-height: 1.08;
+    margin-bottom: 10px;
+  }
+  .screen-care-section .educational-intro {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 680px;
+  }
+  .screen-care-note {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: #0F2A4A;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 16px;
+  }
+  .screen-care-note i {
+    color: #2563EB;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .screen-care-section .educational-points {
+    gap: 10px;
+  }
+  .screen-care-section .edu-point {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 12px;
+    align-items: flex-start;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .care-step-count {
+    color: #2563EB;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 8px;
+    padding: 5px 7px;
+    font-weight: 900;
+    font-size: 0.78rem;
+    line-height: 1;
+  }
+  .screen-care-section .edu-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+  .screen-care-section .edu-content h4 {
+    font-size: 1.02rem;
+    margin-bottom: 4px;
+  }
+  .screen-care-section .edu-content p {
+    line-height: 1.5;
+  }
+  .screen-care-section .educational-image {
+    border-radius: 14px;
+    min-height: 100%;
+    border: 1px solid #DBEAFE;
+    box-shadow: 0 18px 45px rgba(15,42,74,0.1);
+  }
+  .screen-care-section .educational-image img {
+    height: 100%;
+    min-height: 360px;
+    object-fit: cover;
+  }
+  .screen-care-kit {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    display: grid;
+    gap: 8px;
+    background: rgba(15,23,42,0.88);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px;
+    padding: 12px;
+    backdrop-filter: blur(10px);
+  }
+  .screen-care-kit span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #F8FAFC;
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .screen-care-kit i {
+    color: #38BDF8;
+    width: 16px;
+  }
   
   @media (max-width: 991px) {
     .educational-container, .educational-container.row-reverse { flex-direction: column; gap: 40px; }
-  }
-</style>
-
-<script is:inline>
-  function toggleFaq(btn) {
-    const item = btn.closest('.faq-item');
-    const answer = item.querySelector('.faq-answer');
-    const isOpen = answer.getAttribute('aria-hidden') === 'false';
-    // Close all
-    document.querySelectorAll('.faq-answer').forEach(a => {
-      a.setAttribute('aria-hidden', 'true');
-      a.style.maxHeight = '0';
-    });
-    document.querySelectorAll('.faq-question').forEach(q => {
-      q.setAttribute('aria-expanded', 'false');
-    });
-    // Open clicked if was closed
-    if (!isOpen) {
-      answer.setAttribute('aria-hidden', 'false');
-      answer.style.maxHeight = '400px';
-      btn.setAttribute('aria-expanded', 'true');
+    .screen-care-section .educational-container {
+      grid-template-columns: 1fr;
+    }
+    .screen-care-section .educational-image img {
+      min-height: 300px;
     }
   }
-</script>
+
+  @media (max-width: 640px) {
+    .screen-care-section {
+      padding: 44px 0;
+    }
+    .screen-care-section .educational-text {
+      padding: 20px;
+    }
+    .screen-care-section .edu-point {
+      grid-template-columns: auto 1fr;
+    }
+    .screen-care-section .edu-icon {
+      grid-column: 1;
+    }
+    .screen-care-section .edu-content {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+</style>
 

@@ -6,6 +6,39 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import FaqSection from '../components/FaqSection.astro';
 import CommentsSection from '../components/CommentsSection.astro';
 import ContactSection from '../components/ContactSection.astro';
+
+const repairFaqs = [
+  {
+    icon: 'fa-solid fa-magnifying-glass-chart',
+    question: '¿El diagnóstico realmente es gratis?',
+    answer: 'Sí. Revisamos tu equipo y te explicamos la falla antes de iniciar. Si decides no reparar, no hay costo por el diagnóstico general.',
+  },
+  {
+    icon: 'fa-solid fa-truck-fast',
+    question: '¿Tienen recolección y entrega a domicilio en Cancún?',
+    answer: 'Sí. Podemos recolectar y entregar en zonas de Cancún como Zona Hotelera, Haciendas, Supermanzanas, Polígono Sur, Huayacán y Puerto Morelos. Te confirmamos disponibilidad por WhatsApp.',
+  },
+  {
+    icon: 'fa-solid fa-clock',
+    question: '¿Cuánto tarda una reparación?',
+    answer: 'Las reparaciones de software suelen tomar de 24 a 48 horas. Las reparaciones de hardware dependen del daño y de la disponibilidad de refacciones. Si es urgente, podemos revisar prioridad express.',
+  },
+  {
+    icon: 'fa-solid fa-shield-halved',
+    question: '¿Mis archivos están seguros durante la reparación?',
+    answer: 'Sí. Trabajamos con cuidado para proteger tu información. Si el servicio implica formateo, cambio de disco o recuperación, primero te explicamos el riesgo y pedimos autorización.',
+  },
+  {
+    icon: 'fa-solid fa-screwdriver-wrench',
+    question: '¿Reparan laptops, PC, celulares, consolas e impresoras?',
+    answer: 'Sí. Atendemos laptops, computadoras de escritorio, celulares, consolas, controles e impresoras. También hacemos mantenimiento, limpieza interna, optimización, instalación de Windows y reparaciones por falla física o electrónica.',
+  },
+  {
+    icon: 'fa-solid fa-file-signature',
+    question: '¿Las reparaciones tienen garantía?',
+    answer: 'Sí. Entregamos garantía por escrito sobre el trabajo realizado. La cobertura depende del tipo de reparación y de la pieza instalada, y te la explicamos antes de cerrar el servicio.',
+  },
+];
 ---
 
 <Base
@@ -37,32 +70,14 @@ import ContactSection from '../components/ContactSection.astro';
     {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": [
-            {
-                "@type": "Question",
-                "name": "Cuanto cuesta reparar una laptop en Cancun?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "El diagnostico en Pixon PC es completamente gratuito y sin compromiso. El costo varia segun la falla detectada; te informamos el precio exacto antes de iniciar."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Tienen servicio a domicilio en Cancun?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Si, ofrecemos recoleccion y entrega a domicilio en Zona Hotelera, Haciendas, Supermanzanas, Poligono Sur, Huayacan y Puerto Morelos."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Cuanto tarda una reparacion?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "La mayoria de reparaciones de software duran 24 a 48 horas. Hardware depende de refacciones. Contamos con servicio express prioritario."
-                }
+        "mainEntity": repairFaqs.map((item) => ({
+            "@type": "Question",
+            "name": item.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": item.answer.replace(/<[^>]*>/g, '')
             }
-        ]
+        }))
     },
     {
         "@context": "https://schema.org",
@@ -373,17 +388,19 @@ import ContactSection from '../components/ContactSection.astro';
     </section>
 
     <FaqSection
-      id="faq-reparaciones"
-      title="Preguntas frecuentes sobre reparaciones"
-      description="Resolvemos tus dudas antes de llevar tu equipo al taller."
+      id="faq"
+      title="Preguntas frecuentes sobre reparación en Cancún"
+      description="Resolvemos las dudas más comunes antes de diagnosticar tu equipo."
       viewMoreHref="/preguntas-frecuentes"
       viewMoreLabel="Ver más preguntas frecuentes"
-      items={[
-        { question: '¿Cuánto cuesta reparar una laptop en Cancún?', answer: 'El diagnóstico en Pixon PC es completamente gratuito y sin compromiso. El costo varía según la falla detectada; te informamos el precio exacto antes de iniciar cualquier trabajo.' },
-        { question: '¿Tienen servicio a domicilio en Cancún?', answer: 'Sí, ofrecemos recolección y entrega a domicilio en Zona Hotelera, Haciendas, Supermanzanas, Polígono Sur, Huayacán y Puerto Morelos.' },
-        { question: '¿Cuánto tarda una reparación?', answer: 'La mayoría de reparaciones de software duran 24 a 48 horas. Hardware depende de refacciones. Contamos con servicio express prioritario para casos urgentes.' },
-        { question: '¿Dan garantía por escrito?', answer: 'Sí, todos nuestros servicios incluyen garantía por escrito. Si algo falla por causa de nuestro trabajo, lo corregimos sin costo adicional.' },
-      ]}
+      items={repairFaqs}
+      ariaLabel="Preguntas frecuentes sobre reparación de equipos en Cancún"
+      sectionClass="faq-section"
+      gridClass="faq-grid"
+      backgroundColor="#F8F9FC"
+      questionColor="#0F2A4A"
+      itemGap="8px"
+      questionPadding="16px 18px"
     />
 
     <CommentsSection viewMoreHref="/comentarios" />
