@@ -18,6 +18,8 @@ interface Props {
   gridClass?: string;
   backgroundColor?: string;
   questionColor?: string;
+  itemGap?: string;
+  questionPadding?: string;
 }
 
 const {
@@ -33,10 +35,12 @@ const {
   gridClass = '',
   backgroundColor = 'transparent',
   questionColor = '#fff',
+  itemGap = '16px',
+  questionPadding = '24px',
 } = Astro.props;
 ---
 
-<section class={`section-padding faq-page-content ${sectionClass}`} id={id} aria-label={ariaLabel} style={`background:${backgroundColor}; --faq-question-color:${questionColor}; padding: 60px 0;`}>
+<section class={`section-padding faq-page-content ${sectionClass}`} id={id} aria-label={ariaLabel} style={`background:${backgroundColor}; --faq-question-color:${questionColor}; --faq-item-gap:${itemGap}; --faq-question-padding:${questionPadding}; padding: 60px 0;`}>
   <div class="container" style="max-width: 900px;">
     <div class="section-title text-center" style="margin-bottom:40px;">
       <h2 style="color:var(--text-main); font-weight:800; font-family:'Kanit', sans-serif;">{title}</h2>
@@ -121,28 +125,31 @@ const {
   .faq-page-grid {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--faq-item-gap, 16px);
   }
   .faq-item {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(15, 42, 74, 0.14);
+    border-radius: 12px;
     overflow: hidden;
     transition: all 0.3s ease;
+    box-shadow: 0 1px 2px rgba(15, 42, 74, 0.04);
   }
   .faq-item:hover {
-    border-color: rgba(56,189,248,0.3);
+    border-color: rgba(59, 130, 246, 0.32);
+    box-shadow: 0 4px 14px rgba(15, 42, 74, 0.07);
   }
   .faq-item--open {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(56,189,248,0.5);
+    background: #fff;
+    border-color: rgba(59, 130, 246, 0.45);
+    box-shadow: 0 5px 18px rgba(15, 42, 74, 0.08);
   }
   .faq-question {
     width: 100%;
     text-align: left;
     background: transparent;
     border: none;
-    padding: 24px;
+    padding: var(--faq-question-padding, 24px);
     display: flex;
     justify-content: space-between;
     align-items: center;
