@@ -833,19 +833,24 @@ document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').f
 let autoCloseTimer = null;
 let crossSectionTimer = null;
 let lastOpenedCascade = null;
+let activeCascade = null;
+let desktopCloseTimer = null;
 
 function clearTimers() {
   if (autoCloseTimer)    { clearTimeout(autoCloseTimer);    autoCloseTimer = null; }
   if (crossSectionTimer) { clearTimeout(crossSectionTimer); crossSectionTimer = null; }
+  if (desktopCloseTimer) { clearTimeout(desktopCloseTimer); desktopCloseTimer = null; }
 }
 
 function openCascade(parent) {
   if (!parent) return;
+  clearTimers();
   closeAllCascades(parent);
   parent.classList.add('open');
   parent.querySelector('.v3-cascade-l1')?.classList.add('active');
   parent.querySelector('.nav-dd-trigger')?.setAttribute('aria-expanded', 'true');
   lastOpenedCascade = parent;
+  activeCascade = parent;
 }
 
 function closeCascade(el) {
@@ -857,12 +862,14 @@ function closeCascade(el) {
     sub.querySelector('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
   });
   el.querySelectorAll('.cascade-item.intent-open').forEach((sub) => sub.classList.remove('intent-open'));
+  if (activeCascade === el) activeCascade = null;
 }
 
 function closeAllCascades(except) {
   document.querySelectorAll('.has-cascade.open').forEach((el) => {
     if (el !== except) closeCascade(el);
   });
+  activeCascade = except || null;
 }
 
 function closeMobileMenu() {
@@ -871,6 +878,7 @@ function closeMobileMenu() {
   mobileMenuBtn?.setAttribute('aria-expanded', 'false');
   closeAllCascades();
   lastOpenedCascade = null;
+  activeCascade = null;
 }
 
 // 3. CASCADE TRIGGERS
@@ -898,24 +906,21 @@ document.querySelectorAll('.has-cascade > .nav-dd-trigger').forEach((trigger) =>
     if (IS_MOBILE()) return;
     clearTimers();
     if (exitTimer) { clearTimeout(exitTimer); exitTimer = null; }
+    if (activeCascade !== parent) openCascade(parent);
   });
   parent.addEventListener('mouseleave', () => {
     if (IS_MOBILE() || !parent.classList.contains('open')) return;
+    if (exitTimer) clearTimeout(exitTimer);
     exitTimer = setTimeout(() => {
-      if (!parent.matches(':hover')) { closeCascade(parent); if (lastOpenedCascade === parent) lastOpenedCascade = null; }
-    }, 3000);
+      if (!parent.matches(':hover') && activeCascade === parent) {
+        closeCascade(parent);
+        if (lastOpenedCascade === parent) lastOpenedCascade = null;
+      }
+    }, 90);
   });
   trigger.addEventListener('mouseenter', () => {
     if (IS_MOBILE()) return;
-    if (lastOpenedCascade && lastOpenedCascade !== parent) {
-      clearTimeout(crossSectionTimer);
-      crossSectionTimer = setTimeout(() => {
-        if (lastOpenedCascade && lastOpenedCascade !== parent && parent.matches(':hover')) {
-          clearTimers();
-          openCascade(parent);
-        }
-      }, 140);
-    }
+    if (activeCascade !== parent) openCascade(parent);
   });
   trigger.addEventListener('mouseleave', () => {
     if (IS_MOBILE()) return;
