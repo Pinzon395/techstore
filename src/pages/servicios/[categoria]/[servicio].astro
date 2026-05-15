@@ -33,17 +33,58 @@ const isLaptopKeyboardReplacement = category.slug === 'laptop' && service.slug =
 const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
-const seoTitle = isLaptopLocalReplacement
+const seoTitle = isLaptopKeyboardReplacement
+  ? 'Cambio de teclado de laptop en Cancún | Pixon PC'
+  : isLaptopLocalReplacement
   ? `${seoKeyword} con garantía | Pixon PC`
   : `${seoKeyword} para ${category.title} en Cancún | Pixon PC`;
-const description = service.intro
+const description = isLaptopKeyboardReplacement
+  ? 'Cambia o repara el teclado de tu laptop en Cancún. Revisamos flex, líquido, conector y modelo antes de cotizar por WhatsApp.'
+  : service.intro
   ? `${service.intro} Cotización gratis, diagnóstico claro y reparación profesional en Cancún.`
   : `Servicio especializado de ${service.label} para ${category.title} en Cancún. Diagnóstico profundo y garantía por escrito.`;
 
-const waMessage = encodeURIComponent(`Hola, necesito el servicio de ${service.label} para mi ${category.title}. ¿Me podrían cotizar?`);
+const waMessage = encodeURIComponent(isLaptopKeyboardReplacement
+  ? 'Hola, quiero cotizar cambio o reparación de teclado de laptop en Cancún. Puedo enviar modelo o foto del equipo.'
+  : `Hola, necesito el servicio de ${service.label} para mi ${category.title}. ¿Me podrían cotizar?`);
 
 // Hooks y Bullets
 const hook = service.hook || `Evita fallas costosas y recupera el rendimiento de tu ${category.title}`;
+
+const pageSchema = isLaptopKeyboardReplacement ? [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Cambio de teclado de laptop en Cancún",
+    "description": description,
+    "serviceType": "Reparación y cambio de teclado de laptop",
+    "url": canonical,
+    "provider": { "@id": "https://pixon.com.mx/#business" },
+    "areaServed": [
+      { "@type": "City", "name": "Cancún" },
+      { "@type": "State", "name": "Quintana Roo" }
+    ],
+    "offers": {
+      "@type": "Offer",
+      "price": "1550",
+      "priceCurrency": "MXN",
+      "availability": "https://schema.org/InStock",
+      "description": "Precio desde. El costo final depende del modelo, distribución, disponibilidad y si el teclado viene integrado al palmrest."
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": (service.faqs || []).map((item: any) => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer.replace(/<[^>]*>/g, '')
+      }
+    }))
+  }
+] : [];
 
 // FAQ items con SEO local
 const faqItems = [
@@ -71,7 +112,7 @@ const faqItems = [
 
 ---
 
-<Base title={seoTitle} description={description} canonical={canonical}>
+<Base title={seoTitle} description={description} canonical={canonical} schema={pageSchema}>
   <!-- CRITICAL: Forzar fondo oscuro antes que cualquier CSS global -->
   <style is:global>
     body { background-color: #0B1120 !important; color: #E2E8F0 !important; }
@@ -109,13 +150,13 @@ const faqItems = [
         <div class="ux-hero-content">
           <span class="ux-badge">
             <i class={`fa-solid ${category.icon}`}></i>
-            {isLaptopScreenReplacement ? 'Pantallas para laptop en Cancún' : isLaptopKeyboardReplacement ? 'Teclados para laptop en Cancún' : `Especialistas en ${category.title} en Cancún`}
+            {isLaptopScreenReplacement ? 'Pantallas para laptop en Cancún' : isLaptopKeyboardReplacement ? 'Servicio técnico de teclado en Cancún' : `Especialistas en ${category.title} en Cancún`}
           </span>
           
           <h1 class="ux-h1">
             {isLaptopScreenReplacement ? 'Cambio de pantalla de laptop en Cancún' : isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún' : seoKeyword} <br>
             <span class="ux-gradient-text">
-              {isLaptopScreenReplacement ? 'con diagnóstico y garantía' : isLaptopKeyboardReplacement ? 'con diagnóstico de flex y garantía' : 'Profesional'}
+              {isLaptopScreenReplacement ? 'con diagnóstico y garantía' : isLaptopKeyboardReplacement ? 'con revisión de flex, líquido y garantía' : 'Profesional'}
             </span>
           </h1>
           
@@ -135,8 +176,8 @@ const faqItems = [
 
           {isLaptopKeyboardReplacement && (
             <div class="keyboard-hero-tags" aria-label="Detalles del servicio de cambio de teclado">
-              <span><i class="fa-solid fa-keyboard"></i> Teclado LA-ESP, US o backlit</span>
-              <span><i class="fa-solid fa-droplet-slash"></i> Revisamos daño por líquido</span>
+              <span><i class="fa-solid fa-keyboard"></i> Español latino, US o backlit</span>
+              <span><i class="fa-solid fa-droplet-slash"></i> Revisamos líquido, flex y conector</span>
               <span><i class="fa-solid fa-location-dot"></i> Taller local en Cancún</span>
             </div>
           )}
@@ -149,15 +190,44 @@ const faqItems = [
 
           <div class="ux-hero-ctas">
             <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopLocalReplacement ? '' : 'pulse'}`}>
-              <i class="fa-brands fa-whatsapp"></i> {isLaptopScreenReplacement ? 'Cotizar pantalla por WhatsApp' : isLaptopKeyboardReplacement ? 'Cotizar teclado por WhatsApp' : 'Cotizar Servicio'}
+              <i class="fa-brands fa-whatsapp"></i> {isLaptopScreenReplacement ? 'Cotizar pantalla por WhatsApp' : isLaptopKeyboardReplacement ? 'Cotizar cambio de teclado' : 'Cotizar Servicio'}
             </a>
             <a href="#proceso" class="ux-btn-secondary" data-screen-scroll={isLaptopScreenReplacement ? 'proceso' : undefined}>
-              {isLaptopScreenReplacement ? 'Ver proceso técnico' : isLaptopKeyboardReplacement ? 'Ver proceso claro' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
+              {isLaptopScreenReplacement ? 'Ver proceso técnico' : isLaptopKeyboardReplacement ? 'Ver diagnóstico antes de cambiar pieza' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
             </a>
           </div>
         </div>
         
         <div class="ux-hero-visual">
+          {isLaptopKeyboardReplacement ? (
+            <div class="keyboard-quote-card">
+              <div class="keyboard-quote-top">
+                <span class="keyboard-quote-label">Cotización por WhatsApp</span>
+                <span class="keyboard-quote-time"><i class="fa-solid fa-stopwatch"></i> 24-72 h</span>
+              </div>
+              <div class="keyboard-price-block">
+                <span>Desde</span>
+                <strong>{service.fromPrice || '$1,550 MXN'}</strong>
+                <small>El precio final depende del modelo, distribución, backlit, palmrest y disponibilidad.</small>
+              </div>
+              <div class="keyboard-diagnosis-included">
+                <i class="fa-solid fa-magnifying-glass-chart"></i>
+                <div>
+                  <strong>Primero revisamos de dónde viene la falla</strong>
+                  <span>Teclado, flex, conector, humedad, BIOS y placa.</span>
+                </div>
+              </div>
+              <div class="keyboard-quote-steps" aria-label="Proceso de cotización">
+                <div><span>1</span> Envías modelo o foto</div>
+                <div><span>2</span> Confirmamos compatibilidad</div>
+                <div><span>3</span> Instalamos y probamos</div>
+              </div>
+              <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="keyboard-quote-cta">
+                <i class="fa-brands fa-whatsapp"></i> Enviar modelo de mi laptop
+              </a>
+              <p class="keyboard-quote-note">No pedimos la pieza hasta confirmar modelo, distribución y tipo de teclado.</p>
+            </div>
+          ) : (
           <div class="ux-glass-panel">
             <div class="glass-header">
               <i class={`fa-solid ${isLaptopScreenReplacement ? 'fa-display' : isLaptopKeyboardReplacement ? 'fa-keyboard' : 'fa-clipboard-list'}`}></i>
@@ -184,6 +254,7 @@ const faqItems = [
               {isLaptopKeyboardReplacement && <small>El precio final depende del modelo, distribución, si es retroiluminado y disponibilidad de la pieza.</small>}
             </div>
           </div>
+          )}
         </div>
       </div>
     </section>
@@ -202,8 +273,8 @@ const faqItems = [
           {isLaptopKeyboardReplacement && (
             <div class="keyboard-proof-heading">
               <span class="ux-eyebrow">Transparencia en refacciones</span>
-              <h2 class="ux-h2">Cambio de teclado de laptop en Cancún con diagnóstico claro</h2>
-              <p>Antes de venderte un teclado revisamos si la falla viene del teclado físico, flex, conector, humedad o placa. Te confirmamos idioma, compatibilidad, costo y tiempo real de entrega por WhatsApp.</p>
+              <h2 class="ux-h2">Reparación y cambio de teclado de laptop en Cancún con diagnóstico real</h2>
+              <p>No vendemos un teclado sin revisar. Primero identificamos si la falla viene del teclado físico, flex, conector, humedad, BIOS o placa. Después te confirmamos compatibilidad, costo y tiempo real por WhatsApp.</p>
             </div>
           )}
           <div class="trust-stats-grid">
@@ -226,7 +297,7 @@ const faqItems = [
                   <p class="trust-stat-note">
                     {[
                       'Probamos teclado, flex, conector y señales de líquido antes de recomendar cambio completo.',
-                      'Validamos idioma, tamaño, molde, retroiluminación y compatibilidad con el modelo exacto.',
+                      'Validamos idioma, tamaño, molde, retroiluminación y número de parte del modelo exacto.',
                       'La garantía aplica sobre la pieza instalada y se entrega por escrito al finalizar.',
                       'El tiempo depende de stock local en Cancún o pedido de refacción para modelos especiales.',
                     ][index]}
@@ -467,7 +538,7 @@ const faqItems = [
             {isLaptopScreenReplacement ? (
               <>Proceso para cambio de pantalla de laptop en <span class="ux-text-accent">Cancún</span></>
             ) : isLaptopKeyboardReplacement ? (
-              <>Proceso para cambio de teclado de laptop en <span class="ux-text-accent">Cancún</span></>
+              <>Proceso para reparar o cambiar teclado de laptop en <span class="ux-text-accent">Cancún</span></>
             ) : (
               <>Nuestra Metodología de <span class="ux-text-accent">Trabajo</span></>
             )}
@@ -476,17 +547,17 @@ const faqItems = [
             <p>Dejamos claro si la falla viene del panel, flex de video, bisagra o tarjeta de video antes de comprar cualquier pieza.</p>
           )}
           {isLaptopKeyboardReplacement && (
-            <p>Te explicamos si la falla es teclado, flex, líquido o placa antes de pedir la refacción. El objetivo es que pagues solo por lo que tu laptop realmente necesita.</p>
+            <p>Te explicamos si conviene cambiar teclado, revisar flex o atender daño por líquido antes de pedir refacción. La idea es que pagues solo por lo que tu laptop necesita.</p>
           )}
         </div>
 
         {isLaptopKeyboardReplacement && (
           <div class="keyboard-process-media">
-            <img src="/assets/images/mantenimiento-macbook-cancun.jpeg" alt="Cambio de teclado de laptop en Cancún con revisión de flex y teclado" loading="lazy" />
+            <img src="/assets/images/mantenimiento-macbook-cancun.jpeg" alt="Técnico revisando teclado, flex y conector de laptop en Cancún" loading="lazy" />
             <div class="keyboard-process-overlay">
               <span>Flujo controlado</span>
               <strong>Diagnóstico, pieza correcta y prueba final</strong>
-              <p>Antes de pedir un teclado confirmamos si el problema viene de la pieza, el flex, humedad o placa.</p>
+              <p>Antes de pedir un teclado confirmamos si el problema viene de la pieza, flex, humedad, conector o placa.</p>
             </div>
           </div>
         )}
@@ -589,22 +660,22 @@ const faqItems = [
               {isLaptopScreenReplacement ? (
                 <>¿Por qué elegir nuestro <span style="color:#2563EB;">cambio de pantalla de laptop en Cancún</span>?</>
               ) : isLaptopKeyboardReplacement ? (
-                <>¿Por qué elegir nuestro <span style="color:#2563EB;">cambio de teclado de laptop en Cancún</span>?</>
+                <>¿Por qué elegir Pixon PC para <span style="color:#2563EB;">reparar el teclado de tu laptop en Cancún</span>?</>
               ) : (
                 <>¿Por qué elegir nuestro <span style="color:#2563EB;">{service.label.toLowerCase()}</span>?</>
               )}
             </h2>
             {isLaptopKeyboardReplacement && (
-              <p>Trabajamos con diagnóstico real antes de pedir la pieza: idioma del teclado, flex, backlit, palmrest, daño por líquido y compatibilidad exacta por modelo.</p>
+              <p>Trabajamos con diagnóstico antes de comprar pieza: idioma del teclado, flex, backlit, palmrest, daño por líquido y compatibilidad exacta por modelo. Así evitamos adaptaciones improvisadas.</p>
             )}
           </div>
           {isLaptopKeyboardReplacement ? (
             <div class="keyboard-whyus-layout">
               <figure class="keyboard-whyus-photo">
-                <img src="/assets/images/control_repair_workshop.png" alt="Taller Pixon PC revisando componentes de laptop en Cancún" loading="lazy" />
+                <img src="/assets/images/control_repair_workshop.png" alt="Taller Pixon PC revisando compatibilidad de teclado de laptop en Cancún" loading="lazy" />
                 <figcaption>
                   <strong>Revisión antes de comprar pieza</strong>
-                  <span>Idioma, molde, flex, backlit y señales de líquido.</span>
+                  <span>Idioma, molde, flex, backlit, palmrest y señales de líquido.</span>
                 </figcaption>
               </figure>
               <div class="whyus-grid">
@@ -644,7 +715,7 @@ const faqItems = [
               {isLaptopScreenReplacement ? (
                 <>Fallas de pantalla de laptop que resolvemos en <span class="ux-text-accent">Cancún</span></>
               ) : isLaptopKeyboardReplacement ? (
-                <>Fallas de teclado de laptop que diagnosticamos en <span class="ux-text-accent">Cancún</span></>
+                <>Fallas de teclado de laptop que revisamos en <span class="ux-text-accent">Cancún</span></>
               ) : (
                 <>Problemas comunes → <span class="ux-text-accent">Soluciones reales</span></>
               )}
@@ -653,7 +724,7 @@ const faqItems = [
               <p>No todas las fallas visibles requieren el mismo cambio. Revisamos panel, flex, retroiluminación y salida de video para cotizar solo la pieza correcta.</p>
             )}
             {isLaptopKeyboardReplacement && (
-              <p>No todo teclado fallando se cambia a ciegas. Revisamos teclas, flex, conector, retroiluminación y señales de líquido para cotizar la ruta correcta.</p>
+              <p>Si las teclas no responden, escriben doble, se quedan pegadas o el teclado se mojó, revisamos la causa antes de cotizar. Puede ser teclado, flex, conector, retroiluminación, humedad o placa.</p>
             )}
           </div>
           {isLaptopScreenReplacement && (
@@ -687,10 +758,10 @@ const faqItems = [
           {isLaptopKeyboardReplacement ? (
             <div class="keyboard-diagnostic-layout">
               <figure class="keyboard-diagnostic-photo">
-                <img src="/assets/images/mantenimiento-metal-liquido-cancun.jpeg" alt="Diagnóstico de laptop en taller Pixon PC Cancún" loading="lazy" />
+                <img src="/assets/images/mantenimiento-metal-liquido-cancun.jpeg" alt="Diagnóstico de teclado mojado, flex y placa de laptop en Cancún" loading="lazy" />
                 <figcaption>
                   <span>Checklist técnico</span>
-                  <strong>Teclado, flex, humedad y placa</strong>
+                  <strong>Teclado, flex, humedad, conector y placa</strong>
                 </figcaption>
               </figure>
               <div class="problems-list keyboard-issue-panel">
@@ -704,10 +775,10 @@ const faqItems = [
                       <h3>{item.problem}</h3>
                       <p>
                         {[
-                          'Confirmamos si es matriz, flex o daño físico antes de cambiar la pieza.',
-                          'Revisamos humedad, corrosión y placa antes de cerrar cotización.',
-                          'Validamos distribución e idioma para instalar el teclado correcto.',
-                          'Probamos flex y compatibilidad backlit según el modelo exacto.',
+                          'Confirmamos si es matriz, flex, conector o daño físico antes de cambiar la pieza.',
+                          'Si cayó agua, café o refresco, revisamos corrosión y placa antes de instalar un teclado nuevo.',
+                          'Validamos distribución, idioma y molde para instalar el teclado correcto.',
+                          'Probamos flex, conector y compatibilidad backlit según el modelo exacto.',
                         ][index] || item.solution}
                       </p>
                     </div>
@@ -717,8 +788,8 @@ const faqItems = [
                         {[
                           'Cambio o reparación viable',
                           'Limpieza + reemplazo',
-                          'Teclado nuevo compatible',
-                          'Backlit compatible o revisión',
+                          'Teclado compatible',
+                          'Backlit o flex revisado',
                         ][index] || 'Ruta técnica definida'}
                       </span>
                     </div>
@@ -773,7 +844,7 @@ const faqItems = [
                 <span>Si el problema viene de flex, humedad, conector, BIOS o placa, te lo explicamos antes de pedir la refacción.</span>
               </div>
               <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">
-                <i class="fa-brands fa-whatsapp"></i> Revisar mi teclado
+                <i class="fa-brands fa-whatsapp"></i> Quiero saber si mi teclado tiene reparación
               </a>
             </div>
           )}
@@ -787,10 +858,10 @@ const faqItems = [
         <div class="container text-center">
           <span class="ux-eyebrow" style="color:#2563EB;">Cobertura Total</span>
           <h2 class="ux-h2" style="color:#0E1629 !important;">
-            {isLaptopScreenReplacement ? 'Cambio de pantalla para laptops HP, Dell, Lenovo, Asus, Acer y MacBook' : isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún para HP, Dell, Lenovo, Asus, Acer, MSI y MacBook' : `Hacemos ${service.label.toLowerCase()} en estas marcas`}
+            {isLaptopScreenReplacement ? 'Cambio de pantalla para laptops HP, Dell, Lenovo, Asus, Acer y MacBook' : isLaptopKeyboardReplacement ? 'Cambio de teclado para laptops HP, Dell, Lenovo, Asus, Acer, MSI y MacBook en Cancún' : `Hacemos ${service.label.toLowerCase()} en estas marcas`}
           </h2>
           {isLaptopKeyboardReplacement && (
-            <p class="keyboard-compat-intro">Validamos distribución LA-ESP o US, teclado retroiluminado, palmrest integrado y número de parte antes de confirmar la cotización.</p>
+            <p class="keyboard-compat-intro">Reparamos y cambiamos teclados de laptop HP, Dell, Lenovo, Asus, Acer, Toshiba, MSI, MacBook Pro y MacBook Air en Cancún, validando primero número de parte, distribución, flex, molde y disponibilidad.</p>
           )}
           <div class="compat-brands">
             {service.compatibleBrands.map((b: string, index: number) => (
@@ -802,6 +873,86 @@ const faqItems = [
           </div>
         </div>
       </section>
+    )}
+
+    {isLaptopKeyboardReplacement && (
+      <>
+        <section class="keyboard-aftercare-section">
+          <div class="container keyboard-aftercare-inner">
+            <div class="keyboard-aftercare-copy">
+              <span class="ux-eyebrow">Servicio complementario</span>
+              <h2 class="ux-h2">Aprovecha el cambio de teclado para revisar el mantenimiento interno</h2>
+              <p>
+                Si tu laptop ya se va a abrir, podemos revisar polvo, ventilador, pasta térmica y temperatura.
+                Es útil en laptops gamer o de trabajo que se calientan, hacen ruido o llevan meses sin limpieza interna.
+              </p>
+              <div class="keyboard-aftercare-points">
+                <span><i class="fa-solid fa-fan"></i> Limpieza de ventilador</span>
+                <span><i class="fa-solid fa-temperature-three-quarters"></i> Temperaturas revisadas</span>
+                <span><i class="fa-solid fa-screwdriver-wrench"></i> Reensamble cuidadoso</span>
+              </div>
+              <a href="/paquetes?section=paquetes" class="keyboard-section-cta">
+                <i class="fa-solid fa-box-open"></i> Ver paquetes de mantenimiento
+              </a>
+            </div>
+            <figure class="keyboard-aftercare-media">
+              <img src="/assets/images/mantenimiento-metal-liquido-cancun.jpeg" alt="Mantenimiento interno de laptop con revisión térmica en Cancún" loading="lazy" />
+              <figcaption>
+                <strong>Revisión térmica disponible</strong>
+                <span>Pasta térmica, ventilador, polvo y metal líquido solo cuando el equipo lo requiere.</span>
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section class="keyboard-damage-map-section">
+          <div class="container">
+            <div class="keyboard-damage-header">
+              <span class="ux-eyebrow">Daño por líquido</span>
+              <h2 class="ux-h2">Teclado mojado de laptop en Cancún: revisamos antes de cambiar</h2>
+              <p>Si cayó café, agua, refresco o hubo humedad, no basta con cambiar teclado. Revisamos flex, conector y placa para evitar que el teclado nuevo vuelva a fallar.</p>
+            </div>
+            <div class="keyboard-damage-map">
+              <div class="keyboard-damage-card">
+                <i class="fa-solid fa-droplet-slash"></i>
+                <h3>Líquido o humedad</h3>
+                <p>Buscamos corrosión por agua, café o refresco para definir si requiere limpieza por líquido junto con el cambio.</p>
+              </div>
+              <div class="keyboard-damage-card">
+                <i class="fa-solid fa-plug-circle-bolt"></i>
+                <h3>Flex y conector</h3>
+                <p>Validamos que la falla no sea falso contacto, conector flojo o daño en la línea del teclado.</p>
+              </div>
+              <div class="keyboard-damage-card">
+                <i class="fa-solid fa-keyboard"></i>
+                <h3>Pieza correcta</h3>
+                <p>Confirmamos si necesitas español latino con Ñ, US, backlit o teclado integrado al palmrest.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="keyboard-package-bridge">
+          <div class="container keyboard-package-inner">
+            <div class="keyboard-package-panel">
+              <div>
+                <span class="ux-eyebrow">Aprovecha el desarmado</span>
+                <h2 class="ux-h2">Mantenimiento recomendado si tu laptop ya se va a desarmar</h2>
+                <p>
+                  Para laptops de trabajo, escuela o gaming, combinar teclado nuevo con mantenimiento preventivo
+                  puede mejorar temperatura, estabilidad y vida útil sin hacer dos visitas separadas.
+                </p>
+              </div>
+              <div class="keyboard-package-actions">
+                <a href="/paquetes?section=paquetes" class="keyboard-package-button">
+                  <i class="fa-solid fa-layer-group"></i> Ver mantenimiento para mi laptop
+                </a>
+                <span>Recomendado si tu equipo tiene polvo, ruido de ventilador, temperatura alta o más de 8 meses sin servicio.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
     )}
 
     <!-- 9. SERVICIOS RELACIONADOS - contenedor reutilizable -->
@@ -819,7 +970,9 @@ const faqItems = [
       <FaqSection
         id="faq"
         title={`Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
-        description={`Resolvemos las dudas más comunes antes de hacer ${service.label.toLowerCase()} en Cancún: diagnóstico, compatibilidad, tiempos, garantía y recolección.`}
+        description={isLaptopKeyboardReplacement
+          ? 'Resolvemos dudas antes de cambiar o reparar el teclado de tu laptop en Cancún: precio, tiempos, español latino, teclado US, backlit, líquido, flex y garantía.'
+          : `Resolvemos las dudas más comunes antes de hacer ${service.label.toLowerCase()} en Cancún: diagnóstico, compatibilidad, tiempos, garantía y recolección.`}
         viewMoreHref="/preguntas-frecuentes"
         viewMoreLabel="Ver más preguntas frecuentes"
         items={service.faqs}
@@ -1501,6 +1654,200 @@ const faqItems = [
     font-weight: 650;
     line-height: 1.4;
     margin-top: 8px;
+  }
+
+  .keyboard-hero {
+    background:
+      radial-gradient(circle at 18% 18%, rgba(14,165,233,0.2), transparent 28%),
+      linear-gradient(135deg, #06111F 0%, #0B1B2E 48%, #07111E 100%) !important;
+  }
+  .keyboard-hero .ux-hero-inner {
+    align-items: center;
+    justify-content: space-between;
+    gap: 34px;
+  }
+  .keyboard-hero .ux-hero-content {
+    flex: 1 1 560px;
+    max-width: 760px;
+  }
+  .keyboard-hero .ux-hero-visual {
+    flex: 0 1 430px;
+    justify-content: flex-end;
+  }
+  .keyboard-quote-card {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    max-width: 430px;
+    margin-left: auto;
+    padding: 18px;
+    border-radius: 18px;
+    background: #F8FAFC;
+    border: 1px solid rgba(226,232,240,0.95);
+    box-shadow: 0 28px 70px rgba(0,0,0,0.32);
+    color: #0F172A;
+  }
+  .keyboard-quote-card::before {
+    content: "";
+    position: absolute;
+    inset: 10px 10px auto;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0EA5E9, #10B981);
+  }
+  .keyboard-quote-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 8px;
+  }
+  .keyboard-quote-label,
+  .keyboard-quote-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .keyboard-quote-label {
+    background: #E0F2FE;
+    color: #0369A1;
+  }
+  .keyboard-quote-time {
+    background: #DCFCE7;
+    color: #047857;
+  }
+  .keyboard-price-block {
+    display: grid;
+    gap: 3px;
+    padding: 18px;
+    border-radius: 14px;
+    background: #0F172A;
+    color: #F8FAFC;
+  }
+  .keyboard-price-block span {
+    color: #93C5FD;
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .keyboard-price-block strong {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.15rem, 4vw, 3rem);
+    line-height: 0.95;
+    color: #FFFFFF;
+  }
+  .keyboard-price-block small {
+    color: #C9D7EA;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+  .keyboard-diagnosis-included {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 13px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    border: 1px solid #DDE7F2;
+  }
+  .keyboard-diagnosis-included > i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    color: #0284C7;
+    background: #E0F2FE;
+  }
+  .keyboard-diagnosis-included strong {
+    display: block;
+    color: #0F172A;
+    line-height: 1.15;
+  }
+  .keyboard-diagnosis-included span {
+    display: block;
+    color: #64748B;
+    font-size: 0.86rem;
+    line-height: 1.3;
+    margin-top: 3px;
+  }
+  .keyboard-quote-steps {
+    display: grid;
+    gap: 8px;
+  }
+  .keyboard-quote-steps div {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #334155;
+    font-weight: 850;
+    font-size: 0.88rem;
+  }
+  .keyboard-quote-steps span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: #DBEAFE;
+    color: #1D4ED8;
+    font-size: 0.76rem;
+    font-weight: 950;
+    flex-shrink: 0;
+  }
+  .keyboard-quote-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #10B981;
+    color: #FFFFFF !important;
+    text-decoration: none;
+    font-weight: 950;
+    box-shadow: 0 14px 28px rgba(16,185,129,0.28);
+  }
+  .keyboard-quote-cta:hover {
+    background: #059669;
+    transform: translateY(-2px);
+  }
+  .keyboard-quote-note {
+    margin: 0;
+    color: #64748B;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    text-align: center;
+    font-weight: 650;
+  }
+  @media (max-width: 920px) {
+    .keyboard-hero .ux-hero-visual {
+      flex: 1 1 100%;
+      justify-content: flex-start;
+    }
+    .keyboard-quote-card {
+      max-width: 100%;
+      margin-left: 0;
+    }
+  }
+  @media (max-width: 560px) {
+    .keyboard-quote-card {
+      padding: 15px;
+    }
+    .keyboard-quote-top {
+      align-items: flex-start;
+      flex-direction: column;
+    }
   }
 
   .keyboard-proof-strip {
@@ -2773,6 +3120,242 @@ const faqItems = [
     }
     .keyboard-compat-section .compat-brands {
       grid-template-columns: 1fr;
+    }
+  }
+
+  .keyboard-aftercare-section {
+    background:
+      radial-gradient(circle at 12% 18%, rgba(14,165,233,0.14), transparent 28%),
+      linear-gradient(135deg, #07111F 0%, #0F172A 58%, #0A1626 100%) !important;
+    padding: 62px 0;
+    overflow: hidden;
+  }
+  .keyboard-aftercare-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 34px;
+    align-items: center;
+  }
+  .keyboard-aftercare-copy .ux-eyebrow,
+  .keyboard-damage-header .ux-eyebrow,
+  .keyboard-package-panel .ux-eyebrow {
+    color: #67E8F9;
+  }
+  .keyboard-aftercare-copy .ux-h2,
+  .keyboard-damage-header .ux-h2,
+  .keyboard-package-panel .ux-h2 {
+    color: #F8FAFC !important;
+    font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+    line-height: 1.12;
+    margin-bottom: 12px;
+  }
+  .keyboard-aftercare-copy p,
+  .keyboard-damage-header p,
+  .keyboard-package-panel p {
+    color: #B6C6DA !important;
+    line-height: 1.62;
+    font-weight: 650;
+    margin: 0;
+  }
+  .keyboard-aftercare-points {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 22px 0;
+  }
+  .keyboard-aftercare-points span {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 54px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    background: rgba(15,23,42,0.78);
+    border: 1px solid rgba(103,232,249,0.16);
+    color: #E0F2FE;
+    font-size: 0.88rem;
+    font-weight: 850;
+  }
+  .keyboard-aftercare-points i {
+    color: #22D3EE;
+  }
+  .keyboard-section-cta,
+  .keyboard-package-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 10px;
+    padding: 13px 17px;
+    background: #0EA5E9;
+    color: #FFFFFF !important;
+    text-decoration: none;
+    font-weight: 950;
+    box-shadow: 0 16px 34px rgba(14,165,233,0.22);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .keyboard-section-cta:hover,
+  .keyboard-package-button:hover {
+    background: #0284C7;
+    transform: translateY(-2px);
+  }
+  .keyboard-aftercare-media {
+    position: relative;
+    margin: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(103,232,249,0.2);
+    box-shadow: 0 28px 60px rgba(0,0,0,0.32);
+    background: #0F172A;
+  }
+  .keyboard-aftercare-media img {
+    display: block;
+    width: 100%;
+    height: 258px;
+    object-fit: cover;
+  }
+  .keyboard-aftercare-media figcaption {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    display: grid;
+    gap: 4px;
+    padding: 13px;
+    border-radius: 12px;
+    background: rgba(6,17,31,0.86);
+    border: 1px solid rgba(226,232,240,0.12);
+    backdrop-filter: blur(10px);
+  }
+  .keyboard-aftercare-media strong {
+    color: #FFFFFF;
+    font-size: 0.98rem;
+  }
+  .keyboard-aftercare-media span {
+    color: #B6C6DA;
+    font-size: 0.84rem;
+    line-height: 1.35;
+  }
+
+  .keyboard-damage-map-section {
+    background: #F8FAFC !important;
+    padding: 56px 0;
+  }
+  .keyboard-damage-header {
+    max-width: 820px;
+    margin: 0 auto 24px;
+    text-align: center;
+  }
+  .keyboard-damage-header .ux-eyebrow {
+    color: #2563EB;
+  }
+  .keyboard-damage-header .ux-h2 {
+    color: #0F172A !important;
+  }
+  .keyboard-damage-header p {
+    color: #475569 !important;
+  }
+  .keyboard-damage-map {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .keyboard-damage-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 12px;
+    align-items: start;
+    padding: 18px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 12px 26px rgba(15,42,74,0.055);
+  }
+  .keyboard-damage-card > i {
+    grid-row: span 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #E0F2FE;
+    color: #0284C7;
+  }
+  .keyboard-damage-card h3 {
+    color: #0F172A !important;
+    font-size: 1.04rem;
+    line-height: 1.15;
+    margin: 0;
+  }
+  .keyboard-damage-card p {
+    color: #475569 !important;
+    font-size: 0.9rem;
+    line-height: 1.48;
+    margin: 0;
+  }
+
+  .keyboard-package-bridge {
+    background:
+      linear-gradient(135deg, rgba(15,23,42,0.96), rgba(8,47,73,0.96)),
+      radial-gradient(circle at 82% 42%, rgba(16,185,129,0.16), transparent 30%) !important;
+    padding: 48px 0;
+  }
+  .keyboard-package-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(103,232,249,0.18);
+    background: rgba(15,23,42,0.72);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .keyboard-package-actions {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+    max-width: 320px;
+  }
+  .keyboard-package-actions span {
+    color: #B6C6DA;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    text-align: right;
+    font-weight: 650;
+  }
+
+  @media (max-width: 900px) {
+    .keyboard-aftercare-inner,
+    .keyboard-package-panel {
+      grid-template-columns: 1fr;
+    }
+    .keyboard-aftercare-points,
+    .keyboard-damage-map {
+      grid-template-columns: 1fr;
+    }
+    .keyboard-package-actions {
+      justify-items: stretch;
+      max-width: none;
+    }
+    .keyboard-package-actions span {
+      text-align: left;
+    }
+  }
+  @media (max-width: 560px) {
+    .keyboard-aftercare-section,
+    .keyboard-damage-map-section {
+      padding: 44px 0;
+    }
+    .keyboard-package-bridge {
+      padding: 38px 0;
+    }
+    .keyboard-aftercare-media img {
+      height: 190px;
+    }
+    .keyboard-package-panel {
+      padding: 18px;
     }
   }
 

@@ -29,6 +29,20 @@ const canonical = activeCategory && activeService
   ? `https://pixon.com.mx/servicios/${activeCategory.slug}/${activeService.slug}`
   : '';
 
+const keyboardRelatedCopy: Record<string, string> = {
+  'cambio-pantalla': 'Si tu equipo también tiene display roto, líneas o manchas, podemos revisar ambas fallas en la misma visita.',
+  diagnostico: 'Revisión técnica para confirmar si la falla viene de teclado, flex, conector, humedad o placa.',
+  'pasta-termica': 'Útil si la laptop se calienta, hace ruido o lleva meses sin mantenimiento interno.',
+  'cambio-bateria': 'Revisión de batería si tu laptop se apaga, no carga o dura poco desconectada.',
+  upgrade: 'Mejora SSD o RAM si además del teclado quieres que tu laptop trabaje más rápido.',
+};
+
+const getRelatedDesc = (item: any, href: string) => {
+  if (activeService?.slug !== 'cambio-teclado') return item.relatedCardDesc;
+  const key = item.slug || href.split('/').pop() || '';
+  return keyboardRelatedCopy[key] || item.relatedCardDesc;
+};
+
 const getRelatedIcon = (item: any) => {
   const key = `${item.slug || ''} ${item.label || ''} ${item.customUrl || ''} ${item.href || ''}`.toLowerCase();
 
@@ -59,6 +73,7 @@ const relatedSlugItems = activeCategory && activeService
           href: rel.customUrl ?? `/servicios/${activeCategory.slug}/${rel.slug}`,
           icon: getRelatedIcon(rel),
           label: rel.label,
+          desc: getRelatedDesc(rel, rel.customUrl ?? `/servicios/${activeCategory.slug}/${rel.slug}`),
           cta: 'Ver servicio →',
           isExternal: false,
         };
@@ -90,6 +105,7 @@ const moreCategoryItems = activeCategory && activeService && includeCategoryServ
         href: item.customUrl ?? `/servicios/${activeCategory.slug}/${item.slug}`,
         icon: getRelatedIcon(item),
         label: item.label,
+        desc: getRelatedDesc(item, item.customUrl ?? `/servicios/${activeCategory.slug}/${item.slug}`),
         cta: 'Ver servicio →',
         isExternal: false,
       }))
