@@ -1552,6 +1552,41 @@ const homeFaqs = [
                         margin: 0 !important;
                     }
                 }
+
+                #trabajos .repair-video-pause {
+                    position: absolute;
+                    right: 10px;
+                    bottom: 10px;
+                    z-index: 4;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    border: 1px solid rgba(255, 255, 255, 0.28);
+                    border-radius: 999px;
+                    background: rgba(8, 14, 28, 0.88);
+                    color: #ffffff;
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    line-height: 1;
+                    padding: 9px 11px;
+                    cursor: pointer;
+                    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+                    backdrop-filter: blur(8px);
+                    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+                }
+
+                #trabajos .repair-video-pause:hover,
+                #trabajos .repair-video-pause:focus-visible {
+                    transform: translateY(-1px);
+                    background: rgba(13, 24, 46, 0.96);
+                    border-color: rgba(255, 255, 255, 0.46);
+                    outline: none;
+                }
+
+                #trabajos .repair-video-pause .fa-icon {
+                    width: 0.8rem;
+                    height: 0.8rem;
+                }
             </style>
             <div class="video-grid shorts-grid desktop-4">
                 <!-- Video 1: B2B -->
@@ -1902,6 +1937,7 @@ const homeFaqs = [
       wrapper: HTMLElement;
       thumb: HTMLElement;
       iframe: HTMLIFrameElement | null;
+      pauseButton: HTMLButtonElement | null;
       token: number;
     };
 
@@ -1933,6 +1969,8 @@ const homeFaqs = [
       sendVideoCommand(state.iframe, 'pauseVideo');
       state.iframe?.remove();
       state.iframe = null;
+      state.pauseButton?.remove();
+      state.pauseButton = null;
       showRepairThumb(state);
       if (activeRepairVideo === state) {
         activeRepairVideo = null;
@@ -1960,6 +1998,7 @@ const homeFaqs = [
         wrapper,
         thumb,
         iframe: null,
+        pauseButton: null,
         token: 0,
       };
 
@@ -1968,9 +2007,10 @@ const homeFaqs = [
       const token = ++repairVideoToken;
       state.token = token;
       activeRepairVideo = state;
-      hideRepairThumb(state);
+      state.thumb.style.pointerEvents = 'none';
+      state.thumb.setAttribute('aria-pressed', 'true');
 
-      wrapper.querySelectorAll('iframe').forEach((frame) => frame.remove());
+      wrapper.querySelectorAll('iframe, .repair-video-pause').forEach((element) => element.remove());
 
       const iframe = document.createElement('iframe');
       iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1&origin=${encodeURIComponent(window.location.origin)}`;
@@ -1979,20 +2019,43 @@ const homeFaqs = [
       iframe.setAttribute('allowfullscreen', '');
       iframe.style.position = 'absolute';
       iframe.style.inset = '0';
-      iframe.style.width = thumb.dataset.landscape === 'true' ? '200%' : '100%';
+      iframe.style.width = '100%';
       iframe.style.height = '100%';
       iframe.style.border = '0';
       iframe.style.zIndex = '2';
-      iframe.style.left = thumb.dataset.landscape === 'true' ? '-50%' : '0';
+      iframe.style.left = '0';
+      iframe.style.top = '0';
+      iframe.style.transform = 'none';
+      iframe.style.opacity = '0';
+      iframe.style.pointerEvents = 'none';
+      iframe.style.transition = 'opacity 0.2s ease';
+
+      const pauseButton = document.createElement('button');
+      pauseButton.type = 'button';
+      pauseButton.className = 'repair-video-pause';
+      pauseButton.setAttribute('aria-label', 'Pausar video');
+      pauseButton.innerHTML = '<svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-pause"/></svg><span>Pausar</span>';
+      pauseButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (activeRepairVideo === state) {
+          pauseRepairVideo(state);
+        }
+      });
 
       state.iframe = iframe;
+      state.pauseButton = pauseButton;
       wrapper.appendChild(iframe);
+      wrapper.appendChild(pauseButton);
 
       iframe.addEventListener('load', () => {
         if (activeRepairVideo !== state || state.token !== token) {
           iframe.remove();
+          pauseButton.remove();
           return;
         }
+        iframe.style.opacity = '1';
+        hideRepairThumb(state);
         sendVideoCommand(iframe, 'playVideo');
         window.setTimeout(() => {
           if (activeRepairVideo === state && state.token === token) {

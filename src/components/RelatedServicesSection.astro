@@ -1,0 +1,285 @@
+---
+import { SERVICE_CATEGORIES } from '../data/services';
+
+type RelatedServiceCard = {
+  href: string;
+  icon: string;
+  label: string;
+  desc?: string;
+  cta?: string;
+  isExternal?: boolean;
+};
+
+const {
+  category,
+  service,
+  title = 'Otros servicios que podrían interesarte',
+  eyebrow = 'Servicios Complementarios',
+  compact = false,
+  initialLimit,
+  includeCategoryServices = false,
+  items,
+} = Astro.props;
+
+const activeCategory = category ?? SERVICE_CATEGORIES.find((item: any) =>
+  item.services?.some((svc: any) => svc.slug === service?.slug)
+);
+const activeService = service;
+const canonical = activeCategory && activeService
+  ? `https://pixon.com.mx/servicios/${activeCategory.slug}/${activeService.slug}`
+  : '';
+
+const getRelatedIcon = (item: any) => {
+  const key = `${item.slug || ''} ${item.label || ''} ${item.customUrl || ''} ${item.href || ''}`.toLowerCase();
+
+  if (key.includes('bateria')) return 'fa-battery-three-quarters';
+  if (key.includes('teclado')) return 'fa-keyboard';
+  if (key.includes('pantalla') || key.includes('display')) return 'fa-display';
+  if (key.includes('pasta') || key.includes('termica') || key.includes('mantenimiento')) return 'fa-temperature-three-quarters';
+  if (key.includes('diagnostico')) return 'fa-stethoscope';
+  if (key.includes('bisagra')) return 'fa-laptop';
+  if (key.includes('upgrade')) return 'fa-memory';
+  if (key.includes('optimizacion')) return 'fa-gauge-high';
+  if (key.includes('windows') || key.includes('sistema')) return 'fa-window-restore';
+  if (key.includes('mac')) return 'fa-laptop-code';
+  if (key.includes('liquido')) return 'fa-droplet';
+  if (key.includes('reparacion')) return 'fa-screwdriver-wrench';
+  if (key.includes('paquete')) return 'fa-box';
+
+  return activeCategory?.icon || 'fa-screwdriver-wrench';
+};
+
+const relatedSlugItems = activeCategory && activeService
+  ? (activeService.relatedSlugs || [])
+      .filter((slug: string) => slug !== activeService.slug)
+      .map((slug: string) => {
+        const rel = activeCategory.services.find((item: any) => item.slug === slug);
+        if (!rel) return null;
+        return {
+          href: rel.customUrl ?? `/servicios/${activeCategory.slug}/${rel.slug}`,
+          icon: getRelatedIcon(rel),
+          label: rel.label,
+          cta: 'Ver servicio →',
+          isExternal: false,
+        };
+      })
+      .filter(Boolean)
+  : [];
+
+const relatedExternalItems = activeService
+  ? (activeService.relatedExternal || []).map((ext: any) => ({
+      href: ext.href,
+      icon: ext.icon || getRelatedIcon(ext),
+      label: ext.label,
+      desc: ext.desc,
+      cta: 'Ver más →',
+      isExternal: true,
+    }))
+  : [];
+
+const usedRelatedHrefs = new Set([
+  ...relatedSlugItems.map((item: any) => item.href),
+  ...relatedExternalItems.map((item: any) => item.href),
+  canonical,
+]);
+
+const moreCategoryItems = activeCategory && activeService && includeCategoryServices
+  ? activeCategory.services
+      .filter((item: any) => item.slug !== activeService.slug)
+      .map((item: any) => ({
+        href: item.customUrl ?? `/servicios/${activeCategory.slug}/${item.slug}`,
+        icon: getRelatedIcon(item),
+        label: item.label,
+        cta: 'Ver servicio →',
+        isExternal: false,
+      }))
+      .filter((item: any) => {
+        if (usedRelatedHrefs.has(item.href)) return false;
+        usedRelatedHrefs.add(item.href);
+        return true;
+      })
+  : [];
+
+const relatedCards: RelatedServiceCard[] = items || [
+  ...relatedSlugItems,
+  ...relatedExternalItems,
+  ...moreCategoryItems,
+];
+const visibleLimit = initialLimit ?? (compact ? 8 : 6);
+const hasExpandableRelated = relatedCards.length > visibleLimit;
+---
+
+{relatedCards.length > 0 && (
+  <section class={`svc-related ${compact ? 'screen-related-compact' : ''}`} data-related-section>
+    <div class="container">
+      <div class="ux-section-header text-center">
+        <span class="ux-eyebrow">{eyebrow}</span>
+        <h2 class="ux-h2">{title}</h2>
+      </div>
+      <div class="related-grid">
+        {relatedCards.map((item, index) => (
+          <a
+            href={item.href}
+            class={`related-card ${item.isExternal ? 'related-card--ext' : ''} ${index >= visibleLimit ? 'related-card--extra' : ''}`}
+            data-related-extra={index >= visibleLimit ? 'true' : undefined}
+          >
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h4>{item.label}</h4>
+            {item.desc && <p>{item.desc}</p>}
+            <span>{item.cta || 'Ver servicio →'}</span>
+          </a>
+        ))}
+      </div>
+      {hasExpandableRelated && (
+        <div class="related-toggle-wrap">
+          <button class="related-toggle" type="button" data-related-toggle aria-expanded="false">
+            <span data-related-toggle-text>Ver más servicios</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+<script is:inline>
+  (() => {
+    document.querySelectorAll('[data-related-section]').forEach((section) => {
+      const button = section.querySelector('[data-related-toggle]');
+      const label = section.querySelector('[data-related-toggle-text]');
+      if (!button || !label || button.dataset.relatedReady === 'true') return;
+
+      button.dataset.relatedReady = 'true';
+      button.addEventListener('click', () => {
+        const isExpanded = section.classList.toggle('is-expanded');
+        button.setAttribute('aria-expanded', String(isExpanded));
+        label.textContent = isExpanded ? 'Ver menos servicios' : 'Ver más servicios';
+      });
+    });
+  })();
+</script>
+
+<style>
+  .svc-related {
+    background: #0B1120;
+    padding: 90px 0;
+  }
+  .svc-related .ux-section-header {
+    margin: 0 auto 50px;
+    max-width: 760px;
+  }
+  .svc-related .ux-eyebrow {
+    color: #38BDF8;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-bottom: 15px;
+  }
+  .svc-related .ux-h2 {
+    color: #F8FAFC;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    margin: 0;
+  }
+  .svc-related .ux-text-accent {
+    color: #38BDF8;
+  }
+  .screen-related-compact {
+    padding: 54px 0;
+  }
+  .screen-related-compact .ux-section-header {
+    margin-bottom: 30px;
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+  }
+  .related-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 35px 25px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: background 0.3s, border-color 0.3s, transform 0.3s;
+  }
+  .related-card:hover {
+    background: rgba(56,189,248,0.07);
+    border-color: rgba(56,189,248,0.3);
+    transform: translateY(-5px);
+  }
+  .related-card i {
+    font-size: 2rem;
+    color: #38BDF8;
+  }
+  .related-card h4 {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.3rem;
+    color: #F8FAFC;
+    margin: 0;
+  }
+  .related-card p {
+    color: #94A3B8;
+    font-size: 0.9rem;
+    margin: 0;
+    flex: 1;
+  }
+  .related-card span {
+    color: #38BDF8;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .related-card--ext {
+    border-style: dashed;
+  }
+  .related-grid .related-card--extra {
+    display: none;
+  }
+  .svc-related.is-expanded .related-grid .related-card--extra {
+    display: flex;
+  }
+  .related-toggle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .related-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid rgba(56,189,248,0.35);
+    background: rgba(56,189,248,0.1);
+    color: #E0F2FE;
+    border-radius: 12px;
+    padding: 13px 20px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s, transform 0.25s;
+  }
+  .related-toggle:hover {
+    background: rgba(56,189,248,0.18);
+    border-color: rgba(56,189,248,0.55);
+    transform: translateY(-2px);
+  }
+  .related-toggle i {
+    transition: transform 0.25s;
+  }
+  .svc-related.is-expanded .related-toggle i {
+    transform: rotate(180deg);
+  }
+  @media (max-width: 768px) {
+    .svc-related,
+    .screen-related-compact {
+      padding: 56px 0;
+    }
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

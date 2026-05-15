@@ -6,6 +6,7 @@ import Breadcrumb from '../../../components/Breadcrumb.astro';
 import FaqSection from '../../../components/FaqSection.astro';
 import CommentsSection from '../../../components/CommentsSection.astro';
 import ContactSection from '../../../components/ContactSection.astro';
+import RelatedServicesSection from '../../../components/RelatedServicesSection.astro';
 import MantenimientoTermicoView from '../../../components/views/MantenimientoTermicoView.astro';
 import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
@@ -28,10 +29,12 @@ const { category, service } = Astro.props;
 
 const canonical = `https://pixon.com.mx/servicios/${category.slug}/${service.slug}`;
 const isLaptopScreenReplacement = category.slug === 'laptop' && service.slug === 'cambio-pantalla';
+const isLaptopKeyboardReplacement = category.slug === 'laptop' && service.slug === 'cambio-teclado';
+const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
-const seoTitle = isLaptopScreenReplacement
-  ? `${seoKeyword} con garantía en Cancún | Pixon PC`
+const seoTitle = isLaptopLocalReplacement
+  ? `${seoKeyword} con garantía | Pixon PC`
   : `${seoKeyword} para ${category.title} en Cancún | Pixon PC`;
 const description = service.intro
   ? `${service.intro} Cotización gratis, diagnóstico claro y reparación profesional en Cancún.`
@@ -66,74 +69,6 @@ const faqItems = [
   },
 ];
 
-const getRelatedIcon = (item: any) => {
-  const key = `${item.slug || ''} ${item.label || ''} ${item.customUrl || ''}`.toLowerCase();
-
-  if (key.includes('bateria')) return 'fa-battery-three-quarters';
-  if (key.includes('teclado')) return 'fa-keyboard';
-  if (key.includes('pasta') || key.includes('termica') || key.includes('mantenimiento')) return 'fa-temperature-three-quarters';
-  if (key.includes('diagnostico')) return 'fa-stethoscope';
-  if (key.includes('bisagra')) return 'fa-laptop';
-  if (key.includes('upgrade')) return 'fa-memory';
-  if (key.includes('optimizacion')) return 'fa-gauge-high';
-  if (key.includes('windows') || key.includes('sistema')) return 'fa-window-restore';
-  if (key.includes('mac')) return 'fa-laptop-code';
-  if (key.includes('liquido')) return 'fa-droplet';
-  if (key.includes('reparacion')) return 'fa-screwdriver-wrench';
-
-  return category.icon;
-};
-
-const relatedSlugItems = (service.relatedSlugs || [])
-  .filter((slug: string) => slug !== service.slug)
-  .map((slug: string) => {
-    const rel = category.services.find((item: any) => item.slug === slug);
-    if (!rel) return null;
-    return {
-      href: rel.customUrl ?? `/servicios/${category.slug}/${rel.slug}`,
-      icon: getRelatedIcon(rel),
-      label: rel.label,
-      cta: 'Ver servicio →',
-      isExternal: false,
-    };
-  })
-  .filter(Boolean);
-
-const relatedExternalItems = (service.relatedExternal || []).map((ext: any) => ({
-  href: ext.href,
-  icon: ext.icon,
-  label: ext.label,
-  desc: ext.desc,
-  cta: 'Ver más →',
-  isExternal: true,
-}));
-
-const usedRelatedHrefs = new Set([
-  ...relatedSlugItems.map((item: any) => item.href),
-  ...relatedExternalItems.map((item: any) => item.href),
-  canonical,
-]);
-
-const moreLaptopRelatedItems = isLaptopScreenReplacement
-  ? category.services
-      .filter((item: any) => item.slug !== service.slug)
-      .map((item: any) => ({
-        href: item.customUrl ?? `/servicios/${category.slug}/${item.slug}`,
-        icon: getRelatedIcon(item),
-        label: item.label,
-        cta: 'Ver servicio →',
-        isExternal: false,
-      }))
-      .filter((item: any) => {
-        if (usedRelatedHrefs.has(item.href)) return false;
-        usedRelatedHrefs.add(item.href);
-        return true;
-      })
-  : [];
-
-const relatedCards = [...relatedSlugItems, ...relatedExternalItems, ...moreLaptopRelatedItems];
-const relatedInitialLimit = isLaptopScreenReplacement ? 8 : 6;
-const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
 ---
 
 <Base title={seoTitle} description={description} canonical={canonical}>
@@ -168,19 +103,19 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
   ) : (
     <div class="theme-premium-dark">
       <!-- 1. HERO SECTION (Dark Premium) -->
-    <section class={`ux-hero ${isLaptopScreenReplacement ? 'screen-hero' : ''}`}>
+    <section class={`ux-hero ${isLaptopScreenReplacement ? 'screen-hero' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-hero' : ''}`}>
       <div class="ux-glow-hero"></div>
       <div class="container ux-hero-inner">
         <div class="ux-hero-content">
           <span class="ux-badge">
             <i class={`fa-solid ${category.icon}`}></i>
-            {isLaptopScreenReplacement ? 'Pantallas para laptop en Cancún' : `Especialistas en ${category.title} en Cancún`}
+            {isLaptopScreenReplacement ? 'Pantallas para laptop en Cancún' : isLaptopKeyboardReplacement ? 'Teclados para laptop en Cancún' : `Especialistas en ${category.title} en Cancún`}
           </span>
           
           <h1 class="ux-h1">
-            {isLaptopScreenReplacement ? 'Cambio de pantalla de laptop en Cancún' : seoKeyword} <br>
+            {isLaptopScreenReplacement ? 'Cambio de pantalla de laptop en Cancún' : isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún' : seoKeyword} <br>
             <span class="ux-gradient-text">
-              {isLaptopScreenReplacement ? 'con diagnóstico y garantía' : 'Profesional'}
+              {isLaptopScreenReplacement ? 'con diagnóstico y garantía' : isLaptopKeyboardReplacement ? 'con diagnóstico de flex y garantía' : 'Profesional'}
             </span>
           </h1>
           
@@ -198,6 +133,14 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
             </div>
           )}
 
+          {isLaptopKeyboardReplacement && (
+            <div class="keyboard-hero-tags" aria-label="Detalles del servicio de cambio de teclado">
+              <span><i class="fa-solid fa-keyboard"></i> Teclado LA-ESP, US o backlit</span>
+              <span><i class="fa-solid fa-droplet-slash"></i> Revisamos daño por líquido</span>
+              <span><i class="fa-solid fa-location-dot"></i> Taller local en Cancún</span>
+            </div>
+          )}
+
           <div class="ux-trust-bar">
             <div class="trust-item"><i class="fa-solid fa-star"></i> 5.0 en Google Maps</div>
             <div class="trust-item"><i class="fa-solid fa-shield-halved"></i> Garantía por escrito</div>
@@ -205,11 +148,11 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
           </div>
 
           <div class="ux-hero-ctas">
-            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopScreenReplacement ? '' : 'pulse'}`}>
-              <i class="fa-brands fa-whatsapp"></i> {isLaptopScreenReplacement ? 'Cotizar pantalla por WhatsApp' : 'Cotizar Servicio'}
+            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopLocalReplacement ? '' : 'pulse'}`}>
+              <i class="fa-brands fa-whatsapp"></i> {isLaptopScreenReplacement ? 'Cotizar pantalla por WhatsApp' : isLaptopKeyboardReplacement ? 'Cotizar teclado por WhatsApp' : 'Cotizar Servicio'}
             </a>
             <a href="#proceso" class="ux-btn-secondary" data-screen-scroll={isLaptopScreenReplacement ? 'proceso' : undefined}>
-              {isLaptopScreenReplacement ? 'Ver proceso técnico' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
+              {isLaptopScreenReplacement ? 'Ver proceso técnico' : isLaptopKeyboardReplacement ? 'Ver proceso claro' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
             </a>
           </div>
         </div>
@@ -217,8 +160,8 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
         <div class="ux-hero-visual">
           <div class="ux-glass-panel">
             <div class="glass-header">
-              <i class={`fa-solid ${isLaptopScreenReplacement ? 'fa-display' : 'fa-clipboard-list'}`}></i>
-              <span>{isLaptopScreenReplacement ? 'Servicio para pantallas LCD, LED y táctiles' : '¿Qué Incluye?'}</span>
+              <i class={`fa-solid ${isLaptopScreenReplacement ? 'fa-display' : isLaptopKeyboardReplacement ? 'fa-keyboard' : 'fa-clipboard-list'}`}></i>
+              <span>{isLaptopScreenReplacement ? 'Servicio para pantallas LCD, LED y táctiles' : isLaptopKeyboardReplacement ? 'Servicio para teclados de laptop LA-ESP, US y backlit' : '¿Qué Incluye?'}</span>
             </div>
             <ul class="ux-check-list">
               {service.bullets && service.bullets.length > 0 ? (
@@ -238,6 +181,7 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
               <span>Inversión desde:</span>
               <strong>{service.fromPrice || 'Previa Revisión'}</strong>
               {isLaptopScreenReplacement && <small>El precio final depende del modelo y tipo de pantalla de tu laptop.</small>}
+              {isLaptopKeyboardReplacement && <small>El precio final depende del modelo, distribución, si es retroiluminado y disponibilidad de la pieza.</small>}
             </div>
           </div>
         </div>
@@ -246,13 +190,20 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
 
     <!-- 1.5 TRUST STRIP CON STATS -->
     {service.trustStats && service.trustStats.length > 0 && (
-      <section class={`svc-trust-strip ${isLaptopScreenReplacement ? 'screen-proof-strip' : ''}`}>
+      <section class={`svc-trust-strip ${isLaptopScreenReplacement ? 'screen-proof-strip' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-proof-strip' : ''}`}>
         <div class="container">
           {isLaptopScreenReplacement && (
             <div class="screen-proof-heading">
               <span class="ux-eyebrow">Servicio local verificado</span>
               <h2 class="ux-h2">Cambio de pantalla de laptop en Cancún con proceso claro</h2>
               <p>Atendemos cambio de pantalla de laptop en Cancún con diagnóstico previo del panel, flex de video y salida a monitor externo. Te confirmamos compatibilidad, costo y tiempo antes de pedir o instalar la pieza.</p>
+            </div>
+          )}
+          {isLaptopKeyboardReplacement && (
+            <div class="keyboard-proof-heading">
+              <span class="ux-eyebrow">Transparencia en refacciones</span>
+              <h2 class="ux-h2">Cambio de teclado de laptop en Cancún con diagnóstico claro</h2>
+              <p>Antes de venderte un teclado revisamos si la falla viene del teclado físico, flex, conector, humedad o placa. Te confirmamos idioma, compatibilidad, costo y tiempo real de entrega por WhatsApp.</p>
             </div>
           )}
           <div class="trust-stats-grid">
@@ -268,6 +219,16 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
                       'La garantía aplica sobre la pantalla instalada y se entrega por escrito al finalizar el servicio.',
                       'Coordinamos recepción, recolección o entrega según zona y disponibilidad operativa en Cancún.',
                       'El tiempo puede variar si el panel debe pedirse fuera de Cancún o si el modelo requiere pieza especial.',
+                    ][index]}
+                  </p>
+                )}
+                {isLaptopKeyboardReplacement && (
+                  <p class="trust-stat-note">
+                    {[
+                      'Probamos teclado, flex, conector y señales de líquido antes de recomendar cambio completo.',
+                      'Validamos idioma, tamaño, molde, retroiluminación y compatibilidad con el modelo exacto.',
+                      'La garantía aplica sobre la pieza instalada y se entrega por escrito al finalizar.',
+                      'El tiempo depende de stock local en Cancún o pedido de refacción para modelos especiales.',
                     ][index]}
                   </p>
                 )}
@@ -498,13 +459,15 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
     )}
 
     <!-- 5. PROCESO DE TRABAJO (Dynamic or Fallback) -->
-    <section class={`ux-process ${isLaptopScreenReplacement ? 'screen-process' : ''}`} id="proceso">
+    <section class={`ux-process ${isLaptopScreenReplacement ? 'screen-process' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-process' : ''}`} id="proceso">
       <div class="container">
         <div class="ux-section-header text-center">
-          <span class="ux-eyebrow">{isLaptopScreenReplacement ? 'Reemplazo profesional' : 'Transparencia Total'}</span>
+          <span class="ux-eyebrow">{isLaptopScreenReplacement ? 'Reemplazo profesional' : isLaptopKeyboardReplacement ? 'Transparencia técnica' : 'Transparencia Total'}</span>
           <h2 class="ux-h2">
             {isLaptopScreenReplacement ? (
               <>Proceso para cambio de pantalla de laptop en <span class="ux-text-accent">Cancún</span></>
+            ) : isLaptopKeyboardReplacement ? (
+              <>Proceso para cambio de teclado de laptop en <span class="ux-text-accent">Cancún</span></>
             ) : (
               <>Nuestra Metodología de <span class="ux-text-accent">Trabajo</span></>
             )}
@@ -512,9 +475,23 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
           {isLaptopScreenReplacement && (
             <p>Dejamos claro si la falla viene del panel, flex de video, bisagra o tarjeta de video antes de comprar cualquier pieza.</p>
           )}
+          {isLaptopKeyboardReplacement && (
+            <p>Te explicamos si la falla es teclado, flex, líquido o placa antes de pedir la refacción. El objetivo es que pagues solo por lo que tu laptop realmente necesita.</p>
+          )}
         </div>
 
-        <div class="ux-timeline">
+        {isLaptopKeyboardReplacement && (
+          <div class="keyboard-process-media">
+            <img src="/assets/images/mantenimiento-macbook-cancun.jpeg" alt="Cambio de teclado de laptop en Cancún con revisión de flex y teclado" loading="lazy" />
+            <div class="keyboard-process-overlay">
+              <span>Flujo controlado</span>
+              <strong>Diagnóstico, pieza correcta y prueba final</strong>
+              <p>Antes de pedir un teclado confirmamos si el problema viene de la pieza, el flex, humedad o placa.</p>
+            </div>
+          </div>
+        )}
+
+        <div class={`ux-timeline ${isLaptopKeyboardReplacement ? 'keyboard-flow-list' : ''}`}>
           {service.process && service.process.length > 0 ? (
             service.process.map((step: any, index: number) => (
               <div class="timeline-item">
@@ -604,46 +581,79 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
 
     <!-- 6. WHY US - Claro -->
     {service.whyUs && service.whyUs.length > 0 && (
-      <section class={`svc-whyus ${isLaptopScreenReplacement ? 'screen-whyus-compact' : ''}`}>
+      <section class={`svc-whyus ${isLaptopScreenReplacement ? 'screen-whyus-compact' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-whyus-section' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow" style="color:#2563EB;">Ventaja Pixon</span>
             <h2 class="ux-h2" style="color:#0E1629 !important;">
               {isLaptopScreenReplacement ? (
                 <>¿Por qué elegir nuestro <span style="color:#2563EB;">cambio de pantalla de laptop en Cancún</span>?</>
+              ) : isLaptopKeyboardReplacement ? (
+                <>¿Por qué elegir nuestro <span style="color:#2563EB;">cambio de teclado de laptop en Cancún</span>?</>
               ) : (
                 <>¿Por qué elegir nuestro <span style="color:#2563EB;">{service.label.toLowerCase()}</span>?</>
               )}
             </h2>
+            {isLaptopKeyboardReplacement && (
+              <p>Trabajamos con diagnóstico real antes de pedir la pieza: idioma del teclado, flex, backlit, palmrest, daño por líquido y compatibilidad exacta por modelo.</p>
+            )}
           </div>
-          <div class="whyus-grid">
-            {service.whyUs.map((item: any) => (
-              <div class="whyus-card">
-                <div class="whyus-icon"><i class={`fa-solid ${item.icon}`}></i></div>
-                <h4>{item.title}</h4>
-                <p>{item.desc}</p>
+          {isLaptopKeyboardReplacement ? (
+            <div class="keyboard-whyus-layout">
+              <figure class="keyboard-whyus-photo">
+                <img src="/assets/images/control_repair_workshop.png" alt="Taller Pixon PC revisando componentes de laptop en Cancún" loading="lazy" />
+                <figcaption>
+                  <strong>Revisión antes de comprar pieza</strong>
+                  <span>Idioma, molde, flex, backlit y señales de líquido.</span>
+                </figcaption>
+              </figure>
+              <div class="whyus-grid">
+                {service.whyUs.map((item: any, index: number) => (
+                  <div class="whyus-card">
+                    <span class="keyboard-whyus-index">{String(index + 1).padStart(2, '0')}</span>
+                    <div class="whyus-icon"><i class={`fa-solid ${item.icon}`}></i></div>
+                    <h4>{item.title}</h4>
+                    <p>{item.desc}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div class="whyus-grid">
+              {service.whyUs.map((item: any, index: number) => (
+                <div class="whyus-card">
+                  {isLaptopKeyboardReplacement && <span class="keyboard-whyus-index">{String(index + 1).padStart(2, '0')}</span>}
+                  <div class="whyus-icon"><i class={`fa-solid ${item.icon}`}></i></div>
+                  <h4>{item.title}</h4>
+                  <p>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     )}
 
     <!-- 7. PROBLEMAS COMUNES - Oscuro -->
     {service.commonProblems && service.commonProblems.length > 0 && (
-      <section class={`svc-problems ${isLaptopScreenReplacement ? 'screen-problems-section' : ''}`}>
+      <section class={`svc-problems ${isLaptopScreenReplacement ? 'screen-problems-section' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-problems-section' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow">Diagnóstico Frecuente</span>
             <h2 class="ux-h2">
               {isLaptopScreenReplacement ? (
                 <>Fallas de pantalla de laptop que resolvemos en <span class="ux-text-accent">Cancún</span></>
+              ) : isLaptopKeyboardReplacement ? (
+                <>Fallas de teclado de laptop que diagnosticamos en <span class="ux-text-accent">Cancún</span></>
               ) : (
                 <>Problemas comunes → <span class="ux-text-accent">Soluciones reales</span></>
               )}
             </h2>
             {isLaptopScreenReplacement && (
               <p>No todas las fallas visibles requieren el mismo cambio. Revisamos panel, flex, retroiluminación y salida de video para cotizar solo la pieza correcta.</p>
+            )}
+            {isLaptopKeyboardReplacement && (
+              <p>No todo teclado fallando se cambia a ciegas. Revisamos teclas, flex, conector, retroiluminación y señales de líquido para cotizar la ruta correcta.</p>
             )}
           </div>
           {isLaptopScreenReplacement && (
@@ -666,33 +676,85 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
               </div>
             </div>
           )}
-          <div class="problems-list">
-            {service.commonProblems.map((item: any, index: number) => (
-              <div class="problem-row">
-                {isLaptopScreenReplacement && (
-                  <div class="problem-code">
-                    <span>{String(index + 1).padStart(2, '0')}</span>
-                    <i class={`fa-solid ${['fa-burst', 'fa-grip-lines-vertical', 'fa-moon', 'fa-droplet'][index] || 'fa-display'}`}></i>
+          {isLaptopKeyboardReplacement && (
+            <div class="keyboard-diagnostic-strip" aria-label="Puntos de diagnóstico de teclado">
+              <div><i class="fa-solid fa-keyboard"></i><span>Matriz de teclas</span></div>
+              <div><i class="fa-solid fa-plug-circle-bolt"></i><span>Flex y conector</span></div>
+              <div><i class="fa-solid fa-lightbulb"></i><span>Backlit</span></div>
+              <div><i class="fa-solid fa-droplet-slash"></i><span>Daño por líquido</span></div>
+            </div>
+          )}
+          {isLaptopKeyboardReplacement ? (
+            <div class="keyboard-diagnostic-layout">
+              <figure class="keyboard-diagnostic-photo">
+                <img src="/assets/images/mantenimiento-metal-liquido-cancun.jpeg" alt="Diagnóstico de laptop en taller Pixon PC Cancún" loading="lazy" />
+                <figcaption>
+                  <span>Checklist técnico</span>
+                  <strong>Teclado, flex, humedad y placa</strong>
+                </figcaption>
+              </figure>
+              <div class="problems-list keyboard-issue-panel">
+                {service.commonProblems.map((item: any, index: number) => (
+                  <div class="keyboard-issue-card">
+                    <div class="keyboard-issue-head">
+                      <span>{String(index + 1).padStart(2, '0')}</span>
+                      <i class={`fa-solid ${['fa-keyboard', 'fa-droplet', 'fa-font', 'fa-lightbulb'][index] || 'fa-screwdriver-wrench'}`}></i>
+                    </div>
+                    <div class="keyboard-issue-copy">
+                      <h3>{item.problem}</h3>
+                      <p>
+                        {[
+                          'Confirmamos si es matriz, flex o daño físico antes de cambiar la pieza.',
+                          'Revisamos humedad, corrosión y placa antes de cerrar cotización.',
+                          'Validamos distribución e idioma para instalar el teclado correcto.',
+                          'Probamos flex y compatibilidad backlit según el modelo exacto.',
+                        ][index] || item.solution}
+                      </p>
+                    </div>
+                    <div class="keyboard-issue-route">
+                      <i class="fa-solid fa-check"></i>
+                      <span>
+                        {[
+                          'Cambio o reparación viable',
+                          'Limpieza + reemplazo',
+                          'Teclado nuevo compatible',
+                          'Backlit compatible o revisión',
+                        ][index] || 'Ruta técnica definida'}
+                      </span>
+                    </div>
                   </div>
-                )}
-                <div class="problem-left">
-                  <i class="fa-solid fa-circle-xmark"></i>
-                  <span>
-                    {isLaptopScreenReplacement && <small>Falla detectada</small>}
-                    {item.problem}
-                  </span>
-                </div>
-                <div class="problem-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                <div class="problem-right">
-                  <i class="fa-solid fa-circle-check"></i>
-                  <span>
-                    {isLaptopScreenReplacement && <small>Ruta técnica</small>}
-                    {item.solution}
-                  </span>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div class="problems-list">
+              {service.commonProblems.map((item: any, index: number) => (
+                <div class="problem-row">
+                  {isLaptopScreenReplacement && (
+                    <div class="problem-code">
+                      <span>{String(index + 1).padStart(2, '0')}</span>
+                      <i class={`fa-solid ${['fa-burst', 'fa-grip-lines-vertical', 'fa-moon', 'fa-droplet'][index] || 'fa-display'}`}></i>
+                    </div>
+                  )}
+                  <div class="problem-left">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>
+                      {isLaptopScreenReplacement && <small>Falla detectada</small>}
+                      {item.problem}
+                    </span>
+                  </div>
+                  <div class="problem-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="problem-right">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>
+                      {isLaptopScreenReplacement && <small>Ruta técnica</small>}
+                      {item.solution}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {isLaptopScreenReplacement && (
             <div class="screen-diagnostic-summary">
               <div>
@@ -704,60 +766,53 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
               </a>
             </div>
           )}
+          {isLaptopKeyboardReplacement && (
+            <div class="keyboard-diagnostic-summary">
+              <div>
+                <strong>Diagnóstico antes de comprar un teclado</strong>
+                <span>Si el problema viene de flex, humedad, conector, BIOS o placa, te lo explicamos antes de pedir la refacción.</span>
+              </div>
+              <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">
+                <i class="fa-brands fa-whatsapp"></i> Revisar mi teclado
+              </a>
+            </div>
+          )}
         </div>
       </section>
     )}
 
     <!-- 8. MARCAS COMPATIBLES - Claro -->
     {service.compatibleBrands && service.compatibleBrands.length > 0 && (
-      <section class="svc-compat">
+      <section class={`svc-compat ${isLaptopKeyboardReplacement ? 'keyboard-compat-section' : ''}`}>
         <div class="container text-center">
           <span class="ux-eyebrow" style="color:#2563EB;">Cobertura Total</span>
           <h2 class="ux-h2" style="color:#0E1629 !important;">
-            {isLaptopScreenReplacement ? 'Cambio de pantalla para laptops HP, Dell, Lenovo, Asus, Acer y MacBook' : `Hacemos ${service.label.toLowerCase()} en estas marcas`}
+            {isLaptopScreenReplacement ? 'Cambio de pantalla para laptops HP, Dell, Lenovo, Asus, Acer y MacBook' : isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún para HP, Dell, Lenovo, Asus, Acer, MSI y MacBook' : `Hacemos ${service.label.toLowerCase()} en estas marcas`}
           </h2>
+          {isLaptopKeyboardReplacement && (
+            <p class="keyboard-compat-intro">Validamos distribución LA-ESP o US, teclado retroiluminado, palmrest integrado y número de parte antes de confirmar la cotización.</p>
+          )}
           <div class="compat-brands">
-            {service.compatibleBrands.map((b: string) => (
-              <span class="brand-chip">{b}</span>
+            {service.compatibleBrands.map((b: string, index: number) => (
+              <span class="brand-chip">
+                {isLaptopKeyboardReplacement && <i class={`fa-solid ${index >= 7 ? 'fa-laptop-code' : 'fa-laptop'}`}></i>}
+                {b}
+              </span>
             ))}
           </div>
         </div>
       </section>
     )}
 
-    <!-- 9. SERVICIOS RELACIONADOS - Oscuro -->
-    {relatedCards.length > 0 && (
-      <section class={`svc-related ${isLaptopScreenReplacement ? 'screen-related-compact' : ''}`}>
-        <div class="container">
-          <div class="ux-section-header text-center">
-            <span class="ux-eyebrow">Servicios Complementarios</span>
-            <h2 class="ux-h2">Otros servicios que podrían <span class="ux-text-accent">interesarte</span></h2>
-          </div>
-          <div class="related-grid">
-            {relatedCards.map((item: any, index: number) => (
-              <a
-                href={item.href}
-                class={`related-card ${item.isExternal ? 'related-card--ext' : ''} ${index >= relatedInitialLimit ? 'related-card--extra' : ''}`}
-                data-related-extra={index >= relatedInitialLimit ? 'true' : undefined}
-              >
-                <i class={`fa-solid ${item.icon}`}></i>
-                <h4>{item.label}</h4>
-                {item.desc && <p>{item.desc}</p>}
-                <span>{item.cta}</span>
-              </a>
-            ))}
-          </div>
-          {hasExpandableRelated && (
-            <div class="related-toggle-wrap">
-              <button class="related-toggle" type="button" data-related-toggle aria-expanded="false">
-                <span data-related-toggle-text>Ver más servicios</span>
-                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-    )}
+    <!-- 9. SERVICIOS RELACIONADOS - contenedor reutilizable -->
+    <RelatedServicesSection
+      category={category}
+      service={service}
+      compact={isLaptopLocalReplacement}
+      includeCategoryServices={isLaptopLocalReplacement}
+      initialLimit={isLaptopLocalReplacement ? 8 : 6}
+      title="Otros servicios que podrían interesarte"
+    />
 
     <!-- 10. FAQ — contenedor reutilizable -->
     {service.faqs && (
@@ -778,11 +833,13 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
       />
     )}
 
-    <!-- 10b. COMENTARIOS + CONTACTO -->
+    <!-- 10b. COMENTARIOS -->
     <div class="ux-imported-wrapper">
       <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" />
-      <ContactSection id="ubicacion" />
     </div>
+
+    <!-- 10c. CONTACTO - contenedor reutilizable -->
+    <ContactSection id="ubicacion" />
 
     <!-- 12. CTA FINAL -->
     {!isLaptopScreenReplacement && (
@@ -832,17 +889,6 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
           });
         });
 
-        document.querySelectorAll('[data-related-toggle]').forEach((button) => {
-          button.addEventListener('click', () => {
-            const section = button.closest('.svc-related');
-            const label = button.querySelector('[data-related-toggle-text]');
-            if (!section || !label) return;
-
-            const isExpanded = section.classList.toggle('is-expanded');
-            button.setAttribute('aria-expanded', String(isExpanded));
-            label.textContent = isExpanded ? 'Ver menos servicios' : 'Ver más servicios';
-          });
-        });
     })();
   </script>
 
@@ -891,6 +937,63 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
   }
   .ux-imported-wrapper p, .ux-imported-wrapper span, .ux-imported-wrapper li {
     color: #CBD5E1 !important;
+  }
+
+  .theme-premium-dark > #ubicacion.contact {
+    background: #FFFFFF !important;
+    color: #0F2A4A !important;
+  }
+  .theme-premium-dark > #ubicacion.contact h2,
+  .theme-premium-dark > #ubicacion.contact h3,
+  .theme-premium-dark > #ubicacion.contact strong {
+    color: #0F2A4A !important;
+  }
+  .theme-premium-dark > #ubicacion.contact p,
+  .theme-premium-dark > #ubicacion.contact li,
+  .theme-premium-dark > #ubicacion.contact span {
+    color: #475569 !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .description-text {
+    color: #1E40AF !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .contact-form.glass-card,
+  .theme-premium-dark > #ubicacion.contact .coverage-area {
+    background: #FFFFFF !important;
+    border-color: #D6E0EC !important;
+    box-shadow: 0 18px 45px rgba(15, 42, 74, 0.08) !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .dev-btn {
+    color: #0F2A4A !important;
+    border-color: #CBD5E1 !important;
+    background: #FFFFFF !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .dev-btn:hover {
+    color: #FFFFFF !important;
+    background: #2563EB !important;
+    border-color: #2563EB !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .dev-btn.btn-primary,
+  .theme-premium-dark > #ubicacion.contact .coverage-cta-btn {
+    color: #FFFFFF !important;
+    background: #2563EB !important;
+    border-color: #2563EB !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .coverage-title,
+  .theme-premium-dark > #ubicacion.contact .coverage-title span {
+    color: #0F2A4A !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .coverage-zone {
+    background: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+    color: #334155 !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .coverage-zone--primary {
+    border-color: #60A5FA !important;
+    color: #1D4ED8 !important;
+  }
+  .theme-premium-dark > #ubicacion.contact .coverage-zone--ask {
+    border-color: #F97316 !important;
+    color: #C2410C !important;
   }
 
   .ux-h1, .ux-h2, .ux-h3, .ux-hero-hook {
@@ -1279,6 +1382,185 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
     margin-top: 7px;
   }
 
+  /* Cambio de teclado: hero local, compacto y transparente */
+  .keyboard-hero {
+    padding: 64px 0 48px;
+    background:
+      linear-gradient(135deg, rgba(11,17,32,0.96) 0%, rgba(21,38,65,0.92) 54%, rgba(10,18,32,0.98) 100%),
+      radial-gradient(circle at 78% 24%, rgba(14,165,233,0.16), transparent 31%),
+      radial-gradient(circle at 12% 80%, rgba(56,189,248,0.12), transparent 32%) !important;
+  }
+  .keyboard-hero .ux-hero-inner {
+    align-items: stretch;
+    gap: 28px;
+  }
+  .keyboard-hero .ux-badge {
+    background: rgba(14,165,233,0.14);
+    border-color: rgba(56,189,248,0.32);
+    color: #BAE6FD;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .keyboard-hero .ux-h1 {
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    max-width: 760px;
+    margin-bottom: 10px;
+  }
+  .keyboard-hero .ux-gradient-text {
+    background: linear-gradient(135deg, #38BDF8 0%, #34D399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .keyboard-hero .ux-hero-hook {
+    color: #D9E6F6 !important;
+    font-size: clamp(1.02rem, 1.5vw, 1.25rem);
+    margin-bottom: 12px;
+  }
+  .keyboard-hero .ux-hero-desc {
+    color: #C9D7EA !important;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .keyboard-hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .keyboard-hero-tags span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #F8FAFC;
+    background: rgba(15,23,42,0.62);
+    border: 1px solid rgba(226,232,240,0.14);
+    border-radius: 8px;
+    padding: 7px 9px;
+    font-size: 0.83rem;
+    font-weight: 750;
+  }
+  .keyboard-hero-tags i {
+    color: #38BDF8;
+  }
+  .keyboard-hero .ux-trust-bar {
+    margin-bottom: 18px;
+    gap: 8px;
+  }
+  .keyboard-hero .trust-item {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    padding: 8px 10px;
+    font-size: 0.86rem;
+  }
+  .keyboard-hero .ux-btn-primary,
+  .keyboard-hero .ux-btn-secondary {
+    border-radius: 9px;
+    padding: 13px 18px;
+    font-size: 0.95rem;
+  }
+  .keyboard-hero .ux-glass-panel {
+    max-width: 470px;
+    border-radius: 14px;
+    padding: 22px;
+    background: linear-gradient(180deg, rgba(30,41,59,0.72), rgba(15,23,42,0.96));
+    border-color: rgba(56,189,248,0.22);
+  }
+  .keyboard-hero .glass-header {
+    font-size: 1.08rem;
+    line-height: 1.25;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+  }
+  .keyboard-hero .glass-header i {
+    color: #38BDF8;
+  }
+  .keyboard-hero .ux-check-list {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .keyboard-hero .ux-check-list li {
+    font-size: 0.94rem;
+    line-height: 1.3;
+  }
+  .keyboard-hero .glass-price {
+    border-color: rgba(56,189,248,0.26);
+    background: rgba(14,165,233,0.11);
+    border-radius: 11px;
+    padding: 15px;
+  }
+  .keyboard-hero .glass-price strong {
+    color: #38BDF8;
+    font-size: 1.55rem;
+  }
+  .keyboard-hero .glass-price small {
+    color: #CBD5E1;
+    font-size: 0.82rem;
+    font-weight: 650;
+    line-height: 1.4;
+    margin-top: 8px;
+  }
+
+  .keyboard-proof-strip {
+    background: linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 52%, #ECFDF5 100%) !important;
+    border-top: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 44px 0;
+  }
+  .keyboard-proof-heading {
+    max-width: 850px;
+    margin: 0 auto 22px;
+    text-align: center;
+  }
+  .keyboard-proof-heading .ux-eyebrow {
+    color: #2563EB;
+  }
+  .keyboard-proof-heading .ux-h2 {
+    color: #0F172A !important;
+    font-size: clamp(1.65rem, 2.7vw, 2.35rem);
+    line-height: 1.12;
+  }
+  .keyboard-proof-heading p {
+    color: #475569 !important;
+    max-width: 780px;
+    margin: 12px auto 0;
+    line-height: 1.6;
+    font-weight: 650;
+  }
+  .keyboard-proof-strip .trust-stats-grid {
+    gap: 12px;
+  }
+  .keyboard-proof-strip .trust-stat-item {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: left;
+    align-items: flex-start;
+    box-shadow: 0 10px 24px rgba(15,42,74,0.05);
+  }
+  .keyboard-proof-strip .trust-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: #DBEAFE;
+    color: #2563EB;
+    margin-bottom: 8px;
+  }
+  .keyboard-proof-strip .trust-stat-value {
+    color: #0F172A !important;
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+  .keyboard-proof-strip .trust-stat-label {
+    color: #475569 !important;
+    font-weight: 750;
+    line-height: 1.25;
+    margin-top: 4px;
+  }
+
   .screen-proof-strip {
     background:
       linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 50%, #F8FAFC 100%) !important;
@@ -1627,8 +1909,60 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
     color: #B6C6DA !important;
     font-size: 0.94rem;
   }
+
+  .keyboard-process {
+    background: #0B1120 !important;
+    padding: 64px 0;
+  }
+  .keyboard-process .ux-section-header {
+    max-width: 860px;
+  }
+  .keyboard-process .ux-section-header p {
+    color: #B6C6DA !important;
+  }
+  .keyboard-process .ux-timeline {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .keyboard-process .timeline-item {
+    border-radius: 10px;
+    padding: 24px 18px 22px;
+    min-height: 238px;
+    background: linear-gradient(180deg, rgba(30,41,59,0.72), rgba(15,23,42,0.95));
+    border-color: rgba(56,189,248,0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .keyboard-process .timeline-item:hover {
+    transform: translateY(-3px);
+    background: linear-gradient(180deg, rgba(14,165,233,0.18), rgba(15,23,42,0.96));
+  }
+  .keyboard-process .timeline-num {
+    position: static;
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0EA5E9;
+    color: #FFFFFF;
+    font-size: 1.15rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  .keyboard-process .timeline-content h4 {
+    font-size: 1.12rem;
+    margin-bottom: 10px;
+  }
+  .keyboard-process .timeline-content p {
+    color: #B6C6DA !important;
+    font-size: 0.93rem;
+  }
   @media (max-width: 1100px) {
     .screen-process .ux-timeline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .keyboard-process .ux-timeline {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
@@ -1638,6 +1972,7 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
     }
 
     .screen-process .ux-timeline,
+    .keyboard-process .ux-timeline,
     .screen-hero .ux-trust-bar {
       grid-template-columns: 1fr;
     }
@@ -1648,7 +1983,8 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
       min-width: 0;
       flex-basis: 100%;
     }
-    .screen-process .timeline-item {
+    .screen-process .timeline-item,
+    .keyboard-process .timeline-item {
       min-height: auto;
     }
   }
@@ -1797,6 +2133,94 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
     }
   }
 
+  .keyboard-whyus-section {
+    background:
+      linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 48%, #EFF6FF 100%) !important;
+    padding: 64px 0;
+  }
+  .keyboard-whyus-section .ux-section-header {
+    max-width: 880px;
+    margin-bottom: 28px;
+  }
+  .keyboard-whyus-section .ux-h2 {
+    font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+    line-height: 1.12;
+  }
+  .keyboard-whyus-section .ux-section-header p {
+    color: #475569 !important;
+    max-width: 780px;
+    margin: 12px auto 0;
+    font-weight: 650;
+    line-height: 1.58;
+  }
+  .keyboard-whyus-section .whyus-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+  .keyboard-whyus-section .whyus-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    text-align: left;
+    border-radius: 12px;
+    padding: 18px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 12px 28px rgba(15,42,74,0.055);
+    overflow: hidden;
+  }
+  .keyboard-whyus-section .whyus-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, #2563EB, #38BDF8);
+  }
+  .keyboard-whyus-section .whyus-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 34px rgba(15,42,74,0.09);
+  }
+  .keyboard-whyus-index {
+    color: #2563EB;
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0;
+    margin-bottom: 12px;
+  }
+  .keyboard-whyus-section .whyus-icon {
+    width: 42px;
+    height: 42px;
+    margin: 0 0 14px;
+    border-radius: 10px;
+    background: #DBEAFE;
+    color: #2563EB;
+    font-size: 1rem;
+  }
+  .keyboard-whyus-section .whyus-card h4 {
+    font-size: 1.05rem;
+    line-height: 1.15;
+    margin: 0 0 8px;
+  }
+  .keyboard-whyus-section .whyus-card p {
+    color: #475569 !important;
+    font-size: 0.88rem;
+    line-height: 1.48;
+  }
+  @media (max-width: 1000px) {
+    .keyboard-whyus-section .whyus-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .keyboard-whyus-section {
+      padding: 48px 0;
+    }
+    .keyboard-whyus-section .whyus-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* === PROBLEMAS COMUNES (OSCURO) === */
   .svc-problems {
     background: #0F172A !important;
@@ -1821,6 +2245,232 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
   .problem-arrow i { color: #38BDF8; font-size: 1.2rem; }
   .problem-right i { color: #10B981; flex-shrink: 0; margin-top: 3px; }
   .problem-right span { color: #E2E8F0; font-weight: 600; }
+
+  .keyboard-problems-section {
+    background:
+      radial-gradient(circle at 78% 12%, rgba(14,165,233,0.15), transparent 30%),
+      linear-gradient(180deg, #0B1120 0%, #111827 100%) !important;
+    padding: 66px 0;
+  }
+  .keyboard-problems-section .ux-section-header {
+    max-width: 860px;
+    margin-bottom: 24px;
+  }
+  .keyboard-problems-section .ux-h2 {
+    font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+    line-height: 1.12;
+  }
+  .keyboard-problems-section .ux-section-header p {
+    color: #B6C6DA !important;
+    max-width: 780px;
+    margin: 12px auto 0;
+    line-height: 1.58;
+    font-weight: 650;
+  }
+  .keyboard-diagnostic-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    max-width: 980px;
+    margin: 0 auto 18px;
+  }
+  .keyboard-diagnostic-strip div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: #F8FAFC;
+    background: rgba(15,23,42,0.76);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 10px;
+    padding: 11px 10px;
+    font-size: 0.88rem;
+    font-weight: 850;
+  }
+  .keyboard-diagnostic-strip i {
+    color: #38BDF8;
+  }
+  .keyboard-problems-section .problems-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .keyboard-problems-section .problem-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: stretch;
+    gap: 12px 14px;
+    background: linear-gradient(180deg, rgba(30,41,59,0.68), rgba(15,23,42,0.94));
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 14px;
+    padding: 16px;
+    min-height: 188px;
+    overflow: hidden;
+  }
+  .keyboard-problems-section .problem-row:hover {
+    background: linear-gradient(180deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96));
+    border-color: rgba(56,189,248,0.28);
+  }
+  .keyboard-problems-section .problem-code {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    justify-items: center;
+    gap: 10px;
+    width: 52px;
+  }
+  .keyboard-problems-section .problem-code span {
+    color: #FFFFFF;
+    background: #0EA5E9;
+    border-radius: 8px;
+    padding: 5px 7px;
+    font-size: 0.78rem;
+    line-height: 1;
+    font-weight: 900;
+  }
+  .keyboard-problems-section .problem-code i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #BAE6FD;
+    background: rgba(14,165,233,0.12);
+    border: 1px solid rgba(56,189,248,0.22);
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+  .keyboard-problems-section .problem-left,
+  .keyboard-problems-section .problem-right {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .keyboard-problems-section .problem-left {
+    background: rgba(127,29,29,0.12);
+    border: 1px solid rgba(248,113,113,0.13);
+  }
+  .keyboard-problems-section .problem-right {
+    grid-column: 2;
+    background: rgba(6,95,70,0.14);
+    border: 1px solid rgba(52,211,153,0.16);
+  }
+  .keyboard-problems-section .problem-left span,
+  .keyboard-problems-section .problem-right span {
+    display: grid;
+    gap: 4px;
+  }
+  .keyboard-problems-section .problem-left span {
+    color: #F8FAFC;
+    font-weight: 900;
+  }
+  .keyboard-problems-section .problem-right span {
+    color: #D8FBE8;
+    font-weight: 700;
+  }
+  .keyboard-problems-section .problem-left small,
+  .keyboard-problems-section .problem-right small {
+    color: #94A3B8;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+  .keyboard-problems-section .problem-arrow {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 12px;
+    height: 12px;
+  }
+  .keyboard-problems-section .problem-arrow i {
+    color: #38BDF8;
+    transform: rotate(90deg);
+    font-size: 0.92rem;
+  }
+  .keyboard-diagnostic-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    max-width: 1080px;
+    margin: 18px auto 0;
+    background: rgba(14,165,233,0.1);
+    border: 1px solid rgba(56,189,248,0.22);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .keyboard-diagnostic-summary div {
+    display: grid;
+    gap: 4px;
+  }
+  .keyboard-diagnostic-summary strong {
+    color: #F8FAFC;
+    font-size: 1rem;
+  }
+  .keyboard-diagnostic-summary span {
+    color: #AFC2DA;
+    line-height: 1.45;
+  }
+  .keyboard-diagnostic-summary a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #FFFFFF;
+    background: #0EA5E9;
+    border-radius: 9px;
+    padding: 11px 14px;
+    text-decoration: none;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  @media (max-width: 820px) {
+    .keyboard-diagnostic-strip,
+    .keyboard-problems-section .problems-list {
+      grid-template-columns: 1fr;
+    }
+    .keyboard-diagnostic-strip {
+      max-width: 520px;
+    }
+    .keyboard-diagnostic-summary {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .keyboard-diagnostic-summary a {
+      width: 100%;
+    }
+  }
+  @media (max-width: 520px) {
+    .keyboard-problems-section {
+      padding: 48px 0;
+    }
+    .keyboard-problems-section .problem-row {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding: 14px;
+    }
+    .keyboard-problems-section .problem-code {
+      width: auto;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto;
+      justify-items: start;
+      align-items: center;
+    }
+    .keyboard-problems-section .problem-code i {
+      width: 38px;
+      height: 38px;
+    }
+    .keyboard-problems-section .problem-left,
+    .keyboard-problems-section .problem-right,
+    .keyboard-problems-section .problem-arrow {
+      grid-column: 1;
+    }
+  }
 
   .screen-problems-section {
     background:
@@ -2061,6 +2711,70 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
     transition: all 0.2s;
   }
   .brand-chip:hover { background: #DBEAFE; border-color: #93C5FD; color: #1D4ED8; }
+
+  .keyboard-compat-section {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+    padding: 62px 0;
+  }
+  .keyboard-compat-section .container {
+    max-width: 1080px;
+  }
+  .keyboard-compat-section .ux-h2 {
+    max-width: 860px;
+    margin: 0 auto 12px;
+    font-size: clamp(1.6rem, 2.7vw, 2.25rem);
+    line-height: 1.14;
+  }
+  .keyboard-compat-intro {
+    max-width: 780px;
+    margin: 0 auto 24px;
+    color: #475569 !important;
+    line-height: 1.58;
+    font-weight: 650;
+  }
+  .keyboard-compat-section .compat-brands {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    justify-content: stretch;
+  }
+  .keyboard-compat-section .brand-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    color: #0F172A;
+    box-shadow: 0 8px 18px rgba(15,42,74,0.045);
+  }
+  .keyboard-compat-section .brand-chip i {
+    color: #2563EB;
+    width: 18px;
+    text-align: center;
+  }
+  .keyboard-compat-section .brand-chip:hover {
+    background: #EFF6FF;
+    border-color: #93C5FD;
+    color: #1D4ED8;
+    transform: translateY(-2px);
+  }
+  @media (max-width: 820px) {
+    .keyboard-compat-section .compat-brands {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 520px) {
+    .keyboard-compat-section {
+      padding: 48px 0;
+    }
+    .keyboard-compat-section .compat-brands {
+      grid-template-columns: 1fr;
+    }
+  }
 
   /* === SERVICIOS RELACIONADOS (OSCURO) === */
   .svc-related {
@@ -2661,6 +3375,452 @@ const hasExpandableRelated = relatedCards.length > relatedInitialLimit;
     .screen-care-section .edu-content {
       grid-column: 2;
       grid-row: 1 / span 2;
+    }
+  }
+
+  /* === Cambio teclado: rediseño visual con imagen, sin dorado/naranja === */
+  .keyboard-process {
+    background:
+      radial-gradient(circle at 12% 12%, rgba(56,189,248,0.16), transparent 32%),
+      linear-gradient(180deg, #08111F 0%, #0B1120 100%) !important;
+    padding: 70px 0;
+  }
+  .keyboard-process .ux-eyebrow,
+  .keyboard-problems-section .ux-eyebrow {
+    color: #38BDF8 !important;
+  }
+  .keyboard-process .ux-section-header {
+    max-width: 900px;
+    margin-bottom: 28px;
+  }
+  .keyboard-process .ux-h2 {
+    font-size: clamp(1.8rem, 3vw, 2.55rem);
+  }
+  .keyboard-process-media {
+    position: relative;
+    height: 198px;
+    min-height: 198px;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    border: 1px solid rgba(125,211,252,0.18);
+    box-shadow: 0 22px 55px rgba(0,0,0,0.28);
+  }
+  .keyboard-process-media img {
+    width: 100%;
+    height: 100%;
+    min-height: 198px;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.05) contrast(1.04);
+  }
+  .keyboard-process-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(8,17,31,0.94) 0%, rgba(8,17,31,0.7) 45%, rgba(8,17,31,0.18) 100%);
+  }
+  .keyboard-process-overlay {
+    position: absolute;
+    left: 28px;
+    bottom: 28px;
+    z-index: 2;
+    max-width: 480px;
+    display: grid;
+    gap: 8px;
+  }
+  .keyboard-process-overlay span {
+    color: #7DD3FC;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+  }
+  .keyboard-process-overlay strong {
+    color: #F8FAFC;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+    line-height: 1.05;
+  }
+  .keyboard-process-overlay p {
+    color: #C8D7EA;
+    margin: 0;
+    line-height: 1.55;
+    font-weight: 650;
+  }
+  .keyboard-process .keyboard-flow-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 1060px;
+    margin: 0 auto;
+    border: 1px solid rgba(125,211,252,0.16);
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(15,23,42,0.62);
+  }
+  .keyboard-process .keyboard-flow-list .timeline-item {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    min-height: auto;
+    border: 0;
+    border-bottom: 1px solid rgba(148,163,184,0.13);
+    border-radius: 0;
+    padding: 20px 24px;
+    background: transparent;
+    box-shadow: none;
+  }
+  .keyboard-process .keyboard-flow-list .timeline-item:last-child {
+    border-bottom: 0;
+  }
+  .keyboard-process .keyboard-flow-list .timeline-item:hover {
+    transform: none;
+    background: rgba(56,189,248,0.07);
+  }
+  .keyboard-process .timeline-num {
+    width: 46px;
+    height: 46px;
+    background: #0EA5E9 !important;
+    color: #F8FAFC !important;
+    border-radius: 999px;
+    margin: 0;
+  }
+  .keyboard-process .timeline-content h4 {
+    color: #F8FAFC !important;
+    margin: 0 0 6px;
+  }
+  .keyboard-process .timeline-content p {
+    color: #B6C6DA !important;
+  }
+
+  .keyboard-whyus-section {
+    background: #F8FAFC !important;
+    padding: 72px 0;
+  }
+  .keyboard-whyus-section .ux-eyebrow,
+  .keyboard-compat-section .ux-eyebrow {
+    color: #2563EB !important;
+  }
+  .keyboard-whyus-section .ux-section-header {
+    max-width: 900px;
+    margin-bottom: 30px;
+  }
+  .keyboard-whyus-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.82fr) 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  .keyboard-whyus-photo {
+    position: relative;
+    height: 312px;
+    min-height: 312px;
+    align-self: start;
+    margin: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #D6E0EC;
+    box-shadow: 0 18px 42px rgba(15,42,74,0.12);
+  }
+  .keyboard-whyus-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .keyboard-whyus-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 38%, rgba(8,17,31,0.86) 100%);
+  }
+  .keyboard-whyus-photo figcaption {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    z-index: 2;
+    display: grid;
+    gap: 5px;
+  }
+  .keyboard-whyus-photo strong {
+    color: #F8FAFC;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.35rem;
+  }
+  .keyboard-whyus-photo span {
+    color: #D8EAFE;
+    font-weight: 650;
+  }
+  .keyboard-whyus-section .whyus-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .keyboard-whyus-section .whyus-card {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 8px 12px;
+    align-items: flex-start;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #D6E0EC;
+    background: #FFFFFF;
+    box-shadow: 0 10px 24px rgba(15,42,74,0.055);
+  }
+  .keyboard-whyus-section .whyus-card::before {
+    display: none;
+  }
+  .keyboard-whyus-index {
+    color: #2563EB !important;
+    background: #DBEAFE;
+    border-radius: 8px;
+    padding: 6px 7px;
+    line-height: 1;
+    margin: 0 !important;
+  }
+  .keyboard-whyus-section .whyus-icon {
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    background: #E0F2FE !important;
+    color: #0284C7 !important;
+    border-radius: 8px;
+  }
+  .keyboard-whyus-section .whyus-card h4 {
+    margin: 0;
+    color: #0F172A !important;
+  }
+  .keyboard-whyus-section .whyus-card p {
+    grid-column: 3;
+    color: #475569 !important;
+    margin: 0;
+  }
+
+  .keyboard-problems-section {
+    background:
+      radial-gradient(circle at 80% 18%, rgba(14,165,233,0.14), transparent 30%),
+      linear-gradient(180deg, #0B1120 0%, #0F172A 100%) !important;
+    padding: 74px 0;
+  }
+  .keyboard-diagnostic-strip div {
+    border-color: rgba(125,211,252,0.2) !important;
+  }
+  .keyboard-diagnostic-strip i {
+    color: #38BDF8 !important;
+  }
+  .keyboard-diagnostic-layout {
+    display: grid;
+    grid-template-columns: 0.72fr 1fr;
+    gap: 20px;
+    align-items: start;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .keyboard-diagnostic-photo {
+    position: relative;
+    height: 312px;
+    min-height: 312px;
+    align-self: start;
+    margin: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(125,211,252,0.18);
+  }
+  .keyboard-diagnostic-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.05) contrast(1.05);
+  }
+  .keyboard-diagnostic-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(8,17,31,0.9) 100%);
+  }
+  .keyboard-diagnostic-photo figcaption {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    z-index: 2;
+    display: grid;
+    gap: 5px;
+  }
+  .keyboard-diagnostic-photo span {
+    color: #7DD3FC;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.76rem;
+  }
+  .keyboard-diagnostic-photo strong {
+    color: #F8FAFC;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.35rem;
+  }
+  .keyboard-problems-section .problems-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .keyboard-problems-section .problem-row {
+    min-height: auto;
+    border-color: rgba(148,163,184,0.16);
+    background: rgba(15,23,42,0.72);
+  }
+  .keyboard-problems-section .problem-row:hover {
+    background: rgba(14,165,233,0.08);
+    border-color: rgba(56,189,248,0.28);
+  }
+  .keyboard-problems-section .problem-code span,
+  .keyboard-diagnostic-summary a {
+    background: #0EA5E9 !important;
+    color: #F8FAFC !important;
+  }
+  .keyboard-problems-section .problem-code i {
+    color: #7DD3FC !important;
+    background: rgba(14,165,233,0.12) !important;
+    border-color: rgba(56,189,248,0.2) !important;
+  }
+  .keyboard-problems-section .problem-arrow i {
+    color: #38BDF8 !important;
+  }
+  .keyboard-diagnostic-summary {
+    background: rgba(14,165,233,0.08) !important;
+    border-color: rgba(56,189,248,0.2) !important;
+  }
+  .keyboard-problems-section .keyboard-issue-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .keyboard-issue-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    min-height: 0;
+    padding: 14px;
+    border: 1px solid rgba(125,211,252,0.16);
+    border-radius: 14px;
+    background:
+      linear-gradient(135deg, rgba(15,23,42,0.88), rgba(8,17,31,0.74));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .keyboard-issue-card:hover {
+    border-color: rgba(56,189,248,0.32);
+    background:
+      linear-gradient(135deg, rgba(14,165,233,0.14), rgba(15,23,42,0.86));
+    transform: translateY(-2px);
+  }
+  .keyboard-issue-head {
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    align-content: start;
+  }
+  .keyboard-issue-head span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 28px;
+    border-radius: 8px;
+    background: #0EA5E9;
+    color: #F8FAFC;
+    font-size: 0.76rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .keyboard-issue-head i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(14,165,233,0.13);
+    color: #7DD3FC;
+    border: 1px solid rgba(56,189,248,0.2);
+  }
+  .keyboard-issue-copy {
+    display: grid;
+    gap: 6px;
+  }
+  .keyboard-issue-copy h3 {
+    margin: 0;
+    color: #F8FAFC !important;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1rem;
+    line-height: 1.15;
+  }
+  .keyboard-issue-copy p {
+    margin: 0;
+    color: #AFC2DA !important;
+    font-size: 0.82rem;
+    line-height: 1.38;
+  }
+  .keyboard-issue-route {
+    grid-column: 1 / -1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 7px 9px;
+    border-radius: 999px;
+    background: rgba(16,185,129,0.12);
+    color: #BBF7D0;
+    border: 1px solid rgba(52,211,153,0.22);
+    font-size: 0.78rem;
+    font-weight: 850;
+    line-height: 1.2;
+  }
+  .keyboard-issue-route i {
+    color: #34D399;
+    font-size: 0.75rem;
+  }
+  .keyboard-compat-section .brand-chip i {
+    color: #2563EB !important;
+  }
+  .keyboard-compat-section .brand-chip:hover {
+    background: #EFF6FF !important;
+    border-color: #93C5FD !important;
+    color: #1D4ED8 !important;
+  }
+
+  @media (max-width: 980px) {
+    .keyboard-whyus-layout,
+    .keyboard-diagnostic-layout {
+      grid-template-columns: 1fr;
+    }
+    .keyboard-whyus-photo,
+    .keyboard-diagnostic-photo {
+      height: 204px;
+      min-height: 204px;
+    }
+  }
+  @media (max-width: 640px) {
+    .keyboard-problems-section .keyboard-issue-panel {
+      grid-template-columns: 1fr;
+    }
+    .keyboard-process-media {
+      height: 168px;
+      min-height: 168px;
+    }
+    .keyboard-process-overlay {
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+    }
+    .keyboard-process .keyboard-flow-list .timeline-item,
+    .keyboard-whyus-section .whyus-card {
+      grid-template-columns: 1fr;
+    }
+    .keyboard-whyus-section .whyus-card p {
+      grid-column: 1;
     }
   }
 </style>
