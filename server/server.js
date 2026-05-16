@@ -626,16 +626,19 @@ async function bootstrap() {
     // TICKETS — Crear ticket de servicio con auth
     // ═══════════════════════════════════════════════════════════════
     app.post('/api/tickets', requireAuth, ah(async (req, res) => {
-        const { customer_name, device_type, device_brand, device_model, reported_issue, contact_phone, issue_kind, service_slug } = req.body;
+        const { 
+            customer_name, customer_phone, customer_email, 
+            device_type, service_requested, issue_description,
+            device_brand, device_model, is_b2b, 
+            b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice 
+        } = req.body;
         
         // Validaciones
         const errors = [];
         if (!customer_name || String(customer_name).trim().length < 2) errors.push('El nombre es requerido.');
-        if (!device_type || device_type.length < 2) errors.push('El tipo de equipo es requerido.');
-        if (!device_brand || device_brand.length < 2) errors.push('La marca del equipo es requerida.');
-        if (!issue_kind || String(issue_kind).trim().length < 2) errors.push('Selecciona que sucedio o que servicio necesitas.');
-        if (!reported_issue || reported_issue.length < 10) errors.push('La descripción del problema debe tener al menos 10 caracteres.');
-        if (!contact_phone || contact_phone.length < 8) errors.push('El teléfono de contacto es requerido.');
+        if (!customer_phone || String(customer_phone).trim().length < 8) errors.push('El teléfono de contacto es requerido.');
+        if (!device_type || String(device_type).trim().length < 2) errors.push('El tipo de equipo es requerido.');
+        if (!issue_description || String(issue_description).trim().length < 10) errors.push('La descripción del problema es muy corta.');
         
         if (errors.length > 0) {
             return res.status(400).json({ success: false, message: errors.join(' ') });
@@ -643,26 +646,30 @@ async function bootstrap() {
         
         // Crear ticket con user_id del usuario autenticado
         const user_id = req.user?.id || null;
-        const user_name = String(customer_name || req.user?.name || '').trim();
+        
+        // Preparar detalles uniendo el servicio y la descripción
         const details = [
-            `Cliente: ${user_name}`,
-            `Tipo de solicitud: ${String(issue_kind).trim()}`,
-            service_slug ? `Servicio relacionado: ${String(service_slug).trim()}` : '',
-            '',
-            String(reported_issue).trim()
-        ].filter(Boolean).join('\n');
+            `Servicio solicitado: ${service_requested || 'Revisión'}`,
+            `\n${issue_description}`
+        ].join('\n');
         
         const ticket = await insertRepairAdmin({
             user_id,
-            user_name,
+            user_name: customer_name,
             device_type: String(device_type).trim(),
-            device_brand: String(device_brand).trim(),
+            device_brand: device_brand ? String(device_brand).trim() : null,
             device_model: device_model ? String(device_model).trim() : null,
-            reported_issue: details.slice(0, 2000),
-            contact_phone: String(contact_phone).trim().slice(0, 20)
+            reported_issue: details,
+            contact_phone: String(customer_phone).trim(),
+            is_b2b,
+            b2b_company,
+            b2b_quantity,
+            b2b_type,
+            b2b_frequency,
+            b2b_invoice
         });
         
-        res.status(201).json({ success: true, message: 'Ticket creado exitosamente.', ticket });
+        res.status(201).json({ success: true, message: 'Ticket creado exitosamente.', ticket_code: ticket.ticket_code, ticket });
     }));
 
     app.get('/api/faqs', ah(async (_req, res) => {

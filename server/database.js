@@ -454,12 +454,19 @@ async function getAllRepairsAdmin() {
     return rows;
 }
 
-async function insertRepairAdmin({ user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone }) {
+async function insertRepairAdmin(data) {
+    const { user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone, is_b2b, b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice } = data;
     const ticket_code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    let internalNotes = 'Cliente: ' + (user_name || 'Sin nombre');
+    if (is_b2b) {
+        internalNotes += `\nB2B Info: Empresa: ${b2b_company || ''}, Cantidad: ${b2b_quantity || ''}, Tipo: ${b2b_type || ''}, Frec: ${b2b_frequency || ''}, Factura: ${b2b_invoice || ''}`;
+    }
+
     const [info] = await pool.execute(
         `INSERT INTO repairs (ticket_code, user_id, device_type, device_brand, device_model, reported_issue, contact_phone, notes_internal, status)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'received')`,
-        [ticket_code, user_id || null, device_type, device_brand || '', device_model || '', reported_issue, contact_phone, 'Cliente: ' + (user_name || 'Sin nombre')]
+        [ticket_code, user_id || null, device_type, device_brand || '', device_model || '', reported_issue, contact_phone, internalNotes]
     );
     const [[newRow]] = await pool.execute('SELECT * FROM repairs WHERE id = ?', [info.insertId]);
     return newRow;

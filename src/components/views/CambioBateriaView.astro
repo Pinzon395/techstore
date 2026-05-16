@@ -3,9 +3,7 @@
 const { service, category } = Astro.props;
 
 import FaqSection from '../FaqSection.astro';
-import ContactSection from '../ContactSection.astro';
 import CommentsSection from '../CommentsSection.astro';
-import TicketForm from '../TicketForm.astro';
 
 const waMessage = encodeURIComponent(`Hola, necesito el servicio de ${service.label} para mi ${category.title}. ¿Me podrían cotizar?`);
 
@@ -26,16 +24,6 @@ const sintomas = [
   { icon: 'fa-temperature-high', title: 'Sobrecalentamiento', desc: 'Se calienta más de lo normal al usarla o cargarla.' },
   { icon: 'fa-bolt', title: 'Windows avisa', desc: 'Aparece una alerta recomendando reemplazar la batería.' },
   { icon: 'fa-gauge-high', title: 'Lentitud', desc: 'El equipo baja rendimiento por energía inestable.' }
-];
-
-// Beneficios
-const beneficios = [
-  { icon: 'fa-battery-full', title: 'Autonomía real', desc: '4-8 horas de uso sin cargar' },
-  { icon: 'fa-temperature-low', title: 'Menos calor', desc: 'Batería eficiente genera menos temperatura' },
-  { icon: 'fa-shield-check', title: 'Estabilidad', desc: 'Sin apagones ni fluctuaciones de energía' },
-  { icon: 'fa-chart-line', title: 'Mejor rendimiento', desc: 'Procesador recibe energía consistente' },
-  { icon: 'fa-heart-pulse', title: 'Ciclos saludables', desc: 'Batería nueva con 0 ciclos de uso' },
-  { icon: 'fa-microchip', title: 'Protección', desc: 'Circuito protegido contra sobrecargas' }
 ];
 
 // Proceso / Metodología
@@ -377,12 +365,12 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
               <strong>Servicio recomendado</strong>
               <span>Cambio de batería + revisión térmica + prueba de cargador</span>
             </div>
-            <a href="#ticket-bateria">Levantar ticket</a>
+            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">Cotizar revisión</a>
           </div>
         </div>
 
         <div class="cb-ticket-card">
-          <span class="cb-ticket-label"><i class="fa-solid fa-ticket"></i> Ticket de servicio</span>
+          <span class="cb-ticket-label"><i class="fa-solid fa-clipboard-check"></i> Revisión recomendada</span>
           <h3>Agenda revisión antes de que falle más</h3>
           <p>Cuéntanos marca, modelo y síntomas. Con eso revisamos compatibilidad de batería, disponibilidad y el siguiente paso para tu laptop.</p>
           <div class="cb-ticket-checks">
@@ -390,8 +378,8 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
             <span><i class="fa-solid fa-check"></i> Diagnóstico documentado</span>
             <span><i class="fa-solid fa-check"></i> Cotización clara</span>
           </div>
-          <a href="#ticket-bateria" class="cb-ticket-btn">
-            Crear ticket ahora <i class="fa-solid fa-arrow-down"></i>
+          <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="cb-ticket-btn">
+            Cotizar por WhatsApp <i class="fa-brands fa-whatsapp"></i>
           </a>
         </div>
       </div>
@@ -623,16 +611,13 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
           <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="cb-btn-primary">
             <i class="fa-brands fa-whatsapp"></i> Cotizar Servicio
           </a>
-<a href="/servicios/laptop/pasta-termica" class="cb-btn-secondary">
+          <a href="/servicios/laptop/pasta-termica" class="cb-btn-secondary">
             Ver Mantenimiento <i class="fa-solid fa-arrow-right"></i>
           </a>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- SECCIÓN 15: TICKET DE SERVICIO -->
-  <TicketForm id="ticket-bateria" title="Crear Ticket de Servicio" description="Inicia sesión con Google para crear un ticket de reparación y dar seguimiento a tu equipo" serviceSlug="cambio-bateria" dark={true} />
 
 </div>
 
@@ -651,11 +636,15 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   --cb-success: #22c55e;
 }
 
+.cambio-bateria-wrapper .section-pad {
+  padding: 42px 0;
+}
+
 /* SECTION 1: HERO PREMIUM */
 .cb-hero {
   position: relative;
   background: linear-gradient(135deg, #050d1f 0%, #0f172a 50%, #0a1628 100%);
-  padding: 80px 0 64px;
+  padding: 68px 0 52px;
   overflow: hidden;
 }
 
@@ -672,7 +661,7 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 .cb-hero-container {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
-  gap: 48px;
+  gap: 34px;
   align-items: center;
   position: relative;
   z-index: 1;
@@ -720,8 +709,8 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 .cb-intro {
   color: #94a3b8;
   font-size: 0.95rem;
-  line-height: 1.7;
-  margin-bottom: 22px;
+  line-height: 1.58;
+  margin-bottom: 16px;
   max-width: 540px;
 }
 
@@ -730,7 +719,7 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 .cb-chip {
@@ -769,8 +758,8 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 
 .cb-trust-bar {
   display: flex;
-  gap: 16px;
-  margin-bottom: 22px;
+  gap: 12px 16px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
@@ -1901,7 +1890,7 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 .cb-ticket-checks {
   display: grid;
   gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .cb-ticket-checks span {
@@ -2274,6 +2263,129 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   flex-wrap: wrap;
 }
 
+/* Compactación general de la vista */
+.cambio-bateria-wrapper .cb-sintomas,
+.cambio-bateria-wrapper .cb-resultados,
+.cambio-bateria-wrapper .cb-proceso,
+.cambio-bateria-wrapper .cb-cuidado,
+.cambio-bateria-wrapper .cb-sobrecalentamiento,
+.cambio-bateria-wrapper .cb-galeria,
+.cambio-bateria-wrapper .cb-porque,
+.cambio-bateria-wrapper .cb-diagnostico,
+.cambio-bateria-wrapper .cb-marcas,
+.cambio-bateria-wrapper .cb-relacionados,
+.cambio-bateria-wrapper .cb-faq,
+.cambio-bateria-wrapper .cb-cta-final {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.cambio-bateria-wrapper .cb-section-header {
+  margin-bottom: 26px;
+}
+
+.cambio-bateria-wrapper .cb-h2-section {
+  margin-bottom: 10px;
+}
+
+.cambio-bateria-wrapper .cb-desc {
+  line-height: 1.52;
+}
+
+.cb-process-shell,
+.cb-care-layout,
+.cb-split-layout {
+  gap: 24px;
+}
+
+.cb-process-tags {
+  margin: 16px 0;
+}
+
+.cb-keyboard-stage,
+.cb-care-main,
+.cb-ticket-card {
+  padding: 20px;
+}
+
+.cb-process-step {
+  min-height: 104px;
+  padding: 13px;
+}
+
+.cb-care-layout {
+  margin-bottom: 18px;
+}
+
+.cb-tips-grid,
+.cb-porque-grid,
+.cb-relacionados-grid {
+  gap: 14px;
+}
+
+.cb-porque-card,
+.cb-relacionado-card {
+  padding: 22px;
+  border-radius: 16px;
+}
+
+.cb-porque-card i,
+.cb-relacionado-card i {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.cb-diagnostico-list {
+  gap: 10px;
+}
+
+.cb-diagnostico-item {
+  gap: 14px;
+  padding: 14px 18px;
+}
+
+.cb-gallery-collage {
+  gap: 14px;
+}
+
+.cb-gallery-main img {
+  height: 320px;
+}
+
+.cb-gallery-side {
+  gap: 14px;
+}
+
+.cb-gallery-item img {
+  height: 153px;
+}
+
+.cb-gallery-overlay {
+  padding: 34px 18px 18px;
+}
+
+.cb-heat-visual {
+  padding: 38px;
+}
+
+.cb-marcas-wrap {
+  gap: 9px;
+}
+
+.cb-marca-tag {
+  padding: 9px 18px;
+}
+
+.cb-cta-final-buttons {
+  margin-top: 22px;
+}
+
+.cambio-bateria-wrapper .cb-faq .faq-page-content,
+.cambio-bateria-wrapper .cb-comentarios .comments-section-container {
+  padding-top: 42px !important;
+  padding-bottom: 42px !important;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .cb-hero-container {
@@ -2313,7 +2425,28 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 
 @media (max-width: 768px) {
   .cb-hero {
-    padding: 56px 0 48px;
+    padding: 48px 0 38px;
+  }
+  .cambio-bateria-wrapper .section-pad,
+  .cambio-bateria-wrapper .cb-sintomas,
+  .cambio-bateria-wrapper .cb-resultados,
+  .cambio-bateria-wrapper .cb-proceso,
+  .cambio-bateria-wrapper .cb-cuidado,
+  .cambio-bateria-wrapper .cb-sobrecalentamiento,
+  .cambio-bateria-wrapper .cb-galeria,
+  .cambio-bateria-wrapper .cb-porque,
+  .cambio-bateria-wrapper .cb-diagnostico,
+  .cambio-bateria-wrapper .cb-marcas,
+  .cambio-bateria-wrapper .cb-relacionados,
+  .cambio-bateria-wrapper .cb-faq,
+  .cambio-bateria-wrapper .cb-cta-final,
+  .cambio-bateria-wrapper .cb-faq .faq-page-content,
+  .cambio-bateria-wrapper .cb-comentarios .comments-section-container {
+    padding-top: 32px !important;
+    padding-bottom: 32px !important;
+  }
+  .cambio-bateria-wrapper .cb-section-header {
+    margin-bottom: 18px;
   }
   .cb-h1 {
     font-size: clamp(1.65rem, 6vw, 2.2rem);
@@ -2380,7 +2513,7 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   }
   .cb-care-main,
   .cb-ticket-card {
-    padding: 20px;
+    padding: 18px;
   }
   .cb-care-value {
     flex-direction: column;
@@ -2409,6 +2542,17 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   }
   .cb-process-step {
     min-height: auto;
+  }
+  .cb-gallery-main img,
+  .cb-gallery-item img {
+    height: 220px;
+  }
+  .cb-diagnostico-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cb-diag-solution {
+    text-align: left;
   }
   .cb-cta-final-buttons {
     flex-direction: column;
