@@ -190,12 +190,25 @@ const faqItems = [
           </div>
 
           <div class="ux-hero-ctas">
-            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopLocalReplacement ? '' : 'pulse'}`}>
-              <i class="fa-brands fa-whatsapp"></i> {isLaptopScreenReplacement ? 'Cotizar pantalla por WhatsApp' : isLaptopKeyboardReplacement ? 'Cotizar cambio de teclado' : 'Cotizar Servicio'}
-            </a>
-            <a href="#proceso" class="ux-btn-secondary" data-screen-scroll={isLaptopScreenReplacement ? 'proceso' : undefined}>
-              {isLaptopScreenReplacement ? 'Ver proceso técnico' : isLaptopKeyboardReplacement ? 'Ver diagnóstico antes de cambiar pieza' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
-            </a>
+            {isLaptopScreenReplacement ? (
+              <>
+                <a href="#ticket-form" class="ux-btn-primary" data-screen-scroll="ticket-form">
+                  <i class="fa-solid fa-ticket"></i> Crear Ticket de Servicio
+                </a>
+                <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="ux-btn-secondary">
+                  <i class="fa-brands fa-whatsapp"></i> WhatsApp directo
+                </a>
+              </>
+            ) : (
+              <>
+                <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopKeyboardReplacement ? '' : 'pulse'}`}>
+                  <i class="fa-brands fa-whatsapp"></i> {isLaptopKeyboardReplacement ? 'Cotizar cambio de teclado' : 'Cotizar Servicio'}
+                </a>
+                <a href="#proceso" class="ux-btn-secondary" data-screen-scroll={isLaptopKeyboardReplacement ? 'proceso' : undefined}>
+                  {isLaptopKeyboardReplacement ? 'Ver diagnóstico antes de cambiar pieza' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
+                </a>
+              </>
+            )}
           </div>
         </div>
         
@@ -1039,10 +1052,11 @@ const faqItems = [
           }
         });
 
-        document.querySelectorAll('[data-screen-scroll="proceso"]').forEach((button) => {
+        document.querySelectorAll('[data-screen-scroll]').forEach((button) => {
           button.addEventListener('click', (event) => {
             event.preventDefault();
-            const target = document.getElementById('proceso');
+            const targetId = button.getAttribute('data-screen-scroll');
+            const target = document.getElementById(targetId);
             if (!target) return;
 
             const navbarOffset = 96;
