@@ -31,21 +31,30 @@ const { category, service } = Astro.props;
 const canonical = `https://pixon.com.mx/servicios/${category.slug}/${service.slug}`;
 const isLaptopScreenReplacement = category.slug === 'laptop' && service.slug === 'cambio-pantalla';
 const isLaptopKeyboardReplacement = category.slug === 'laptop' && service.slug === 'cambio-teclado';
+const isLaptopThermalPaste = category.slug === 'laptop' && service.slug === 'pasta-termica';
+const isPcUpgrade = category.slug === 'pc' && service.slug === 'upgrade';
+const isPrinterInkToner = category.slug === 'impresora' && service.slug === 'cambio-tinta-toner';
 const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
-const seoTitle = isLaptopKeyboardReplacement
+const seoTitle = isPrinterInkToner
+  ? 'Cambio de tinta y tóner en Cancún | Pixon PC'
+  : isLaptopKeyboardReplacement
   ? 'Cambio de teclado de laptop en Cancún | Pixon PC'
   : isLaptopLocalReplacement
   ? `${seoKeyword} con garantía | Pixon PC`
   : `${seoKeyword} para ${category.title} en Cancún | Pixon PC`;
-const description = isLaptopKeyboardReplacement
+const description = isPrinterInkToner
+  ? 'Cambio, recarga e instalación de tinta y tóner para impresoras en Cancún. Revisamos cartuchos, tóner, cabezales y prueba de impresión.'
+  : isLaptopKeyboardReplacement
   ? 'Cambia o repara el teclado de tu laptop en Cancún. Revisamos flex, líquido, conector y modelo antes de cotizar por WhatsApp.'
   : service.intro
   ? `${service.intro} Cotización gratis, diagnóstico claro y reparación profesional en Cancún.`
   : `Servicio especializado de ${service.label} para ${category.title} en Cancún. Diagnóstico profundo y garantía por escrito.`;
 
-const waMessage = encodeURIComponent(isLaptopKeyboardReplacement
+const waMessage = encodeURIComponent(isPrinterInkToner
+  ? 'Hola, quiero cotizar cambio de tinta o tóner para mi impresora en Cancún. Puedo enviar marca y modelo.'
+  : isLaptopKeyboardReplacement
   ? 'Hola, quiero cotizar cambio o reparación de teclado de laptop en Cancún. Puedo enviar modelo o foto del equipo.'
   : `Hola, necesito el servicio de ${service.label} para mi ${category.title}. ¿Me podrían cotizar?`);
 
@@ -145,7 +154,7 @@ const faqItems = [
   ) : (
     <div class="theme-premium-dark">
       <!-- 1. HERO SECTION (Dark Premium) -->
-    <section class={`ux-hero ${isLaptopScreenReplacement ? 'screen-hero' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-hero' : ''}`}>
+    <section class={`ux-hero ${isLaptopScreenReplacement ? 'screen-hero' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-hero' : ''} ${isLaptopThermalPaste ? 'thermal-hero' : ''} ${isPcUpgrade ? 'pc-upgrade-hero' : ''} ${isPrinterInkToner ? 'printer-ink-hero' : ''}`}>
       <div class="ux-glow-hero"></div>
       <div class="container ux-hero-inner">
         <div class="ux-hero-content">
@@ -154,6 +163,33 @@ const faqItems = [
             {isLaptopScreenReplacement ? 'Pantallas para laptop en Cancún' : isLaptopKeyboardReplacement ? 'Servicio técnico de teclado en Cancún' : `Especialistas en ${category.title} en Cancún`}
           </span>
           
+          {isLaptopThermalPaste && (
+            <div class="thermal-hero-copy">
+              <span class="thermal-kicker"><i class="fa-solid fa-temperature-three-quarters"></i> Mantenimiento termico para laptop en Cancun</span>
+              <h1>Cambio de pasta termica para laptop <span>menos calor, mas rendimiento</span></h1>
+              <p>Atendemos laptops que se calientan, suenan fuerte, bajan rendimiento o se apagan. Medimos temperatura, limpiamos el sistema de enfriamiento y aplicamos compuesto termico premium con prueba final.</p>
+            </div>
+          )}
+
+          {isPcUpgrade && (
+            <div class="pc-upgrade-hero-copy">
+              <span class="pc-upgrade-kicker"><i class="fa-solid fa-microchip"></i> Upgrade de PC en Cancun</span>
+              <h1>Haz que tu PC responda como nueva <span>SSD, RAM y GPU sin comprar otra</span></h1>
+              <p>Revisamos cuello de botella, compatibilidad de motherboard, fuente y gabinete para recomendar solo la pieza que realmente va a mejorar tu equipo.</p>
+            </div>
+          )}
+
+          {isPrinterInkToner && (
+            <div class="printer-ink-hero-copy">
+              <span class="printer-ink-kicker"><i class="fa-solid fa-location-dot"></i> Servicio local en Cancún</span>
+              <h1>Cambio de tinta y tóner para impresoras en Cancún</h1>
+              <h2>Recarga, instalación y prueba de impresión para que tu equipo vuelva a imprimir claro, limpio y sin manchas.</h2>
+              <p>Si tu impresora imprime borroso, con rayas, colores incompletos, manchas o ya no reconoce el cartucho, revisamos el equipo antes de cambiar tinta, tóner o insumos.</p>
+            </div>
+          )}
+
+          {!isPrinterInkToner && (
+          <>
           <h1 class="ux-h1">
             {isLaptopScreenReplacement ? 'Cambio de pantalla de laptop en Cancún' : isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún' : seoKeyword} <br>
             <span class="ux-gradient-text">
@@ -166,6 +202,8 @@ const faqItems = [
           <p class="ux-hero-desc">
             {service.intro || `Solucionamos problemas de ${service.label.toLowerCase()} de forma definitiva. Trabajamos con equipo especializado y refacciones certificadas en Cancún.`}
           </p>
+          </>
+          )}
 
           {isLaptopScreenReplacement && (
             <div class="screen-hero-tags" aria-label="Detalles del servicio de cambio de pantalla">
@@ -180,6 +218,32 @@ const faqItems = [
               <span><i class="fa-solid fa-keyboard"></i> Español latino, US o backlit</span>
               <span><i class="fa-solid fa-droplet-slash"></i> Revisamos líquido, flex y conector</span>
               <span><i class="fa-solid fa-location-dot"></i> Taller local en Cancún</span>
+            </div>
+          )}
+
+          {isLaptopThermalPaste && (
+            <div class="thermal-hero-tags" aria-label="Detalles del cambio de pasta termica">
+              <span><i class="fa-solid fa-temperature-arrow-down"></i> Test termico antes y despues</span>
+              <span><i class="fa-solid fa-fan"></i> Limpieza de ventilador y disipador</span>
+              <span><i class="fa-solid fa-location-dot"></i> Pensado para el clima de Cancun</span>
+            </div>
+          )}
+
+          {isPcUpgrade && (
+            <div class="pc-upgrade-tags" aria-label="Detalles del upgrade de PC">
+              <span><i class="fa-solid fa-hard-drive"></i> SSD SATA o NVMe</span>
+              <span><i class="fa-solid fa-memory"></i> RAM compatible por placa</span>
+              <span><i class="fa-solid fa-gauge-high"></i> Benchmark antes/despues</span>
+            </div>
+          )}
+
+          {isPrinterInkToner && (
+            <div class="printer-ink-tags" aria-label="Detalles del cambio de tinta y toner">
+              <span><i class="fa-solid fa-location-dot"></i> Servicio local en Cancún</span>
+              <span><i class="fa-solid fa-fill-drip"></i> Tinta, tóner y cartuchos</span>
+              <span><i class="fa-solid fa-file-lines"></i> Prueba de impresión</span>
+              <span><i class="fa-solid fa-shield-halved"></i> Garantía por escrito</span>
+              <span><i class="fa-solid fa-clock"></i> Mismo día según disponibilidad</span>
             </div>
           )}
 
@@ -202,10 +266,10 @@ const faqItems = [
             ) : (
               <>
                 <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopKeyboardReplacement ? '' : 'pulse'}`}>
-                  <i class="fa-brands fa-whatsapp"></i> {isLaptopKeyboardReplacement ? 'Cotizar cambio de teclado' : 'Cotizar Servicio'}
+                  <i class="fa-brands fa-whatsapp"></i> {isLaptopKeyboardReplacement ? 'Cotizar cambio de teclado' : isLaptopThermalPaste ? 'Cotizar mantenimiento termico' : isPcUpgrade ? 'Cotizar upgrade de PC' : isPrinterInkToner ? 'Cotizar por WhatsApp' : 'Cotizar Servicio'}
                 </a>
-                <a href="#proceso" class="ux-btn-secondary" data-screen-scroll={isLaptopKeyboardReplacement ? 'proceso' : undefined}>
-                  {isLaptopKeyboardReplacement ? 'Ver diagnóstico antes de cambiar pieza' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
+                <a href={isLaptopThermalPaste ? '#paquetes-mantenimiento' : isPcUpgrade ? '#upgrade-ruta' : '#proceso'} class="ux-btn-secondary" data-screen-scroll={isLaptopKeyboardReplacement ? 'proceso' : undefined}>
+                  {isLaptopKeyboardReplacement ? 'Ver diagnóstico antes de cambiar pieza' : isLaptopThermalPaste ? 'Ver paquetes' : isPcUpgrade ? 'Ver ruta de upgrade' : isPrinterInkToner ? 'Ver proceso' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
                 </a>
               </>
             )}
@@ -240,6 +304,88 @@ const faqItems = [
                 <i class="fa-brands fa-whatsapp"></i> Enviar modelo de mi laptop
               </a>
               <p class="keyboard-quote-note">No pedimos la pieza hasta confirmar modelo, distribución y tipo de teclado.</p>
+            </div>
+          ) : isLaptopThermalPaste ? (
+            <div class="thermal-hero-card">
+              <figure class="thermal-hero-photo">
+                <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Mantenimiento termico y cambio de pasta termica para laptop en Cancun" loading="eager" />
+                <figcaption>
+                  <span>Lectura termica</span>
+                  <strong>CPU/GPU bajo control</strong>
+                </figcaption>
+              </figure>
+              <div class="thermal-meter">
+                <div>
+                  <span>Antes</span>
+                  <strong>92 C</strong>
+                  <small>ruido y throttling</small>
+                </div>
+                <i class="fa-solid fa-arrow-right"></i>
+                <div>
+                  <span>Despues</span>
+                  <strong>67 C</strong>
+                  <small>flujo estable</small>
+                </div>
+              </div>
+              <div class="thermal-card-grid">
+                <span><i class="fa-solid fa-flask"></i> Pasta premium</span>
+                <span><i class="fa-solid fa-wind"></i> Disipador limpio</span>
+                <span><i class="fa-solid fa-chart-line"></i> Reporte final</span>
+              </div>
+            </div>
+          ) : isPcUpgrade ? (
+            <div class="pc-upgrade-hero-card">
+              <div class="pc-upgrade-card-top">
+                <span>Desde</span>
+                <strong>$800 MXN + pieza</strong>
+                <small>Instalacion, clonado o configuracion segun el upgrade aprobado.</small>
+              </div>
+              <div class="pc-upgrade-build">
+                <div class="pc-case" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="pc-upgrade-build-copy">
+                  <strong>Primero medimos, luego compramos</strong>
+                  <p>CPU, RAM, disco, GPU, fuente y temperatura. Asi no gastas en piezas que no van a cambiar el rendimiento.</p>
+                </div>
+              </div>
+              <div class="pc-upgrade-metrics">
+                <div><span>Arranque</span><strong>15s</strong></div>
+                <div><span>RAM</span><strong>16-64GB</strong></div>
+                <div><span>SSD</span><strong>1-2TB</strong></div>
+              </div>
+            </div>
+          ) : isPrinterInkToner ? (
+            <div class="printer-ink-hero-card">
+              <div class="printer-card-visual" aria-label="Impresora, tinta y toner">
+                <div class="printer-device">
+                  <span class="paper"></span>
+                  <span class="printer-slot"></span>
+                  <span class="printer-dot"></span>
+                </div>
+                <div class="ink-bottles">
+                  <span style="--ink:#2563eb"></span>
+                  <span style="--ink:#06b6d4"></span>
+                  <span style="--ink:#f97316"></span>
+                  <span style="--ink:#334155"></span>
+                </div>
+              </div>
+              <div class="printer-price-card">
+                <span>Inversión desde:</span>
+                <strong>$200 MXN + insumo</strong>
+                <small>Precio final según modelo de impresora, tipo de cartucho, tóner, tinta o sistema de tinta continua.</small>
+              </div>
+              <div class="printer-includes-card">
+                <h3>¿Qué incluye?</h3>
+                <ul>
+                  <li><i class="fa-solid fa-check"></i> Instalación de tinta, tóner o cartucho</li>
+                  <li><i class="fa-solid fa-check"></i> Revisión de niveles y reconocimiento</li>
+                  <li><i class="fa-solid fa-check"></i> Limpieza básica de cabezal si aplica</li>
+                  <li><i class="fa-solid fa-check"></i> Reseteo de chip si aplica</li>
+                  <li><i class="fa-solid fa-check"></i> Prueba de impresión</li>
+                  <li><i class="fa-solid fa-check"></i> Recomendación de uso para evitar fallas</li>
+                </ul>
+              </div>
             </div>
           ) : (
           <div class="ux-glass-panel">
@@ -332,13 +478,357 @@ const faqItems = [
 
     <!-- 1.6 TICKET DE SERVICIO (Universal para todas las vistas dinámicas) -->
     <ServiceTicketSection 
-      defaultDevice={category.title} 
-      defaultService={service.label} 
+      defaultDevice={isPrinterInkToner ? 'Impresora' : category.title} 
+      defaultService={isPrinterInkToner ? 'Cambio de tinta / tóner' : service.label} 
+      sourcePage={isPrinterInkToner ? '/servicios/impresora/cambio-tinta-toner' : undefined}
       title={`Crear Ticket para ${service.label}`} 
       subtitle={`Cuéntanos qué le pasó a tu equipo y te contactaremos para continuar.`}
     />
 
+    {isPrinterInkToner && (
+      <>
+        <section class="printer-section printer-diagnostic-section">
+          <div class="container">
+            <div class="printer-section-head">
+              <span class="ux-eyebrow">Diagnóstico inicial</span>
+              <h2>Señales de que tu impresora necesita tinta, tóner o revisión</h2>
+              <p>No todas las fallas de impresión se solucionan cambiando el cartucho. Revisamos si el problema viene de falta de tinta, tóner bajo, cartucho no reconocido, cabezal tapado, chip, rodillos o configuración de impresión.</p>
+            </div>
+            <div class="printer-card-grid">
+              {[
+                ['fa-grip-lines', 'Impresiones con rayas', 'Las líneas blancas, cortes o colores incompletos pueden indicar tinta baja, cabezal tapado o cartucho dañado.'],
+                ['fa-triangle-exclamation', 'Impresora no reconoce el cartucho', 'Revisamos chip, compatibilidad, instalación y contactos antes de recomendar otro insumo.'],
+                ['fa-file-circle-exclamation', 'Hojas manchadas o sucias', 'Puede deberse a tóner derramado, rodillos sucios, cartucho en mal estado o mantenimiento pendiente.'],
+                ['fa-palette', 'Colores apagados o incorrectos', 'Validamos niveles, configuración, cabezales y calidad del insumo.'],
+                ['fa-droplet-slash', 'Mensaje de tinta o tóner bajo', 'Confirmamos si realmente requiere cambio, recarga o reseteo de chip.'],
+                ['fa-print', 'La impresora no imprime', 'Revisamos conexión, cola de impresión, cartuchos, tóner, drivers y estado general del equipo.'],
+              ].map(([icon, title, text]) => (
+                <article class="printer-info-card">
+                  <div class="printer-icon"><i class={`fa-solid ${icon}`}></i></div>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section class="printer-section printer-local-section">
+          <div class="container printer-local-layout">
+            <div class="printer-section-head">
+              <span class="ux-eyebrow">Servicio local</span>
+              <h2>Cambio de tinta y tóner en Cancún para casa, oficina y negocios</h2>
+              <p>En Pixon PC atendemos impresoras de uso doméstico, escolar, oficina y negocio. Podemos ayudarte con instalación de cartuchos, recarga de tinta, cambio de tóner, revisión de sistema de tinta continua y prueba de impresión para confirmar que el equipo quede trabajando correctamente.</p>
+              <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="printer-inline-cta"><i class="fa-brands fa-whatsapp"></i> Cotizar tinta o tóner por WhatsApp</a>
+            </div>
+            <div class="printer-local-blocks">
+              <article><span>01</span><h3>Para estudiantes y uso en casa</h3><p>Ideal si necesitas imprimir tareas, documentos, guías, comprobantes o archivos personales sin manchas ni cortes.</p></article>
+              <article><span>02</span><h3>Para oficinas y negocios</h3><p>Revisamos impresoras que se usan todos los días y necesitan tinta, tóner o mantenimiento para evitar retrasos en el trabajo.</p></article>
+              <article><span>03</span><h3>Para impresoras de alto uso</h3><p>Si tu impresora imprime mucho, revisamos desgaste, rodillos, cartuchos, tóner y calidad de impresión.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="printer-section printer-types-section">
+          <div class="container">
+            <div class="printer-section-head text-center">
+              <h2>Trabajamos con impresoras de tinta, tóner y sistema continuo</h2>
+            </div>
+            <div class="printer-type-grid">
+              <article><i class="fa-solid fa-fill-drip"></i><h3>Impresoras de inyección de tinta</h3><p>Instalación de cartuchos, revisión de niveles, limpieza básica de cabezales y prueba de color.</p></article>
+              <article><i class="fa-solid fa-box"></i><h3>Impresoras láser</h3><p>Cambio o recarga de tóner, revisión de manchas, polvo de tóner y calidad de impresión.</p></article>
+              <article><i class="fa-solid fa-water"></i><h3>Sistema de tinta continua</h3><p>Revisamos niveles, mangueras, flujo de tinta, aire en líneas y calidad de impresión.</p></article>
+              <article><i class="fa-solid fa-copy"></i><h3>Multifuncionales</h3><p>Revisión de impresión, escáner, copiado, cartuchos y conexión.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="printer-section printer-brands-section">
+          <div class="container text-center">
+            <span class="ux-eyebrow">Marcas de impresora</span>
+            <h2>Servicio para impresoras HP, Epson, Canon, Brother y más en Cancún</h2>
+            <p>Atendemos impresoras de las marcas más comunes, validando modelo, tipo de cartucho, tóner, compatibilidad y disponibilidad del insumo antes de cotizar.</p>
+            <div class="printer-brand-chips">
+              {['HP', 'Epson', 'Canon', 'Brother', 'Samsung', 'Xerox', 'Lexmark', 'Ricoh', 'Kyocera', 'Pantum'].map((brand) => <span>{brand}</span>)}
+            </div>
+          </div>
+        </section>
+
+        <section class="printer-section printer-difference-section">
+          <div class="container">
+            <div class="printer-section-head">
+              <span class="ux-eyebrow">Diferenciador Pixon</span>
+              <h2>No solo cambiamos tinta: revisamos por qué tu impresora falla</h2>
+              <p>Antes de venderte tinta, tóner o cartucho, revisamos si la falla viene del insumo, cabezal, chip, rodillos, configuración, driver o sistema de tinta continua.</p>
+            </div>
+            <div class="printer-feature-grid">
+              <article><i class="fa-solid fa-magnifying-glass-chart"></i><h3>Diagnóstico antes del cambio</h3><p>Confirmamos si realmente necesita tinta, tóner, recarga, limpieza o configuración.</p></article>
+              <article><i class="fa-solid fa-barcode"></i><h3>Insumo correcto</h3><p>Validamos modelo, tipo de cartucho, tóner y compatibilidad para evitar errores de reconocimiento.</p></article>
+              <article><i class="fa-solid fa-file-lines"></i><h3>Prueba de impresión</h3><p>Entregamos el equipo con prueba de impresión para comprobar calidad, color y funcionamiento.</p></article>
+              <article><i class="fa-solid fa-handshake-angle"></i><h3>Recomendación honesta</h3><p>Si el problema no es tinta o tóner, te explicamos la causa antes de hacer gastos innecesarios.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="printer-section printer-process-section" id="proceso">
+          <div class="container">
+            <div class="printer-section-head text-center">
+              <span class="ux-eyebrow">Proceso claro</span>
+              <h2>Así realizamos el cambio de tinta o tóner</h2>
+            </div>
+            <div class="printer-process-list">
+              {[
+                ['Recepción y revisión', 'Inspeccionamos la impresora, cartuchos, tóner, sistema de tinta o mensaje de error.'],
+                ['Confirmación de insumo', 'Validamos modelo, compatibilidad, tipo de tinta, cartucho o tóner requerido.'],
+                ['Instalación o recarga', 'Realizamos cambio, recarga o instalación cuidando contactos, chip, cabezales y limpieza.'],
+                ['Prueba de impresión', 'Imprimimos hoja de prueba para revisar color, nitidez, manchas, rayas y reconocimiento del insumo.'],
+                ['Recomendaciones de uso', 'Te indicamos cómo evitar que se tape el cabezal, se seque la tinta o falle el cartucho.'],
+              ].map(([title, text], index) => (
+                <article>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <div><h3>{title}</h3><p>{text}</p></div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section class="printer-section printer-after-section">
+          <div class="container">
+            <div class="printer-section-head text-center">
+              <h2>Problemas comunes después de cambiar tinta o tóner</h2>
+            </div>
+            <div class="printer-card-grid printer-card-grid--four">
+              <article class="printer-info-card"><h3>La impresora sigue marcando cartucho vacío</h3><p>Puede requerir reseteo de chip, limpieza de contactos o revisión de compatibilidad.</p></article>
+              <article class="printer-info-card"><h3>Imprime con rayas después de cambiar tinta</h3><p>Puede necesitar limpieza de cabezales, purga de tinta o revisión del cartucho.</p></article>
+              <article class="printer-info-card"><h3>El tóner mancha las hojas</h3><p>Puede haber exceso de polvo, cartucho defectuoso, unidad sucia o rodillos contaminados.</p></article>
+              <article class="printer-info-card"><h3>No imprime aunque tiene tinta</h3><p>Revisamos driver, cola de impresión, cabezal, conexión y configuración.</p></article>
+            </div>
+          </div>
+        </section>
+      </>
+    )}
+
     <!-- 1.7 ESPECIALISTAS (Patrón Reparaciones) -->
+    {isPcUpgrade && (
+      <>
+        <section class="pc-upgrade-map-section" id="upgrade-ruta">
+          <div class="container">
+            <div class="pc-upgrade-section-head">
+              <span class="ux-eyebrow">Ruta de upgrade</span>
+              <h2>Primero encontramos que esta frenando tu PC</h2>
+              <p>No todos necesitan lo mismo. Una PC lenta puede mejorar con SSD, RAM, limpieza, Windows limpio o GPU; por eso validamos el cuello de botella antes de cotizar piezas.</p>
+            </div>
+            <div class="pc-upgrade-map-grid">
+              <div><i class="fa-solid fa-hard-drive"></i><strong>Disco al 100%</strong><span>SSD SATA o NVMe con clonado.</span></div>
+              <div><i class="fa-solid fa-memory"></i><strong>RAM saturada</strong><span>16, 32 o 64 GB segun chipset.</span></div>
+              <div><i class="fa-solid fa-gamepad"></i><strong>GPU limitada</strong><span>Compatibilidad con fuente y gabinete.</span></div>
+              <div><i class="fa-solid fa-temperature-half"></i><strong>Temperatura alta</strong><span>Si calienta, primero se estabiliza.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pc-upgrade-parts-section">
+          <div class="container pc-upgrade-parts-layout">
+            <div>
+              <span class="ux-eyebrow">Piezas correctas</span>
+              <h2>SSD, RAM y GPU se eligen por compatibilidad, no por marca bonita</h2>
+              <p>Revisamos ranuras M.2, tipo de memoria, velocidad soportada, espacio del gabinete, consumo de energia y version de BIOS antes de recomendar una pieza.</p>
+            </div>
+            <div class="pc-upgrade-parts-list">
+              <div><span>01</span><strong>SSD NVMe / SATA</strong><p>Mejora arranque, carga de programas y respuesta general.</p></div>
+              <div><span>02</span><strong>Memoria RAM</strong><p>Reduce trabas al trabajar, jugar, editar o usar varias apps.</p></div>
+              <div><span>03</span><strong>Tarjeta grafica</strong><p>Para gaming, 3D, edicion y monitores de alta resolucion.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pc-upgrade-clone-section">
+          <div class="container pc-upgrade-clone-panel">
+            <div class="pc-upgrade-clone-visual">
+              <span>HDD</span>
+              <i class="fa-solid fa-arrow-right"></i>
+              <span>SSD</span>
+            </div>
+            <div>
+              <span class="ux-eyebrow">Migracion segura</span>
+              <h2>Clonamos tu Windows para que no pierdas programas ni archivos</h2>
+              <p>Antes de tocar el disco hacemos respaldo o imagen segun el caso. Si el sistema esta sano, clonamos tu Windows actual al SSD nuevo; si esta dañado, recomendamos instalacion limpia.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="pc-upgrade-gaming-section">
+          <div class="container pc-upgrade-gaming-layout">
+            <div>
+              <span class="ux-eyebrow">Gaming y trabajo</span>
+              <h2>Upgrade pensado para el uso real: oficina, gaming, arquitectura o edicion</h2>
+              <p>No es lo mismo abrir Excel que editar video, renderizar, jugar o correr maquinas virtuales. Ajustamos la recomendacion al uso real para que el dinero se note.</p>
+            </div>
+            <div class="pc-upgrade-use-grid">
+              <div><i class="fa-solid fa-briefcase"></i><strong>Oficina</strong><span>SSD + 16 GB RAM.</span></div>
+              <div><i class="fa-solid fa-headset"></i><strong>Gaming</strong><span>GPU + RAM + fuente revisada.</span></div>
+              <div><i class="fa-solid fa-cube"></i><strong>3D / CAD</strong><span>RAM alta, GPU y almacenamiento rapido.</span></div>
+              <div><i class="fa-solid fa-video"></i><strong>Edicion</strong><span>SSD rapido, cache y memoria suficiente.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pc-upgrade-power-section">
+          <div class="container pc-upgrade-power-inner">
+            <div>
+              <span class="ux-eyebrow">Compatibilidad electrica</span>
+              <h2>Una GPU nueva exige revisar fuente, conectores y flujo de aire</h2>
+              <p>Antes de instalar tarjeta grafica revisamos watts reales, conectores PCIe, espacio fisico, ventilacion y temperatura. Un upgrade mal elegido puede volver inestable la PC.</p>
+            </div>
+            <div class="pc-upgrade-power-meter">
+              <div><span>Fuente</span><strong>450W-850W</strong></div>
+              <div><span>PCIe</span><strong>x16</strong></div>
+              <div><span>Temp</span><strong>OK</strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pc-upgrade-benchmark-section">
+          <div class="container">
+            <div class="pc-upgrade-section-head">
+              <span class="ux-eyebrow">Pruebas reales</span>
+              <h2>Entregamos el equipo probado, no solo armado</h2>
+              <p>Despues del upgrade validamos arranque, velocidad de disco, estabilidad, temperatura y rendimiento. Si se clona el sistema, revisamos que tus programas y archivos sigan en su lugar.</p>
+            </div>
+            <div class="pc-upgrade-benchmark-grid">
+              <div><strong>CrystalDiskMark</strong><span>Velocidad de SSD.</span></div>
+              <div><strong>MemTest</strong><span>Estabilidad de RAM.</span></div>
+              <div><strong>3DMark / Stress</strong><span>GPU y temperatura.</span></div>
+              <div><strong>Windows Check</strong><span>Arranque y drivers.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pc-upgrade-decision-section">
+          <div class="container pc-upgrade-decision-panel">
+            <div>
+              <span class="ux-eyebrow">Decision honesta</span>
+              <h2>Si no conviene actualizar, te lo decimos antes de gastar</h2>
+              <p>Hay PCs donde un SSD revive el equipo y otras donde conviene armar una nueva. Comparamos costo, antiguedad, fuente, placa y uso para darte una ruta clara.</p>
+            </div>
+            <a href="/ensambles" class="pc-upgrade-secondary-link">
+              <i class="fa-solid fa-computer"></i> Ver ensambles si conviene cambiar de PC
+            </a>
+          </div>
+        </section>
+
+        <section class="pc-upgrade-support-section">
+          <div class="container pc-upgrade-support-grid">
+            <a href="#faq" class="pc-upgrade-support-card">
+              <i class="fa-solid fa-circle-question"></i>
+              <strong>FAQ de upgrade</strong>
+              <span>Resuelve dudas de SSD, RAM, GPU, clonado y compatibilidad.</span>
+            </a>
+            <a href="#comentarios" class="pc-upgrade-support-card">
+              <i class="fa-solid fa-star"></i>
+              <strong>Comentarios</strong>
+              <span>Revisa experiencias reales de clientes con PCs reparadas o mejoradas.</span>
+            </a>
+            <a href="#ubicacion" class="pc-upgrade-support-card">
+              <i class="fa-solid fa-location-dot"></i>
+              <strong>Ubicacion</strong>
+              <span>Trae tu PC al taller en Cancun para diagnostico y cotizacion clara.</span>
+            </a>
+          </div>
+        </section>
+      </>
+    )}
+
+    {isLaptopThermalPaste && (
+      <>
+        <section class="thermal-packages-section" id="paquetes-mantenimiento">
+          <div class="container">
+            <div class="thermal-section-head">
+              <span class="ux-eyebrow">Paquetes de mantenimiento</span>
+              <h2>Si ya abrimos tu laptop, conviene hacer el mantenimiento completo</h2>
+              <p>El cambio de pasta termica funciona mejor cuando tambien se retira polvo del ventilador, disipador y salidas de aire. Estos son los paquetes que ya manejamos en Pixon.</p>
+            </div>
+            <div class="thermal-packages-grid">
+              <a href="/paquetes?section=paquetes" class="thermal-package-card">
+                <span class="thermal-package-tag">Uso diario</span>
+                <h3>Mantenimiento Estandar</h3>
+                <strong>$450 MXN</strong>
+                <p>Limpieza interna, ventilador, chasis y pasta termica de calidad para laptops de oficina, escuela y casa.</p>
+                <small>2-4 horas - pago unico</small>
+              </a>
+              <a href="/paquetes?section=paquetes" class="thermal-package-card is-featured">
+                <span class="thermal-package-tag">Mas recomendado</span>
+                <h3>Paquete Pro Gamer</h3>
+                <strong>$850 MXN</strong>
+                <p>Para equipos gaming, edicion o uso intensivo: limpieza profunda, compuesto de mayor transferencia y revision termica.</p>
+                <small>24-48 horas - mejor balance</small>
+              </a>
+              <a href="/paquetes?section=paquetes" class="thermal-package-card">
+                <span class="thermal-package-tag">Alta gama</span>
+                <h3>Paquete Elite</h3>
+                <strong>$1,299 MXN</strong>
+                <p>Para workstations y laptops exigentes: documentacion antes/despues, limpieza avanzada y optimizacion de eficiencia.</p>
+                <small>2-4 dias - servicio detallado</small>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="thermal-info-section thermal-info-section--dark">
+          <div class="container thermal-info-layout">
+            <div class="thermal-info-copy">
+              <span class="ux-eyebrow">Sobrecalentamiento</span>
+              <h2>Cuando la laptop calienta, el procesador se protege bajando rendimiento</h2>
+              <p>El calor no solo incomoda: provoca throttling, apagados, ventilador al maximo y desgaste de bateria. Por eso medimos temperatura antes y despues del servicio, no trabajamos a ciegas.</p>
+              <div class="thermal-info-points">
+                <span><i class="fa-solid fa-gauge-high"></i> Menos caidas de frecuencia</span>
+                <span><i class="fa-solid fa-volume-low"></i> Menos ruido de ventilador</span>
+                <span><i class="fa-solid fa-battery-half"></i> Menos estres para la bateria</span>
+              </div>
+            </div>
+            <figure class="thermal-info-media">
+              <img src="/assets/images/mantenimiento-macbook-cancun.webp" alt="Laptop en mantenimiento por sobrecalentamiento en Cancun" loading="lazy" />
+              <figcaption>Diagnostico de flujo de aire, disipador y temperatura real.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section class="thermal-climate-section">
+          <div class="container thermal-climate-inner">
+            <div>
+              <span class="ux-eyebrow">Clima de Cancun</span>
+              <h2>Humedad, salitre y polvo hacen que el mantenimiento sea mas frecuente</h2>
+              <p>En Cancun una laptop aspira aire caliente y humedo casi todo el ano. Eso compacta polvo en el disipador, oxida contactos y seca la pasta termica mas rapido que en climas templados.</p>
+            </div>
+            <div class="thermal-climate-grid">
+              <div><i class="fa-solid fa-droplet"></i><strong>Humedad</strong><span>Favorece corrosion y suciedad pegada.</span></div>
+              <div><i class="fa-solid fa-wind"></i><strong>Polvo fino</strong><span>Tapa rejillas y bloquea el disipador.</span></div>
+              <div><i class="fa-solid fa-sun"></i><strong>Calor local</strong><span>Eleva la temperatura base del equipo.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="thermal-paste-section">
+          <div class="container thermal-paste-panel">
+            <div class="thermal-paste-visual">
+              <span>CPU</span>
+              <div class="thermal-chip-lines" aria-hidden="true"></div>
+              <strong>Pasta termica nueva</strong>
+            </div>
+            <div class="thermal-paste-copy">
+              <span class="ux-eyebrow">Pasta termica</span>
+              <h2>No es solo poner pasta: importa la limpieza, cantidad y presion del disipador</h2>
+              <p>Retiramos pasta vieja con alcohol isopropilico, limpiamos la base del disipador y aplicamos la cantidad adecuada segun el diseno del CPU/GPU. Si el contacto queda mal, la temperatura vuelve a subir.</p>
+              <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="thermal-inline-cta">
+                <i class="fa-brands fa-whatsapp"></i> Revisar temperatura de mi laptop
+              </a>
+            </div>
+          </div>
+        </section>
+      </>
+    )}
+
     {service.specialistTitle && (
       <section class="svc-specialists section-pad" style="background:#0F172A;">
         <div class="container">
@@ -456,7 +946,7 @@ const faqItems = [
     )}
 
     <!-- 2. SÍNTOMAS / PROBLEMAS COMUNES (Fallback) -->
-    {(!service.commonProblems || service.commonProblems.length === 0) && (
+    {!isPrinterInkToner && (!service.commonProblems || service.commonProblems.length === 0) && (
       <section class="ux-symptoms">
         <div class="container">
           <div class="ux-section-header">
@@ -487,7 +977,7 @@ const faqItems = [
     )}
 
     <!-- 3. POR QUÉ ELEGIRNOS (Fallback) -->
-    {(!service.whyUs || service.whyUs.length === 0) && (
+    {!isPrinterInkToner && (!service.whyUs || service.whyUs.length === 0) && (
       <section class="ux-benefits">
         <div class="container ux-benefits-inner">
           <div class="ux-benefits-img">
@@ -533,7 +1023,7 @@ const faqItems = [
     )}
 
     <!-- 4. MARCAS (Fallback) -->
-    {(!service.compatibleBrands || service.compatibleBrands.length === 0) && (
+    {!isPrinterInkToner && (!service.compatibleBrands || service.compatibleBrands.length === 0) && (
       <section class="ux-brands">
         <div class="container text-center">
           <h3 class="ux-h3">Especialistas multimarcas en {category.title}</h3>
@@ -552,6 +1042,7 @@ const faqItems = [
     )}
 
     <!-- 5. PROCESO DE TRABAJO (Dynamic or Fallback) -->
+    {!isPrinterInkToner && (
     <section class={`ux-process ${isLaptopScreenReplacement ? 'screen-process' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-process' : ''}`} id="proceso">
       <div class="container">
         <div class="ux-section-header text-center">
@@ -629,7 +1120,9 @@ const faqItems = [
           )}
         </div>
       </div>
-    </section>    <!-- 5.5 EDUCATIONAL BLOCKS (Opcional, Claro/Oscuro alterno) -->
+    </section>
+    )}
+    <!-- 5.5 EDUCATIONAL BLOCKS (Opcional, Claro/Oscuro alterno) -->
     {service.educationalBlocks && service.educationalBlocks.length > 0 && service.educationalBlocks.map((block: any, index: number) => (
       <section class={`svc-educational ${index % 2 === 0 ? 'bg-light' : 'bg-dark'} ${isLaptopScreenReplacement && index === 0 ? 'screen-care-section' : ''}`}>
         <div class={`container educational-container ${block.reverse ? 'row-reverse' : ''}`}>
@@ -673,7 +1166,7 @@ const faqItems = [
     ))}
 
     <!-- 6. WHY US - Claro -->
-    {service.whyUs && service.whyUs.length > 0 && (
+    {!isPrinterInkToner && service.whyUs && service.whyUs.length > 0 && (
       <section class={`svc-whyus ${isLaptopScreenReplacement ? 'screen-whyus-compact' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-whyus-section' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
@@ -728,7 +1221,7 @@ const faqItems = [
     )}
 
     <!-- 7. PROBLEMAS COMUNES - Oscuro -->
-    {service.commonProblems && service.commonProblems.length > 0 && (
+    {!isPrinterInkToner && service.commonProblems && service.commonProblems.length > 0 && (
       <section class={`svc-problems ${isLaptopScreenReplacement ? 'screen-problems-section' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-problems-section' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
@@ -875,7 +1368,7 @@ const faqItems = [
     )}
 
     <!-- 8. MARCAS COMPATIBLES - Claro -->
-    {service.compatibleBrands && service.compatibleBrands.length > 0 && (
+    {!isPrinterInkToner && service.compatibleBrands && service.compatibleBrands.length > 0 && (
       <section class={`svc-compat ${isLaptopKeyboardReplacement ? 'keyboard-compat-section' : ''}`}>
         <div class="container text-center">
           <span class="ux-eyebrow" style="color:#2563EB;">Cobertura Total</span>
@@ -991,14 +1484,16 @@ const faqItems = [
     {service.faqs && (
       <FaqSection
         id="faq"
-        title={`Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
-        description={isLaptopKeyboardReplacement
+        title={isPrinterInkToner ? 'Preguntas frecuentes sobre cambio de tinta y tóner en Cancún' : `Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
+        description={isPrinterInkToner
+          ? 'Resolvemos dudas reales sobre cambio, recarga e instalación de tinta, tóner, cartuchos, chips y prueba de impresión en Cancún.'
+          : isLaptopKeyboardReplacement
           ? 'Resolvemos dudas antes de cambiar o reparar el teclado de tu laptop en Cancún: precio, tiempos, español latino, teclado US, backlit, líquido, flex y garantía.'
           : `Resolvemos las dudas más comunes antes de hacer ${service.label.toLowerCase()} en Cancún: diagnóstico, compatibilidad, tiempos, garantía y recolección.`}
         viewMoreHref="/preguntas-frecuentes"
         viewMoreLabel="Ver más preguntas frecuentes"
         items={service.faqs}
-        ariaLabel={`Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
+        ariaLabel={isPrinterInkToner ? 'Preguntas frecuentes sobre cambio de tinta y tóner en Cancún' : `Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
         sectionClass="faq-section"
         gridClass="faq-grid"
         backgroundColor="#F8F9FC"
@@ -1016,18 +1511,6 @@ const faqItems = [
     <!-- 10c. CONTACTO - contenedor reutilizable -->
     <ContactSection id="ubicacion" />
 
-    <!-- 12. CTA FINAL -->
-    {!isLaptopScreenReplacement && (
-      <section class="ux-cta-band">
-        <div class="container text-center">
-          <h2 class="ux-h2">¿Listo para solucionar el problema de tu {category.title}?</h2>
-          <p>Agenda tu revisión hoy mismo en nuestro taller especializado en Cancún.</p>
-          <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class="ux-btn-primary giant pulse">
-            <i class="fa-brands fa-whatsapp"></i> Agendar Diagnóstico Ahora
-          </a>
-        </div>
-      </section>
-    )}
   </div>
   <Footer />
 
@@ -1417,6 +1900,567 @@ const faqItems = [
   }
 
   /* Cambio de pantalla: primera vista más clara y local */
+  /* Upgrade PC: hero y secciones SEO */
+  .pc-upgrade-hero {
+    padding: 58px 0 50px;
+    background:
+      radial-gradient(circle at 84% 18%, rgba(59,130,246,0.18), transparent 30%),
+      radial-gradient(circle at 15% 86%, rgba(16,185,129,0.12), transparent 32%),
+      linear-gradient(135deg, #07111f 0%, #0e1c31 52%, #08131f 100%) !important;
+  }
+  .pc-upgrade-hero .ux-hero-inner { align-items: center; gap: 34px; }
+  .pc-upgrade-hero .ux-badge,
+  .pc-upgrade-hero .ux-h1,
+  .pc-upgrade-hero .ux-hero-hook,
+  .pc-upgrade-hero .ux-hero-desc { display: none; }
+  .pc-upgrade-hero-copy { display: grid; gap: 14px; max-width: 780px; margin-bottom: 18px; }
+  .pc-upgrade-kicker {
+    display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+    color: #dbeafe; background: rgba(37,99,235,0.16);
+    border: 1px solid rgba(147,197,253,0.26); border-radius: 999px;
+    padding: 8px 12px; font-weight: 900; font-size: 0.82rem;
+  }
+  .pc-upgrade-hero-copy h1 {
+    color: #f4f8fc; font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.15rem, 4.8vw, 4.35rem); line-height: 1.02; margin: 0;
+  }
+  .pc-upgrade-hero-copy h1 span { display: block; color: #93c5fd; }
+  .pc-upgrade-hero-copy p { color: #c8d7ea; font-size: 1.03rem; line-height: 1.62; max-width: 690px; margin: 0; font-weight: 650; }
+  .pc-upgrade-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .pc-upgrade-tags span {
+    display: inline-flex; align-items: center; gap: 8px; color: #e8f3ff;
+    background: rgba(15,23,42,0.7); border: 1px solid rgba(147,197,253,0.18);
+    border-radius: 9px; padding: 8px 10px; font-size: 0.84rem; font-weight: 850;
+  }
+  .pc-upgrade-tags i { color: #93c5fd; }
+  .pc-upgrade-hero .ux-trust-bar { margin-bottom: 18px; gap: 8px; }
+  .pc-upgrade-hero .trust-item {
+    background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px; padding: 8px 10px; font-size: 0.86rem;
+  }
+  .pc-upgrade-hero .ux-btn-primary,
+  .pc-upgrade-hero .ux-btn-secondary { border-radius: 10px; padding: 13px 18px; font-size: 0.95rem; }
+  .pc-upgrade-hero-card {
+    width: 100%; max-width: 462px; display: grid; gap: 12px; padding: 16px;
+    border-radius: 18px; background: #f8fbff; border: 1px solid #d7e4f2;
+    box-shadow: 0 28px 70px rgba(0,0,0,0.34); color: #10233d;
+  }
+  .pc-upgrade-card-top {
+    display: grid; gap: 5px; padding: 18px; border-radius: 14px;
+    background: linear-gradient(135deg, #0f2a4a, #1d4ed8); color: #f4f8fc;
+  }
+  .pc-upgrade-card-top span { color: #bfdbfe; font-weight: 900; text-transform: uppercase; font-size: 0.78rem; }
+  .pc-upgrade-card-top strong { font-family: 'Kanit', sans-serif; font-size: clamp(2rem, 4vw, 2.75rem); line-height: 1; }
+  .pc-upgrade-card-top small { color: #dbeafe; line-height: 1.35; font-weight: 650; }
+  .pc-upgrade-build { display: grid; grid-template-columns: 94px 1fr; gap: 14px; align-items: center; }
+  .pc-case {
+    position: relative; height: 118px; border-radius: 16px; background: #0f2a4a;
+    border: 1px solid #93c5fd; box-shadow: inset 0 0 0 10px rgba(147,197,253,0.08);
+  }
+  .pc-case span { position: absolute; left: 18px; right: 18px; height: 8px; border-radius: 999px; background: #60a5fa; }
+  .pc-case span:nth-child(1) { top: 24px; }
+  .pc-case span:nth-child(2) { top: 48px; background: #34d399; }
+  .pc-case span:nth-child(3) { bottom: 24px; }
+  .pc-upgrade-build-copy strong { color: #0f2a4a; display: block; margin-bottom: 6px; }
+  .pc-upgrade-build-copy p { color: #425b78; margin: 0; line-height: 1.45; font-weight: 650; }
+  .pc-upgrade-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .pc-upgrade-metrics div {
+    display: grid; gap: 4px; padding: 11px; border-radius: 10px;
+    background: #edf5ff; border: 1px solid #d7e4f2; text-align: center;
+  }
+  .pc-upgrade-metrics span { color: #49617d; font-size: 0.76rem; font-weight: 850; }
+  .pc-upgrade-metrics strong { color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.05rem; }
+  .pc-upgrade-map-section,
+  .pc-upgrade-clone-section,
+  .pc-upgrade-benchmark-section { background: #f7fbff !important; color: #0f2a4a; padding: 62px 0; }
+  .pc-upgrade-parts-section,
+  .pc-upgrade-gaming-section,
+  .pc-upgrade-decision-section { background: #edf5ff !important; color: #0f2a4a; padding: 62px 0; }
+  .pc-upgrade-power-section {
+    background:
+      radial-gradient(circle at 78% 16%, rgba(96,165,250,0.14), transparent 30%),
+      linear-gradient(135deg, #07111f 0%, #0f172a 100%) !important;
+    padding: 64px 0;
+  }
+  .pc-upgrade-section-head { max-width: 840px; margin: 0 auto 24px; text-align: center; }
+  .pc-upgrade-section-head .ux-eyebrow,
+  .pc-upgrade-parts-section .ux-eyebrow,
+  .pc-upgrade-clone-section .ux-eyebrow,
+  .pc-upgrade-gaming-section .ux-eyebrow,
+  .pc-upgrade-decision-section .ux-eyebrow { color: #1d4ed8 !important; }
+  .pc-upgrade-section-head h2,
+  .pc-upgrade-parts-layout h2,
+  .pc-upgrade-clone-panel h2,
+  .pc-upgrade-gaming-layout h2,
+  .pc-upgrade-decision-panel h2 {
+    color: #0f2a4a !important; font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.72rem, 3vw, 2.5rem); line-height: 1.12; margin: 0 0 12px;
+  }
+  .pc-upgrade-section-head p,
+  .pc-upgrade-parts-layout p,
+  .pc-upgrade-clone-panel p,
+  .pc-upgrade-gaming-layout p,
+  .pc-upgrade-decision-panel p { color: #425b78 !important; line-height: 1.65; font-weight: 650; margin: 0; }
+  .pc-upgrade-map-grid,
+  .pc-upgrade-use-grid,
+  .pc-upgrade-benchmark-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .pc-upgrade-map-grid div,
+  .pc-upgrade-use-grid div,
+  .pc-upgrade-benchmark-grid div {
+    display: grid; gap: 8px; min-height: 160px; padding: 18px; border-radius: 14px;
+    background: #fbfdff; border: 1px solid #dbe7f7; box-shadow: 0 12px 28px rgba(15,42,74,0.055);
+  }
+  .pc-upgrade-map-grid i,
+  .pc-upgrade-use-grid i { color: #1d4ed8; font-size: 1.45rem; }
+  .pc-upgrade-map-grid strong,
+  .pc-upgrade-use-grid strong,
+  .pc-upgrade-benchmark-grid strong { color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.08rem; }
+  .pc-upgrade-map-grid span,
+  .pc-upgrade-use-grid span,
+  .pc-upgrade-benchmark-grid span { color: #425b78; line-height: 1.45; font-weight: 650; }
+  .pc-upgrade-parts-layout,
+  .pc-upgrade-gaming-layout,
+  .pc-upgrade-power-inner,
+  .pc-upgrade-decision-panel { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr); gap: 28px; align-items: center; }
+  .pc-upgrade-parts-list { display: grid; gap: 10px; }
+  .pc-upgrade-parts-list div {
+    display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; padding: 16px;
+    border-radius: 14px; background: #fbfdff; border: 1px solid #dbe7f7;
+  }
+  .pc-upgrade-parts-list span { grid-row: span 2; color: #1d4ed8; background: #dbeafe; border-radius: 9px; padding: 7px; font-weight: 950; height: fit-content; }
+  .pc-upgrade-parts-list strong { color: #0f2a4a; }
+  .pc-upgrade-parts-list p { grid-column: 2; }
+  .pc-upgrade-clone-panel,
+  .pc-upgrade-decision-panel { padding: 26px; border-radius: 18px; background: #fbfdff; border: 1px solid #dbe7f7; box-shadow: 0 18px 46px rgba(15,42,74,0.08); }
+  .pc-upgrade-clone-visual {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center;
+    min-height: 170px; border-radius: 16px; padding: 20px; background: #07111f; border: 1px solid #b7d5f6;
+  }
+  .pc-upgrade-clone-visual span { display: grid; place-items: center; min-height: 92px; border-radius: 16px; color: #e8f3ff; background: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.5rem; }
+  .pc-upgrade-clone-visual i { color: #60a5fa; }
+  .pc-upgrade-power-inner h2 { color: #f4f8fc !important; font-family: 'Kanit', sans-serif; font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.12; margin: 0 0 12px; }
+  .pc-upgrade-power-inner p { color: #c8d7ea !important; line-height: 1.65; font-weight: 650; margin: 0; }
+  .pc-upgrade-power-meter { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .pc-upgrade-power-meter div { display: grid; gap: 8px; min-height: 150px; padding: 20px; border-radius: 16px; background: rgba(15,23,42,0.76); border: 1px solid rgba(147,197,253,0.18); }
+  .pc-upgrade-power-meter span { color: #bfdbfe; font-weight: 900; }
+  .pc-upgrade-power-meter strong { color: #f4f8fc; font-family: 'Kanit', sans-serif; font-size: 1.55rem; }
+  .pc-upgrade-secondary-link { display: inline-flex; align-items: center; justify-content: center; gap: 10px; color: #f4f8fc !important; background: #1d4ed8; border-radius: 10px; padding: 14px 18px; text-decoration: none; font-weight: 950; }
+  .pc-upgrade-support-section { background: #f7fbff !important; padding: 44px 0; }
+  .pc-upgrade-support-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .pc-upgrade-support-card {
+    display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start;
+    padding: 18px; border-radius: 14px; background: #fbfdff; border: 1px solid #dbe7f7;
+    color: #0f2a4a; text-decoration: none; box-shadow: 0 12px 28px rgba(15,42,74,0.055);
+  }
+  .pc-upgrade-support-card i {
+    grid-row: span 2; display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border-radius: 10px; background: #dbeafe; color: #1d4ed8;
+  }
+  .pc-upgrade-support-card strong { color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.08rem; }
+  .pc-upgrade-support-card span { color: #425b78; line-height: 1.45; font-weight: 650; }
+  @media (max-width: 980px) {
+    .pc-upgrade-map-grid,
+    .pc-upgrade-use-grid,
+    .pc-upgrade-benchmark-grid,
+    .pc-upgrade-support-grid,
+    .pc-upgrade-parts-layout,
+    .pc-upgrade-gaming-layout,
+    .pc-upgrade-power-inner,
+    .pc-upgrade-decision-panel { grid-template-columns: 1fr; }
+    .pc-upgrade-power-meter { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .pc-upgrade-hero,
+    .pc-upgrade-map-section,
+    .pc-upgrade-parts-section,
+    .pc-upgrade-clone-section,
+    .pc-upgrade-gaming-section,
+    .pc-upgrade-power-section,
+    .pc-upgrade-benchmark-section,
+    .pc-upgrade-decision-section { padding: 42px 0; }
+    .pc-upgrade-build,
+    .pc-upgrade-metrics,
+    .pc-upgrade-clone-visual { grid-template-columns: 1fr; }
+    .pc-upgrade-clone-visual i { transform: rotate(90deg); justify-self: center; }
+  }
+
+  /* Cambio de tinta y toner: landing local para impresoras */
+  .printer-ink-hero {
+    min-height: 1000px;
+    display: flex;
+    align-items: center;
+    padding: 84px 0 72px;
+    background:
+      radial-gradient(circle at 84% 20%, rgba(37,99,235,0.16), transparent 30%),
+      radial-gradient(circle at 18% 84%, rgba(20,184,166,0.14), transparent 34%),
+      linear-gradient(135deg, #07111f 0%, #0f2a4a 54%, #082f49 100%) !important;
+  }
+  .printer-ink-hero .ux-hero-inner { align-items: center; gap: 44px; }
+  .printer-ink-hero .ux-badge,
+  .printer-ink-hero .ux-h1,
+  .printer-ink-hero .ux-hero-hook,
+  .printer-ink-hero .ux-hero-desc { display: none; }
+  .printer-ink-hero-copy { display: grid; gap: 16px; max-width: 760px; margin-bottom: 22px; }
+  .printer-ink-kicker {
+    display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+    color: #dbeafe; background: rgba(37,99,235,0.18);
+    border: 1px solid rgba(191,219,254,0.26); border-radius: 999px;
+    padding: 8px 13px; font-weight: 950; font-size: 0.84rem;
+  }
+  .printer-ink-hero-copy h1 {
+    color: #f4f8fc; font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.45rem, 5vw, 4.65rem); line-height: 1.02; margin: 0;
+  }
+  .printer-ink-hero-copy h2 {
+    color: #bfdbfe !important; font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.2rem, 2.2vw, 1.65rem); line-height: 1.24; margin: 0;
+  }
+  .printer-ink-hero-copy p {
+    color: #d8e4f2 !important; font-size: 1.05rem; line-height: 1.68;
+    max-width: 710px; margin: 0; font-weight: 650;
+  }
+  .printer-ink-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .printer-ink-tags span {
+    display: inline-flex; align-items: center; gap: 8px; color: #edf6ff;
+    background: rgba(15,23,42,0.66); border: 1px solid rgba(191,219,254,0.18);
+    border-radius: 10px; padding: 8px 10px; font-size: 0.84rem; font-weight: 850;
+  }
+  .printer-ink-tags i { color: #93c5fd; }
+  .printer-ink-hero .ux-trust-bar { margin-bottom: 22px; gap: 8px; }
+  .printer-ink-hero .trust-item {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 8px 10px; font-size: 0.86rem;
+  }
+  .printer-ink-hero .ux-btn-primary,
+  .printer-ink-hero .ux-btn-secondary { border-radius: 10px; padding: 14px 20px; font-size: 0.98rem; }
+  .printer-ink-hero-card {
+    width: 100%; max-width: 480px; display: grid; gap: 12px; padding: 16px;
+    border-radius: 20px; background: #f8fbff; border: 1px solid #d7e4f2;
+    box-shadow: 0 30px 72px rgba(0,0,0,0.34); color: #10233d;
+  }
+  .printer-card-visual {
+    min-height: 250px; border-radius: 16px; padding: 20px; overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(37,99,235,0.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(37,99,235,0.08) 1px, transparent 1px),
+      #eef6ff;
+    background-size: 28px 28px;
+    display: grid; place-items: center; position: relative;
+  }
+  .printer-device {
+    position: relative; width: min(300px, 82%); height: 150px; border-radius: 20px;
+    background: linear-gradient(180deg, #1e3a5f, #0f2a4a);
+    box-shadow: 0 24px 48px rgba(15,42,74,0.24);
+  }
+  .printer-device .paper {
+    position: absolute; left: 50%; top: -64px; width: 160px; height: 116px;
+    transform: translateX(-50%); border-radius: 10px 10px 4px 4px;
+    background: linear-gradient(180deg, #fbfdff, #dbeafe); border: 1px solid #bfdbfe;
+  }
+  .printer-device .paper::after {
+    content: ""; position: absolute; left: 22px; right: 22px; top: 28px; height: 36px;
+    border-top: 6px solid #60a5fa; border-bottom: 6px solid #14b8a6;
+  }
+  .printer-slot {
+    position: absolute; left: 36px; right: 36px; top: 58px; height: 18px;
+    border-radius: 999px; background: #07111f;
+  }
+  .printer-dot {
+    position: absolute; right: 32px; bottom: 26px; width: 16px; height: 16px;
+    border-radius: 50%; background: #34d399; box-shadow: 0 0 0 8px rgba(52,211,153,0.12);
+  }
+  .ink-bottles { position: absolute; right: 18px; bottom: 16px; display: flex; gap: 6px; }
+  .ink-bottles span {
+    display: block; width: 22px; height: 56px; border-radius: 8px 8px 5px 5px;
+    background: var(--ink); border: 3px solid rgba(255,255,255,0.8);
+    box-shadow: 0 10px 22px rgba(15,42,74,0.14);
+  }
+  .printer-price-card {
+    display: grid; gap: 6px; padding: 18px; border-radius: 14px;
+    background: linear-gradient(135deg, #0f2a4a, #2563eb); color: #f4f8fc;
+  }
+  .printer-price-card span { color: #bfdbfe; font-weight: 900; text-transform: uppercase; font-size: 0.78rem; }
+  .printer-price-card strong { font-family: 'Kanit', sans-serif; font-size: clamp(2rem, 4vw, 2.65rem); line-height: 1; }
+  .printer-price-card small { color: #dbeafe; line-height: 1.38; font-weight: 650; }
+  .printer-includes-card { padding: 18px; border-radius: 14px; background: #fbfdff; border: 1px solid #dbe7f7; }
+  .printer-includes-card h3 { color: #0f2a4a !important; font-family: 'Kanit', sans-serif; font-size: 1.25rem; margin: 0 0 12px; }
+  .printer-includes-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .printer-includes-card li { display: flex; align-items: flex-start; gap: 9px; color: #425b78; font-weight: 700; line-height: 1.38; }
+  .printer-includes-card i { color: #14b8a6; margin-top: 3px; }
+  .printer-section { padding: 68px 0; background: #f7fbff !important; color: #0f2a4a; }
+  .printer-local-section,
+  .printer-difference-section,
+  .printer-after-section { background: #edf5ff !important; }
+  .printer-section-head { max-width: 850px; margin: 0 0 28px; }
+  .printer-section-head.text-center { text-align: center; margin: 0 auto 28px; }
+  .printer-section .ux-eyebrow { color: #1d4ed8 !important; }
+  .printer-section h2 {
+    color: #0f2a4a !important; font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.65rem); line-height: 1.12; margin: 0 0 12px;
+  }
+  .printer-section h3 { color: #0f2a4a !important; font-family: 'Kanit', sans-serif; margin: 0; line-height: 1.18; }
+  .printer-section p { color: #425b78 !important; line-height: 1.64; font-weight: 650; margin: 0; }
+  .printer-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .printer-card-grid--four,
+  .printer-type-grid,
+  .printer-feature-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .printer-info-card,
+  .printer-type-grid article,
+  .printer-feature-grid article,
+  .printer-local-blocks article {
+    display: grid; gap: 10px; padding: 20px; border-radius: 14px;
+    background: #fbfdff; border: 1px solid #dbe7f7;
+    box-shadow: 0 12px 28px rgba(15,42,74,0.055);
+  }
+  .printer-icon,
+  .printer-type-grid i,
+  .printer-feature-grid i {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 12px;
+    background: #dbeafe; color: #1d4ed8; font-size: 1.15rem;
+  }
+  .printer-local-layout { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr); gap: 28px; align-items: center; }
+  .printer-local-blocks { display: grid; gap: 12px; }
+  .printer-local-blocks article { grid-template-columns: auto 1fr; gap: 6px 14px; }
+  .printer-local-blocks span {
+    grid-row: span 2; display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 12px; background: #dbeafe; color: #1d4ed8; font-weight: 950;
+  }
+  .printer-local-blocks p { grid-column: 2; }
+  .printer-inline-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px; width: fit-content;
+    margin-top: 22px; color: #f8fbff !important; background: #14a065; border-radius: 10px;
+    padding: 13px 17px; text-decoration: none; font-weight: 950; box-shadow: 0 14px 30px rgba(20,160,101,0.18);
+  }
+  .printer-brand-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 24px; }
+  .printer-brand-chips span {
+    color: #0f2a4a; background: #fbfdff; border: 1px solid #cfe0f4;
+    border-radius: 999px; padding: 10px 14px; font-weight: 900;
+  }
+  .printer-process-list { display: grid; gap: 12px; max-width: 920px; margin: 0 auto; }
+  .printer-process-list article {
+    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;
+    padding: 18px; border-radius: 14px; background: #fbfdff; border: 1px solid #dbe7f7;
+    box-shadow: 0 12px 28px rgba(15,42,74,0.055);
+  }
+  .printer-process-list span {
+    display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px;
+    border-radius: 14px; background: #0f2a4a; color: #f8fbff; font-weight: 950;
+  }
+  @media (max-width: 980px) {
+    .printer-ink-hero { min-height: auto; padding: 64px 0; }
+    .printer-local-layout,
+    .printer-card-grid,
+    .printer-card-grid--four,
+    .printer-type-grid,
+    .printer-feature-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .printer-ink-hero { padding: 46px 0; }
+    .printer-section { padding: 46px 0; }
+    .printer-local-layout,
+    .printer-card-grid,
+    .printer-card-grid--four,
+    .printer-type-grid,
+    .printer-feature-grid,
+    .printer-local-blocks article,
+    .printer-process-list article { grid-template-columns: 1fr; }
+    .printer-local-blocks p { grid-column: auto; }
+    .printer-device { width: 92%; }
+  }
+
+  /* Cambio de pasta termica: hero y secciones SEO */
+  .thermal-hero {
+    padding: 56px 0 48px;
+    background:
+      radial-gradient(circle at 78% 18%, rgba(34,211,238,0.15), transparent 30%),
+      radial-gradient(circle at 14% 88%, rgba(16,185,129,0.11), transparent 32%),
+      linear-gradient(135deg, #07111f 0%, #0b1b2e 48%, #08131f 100%) !important;
+  }
+  .thermal-hero .ux-hero-inner { align-items: center; gap: 34px; }
+  .thermal-hero .ux-badge,
+  .thermal-hero .ux-h1,
+  .thermal-hero .ux-hero-hook,
+  .thermal-hero .ux-hero-desc { display: none; }
+  .thermal-hero-copy { display: grid; gap: 14px; max-width: 760px; margin-bottom: 18px; }
+  .thermal-kicker {
+    display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+    color: #b9eff8; background: rgba(14,165,233,0.13);
+    border: 1px solid rgba(125,211,252,0.24); border-radius: 999px;
+    padding: 8px 12px; font-weight: 900; font-size: 0.82rem;
+  }
+  .thermal-hero-copy h1 {
+    color: #f4f8fc; font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.2rem, 4.7vw, 4.25rem); line-height: 1.02;
+    margin: 0; letter-spacing: 0;
+  }
+  .thermal-hero-copy h1 span { display: block; color: #67e8f9; }
+  .thermal-hero-copy p {
+    color: #c8d7ea; font-size: 1.02rem; line-height: 1.62;
+    max-width: 680px; margin: 0; font-weight: 650;
+  }
+  .thermal-hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .thermal-hero-tags span {
+    display: inline-flex; align-items: center; gap: 8px; color: #e8f3ff;
+    background: rgba(15,23,42,0.68); border: 1px solid rgba(125,211,252,0.16);
+    border-radius: 9px; padding: 8px 10px; font-size: 0.84rem; font-weight: 850;
+  }
+  .thermal-hero-tags i { color: #67e8f9; }
+  .thermal-hero .ux-trust-bar { margin-bottom: 18px; gap: 8px; }
+  .thermal-hero .trust-item {
+    background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px; padding: 8px 10px; font-size: 0.86rem;
+  }
+  .thermal-hero .ux-btn-primary,
+  .thermal-hero .ux-btn-secondary { border-radius: 10px; padding: 13px 18px; font-size: 0.95rem; }
+  .thermal-hero-card {
+    width: 100%; max-width: 460px; padding: 14px; border-radius: 18px;
+    background: #f8fbff; border: 1px solid #d7e4f2;
+    box-shadow: 0 28px 70px rgba(0,0,0,0.34); color: #10233d;
+  }
+  .thermal-hero-photo {
+    position: relative; height: 240px; margin: 0; border-radius: 14px;
+    overflow: hidden; background: #eaf2ff;
+  }
+  .thermal-hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thermal-hero-photo::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 42%, rgba(7,17,31,0.86) 100%);
+  }
+  .thermal-hero-photo figcaption {
+    position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 2; display: grid; gap: 4px;
+  }
+  .thermal-hero-photo span { color: #9deaf6; font-size: 0.78rem; font-weight: 900; text-transform: uppercase; }
+  .thermal-hero-photo strong { color: #f4f8fc; font-family: 'Kanit', sans-serif; font-size: 1.45rem; }
+  .thermal-meter { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin: 12px 0; }
+  .thermal-meter > div {
+    display: grid; gap: 3px; border-radius: 12px; padding: 13px;
+    background: #edf5ff; border: 1px solid #d7e4f2;
+  }
+  .thermal-meter span, .thermal-meter small { color: #49617d; font-weight: 750; font-size: 0.78rem; }
+  .thermal-meter strong { color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.85rem; line-height: 1; }
+  .thermal-meter i { color: #0ea5e9; }
+  .thermal-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .thermal-card-grid span {
+    display: grid; gap: 6px; justify-items: center; text-align: center;
+    color: #163354; background: #f2f7fd; border: 1px solid #dce8f6;
+    border-radius: 10px; padding: 10px 8px; font-size: 0.78rem; font-weight: 900;
+  }
+  .thermal-card-grid i { color: #0ea5e9; }
+  .thermal-packages-section, .thermal-climate-section {
+    background: #f7fbff !important; color: #0f2a4a; padding: 62px 0;
+  }
+  .thermal-section-head { max-width: 820px; margin: 0 auto 24px; text-align: center; }
+  .thermal-section-head .ux-eyebrow,
+  .thermal-climate-section .ux-eyebrow,
+  .thermal-paste-section .ux-eyebrow { color: #1d4ed8 !important; }
+  .thermal-section-head h2,
+  .thermal-climate-inner h2,
+  .thermal-paste-copy h2 {
+    color: #0f2a4a !important; font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.75rem, 3vw, 2.55rem); line-height: 1.12; margin: 0 0 12px;
+  }
+  .thermal-section-head p,
+  .thermal-climate-inner p,
+  .thermal-paste-copy p { color: #425b78 !important; line-height: 1.65; font-weight: 650; margin: 0; }
+  .thermal-packages-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .thermal-package-card {
+    display: grid; gap: 10px; padding: 22px; border-radius: 14px;
+    background: #fbfdff; border: 1px solid #dbe7f7; color: #0f2a4a;
+    text-decoration: none; box-shadow: 0 12px 28px rgba(15,42,74,0.06);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .thermal-package-card:hover { transform: translateY(-3px); border-color: #93c5fd; }
+  .thermal-package-card.is-featured { background: linear-gradient(180deg, #eff6ff 0%, #fbfdff 100%); border-color: #60a5fa; }
+  .thermal-package-tag {
+    width: fit-content; color: #1d4ed8; background: #dbeafe; border-radius: 999px;
+    padding: 6px 9px; font-size: 0.76rem; font-weight: 950;
+  }
+  .thermal-package-card h3 { color: #0f2a4a !important; font-family: 'Kanit', sans-serif; font-size: 1.22rem; margin: 0; }
+  .thermal-package-card strong { color: #0ea5e9; font-family: 'Kanit', sans-serif; font-size: 2rem; line-height: 1; }
+  .thermal-package-card p, .thermal-package-card small { color: #425b78 !important; line-height: 1.48; margin: 0; font-weight: 650; }
+  .thermal-info-section {
+    background:
+      radial-gradient(circle at 80% 16%, rgba(34,211,238,0.13), transparent 30%),
+      linear-gradient(135deg, #07111f 0%, #0f172a 100%) !important;
+    padding: 64px 0;
+  }
+  .thermal-info-layout, .thermal-climate-inner, .thermal-paste-panel {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr); gap: 28px; align-items: center;
+  }
+  .thermal-info-copy h2 {
+    color: #f4f8fc !important; font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.55rem); line-height: 1.12; margin: 0 0 14px;
+  }
+  .thermal-info-copy p { color: #c8d7ea !important; line-height: 1.65; font-weight: 650; margin: 0; }
+  .thermal-info-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+  .thermal-info-points span {
+    display: inline-flex; align-items: center; gap: 9px; min-height: 56px; padding: 12px;
+    border-radius: 10px; color: #e8f3ff; background: rgba(15,23,42,0.74);
+    border: 1px solid rgba(125,211,252,0.16); font-size: 0.86rem; font-weight: 850;
+  }
+  .thermal-info-points i { color: #67e8f9; }
+  .thermal-info-media {
+    position: relative; height: 320px; margin: 0; border-radius: 18px;
+    overflow: hidden; border: 1px solid rgba(125,211,252,0.18); box-shadow: 0 24px 58px rgba(0,0,0,0.3);
+  }
+  .thermal-info-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thermal-info-media figcaption {
+    position: absolute; left: 14px; right: 14px; bottom: 14px; color: #e8f3ff;
+    background: rgba(7,17,31,0.84); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; padding: 12px; font-weight: 800;
+  }
+  .thermal-climate-inner { grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr); }
+  .thermal-climate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .thermal-climate-grid div {
+    display: grid; gap: 8px; min-height: 180px; padding: 18px; border-radius: 14px;
+    background: #fbfdff; border: 1px solid #dbe7f7; box-shadow: 0 12px 28px rgba(15,42,74,0.055);
+  }
+  .thermal-climate-grid i { color: #0ea5e9; font-size: 1.45rem; }
+  .thermal-climate-grid strong { color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.1rem; }
+  .thermal-climate-grid span { color: #425b78; line-height: 1.45; font-weight: 650; }
+  .thermal-paste-section { background: #edf5ff !important; padding: 62px 0; }
+  .thermal-paste-panel {
+    padding: 26px; border-radius: 18px; background: #fbfdff;
+    border: 1px solid #dbe7f7; box-shadow: 0 18px 46px rgba(15,42,74,0.08);
+  }
+  .thermal-paste-visual {
+    position: relative; display: grid; place-items: center; min-height: 300px; border-radius: 16px; overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(14,165,233,0.12) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(14,165,233,0.12) 1px, transparent 1px),
+      #07111f;
+    background-size: 28px 28px; border: 1px solid #b7d5f6;
+  }
+  .thermal-paste-visual span {
+    display: grid; place-items: center; width: 118px; height: 118px; border-radius: 22px;
+    color: #e8f3ff; background: linear-gradient(135deg, #0f2a4a, #0ea5e9);
+    border: 1px solid rgba(255,255,255,0.18); font-family: 'Kanit', sans-serif; font-size: 1.8rem;
+    z-index: 2; box-shadow: 0 20px 60px rgba(14,165,233,0.28);
+  }
+  .thermal-chip-lines { position: absolute; inset: 36px; border: 1px solid rgba(125,211,252,0.24); border-radius: 22px; }
+  .thermal-paste-visual strong {
+    position: absolute; left: 18px; right: 18px; bottom: 18px; color: #e8f3ff;
+    text-align: center; font-weight: 900;
+  }
+  .thermal-inline-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px; width: fit-content;
+    margin-top: 18px; color: #f4f8fc !important; background: #0ea5e9; border-radius: 10px;
+    padding: 13px 17px; text-decoration: none; font-weight: 950; box-shadow: 0 14px 30px rgba(14,165,233,0.22);
+  }
+  .thermal-inline-cta:hover { background: #0284c7; transform: translateY(-2px); }
+  @media (max-width: 980px) {
+    .thermal-packages-grid, .thermal-info-layout, .thermal-climate-inner, .thermal-paste-panel { grid-template-columns: 1fr; }
+    .thermal-info-points, .thermal-climate-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .thermal-hero, .thermal-packages-section, .thermal-info-section, .thermal-climate-section, .thermal-paste-section { padding: 42px 0; }
+    .thermal-hero-photo, .thermal-info-media { height: 220px; }
+    .thermal-card-grid, .thermal-meter { grid-template-columns: 1fr; }
+    .thermal-meter i { transform: rotate(90deg); justify-self: center; }
+    .thermal-paste-panel { padding: 18px; }
+  }
+
   .screen-hero {
     margin-top: 0;
     padding: 26px 0 32px;

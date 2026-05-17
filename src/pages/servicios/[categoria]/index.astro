@@ -1,47 +1,43 @@
 ---
 /**
- * Hub de cada categoría de servicios.
- *  /servicios/laptop, /servicios/pc, /servicios/telefono, /servicios/consola, /servicios/impresora
- *
- * Una sola sección con el listado de subservicios. Paleta brand:
- *   --bg deep:    #020617  (azul muy oscuro premium)
- *   --primary:    #3b82f6  (azul brand)
- *   --gold:       #f59e0b
- *   --accent:     #8b5cf6
- * Hereda font-heading 'Kanit' del CSS principal.
+ * Hub de cada categoria de servicios.
+ * /servicios/laptop, /servicios/pc, /servicios/telefono, /servicios/consola, /servicios/impresora
  */
 import Base from '../../../layouts/Base.astro';
 import Navbar from '../../../components/Navbar.astro';
 import Footer from '../../../components/Footer.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
 import CommentsSection from '../../../components/CommentsSection.astro';
+import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
 
 export function getStaticPaths() {
   return SERVICE_CATEGORIES.map((category) => ({
     params: { categoria: category.slug },
-    props:  { category },
+    props: { category },
   }));
 }
 
 const { category } = Astro.props;
 const canonical = `https://pixon.com.mx/servicios/${category.slug}`;
-const title = `Reparación de ${category.title} en Cancún | Pixon PC`;
-const description = `Servicios profesionales de reparación de ${category.title.toLowerCase()} en Cancún. ${category.services.length} servicios disponibles, garantía por escrito y diagnóstico gratis.`;
+const title = `Reparacion de ${category.title} en Cancun | Pixon PC`;
+const description = `Servicios profesionales de reparacion de ${category.title.toLowerCase()} en Cancun. ${category.services.length} servicios disponibles, garantia por escrito y diagnostico gratis.`;
+const waMessage = encodeURIComponent(`Hola, quiero informacion sobre los servicios de ${category.title}`);
+
+const featured = category.services.slice(0, 3);
+const remaining = category.services.slice(3);
 
 const schema = [
   {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Inicio',     item: 'https://pixon.com.mx/' },
-      { '@type': 'ListItem', position: 2, name: 'Servicios',  item: 'https://pixon.com.mx/servicios' },
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Servicios', item: 'https://pixon.com.mx/servicios' },
       { '@type': 'ListItem', position: 3, name: category.title, item: canonical },
     ],
   },
 ];
-
-const waMessage = encodeURIComponent(`Hola, quiero información sobre los servicios de ${category.title}`);
 ---
 
 <Base
@@ -54,106 +50,160 @@ const waMessage = encodeURIComponent(`Hola, quiero información sobre los servic
   <Navbar />
 
   <Breadcrumb items={[
-    { label: 'Inicio',    href: '/' },
+    { label: 'Inicio', href: '/' },
     { label: 'Servicios', href: '/servicios' },
     { label: category.title },
   ]} />
 
   <section class="cat-hub">
-    <!-- Capa de fondo gradient para sense of depth -->
-    <div class="cat-hub-bg" aria-hidden="true">
-      <div class="cat-hub-glow cat-hub-glow-1" style={`background: ${category.heroBg};`}></div>
-      <div class="cat-hub-glow cat-hub-glow-2"></div>
-    </div>
+    <div class="cat-hub-bg" aria-hidden="true"></div>
 
     <div class="container cat-hub-inner">
-      <!-- Header -->
-      <header class="cat-hub-header">
-        <span class="cat-hub-eyebrow">
-          <i class="fa-solid fa-screwdriver-wrench"></i>
-          Catálogo {category.title}
-        </span>
-        <div class="cat-hub-title-row">
-          <span class="cat-hub-icon" style={`background: ${category.heroBg};`}>
-            <i class={`fa-solid ${category.icon}`} aria-hidden="true"></i>
+      <header class="cat-hero">
+        <div class="cat-hero-copy">
+          <span class="cat-eyebrow">
+            <i class={`fa-solid ${category.icon}`}></i>
+            Catalogo {category.title}
           </span>
           <h1>
-            Reparación de <span class="cat-hub-title-accent">{category.title}</span>
-            <small>en Cancún</small>
+            Reparacion de <span>{category.title}</span>
+            <small>en Cancun</small>
           </h1>
+          <p>
+            {category.services.length} servicios profesionales para tu {category.title.toLowerCase()}.
+            Diagnostico siempre gratis y garantia por escrito.
+          </p>
+          <div class="cat-actions">
+            <a
+              href={`https://wa.me/529986690777?text=${waMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="cat-btn-primary"
+            >
+              <i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp
+            </a>
+            <a href="/contacto" class="cat-btn-secondary">
+              <i class="fa-solid fa-phone"></i> Otros medios
+            </a>
+          </div>
         </div>
-        <p class="cat-hub-lead">
-          {category.services.length} servicios profesionales para tu {category.title.toLowerCase()}.
-          Diagnóstico siempre gratis y <strong>garantía por escrito</strong>.
-        </p>
 
-        <div class="cat-hub-cta-row">
-          <a
-            href={`https://wa.me/529986690777?text=${waMessage}`}
-            target="_blank" rel="noopener noreferrer"
-            class="cat-hub-cta-primary"
-          >
-            <i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp
-          </a>
-          <a href="/contacto" class="cat-hub-cta-secondary">
-            <i class="fa-solid fa-phone"></i> Otros medios
-          </a>
-        </div>
+        <aside class="cat-hero-panel" aria-label={`Resumen de servicios de ${category.title}`}>
+          <div class="cat-device-mark" style={`--category-bg: ${category.heroBg};`}>
+            <i class={`fa-solid ${category.icon}`}></i>
+          </div>
+          <div class="cat-panel-stat">
+            <strong>{category.services.length}</strong>
+            <span>servicios disponibles</span>
+          </div>
+          <div class="cat-panel-grid">
+            <div><i class="fa-solid fa-magnifying-glass"></i><span>Diagnostico gratis</span></div>
+            <div><i class="fa-solid fa-shield-halved"></i><span>Garantia por escrito</span></div>
+            <div><i class="fa-solid fa-clock"></i><span>Tiempos claros</span></div>
+            <div><i class="fa-solid fa-location-dot"></i><span>Servicio en Cancun</span></div>
+          </div>
+        </aside>
       </header>
 
-      <!-- Grid de servicios -->
-      <div class="cat-hub-grid">
-        {category.services.map((s) => {
-          const href = s.customUrl ?? `/servicios/${category.slug}/${s.slug}`;
-          const isExternal = !!s.customUrl;
-          return (
-            <a href={href} class={`cat-card${isExternal ? ' cat-card--linked' : ''}`}>
-              <div class="cat-card-head">
-                <span class="cat-card-title">{s.label}</span>
-                <i class="fa-solid fa-arrow-right cat-card-arrow" aria-hidden="true"></i>
-              </div>
-              {s.intro && <p class="cat-card-intro">{s.intro}</p>}
-              {(s.fromPrice || s.eta) && (
-                <div class="cat-card-meta">
-                  {s.fromPrice && <span class="cat-card-price">Desde {s.fromPrice}</span>}
-                  {s.eta && <span class="cat-card-eta"><i class="fa-solid fa-clock"></i> {s.eta}</span>}
-                </div>
-              )}
-              {isExternal && (
-                <span class="cat-card-linked-tag"><i class="fa-solid fa-link"></i> Servicio dedicado</span>
-              )}
-            </a>
-          );
-        })}
-      </div>
+      <section class="cat-featured" aria-labelledby="destacados-title">
+        <div class="cat-section-head">
+          <span>Servicios principales</span>
+          <h2 id="destacados-title">Elige el servicio que mejor describe la falla</h2>
+          <p>Si no estas seguro, crea un ticket y te guiamos hacia el servicio correcto antes de cotizar.</p>
+        </div>
 
-      <!-- Trust strip al final -->
+        <div class="cat-featured-grid">
+          {featured.map((service, index) => {
+            const href = service.customUrl ?? `/servicios/${category.slug}/${service.slug}`;
+            const isExternal = !!service.customUrl;
+            return (
+              <a href={href} class="cat-feature-card">
+                <div class="cat-feature-top">
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  {isExternal && <em>Servicio dedicado</em>}
+                </div>
+                <h3>{service.label}</h3>
+                {service.intro && <p>{service.intro}</p>}
+                <div class="cat-card-meta">
+                  {service.fromPrice && <span>Desde {service.fromPrice}</span>}
+                  {service.eta && <span><i class="fa-solid fa-clock"></i> {service.eta}</span>}
+                </div>
+                <i class="fa-solid fa-arrow-right cat-card-next"></i>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+
+      {remaining.length > 0 && (
+        <section class="cat-service-board" aria-labelledby="servicios-title">
+          <div class="cat-section-head compact">
+            <span>Catalogo completo</span>
+            <h2 id="servicios-title">Mas opciones para {category.title}</h2>
+          </div>
+
+          <div class="cat-service-list">
+            {remaining.map((service) => {
+              const href = service.customUrl ?? `/servicios/${category.slug}/${service.slug}`;
+              const isExternal = !!service.customUrl;
+              return (
+                <a href={href} class="cat-service-row">
+                  <div class="cat-row-main">
+                    <strong>{service.label}</strong>
+                    {service.intro && <p>{service.intro}</p>}
+                  </div>
+                  <div class="cat-row-meta">
+                    {isExternal && <span class="cat-tag-dedicated">Servicio dedicado</span>}
+                    {service.fromPrice && <span>{service.fromPrice}</span>}
+                    {service.eta && <span>{service.eta}</span>}
+                    <i class="fa-solid fa-arrow-right"></i>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <section class="cat-support-flow" aria-labelledby="flow-title">
+        <div>
+          <span class="cat-flow-label">Como trabajamos</span>
+          <h2 id="flow-title">Primero confirmamos la falla, luego cotizamos</h2>
+          <p>No vendemos piezas ni servicios sin revisar. Tomamos sintomas, validamos el equipo y te damos una ruta clara.</p>
+        </div>
+        <div class="cat-flow-steps">
+          <div><strong>01</strong><span>Recibimos sintomas</span></div>
+          <div><strong>02</strong><span>Diagnosticamos causa</span></div>
+          <div><strong>03</strong><span>Confirmamos costo y garantia</span></div>
+        </div>
+      </section>
+
       <div class="cat-hub-trust">
         <div class="cat-hub-trust-item">
           <i class="fa-solid fa-shield-halved"></i>
           <div>
-            <strong>Garantía por escrito</strong>
+            <strong>Garantia por escrito</strong>
             <small>en cada servicio</small>
           </div>
         </div>
         <div class="cat-hub-trust-item">
           <i class="fa-solid fa-magnifying-glass"></i>
           <div>
-            <strong>Diagnóstico gratis</strong>
+            <strong>Diagnostico gratis</strong>
             <small>sin compromiso</small>
           </div>
         </div>
         <div class="cat-hub-trust-item">
           <i class="fa-solid fa-truck"></i>
           <div>
-            <strong>Recolección en Cancún</strong>
+            <strong>Recoleccion en Cancun</strong>
             <small>sin costo en servicios &gt;$800</small>
           </div>
         </div>
         <div class="cat-hub-trust-item">
           <i class="fa-solid fa-clock"></i>
           <div>
-            <strong>+7 años</strong>
+            <strong>+7 anos</strong>
             <small>de experiencia</small>
           </div>
         </div>
@@ -161,335 +211,472 @@ const waMessage = encodeURIComponent(`Hola, quiero información sobre los servic
     </div>
   </section>
 
+  <ServiceTicketSection
+    defaultDevice={category.title}
+    defaultService={`Servicios de ${category.title}`}
+    title={`Crear Ticket de ${category.title}`}
+    subtitle={`Cuentanos que necesita tu ${category.title.toLowerCase()} y te guiamos al servicio correcto.`}
+  />
+
   <CommentsSection viewMoreHref="/comentarios" />
 
   <Footer />
 
   <style is:global>
-    /* ═══ Hub de categoría — paleta brand #020617 ═══
-       Hereda --primary, --gold, --accent del CSS principal */
     .cat-hub {
       position: relative;
-      padding: 110px 0 90px;
-      background: #020617;
-      color: #f1f5f9;
+      padding: 46px 0 62px;
+      background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
+      color: #0f2a4a;
       overflow: hidden;
       isolation: isolate;
     }
     .cat-hub-bg {
       position: absolute;
       inset: 0;
-      z-index: 0;
+      background:
+        linear-gradient(90deg, rgba(37, 99, 235, .055) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(37, 99, 235, .05) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(180deg, #000 0%, transparent 82%);
       pointer-events: none;
-    }
-    .cat-hub-glow {
-      position: absolute;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      filter: blur(120px);
-      opacity: .35;
-    }
-    .cat-hub-glow-1 {
-      top: -200px; left: -200px;
-    }
-    .cat-hub-glow-2 {
-      bottom: -300px; right: -200px;
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(139,92,246,.4), transparent 60%);
-      opacity: .3;
     }
     .cat-hub-inner {
       position: relative;
       z-index: 1;
     }
 
-    /* Header */
-    .cat-hub-header {
-      max-width: 800px;
-      margin: 0 auto 56px;
-      text-align: center;
+    .cat-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 34px;
     }
-    .cat-hub-eyebrow {
+    .cat-hero-copy,
+    .cat-hero-panel,
+    .cat-featured,
+    .cat-service-board,
+    .cat-support-flow,
+    .cat-hub-trust {
+      background: #fbfdff;
+      border: 1px solid #dbe7f7;
+      box-shadow: 0 16px 44px rgba(15, 42, 74, .08);
+    }
+    .cat-hero-copy {
+      min-height: 340px;
+      padding: 42px;
+      border-radius: 22px;
+    }
+    .cat-eyebrow,
+    .cat-section-head span,
+    .cat-flow-label {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: .78rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .14em;
-      color: var(--gold, #f59e0b);
-      background: rgba(245, 158, 11, .1);
-      border: 1px solid rgba(245, 158, 11, .25);
-      padding: 6px 14px;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
       border-radius: 999px;
-      margin-bottom: 22px;
+      padding: 7px 13px;
+      font-size: .76rem;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
     }
-    .cat-hub-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 22px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-    .cat-hub-icon {
-      width: 76px;
-      height: 76px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.9rem;
-      box-shadow: 0 16px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.08);
-      flex-shrink: 0;
-    }
-    .cat-hub-header h1 {
+    .cat-hero h1 {
       font-family: var(--font-heading, 'Kanit', sans-serif);
-      font-size: clamp(1.9rem, 4.6vw, 3.1rem);
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1.1;
-      margin: 0;
-      text-align: left;
-      text-wrap: balance;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: 0;
+      color: #0b1f3a;
+      margin: 18px 0 16px;
     }
-    .cat-hub-header h1 small {
+    .cat-hero h1 span {
+      color: #1d4ed8;
+    }
+    .cat-hero h1 small {
       display: block;
-      font-size: .55em;
-      font-weight: 600;
-      color: rgba(255,255,255,.7);
-      letter-spacing: .04em;
-      margin-top: 4px;
+      color: #425b78;
+      font-size: .48em;
+      margin-top: 8px;
     }
-    .cat-hub-title-accent {
-      background: linear-gradient(135deg, #fbbf24 0%, #fde68a 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .cat-hub-lead {
+    .cat-hero-copy p {
+      color: #425b78;
       font-size: 1.05rem;
-      line-height: 1.6;
-      color: rgba(241, 245, 249, .82);
-      margin: 0 auto 26px;
-      max-width: 620px;
+      line-height: 1.62;
+      max-width: 640px;
+      margin: 0 0 24px;
     }
-    .cat-hub-lead strong {
-      color: var(--gold, #fbbf24);
-      font-weight: 700;
-    }
-    .cat-hub-cta-row {
+    .cat-actions {
       display: flex;
-      gap: 12px;
-      justify-content: center;
       flex-wrap: wrap;
+      gap: 12px;
     }
-    .cat-hub-cta-primary,
-    .cat-hub-cta-secondary {
+    .cat-btn-primary,
+    .cat-btn-secondary {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 22px;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 12px 18px;
       border-radius: 12px;
-      font-weight: 700;
-      font-size: .95rem;
+      font-weight: 850;
       text-decoration: none;
-      transition: all .15s ease;
+      transition: transform .2s ease, box-shadow .2s ease;
     }
-    .cat-hub-cta-primary {
-      background: linear-gradient(135deg, #25d366, #128c7e);
-      color: #ffffff;
-      box-shadow: 0 8px 22px rgba(18,140,126,.4);
+    .cat-btn-primary {
+      background: #128c7e;
+      color: #f8fbff;
+      box-shadow: 0 14px 28px rgba(18, 140, 126, .22);
     }
-    .cat-hub-cta-primary:hover {
+    .cat-btn-secondary {
+      background: #f8fbff;
+      color: #0f2a4a;
+      border: 1px solid #cbdff6;
+    }
+    .cat-btn-primary:hover,
+    .cat-btn-secondary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(18,140,126,.55);
-    }
-    .cat-hub-cta-secondary {
-      background: rgba(255,255,255,.06);
-      color: #ffffff;
-      border: 1px solid rgba(255,255,255,.16);
-    }
-    .cat-hub-cta-secondary:hover {
-      background: rgba(255,255,255,.12);
-      border-color: rgba(255,255,255,.3);
     }
 
-    /* Grid de cards */
-    .cat-hub-grid {
+    .cat-hero-panel {
+      border-radius: 22px;
+      padding: 26px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 18px;
-      margin-bottom: 60px;
+      align-content: space-between;
+      gap: 22px;
     }
-    .cat-card {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 16px;
-      padding: 22px 24px;
-      text-decoration: none;
-      color: #f1f5f9;
-      transition: all .2s ease;
+    .cat-device-mark {
+      width: 86px;
+      height: 86px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--category-bg);
+      color: #f8fbff;
+      font-size: 2.15rem;
+      box-shadow: 0 16px 34px rgba(29, 78, 216, .18);
+    }
+    .cat-panel-stat strong,
+    .cat-panel-stat span {
+      display: block;
+    }
+    .cat-panel-stat strong {
+      color: #0f2a4a;
+      font-family: var(--font-heading, 'Kanit', sans-serif);
+      font-size: 4.6rem;
+      line-height: .9;
+    }
+    .cat-panel-stat span {
+      color: #536b87;
+      font-weight: 800;
+    }
+    .cat-panel-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .cat-panel-grid div {
+      min-height: 86px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #f2f7ff;
+      border: 1px solid #dbe7f7;
+      color: #0f2a4a;
+      display: grid;
+      align-content: center;
+      gap: 7px;
+    }
+    .cat-panel-grid i {
+      color: #1d4ed8;
+    }
+    .cat-panel-grid span {
+      color: #425b78;
+      font-size: .82rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .cat-featured,
+    .cat-service-board,
+    .cat-support-flow {
+      border-radius: 22px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .cat-section-head {
+      max-width: 760px;
+      margin-bottom: 20px;
+    }
+    .cat-section-head.compact {
+      max-width: 620px;
+    }
+    .cat-section-head h2,
+    .cat-support-flow h2 {
+      color: #0f2a4a;
+      font-family: var(--font-heading, 'Kanit', sans-serif);
+      font-size: clamp(1.45rem, 3vw, 2.25rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+      margin: 10px 0 8px;
+    }
+    .cat-section-head p,
+    .cat-support-flow p {
+      color: #536b87;
+      line-height: 1.58;
+      margin: 0;
+    }
+
+    .cat-featured-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .cat-feature-card {
+      position: relative;
+      min-height: 230px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      position: relative;
-      overflow: hidden;
+      padding: 20px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
+      border: 1px solid #dbe7f7;
+      color: #0f2a4a;
+      text-decoration: none;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
-    .cat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary, #3b82f6), var(--accent, #8b5cf6));
-      opacity: 0;
-      transition: opacity .2s ease;
-    }
-    .cat-card:hover {
+    .cat-feature-card:hover {
       transform: translateY(-3px);
-      background: rgba(255,255,255,.08);
-      border-color: rgba(59,130,246,.4);
-      box-shadow: 0 16px 36px rgba(0,0,0,.5), 0 0 0 1px rgba(59,130,246,.15);
+      border-color: #93c5fd;
+      box-shadow: 0 16px 36px rgba(15, 42, 74, .12);
     }
-    .cat-card:hover::before { opacity: 1; }
-    .cat-card-head {
+    .cat-feature-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      align-items: center;
+      gap: 10px;
     }
-    .cat-card-title {
-      font-size: 1.02rem;
-      font-weight: 700;
-      color: #ffffff;
-      font-family: var(--font-heading, 'Kanit', sans-serif);
-      letter-spacing: .005em;
+    .cat-feature-top span {
+      color: #1d4ed8;
+      font-weight: 900;
     }
-    .cat-card-arrow {
-      color: rgba(255,255,255,.45);
-      transition: all .2s;
-      font-size: .85rem;
+    .cat-feature-top em,
+    .cat-tag-dedicated {
+      font-style: normal;
+      color: #1e3a8a;
+      background: #dbeafe;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: .7rem;
+      font-weight: 900;
     }
-    .cat-card:hover .cat-card-arrow {
-      color: var(--gold, #fbbf24);
-      transform: translateX(4px);
+    .cat-feature-card h3 {
+      color: #0f2a4a;
+      font-size: 1.16rem;
+      margin: 0;
+      font-weight: 900;
     }
-    .cat-card-intro {
-      font-size: .85rem;
+    .cat-feature-card p {
+      color: #536b87;
       line-height: 1.55;
-      color: rgba(241, 245, 249, .7);
       margin: 0;
       flex: 1;
+      font-size: .9rem;
     }
     .cat-card-meta {
       display: flex;
-      gap: 8px;
       flex-wrap: wrap;
+      gap: 8px;
       margin-top: auto;
     }
-    .cat-card-price,
-    .cat-card-eta {
-      font-size: .74rem;
-      font-weight: 700;
-      padding: 4px 10px;
+    .cat-card-meta span {
+      color: #1e3a8a;
+      background: #f2f7ff;
+      border: 1px solid #dbe7f7;
       border-radius: 999px;
-      letter-spacing: .02em;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      padding: 5px 10px;
+      font-size: .75rem;
+      font-weight: 850;
     }
-    .cat-card-price {
-      background: rgba(245, 158, 11, .15);
-      color: #fde68a;
-      border: 1px solid rgba(245, 158, 11, .3);
-    }
-    .cat-card-eta {
-      background: rgba(255,255,255,.08);
-      color: rgba(241, 245, 249, .85);
-      border: 1px solid rgba(255,255,255,.1);
-    }
-    .cat-card-eta i { font-size: .7em; }
-    .cat-card--linked {
-      border-style: dashed;
-      border-color: rgba(139, 92, 246, .35);
-    }
-    .cat-card-linked-tag {
-      font-size: .7rem;
-      font-weight: 700;
-      color: #c4b5fd;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+    .cat-card-next {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      color: #1d4ed8;
     }
 
-    /* Trust strip */
+    .cat-service-list {
+      display: grid;
+      gap: 10px;
+    }
+    .cat-service-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid #dbe7f7;
+      text-decoration: none;
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .cat-service-row:hover {
+      transform: translateX(3px);
+      border-color: #93c5fd;
+      box-shadow: 0 12px 26px rgba(15, 42, 74, .08);
+    }
+    .cat-row-main strong {
+      display: block;
+      color: #0f2a4a;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+    .cat-row-main p {
+      color: #536b87;
+      font-size: .86rem;
+      line-height: 1.45;
+      margin: 0;
+    }
+    .cat-row-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 220px;
+    }
+    .cat-row-meta span:not(.cat-tag-dedicated) {
+      color: #1e3a8a;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: .74rem;
+      font-weight: 850;
+    }
+    .cat-row-meta i {
+      color: #1d4ed8;
+    }
+
+    .cat-support-flow {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(360px, 1.1fr);
+      gap: 24px;
+      align-items: center;
+      background: linear-gradient(135deg, #f6f9fe 0%, #eaf2ff 100%);
+    }
+    .cat-flow-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .cat-flow-steps div {
+      min-height: 118px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid #dbe7f7;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+    }
+    .cat-flow-steps strong {
+      color: #1d4ed8;
+      font-size: 1.25rem;
+    }
+    .cat-flow-steps span {
+      color: #0f2a4a;
+      font-weight: 850;
+      line-height: 1.3;
+    }
+
     .cat-hub-trust {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      padding: 28px 24px;
-      background: rgba(2, 6, 23, .6);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 18px;
-      backdrop-filter: blur(8px);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 18px;
+      border-radius: 20px;
+      margin-top: 6px;
     }
     .cat-hub-trust-item {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid #dbe7f7;
     }
     .cat-hub-trust-item i {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 12px;
-      background: rgba(59, 130, 246, .15);
-      color: var(--primary, #3b82f6);
-      font-size: 1.1rem;
+      background: #eff6ff;
+      color: #1d4ed8;
       flex-shrink: 0;
     }
     .cat-hub-trust-item strong {
       display: block;
-      font-size: .92rem;
-      color: #ffffff;
-      font-weight: 700;
-      line-height: 1.2;
+      color: #0f2a4a;
+      font-size: .9rem;
+      line-height: 1.22;
     }
     .cat-hub-trust-item small {
       display: block;
+      color: #536b87;
       font-size: .76rem;
-      color: rgba(241, 245, 249, .6);
       margin-top: 3px;
     }
 
-    /* Responsive móvil */
-    @media (max-width: 768px) {
-      .cat-hub { padding: 70px 0 60px; }
-      .cat-hub-header { margin-bottom: 36px; }
-      .cat-hub-title-row {
-        flex-direction: column;
-        gap: 14px;
-        text-align: center;
+    @media (max-width: 900px) {
+      .cat-hero,
+      .cat-support-flow {
+        grid-template-columns: 1fr;
       }
-      .cat-hub-header h1 { text-align: center; }
-      .cat-hub-icon {
-        width: 60px; height: 60px;
-        font-size: 1.5rem;
+      .cat-featured-grid,
+      .cat-flow-steps,
+      .cat-hub-trust {
+        grid-template-columns: 1fr;
       }
-      .cat-hub-cta-row { flex-direction: column; align-items: stretch; }
-      .cat-hub-cta-primary, .cat-hub-cta-secondary {
-        justify-content: center;
+      .cat-service-row {
+        grid-template-columns: 1fr;
       }
-      .cat-hub-grid { grid-template-columns: 1fr; }
-      .cat-hub-trust { padding: 20px 16px; }
+      .cat-row-meta {
+        justify-content: flex-start;
+        min-width: 0;
+      }
     }
-    @media (max-width: 480px) {
-      .cat-hub-glow { display: none; }
+
+    @media (max-width: 560px) {
+      .cat-hub {
+        padding: 34px 0 46px;
+      }
+      .cat-hero-copy,
+      .cat-hero-panel,
+      .cat-featured,
+      .cat-service-board,
+      .cat-support-flow {
+        padding: 22px;
+      }
+      .cat-actions {
+        flex-direction: column;
+      }
+      .cat-btn-primary,
+      .cat-btn-secondary {
+        width: 100%;
+      }
+      .cat-panel-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </Base>

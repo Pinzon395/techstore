@@ -1,7 +1,7 @@
 ---
 /**
- * Hub general de servicios — /servicios
- * Tarjetas grandes para las 5 categorías. Paleta brand #020617.
+ * Hub general de servicios - /servicios
+ * Consume src/data/services.ts como fuente unica para categorias y conteos.
  */
 import Base from '../../layouts/Base.astro';
 import Navbar from '../../components/Navbar.astro';
@@ -13,12 +13,19 @@ import { SERVICE_CATEGORIES } from '../../data/services';
 const canonical = 'https://pixon.com.mx/servicios';
 const totalServices = SERVICE_CATEGORIES.reduce((acc, c) => acc + c.services.length, 0);
 
+const priorityServices = [
+  { label: 'Pantalla rota', href: '/servicios/laptop/cambio-pantalla', icon: 'fa-display' },
+  { label: 'No enciende', href: '/servicios/laptop/diagnostico', icon: 'fa-power-off' },
+  { label: 'Equipo lento', href: '/servicios/pc/upgrade', icon: 'fa-gauge-high' },
+  { label: 'Se calienta', href: '/servicios/laptop/pasta-termica', icon: 'fa-temperature-high' },
+];
+
 const schema = [
   {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Inicio',    item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
       { '@type': 'ListItem', position: 2, name: 'Servicios', item: canonical },
     ],
   },
@@ -26,8 +33,8 @@ const schema = [
 ---
 
 <Base
-  title="Servicios de Reparación en Cancún | Pixon PC"
-  description={`${totalServices} servicios profesionales de reparación: laptop, PC, teléfono, consola e impresora. Diagnóstico gratis y garantía por escrito.`}
+  title="Servicios de Reparacion en Cancun | Pixon PC"
+  description={`${totalServices} servicios profesionales de reparacion: laptop, PC, telefono, consola e impresora. Diagnostico gratis y garantia por escrito.`}
   canonical={canonical}
   image="/LOGOCIRCULAR.png"
   schema={schema}
@@ -40,44 +47,112 @@ const schema = [
   ]} />
 
   <section class="svc-hub">
-    <div class="svc-hub-bg" aria-hidden="true">
-      <div class="svc-hub-glow"></div>
-    </div>
+    <div class="svc-hub-bg" aria-hidden="true"></div>
 
     <div class="container svc-hub-inner">
+      <header class="svc-hub-hero">
+        <div class="svc-hub-copy">
+          <span class="svc-hub-eyebrow">
+            <i class="fa-solid fa-screwdriver-wrench"></i> Catalogo completo
+          </span>
+          <h1>Nuestros <span>servicios</span></h1>
+          <p>
+            {totalServices} servicios profesionales agrupados en 5 categorias.
+            <strong> Diagnostico siempre gratis</strong> y garantia por escrito en cada uno.
+          </p>
+          <div class="svc-hub-actions" aria-label="Acciones principales">
+            <a href="#categorias-servicio" class="svc-hub-btn-primary">
+              Ver categorias <i class="fa-solid fa-arrow-down"></i>
+            </a>
+            <a href="https://wa.me/529986690777?text=Hola%2C%20quiero%20saber%20que%20servicio%20necesita%20mi%20equipo" target="_blank" rel="noopener noreferrer" class="svc-hub-btn-secondary">
+              <i class="fa-brands fa-whatsapp"></i> Orientacion rapida
+            </a>
+          </div>
+        </div>
 
-      <header class="svc-hub-header">
-        <span class="svc-hub-eyebrow">
-          <i class="fa-solid fa-bolt"></i> Catálogo completo
-        </span>
-        <h1>Nuestros <span class="svc-hub-accent">servicios</span></h1>
-        <p>
-          {totalServices} servicios profesionales agrupados en 5 categorías.
-          <strong>Diagnóstico siempre gratis</strong> y garantía por escrito en cada uno.
-        </p>
+        <aside class="svc-hub-map" aria-label="Resumen del catalogo">
+          <div class="svc-hub-map-top">
+            <span>Mapa de servicio</span>
+            <strong>{totalServices}</strong>
+            <small>servicios activos</small>
+          </div>
+          <div class="svc-hub-map-grid">
+            <div><strong>5</strong><span>categorias</span></div>
+            <div><strong>0$</strong><span>diagnostico</span></div>
+            <div><strong>24-48h</strong><span>casos comunes</span></div>
+            <div><strong>Garantia</strong><span>por escrito</span></div>
+          </div>
+        </aside>
       </header>
 
-      <div class="svc-hub-grid">
-        {SERVICE_CATEGORIES.map((cat) => (
-          <a href={`/servicios/${cat.slug}`} class="svc-hub-cat-card">
-            <div class="svc-hub-cat-bg" style={`background: ${cat.heroBg};`}></div>
-            <div class="svc-hub-cat-content">
-              <div class="svc-hub-cat-icon">
-                <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
-              </div>
-              <h2>{cat.title}</h2>
-              <p>{cat.blurb}</p>
-              <div class="svc-hub-cat-footer">
-                <span class="svc-hub-cat-count">{cat.services.length} servicios</span>
-                <span class="svc-hub-cat-arrow">
-                  <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                </span>
-              </div>
-            </div>
-          </a>
-        ))}
+      <div class="svc-hub-priority" aria-label="Accesos por problema frecuente">
+        <span class="svc-hub-priority-label">Atajos por problema</span>
+        <div class="svc-hub-priority-links">
+          {priorityServices.map((item) => (
+            <a href={item.href}>
+              <i class={`fa-solid ${item.icon}`}></i>
+              {item.label}
+            </a>
+          ))}
+        </div>
       </div>
 
+      <section class="svc-hub-categories" id="categorias-servicio" aria-labelledby="categorias-title">
+        <div class="svc-hub-section-head">
+          <span>Elige por tipo de equipo</span>
+          <h2 id="categorias-title">Servicios organizados para encontrar la solucion mas rapido</h2>
+          <p>Entra a la categoria de tu equipo y revisa servicios especificos con precios desde, tiempos estimados y proceso de atencion.</p>
+        </div>
+
+        <div class="svc-hub-lanes">
+          {SERVICE_CATEGORIES.map((cat, index) => (
+            <a href={`/servicios/${cat.slug}`} class="svc-hub-lane" style={`--lane-bg: ${cat.heroBg};`}>
+              <div class="svc-hub-lane-index">{String(index + 1).padStart(2, '0')}</div>
+              <div class="svc-hub-lane-icon">
+                <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
+              </div>
+              <div class="svc-hub-lane-main">
+                <h3>{cat.title}</h3>
+                <p>{cat.blurb}</p>
+                <div class="svc-hub-service-preview">
+                  {cat.services.slice(0, 4).map((service) => (
+                    <span>{service.label}</span>
+                  ))}
+                </div>
+              </div>
+              <div class="svc-hub-lane-meta">
+                <strong>{cat.services.length}</strong>
+                <span>servicios</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="svc-hub-flow" aria-labelledby="flujo-title">
+        <div class="svc-hub-section-head compact">
+          <span>Proceso claro</span>
+          <h2 id="flujo-title">Si no sabes que servicio elegir, lo aterrizamos contigo</h2>
+        </div>
+        <div class="svc-hub-flow-grid">
+          <div class="svc-hub-flow-step">
+            <i class="fa-solid fa-laptop-medical"></i>
+            <strong>1. Identificamos el equipo</strong>
+            <p>Laptop, PC, consola, celular o impresora. Revisamos marca, modelo y sintoma principal.</p>
+          </div>
+          <div class="svc-hub-flow-step">
+            <i class="fa-solid fa-stethoscope"></i>
+            <strong>2. Confirmamos la falla</strong>
+            <p>No cotizamos a ciegas: validamos si es pieza, software, temperatura, carga, pantalla o placa.</p>
+          </div>
+          <div class="svc-hub-flow-step">
+            <i class="fa-solid fa-clipboard-check"></i>
+            <strong>3. Te damos ruta de servicio</strong>
+            <p>Recibes diagnostico, opciones, tiempo estimado y garantia antes de aprobar cualquier trabajo.</p>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
 
@@ -86,12 +161,11 @@ const schema = [
   <Footer />
 
   <style is:global>
-    /* ═══ Hub general /servicios — paleta brand #020617 ═══ */
     .svc-hub {
       position: relative;
-      padding: 110px 0 90px;
-      background: #020617;
-      color: #f1f5f9;
+      padding: 54px 0 70px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 56%, #eef4ff 100%);
+      color: #0f2a4a;
       overflow: hidden;
       isolation: isolate;
     }
@@ -99,23 +173,34 @@ const schema = [
       position: absolute;
       inset: 0;
       pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(37, 99, 235, 0.06) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+      opacity: .9;
     }
-    .svc-hub-glow {
-      position: absolute;
-      top: -200px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 600px;
-      background: radial-gradient(ellipse, rgba(59,130,246,.25) 0%, rgba(139,92,246,.1) 40%, transparent 70%);
-      filter: blur(80px);
+    .svc-hub-inner {
+      position: relative;
+      z-index: 1;
     }
-    .svc-hub-inner { position: relative; z-index: 1; }
 
-    .svc-hub-header {
-      text-align: center;
-      max-width: 720px;
-      margin: 0 auto 56px;
+    .svc-hub-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 34px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+    .svc-hub-copy {
+      min-height: 360px;
+      padding: 44px;
+      border: 1px solid #dbe7f7;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 92% 12%, rgba(59, 130, 246, .14), transparent 34%),
+        #ffffff;
+      box-shadow: 0 18px 50px rgba(15, 42, 74, .08);
     }
     .svc-hub-eyebrow {
       display: inline-flex;
@@ -125,153 +210,387 @@ const schema = [
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: .14em;
-      color: var(--gold, #f59e0b);
-      background: rgba(245, 158, 11, .1);
-      border: 1px solid rgba(245, 158, 11, .25);
-      padding: 6px 14px;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 7px 14px;
       border-radius: 999px;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
-    .svc-hub-header h1 {
+    .svc-hub-copy h1 {
       font-family: var(--font-heading, 'Kanit', sans-serif);
-      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
       font-weight: 800;
-      color: #ffffff;
-      line-height: 1.1;
+      color: #0b1f3a;
+      line-height: .98;
       margin: 0 0 16px;
+      letter-spacing: 0;
     }
-    .svc-hub-accent {
-      background: linear-gradient(135deg, #fbbf24 0%, #fde68a 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .svc-hub-copy h1 span {
+      color: #1d4ed8;
     }
-    .svc-hub-header p {
+    .svc-hub-copy p {
       font-size: 1.05rem;
       line-height: 1.6;
-      color: rgba(241, 245, 249, .82);
-      margin: 0;
+      color: #425b78;
+      margin: 0 0 24px;
+      max-width: 660px;
     }
-    .svc-hub-header strong {
-      color: var(--gold, #fbbf24);
+    .svc-hub-copy strong {
+      color: #0f2a4a;
       font-weight: 700;
+    }
+    .svc-hub-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .svc-hub-btn-primary,
+    .svc-hub-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .svc-hub-btn-primary {
+      background: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 14px 30px rgba(29, 78, 216, .24);
+    }
+    .svc-hub-btn-secondary {
+      color: #0f2a4a;
+      background: #ffffff;
+      border: 1px solid #cbdff6;
+    }
+    .svc-hub-btn-primary:hover,
+    .svc-hub-btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(15, 42, 74, .14);
     }
 
-    /* Grid de categorías */
-    .svc-hub-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-    }
-    .svc-hub-cat-card {
-      position: relative;
-      border-radius: 20px;
-      text-decoration: none;
-      color: #ffffff;
-      transition: all .25s ease;
+    .svc-hub-map {
+      border-radius: 22px;
       overflow: hidden;
-      isolation: isolate;
-      min-height: 260px;
+      border: 1px solid #cbdff6;
+      background: #0f2a4a;
+      color: #ffffff;
+      box-shadow: 0 18px 50px rgba(15, 42, 74, .16);
+    }
+    .svc-hub-map-top {
+      min-height: 210px;
+      padding: 30px;
+      display: grid;
+      align-content: end;
+      background:
+        radial-gradient(circle at 80% 16%, rgba(96, 165, 250, .45), transparent 30%),
+        linear-gradient(135deg, #0f2a4a 0%, #1d4ed8 100%);
+    }
+    .svc-hub-map-top span {
+      color: #bfdbfe;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .svc-hub-map-top strong {
+      font-family: var(--font-heading, 'Kanit', sans-serif);
+      font-size: 5rem;
+      line-height: .9;
+      margin-top: 12px;
+    }
+    .svc-hub-map-top small {
+      color: #dbeafe;
+      font-size: 1rem;
+    }
+    .svc-hub-map-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+    .svc-hub-map-grid div {
+      padding: 18px;
+      border-right: 1px solid rgba(255,255,255,.1);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .svc-hub-map-grid strong,
+    .svc-hub-map-grid span {
+      display: block;
+    }
+    .svc-hub-map-grid strong {
+      font-size: 1.08rem;
+      color: #ffffff;
+    }
+    .svc-hub-map-grid span {
+      color: #bfdbfe;
+      font-size: .8rem;
+      margin-top: 3px;
+    }
+
+    .svc-hub-priority {
       display: flex;
-      border: 1px solid rgba(255,255,255,.1);
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      margin-bottom: 36px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #dbe7f7;
+      box-shadow: 0 12px 36px rgba(15, 42, 74, .06);
     }
-    .svc-hub-cat-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      transition: transform .35s ease;
+    .svc-hub-priority-label {
+      color: #0f2a4a;
+      font-weight: 900;
+      white-space: nowrap;
+      font-size: .88rem;
     }
-    .svc-hub-cat-bg::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(2,6,23,.35) 0%, rgba(2,6,23,.85) 100%);
-    }
-    .svc-hub-cat-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(255,255,255,.25);
-      box-shadow: 0 24px 48px rgba(0,0,0,.55);
-    }
-    .svc-hub-cat-card:hover .svc-hub-cat-bg {
-      transform: scale(1.06);
-    }
-    .svc-hub-cat-content {
-      position: relative;
-      z-index: 1;
-      padding: 26px 24px;
+    .svc-hub-priority-links {
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      flex: 1;
-      gap: 14px;
+      flex-wrap: wrap;
+      gap: 9px;
     }
-    .svc-hub-cat-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.18);
-      border: 1px solid rgba(255,255,255,.28);
+    .svc-hub-priority-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: #f8fafc;
+      color: #1e3a8a;
+      border: 1px solid #dbe7f7;
+      text-decoration: none;
+      font-size: .84rem;
+      font-weight: 800;
+    }
+    .svc-hub-priority-links a:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .svc-hub-categories,
+    .svc-hub-flow {
+      margin-top: 34px;
+    }
+    .svc-hub-section-head {
+      max-width: 760px;
+      margin-bottom: 22px;
+    }
+    .svc-hub-section-head.compact {
+      max-width: 680px;
+    }
+    .svc-hub-section-head span {
+      color: #1d4ed8;
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .svc-hub-section-head h2 {
+      color: #0f2a4a;
+      font-family: var(--font-heading, 'Kanit', sans-serif);
+      font-size: clamp(1.55rem, 3vw, 2.35rem);
+      line-height: 1.12;
+      margin: 8px 0 10px;
+      letter-spacing: 0;
+    }
+    .svc-hub-section-head p {
+      color: #536b87;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .svc-hub-lanes {
+      display: grid;
+      gap: 12px;
+    }
+    .svc-hub-lane {
+      display: grid;
+      grid-template-columns: 48px 64px minmax(0, 1fr) 120px;
+      gap: 18px;
+      align-items: center;
+      padding: 18px;
+      min-height: 118px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #dbe7f7;
+      text-decoration: none;
+      box-shadow: 0 10px 28px rgba(15, 42, 74, .055);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .svc-hub-lane:hover {
+      transform: translateX(4px);
+      border-color: #93c5fd;
+      box-shadow: 0 18px 42px rgba(15, 42, 74, .11);
+    }
+    .svc-hub-lane-index {
+      color: #93a8c2;
+      font-weight: 900;
+      font-size: .9rem;
+    }
+    .svc-hub-lane-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      background: var(--lane-bg);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ffffff;
-      font-size: 1.5rem;
-      backdrop-filter: blur(8px);
+      font-size: 1.35rem;
+      box-shadow: 0 14px 26px rgba(29, 78, 216, .18);
     }
-    .svc-hub-cat-card h2 {
-      font-family: var(--font-heading, 'Kanit', sans-serif);
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #ffffff;
+    .svc-hub-lane-main h3 {
+      color: #0f2a4a;
+      font-size: 1.28rem;
       margin: 0;
-      line-height: 1.1;
+      font-weight: 900;
     }
-    .svc-hub-cat-card p {
-      color: rgba(255,255,255,.85);
-      font-size: .92rem;
-      margin: 0;
+    .svc-hub-lane-main p {
+      color: #536b87;
+      margin: 3px 0 10px;
       line-height: 1.45;
     }
-    .svc-hub-cat-footer {
+    .svc-hub-service-preview {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: auto;
-      padding-top: 8px;
+      flex-wrap: wrap;
+      gap: 7px;
     }
-    .svc-hub-cat-count {
-      background: rgba(245, 158, 11, .25);
-      color: #fde68a;
+    .svc-hub-service-preview span {
+      color: #1e3a8a;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
       font-size: .74rem;
-      font-weight: 700;
+      font-weight: 800;
       padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(245, 158, 11, .3);
     }
-    .svc-hub-cat-arrow {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.18);
+    .svc-hub-lane-meta {
+      justify-self: end;
+      min-width: 108px;
+      text-align: right;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-size: .9rem;
-      transition: all .2s;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      color: #1d4ed8;
     }
-    .svc-hub-cat-card:hover .svc-hub-cat-arrow {
-      background: var(--gold, #fbbf24);
-      color: #020617;
-      transform: translateX(3px) rotate(-8deg);
+    .svc-hub-lane-meta strong {
+      font-size: 1.55rem;
+      line-height: 1;
+      color: #0f2a4a;
+    }
+    .svc-hub-lane-meta span {
+      color: #64748b;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .svc-hub-lane-meta i {
+      margin-top: 8px;
+      color: #1d4ed8;
+    }
+
+    .svc-hub-flow {
+      padding: 28px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #f6f9fe 0%, #eaf2ff 100%);
+      color: #0f2a4a;
+      border: 1px solid #cbdff6;
+      box-shadow: 0 18px 48px rgba(15, 42, 74, .11);
+    }
+    .svc-hub-flow .svc-hub-section-head span,
+    .svc-hub-flow .svc-hub-section-head h2 {
+      color: #0f2a4a;
+    }
+    .svc-hub-flow .svc-hub-section-head span {
+      color: #1d4ed8;
+    }
+    .svc-hub-flow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .svc-hub-flow-step {
+      padding: 18px;
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid #dbe7f7;
+    }
+    .svc-hub-flow-step i {
+      color: #1d4ed8;
+      font-size: 1.35rem;
+      margin-bottom: 12px;
+    }
+    .svc-hub-flow-step strong {
+      display: block;
+      color: #0f2a4a;
+      margin-bottom: 8px;
+    }
+    .svc-hub-flow-step p {
+      color: #425b78;
+      margin: 0;
+      font-size: .9rem;
+      line-height: 1.55;
     }
 
     @media (max-width: 768px) {
-      .svc-hub { padding: 70px 0 60px; }
-      .svc-hub-header { margin-bottom: 36px; }
-      .svc-hub-grid { grid-template-columns: 1fr; gap: 14px; }
-      .svc-hub-cat-card { min-height: 200px; }
+      .svc-hub {
+        padding: 36px 0 50px;
+      }
+      .svc-hub-hero {
+        grid-template-columns: 1fr;
+      }
+      .svc-hub-copy {
+        min-height: auto;
+        padding: 26px;
+      }
+      .svc-hub-map-top {
+        min-height: 160px;
+      }
+      .svc-hub-map-top strong {
+        font-size: 4rem;
+      }
+      .svc-hub-priority {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .svc-hub-lane {
+        grid-template-columns: 42px 1fr;
+        gap: 12px;
+      }
+      .svc-hub-lane-index {
+        grid-column: 1;
+      }
+      .svc-hub-lane-icon {
+        grid-column: 1;
+        width: 50px;
+        height: 50px;
+      }
+      .svc-hub-lane-main {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+      }
+      .svc-hub-lane-meta {
+        grid-column: 1 / -1;
+        justify-self: stretch;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
+        min-width: 0;
+        padding-top: 12px;
+        border-top: 1px solid #e2e8f0;
+      }
+      .svc-hub-flow {
+        padding: 22px;
+      }
+      .svc-hub-flow-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </Base>
