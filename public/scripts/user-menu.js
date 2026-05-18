@@ -8,6 +8,11 @@
 
 'use strict';
 
+if (window.__pixonUserMenuLoaded) {
+    // El layout lo carga globalmente; algunas vistas antiguas tambien lo incluyen.
+} else {
+window.__pixonUserMenuLoaded = true;
+
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -34,7 +39,7 @@ function whenIdle(cb) {
 
 async function fetchCurrentUser() {
     try {
-        const res = await fetch('/api/me');
+        const res = await fetch('/api/me', { credentials: 'include' });
         const data = await res.json();
         return data.user || null;
     } catch (_) {
@@ -67,8 +72,9 @@ function renderDesktopAuth(user) {
     if (!area) return;
 
     if (!user) {
+        const returnTo = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
         area.innerHTML = `
-            <a href="/auth/google" class="btn btn-primary nav-login-btn" id="btn-login-navbar">
+            <a href="/auth/google?returnTo=${returnTo}" class="btn btn-primary nav-login-btn" id="btn-login-navbar">
                 Iniciar Sesión&nbsp;<i class="fa-brands fa-google"></i>
             </a>`;
         return;
@@ -78,13 +84,13 @@ function renderDesktopAuth(user) {
     const firstName = (user.name || 'Usuario').split(' ')[0];
     const avatar    = user.avatar
         || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=2563eb&color=fff`;
+    const adminGear = document.getElementById('nav-admin-gear');
+    if (adminGear) {
+        adminGear.style.display = isAdmin ? 'inline-flex' : 'none';
+    }
 
     area.innerHTML = `
         <div class="nav-user-wrapper" id="nav-user-wrapper">
-            ${isAdmin ? `
-            <a href="/admin" class="nav-admin-icon" id="btn-admin-navbar" title="Panel de Administración">
-                <i class="fa-solid fa-gear"></i>
-            </a>` : ''}
             <button class="nav-avatar-btn" id="nav-avatar-btn" aria-label="Menú de usuario" aria-expanded="false">
                 <img src="${escapeHtml(avatar)}"
                      alt="${escapeHtml(user.name)}"
@@ -151,8 +157,9 @@ function renderMobileAuth(user) {
     if (!area) return;
 
     if (!user) {
+        const returnTo = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
         area.innerHTML = `
-            <a href="/auth/google" class="nav-links nav-login-mobile" id="btn-login-mobile">
+            <a href="/auth/google?returnTo=${returnTo}" class="nav-links nav-login-mobile" id="btn-login-mobile">
                 <i class="fa-brands fa-google"></i>&nbsp;Iniciar Sesión
             </a>`;
         return;
@@ -272,4 +279,6 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAuthUI);
 } else {
     initAuthUI();
+}
+
 }
