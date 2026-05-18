@@ -856,7 +856,7 @@ async function bootstrap() {
         const pages = {
             // Legacy Vite (sin equivalente Astro todavía)
             '/':                            'index.html',
-            '/en':                          'pages/en/index.html',
+            '/en':                          'en.html',
             '/admin':                       'admin/admin.html',
             // Astro SSG (src/pages/*.astro -> dist/*.html via build.format='file')
             '/paquetes':                    'paquetes.html',
@@ -878,7 +878,7 @@ async function bootstrap() {
             '/empresas':                    'empresas.html',
             '/B2B':                         'empresas.html',
             '/servicios/b2b':               'empresas.html',
-            '/servicios/laptop/cambio-bateria': 'cambio-bateria.html',
+            '/servicios/laptop/cambio-bateria': 'servicios/laptop/cambio-bateria.html',
             '/servicios/telefono/cambio-bateria': 'servicios/telefono/cambio-bateria.html',
             '/optimizacion':                'optimizacion.html',
             '/servicios/optimizacion':      'optimizacion.html',

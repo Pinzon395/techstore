@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+
 
 // Astro como SSG: emite HTML estático a dist/.
 export default defineConfig({
@@ -22,13 +22,7 @@ export default defineConfig({
     format: 'file', // emite /comentarios.html en vez de /comentarios/index.html
   },
   vite: {
-    plugins: [
-      ViteImageOptimizer({
-        png: { quality: 80, compressionLevel: 8 },
-        jpeg: { quality: 80, progressive: true },
-        jpg: { quality: 80, progressive: true },
-      }),
-    ],
+    plugins: [],
     build: {
       assetsInlineLimit: 4096,
       sourcemap: false,
