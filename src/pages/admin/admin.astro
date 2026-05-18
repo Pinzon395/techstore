@@ -219,20 +219,60 @@ import '../../styles/admin.css';
               <i class="fa-solid fa-plus"></i> Nuevo Ticket
             </button>
           </div>
+          <div class="admin-filter-panel repair-filter-panel" aria-label="Filtros de tickets">
+            <div class="admin-filter-field admin-filter-field-wide">
+              <label for="repairSearchInput">Buscar</label>
+              <input type="search" id="repairSearchInput" class="admin-input" placeholder="Ticket, cliente, equipo, falla, telefono..." />
+            </div>
+            <div class="admin-filter-field">
+              <label for="repairStatusFilter">Estatus</label>
+              <select id="repairStatusFilter" class="admin-input">
+                <option value="all">Todos</option>
+              </select>
+            </div>
+            <div class="admin-filter-field">
+              <label for="repairUrgencyFilter">Urgencia</label>
+              <select id="repairUrgencyFilter" class="admin-input">
+                <option value="all">Todas</option>
+                <option value="normal">Normal</option>
+                <option value="urgent">Lo necesito lo antes posible</option>
+                <option value="work_school">Es para trabajo / escuela</option>
+                <option value="quote">Solo quiero cotizar</option>
+              </select>
+            </div>
+            <div class="admin-filter-field">
+              <label for="repairDeviceFilter">Dispositivo</label>
+              <select id="repairDeviceFilter" class="admin-input">
+                <option value="all">Todos</option>
+              </select>
+            </div>
+            <div class="admin-filter-field">
+              <label for="repairServiceFilter">Tipo de servicio</label>
+              <select id="repairServiceFilter" class="admin-input">
+                <option value="all">Todos</option>
+              </select>
+            </div>
+            <button type="button" class="btn-admin admin-filter-clear" id="repairClearFilters">
+              <i class="fa-solid fa-rotate-left"></i> Limpiar
+            </button>
+          </div>
+          <div class="admin-filter-summary" id="repairFilterSummary">Mostrando todos los tickets.</div>
           <div class="users-table-wrapper">
-            <table class="users-table">
+            <table class="users-table repairs-table">
               <thead>
                 <tr>
                   <th>Código</th>
                   <th>Cliente</th>
                   <th>Dispositivo</th>
                   <th>Falla Reportada</th>
+                  <th>Urgencia</th>
                   <th>Estatus</th>
                   <th>Fecha</th>
+                  <th>Abrir</th>
                 </tr>
               </thead>
               <tbody id="repairs-tbody">
-                <tr><td colspan="6" class="empty-row">No hay tickets de reparación aún.</td></tr>
+                <tr><td colspan="8" class="empty-row">No hay tickets de reparación aún.</td></tr>
               </tbody>
             </table>
           </div>
@@ -310,11 +350,21 @@ import '../../styles/admin.css';
             <h2>Gestionar Preguntas Frecuentes</h2>
             <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
               <input type="text" id="faqSearchInput" class="faq-search-bar" placeholder="Buscar pregunta…" aria-label="Buscar pregunta" />
+              <select id="faqCategoryFilter" class="faq-search-bar" aria-label="Filtrar categoria">
+                <option value="all">Todas las categorias</option>
+              </select>
+              <button class="btn-admin" type="button" id="faqExpandAll">
+                <i class="fa-solid fa-chevron-down"></i> Abrir todas
+              </button>
+              <button class="btn-admin" type="button" id="faqCollapseAll">
+                <i class="fa-solid fa-chevron-up"></i> Cerrar todas
+              </button>
               <button class="btn-admin btn-approve" type="button" onclick="window.addNewFaq && addNewFaq()">
                 <i class="fa-solid fa-plus"></i> Nueva
               </button>
             </div>
           </div>
+          <div class="admin-filter-summary" id="faqFilterSummary">Categorias comprimidas. Abre una para ver sus preguntas.</div>
           <div id="faqs-container"></div>
         </section>
 
@@ -378,19 +428,36 @@ import '../../styles/admin.css';
           <label for="repairCustomer">Nombre del Cliente</label>
           <input type="text" id="repairCustomer" class="admin-input" placeholder="Ej. Juan Pérez" required />
         </div>
-        <div style="display:flex; gap:14px;">
-          <div class="admin-form-group" style="flex:1;">
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <div class="admin-form-group" style="flex:1; min-width:180px;">
             <label for="repairType">Tipo de Dispositivo</label>
-            <select id="repairType" class="admin-input">
-              <option value="Laptop">Laptop</option>
-              <option value="PC de Escritorio">PC de Escritorio</option>
-              <option value="Consola">Consola</option>
-              <option value="Otro">Otro</option>
-            </select>
+            <select id="repairType" class="admin-input"></select>
           </div>
-          <div class="admin-form-group" style="flex:1;">
-            <label for="repairBrand">Marca / Modelo</label>
-            <input type="text" id="repairBrand" class="admin-input" placeholder="Ej. Dell Inspiron" required />
+          <div class="admin-form-group" style="flex:1; min-width:180px;">
+            <label for="repairService">Tipo de servicio</label>
+            <select id="repairService" class="admin-input"></select>
+          </div>
+          <div class="admin-form-group" style="flex:1; min-width:180px;">
+            <label for="repairPriority">Urgencia</label>
+            <select id="repairPriority" class="admin-input"></select>
+          </div>
+        </div>
+        <div id="repairDeviceOtherWrap" class="admin-form-group" style="display:none;">
+          <label for="repairDeviceOther">Dispositivo personalizado</label>
+          <input type="text" id="repairDeviceOther" class="admin-input" placeholder="Ej. Proyector, No Break, DVR" />
+        </div>
+        <div id="repairServiceOtherWrap" class="admin-form-group" style="display:none;">
+          <label for="repairServiceOther">Servicio personalizado</label>
+          <input type="text" id="repairServiceOther" class="admin-input" placeholder="Ej. Instalacion de software especial" />
+        </div>
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <div class="admin-form-group" style="flex:1; min-width:180px;">
+            <label for="repairBrand">Marca</label>
+            <input type="text" id="repairBrand" class="admin-input" placeholder="Ej. Dell, HP, Apple" required />
+          </div>
+          <div class="admin-form-group" style="flex:1; min-width:180px;">
+            <label for="repairModel">Modelo</label>
+            <input type="text" id="repairModel" class="admin-input" placeholder="Ej. Inspiron 15, A2338" />
           </div>
         </div>
         <div class="admin-form-group">
@@ -400,6 +467,10 @@ import '../../styles/admin.css';
         <div class="admin-form-group">
           <label for="repairPhone">Teléfono / WhatsApp</label>
           <input type="text" id="repairPhone" class="admin-input" placeholder="Ej. 9981234567" required />
+        </div>
+        <div class="admin-form-group">
+          <label for="repairEmail">Correo opcional</label>
+          <input type="email" id="repairEmail" class="admin-input" placeholder="cliente@correo.com" />
         </div>
       </div>
       <div class="admin-modal-footer">
@@ -669,6 +740,7 @@ import '../../styles/admin.css';
     })();
   </script>
 
+  <script src="/scripts/ticket-options.js" is:inline defer></script>
   <script src="/scripts/admin.js" is:inline defer></script>
   <script src="/scripts/user-menu.js" is:inline defer></script>
 </Base>

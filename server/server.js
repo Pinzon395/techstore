@@ -652,6 +652,15 @@ async function bootstrap() {
             `Servicio solicitado: ${service_requested || 'Revisión'}`,
             `\n${issue_description}`
         ].join('\n');
+        const urgencyText = String(issue_description || '').match(/Urgencia:\s*([^\n\r]+)/i)?.[1] || '';
+        const normalizedUrgency = urgencyText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const priority = normalizedUrgency.includes('urgente')
+            ? 'urgent'
+            : normalizedUrgency.includes('trabajo') || normalizedUrgency.includes('escuela')
+                ? 'work_school'
+                : normalizedUrgency.includes('cotizar')
+                    ? 'quote'
+                    : 'normal';
         
         const ticket = await insertRepairAdmin({
             user_id,
@@ -661,6 +670,8 @@ async function bootstrap() {
             device_model: device_model ? String(device_model).trim() : null,
             reported_issue: details,
             contact_phone: String(customer_phone).trim(),
+            contact_email: customer_email ? String(customer_email).trim() : null,
+            priority,
             is_b2b,
             b2b_company,
             b2b_quantity,

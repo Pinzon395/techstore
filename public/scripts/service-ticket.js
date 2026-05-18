@@ -28,9 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const authOverlay = document.getElementById('ticket-auth-overlay');
     const btnCancelAuth = document.getElementById('btn-cancel-auth');
+    const prioritySelect = document.getElementById('st_priority');
+    const ticketOptions = window.PIXON_TICKET_OPTIONS || {};
 
     // Mapeo de dispositivos a servicios
-    const SERVICES_MAP = {
+    const SERVICES_MAP = ticketOptions.services || {
         'Laptop': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de batería', 'Cambio de teclado', 'Ampliación de RAM', 'Cambio a SSD', 'Formateo / Sistema operativo', 'Recuperación de datos', 'Reparación de bisagras / carcasa', 'No enciende', 'Se apaga o calienta', 'Otro'],
         'PC de escritorio': ['Mantenimiento preventivo', 'Ampliación de RAM', 'Cambio a SSD', 'Tarjeta de video', 'Fuente de poder', 'Ensamble de componentes', 'Formateo / Sistema operativo', 'Recuperación de datos', 'No enciende', 'Se apaga o calienta', 'Otro'],
         'MacBook': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de batería', 'Formateo / macOS', 'Recuperación de datos', 'No enciende', 'Otro'],
@@ -41,9 +43,54 @@ document.addEventListener('DOMContentLoaded', () => {
         'Consola de videojuegos': ['Mantenimiento preventivo', 'Cambio de pasta térmica / Metal líquido', 'Reparación de puerto HDMI', 'No da video', 'Se apaga sola', 'Mando no conecta', 'Otro'],
         'Control de videojuegos': ['Drift en joystick', 'Botón no funciona', 'Gatillos', 'Batería', 'Pin de carga', 'Otro'],
         'Impresora': ['Mantenimiento', 'Atasco de papel', 'Almohadillas', 'Cabezales tapados', 'No imprime', 'Otro'],
+        'Monitor': ['No da imagen', 'Líneas / manchas', 'Fuente / alimentación', 'Otro'],
+        'Componente PC': ['Diagnóstico', 'Tarjeta de video', 'Fuente de poder', 'Motherboard', 'RAM / SSD', 'Otro'],
+        'Equipo gamer': ['Mantenimiento preventivo', 'Cambio de pasta térmica / Metal líquido', 'Optimización gaming', 'Upgrade de componentes', 'Otro'],
         'Equipo empresarial / B2B': ['Mantenimiento de flotilla', 'Póliza de soporte', 'Instalación de red', 'Otro'],
         'Otro': ['Otro']
     };
+
+    if (Array.isArray(ticketOptions.devices) && ticketOptions.devices.length) {
+        const currentDevice = deviceSelect.value;
+        deviceSelect.innerHTML = '<option value="">Selecciona una opción...</option>';
+        ticketOptions.devices.forEach(device => {
+            const opt = document.createElement('option');
+            opt.value = device;
+            opt.textContent = device;
+            deviceSelect.appendChild(opt);
+        });
+        deviceSelect.value = ticketOptions.devices.includes(currentDevice) ? currentDevice : '';
+    }
+
+    if (ticketOptions.priorities && prioritySelect) {
+        const currentPriority = prioritySelect.value;
+        prioritySelect.innerHTML = '';
+        Object.values(ticketOptions.priorities).forEach(priority => {
+            const opt = document.createElement('option');
+            opt.value = priority.formValue || priority.label;
+            opt.textContent = priority.label;
+            prioritySelect.appendChild(opt);
+        });
+        const priorityValues = Array.from(prioritySelect.options).map(opt => opt.value);
+        prioritySelect.value = priorityValues.includes(currentPriority) ? currentPriority : 'Normal';
+    }
+
+    function normalizeOptionText(value) {
+        return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function findMatchingOption(options, desiredValue) {
+        const target = normalizeOptionText(desiredValue);
+        if (!target) return null;
+        const stopWords = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'por', 'para', 'y']);
+        const targetTokens = target.split(/[^a-z0-9]+/).filter(token => token && !stopWords.has(token));
+        const normalizedOptions = options.map(option => ({ option, value: normalizeOptionText(option.value) })).filter(item => item.value);
+        return normalizedOptions.find(item => item.value === target)?.option
+            || normalizedOptions.find(item => item.value.includes(target))?.option
+            || normalizedOptions.find(item => targetTokens.length > 0 && targetTokens.every(token => item.value.includes(token)))?.option
+            || normalizedOptions.find(item => target.includes(item.value))?.option
+            || null;
+    }
 
     // 1. Manejo de dependencias (Dispositivo -> Servicio)
     function updateServices() {
@@ -111,16 +158,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const defService = document.getElementById('st_default_service')?.value;
     
     if (defDevice) {
-        // Encontrar opción que coincida parcialmente si no es exacta
         const options = Array.from(deviceSelect.options);
-        const match = options.find(o => o.value.toLowerCase() === defDevice.toLowerCase() || o.value.toLowerCase().includes(defDevice.toLowerCase()));
+        const match = findMatchingOption(options, defDevice);
         if (match) {
             deviceSelect.value = match.value;
             updateServices();
             
             if (defService) {
                 const srvOptions = Array.from(serviceSelect.options);
-                const srvMatch = srvOptions.find(o => o.value.toLowerCase() === defService.toLowerCase() || o.value.toLowerCase().includes(defService.toLowerCase()));
+                const srvMatch = findMatchingOption(srvOptions, defService);
                 if (srvMatch) {
                     serviceSelect.value = srvMatch.value;
                     checkServiceOther();

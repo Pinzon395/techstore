@@ -441,6 +441,7 @@ function escapeHtml(str) {
 ───────────────────────────────────────────────────────────── */
 let allFaqs = [];
 let allUnanswered = [];
+let openFaqCategories = new Set();
 
 async function fetchFaqs() {
     try {
@@ -497,6 +498,7 @@ function renderFaqs() {
     container.innerHTML = '';
 
     const searchTerm = (document.getElementById('faqSearchInput') ? document.getElementById('faqSearchInput').value.toLowerCase() : '');
+    const categoryFilter = document.getElementById('faqCategoryFilter')?.value || 'all';
 
     let filtered = allFaqs;
     if (searchTerm) {
@@ -505,6 +507,9 @@ function renderFaqs() {
             f.answer.toLowerCase().includes(searchTerm) || 
             f.category.toLowerCase().includes(searchTerm)
         );
+    }
+    if (categoryFilter !== 'all') {
+        filtered = filtered.filter(f => f.category === categoryFilter);
     }
 
     if (filtered.length === 0) {
@@ -525,21 +530,38 @@ function renderFaqs() {
         const uniqueCategories = [...new Set(allFaqs.map(f => f.category))];
         datalist.innerHTML = uniqueCategories.map(cat => `<option value="${escapeHtml(cat)}">`).join('');
     }
+    const categorySelect = document.getElementById('faqCategoryFilter');
+    if (categorySelect) {
+        const current = categorySelect.value || 'all';
+        const uniqueCategories = [...new Set(allFaqs.map(f => f.category))].sort((a, b) => a.localeCompare(b, 'es'));
+        categorySelect.innerHTML = '<option value="all">Todas las categorias</option>' + uniqueCategories.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join('');
+        categorySelect.value = uniqueCategories.includes(current) ? current : 'all';
+    }
 
     for (const [cat, data] of Object.entries(grouped)) {
         // Sort items by display order
         data.items.sort((a, b) => a.display_order - b.display_order);
 
         const catSection = document.createElement('div');
-        catSection.innerHTML = `<h3 class="faq-admin-category"><i class="${data.icon || 'fa-solid fa-circle-question'}"></i> ${escapeHtml(cat)}</h3>`;
+        catSection.className = 'faq-category-admin-block';
+        const safeCatId = btoa(unescape(encodeURIComponent(cat))).replace(/=+$/g, '');
+        const isOpen = openFaqCategories.has(cat) || Boolean(searchTerm) || categoryFilter !== 'all';
+        if (isOpen) openFaqCategories.add(cat);
+        catSection.innerHTML = `
+            <button type="button" class="faq-category-toggle" aria-expanded="${isOpen}" data-category="${escapeHtml(cat)}" aria-controls="faq-cat-${safeCatId}">
+                <span><i class="${data.icon || 'fa-solid fa-circle-question'}"></i> ${escapeHtml(cat)}</span>
+                <small>${data.items.length} pregunta(s)</small>
+                <i class="fa-solid fa-chevron-down faq-category-chevron"></i>
+            </button>`;
         
         const grid = document.createElement('div');
-        grid.className = 'admin-grid';
+        grid.className = `admin-grid faq-category-items ${isOpen ? 'open' : ''}`;
+        grid.id = `faq-cat-${safeCatId}`;
         grid.style.marginTop = '15px';
 
         data.items.forEach(f => {
             const card = document.createElement('div');
-            card.className = `admin-card`;
+            card.className = 'admin-card faq-admin-card';
             card.innerHTML = `
                 <div class="card-header">
                     <div>
@@ -566,6 +588,10 @@ function renderFaqs() {
         catSection.appendChild(grid);
         container.appendChild(catSection);
     }
+    const summary = document.getElementById('faqFilterSummary');
+    if (summary) {
+        summary.textContent = `${filtered.length} pregunta(s) en ${Object.keys(grouped).length} categoria(s). Las categorias se mantienen comprimidas hasta que las abras.`;
+    }
 }
 
 // Escuchar búsqueda en tiempo real
@@ -576,6 +602,25 @@ document.addEventListener('DOMContentLoaded', () => {
             renderFaqs();
         });
     }
+    document.getElementById('faqCategoryFilter')?.addEventListener('change', renderFaqs);
+    document.getElementById('faqExpandAll')?.addEventListener('click', () => {
+        openFaqCategories = new Set(allFaqs.map(f => f.category));
+        renderFaqs();
+    });
+    document.getElementById('faqCollapseAll')?.addEventListener('click', () => {
+        openFaqCategories.clear();
+        document.getElementById('faqSearchInput')?.blur();
+        renderFaqs();
+    });
+    document.addEventListener('click', (event) => {
+        const toggle = event.target.closest?.('.faq-category-toggle');
+        if (!toggle) return;
+        const category = toggle.dataset.category;
+        if (!category) return;
+        if (openFaqCategories.has(category)) openFaqCategories.delete(category);
+        else openFaqCategories.add(category);
+        renderFaqs();
+    });
 });
 
 window.clearUnanswered = async function() {
@@ -675,64 +720,473 @@ async function fetchRepairs() {
         const res = await fetch(`${API_BASE}/admin/repairs`);
         if (!res.ok) throw new Error('Error al cargar tickets');
         allRepairs = await res.json();
+        populateRepairFilters();
         renderRepairs();
     } catch (err) {
         console.error(err);
     }
 }
 
+const REPAIR_STATUS_LABELS = {
+    received: 'Recibido',
+    diagnosing: 'Diagnostico',
+    quoted: 'Cotizado',
+    approved: 'Aprobado',
+    in_progress: 'En proceso',
+    waiting_parts: 'Esperando piezas',
+    ready: 'Listo',
+    delivered: 'Entregado',
+    cancelled: 'Cancelado'
+};
+
+const REPAIR_STATUS_COLORS = {
+    received: '#3b82f6',
+    diagnosing: '#f59e0b',
+    quoted: '#8b5cf6',
+    approved: '#10b981',
+    in_progress: '#f97316',
+    waiting_parts: '#64748b',
+    ready: '#14b8a6',
+    delivered: '#059669',
+    cancelled: '#ef4444'
+};
+
+const REPAIR_DEVICE_SERVICE_OPTIONS = window.PIXON_TICKET_OPTIONS?.services || {
+    'Laptop': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de batería', 'Cambio de teclado', 'Ampliación de RAM', 'Cambio a SSD', 'Formateo / Sistema operativo', 'Recuperación de datos', 'Reparación de bisagras / carcasa', 'No enciende', 'Se apaga o calienta', 'Otro'],
+    'PC de escritorio': ['Mantenimiento preventivo', 'Ampliación de RAM', 'Cambio a SSD', 'Tarjeta de video', 'Fuente de poder', 'Ensamble de componentes', 'Formateo / Sistema operativo', 'Recuperación de datos', 'No enciende', 'Se apaga o calienta', 'Otro'],
+    'MacBook': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de batería', 'Formateo / macOS', 'Recuperación de datos', 'No enciende', 'Otro'],
+    'iMac': ['Mantenimiento preventivo', 'Cambio a SSD', 'Ampliación de RAM', 'Formateo / macOS', 'Otro'],
+    'Celular': ['Cambio de pantalla', 'Cambio de batería', 'Pin de carga', 'Bañado / Mojado', 'No enciende', 'Desbloqueo / Software', 'Otro'],
+    'iPhone': ['Cambio de pantalla', 'Cambio de batería', 'Pin de carga', 'Bañado / Mojado', 'No enciende', 'Otro'],
+    'iPad / Tablet': ['Cambio de pantalla', 'Cambio de batería', 'Pin de carga', 'Otro'],
+    'Consola de videojuegos': ['Mantenimiento preventivo', 'Cambio de pasta térmica / Metal líquido', 'Reparación de puerto HDMI', 'No da video', 'Se apaga sola', 'Mando no conecta', 'Otro'],
+    'Control de videojuegos': ['Drift en joystick', 'Botón no funciona', 'Gatillos', 'Batería', 'Pin de carga', 'Otro'],
+    'Impresora': ['Mantenimiento', 'Atasco de papel', 'Almohadillas', 'Cabezales tapados', 'No imprime', 'Otro'],
+    'Monitor': ['No da imagen', 'Líneas / manchas', 'Fuente / alimentación', 'Otro'],
+    'Componente PC': ['Diagnóstico', 'Tarjeta de video', 'Fuente de poder', 'Motherboard', 'RAM / SSD', 'Otro'],
+    'Equipo gamer': ['Mantenimiento preventivo', 'Cambio de pasta térmica / Metal líquido', 'Optimización gaming', 'Upgrade de componentes', 'Otro'],
+    'Equipo empresarial / B2B': ['Mantenimiento de flotilla', 'Póliza de soporte', 'Instalación de red', 'Otro'],
+    'Otro': ['Otro']
+};
+
+const REPAIR_PRIORITY_OPTIONS = window.PIXON_TICKET_OPTIONS?.priorities || {
+    normal: { label: 'Normal', aliases: ['normal'] },
+    urgent: { label: 'Lo necesito lo antes posible', aliases: ['urgente', 'lo necesito lo antes posible', 'express', 'hoy'] },
+    work_school: { label: 'Es para trabajo / escuela', aliases: ['trabajo/escuela', 'trabajo / escuela', 'trabajo', 'escuela'] },
+    quote: { label: 'Solo quiero cotizar', aliases: ['solo cotizar', 'cotizar', 'cotizacion', 'cotización'] }
+};
+
+function normalizeText(value) {
+    return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function findCanonicalRepairService(value) {
+    const target = normalizeText(value);
+    if (!target) return '';
+    const stopWords = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'por', 'para', 'y']);
+    const targetTokens = target.split(/[^a-z0-9]+/).filter(token => token && !stopWords.has(token));
+    const services = getAllRepairServices().map(service => ({ service, value: normalizeText(service) })).filter(item => item.value);
+    return services.find(item => item.value === target)?.service
+        || services.find(item => item.value.includes(target))?.service
+        || services.find(item => targetTokens.length > 0 && targetTokens.every(token => item.value.includes(token)))?.service
+        || services.find(item => target.includes(item.value))?.service
+        || '';
+}
+
+function inferRepairService(repair) {
+    const text = normalizeText(`${repair.reported_issue} ${repair.notes_internal} ${repair.device_type} ${repair.device_brand} ${repair.device_model}`);
+    const explicit = String(repair.reported_issue || '').match(/Servicio solicitado:\s*([^\n\r]+)/i);
+    if (explicit?.[1]) {
+        const explicitService = explicit[1].trim();
+        return findCanonicalRepairService(explicitService) || explicitService;
+    }
+    for (const services of Object.values(REPAIR_DEVICE_SERVICE_OPTIONS)) {
+        const match = services.find(service => service !== 'Otro' && text.includes(normalizeText(service)));
+        if (match) return match;
+    }
+    if (/pantalla|display|lcd|cristal|touch/.test(text)) return 'Pantalla';
+    if (/bateria|carga|cargador|energia|no carga/.test(text)) return 'Bateria / carga';
+    if (/teclado|tecla|keyboard/.test(text)) return 'Teclado';
+    if (/bisagra|carcasa|tapa/.test(text)) return 'Bisagra / carcasa';
+    if (/liquido|agua|cafe|sulfat|humedad|mojado/.test(text)) return 'Liquido / sulfatacion';
+    if (/lento|windows|formateo|virus|software|optimiz/.test(text)) return 'Software / optimizacion';
+    if (/limpieza|temperatura|calienta|pasta|ventilador/.test(text)) return 'Mantenimiento termico';
+    if (/hdmi|control|joystick|consola|xbox|playstation|ps5|ps4/.test(text)) return 'Consola / control';
+    return 'Diagnostico general';
+}
+
+function getRepairIssueDescription(repair) {
+    let text = String(repair.reported_issue || '').replace(/Servicio solicitado:\s*[^\n\r]+/i, '').trim();
+    text = text.split(/\n---\n?/)[0].trim();
+    return text || String(repair.reported_issue || '').trim();
+}
+
+function getRepairContactEmail(repair) {
+    return repair.contact_email || repair.user_email || '';
+}
+
+function getRepairClientName(repair) {
+    const internalName = String(repair.notes_internal || '').match(/Cliente:\s*([^\n\r]+)/i)?.[1]?.trim();
+    return repair.user_name || internalName || 'Cliente sin registrar';
+}
+
+function renderRepairStatusTrack(status) {
+    const steps = ['received', 'diagnosing', 'quoted', 'approved', 'in_progress', 'ready', 'delivered'];
+    const currentIndex = Math.max(0, steps.indexOf(status));
+    return `
+        <div class="repair-status-track" aria-label="Progreso del ticket">
+            ${steps.map((step, index) => `
+                <div class="repair-status-step ${index < currentIndex ? 'done' : ''} ${index === currentIndex ? 'current' : ''}">
+                    <span></span>
+                    <small>${escapeHtml(REPAIR_STATUS_LABELS[step] || step)}</small>
+                </div>
+            `).join('')}
+        </div>`;
+}
+
+function inferRepairUrgency(repair) {
+    const text = normalizeText(`${repair.reported_issue} ${repair.notes_internal} ${repair.status}`);
+    const createdAt = repair.created_at ? new Date(repair.created_at).getTime() : Date.now();
+    const ageHours = (Date.now() - createdAt) / 36e5;
+    const priorityMatch = String(repair.reported_issue || repair.notes_internal || '').match(/Urgencia:\s*([^\n\r]+)/i);
+    const priorityText = normalizeText(priorityMatch?.[1] || repair.priority || '');
+    if (priorityText) {
+        if (REPAIR_PRIORITY_OPTIONS.urgent.aliases.some(alias => priorityText.includes(alias)) || priorityText === 'urgent' || priorityText === 'high') return 'urgent';
+        if (REPAIR_PRIORITY_OPTIONS.work_school.aliases.some(alias => priorityText.includes(alias))) return 'work_school';
+        if (REPAIR_PRIORITY_OPTIONS.quote.aliases.some(alias => priorityText.includes(alias)) || priorityText === 'low') return 'quote';
+        if (REPAIR_PRIORITY_OPTIONS.normal.aliases.some(alias => priorityText.includes(alias)) || priorityText === 'normal') return 'normal';
+    }
+    if (/urgente|hoy|express|no enciende|no prende|liquido|mojado|agua|cafe|humo|quemado|empresa|factura/.test(text)) return 'urgent';
+    if (['received', 'diagnosing', 'in_progress', 'waiting_parts'].includes(repair.status) && ageHours > 48) return 'urgent';
+    if (/pantalla|bateria|carga|teclado|bisagra|lento|virus/.test(text)) return 'work_school';
+    return 'normal';
+}
+
+function populateSelectOptions(selectId, values, allLabel, labelMap = {}) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const current = select.value || 'all';
+    const unique = [...new Set(values.filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), 'es'));
+    select.innerHTML = `<option value="all">${allLabel}</option>` + unique.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(labelMap[value] || value)}</option>`).join('');
+    select.value = unique.includes(current) ? current : 'all';
+}
+
+function populateRepairFilters() {
+    const priorityLabels = Object.fromEntries(Object.entries(REPAIR_PRIORITY_OPTIONS).map(([key, data]) => [key, data.label]));
+    populateSelectOptions('repairStatusFilter', Object.keys(REPAIR_STATUS_LABELS), 'Todos', REPAIR_STATUS_LABELS);
+    populateSelectOptions('repairDeviceFilter', Object.keys(REPAIR_DEVICE_SERVICE_OPTIONS), 'Todos');
+    populateSelectOptions('repairUrgencyFilter', Object.keys(REPAIR_PRIORITY_OPTIONS), 'Todas', priorityLabels);
+    refreshRepairServiceFilterOptions();
+}
+
+function refreshRepairServiceFilterOptions() {
+    const device = document.getElementById('repairDeviceFilter')?.value || 'all';
+    const services = device === 'all'
+        ? getAllRepairServices()
+        : (REPAIR_DEVICE_SERVICE_OPTIONS[device] || ['Otro']);
+    populateSelectOptions('repairServiceFilter', services, 'Todos');
+}
+
+function getRepairFilters() {
+    return {
+        search: normalizeText(document.getElementById('repairSearchInput')?.value || ''),
+        status: document.getElementById('repairStatusFilter')?.value || 'all',
+        urgency: document.getElementById('repairUrgencyFilter')?.value || 'all',
+        device: document.getElementById('repairDeviceFilter')?.value || 'all',
+        service: document.getElementById('repairServiceFilter')?.value || 'all'
+    };
+}
+
+function filterRepairs() {
+    const filters = getRepairFilters();
+    return allRepairs.filter(r => {
+        const service = inferRepairService(r);
+        const clientName = getRepairClientName(r);
+        const urgency = inferRepairUrgency(r);
+        const haystack = normalizeText([r.ticket_code, clientName, r.user_email, r.contact_email, r.contact_phone, r.device_type, r.device_brand, r.device_model, r.reported_issue, r.notes_internal, service, REPAIR_STATUS_LABELS[r.status] || r.status].join(' '));
+        return (!filters.search || haystack.includes(filters.search))
+            && (filters.status === 'all' || r.status === filters.status)
+            && (filters.urgency === 'all' || urgency === filters.urgency)
+            && (filters.device === 'all' || normalizeText(r.device_type) === normalizeText(filters.device))
+            && (filters.service === 'all' || normalizeText(service) === normalizeText(filters.service));
+    });
+}
+
+function getAllRepairServices() {
+    return [...new Set(Object.values(REPAIR_DEVICE_SERVICE_OPTIONS).flat())];
+}
+
+function formatRepairDate(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString('es-MX', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatRepairMoney(value) {
+    if (value === null || value === undefined || value === '') return '-';
+    const amount = Number(value);
+    if (Number.isNaN(amount)) return String(value);
+    return amount.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+}
+
+function setupRepairModalOptions() {
+    const typeSelect = document.getElementById('repairType');
+    const prioritySelect = document.getElementById('repairPriority');
+    if (typeSelect && !typeSelect.dataset.ready) {
+        typeSelect.innerHTML = Object.keys(REPAIR_DEVICE_SERVICE_OPTIONS)
+            .map(device => `<option value="${escapeHtml(device)}">${escapeHtml(device)}</option>`)
+            .join('');
+        typeSelect.dataset.ready = '1';
+        typeSelect.addEventListener('change', () => {
+            syncRepairDeviceOther();
+            updateRepairModalServices();
+        });
+    }
+    if (prioritySelect && !prioritySelect.dataset.ready) {
+        prioritySelect.innerHTML = Object.entries(REPAIR_PRIORITY_OPTIONS)
+            .map(([value, data]) => `<option value="${escapeHtml(value)}">${escapeHtml(data.label)}</option>`)
+            .join('');
+        prioritySelect.dataset.ready = '1';
+    }
+    const serviceSelect = document.getElementById('repairService');
+    if (serviceSelect && !serviceSelect.dataset.ready) {
+        serviceSelect.addEventListener('change', syncRepairServiceOther);
+        serviceSelect.dataset.ready = '1';
+    }
+    updateRepairModalServices();
+    syncRepairDeviceOther();
+}
+
+function updateRepairModalServices() {
+    const typeSelect = document.getElementById('repairType');
+    const serviceSelect = document.getElementById('repairService');
+    if (!typeSelect || !serviceSelect) return;
+    const current = serviceSelect.value;
+    const services = REPAIR_DEVICE_SERVICE_OPTIONS[typeSelect.value] || ['Otro'];
+    serviceSelect.innerHTML = services.map(service => `<option value="${escapeHtml(service)}">${escapeHtml(service)}</option>`).join('');
+    serviceSelect.value = services.includes(current) ? current : services[0];
+    syncRepairServiceOther();
+}
+
+function syncRepairDeviceOther() {
+    const typeSelect = document.getElementById('repairType');
+    const otherWrap = document.getElementById('repairDeviceOtherWrap');
+    const otherInput = document.getElementById('repairDeviceOther');
+    const needsOther = typeSelect?.value === 'Otro';
+    if (otherWrap) otherWrap.style.display = needsOther ? 'block' : 'none';
+    if (otherInput) otherInput.required = Boolean(needsOther);
+}
+
+function syncRepairServiceOther() {
+    const serviceSelect = document.getElementById('repairService');
+    const otherWrap = document.getElementById('repairServiceOtherWrap');
+    const otherInput = document.getElementById('repairServiceOther');
+    const needsOther = serviceSelect?.value === 'Otro';
+    if (otherWrap) otherWrap.style.display = needsOther ? 'block' : 'none';
+    if (otherInput) otherInput.required = Boolean(needsOther);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TALLER (REPAIRS) UI
+───────────────────────────────────────────────────────────── */
+
 function renderRepairs() {
     const tbody = document.getElementById('repairs-tbody');
     if(!tbody) return;
     tbody.innerHTML = '';
 
-    if (allRepairs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">No hay tickets de reparación aún.</td></tr>`;
+    const filteredRepairs = filterRepairs();
+    const summary = document.getElementById('repairFilterSummary');
+    if (summary) {
+        summary.textContent = `Mostrando ${filteredRepairs.length} de ${allRepairs.length} ticket(s). Usa Abrir para ver la ficha completa del ticket.`;
+    }
+
+    if (filteredRepairs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b;">No hay tickets que coincidan con los filtros.</td></tr>`;
         return;
     }
 
-    allRepairs.forEach(r => {
-        const date = new Date(r.created_at).toLocaleString('es-MX', { 
-            day: '2-digit', month: 'short', year: 'numeric'
-        });
-
-        const statusColors = {
-            'received': '#3b82f6', // blue
-            'diagnosing': '#f59e0b', // yellow
-            'quoted': '#8b5cf6', // purple
-            'approved': '#10b981', // green
-            'in_progress': '#f97316', // orange
-            'waiting_parts': '#64748b', // slate
-            'ready': '#14b8a6', // teal
-            'delivered': '#059669', // emerald
-            'cancelled': '#ef4444' // red
-        };
-
-        const color = statusColors[r.status] || '#cbd5e1';
+    filteredRepairs.forEach(r => {
+        const date = formatRepairDate(r.created_at);
+        const updatedDate = formatRepairDate(r.updated_at);
+        const appointmentDate = formatRepairDate(r.appointment_at);
+        const promisedDate = formatRepairDate(r.promised_at);
+        const deliveredDate = formatRepairDate(r.delivered_at);
+        const warrantyDate = formatRepairDate(r.warranty_until);
+        const color = REPAIR_STATUS_COLORS[r.status] || '#cbd5e1';
+        const clientName = getRepairClientName(r);
+        const service = inferRepairService(r);
+        const issueDescription = getRepairIssueDescription(r);
+        const contactEmail = getRepairContactEmail(r);
+        const urgency = inferRepairUrgency(r);
+        const urgencyColor = urgency === 'urgent' ? '#ef4444' : urgency === 'work_school' ? '#f59e0b' : urgency === 'quote' ? '#38bdf8' : '#10b981';
+        const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || urgency;
+        const detailId = `repair-detail-${r.id}`;
 
         const tr = document.createElement('tr');
+        tr.className = 'repair-row';
+        tr.setAttribute('data-detail-id', detailId);
+        tr.setAttribute('tabindex', '0');
         tr.innerHTML = `
-            <td style="font-weight: 700; color: #818cf8;">#${r.ticket_code}</td>
-            <td>${escapeHtml(r.user_name || 'Cliente sin registrar')}</td>
+            <td style="font-weight: 700; color: #818cf8;"><i class="fa-solid fa-chevron-right repair-row-chevron"></i> #${escapeHtml(r.ticket_code)}</td>
+            <td>${escapeHtml(clientName)}</td>
             <td>${escapeHtml(r.device_type)} ${escapeHtml(r.device_brand || '')}</td>
-            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(r.reported_issue)}</td>
-            <td><span class="user-role-badge" style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">${r.status.toUpperCase()}</span></td>
+            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(issueDescription)}</td>
+            <td><span class="user-role-badge" style="background: ${urgencyColor}20; color: ${urgencyColor}; border: 1px solid ${urgencyColor}40;">${escapeHtml(urgencyLabel)}</span></td>
+            <td><span class="user-role-badge" style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span></td>
             <td>${date}</td>
+            <td>
+                <button class="btn-admin repair-open-btn" type="button" data-open-repair="${escapeHtml(detailId)}" aria-expanded="false">
+                    <i class="fa-solid fa-up-right-from-square"></i> Abrir
+                </button>
+            </td>
         `;
         tbody.appendChild(tr);
+
+        const cleanPhone = String(r.contact_phone || '').replace(/\D/g, '');
+        const detailTr = document.createElement('tr');
+        detailTr.className = 'repair-detail-row';
+        detailTr.id = detailId;
+        detailTr.style.display = 'none';
+        detailTr.innerHTML = `
+            <td colspan="8">
+                <div class="repair-detail-card">
+                    <div class="repair-detail-head">
+                        <div>
+                            <h3>#${escapeHtml(r.ticket_code)} - ${escapeHtml(clientName)}</h3>
+                            <p>${escapeHtml(service)} | ${escapeHtml(r.device_type || 'Sin dispositivo')} | ${date}</p>
+                        </div>
+                        <div class="repair-detail-badges">
+                            <span style="background:${urgencyColor}20;color:${urgencyColor};border-color:${urgencyColor}40;">${escapeHtml(urgencyLabel)}</span>
+                            <span style="background:${color}20;color:${color};border-color:${color}40;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span>
+                        </div>
+                    </div>
+                    ${renderRepairStatusTrack(r.status)}
+                    <div class="repair-detail-grid">
+                        <div><strong>Cliente</strong><span>${escapeHtml(clientName)}</span></div>
+                        <div><strong>Email</strong><span>${escapeHtml(contactEmail || 'Sin correo')}</span></div>
+                        <div><strong>WhatsApp</strong><span>${escapeHtml(r.contact_phone || 'Sin telefono')}</span></div>
+                        <div><strong>Dispositivo</strong><span>${escapeHtml(r.device_type || '-')}</span></div>
+                        <div><strong>Marca</strong><span>${escapeHtml(r.device_brand || '-')}</span></div>
+                        <div><strong>Modelo</strong><span>${escapeHtml(r.device_model || '-')}</span></div>
+                        <div><strong>Servicio detectado</strong><span>${escapeHtml(service)}</span></div>
+                        <div><strong>Creado</strong><span>${date}</span></div>
+                        <div><strong>ID interno</strong><span>${escapeHtml(r.id || '-')}</span></div>
+                        <div><strong>ID usuario</strong><span>${escapeHtml(r.user_id || '-')}</span></div>
+                        <div><strong>Email cuenta</strong><span>${escapeHtml(r.user_email || '-')}</span></div>
+                        <div><strong>Serie</strong><span>${escapeHtml(r.serial_number || '-')}</span></div>
+                        <div><strong>Estatus tecnico</strong><span>${escapeHtml(r.status || '-')}</span></div>
+                        <div><strong>Prioridad guardada</strong><span>${escapeHtml(r.priority || '-')}</span></div>
+                        <div><strong>Costo estimado</strong><span>${escapeHtml(formatRepairMoney(r.estimated_cost))}</span></div>
+                        <div><strong>Costo final</strong><span>${escapeHtml(formatRepairMoney(r.final_cost))}</span></div>
+                        <div><strong>Cita</strong><span>${escapeHtml(appointmentDate)}</span></div>
+                        <div><strong>Prometido</strong><span>${escapeHtml(promisedDate)}</span></div>
+                        <div><strong>Entregado</strong><span>${escapeHtml(deliveredDate)}</span></div>
+                        <div><strong>Garantia hasta</strong><span>${escapeHtml(warrantyDate)}</span></div>
+                        <div><strong>Actualizado</strong><span>${escapeHtml(updatedDate)}</span></div>
+                        <div><strong>Service ID</strong><span>${escapeHtml(r.service_id || '-')}</span></div>
+                    </div>
+                    <div class="repair-detail-text">
+                        <strong>Falla reportada</strong>
+                        <p>${escapeHtml(issueDescription || 'Sin descripcion')}</p>
+                    </div>
+                    <div class="repair-detail-text">
+                        <strong>Diagnostico / avance tecnico</strong>
+                        <p>${escapeHtml(r.diagnostic || 'Sin diagnostico registrado')}</p>
+                    </div>
+                    <div class="repair-detail-text">
+                        <strong>Notas internas / datos adicionales</strong>
+                        <p>${escapeHtml(r.notes_internal || 'Sin notas internas')}</p>
+                    </div>
+                    <div class="repair-detail-text">
+                        <strong>Texto completo del ticket</strong>
+                        <p>${escapeHtml(r.reported_issue || 'Sin texto completo')}</p>
+                    </div>
+                    <div class="repair-detail-actions">
+                        ${cleanPhone ? `<a class="btn-admin btn-approve" href="https://wa.me/52${cleanPhone}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
+                        <button class="btn-admin" type="button" data-copy-ticket="${escapeHtml(r.ticket_code)}"><i class="fa-solid fa-copy"></i> Copiar ticket</button>
+                        <button class="btn-admin" type="button" data-open-repair="${escapeHtml(detailId)}"><i class="fa-solid fa-chevron-up"></i> Cerrar ficha</button>
+                    </div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(detailTr);
     });
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ENSAMBLES (BUILDS) LOGIC
-───────────────────────────────────────────────────────────── */
+function toggleRepairDetail(detailId) {
+    const detail = document.getElementById(detailId);
+    if (!detail) return;
+    const row = [...document.querySelectorAll('.repair-row')].find(item => item.dataset.detailId === detailId);
+    const isOpen = detail.style.display !== 'none';
+    detail.style.display = isOpen ? 'none' : 'table-row';
+    row?.classList.toggle('open', !isOpen);
+    row?.querySelector('[data-open-repair]')?.setAttribute('aria-expanded', String(!isOpen));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupRepairModalOptions();
+    populateRepairFilters();
+    ['repairSearchInput', 'repairStatusFilter', 'repairUrgencyFilter', 'repairDeviceFilter', 'repairServiceFilter'].forEach(id => {
+        document.getElementById(id)?.addEventListener(id === 'repairSearchInput' ? 'input' : 'change', () => {
+            if (id === 'repairDeviceFilter') refreshRepairServiceFilterOptions();
+            renderRepairs();
+        });
+    });
+    document.getElementById('repairClearFilters')?.addEventListener('click', () => {
+        ['repairSearchInput', 'repairStatusFilter', 'repairUrgencyFilter', 'repairDeviceFilter', 'repairServiceFilter'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.value = id === 'repairSearchInput' ? '' : 'all';
+        });
+        refreshRepairServiceFilterOptions();
+        renderRepairs();
+    });
+    document.addEventListener('click', (event) => {
+        const copyBtn = event.target.closest?.('[data-copy-ticket]');
+        if (copyBtn) {
+            navigator.clipboard?.writeText(copyBtn.dataset.copyTicket || '');
+            return;
+        }
+        const openBtn = event.target.closest?.('[data-open-repair]');
+        if (openBtn) {
+            event.preventDefault();
+            toggleRepairDetail(openBtn.dataset.openRepair);
+            return;
+        }
+        const row = event.target.closest?.('.repair-row');
+        if (!row) return;
+        if (event.target.closest?.('button, a, input, select, textarea')) return;
+        toggleRepairDetail(row.dataset.detailId);
+    });
+    document.addEventListener('keydown', (event) => {
+        if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.classList?.contains('repair-row')) return;
+        event.preventDefault();
+        event.target.click();
+    });
+});
 
 window.openRepairModal = function() {
+    setupRepairModalOptions();
     document.getElementById('repairCustomer').value = '';
     document.getElementById('repairType').value = 'Laptop';
+    syncRepairDeviceOther();
+    updateRepairModalServices();
+    document.getElementById('repairPriority').value = 'normal';
+    document.getElementById('repairDeviceOther').value = '';
     document.getElementById('repairBrand').value = '';
+    document.getElementById('repairModel').value = '';
+    document.getElementById('repairServiceOther').value = '';
     document.getElementById('repairIssue').value = '';
     document.getElementById('repairPhone').value = '';
+    document.getElementById('repairEmail').value = '';
     document.getElementById('repairModalOverlay').classList.add('show');
 };
 
@@ -742,18 +1196,45 @@ window.closeRepairModal = function() {
 
 window.saveRepair = async function() {
     const user_name = document.getElementById('repairCustomer').value.trim();
-    const device_type = document.getElementById('repairType').value;
+    const deviceRaw = document.getElementById('repairType').value;
+    const device_type = deviceRaw === 'Otro'
+        ? document.getElementById('repairDeviceOther').value.trim()
+        : deviceRaw;
+    const serviceRaw = document.getElementById('repairService').value;
+    const service_requested = serviceRaw === 'Otro'
+        ? document.getElementById('repairServiceOther').value.trim()
+        : serviceRaw;
+    const priority = document.getElementById('repairPriority').value;
     const device_brand = document.getElementById('repairBrand').value.trim();
+    const device_model = document.getElementById('repairModel').value.trim();
     const reported_issue = document.getElementById('repairIssue').value.trim();
     const contact_phone = document.getElementById('repairPhone').value.trim();
+    const contact_email = document.getElementById('repairEmail').value.trim();
 
-    if(!user_name || !device_brand || !reported_issue || !contact_phone) {
+    if(!user_name || !device_type || !service_requested || !device_brand || !reported_issue || !contact_phone) {
         alert('Por favor, completa todos los campos requeridos.');
         return;
     }
 
+    const priorityLabel = REPAIR_PRIORITY_OPTIONS[priority]?.label || 'Normal';
+    const issueWithService = [
+        `Servicio solicitado: ${service_requested}`,
+        '',
+        reported_issue,
+        '---',
+        `Urgencia: ${priorityLabel}`
+    ].join('\n');
+
     const payload = {
-        user_name, device_type, device_brand, reported_issue, contact_phone
+        user_name,
+        device_type,
+        service_requested,
+        device_brand,
+        device_model,
+        reported_issue: issueWithService,
+        contact_phone,
+        contact_email,
+        priority
     };
 
     try {
