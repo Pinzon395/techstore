@@ -5,15 +5,17 @@ const { service, category } = Astro.props;
 import FaqSection from '../FaqSection.astro';
 import CommentsSection from '../CommentsSection.astro';
 import ServiceTicketSection from '../ServiceTicketSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
 
 const waMessage = encodeURIComponent(`Hola, necesito el servicio de ${service.label} para mi ${category.title}. ¿Me podrían cotizar?`);
 
 // FAQ personalizada para batería
 const bateriaFaqs = [
-  { question: '¿Cuánto tiempo toma el cambio de batería en Cancún?', answer: 'Normalmente Takes 24-48 horas. Hacemos diagnóstico completo, verificamos ciclos reales, cotizamos, reemplazamos con batería certificada, calibramos y entregamos tu laptop funcionando como nueva.' },
-  { question: '¿Mi laptop está segura durante el proceso?', answer: 'Sí. Trabajamos en área antiestática certificada. No desinstalamos datos, no tocamos tu información personal, y garantizamos la integridad de todos los componentes durante el desarmado y reensamble.' },
-  { question: '¿Qué garantía ofrecen?', answer: '6 meses por escrito en mano de obra y batería. Si la batería presenta fallas de capacidad prematura, la reemplazamos sin costo adicional durante el período de garantía.' },
-  { question: '¿Qué marcas de laptops trabajan en Cancún?', answer: 'Dell, HP, Lenovo, Asus, Acer, Toshiba, Sony, Samsung, Apple MacBook, y más. Tenemos experiencia con modelos Windows y Mac de los últimos 10 años.' }
+  { question: '¿Cuánto tarda el cambio de batería de laptop en Cancún?', answer: 'Normalmente toma de 24 a 48 horas según el modelo y disponibilidad de la batería. Antes de reemplazarla revisamos ciclos, capacidad real, sistema de carga, cargador y temperatura del equipo.' },
+  { question: '¿Cómo sé si mi laptop necesita batería nueva o diagnóstico de carga?', answer: 'Si la laptop no enciende sin cargador, se apaga de golpe, carga intermitente o no detecta batería, puede ser batería, cargador, flex, conector o circuito de carga. Por eso hacemos diagnóstico antes de cambiar piezas.' },
+  { question: '¿Qué pasa si la batería está inflada?', answer: 'Una batería inflada debe atenderse de inmediato. Recomendamos apagar el equipo, no cargarlo y traerlo a revisión para evitar presión sobre touchpad, carcasa, pantalla o placa.' },
+  { question: '¿El cambio incluye calibración y garantía?', answer: 'Sí. Después del reemplazo revisamos carga, lectura del sistema, estabilidad y calibración inicial. La garantía se entrega por escrito sobre la batería instalada y la mano de obra.' },
+  { question: '¿Qué marcas de laptops trabajan?', answer: 'Trabajamos cambio de batería para HP, Dell, Lenovo, Asus, Acer, MSI, Toshiba, Samsung, MacBook Pro y MacBook Air, validando compatibilidad por modelo antes de pedir o instalar la pieza.' }
 ];
 
 // Síntomas para la sección de diagnóstico visual
@@ -407,28 +409,29 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
     </div>
   </section>
 
-  <!-- SECCIÓN 6: SOBRECALENTAMIENTO (NUEVA) -->
+  <!-- SECCIÓN 6: SOBRECALENTAMIENTO -->
   <section class="cb-sobrecalentamiento section-pad">
     <div class="container">
-      <div class="cb-split-layout">
-        <div class="cb-split-content">
+      <div class="cb-attention-panel">
+        <div class="cb-attention-copy">
           <span class="cb-eyebrow"><i class="fa-solid fa-temperature-high"></i> Attention</span>
           <h2 class="cb-h2-section">El sobrecalentamiento también afecta la batería</h2>
           <p class="cb-desc">El exceso de temperatura acelera el desgaste químico de la batería y puede reducir drásticamente su vida útil. El polvo acumulado, la pasta térmica degradada y una ventilación deficiente generan temperaturas más altas que terminan afectando tanto el rendimiento como la autonomía del equipo.</p>
+          <p class="cb-attention-note">En Pixon PC Cancún revisamos batería, ventilación, pasta térmica y sistema de carga antes de recomendar un reemplazo.</p>
+        </div>
+        <div class="cb-attention-actions">
           <div class="cb-heat-factors">
-            <div class="cb-factor"><i class="fa-solid fa-dust"></i> Polvo acumulado</div>
-            <div class="cb-factor"><i class="fa-solid fa-fire"></i> Pasta térmica</div>
-            <div class="cb-factor"><i class="fa-solid fa-wind"></i> Ventilación bloqueada</div>
+            <div class="cb-factor"><i class="fa-solid fa-dust"></i><span>Polvo acumulado</span></div>
+            <div class="cb-factor"><i class="fa-solid fa-fire"></i><span>Pasta térmica</span></div>
+            <div class="cb-factor"><i class="fa-solid fa-wind"></i><span>Ventilación bloqueada</span></div>
           </div>
           <a href="/servicios/laptop/pasta-termica" class="cb-btn-outline">
             <i class="fa-solid fa-wrench"></i> Ver Mantenimiento Térmico
           </a>
         </div>
-        <div class="cb-split-visual">
-          <div class="cb-heat-visual">
-            <i class="fa-solid fa-temperature-high"></i>
-            <span>Temp elevada = Vida útil reducida</span>
-          </div>
+        <div class="cb-heat-visual">
+          <i class="fa-solid fa-temperature-high"></i>
+          <span>Temp elevada = Vida útil reducida</span>
         </div>
       </div>
     </div>
@@ -437,23 +440,34 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   <!-- SECCIÓN 7: GALERÍA / PROCESO VISUAL -->
   <section class="cb-galeria section-pad" style="background: #0B1120;">
     <div class="container">
-      <div class="cb-section-header text-center">
-        <span class="cb-eyebrow"><i class="fa-solid fa-images"></i> Portfolio</span>
-        <h2 class="cb-h2-section">Así realizamos el reemplazo y mantenimiento interno</h2>
-        <p class="cb-desc">Mostramos parte del proceso real de desmontaje, revisión, limpieza, calibración y pruebas posteriores al cambio de batería para garantizar seguridad, estabilidad y una mejor experiencia de uso.</p>
-      </div>
-
-      <div class="cb-gallery-collage">
+      <div class="cb-portfolio-panel">
+        <div class="cb-portfolio-copy">
+          <span class="cb-eyebrow"><i class="fa-solid fa-images"></i> Portfolio</span>
+          <h2 class="cb-h2-section">Así realizamos el reemplazo y mantenimiento interno</h2>
+          <p class="cb-desc">Mostramos parte del proceso real de desmontaje, revisión, limpieza, calibración y pruebas posteriores al cambio de batería para garantizar seguridad, estabilidad y una mejor experiencia de uso en tu laptop en Cancún.</p>
+          <div class="cb-portfolio-steps">
+            <span><i class="fa-solid fa-screwdriver-wrench"></i> Desmontaje seguro</span>
+            <span><i class="fa-solid fa-battery-half"></i> Revisión de batería</span>
+            <span><i class="fa-solid fa-fan"></i> Limpieza interna</span>
+            <span><i class="fa-solid fa-rotate"></i> Calibración</span>
+          </div>
+        </div>
         <div class="cb-gallery-main">
-          <img src="/assets/images/mantenimiento-macbook-cancun.jpeg" alt="Cambio de batería proceso" />
+          <img src="/assets/images/mantenimiento-macbook-cancun.jpeg" alt="Reemplazo de batería de laptop en Cancún con revisión interna" />
           <div class="cb-gallery-overlay">
             <i class="fa-solid fa-battery-charging"></i>
-            <span>Reemplazo Profesional</span>
+            <span>Reemplazo profesional</span>
           </div>
         </div>
         <div class="cb-gallery-side">
-          <div class="cb-gallery-item"><img src="/assets/images/AntesBisagra.jpg" alt="Antes" /></div>
-          <div class="cb-gallery-item"><img src="/assets/images/DespuesBisagra.jpg" alt="Después" /></div>
+          <div class="cb-gallery-item">
+            <img src="/assets/images/AntesBisagra.jpg" alt="Laptop antes de mantenimiento y cambio de batería en Cancún" />
+            <span>Antes</span>
+          </div>
+          <div class="cb-gallery-item">
+            <img src="/assets/images/DespuesBisagra.jpg" alt="Laptop después de mantenimiento interno y pruebas de batería en Cancún" />
+            <span>Después</span>
+          </div>
         </div>
       </div>
     </div>
@@ -506,32 +520,47 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   <!-- SECCIÓN 9: DIAGNÓSTICO FRECUENTE -->
   <section class="cb-diagnostico section-pad" style="background: #0f172a;">
     <div class="container">
-      <div class="cb-section-header text-center">
-        <span class="cb-eyebrow"><i class="fa-solid fa-question-circle"></i> Info</span>
-        <h2 class="cb-h2-section">Problemas comunes y soluciones reales</h2>
-        <p class="cb-desc">Muchos síntomas relacionados con batería, temperatura o rendimiento pueden confundirse entre sí. Por eso realizamos diagnóstico real antes de reemplazar componentes innecesariamente, identificando si el problema proviene de la batería, el sistema de carga, temperatura excesiva o desgaste interno.</p>
-      </div>
-
-      <div class="cb-diagnostico-list">
-        <div class="cb-diagnostico-item">
-          <div class="cb-diag-problem">Batería dura poco pero carga</div>
-          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-          <div class="cb-diag-solution">Reemplazo de batería (ciclos agotados)</div>
+      <div class="cb-info-panel">
+        <div class="cb-info-copy">
+          <span class="cb-eyebrow"><i class="fa-solid fa-circle-info"></i> Info</span>
+          <h2 class="cb-h2-section">Problemas comunes y soluciones reales</h2>
+          <p class="cb-desc">Muchos síntomas relacionados con batería, temperatura o rendimiento pueden confundirse entre sí. Por eso realizamos diagnóstico real antes de reemplazar componentes innecesariamente, identificando si el problema proviene de la batería, el sistema de carga, temperatura excesiva o desgaste interno.</p>
+          <div class="cb-info-tags">
+            <span>Cambio de batería en Cancún</span>
+            <span>Circuito de carga</span>
+            <span>Temperatura</span>
+            <span>Calibración</span>
+          </div>
         </div>
-        <div class="cb-diagnostico-item">
-          <div class="cb-diag-problem">No enciende sin cargador</div>
-          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-          <div class="cb-diag-solution">Diagnóstico de placa / circuito de carga</div>
-        </div>
-        <div class="cb-diagnostico-item">
-          <div class="cb-diag-problem">Se apaga a 20% de batería</div>
-          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-          <div class="cb-diag-solution">Calibración o reemplazo según diagnóstico</div>
-        </div>
-        <div class="cb-diagnostico-item">
-          <div class="cb-diag-problem">Batería inflada / laptop levantada</div>
-          <div class="cb-diag-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-          <div class="cb-diag-solution">URGENTE - reemplazo inmediato por seguridad</div>
+        <div class="cb-diagnostico-list">
+          <article class="cb-diagnostico-item">
+            <span class="cb-diag-num">01</span>
+            <div>
+              <div class="cb-diag-problem">Batería dura poco pero carga</div>
+              <div class="cb-diag-solution">Reemplazo de batería (ciclos agotados)</div>
+            </div>
+          </article>
+          <article class="cb-diagnostico-item">
+            <span class="cb-diag-num">02</span>
+            <div>
+              <div class="cb-diag-problem">No enciende sin cargador</div>
+              <div class="cb-diag-solution">Diagnóstico de placa / circuito de carga</div>
+            </div>
+          </article>
+          <article class="cb-diagnostico-item">
+            <span class="cb-diag-num">03</span>
+            <div>
+              <div class="cb-diag-problem">Se apaga a 20% de batería</div>
+              <div class="cb-diag-solution">Calibración o reemplazo según diagnóstico</div>
+            </div>
+          </article>
+          <article class="cb-diagnostico-item cb-diagnostico-item--urgent">
+            <span class="cb-diag-num">04</span>
+            <div>
+              <div class="cb-diag-problem">Batería inflada / laptop levantada</div>
+              <div class="cb-diag-solution">URGENTE - reemplazo inmediato por seguridad</div>
+            </div>
+          </article>
         </div>
       </div>
     </div>
@@ -555,47 +584,28 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   </section>
 
   <!-- SECCIÓN 11: SERVICIOS RELACIONADOS -->
-  <section class="cb-relacionados section-pad" style="background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);">
-    <div class="container">
-      <div class="cb-section-header text-center">
-        <span class="cb-eyebrow"><i class="fa-solid fa-link"></i> Complementos</span>
-        <h2 class="cb-h2-section">Servicios recomendados para mejorar tu laptop</h2>
-        <p class="cb-desc">Además del cambio de batería, existen otros servicios que ayudan a reducir temperatura, mejorar estabilidad y extender la vida útil del equipo, especialmente en laptops con varios años de uso o problemas de rendimiento.</p>
-      </div>
-
-      <div class="cb-relacionados-grid">
-        <a href="/servicios/laptop/pasta-termica" class="cb-relacionado-card">
-          <i class="fa-solid fa-temperature-arrow-down"></i>
-          <h3>Pasta Térmica</h3>
-          <p>Reduce temperatura y mejora rendimiento</p>
-        </a>
-        <a href="/servicios/laptop/limpieza-interna" class="cb-relacionado-card">
-          <i class="fa-solid fa-broom"></i>
-          <h3>Limpieza Interna</h3>
-          <p>Elimina polvo y mejora ventilación</p>
-        </a>
-        <a href="/servicios/laptop/diagnostico" class="cb-relacionado-card">
-          <i class="fa-solid fa-stethoscope"></i>
-          <h3>Diagnóstico Completo</h3>
-          <p>Evaluación total del estado de tu laptop</p>
-        </a>
-        <a href="/paquetes" class="cb-relacionado-card">
-          <i class="fa-solid fa-box"></i>
-          <h3>Paquetes de Mantenimiento</h3>
-          <p>Combina servicios con descuento</p>
-        </a>
-      </div>
-    </div>
-  </section>
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    eyebrow="Complementos"
+    title="Servicios recomendados para mejorar tu laptop"
+    compact={true}
+    includeCategoryServices={true}
+    initialLimit={4}
+  />
 
   <!-- SECCIÓN 12: FAQ -->
   <FaqSection
-        backgroundColor="#0B1120" 
-        title="Preguntas frecuentes sobre cambio de batería de laptop"
-        description="Respondemos las dudas más comunes relacionadas con autonomía, compatibilidad, calibración, temperatura, tiempos de reparación y rendimiento para ayudarte a tomar una decisión más segura antes de reemplazar la batería de tu laptop."
-        items={bateriaFaqs}
-        faqAccent="#3b82f6"
-      />
+    id="faq-bateria"
+    sectionClass="cb-faq"
+    gridClass="cb-faq-grid"
+    backgroundColor="#0B1120"
+    questionColor="#f8fafc"
+    title="Preguntas frecuentes sobre cambio de batería de laptop en Cancún"
+    description="Respondemos dudas sobre autonomía, compatibilidad, calibración, temperatura, tiempos de reparación y garantía antes de reemplazar la batería de tu laptop."
+    items={bateriaFaqs}
+    faqAccent="#3b82f6"
+  />
 
   <!-- SECCIÓN 13: COMENTARIOS -->
   <section class="cb-comentarios">
@@ -1974,26 +1984,43 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 }
 
 /* SECTION 6: SOBRECALENTAMIENTO */
-.cb-split-layout {
+.cb-attention-panel {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
+  grid-template-columns: minmax(0, 1.25fr) minmax(270px, 0.85fr) minmax(220px, 0.55fr);
+  gap: 22px;
+  align-items: stretch;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 48%, #eff6ff 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.09);
 }
 
-.cb-split-content h2 {
+.cb-attention-copy h2 {
   color: #0f172a;
 }
 
-.cb-split-content p {
+.cb-attention-copy p {
   color: #475569;
 }
 
-.cb-heat-factors {
+.cb-attention-note {
+  margin: 14px 0 0;
+  color: #2563eb !important;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.cb-attention-actions {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: 16px;
-  margin: 24px 0;
-  flex-wrap: wrap;
+}
+
+.cb-heat-factors {
+  display: grid;
+  gap: 10px;
 }
 
 .cb-factor {
@@ -2032,8 +2059,9 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 
 .cb-heat-visual {
   background: linear-gradient(135deg, #fef3c7, #fde68a);
-  border-radius: 20px;
-  padding: 60px;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 18px;
+  padding: 24px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -2043,7 +2071,7 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 }
 
 .cb-heat-visual i {
-  font-size: 4rem;
+  font-size: 3rem;
   color: #f59e0b;
 }
 
@@ -2054,21 +2082,59 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 }
 
 /* SECTION 7: GALERÍA */
-.cb-gallery-collage {
+.cb-portfolio-panel {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1.2fr) minmax(180px, 0.5fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.cb-portfolio-copy {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.cb-portfolio-copy .cb-h2-section,
+.cb-portfolio-copy .cb-desc {
+  text-align: left;
+}
+
+.cb-portfolio-steps {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cb-portfolio-steps span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #dbeafe;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.cb-portfolio-steps i {
+  color: #38bdf8;
 }
 
 .cb-gallery-main {
   position: relative;
   border-radius: 20px;
   overflow: hidden;
+  min-height: 100%;
 }
 
 .cb-gallery-main img {
   width: 100%;
-  height: 400px;
+  height: 100%;
+  min-height: 320px;
   object-fit: cover;
 }
 
@@ -2093,18 +2159,34 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 .cb-gallery-side {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 .cb-gallery-item {
   border-radius: 16px;
   overflow: hidden;
+  position: relative;
+  flex: 1;
 }
 
 .cb-gallery-item img {
   width: 100%;
-  height: 190px;
+  height: 100%;
+  min-height: 153px;
   object-fit: cover;
+}
+
+.cb-gallery-item span {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  color: #fff;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 0.76rem;
+  font-weight: 800;
 }
 
 /* SECTION 8: POR QUÉ ELEGIRNOS */
@@ -2146,39 +2228,87 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 }
 
 /* SECTION 9: DIAGNÓSTICO */
-.cb-diagnostico-list {
+.cb-info-panel {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(460px, 1.2fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.cb-info-copy {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.cb-info-copy .cb-h2-section,
+.cb-info-copy .cb-desc {
+  text-align: left;
+}
+
+.cb-info-tags {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 800px;
-  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.cb-info-tags span {
+  color: #bfdbfe;
+  background: rgba(59, 130, 246, 0.11);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.cb-diagnostico-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .cb-diagnostico-item {
   display: flex;
-  align-items: center;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 14px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 20px 24px;
+  border-radius: 16px;
+  padding: 18px;
+  min-height: 138px;
+}
+
+.cb-diagnostico-item--urgent {
+  border-color: rgba(248, 113, 113, 0.36);
+  background: rgba(127, 29, 29, 0.18);
+}
+
+.cb-diag-num {
+  flex: 0 0 auto;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 10px;
+  padding: 7px 8px;
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .cb-diag-problem {
-  color: #f87171;
-  font-weight: 600;
-  flex: 1;
-}
-
-.cb-diag-arrow {
-  color: #64748b;
+  color: #f8fafc;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 10px;
 }
 
 .cb-diag-solution {
-  color: #22c55e;
-  font-weight: 600;
-  flex: 1;
-  text-align: right;
+  color: #86efac;
+  font-weight: 700;
+  line-height: 1.4;
+  font-size: 0.9rem;
 }
 
 /* SECTION 10: MARCAS */
@@ -2241,6 +2371,64 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
 .cb-relacionado-card p {
   color: #94a3b8;
   font-size: 0.85rem;
+}
+
+.cambio-bateria-wrapper .svc-related {
+  background: linear-gradient(180deg, #0B1120 0%, #0f172a 55%, #111827 100%) !important;
+}
+
+.cambio-bateria-wrapper .svc-related .ux-eyebrow {
+  color: #38BDF8 !important;
+}
+
+.cambio-bateria-wrapper .svc-related .ux-h2,
+.cambio-bateria-wrapper .svc-related .related-card h4 {
+  color: #F8FAFC !important;
+}
+
+.cambio-bateria-wrapper .svc-related .related-card {
+  background: rgba(15, 23, 42, 0.78) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+.cambio-bateria-wrapper .svc-related .related-card p {
+  color: #CBD5E1 !important;
+}
+
+.cambio-bateria-wrapper .svc-related .related-card span,
+.cambio-bateria-wrapper .svc-related .related-card i {
+  color: #38BDF8 !important;
+}
+
+.cambio-bateria-wrapper .cb-faq {
+  background: #0B1120 !important;
+}
+
+.cambio-bateria-wrapper .cb-faq .section-title h2 {
+  color: #F8FAFC !important;
+}
+
+.cambio-bateria-wrapper .cb-faq .section-title p {
+  color: #CBD5E1 !important;
+}
+
+.cambio-bateria-wrapper .cb-faq .faq-item {
+  background: rgba(15, 23, 42, 0.86) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  box-shadow: none !important;
+}
+
+.cambio-bateria-wrapper .cb-faq .faq-item--open,
+.cambio-bateria-wrapper .cb-faq .faq-item:hover {
+  border-color: rgba(56, 189, 248, 0.42) !important;
+}
+
+.cambio-bateria-wrapper .cb-faq .faq-question {
+  color: #F8FAFC !important;
+}
+
+.cambio-bateria-wrapper .cb-faq .faq-answer-inner {
+  color: #CBD5E1 !important;
 }
 
 /* SECCIÓN 13: COMENTARIOS */
@@ -2427,6 +2615,21 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   .cb-gallery-collage {
     grid-template-columns: 1fr;
   }
+  .cb-attention-panel,
+  .cb-portfolio-panel,
+  .cb-info-panel {
+    grid-template-columns: 1fr;
+  }
+  .cb-attention-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+  .cb-heat-factors {
+    flex: 1;
+  }
+  .cb-gallery-main img {
+    min-height: 280px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2552,13 +2755,26 @@ const marcas = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Tos
   .cb-gallery-main img,
   .cb-gallery-item img {
     height: 220px;
+    min-height: 220px;
+  }
+  .cb-attention-panel,
+  .cb-portfolio-copy,
+  .cb-info-copy {
+    padding: 18px;
+    border-radius: 18px;
+  }
+  .cb-attention-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cb-diagnostico-list {
+    grid-template-columns: 1fr;
   }
   .cb-diagnostico-item {
-    flex-direction: column;
-    align-items: flex-start;
+    min-height: auto;
   }
-  .cb-diag-solution {
-    text-align: left;
+  .cb-portfolio-steps {
+    grid-template-columns: 1fr;
   }
   .cb-cta-final-buttons {
     flex-direction: column;
