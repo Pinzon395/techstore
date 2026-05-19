@@ -44,6 +44,8 @@ const {
     getUnansweredFaqs,
     clearUnansweredFaqs,
     getAllRepairsAdmin,
+    getRepairAdminById,
+    updateRepairAdmin,
     insertRepairAdmin,
     getAllBuildsAdmin,
     getAllBuildsPublic,
@@ -738,6 +740,19 @@ async function bootstrap() {
     app.get('/api/admin/repairs', requireAdmin, ah(async (_req, res) => {
         const repairs = await getAllRepairsAdmin();
         res.json(repairs);
+    }));
+
+    app.get(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
+        const ticket = await getRepairAdminById(req.params.id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
+        res.json({ success: true, ticket });
+    }));
+
+    app.patch(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
+        const ticket = await updateRepairAdmin(req.params.id, req.body || {});
+        if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
+        await audit(req, 'update', 'repair', ticket?.id, { ticket_code: ticket?.ticket_code });
+        res.json({ success: true, message: 'Cambios guardados correctamente.', ticket });
     }));
 
     app.post('/api/admin/repairs', requireAdmin, ah(async (req, res) => {

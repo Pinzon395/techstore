@@ -84,6 +84,21 @@ async function initDB() {
         console.warn('⚠️  No se pudo verificar/migrar comments.stars:', err.message);
     }
 
+    try {
+        const [cols] = await pool.query(
+            "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'repairs' AND COLUMN_NAME = 'status'"
+        );
+        if (cols[0] && !String(cols[0].COLUMN_TYPE || '').includes("'contacted'")) {
+            console.log('Migrando repairs.status para estados extendidos del taller...');
+            await pool.query(
+                "ALTER TABLE repairs MODIFY COLUMN status ENUM('new','received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled') NOT NULL DEFAULT 'received'"
+            );
+            console.log('Columna repairs.status actualizada');
+        }
+    } catch (err) {
+        console.warn('No se pudo verificar/migrar repairs.status:', err.message);
+    }
+
     return pool;
 }
 
@@ -454,6 +469,57 @@ async function getAllRepairsAdmin() {
     return rows;
 }
 
+async function getRepairAdminById(id) {
+    const [rows] = await pool.execute(`
+        SELECT r.*, u.name as user_name, u.email as user_email
+        FROM repairs r
+        LEFT JOIN users u ON u.id = r.user_id
+        WHERE r.id = ?
+        LIMIT 1
+    `, [id]);
+    return rows[0] || null;
+}
+
+async function updateRepairAdmin(id, data) {
+    const allowedStatus = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled']);
+    const allowedPriority = new Set(['low', 'normal', 'high', 'urgent']);
+    const fields = [];
+    const values = [];
+
+    if (Object.prototype.hasOwnProperty.call(data, 'status') && allowedStatus.has(String(data.status))) {
+        fields.push('status = ?');
+        values.push(String(data.status));
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'priority') && allowedPriority.has(String(data.priority))) {
+        fields.push('priority = ?');
+        values.push(String(data.priority));
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'diagnostic')) {
+        fields.push('diagnostic = ?');
+        values.push(data.diagnostic ? String(data.diagnostic).trim() : null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'notes_internal')) {
+        fields.push('notes_internal = ?');
+        values.push(data.notes_internal ? String(data.notes_internal).trim() : null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'estimated_cost')) {
+        fields.push('estimated_cost = ?');
+        const amount = Number(data.estimated_cost);
+        values.push(data.estimated_cost === '' || data.estimated_cost === null || data.estimated_cost === undefined || !Number.isFinite(amount) ? null : amount);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'final_cost')) {
+        fields.push('final_cost = ?');
+        const amount = Number(data.final_cost);
+        values.push(data.final_cost === '' || data.final_cost === null || data.final_cost === undefined || !Number.isFinite(amount) ? null : amount);
+    }
+
+    if (fields.length === 0) return getRepairAdminById(id);
+
+    values.push(id);
+    await pool.execute(`UPDATE repairs SET ${fields.join(', ')} WHERE id = ?`, values);
+    return getRepairAdminById(id);
+}
+
 async function insertRepairAdmin(data) {
     const { user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, is_b2b, b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice } = data;
     const ticket_code = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -579,6 +645,8 @@ module.exports = {
     getUnansweredFaqs,
     clearUnansweredFaqs,
     getAllRepairsAdmin,
+    getRepairAdminById,
+    updateRepairAdmin,
     insertRepairAdmin,
     getAllBuildsAdmin,
     getAllBuildsPublic,

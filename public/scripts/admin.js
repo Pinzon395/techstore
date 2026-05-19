@@ -6,6 +6,7 @@ let allRepairs = [];
 let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
 let analyticsData = null;
+let activeRepairTicket = null;
 
 // M8 — header CSRF que el backend exige en POST/PUT/DELETE.
 // Helper para no olvidarlo en ninguna llamada de escritura.
@@ -728,20 +729,24 @@ async function fetchRepairs() {
 }
 
 const REPAIR_STATUS_LABELS = {
+    new: 'Nuevo',
     received: 'Recibido',
-    diagnosing: 'Diagnostico',
+    diagnosing: 'En revisión',
+    contacted: 'Contactado',
     quoted: 'Cotizado',
     approved: 'Aprobado',
     in_progress: 'En proceso',
     waiting_parts: 'Esperando piezas',
-    ready: 'Listo',
+    ready: 'Listo para entrega',
     delivered: 'Entregado',
     cancelled: 'Cancelado'
 };
 
 const REPAIR_STATUS_COLORS = {
+    new: '#38bdf8',
     received: '#3b82f6',
     diagnosing: '#f59e0b',
+    contacted: '#06b6d4',
     quoted: '#8b5cf6',
     approved: '#10b981',
     in_progress: '#f97316',
@@ -936,6 +941,40 @@ function formatRepairMoney(value) {
     return amount.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 }
 
+function repairValue(value) {
+    return value === null || value === undefined || String(value).trim() === '' ? 'No especificado' : String(value);
+}
+
+function parseRepairLine(text, label) {
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return String(text || '').match(new RegExp(`${escaped}:\\s*([^\\n\\r]+)`, 'i'))?.[1]?.trim() || '';
+}
+
+function parseRepairDetails(repair) {
+    const reported = String(repair.reported_issue || '');
+    const notes = String(repair.notes_internal || '');
+    const service = parseRepairLine(reported, 'Servicio solicitado') || inferRepairService(repair);
+    const description = getRepairIssueDescription(repair);
+    const sourcePage = parseRepairLine(reported, 'Pagina de origen') || parseRepairLine(reported, 'Página de origen') || parseRepairLine(notes, 'Pagina de origen') || parseRepairLine(notes, 'Página de origen');
+    const contactPref = parseRepairLine(reported, 'Contacto pref.') || parseRepairLine(reported, 'Contacto preferido') || parseRepairLine(notes, 'Contacto pref.');
+    const turnsOn = parseRepairLine(reported, 'Enciende') || parseRepairLine(notes, 'Enciende');
+    const liquid = parseRepairLine(reported, 'Liquidos') || parseRepairLine(reported, 'Líquidos') || parseRepairLine(notes, 'Liquidos') || parseRepairLine(notes, 'Líquidos');
+    const previousRepair = parseRepairLine(reported, 'Reparacion previa') || parseRepairLine(reported, 'Reparación previa') || parseRepairLine(notes, 'Reparacion previa') || parseRepairLine(notes, 'Reparación previa');
+    const imagesRaw = parseRepairLine(reported, 'Imagenes') || parseRepairLine(reported, 'Imágenes') || parseRepairLine(notes, 'Imagenes') || parseRepairLine(notes, 'Imágenes');
+    const images = imagesRaw ? imagesRaw.split(/[,|]/).map(item => item.trim()).filter(Boolean) : [];
+    const b2bLine = String(notes.match(/B2B Info:\s*([^\n\r]+)/i)?.[1] || '');
+    const b2b = {
+        company: parseRepairLine(notes, 'Empresa') || b2bLine.match(/Empresa:\s*([^,]+)/i)?.[1]?.trim() || '',
+        quantity: parseRepairLine(notes, 'Cantidad') || b2bLine.match(/Cantidad:\s*([^,]+)/i)?.[1]?.trim() || '',
+        type: parseRepairLine(notes, 'Tipo') || b2bLine.match(/Tipo:\s*([^,]+)/i)?.[1]?.trim() || '',
+        frequency: parseRepairLine(notes, 'Frecuencia') || parseRepairLine(notes, 'Frec') || b2bLine.match(/Frec:\s*([^,]+)/i)?.[1]?.trim() || '',
+        invoice: parseRepairLine(notes, 'Factura') || b2bLine.match(/Factura:\s*([^,]+)/i)?.[1]?.trim() || '',
+        comments: parseRepairLine(notes, 'Comentarios empresariales') || ''
+    };
+    const isB2b = Boolean(repair.is_b2b || normalizeText(repair.device_type).includes('b2b') || normalizeText(repair.device_type).includes('empresarial') || b2bLine || b2b.company);
+    return { service, description, sourcePage, contactPref, turnsOn, liquid, previousRepair, images, b2b, isB2b };
+}
+
 function setupRepairModalOptions() {
     const typeSelect = document.getElementById('repairType');
     const prioritySelect = document.getElementById('repairPriority');
@@ -993,6 +1032,201 @@ function syncRepairServiceOther() {
     if (otherInput) otherInput.required = Boolean(needsOther);
 }
 
+function renderRepairField(label, value) {
+    return `<div class="repair-ticket-field"><strong>${escapeHtml(label)}</strong><span>${escapeHtml(repairValue(value))}</span></div>`;
+}
+
+function renderRepairText(label, value) {
+    return `<div class="repair-ticket-text"><strong>${escapeHtml(label)}</strong><p>${escapeHtml(repairValue(value))}</p></div>`;
+}
+
+function renderRepairStatusOptions(current) {
+    return Object.entries(REPAIR_STATUS_LABELS)
+        .filter(([key]) => key !== 'waiting_parts')
+        .map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(label)}</option>`)
+        .join('');
+}
+
+function renderRepairPriorityOptions(current) {
+    const labels = { low: 'Baja', normal: 'Normal', high: 'Alta', urgent: 'Urgente' };
+    return Object.entries(labels)
+        .map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(label)}</option>`)
+        .join('');
+}
+
+function renderRepairDetailModal(ticket) {
+    activeRepairTicket = ticket;
+    const details = parseRepairDetails(ticket);
+    const clientName = getRepairClientName(ticket);
+    const contactEmail = getRepairContactEmail(ticket);
+    const statusColor = REPAIR_STATUS_COLORS[ticket.status] || '#cbd5e1';
+    const urgency = inferRepairUrgency(ticket);
+    const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || repairValue(ticket.priority);
+    const cleanPhone = String(ticket.contact_phone || '').replace(/\D/g, '');
+    const waMessage = encodeURIComponent(`Hola ${clientName}, te contactamos de Pixon PC sobre tu ticket #${ticket.ticket_code}.`);
+    const waHref = cleanPhone ? `https://wa.me/52${cleanPhone}?text=${waMessage}` : '';
+    const overlay = document.getElementById('repairDetailOverlay');
+    const title = document.getElementById('repairDetailTitle');
+    const meta = document.getElementById('repairDetailMeta');
+    const body = document.getElementById('repairDetailBody');
+    const saveMessage = document.getElementById('repairDetailSaveMessage');
+
+    if (!overlay || !title || !meta || !body) return;
+    title.textContent = `Ticket #${ticket.ticket_code}`;
+    meta.innerHTML = `
+        <span style="background:${statusColor}20;color:${statusColor};border-color:${statusColor}40;">Estado: ${escapeHtml(REPAIR_STATUS_LABELS[ticket.status] || repairValue(ticket.status))}</span>
+        <span>Urgencia: ${escapeHtml(urgencyLabel)}</span>
+        <span>Creado: ${escapeHtml(formatRepairDate(ticket.created_at))}</span>
+        ${details.isB2b ? '<span>B2B / Empresarial</span>' : ''}
+    `;
+    if (saveMessage) saveMessage.textContent = '';
+
+    body.innerHTML = `
+        <div class="repair-ticket-columns">
+            <div class="repair-ticket-column">
+                <section class="repair-ticket-section repair-ticket-client-section">
+                    <h3>Datos del cliente</h3>
+                    <div class="repair-ticket-field-grid">
+                        ${renderRepairField('Nombre completo', clientName)}
+                        ${renderRepairField('WhatsApp / teléfono', ticket.contact_phone)}
+                        ${renderRepairField('Correo', contactEmail)}
+                        ${renderRepairField('Medio de contacto preferido', details.contactPref)}
+                    </div>
+                    ${waHref ? `<a class="btn-admin btn-approve repair-ticket-whatsapp" href="${waHref}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Contactar por WhatsApp</a>` : ''}
+                </section>
+
+                <section class="repair-ticket-section repair-ticket-device-section">
+                    <h3>Equipo / dispositivo</h3>
+                    <div class="repair-ticket-field-grid">
+                        ${renderRepairField('Dispositivo', ticket.device_type)}
+                        ${renderRepairField('Tipo de servicio', details.service)}
+                        ${renderRepairField('Marca', ticket.device_brand)}
+                        ${renderRepairField('Modelo', ticket.device_model)}
+                        ${renderRepairField('Número de serie', ticket.serial_number)}
+                        ${renderRepairField('Si el equipo enciende', details.turnsOn)}
+                        ${renderRepairField('Contacto con líquidos', details.liquid)}
+                        ${renderRepairField('Reparación previa', details.previousRepair)}
+                    </div>
+                </section>
+
+                <section class="repair-ticket-section repair-ticket-issue-section">
+                    <h3>Falla reportada</h3>
+                    ${renderRepairField('Servicio solicitado', details.service)}
+                    ${renderRepairText('Descripción completa', details.description)}
+                    ${renderRepairField('Página de origen', details.sourcePage)}
+                    <div class="repair-ticket-images">
+                        <strong>Imágenes adjuntas</strong>
+                        ${details.images.length ? details.images.map(src => `<a href="${escapeHtml(src)}" target="_blank" rel="noopener"><img src="${escapeHtml(src)}" alt="Imagen adjunta del ticket" loading="lazy"></a>`).join('') : '<span>No especificado</span>'}
+                    </div>
+                </section>
+
+                ${details.isB2b ? `
+                    <section class="repair-ticket-section repair-ticket-b2b-section">
+                        <h3>Datos empresariales</h3>
+                        <div class="repair-ticket-field-grid">
+                            ${renderRepairField('Nombre de empresa', details.b2b.company)}
+                            ${renderRepairField('Cantidad de equipos', details.b2b.quantity)}
+                            ${renderRepairField('Tipo de equipos', details.b2b.type)}
+                            ${renderRepairField('Frecuencia deseada', details.b2b.frequency)}
+                            ${renderRepairField('Requiere factura', details.b2b.invoice)}
+                        </div>
+                        ${renderRepairText('Comentarios empresariales', details.b2b.comments)}
+                    </section>
+                ` : ''}
+            </div>
+
+            <div class="repair-ticket-column">
+                <section class="repair-ticket-section repair-ticket-admin-section">
+                    <h3>Gestión interna</h3>
+                    <div class="repair-ticket-form-grid">
+                        <label>Estado del ticket<select id="repairDetailStatus" class="admin-input">${renderRepairStatusOptions(ticket.status)}</select></label>
+                        <label>Prioridad<select id="repairDetailPriority" class="admin-input">${renderRepairPriorityOptions(ticket.priority || 'normal')}</select></label>
+                        <label>Costo estimado<input id="repairDetailEstimatedCost" class="admin-input" type="number" min="0" step="0.01" value="${escapeHtml(ticket.estimated_cost ?? '')}"></label>
+                        <label>Costo final<input id="repairDetailFinalCost" class="admin-input" type="number" min="0" step="0.01" value="${escapeHtml(ticket.final_cost ?? '')}"></label>
+                    </div>
+                    <div class="repair-ticket-field-grid">
+                        ${renderRepairField('Fecha de cita', formatRepairDate(ticket.appointment_at))}
+                        ${renderRepairField('Fecha prometida', formatRepairDate(ticket.promised_at))}
+                        ${renderRepairField('Fecha de entrega', formatRepairDate(ticket.delivered_at))}
+                        ${renderRepairField('Garantía', formatRepairDate(ticket.warranty_until))}
+                    </div>
+                    <label class="repair-ticket-label">Diagnóstico técnico<textarea id="repairDetailDiagnostic" class="admin-input" rows="5">${escapeHtml(ticket.diagnostic || '')}</textarea></label>
+                    <label class="repair-ticket-label">Notas internas<textarea id="repairDetailNotes" class="admin-input" rows="6">${escapeHtml(ticket.notes_internal || '')}</textarea></label>
+                </section>
+            </div>
+        </div>
+    `;
+}
+
+async function openRepairTicket(ticketId) {
+    const overlay = document.getElementById('repairDetailOverlay');
+    const body = document.getElementById('repairDetailBody');
+    const title = document.getElementById('repairDetailTitle');
+    const meta = document.getElementById('repairDetailMeta');
+    if (!overlay || !body) return;
+    const fallbackTicket = allRepairs.find(item => String(item.id) === String(ticketId));
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    if (title) title.textContent = 'Cargando ticket...';
+    if (meta) meta.innerHTML = '';
+    body.innerHTML = '<div class="empty-state">Cargando información completa del ticket...</div>';
+    try {
+        const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(ticketId)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`load failed: ${res.status}`);
+        const data = await res.json();
+        const ticket = data.ticket || data.repair || data;
+        if (!ticket || !ticket.id) throw new Error('invalid ticket payload');
+        renderRepairDetailModal(ticket);
+    } catch (err) {
+        console.error('No se pudo cargar el detalle por endpoint; usando datos ya cargados en tabla.', err);
+        if (fallbackTicket) {
+            renderRepairDetailModal(fallbackTicket);
+            return;
+        }
+        body.innerHTML = '<div class="empty-state">No se pudo cargar la información completa del ticket. Intenta de nuevo.</div>';
+    }
+}
+
+function closeRepairTicketModal() {
+    const overlay = document.getElementById('repairDetailOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    activeRepairTicket = null;
+}
+
+async function saveRepairTicketChanges() {
+    if (!activeRepairTicket) return;
+    const saveMessage = document.getElementById('repairDetailSaveMessage');
+    const payload = {
+        status: document.getElementById('repairDetailStatus')?.value,
+        priority: document.getElementById('repairDetailPriority')?.value,
+        diagnostic: document.getElementById('repairDetailDiagnostic')?.value || '',
+        notes_internal: document.getElementById('repairDetailNotes')?.value || '',
+        estimated_cost: document.getElementById('repairDetailEstimatedCost')?.value || null,
+        final_cost: document.getElementById('repairDetailFinalCost')?.value || null
+    };
+    try {
+        const res = await fetch(`${API_BASE}/admin/tickets/${activeRepairTicket.id}`, {
+            method: 'PATCH',
+            headers: JSON_HEADERS,
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('save failed');
+        const data = await res.json();
+        const index = allRepairs.findIndex(item => String(item.id) === String(data.ticket.id));
+        if (index >= 0) allRepairs[index] = data.ticket;
+        renderRepairs();
+        renderRepairDetailModal(data.ticket);
+        if (saveMessage) saveMessage.textContent = 'Cambios guardados correctamente.';
+    } catch (err) {
+        console.error(err);
+        if (saveMessage) saveMessage.textContent = 'No se pudieron guardar los cambios.';
+    }
+}
+
 /* ─────────────────────────────────────────────────────────────
    TALLER (REPAIRS) UI
 ───────────────────────────────────────────────────────────── */
@@ -1009,33 +1243,27 @@ function renderRepairs() {
     }
 
     if (filteredRepairs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b;">No hay tickets que coincidan con los filtros.</td></tr>`;
+        const message = allRepairs.length === 0 ? 'Aún no hay tickets registrados.' : 'No hay tickets que coincidan con los filtros.';
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b;">${message}</td></tr>`;
         return;
     }
 
     filteredRepairs.forEach(r => {
         const date = formatRepairDate(r.created_at);
-        const updatedDate = formatRepairDate(r.updated_at);
-        const appointmentDate = formatRepairDate(r.appointment_at);
-        const promisedDate = formatRepairDate(r.promised_at);
-        const deliveredDate = formatRepairDate(r.delivered_at);
-        const warrantyDate = formatRepairDate(r.warranty_until);
         const color = REPAIR_STATUS_COLORS[r.status] || '#cbd5e1';
         const clientName = getRepairClientName(r);
         const service = inferRepairService(r);
         const issueDescription = getRepairIssueDescription(r);
-        const contactEmail = getRepairContactEmail(r);
         const urgency = inferRepairUrgency(r);
         const urgencyColor = urgency === 'urgent' ? '#ef4444' : urgency === 'work_school' ? '#f59e0b' : urgency === 'quote' ? '#38bdf8' : '#10b981';
         const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || urgency;
-        const detailId = `repair-detail-${r.id}`;
 
         const tr = document.createElement('tr');
         tr.className = 'repair-row';
-        tr.setAttribute('data-detail-id', detailId);
+        tr.setAttribute('data-ticket-id', r.id);
         tr.setAttribute('tabindex', '0');
         tr.innerHTML = `
-            <td style="font-weight: 700; color: #818cf8;"><i class="fa-solid fa-chevron-right repair-row-chevron"></i> #${escapeHtml(r.ticket_code)}</td>
+            <td style="font-weight: 700; color: #818cf8;">#${escapeHtml(r.ticket_code)}</td>
             <td>${escapeHtml(clientName)}</td>
             <td>${escapeHtml(r.device_type)} ${escapeHtml(r.device_brand || '')}</td>
             <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(issueDescription)}</td>
@@ -1043,92 +1271,13 @@ function renderRepairs() {
             <td><span class="user-role-badge" style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span></td>
             <td>${date}</td>
             <td>
-                <button class="btn-admin repair-open-btn" type="button" data-open-repair="${escapeHtml(detailId)}" aria-expanded="false">
+                <button class="btn-admin repair-open-btn" type="button" data-open-ticket="${escapeHtml(r.id)}">
                     <i class="fa-solid fa-up-right-from-square"></i> Abrir
                 </button>
             </td>
         `;
         tbody.appendChild(tr);
-
-        const cleanPhone = String(r.contact_phone || '').replace(/\D/g, '');
-        const detailTr = document.createElement('tr');
-        detailTr.className = 'repair-detail-row';
-        detailTr.id = detailId;
-        detailTr.style.display = 'none';
-        detailTr.innerHTML = `
-            <td colspan="8">
-                <div class="repair-detail-card">
-                    <div class="repair-detail-head">
-                        <div>
-                            <h3>#${escapeHtml(r.ticket_code)} - ${escapeHtml(clientName)}</h3>
-                            <p>${escapeHtml(service)} | ${escapeHtml(r.device_type || 'Sin dispositivo')} | ${date}</p>
-                        </div>
-                        <div class="repair-detail-badges">
-                            <span style="background:${urgencyColor}20;color:${urgencyColor};border-color:${urgencyColor}40;">${escapeHtml(urgencyLabel)}</span>
-                            <span style="background:${color}20;color:${color};border-color:${color}40;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span>
-                        </div>
-                    </div>
-                    ${renderRepairStatusTrack(r.status)}
-                    <div class="repair-detail-grid">
-                        <div><strong>Cliente</strong><span>${escapeHtml(clientName)}</span></div>
-                        <div><strong>Email</strong><span>${escapeHtml(contactEmail || 'Sin correo')}</span></div>
-                        <div><strong>WhatsApp</strong><span>${escapeHtml(r.contact_phone || 'Sin telefono')}</span></div>
-                        <div><strong>Dispositivo</strong><span>${escapeHtml(r.device_type || '-')}</span></div>
-                        <div><strong>Marca</strong><span>${escapeHtml(r.device_brand || '-')}</span></div>
-                        <div><strong>Modelo</strong><span>${escapeHtml(r.device_model || '-')}</span></div>
-                        <div><strong>Servicio detectado</strong><span>${escapeHtml(service)}</span></div>
-                        <div><strong>Creado</strong><span>${date}</span></div>
-                        <div><strong>ID interno</strong><span>${escapeHtml(r.id || '-')}</span></div>
-                        <div><strong>ID usuario</strong><span>${escapeHtml(r.user_id || '-')}</span></div>
-                        <div><strong>Email cuenta</strong><span>${escapeHtml(r.user_email || '-')}</span></div>
-                        <div><strong>Serie</strong><span>${escapeHtml(r.serial_number || '-')}</span></div>
-                        <div><strong>Estatus tecnico</strong><span>${escapeHtml(r.status || '-')}</span></div>
-                        <div><strong>Prioridad guardada</strong><span>${escapeHtml(r.priority || '-')}</span></div>
-                        <div><strong>Costo estimado</strong><span>${escapeHtml(formatRepairMoney(r.estimated_cost))}</span></div>
-                        <div><strong>Costo final</strong><span>${escapeHtml(formatRepairMoney(r.final_cost))}</span></div>
-                        <div><strong>Cita</strong><span>${escapeHtml(appointmentDate)}</span></div>
-                        <div><strong>Prometido</strong><span>${escapeHtml(promisedDate)}</span></div>
-                        <div><strong>Entregado</strong><span>${escapeHtml(deliveredDate)}</span></div>
-                        <div><strong>Garantia hasta</strong><span>${escapeHtml(warrantyDate)}</span></div>
-                        <div><strong>Actualizado</strong><span>${escapeHtml(updatedDate)}</span></div>
-                        <div><strong>Service ID</strong><span>${escapeHtml(r.service_id || '-')}</span></div>
-                    </div>
-                    <div class="repair-detail-text">
-                        <strong>Falla reportada</strong>
-                        <p>${escapeHtml(issueDescription || 'Sin descripcion')}</p>
-                    </div>
-                    <div class="repair-detail-text">
-                        <strong>Diagnostico / avance tecnico</strong>
-                        <p>${escapeHtml(r.diagnostic || 'Sin diagnostico registrado')}</p>
-                    </div>
-                    <div class="repair-detail-text">
-                        <strong>Notas internas / datos adicionales</strong>
-                        <p>${escapeHtml(r.notes_internal || 'Sin notas internas')}</p>
-                    </div>
-                    <div class="repair-detail-text">
-                        <strong>Texto completo del ticket</strong>
-                        <p>${escapeHtml(r.reported_issue || 'Sin texto completo')}</p>
-                    </div>
-                    <div class="repair-detail-actions">
-                        ${cleanPhone ? `<a class="btn-admin btn-approve" href="https://wa.me/52${cleanPhone}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
-                        <button class="btn-admin" type="button" data-copy-ticket="${escapeHtml(r.ticket_code)}"><i class="fa-solid fa-copy"></i> Copiar ticket</button>
-                        <button class="btn-admin" type="button" data-open-repair="${escapeHtml(detailId)}"><i class="fa-solid fa-chevron-up"></i> Cerrar ficha</button>
-                    </div>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(detailTr);
     });
-}
-
-function toggleRepairDetail(detailId) {
-    const detail = document.getElementById(detailId);
-    if (!detail) return;
-    const row = [...document.querySelectorAll('.repair-row')].find(item => item.dataset.detailId === detailId);
-    const isOpen = detail.style.display !== 'none';
-    detail.style.display = isOpen ? 'none' : 'table-row';
-    row?.classList.toggle('open', !isOpen);
-    row?.querySelector('[data-open-repair]')?.setAttribute('aria-expanded', String(!isOpen));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1155,21 +1304,32 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.clipboard?.writeText(copyBtn.dataset.copyTicket || '');
             return;
         }
-        const openBtn = event.target.closest?.('[data-open-repair]');
+        const openBtn = event.target.closest?.('[data-open-ticket]');
         if (openBtn) {
             event.preventDefault();
-            toggleRepairDetail(openBtn.dataset.openRepair);
+            openRepairTicket(openBtn.dataset.openTicket);
             return;
         }
         const row = event.target.closest?.('.repair-row');
         if (!row) return;
         if (event.target.closest?.('button, a, input, select, textarea')) return;
-        toggleRepairDetail(row.dataset.detailId);
+        openRepairTicket(row.dataset.ticketId);
     });
     document.addEventListener('keydown', (event) => {
         if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.classList?.contains('repair-row')) return;
         event.preventDefault();
-        event.target.click();
+        openRepairTicket(event.target.dataset.ticketId);
+    });
+    document.getElementById('repairDetailClose')?.addEventListener('click', closeRepairTicketModal);
+    document.getElementById('repairDetailCancel')?.addEventListener('click', closeRepairTicketModal);
+    document.getElementById('repairDetailSave')?.addEventListener('click', saveRepairTicketChanges);
+    document.getElementById('repairDetailOverlay')?.addEventListener('click', (event) => {
+        if (event.target.id === 'repairDetailOverlay') closeRepairTicketModal();
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && document.getElementById('repairDetailOverlay')?.classList.contains('show')) {
+            closeRepairTicketModal();
+        }
     });
 });
 

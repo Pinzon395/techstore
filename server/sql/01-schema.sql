@@ -366,7 +366,7 @@ CREATE TABLE IF NOT EXISTS repairs (
   serial_number   VARCHAR(80),
   reported_issue  TEXT NOT NULL,
   diagnostic      TEXT,
-  status          ENUM('received','diagnosing','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled')
+  status          ENUM('new','received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled')
                   NOT NULL DEFAULT 'received',
   priority        ENUM('low','normal','high','urgent') NOT NULL DEFAULT 'normal',
   estimated_cost  DECIMAL(10,2),
