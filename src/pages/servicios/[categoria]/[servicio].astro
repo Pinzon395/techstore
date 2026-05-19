@@ -173,7 +173,7 @@ const faqItems = [
           {isLaptopThermalPaste && (
             <div class="thermal-hero-copy">
               <span class="thermal-kicker"><i class="fa-solid fa-temperature-three-quarters"></i> Mantenimiento termico para laptop en Cancun</span>
-              <h1>Cambio de pasta termica para laptop <span>menos calor, mas rendimiento</span></h1>
+              <h1>Cambio de pasta termica Cancun <span>menos calor, mas rendimiento</span></h1>
               <p>Atendemos laptops que se calientan, suenan fuerte, bajan rendimiento o se apagan. Medimos temperatura, limpiamos el sistema de enfriamiento y aplicamos compuesto termico premium con prueba final.</p>
             </div>
           )}
@@ -195,7 +195,7 @@ const faqItems = [
             </div>
           )}
 
-          {!isPrinterInkToner && (
+          {!isPrinterInkToner && !isLaptopThermalPaste && (
           <>
           {isLaptopKeyboardReplacement ? (
             <>
@@ -1105,7 +1105,7 @@ const faqItems = [
     )}
 
     <!-- 5. PROCESO DE TRABAJO (Dynamic or Fallback) -->
-    {!isPrinterInkToner && (
+    {!isPrinterInkToner && !isLaptopThermalPaste && (
     <section class={`ux-process ${isLaptopScreenReplacement ? 'screen-process' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-process' : ''}`} id="proceso">
       <div class="container">
         <div class="ux-section-header text-center">
@@ -1304,7 +1304,7 @@ const faqItems = [
 
     <!-- 7. PROBLEMAS COMUNES - Oscuro -->
     {!isPrinterInkToner && service.commonProblems && service.commonProblems.length > 0 && (
-      <section class={`svc-problems ${isLaptopScreenReplacement ? 'screen-problems-section' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-problems-section' : ''}`}>
+      <section class={`svc-problems ${isLaptopScreenReplacement ? 'screen-problems-section' : ''} ${isLaptopKeyboardReplacement ? 'keyboard-problems-section' : ''} ${isLaptopThermalPaste ? 'thermal-problems-section' : ''}`}>
         <div class="container">
           <div class="ux-section-header text-center">
             <span class="ux-eyebrow">Diagnóstico Frecuente</span>
@@ -1407,6 +1407,31 @@ const faqItems = [
                       </span>
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+          ) : isLaptopThermalPaste ? (
+            <div class="thermal-diagnostic-panel">
+              <div class="thermal-diagnostic-lead">
+                <span class="thermal-diagnostic-kicker">Revision termica real</span>
+                <h3>No siempre es solo pasta: primero ubicamos la causa del calor</h3>
+                <p>En laptops de Cancun el polvo, humedad, pasta seca y ventilacion bloqueada suelen aparecer juntos. Por eso revisamos sintomas, flujo de aire y respuesta del ventilador antes de entregar una solucion.</p>
+                <div class="thermal-diagnostic-mini">
+                  <span><i class="fa-solid fa-temperature-high"></i> Temperatura</span>
+                  <span><i class="fa-solid fa-fan"></i> Ventilador</span>
+                  <span><i class="fa-solid fa-gauge-high"></i> Rendimiento</span>
+                </div>
+              </div>
+              <div class="thermal-diagnostic-grid">
+                {service.commonProblems.map((item: any, index: number) => (
+                  <article class="thermal-diagnostic-card">
+                    <div class="thermal-diagnostic-head">
+                      <span>{String(index + 1).padStart(2, '0')}</span>
+                      <i class={`fa-solid ${['fa-fire-flame-curved', 'fa-fan', 'fa-power-off', 'fa-chart-line'][index] || 'fa-temperature-high'}`}></i>
+                    </div>
+                    <h3>{item.problem}</h3>
+                    <p>{item.solution}</p>
+                  </article>
                 ))}
               </div>
             </div>
@@ -2391,7 +2416,7 @@ const faqItems = [
   }
   .thermal-hero-copy h1 {
     color: #f4f8fc; font-family: 'Kanit', sans-serif;
-    font-size: clamp(2.2rem, 4.7vw, 4.25rem); line-height: 1.02;
+    font-size: clamp(1.85rem, 3.4vw, 3.25rem); line-height: 1.06;
     margin: 0; letter-spacing: 0;
   }
   .thermal-hero-copy h1 span { display: block; color: #67e8f9; }
@@ -2549,16 +2574,144 @@ const faqItems = [
     padding: 13px 17px; text-decoration: none; font-weight: 950; box-shadow: 0 14px 30px rgba(14,165,233,0.22);
   }
   .thermal-inline-cta:hover { background: #0284c7; transform: translateY(-2px); }
+  .thermal-problems-section {
+    background:
+      radial-gradient(circle at 12% 18%, rgba(14,165,233,0.16), transparent 28%),
+      linear-gradient(135deg, #07111f 0%, #0f172a 100%) !important;
+    padding: 62px 0;
+  }
+  .thermal-problems-section .ux-section-header {
+    max-width: 780px;
+    margin: 0 auto 24px;
+  }
+  .thermal-problems-section .ux-eyebrow {
+    color: #67e8f9 !important;
+  }
+  .thermal-problems-section .ux-h2 {
+    color: #f8fafc !important;
+  }
+  .thermal-diagnostic-panel {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.75fr) minmax(0, 1.25fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+  .thermal-diagnostic-lead,
+  .thermal-diagnostic-card {
+    border: 1px solid rgba(125,211,252,0.16);
+    background: rgba(15,23,42,0.72);
+    border-radius: 18px;
+    box-shadow: 0 20px 54px rgba(0,0,0,0.22);
+  }
+  .thermal-diagnostic-lead {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px;
+  }
+  .thermal-diagnostic-kicker {
+    width: fit-content;
+    color: #67e8f9;
+    background: rgba(14,165,233,0.14);
+    border: 1px solid rgba(125,211,252,0.2);
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: 0.76rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 14px;
+  }
+  .thermal-diagnostic-lead h3 {
+    color: #f8fafc;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.35rem, 2.2vw, 2rem);
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+  .thermal-diagnostic-lead p {
+    color: #c8d7ea;
+    line-height: 1.62;
+    margin: 0;
+    font-weight: 650;
+  }
+  .thermal-diagnostic-mini {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .thermal-diagnostic-mini span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #e8f3ff;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+    font-weight: 850;
+  }
+  .thermal-diagnostic-mini i {
+    color: #67e8f9;
+  }
+  .thermal-diagnostic-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .thermal-diagnostic-card {
+    padding: 18px;
+    min-height: 188px;
+  }
+  .thermal-diagnostic-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .thermal-diagnostic-head span {
+    color: #67e8f9;
+    background: rgba(14,165,233,0.14);
+    border: 1px solid rgba(125,211,252,0.18);
+    border-radius: 10px;
+    padding: 7px 9px;
+    font-weight: 950;
+    font-size: 0.78rem;
+  }
+  .thermal-diagnostic-head i {
+    color: #67e8f9;
+    font-size: 1.25rem;
+  }
+  .thermal-diagnostic-card h3 {
+    color: #f8fafc;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.25;
+    margin: 0 0 10px;
+  }
+  .thermal-diagnostic-card p {
+    color: #c8d7ea;
+    line-height: 1.5;
+    margin: 0;
+    font-weight: 650;
+    font-size: 0.92rem;
+  }
   @media (max-width: 980px) {
-    .thermal-packages-grid, .thermal-info-layout, .thermal-climate-inner, .thermal-paste-panel { grid-template-columns: 1fr; }
+    .thermal-packages-grid, .thermal-info-layout, .thermal-climate-inner, .thermal-paste-panel, .thermal-diagnostic-panel { grid-template-columns: 1fr; }
     .thermal-info-points, .thermal-climate-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 560px) {
-    .thermal-hero, .thermal-packages-section, .thermal-info-section, .thermal-climate-section, .thermal-paste-section { padding: 42px 0; }
+    .thermal-hero, .thermal-packages-section, .thermal-info-section, .thermal-climate-section, .thermal-paste-section, .thermal-problems-section { padding: 42px 0; }
+    .thermal-hero-copy h1 { font-size: clamp(1.72rem, 9vw, 2.2rem); }
     .thermal-hero-photo, .thermal-info-media { height: 220px; }
-    .thermal-card-grid, .thermal-meter { grid-template-columns: 1fr; }
+    .thermal-card-grid, .thermal-meter, .thermal-diagnostic-grid { grid-template-columns: 1fr; }
     .thermal-meter i { transform: rotate(90deg); justify-self: center; }
     .thermal-paste-panel { padding: 18px; }
+    .thermal-diagnostic-lead,
+    .thermal-diagnostic-card { padding: 18px; }
+    .thermal-diagnostic-card { min-height: auto; }
   }
 
   .screen-hero {
