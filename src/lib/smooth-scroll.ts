@@ -25,12 +25,12 @@ export function initSmoothScroll(): void {
   if (shouldUseNativeScroll) return;
 
   lenis = new Lenis({
-    duration: 1.0,
+    duration: 0.6,
     easing: (t: number) => 1 - Math.pow(1 - t, 4),
     orientation: 'vertical',
     gestureOrientation: 'vertical',
     smoothWheel: true,
-    wheelMultiplier: 0.3,
+    wheelMultiplier: 0.42,
     touchMultiplier: 1,
   });
 
@@ -63,7 +63,7 @@ export function scrollToSection(sectionId: string, offset = 0): void {
   if (!target) return;
   const top = target.getBoundingClientRect().top + window.scrollY - offset;
   if (lenis) {
-    lenis.scrollTo(top, { duration: 1.0 });
+    lenis.scrollTo(top, { duration: 0.6 });
     return;
   }
   window.scrollTo({
