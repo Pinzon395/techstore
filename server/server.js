@@ -47,6 +47,11 @@ const {
     getRepairAdminById,
     updateRepairAdmin,
     insertRepairAdmin,
+    softDeleteRepairAdmin,
+    getAppointmentConfig,
+    saveAppointmentConfig,
+    getAppointmentAvailability,
+    getAdminAppointments,
     getAllBuildsAdmin,
     getAllBuildsPublic,
     insertBuildAdmin,
@@ -627,12 +632,25 @@ async function bootstrap() {
     // ═══════════════════════════════════════════════════════════════
     // TICKETS — Crear ticket de servicio con auth
     // ═══════════════════════════════════════════════════════════════
+    app.get('/api/appointments/config', ah(async (_req, res) => {
+        res.set('Cache-Control', 'no-store');
+        res.json(await getAppointmentConfig());
+    }));
+
+    app.get('/api/appointments/availability', ah(async (req, res) => {
+        res.set('Cache-Control', 'no-store');
+        const result = await getAppointmentAvailability(req.query.date, req.query.type);
+        res.status(result.available ? 200 : 409).json(result);
+    }));
+
     app.post('/api/tickets', requireAuth, ah(async (req, res) => {
         const { 
             customer_name, customer_phone, customer_email, 
             device_type, service_requested, issue_description,
             device_brand, device_model, is_b2b, 
-            b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice 
+            b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice,
+            appointment_type, appointment_date, appointment_time, appointment_datetime,
+            appointment_delivery_method, appointment_note, appointment_status
         } = req.body;
         
         // Validaciones
@@ -642,8 +660,17 @@ async function bootstrap() {
         if (!device_type || String(device_type).trim().length < 2) errors.push('El tipo de equipo es requerido.');
         if (!issue_description || String(issue_description).trim().length < 10) errors.push('La descripción del problema es muy corta.');
         
+        if (!appointment_date) errors.push('Selecciona un dia disponible.');
+        if (!appointment_time) errors.push('Selecciona un horario disponible.');
+
         if (errors.length > 0) {
             return res.status(400).json({ success: false, message: errors.join(' ') });
+        }
+
+        const availability = await getAppointmentAvailability(appointment_date, appointment_type);
+        const cleanAppointmentTime = String(appointment_time || '').slice(0, 5);
+        if (!availability.available || !availability.slots.includes(cleanAppointmentTime)) {
+            return res.status(409).json({ success: false, message: 'Ese horario ya no esta disponible. Elige otro.' });
         }
         
         // Crear ticket con user_id del usuario autenticado
@@ -679,7 +706,14 @@ async function bootstrap() {
             b2b_quantity,
             b2b_type,
             b2b_frequency,
-            b2b_invoice
+            b2b_invoice,
+            appointment_type,
+            appointment_date,
+            appointment_time: cleanAppointmentTime,
+            appointment_datetime: appointment_datetime || `${appointment_date} ${cleanAppointmentTime}:00`,
+            appointment_delivery_method,
+            appointment_note,
+            appointment_status: appointment_status || 'pendiente_confirmacion'
         });
         
         res.status(201).json({ success: true, message: 'Ticket creado exitosamente.', ticket_code: ticket.ticket_code, ticket });
@@ -742,6 +776,17 @@ async function bootstrap() {
         res.json(repairs);
     }));
 
+    app.get('/api/admin/appointments', requireAdmin, ah(async (req, res) => {
+        res.set('Cache-Control', 'no-store');
+        res.json(await getAdminAppointments({ from: req.query.from, to: req.query.to }));
+    }));
+
+    app.patch('/api/admin/appointments/config', requireAdmin, ah(async (req, res) => {
+        const config = await saveAppointmentConfig(req.body || {});
+        await audit(req, 'update', 'appointment_config', null);
+        res.json({ success: true, config });
+    }));
+
     app.get(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
         const ticket = await getRepairAdminById(req.params.id);
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
@@ -753,6 +798,20 @@ async function bootstrap() {
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
         await audit(req, 'update', 'repair', ticket?.id, { ticket_code: ticket?.ticket_code });
         res.json({ success: true, message: 'Cambios guardados correctamente.', ticket });
+    }));
+
+    app.patch('/api/admin/tickets/:id/appointment', requireAdmin, ah(async (req, res) => {
+        const ticket = await updateRepairAdmin(req.params.id, req.body || {});
+        if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
+        await audit(req, 'update', 'repair_appointment', ticket?.id, { ticket_code: ticket?.ticket_code });
+        res.json({ success: true, message: 'Cita actualizada correctamente.', ticket });
+    }));
+
+    app.patch('/api/admin/tickets/:id/delete', requireAdmin, ah(async (req, res) => {
+        const ok = await softDeleteRepairAdmin(req.params.id, req.user?.id);
+        if (!ok) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
+        await audit(req, 'delete', 'repair', req.params.id);
+        res.json({ success: true, message: 'Ticket eliminado correctamente.' });
     }));
 
     app.post('/api/admin/repairs', requireAdmin, ah(async (req, res) => {

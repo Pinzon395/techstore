@@ -366,24 +366,35 @@ CREATE TABLE IF NOT EXISTS repairs (
   serial_number   VARCHAR(80),
   reported_issue  TEXT NOT NULL,
   diagnostic      TEXT,
-  status          ENUM('new','received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled')
+  status          ENUM('new','received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled','eliminado')
                   NOT NULL DEFAULT 'received',
   priority        ENUM('low','normal','high','urgent') NOT NULL DEFAULT 'normal',
   estimated_cost  DECIMAL(10,2),
   final_cost      DECIMAL(10,2),
   appointment_at  DATETIME,
+  appointment_type VARCHAR(60),
+  appointment_date DATE,
+  appointment_time TIME,
+  appointment_datetime DATETIME,
+  appointment_delivery_method VARCHAR(80),
+  appointment_note TEXT,
+  appointment_status ENUM('pendiente_confirmacion','confirmada','reagendada','cancelada','completada') NOT NULL DEFAULT 'pendiente_confirmacion',
   promised_at     DATETIME,
   delivered_at    DATETIME,
   warranty_until  DATE,
   contact_phone   VARCHAR(20)  NOT NULL,
   contact_email   VARCHAR(190),
   notes_internal  TEXT,
+  deleted_at      TIMESTAMP NULL,
+  deleted_by      CHAR(36) NULL,
   created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id)    REFERENCES users(id) ON DELETE SET NULL,
   FOREIGN KEY (service_id) REFERENCES services(id),
+  FOREIGN KEY (deleted_by) REFERENCES users(id) ON DELETE SET NULL,
   KEY idx_repairs_status_date (status, created_at DESC),
   KEY idx_repairs_appointment (appointment_at),
+  KEY idx_repairs_appointment_date (appointment_date, appointment_time),
   KEY idx_repairs_user        (user_id, created_at DESC),
   KEY idx_repairs_priority    (priority, status)
 ) ENGINE=InnoDB;
@@ -409,6 +420,31 @@ CREATE TABLE IF NOT EXISTS repair_assignments (
   PRIMARY KEY (repair_id, technician_id, assigned_at),
   FOREIGN KEY (repair_id)     REFERENCES repairs(id) ON DELETE CASCADE,
   FOREIGN KEY (technician_id) REFERENCES technicians(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS appointment_settings (
+  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  weekday         TINYINT UNSIGNED NOT NULL UNIQUE,
+  is_open         TINYINT(1) NOT NULL DEFAULT 1,
+  start_time      TIME NULL,
+  end_time        TIME NULL,
+  slot_minutes    SMALLINT UNSIGNED NOT NULL DEFAULT 30,
+  allowed_types   VARCHAR(160) NOT NULL DEFAULT 'recepcion,diagnostico,entrega,otro',
+  created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS appointment_exceptions (
+  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  date            DATE NOT NULL UNIQUE,
+  status          ENUM('closed','normal','only_pickup','only_dropoff','only_diagnostic','custom_hours') NOT NULL DEFAULT 'normal',
+  start_time      TIME NULL,
+  end_time        TIME NULL,
+  slot_minutes    SMALLINT UNSIGNED NULL,
+  allowed_types   VARCHAR(160) NULL,
+  reason          VARCHAR(255),
+  created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS repair_parts (

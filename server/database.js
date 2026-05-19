@@ -88,10 +88,10 @@ async function initDB() {
         const [cols] = await pool.query(
             "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'repairs' AND COLUMN_NAME = 'status'"
         );
-        if (cols[0] && !String(cols[0].COLUMN_TYPE || '').includes("'contacted'")) {
+        if (cols[0] && (!String(cols[0].COLUMN_TYPE || '').includes("'contacted'") || !String(cols[0].COLUMN_TYPE || '').includes("'eliminado'"))) {
             console.log('Migrando repairs.status para estados extendidos del taller...');
             await pool.query(
-                "ALTER TABLE repairs MODIFY COLUMN status ENUM('new','received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled') NOT NULL DEFAULT 'received'"
+                "ALTER TABLE repairs MODIFY COLUMN status ENUM('new','received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled','eliminado') NOT NULL DEFAULT 'received'"
             );
             console.log('Columna repairs.status actualizada');
         }
@@ -99,7 +99,82 @@ async function initDB() {
         console.warn('No se pudo verificar/migrar repairs.status:', err.message);
     }
 
+    await ensureAppointmentSchema();
+
     return pool;
+}
+
+async function ensureAppointmentSchema() {
+    const repairColumns = [
+        ['appointment_type', "VARCHAR(60) NULL"],
+        ['appointment_date', "DATE NULL"],
+        ['appointment_time', "TIME NULL"],
+        ['appointment_datetime', "DATETIME NULL"],
+        ['appointment_delivery_method', "VARCHAR(80) NULL"],
+        ['appointment_note', "TEXT NULL"],
+        ['appointment_status', "ENUM('pendiente_confirmacion','confirmada','reagendada','cancelada','completada') NOT NULL DEFAULT 'pendiente_confirmacion'"],
+        ['deleted_at', "TIMESTAMP NULL"],
+        ['deleted_by', "CHAR(36) NULL"]
+    ];
+
+    for (const [column, definition] of repairColumns) {
+        try {
+            const [cols] = await pool.query(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'repairs' AND COLUMN_NAME = ?",
+                [column]
+            );
+            if (!cols.length) await pool.query(`ALTER TABLE repairs ADD COLUMN ${column} ${definition}`);
+        } catch (err) {
+            console.warn(`No se pudo verificar/migrar repairs.${column}:`, err.message);
+        }
+    }
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS appointment_settings (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            weekday TINYINT UNSIGNED NOT NULL UNIQUE,
+            is_open TINYINT(1) NOT NULL DEFAULT 1,
+            start_time TIME NULL,
+            end_time TIME NULL,
+            slot_minutes SMALLINT UNSIGNED NOT NULL DEFAULT 30,
+            allowed_types VARCHAR(160) NOT NULL DEFAULT 'recepcion,diagnostico,entrega,otro',
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS appointment_exceptions (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            date DATE NOT NULL UNIQUE,
+            status ENUM('closed','normal','only_pickup','only_dropoff','only_diagnostic','custom_hours') NOT NULL DEFAULT 'normal',
+            start_time TIME NULL,
+            end_time TIME NULL,
+            slot_minutes SMALLINT UNSIGNED NULL,
+            allowed_types VARCHAR(160) NULL,
+            reason VARCHAR(255) NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB
+    `);
+
+    const defaults = [
+        [0, 0, null, null, 30, ''],
+        [1, 1, '10:00:00', '19:00:00', 30, 'recepcion,diagnostico,entrega,otro'],
+        [2, 1, '10:00:00', '19:00:00', 30, 'recepcion,diagnostico,entrega,otro'],
+        [3, 1, '10:00:00', '19:00:00', 30, 'recepcion,diagnostico,entrega,otro'],
+        [4, 1, '10:00:00', '19:00:00', 30, 'recepcion,diagnostico,entrega,otro'],
+        [5, 1, '10:00:00', '19:00:00', 30, 'recepcion,diagnostico,entrega,otro'],
+        [6, 1, '10:00:00', '15:00:00', 30, 'recepcion,diagnostico,entrega,otro']
+    ];
+    for (const row of defaults) {
+        await pool.execute(
+            `INSERT INTO appointment_settings (weekday, is_open, start_time, end_time, slot_minutes, allowed_types)
+             VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE weekday = weekday`,
+            row
+        );
+    }
 }
 
 /** Devuelve el pool. Útil para integraciones externas (session store). */
@@ -464,6 +539,7 @@ async function getAllRepairsAdmin() {
         SELECT r.*, u.name as user_name, u.email as user_email
         FROM repairs r
         LEFT JOIN users u ON u.id = r.user_id
+        WHERE r.deleted_at IS NULL
         ORDER BY r.created_at DESC
     `);
     return rows;
@@ -474,15 +550,16 @@ async function getRepairAdminById(id) {
         SELECT r.*, u.name as user_name, u.email as user_email
         FROM repairs r
         LEFT JOIN users u ON u.id = r.user_id
-        WHERE r.id = ?
+        WHERE r.id = ? AND r.deleted_at IS NULL
         LIMIT 1
     `, [id]);
     return rows[0] || null;
 }
 
 async function updateRepairAdmin(id, data) {
-    const allowedStatus = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled']);
+    const allowedStatus = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled', 'eliminado']);
     const allowedPriority = new Set(['low', 'normal', 'high', 'urgent']);
+    const allowedAppointmentStatus = new Set(['pendiente_confirmacion', 'confirmada', 'reagendada', 'cancelada', 'completada']);
     const fields = [];
     const values = [];
 
@@ -512,16 +589,40 @@ async function updateRepairAdmin(id, data) {
         const amount = Number(data.final_cost);
         values.push(data.final_cost === '' || data.final_cost === null || data.final_cost === undefined || !Number.isFinite(amount) ? null : amount);
     }
+    ['appointment_type', 'appointment_date', 'appointment_time', 'appointment_datetime', 'appointment_delivery_method', 'appointment_note'].forEach(field => {
+        if (Object.prototype.hasOwnProperty.call(data, field)) {
+            fields.push(`${field} = ?`);
+            values.push(data[field] ? String(data[field]).trim() : null);
+        }
+    });
+    if (Object.prototype.hasOwnProperty.call(data, 'appointment_datetime')) {
+        fields.push('appointment_at = ?');
+        values.push(data.appointment_datetime ? String(data.appointment_datetime).trim() : null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'appointment_status') && allowedAppointmentStatus.has(String(data.appointment_status))) {
+        fields.push('appointment_status = ?');
+        values.push(String(data.appointment_status));
+    }
 
     if (fields.length === 0) return getRepairAdminById(id);
 
     values.push(id);
-    await pool.execute(`UPDATE repairs SET ${fields.join(', ')} WHERE id = ?`, values);
+    await pool.execute(`UPDATE repairs SET ${fields.join(', ')} WHERE id = ? AND deleted_at IS NULL`, values);
     return getRepairAdminById(id);
 }
 
+async function softDeleteRepairAdmin(id, deleted_by) {
+    const [info] = await pool.execute(
+        `UPDATE repairs
+         SET status = 'eliminado', deleted_at = NOW(), deleted_by = ?, appointment_status = IF(appointment_status = 'completada', appointment_status, 'cancelada')
+         WHERE id = ? AND deleted_at IS NULL`,
+        [deleted_by || null, id]
+    );
+    return info.affectedRows > 0;
+}
+
 async function insertRepairAdmin(data) {
-    const { user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, is_b2b, b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice } = data;
+    const { user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, is_b2b, b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status } = data;
     const ticket_code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const priorityMap = {
         quote: 'low',
@@ -539,12 +640,135 @@ async function insertRepairAdmin(data) {
     }
 
     const [info] = await pool.execute(
-        `INSERT INTO repairs (ticket_code, user_id, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, notes_internal, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'received')`,
-        [ticket_code, user_id || null, device_type, device_brand || '', device_model || '', reported_issue, contact_phone, contact_email || null, cleanPriority, internalNotes]
+        `INSERT INTO repairs (ticket_code, user_id, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, notes_internal, status, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status, appointment_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'received', ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            ticket_code, user_id || null, device_type, device_brand || '', device_model || '', reported_issue,
+            contact_phone, contact_email || null, cleanPriority, internalNotes,
+            appointment_type || null, appointment_date || null, appointment_time || null, appointment_datetime || null,
+            appointment_delivery_method || null, appointment_note || null, appointment_status || 'pendiente_confirmacion',
+            appointment_datetime || null
+        ]
     );
     const [[newRow]] = await pool.execute('SELECT * FROM repairs WHERE id = ?', [info.insertId]);
     return newRow;
+}
+
+function normalizeAppointmentType(type) {
+    const value = String(type || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (value.includes('entrega')) return 'entrega';
+    if (value.includes('diagnostico')) return 'diagnostico';
+    if (value.includes('recepcion')) return 'recepcion';
+    return value || 'recepcion';
+}
+
+function allowedTypesForStatus(status, fallback) {
+    if (status === 'only_pickup') return 'recepcion,diagnostico';
+    if (status === 'only_dropoff') return 'entrega';
+    if (status === 'only_diagnostic') return 'diagnostico';
+    return fallback || 'recepcion,diagnostico,entrega,otro';
+}
+
+function timeToMinutes(value) {
+    const [h, m] = String(value || '00:00').split(':').map(Number);
+    return (h || 0) * 60 + (m || 0);
+}
+
+function minutesToTime(minutes) {
+    const h = String(Math.floor(minutes / 60)).padStart(2, '0');
+    const m = String(minutes % 60).padStart(2, '0');
+    return `${h}:${m}`;
+}
+
+async function getAppointmentConfig() {
+    const [settings] = await pool.execute('SELECT * FROM appointment_settings ORDER BY weekday ASC');
+    const [exceptions] = await pool.execute('SELECT * FROM appointment_exceptions ORDER BY date ASC');
+    return { settings, exceptions };
+}
+
+async function saveAppointmentConfig({ settings = [], exceptions = [] }) {
+    for (const row of settings) {
+        await pool.execute(
+            `INSERT INTO appointment_settings (weekday, is_open, start_time, end_time, slot_minutes, allowed_types)
+             VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE is_open = VALUES(is_open), start_time = VALUES(start_time), end_time = VALUES(end_time), slot_minutes = VALUES(slot_minutes), allowed_types = VALUES(allowed_types)`,
+            [
+                Number(row.weekday),
+                row.is_open ? 1 : 0,
+                row.start_time || null,
+                row.end_time || null,
+                Number(row.slot_minutes) || 30,
+                row.allowed_types || 'recepcion,diagnostico,entrega,otro'
+            ]
+        );
+    }
+    for (const row of exceptions) {
+        if (!row.date) continue;
+        await pool.execute(
+            `INSERT INTO appointment_exceptions (date, status, start_time, end_time, slot_minutes, allowed_types, reason)
+             VALUES (?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE status = VALUES(status), start_time = VALUES(start_time), end_time = VALUES(end_time), slot_minutes = VALUES(slot_minutes), allowed_types = VALUES(allowed_types), reason = VALUES(reason)`,
+            [row.date, row.status || 'closed', row.start_time || null, row.end_time || null, row.slot_minutes || null, row.allowed_types || null, row.reason || null]
+        );
+    }
+    return getAppointmentConfig();
+}
+
+async function getAppointmentAvailability(date, type) {
+    const requestedType = normalizeAppointmentType(type);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
+        return { available: false, message: 'Selecciona un dia disponible.', slots: [] };
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    if (date < today) return { available: false, message: 'No se permiten fechas pasadas.', slots: [] };
+
+    const weekday = new Date(`${date}T12:00:00`).getDay();
+    const [[setting]] = await pool.execute('SELECT * FROM appointment_settings WHERE weekday = ?', [weekday]);
+    const [[exception]] = await pool.execute('SELECT * FROM appointment_exceptions WHERE date = ?', [date]);
+    const status = exception?.status || 'normal';
+    if (status === 'closed' || !setting?.is_open) return { available: false, message: 'Este dia esta bloqueado por el taller.', slots: [] };
+
+    const start = exception?.start_time || setting.start_time;
+    const end = exception?.end_time || setting.end_time;
+    const slotMinutes = Number(exception?.slot_minutes || setting.slot_minutes || 30);
+    const allowed = allowedTypesForStatus(status, exception?.allowed_types || setting.allowed_types)
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+    if (!allowed.includes(requestedType) && !allowed.includes('otro')) {
+        return { available: false, message: 'Este dia no esta disponible para ese tipo de visita.', slots: [] };
+    }
+    if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este dia no tiene horario configurado.', slots: [] };
+
+    const [occupiedRows] = await pool.execute(
+        `SELECT appointment_time FROM repairs
+         WHERE appointment_date = ? AND appointment_time IS NOT NULL
+           AND deleted_at IS NULL
+           AND COALESCE(appointment_status, 'pendiente_confirmacion') NOT IN ('cancelada')`,
+        [date]
+    );
+    const occupied = new Set(occupiedRows.map(row => String(row.appointment_time).slice(0, 5)));
+    const slots = [];
+    for (let mins = timeToMinutes(start); mins + slotMinutes <= timeToMinutes(end); mins += slotMinutes) {
+        const slot = minutesToTime(mins);
+        if (!occupied.has(slot)) slots.push(slot);
+    }
+    return { available: slots.length > 0, message: slots.length ? '' : 'Este dia esta lleno.', slots };
+}
+
+async function getAdminAppointments({ from, to } = {}) {
+    const start = from || new Date().toISOString().slice(0, 10);
+    const end = to || start;
+    const [rows] = await pool.execute(
+        `SELECT r.*, u.name as user_name, u.email as user_email
+         FROM repairs r
+         LEFT JOIN users u ON u.id = r.user_id
+         WHERE r.appointment_date BETWEEN ? AND ?
+           AND r.deleted_at IS NULL
+         ORDER BY r.appointment_date ASC, r.appointment_time ASC`,
+        [start, end]
+    );
+    return rows;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -648,6 +872,11 @@ module.exports = {
     getRepairAdminById,
     updateRepairAdmin,
     insertRepairAdmin,
+    softDeleteRepairAdmin,
+    getAppointmentConfig,
+    saveAppointmentConfig,
+    getAppointmentAvailability,
+    getAdminAppointments,
     getAllBuildsAdmin,
     getAllBuildsPublic,
     insertBuildAdmin,

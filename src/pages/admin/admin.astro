@@ -215,10 +215,16 @@ import '../../styles/admin.css';
         <section id="view-repairs" class="admin-section" style="display:none;">
           <div class="admin-section-header">
             <h2>Tickets de Reparación</h2>
-            <button class="btn-admin btn-approve" type="button" onclick="window.openRepairModal && openRepairModal()">
-              <i class="fa-solid fa-plus"></i> Nuevo Ticket
-            </button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn-admin" type="button" id="repairTabTickets"><i class="fa-solid fa-list"></i> Tickets</button>
+              <button class="btn-admin" type="button" id="repairTabAgenda"><i class="fa-solid fa-calendar-days"></i> Agenda</button>
+              <button class="btn-admin" type="button" id="repairTabConfig"><i class="fa-solid fa-gear"></i> Configurar agenda</button>
+              <button class="btn-admin btn-approve" type="button" onclick="window.openRepairModal && openRepairModal()">
+                <i class="fa-solid fa-plus"></i> Nuevo Ticket
+              </button>
+            </div>
           </div>
+          <div id="repairTicketsPanel">
           <div class="admin-filter-panel repair-filter-panel" aria-label="Filtros de tickets">
             <div class="admin-filter-field admin-filter-field-wide">
               <label for="repairSearchInput">Buscar</label>
@@ -275,6 +281,59 @@ import '../../styles/admin.css';
                 <tr><td colspan="8" class="empty-row">Aún no hay tickets registrados.</td></tr>
               </tbody>
             </table>
+          </div>
+          </div>
+          <div id="repairAgendaPanel" class="admin-card repair-agenda-panel" style="display:none;">
+            <div class="admin-section-header">
+              <h2>Agenda de citas</h2>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <input id="appointmentFrom" class="admin-input" type="date" />
+                <input id="appointmentTo" class="admin-input" type="date" />
+                <button class="btn-admin" type="button" id="appointmentRefresh"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+              </div>
+            </div>
+            <div class="filters" id="appointmentFilters">
+              <button class="filter-btn active" type="button" data-appointment-filter="today">Hoy</button>
+              <button class="filter-btn" type="button" data-appointment-filter="week">Esta semana</button>
+              <button class="filter-btn" type="button" data-appointment-filter="upcoming">Proximas</button>
+              <button class="filter-btn" type="button" data-appointment-filter="confirmada">Confirmadas</button>
+              <button class="filter-btn" type="button" data-appointment-filter="pendiente_confirmacion">Pendientes</button>
+              <button class="filter-btn" type="button" data-appointment-filter="cancelada">Canceladas</button>
+            </div>
+            <div id="appointmentsList" class="repair-appointments-list">
+              <div class="empty-state">Cargando agenda...</div>
+            </div>
+          </div>
+          <div id="repairConfigPanel" class="admin-card repair-agenda-panel" style="display:none;">
+            <div class="admin-section-header">
+              <h2>Configuracion de agenda</h2>
+              <button class="btn-admin btn-approve" type="button" id="appointmentConfigSave"><i class="fa-solid fa-floppy-disk"></i> Guardar configuracion</button>
+            </div>
+            <div id="appointmentSettingsGrid" class="appointment-settings-grid"></div>
+            <h3 style="margin-top:24px;">Dias bloqueados y reglas especiales</h3>
+            <div class="appointment-exception-form">
+              <input id="appointmentExceptionDate" class="admin-input" type="date" />
+              <select id="appointmentExceptionStatus" class="admin-input">
+                <option value="closed">Cerrado</option>
+                <option value="normal">Disponible normal</option>
+                <option value="only_pickup">Solo recepcion de equipos</option>
+                <option value="only_dropoff">Solo entrega de equipos</option>
+                <option value="only_diagnostic">Solo diagnostico</option>
+                <option value="custom_hours">Horario especial</option>
+              </select>
+              <input id="appointmentExceptionStart" class="admin-input" type="time" />
+              <input id="appointmentExceptionEnd" class="admin-input" type="time" />
+              <select id="appointmentExceptionSlot" class="admin-input">
+                <option value="">Duracion default</option>
+                <option value="15">15 minutos</option>
+                <option value="30">30 minutos</option>
+                <option value="45">45 minutos</option>
+                <option value="60">60 minutos</option>
+              </select>
+              <input id="appointmentExceptionReason" class="admin-input" type="text" placeholder="Motivo" />
+              <button class="btn-admin" type="button" id="appointmentExceptionAdd">Agregar regla</button>
+            </div>
+            <div id="appointmentExceptionsList" class="repair-appointments-list"></div>
           </div>
         </section>
 
@@ -495,10 +554,30 @@ import '../../styles/admin.css';
       </div>
       <div class="admin-modal-footer repair-ticket-footer">
         <span id="repairDetailSaveMessage" class="repair-save-message" aria-live="polite"></span>
+        <button class="admin-btn admin-btn-delete" type="button" id="repairDetailDelete">
+          <i class="fa-solid fa-trash"></i> Eliminar ticket
+        </button>
         <button class="admin-btn admin-btn-cancel" type="button" id="repairDetailCancel">Cerrar</button>
         <button class="admin-btn admin-btn-save" type="button" id="repairDetailSave">
           <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
         </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="repairDeleteConfirmOverlay" class="admin-modal-overlay" aria-hidden="true">
+    <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="repairDeleteConfirmTitle">
+      <div class="admin-modal-header">
+        <h2 id="repairDeleteConfirmTitle">Eliminar ticket</h2>
+        <button class="admin-modal-close" type="button" id="repairDeleteConfirmClose">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <p style="color:var(--a-text);font-weight:700;margin:0 0 8px;">Â¿Seguro que quieres eliminar este ticket?</p>
+        <p style="color:var(--a-text-dim);margin:0;">Esta accion movera el ticket a eliminado y no aparecera en la lista principal.</p>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="admin-btn admin-btn-cancel" type="button" id="repairDeleteCancel">Cancelar</button>
+        <button class="admin-btn admin-btn-delete" type="button" id="repairDeleteConfirm">Si, eliminar ticket</button>
       </div>
     </div>
   </div>
@@ -764,6 +843,6 @@ import '../../styles/admin.css';
   </script>
 
   <script src="/scripts/ticket-options.js" is:inline defer></script>
-  <script src="/scripts/admin.js?v=20260518-ticket-modal-3" is:inline defer></script>
+  <script src="/scripts/admin.js?v=20260518-agenda-admin-2" is:inline defer></script>
   <script src="/scripts/user-menu.js" is:inline defer></script>
 </Base>

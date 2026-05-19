@@ -7,6 +7,10 @@ let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
 let analyticsData = null;
 let activeRepairTicket = null;
+let appointmentConfig = { settings: [], exceptions: [] };
+let adminAppointments = [];
+let activeAppointmentFilter = 'today';
+let pendingDeleteRepairId = null;
 
 // M8 — header CSRF que el backend exige en POST/PUT/DELETE.
 // Helper para no olvidarlo en ninguna llamada de escritura.
@@ -739,7 +743,8 @@ const REPAIR_STATUS_LABELS = {
     waiting_parts: 'Esperando piezas',
     ready: 'Listo para entrega',
     delivered: 'Entregado',
-    cancelled: 'Cancelado'
+    cancelled: 'Cancelado',
+    eliminado: 'Eliminado'
 };
 
 const REPAIR_STATUS_COLORS = {
@@ -753,7 +758,8 @@ const REPAIR_STATUS_COLORS = {
     waiting_parts: '#64748b',
     ready: '#14b8a6',
     delivered: '#059669',
-    cancelled: '#ef4444'
+    cancelled: '#ef4444',
+    eliminado: '#ef4444'
 };
 
 const REPAIR_DEVICE_SERVICE_OPTIONS = window.PIXON_TICKET_OPTIONS?.services || {
@@ -780,6 +786,17 @@ const REPAIR_PRIORITY_OPTIONS = window.PIXON_TICKET_OPTIONS?.priorities || {
     work_school: { label: 'Es para trabajo / escuela', aliases: ['trabajo/escuela', 'trabajo / escuela', 'trabajo', 'escuela'] },
     quote: { label: 'Solo quiero cotizar', aliases: ['solo cotizar', 'cotizar', 'cotizacion', 'cotización'] }
 };
+
+const APPOINTMENT_STATUS_LABELS = {
+    pendiente_confirmacion: 'Pendiente de confirmacion',
+    confirmada: 'Confirmada',
+    reagendada: 'Reagendada',
+    cancelada: 'Cancelada',
+    completada: 'Completada'
+};
+
+const APPOINTMENT_TYPE_VALUES = ['Recepcion de equipo', 'Diagnostico', 'Entrega de equipo', 'Otro'];
+const WEEKDAY_LABELS = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
 
 function normalizeText(value) {
     return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -1054,6 +1071,18 @@ function renderRepairPriorityOptions(current) {
         .join('');
 }
 
+function renderAppointmentStatusOptions(current) {
+    return Object.entries(APPOINTMENT_STATUS_LABELS)
+        .map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(label)}</option>`)
+        .join('');
+}
+
+function renderAppointmentTypeOptions(current) {
+    return APPOINTMENT_TYPE_VALUES
+        .map(value => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(value)}</option>`)
+        .join('');
+}
+
 function renderRepairDetailModal(ticket) {
     activeRepairTicket = ticket;
     const details = parseRepairDetails(ticket);
@@ -1153,6 +1182,25 @@ function renderRepairDetailModal(ticket) {
                     <label class="repair-ticket-label">Diagnóstico técnico<textarea id="repairDetailDiagnostic" class="admin-input" rows="5">${escapeHtml(ticket.diagnostic || '')}</textarea></label>
                     <label class="repair-ticket-label">Notas internas<textarea id="repairDetailNotes" class="admin-input" rows="6">${escapeHtml(ticket.notes_internal || '')}</textarea></label>
                 </section>
+                <section class="repair-ticket-section repair-ticket-appointment-section">
+                    <h3>Cita / Agenda</h3>
+                    <div class="repair-ticket-form-grid">
+                        <label>Tipo de visita<select id="repairAppointmentType" class="admin-input">${renderAppointmentTypeOptions(ticket.appointment_type || 'Recepcion de equipo')}</select></label>
+                        <label>Estado de cita<select id="repairAppointmentStatus" class="admin-input">${renderAppointmentStatusOptions(ticket.appointment_status || 'pendiente_confirmacion')}</select></label>
+                        <label>Fecha<input id="repairAppointmentDate" class="admin-input" type="date" value="${escapeHtml(ticket.appointment_date || '')}"></label>
+                        <label>Hora<input id="repairAppointmentTime" class="admin-input" type="time" value="${escapeHtml(String(ticket.appointment_time || '').slice(0, 5))}"></label>
+                    </div>
+                    <div class="repair-ticket-field-grid">
+                        ${renderRepairField('Como traera el equipo', ticket.appointment_delivery_method)}
+                        ${renderRepairField('Estado de cita', APPOINTMENT_STATUS_LABELS[ticket.appointment_status] || ticket.appointment_status)}
+                    </div>
+                    ${renderRepairText('Comentario de cita', ticket.appointment_note)}
+                    <div class="repair-detail-actions">
+                        <button class="btn-admin btn-approve" type="button" data-appointment-action="confirmada">Confirmar cita</button>
+                        <button class="btn-admin" type="button" data-appointment-action="reagendada">Reagendar</button>
+                        <button class="btn-admin btn-delete" type="button" data-appointment-action="cancelada">Cancelar cita</button>
+                    </div>
+                </section>
             </div>
         </div>
     `;
@@ -1206,7 +1254,14 @@ async function saveRepairTicketChanges() {
         diagnostic: document.getElementById('repairDetailDiagnostic')?.value || '',
         notes_internal: document.getElementById('repairDetailNotes')?.value || '',
         estimated_cost: document.getElementById('repairDetailEstimatedCost')?.value || null,
-        final_cost: document.getElementById('repairDetailFinalCost')?.value || null
+        final_cost: document.getElementById('repairDetailFinalCost')?.value || null,
+        appointment_type: document.getElementById('repairAppointmentType')?.value || null,
+        appointment_status: document.getElementById('repairAppointmentStatus')?.value || 'pendiente_confirmacion',
+        appointment_date: document.getElementById('repairAppointmentDate')?.value || null,
+        appointment_time: document.getElementById('repairAppointmentTime')?.value || null,
+        appointment_datetime: document.getElementById('repairAppointmentDate')?.value && document.getElementById('repairAppointmentTime')?.value
+            ? `${document.getElementById('repairAppointmentDate').value} ${document.getElementById('repairAppointmentTime').value}:00`
+            : null
     };
     try {
         const res = await fetch(`${API_BASE}/admin/tickets/${activeRepairTicket.id}`, {
@@ -1274,10 +1329,224 @@ function renderRepairs() {
                 <button class="btn-admin repair-open-btn" type="button" data-open-ticket="${escapeHtml(r.id)}">
                     <i class="fa-solid fa-up-right-from-square"></i> Abrir
                 </button>
+                <button class="btn-admin btn-delete repair-delete-btn" type="button" data-delete-ticket="${escapeHtml(r.id)}">
+                    <i class="fa-solid fa-trash"></i> Eliminar
+                </button>
             </td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+function switchRepairPanel(panel) {
+    const panels = {
+        tickets: document.getElementById('repairTicketsPanel'),
+        agenda: document.getElementById('repairAgendaPanel'),
+        config: document.getElementById('repairConfigPanel')
+    };
+    Object.entries(panels).forEach(([key, el]) => {
+        if (el) el.style.display = key === panel ? '' : 'none';
+    });
+    if (panel === 'agenda') fetchAdminAppointments();
+    if (panel === 'config') fetchAppointmentConfig();
+}
+
+function dateISOFromOffset(days) {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return date.toISOString().slice(0, 10);
+}
+
+function setAppointmentRangeForFilter(filter) {
+    const fromInput = document.getElementById('appointmentFrom');
+    const toInput = document.getElementById('appointmentTo');
+    if (!fromInput || !toInput) return;
+    if (filter === 'today') {
+        fromInput.value = dateISOFromOffset(0);
+        toInput.value = dateISOFromOffset(0);
+    } else if (filter === 'week') {
+        fromInput.value = dateISOFromOffset(0);
+        toInput.value = dateISOFromOffset(7);
+    } else {
+        fromInput.value = dateISOFromOffset(0);
+        toInput.value = dateISOFromOffset(30);
+    }
+}
+
+function getFilteredAdminAppointments() {
+    if (['confirmada', 'pendiente_confirmacion', 'cancelada'].includes(activeAppointmentFilter)) {
+        return adminAppointments.filter(item => item.appointment_status === activeAppointmentFilter);
+    }
+    return adminAppointments;
+}
+
+async function fetchAdminAppointments() {
+    const fromInput = document.getElementById('appointmentFrom');
+    const toInput = document.getElementById('appointmentTo');
+    if (fromInput && !fromInput.value) setAppointmentRangeForFilter(activeAppointmentFilter);
+    const from = fromInput?.value || dateISOFromOffset(0);
+    const to = toInput?.value || from;
+    const list = document.getElementById('appointmentsList');
+    if (list) list.innerHTML = '<div class="empty-state">Cargando agenda...</div>';
+    try {
+        const res = await fetch(`${API_BASE}/admin/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('appointments failed');
+        adminAppointments = await res.json();
+        renderAdminAppointments();
+    } catch (err) {
+        console.error(err);
+        if (list) list.innerHTML = '<div class="empty-state">No se pudo cargar la agenda.</div>';
+    }
+}
+
+function renderAdminAppointments() {
+    const list = document.getElementById('appointmentsList');
+    if (!list) return;
+    const visibleAppointments = getFilteredAdminAppointments();
+    if (!visibleAppointments.length) {
+        list.innerHTML = '<div class="empty-state">No hay citas programadas para este rango.</div>';
+        return;
+    }
+    list.innerHTML = visibleAppointments.map(item => `
+        <div class="repair-appointment-card">
+            <div>
+                <strong>#${escapeHtml(item.ticket_code)} - ${escapeHtml(getRepairClientName(item))}</strong>
+                <span>${escapeHtml(item.contact_phone || 'Sin telefono')} | ${escapeHtml(item.device_type || '')} | ${escapeHtml(inferRepairService(item))}</span>
+            </div>
+            <div>
+                <strong>${escapeHtml(item.appointment_date || '')} ${escapeHtml(String(item.appointment_time || '').slice(0, 5))}</strong>
+                <span>${escapeHtml(item.appointment_type || 'Recepcion de equipo')} | ${escapeHtml(APPOINTMENT_STATUS_LABELS[item.appointment_status] || item.appointment_status || 'Pendiente')}</span>
+            </div>
+            <button class="btn-admin repair-open-btn" type="button" data-open-ticket="${escapeHtml(item.id)}">Abrir ticket</button>
+        </div>
+    `).join('');
+}
+
+async function fetchAppointmentConfig() {
+    const grid = document.getElementById('appointmentSettingsGrid');
+    if (grid) grid.innerHTML = '<div class="empty-state">Cargando configuracion...</div>';
+    try {
+        const res = await fetch(`${API_BASE}/appointments/config`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('config failed');
+        appointmentConfig = await res.json();
+        renderAppointmentConfig();
+    } catch (err) {
+        console.error(err);
+        if (grid) grid.innerHTML = '<div class="empty-state">No se pudo cargar la configuracion.</div>';
+    }
+}
+
+function renderAppointmentConfig() {
+    const grid = document.getElementById('appointmentSettingsGrid');
+    const exceptionsList = document.getElementById('appointmentExceptionsList');
+    if (grid) {
+        const settings = appointmentConfig.settings || [];
+        grid.innerHTML = WEEKDAY_LABELS.map((label, weekday) => {
+            const row = settings.find(item => Number(item.weekday) === weekday) || {};
+            return `
+                <div class="appointment-setting-row" data-weekday="${weekday}">
+                    <strong>${label}</strong>
+                    <label><input type="checkbox" data-setting="is_open" ${Number(row.is_open) ? 'checked' : ''}> Abierto</label>
+                    <input class="admin-input" type="time" data-setting="start_time" value="${escapeHtml(String(row.start_time || '').slice(0, 5))}">
+                    <input class="admin-input" type="time" data-setting="end_time" value="${escapeHtml(String(row.end_time || '').slice(0, 5))}">
+                    <select class="admin-input" data-setting="slot_minutes">
+                        ${[15, 30, 45, 60].map(v => `<option value="${v}" ${Number(row.slot_minutes || 30) === v ? 'selected' : ''}>${v} min</option>`).join('')}
+                    </select>
+                </div>`;
+        }).join('');
+    }
+    if (exceptionsList) {
+        const exceptions = appointmentConfig.exceptions || [];
+        exceptionsList.innerHTML = exceptions.length
+            ? exceptions.map(item => `<div class="repair-appointment-card"><div><strong>${escapeHtml(item.date)}</strong><span>${escapeHtml(item.status)} ${item.reason ? '- ' + escapeHtml(item.reason) : ''}</span></div></div>`).join('')
+            : '<div class="empty-state">No hay reglas especiales registradas.</div>';
+    }
+}
+
+async function saveAppointmentConfigFromUI() {
+    const settings = Array.from(document.querySelectorAll('.appointment-setting-row')).map(row => ({
+        weekday: Number(row.dataset.weekday),
+        is_open: row.querySelector('[data-setting="is_open"]')?.checked ? 1 : 0,
+        start_time: row.querySelector('[data-setting="start_time"]')?.value || null,
+        end_time: row.querySelector('[data-setting="end_time"]')?.value || null,
+        slot_minutes: Number(row.querySelector('[data-setting="slot_minutes"]')?.value || 30),
+        allowed_types: 'recepcion,diagnostico,entrega,otro'
+    }));
+    const exceptions = appointmentConfig.exceptions || [];
+    try {
+        const res = await fetch(`${API_BASE}/admin/appointments/config`, {
+            method: 'PATCH',
+            headers: JSON_HEADERS,
+            body: JSON.stringify({ settings, exceptions })
+        });
+        if (!res.ok) throw new Error('No se pudo guardar la configuracion');
+        const data = await res.json();
+        appointmentConfig = data.config;
+        renderAppointmentConfig();
+        alert('Configuracion de agenda guardada.');
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+function addAppointmentExceptionFromUI() {
+    const date = document.getElementById('appointmentExceptionDate')?.value;
+    if (!date) return alert('Selecciona una fecha.');
+    appointmentConfig.exceptions = appointmentConfig.exceptions || [];
+    appointmentConfig.exceptions = appointmentConfig.exceptions.filter(item => item.date !== date);
+    appointmentConfig.exceptions.push({
+        date,
+        status: document.getElementById('appointmentExceptionStatus')?.value || 'closed',
+        start_time: document.getElementById('appointmentExceptionStart')?.value || null,
+        end_time: document.getElementById('appointmentExceptionEnd')?.value || null,
+        slot_minutes: document.getElementById('appointmentExceptionSlot')?.value || null,
+        reason: document.getElementById('appointmentExceptionReason')?.value || null
+    });
+    renderAppointmentConfig();
+}
+
+function openRepairDeleteConfirm(ticketId) {
+    pendingDeleteRepairId = ticketId || activeRepairTicket?.id || null;
+    if (!pendingDeleteRepairId) return;
+    const overlay = document.getElementById('repairDeleteConfirmOverlay');
+    if (!overlay) return;
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+}
+
+function closeRepairDeleteConfirm() {
+    const overlay = document.getElementById('repairDeleteConfirmOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+    pendingDeleteRepairId = null;
+    if (!document.getElementById('repairDetailOverlay')?.classList.contains('show')) {
+        document.body.classList.remove('modal-open');
+    }
+}
+
+async function deleteRepairTicketConfirmed() {
+    if (!pendingDeleteRepairId) return;
+    const ticketId = pendingDeleteRepairId;
+    try {
+        const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(ticketId)}/delete`, {
+            method: 'PATCH',
+            headers: JSON_HEADERS
+        });
+        if (!res.ok) throw new Error('No se pudo eliminar el ticket');
+        allRepairs = allRepairs.filter(item => String(item.id) !== String(ticketId));
+        adminAppointments = adminAppointments.filter(item => String(item.id) !== String(ticketId));
+        closeRepairDeleteConfirm();
+        closeRepairTicketModal();
+        renderRepairs();
+        renderAdminAppointments();
+        const summary = document.getElementById('repairFilterSummary');
+        if (summary) summary.textContent = 'Ticket eliminado correctamente.';
+    } catch (err) {
+        alert(err.message);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1310,6 +1579,20 @@ document.addEventListener('DOMContentLoaded', () => {
             openRepairTicket(openBtn.dataset.openTicket);
             return;
         }
+        const deleteBtn = event.target.closest?.('[data-delete-ticket]');
+        if (deleteBtn) {
+            event.preventDefault();
+            openRepairDeleteConfirm(deleteBtn.dataset.deleteTicket);
+            return;
+        }
+        const appointmentAction = event.target.closest?.('[data-appointment-action]');
+        if (appointmentAction && activeRepairTicket) {
+            event.preventDefault();
+            const statusSelect = document.getElementById('repairAppointmentStatus');
+            if (statusSelect) statusSelect.value = appointmentAction.dataset.appointmentAction;
+            saveRepairTicketChanges();
+            return;
+        }
         const row = event.target.closest?.('.repair-row');
         if (!row) return;
         if (event.target.closest?.('button, a, input, select, textarea')) return;
@@ -1323,12 +1606,37 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('repairDetailClose')?.addEventListener('click', closeRepairTicketModal);
     document.getElementById('repairDetailCancel')?.addEventListener('click', closeRepairTicketModal);
     document.getElementById('repairDetailSave')?.addEventListener('click', saveRepairTicketChanges);
+    document.getElementById('repairDetailDelete')?.addEventListener('click', () => openRepairDeleteConfirm(activeRepairTicket?.id));
+    document.getElementById('repairTabTickets')?.addEventListener('click', () => switchRepairPanel('tickets'));
+    document.getElementById('repairTabAgenda')?.addEventListener('click', () => switchRepairPanel('agenda'));
+    document.getElementById('repairTabConfig')?.addEventListener('click', () => switchRepairPanel('config'));
+    document.getElementById('appointmentRefresh')?.addEventListener('click', fetchAdminAppointments);
+    document.getElementById('appointmentConfigSave')?.addEventListener('click', saveAppointmentConfigFromUI);
+    document.getElementById('appointmentExceptionAdd')?.addEventListener('click', addAppointmentExceptionFromUI);
+    document.querySelectorAll('[data-appointment-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-appointment-filter]').forEach(item => item.classList.remove('active'));
+            btn.classList.add('active');
+            activeAppointmentFilter = btn.dataset.appointmentFilter || 'today';
+            setAppointmentRangeForFilter(activeAppointmentFilter);
+            fetchAdminAppointments();
+        });
+    });
     document.getElementById('repairDetailOverlay')?.addEventListener('click', (event) => {
         if (event.target.id === 'repairDetailOverlay') closeRepairTicketModal();
+    });
+    document.getElementById('repairDeleteConfirmClose')?.addEventListener('click', closeRepairDeleteConfirm);
+    document.getElementById('repairDeleteCancel')?.addEventListener('click', closeRepairDeleteConfirm);
+    document.getElementById('repairDeleteConfirm')?.addEventListener('click', deleteRepairTicketConfirmed);
+    document.getElementById('repairDeleteConfirmOverlay')?.addEventListener('click', (event) => {
+        if (event.target.id === 'repairDeleteConfirmOverlay') closeRepairDeleteConfirm();
     });
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && document.getElementById('repairDetailOverlay')?.classList.contains('show')) {
             closeRepairTicketModal();
+        }
+        if (event.key === 'Escape' && document.getElementById('repairDeleteConfirmOverlay')?.classList.contains('show')) {
+            closeRepairDeleteConfirm();
         }
     });
 });

@@ -30,6 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCancelAuth = document.getElementById('btn-cancel-auth');
     const prioritySelect = document.getElementById('st_priority');
     const ticketOptions = window.PIXON_TICKET_OPTIONS || {};
+    const appointmentType = document.getElementById('st_appointment_type');
+    const appointmentDate = document.getElementById('st_appointment_date');
+    const appointmentTime = document.getElementById('st_appointment_time');
+    const appointmentDelivery = document.getElementById('st_appointment_delivery_method');
+    const appointmentNote = document.getElementById('st_appointment_note');
+    const appointmentHint = document.getElementById('st_appointment_hint');
 
     // Mapeo de dispositivos a servicios
     const SERVICES_MAP = ticketOptions.services || {
@@ -153,6 +159,65 @@ document.addEventListener('DOMContentLoaded', () => {
     deviceSelect.addEventListener('change', updateServices);
     serviceSelect.addEventListener('change', checkServiceOther);
 
+    function todayISO() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        return now.toISOString().slice(0, 10);
+    }
+
+    function appointmentTypeKey(value) {
+        const normalized = normalizeOptionText(value);
+        if (normalized.includes('entrega')) return 'entrega';
+        if (normalized.includes('diagnostico')) return 'diagnostico';
+        if (normalized.includes('recepcion')) return 'recepcion';
+        return 'otro';
+    }
+
+    async function refreshAppointmentAvailability() {
+        if (!appointmentDate || !appointmentTime || !appointmentType) return;
+        const date = appointmentDate.value;
+        appointmentTime.innerHTML = '<option value="">Selecciona fecha primero...</option>';
+        if (!date) return;
+        if (date < todayISO()) {
+            appointmentTime.innerHTML = '<option value="">Dia no disponible</option>';
+            if (appointmentHint) appointmentHint.textContent = 'Selecciona un dia disponible. No se permiten fechas pasadas.';
+            return;
+        }
+        appointmentTime.disabled = true;
+        appointmentTime.innerHTML = '<option value="">Cargando horarios...</option>';
+        try {
+            const type = appointmentTypeKey(appointmentType.value);
+            const res = await fetch(`/api/appointments/availability?date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}`, { cache: 'no-store' });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.available) {
+                appointmentTime.innerHTML = `<option value="">${data.message || 'Este dia esta bloqueado por el taller.'}</option>`;
+                if (appointmentHint) appointmentHint.textContent = data.message || 'Este dia esta bloqueado por el taller.';
+                return;
+            }
+            const slots = Array.isArray(data.slots) ? data.slots : [];
+            appointmentTime.innerHTML = slots.length
+                ? '<option value="">Selecciona un horario...</option>' + slots.map(slot => `<option value="${slot}">${slot}</option>`).join('')
+                : '<option value="">Dia lleno o sin horarios disponibles</option>';
+            if (appointmentHint) {
+                appointmentHint.textContent = slots.length
+                    ? 'Tu visita quedara registrada como pendiente de confirmacion.'
+                    : 'Este dia esta lleno o no tiene horarios disponibles para el tipo de visita seleccionado.';
+            }
+        } catch (err) {
+            console.error('availability error:', err);
+            appointmentTime.innerHTML = '<option value="">No se pudieron cargar horarios</option>';
+            if (appointmentHint) appointmentHint.textContent = 'No se pudieron cargar los horarios. Intenta de nuevo.';
+        } finally {
+            appointmentTime.disabled = false;
+        }
+    }
+
+    if (appointmentDate) {
+        appointmentDate.min = todayISO();
+        appointmentDate.addEventListener('change', refreshAppointmentAvailability);
+    }
+    appointmentType?.addEventListener('change', refreshAppointmentAvailability);
+
     // 2. Valores por defecto (desde props)
     const defDevice = document.getElementById('st_default_device')?.value;
     const defService = document.getElementById('st_default_service')?.value;
@@ -209,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error('Error al crear el ticket');
             
             const result = await res.json();
-            showSuccess(result.ticket_code, ticketData.device_type, ticketData.service_requested);
+            showSuccess(result.ticket_code, ticketData.device_type, ticketData.service_requested, ticketData);
 
         } catch (err) {
             console.error('Error auto-submit:', err);
@@ -240,8 +305,19 @@ document.addEventListener('DOMContentLoaded', () => {
             `Enciende: ${document.getElementById('st_turns_on').value}`,
             `Líquidos: ${document.getElementById('st_liquid').value}`,
             `Urgencia: ${document.getElementById('st_priority').value}`,
-            `Contacto pref.: ${document.getElementById('st_contact_pref').value}`
+            `Contacto pref.: ${document.getElementById('st_contact_pref').value}`,
+            `Cita tipo: ${appointmentType?.value || ''}`,
+            `Cita fecha: ${appointmentDate?.value || ''}`,
+            `Cita hora: ${appointmentTime?.value || ''}`,
+            `Cita entrega: ${appointmentDelivery?.value || ''}`,
+            `Cita comentario: ${appointmentNote?.value || ''}`
         ].join('\n');
+
+        if (appointmentDate && appointmentTime && (!appointmentDate.value || !appointmentTime.value)) {
+            errorText.textContent = !appointmentDate.value ? 'Selecciona un dia disponible.' : 'Selecciona un horario disponible.';
+            errorMsg.style.display = 'flex';
+            return;
+        }
 
         const payload = {
             customer_name: document.getElementById('st_name').value,
@@ -253,7 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
             device_brand: brand || null,
             device_model: model || null,
             is_b2b: isB2B,
-            source_page: document.getElementById('st_source_page').value
+            source_page: document.getElementById('st_source_page').value,
+            appointment_type: appointmentType?.value || null,
+            appointment_date: appointmentDate?.value || null,
+            appointment_time: appointmentTime?.value || null,
+            appointment_datetime: appointmentDate?.value && appointmentTime?.value ? `${appointmentDate.value} ${appointmentTime.value}:00` : null,
+            appointment_delivery_method: appointmentDelivery?.value || null,
+            appointment_note: appointmentNote?.value || null,
+            appointment_status: 'pendiente_confirmacion'
         };
 
         if (isB2B) {
@@ -295,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const result = await res.json();
-            showSuccess(result.ticket_code, finalDevice, finalService);
+            showSuccess(result.ticket_code, finalDevice, finalService, payload);
 
         } catch (err) {
             errorText.textContent = err.message;
@@ -315,12 +398,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showSuccess(folio, device, service) {
+    function showSuccess(folio, device, service, ticketData = {}) {
         form.style.display = 'none';
         authOverlay.style.display = 'none';
         document.getElementById('st_success_overlay').style.display = 'block';
         document.getElementById('st_success_folio').textContent = folio;
         document.getElementById('st_success_service').textContent = `${device} - ${service}`;
+        const successMessage = document.getElementById('st_success_message') || document.querySelector('#st_success_overlay h2 + p');
+        if (successMessage && ticketData.appointment_date && ticketData.appointment_time) {
+            successMessage.textContent = `Ticket creado correctamente. Registramos tu visita para el ${ticketData.appointment_date} a las ${ticketData.appointment_time}. Un tecnico se pondra en contacto contigo para confirmar detalles.`;
+            successMessage.style.display = '';
+        }
         
         // Crear link de WA
         const phone = "5219986690777"; // El número base de WhatsApp, puedes ajustarlo
