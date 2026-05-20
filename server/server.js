@@ -44,6 +44,7 @@ const {
     getUnansweredFaqs,
     clearUnansweredFaqs,
     getAllRepairsAdmin,
+    getUserRepairs,
     getRepairAdminById,
     updateRepairAdmin,
     insertRepairAdmin,
@@ -65,6 +66,14 @@ const {
 
 const app = express();
 app.disable('x-powered-by');
+
+// Cache HTTP para contenido estático
+const cacheMiddleware = (duration) => (req, res, next) => {
+  if (req.method === 'GET') {
+    res.set('Cache-Control', `public, max-age=${duration}`);
+  }
+  next();
+};
 
 const resolvePort = () => {
     const rawPort = process.env.PORT || '3000';
@@ -717,6 +726,16 @@ async function bootstrap() {
         });
         
         res.status(201).json({ success: true, message: 'Ticket creado exitosamente.', ticket_code: ticket.ticket_code, ticket });
+    }));
+
+    // GET mis-tickets - Tickets del usuario logueado
+    app.get('/api/mis-tickets', requireAuth, ah(async (req, res) => {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'No autenticado' });
+        }
+        const repairs = await getUserRepairs(userId);
+        res.json({ success: true, repairs });
     }));
 
     app.get('/api/faqs', ah(async (_req, res) => {

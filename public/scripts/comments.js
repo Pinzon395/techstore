@@ -395,12 +395,20 @@
        INICIALIZACIÓN
     ═══════════════════════════════════════════════════════ */
     function initComments() {
+        document.querySelectorAll('.comments-marquee-container').forEach(container => {
+            if (container.dataset.commentsReady === 'true') return;
+            container.dataset.commentsReady = 'true';
+            initCommentsInstance(container);
+        });
+    }
 
-        const commentBox  = document.getElementById('commentsBox');
-        const commentForm = document.getElementById('addCommentForm');
-        const starRoot    = document.getElementById('star-rating');
-        const container   = document.querySelector('.comments-marquee-container');
-        const liveIndicator = document.getElementById('comments-live-indicator');
+    function initCommentsInstance(container) {
+        const root = container.closest('.comments-section-container') || document;
+        const commentBox  = root.querySelector('#commentsBox');
+        const commentForm = root.querySelector('#addCommentForm');
+        const starRoot    = root.querySelector('#star-rating');
+        const liveIndicator = root.querySelector('#comments-live-indicator');
+        const findInSection = selector => root.querySelector(selector);
 
         if (!commentBox || !container) return;
 
@@ -726,7 +734,7 @@
                 const data = JSON.parse(pending);
 
                 // Mostrar banner de "enviando tu comentario..."
-                const btn = document.getElementById('submitCommentBtn');
+                const btn = findInSection('#submitCommentBtn');
                 if (btn) {
                     btn.disabled = true;
                     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando tu comentario...';
@@ -735,8 +743,8 @@
                 await saveComment(data);
 
                 // Rellenar el formulario con los datos (para que el usuario los vea)
-                const nameEl = document.getElementById('commenterName');
-                const textEl = document.getElementById('commenterText');
+                const nameEl = findInSection('#commenterName');
+                const textEl = findInSection('#commenterText');
                 if (nameEl) nameEl.value = data.name;
                 if (textEl) textEl.value = data.text;
                 currentRating = data.stars;
@@ -773,11 +781,13 @@
         if (commentForm) {
             commentForm.addEventListener('submit', async e => {
                 e.preventDefault();
-                const name = document.getElementById('commenterName').value.trim();
-                const text = document.getElementById('commenterText').value.trim();
+                const nameEl = findInSection('#commenterName');
+                const textEl = findInSection('#commenterText');
+                const name = nameEl ? nameEl.value.trim() : '';
+                const text = textEl ? textEl.value.trim() : '';
                 if (!name || !text) return;
 
-                const btn = document.getElementById('submitCommentBtn');
+                const btn = findInSection('#submitCommentBtn');
 
                 // Verificar si hay sesión antes de intentar publicar
                 try {
@@ -809,8 +819,8 @@
                 try {
                     await saveComment({ name, stars: currentRating, text });
 
-                    document.getElementById('commenterName').value = '';
-                    document.getElementById('commenterText').value = '';
+                    if (nameEl) nameEl.value = '';
+                    if (textEl) textEl.value = '';
                     currentRating = 5;
                     paintStars(currentRating);
 
@@ -859,7 +869,7 @@
                 });
             }, { rootMargin: '300px' });
 
-            const section = document.getElementById('comentarios') || container;
+            const section = root instanceof Element ? root : container;
             observer.observe(section);
         } else {
             startUp();

@@ -848,6 +848,20 @@ async function insertBuildAdmin({ title, description, price, build_category, per
 }
 
 
+/* ─────────────────────────────────────────────────────────
+   USER REPAIRS - Tickets del cliente
+───────────────────────────────────────────────────────── */
+async function getUserRepairs(userId) {
+    const [rows] = await pool.execute(`
+        SELECT r.*, u.name as user_name, u.email as user_email
+        FROM repairs r
+        LEFT JOIN users u ON u.id = r.user_id
+        WHERE r.user_id = ? AND r.deleted_at IS NULL
+        ORDER BY r.created_at DESC
+    `, [userId]);
+    return rows;
+}
+
 module.exports = {
     initDB,
     getDB,
@@ -869,6 +883,7 @@ module.exports = {
     getUnansweredFaqs,
     clearUnansweredFaqs,
     getAllRepairsAdmin,
+    getUserRepairs,
     getRepairAdminById,
     updateRepairAdmin,
     insertRepairAdmin,
