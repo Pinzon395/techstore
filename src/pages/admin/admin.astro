@@ -16,6 +16,7 @@ import '../../styles/admin.css';
   image="/LOGOCIRCULAR.png"
   bodyClass="admin-body"
   preloadSprite={false}
+  robots="noindex, nofollow"
 >
   <!-- Pantalla de carga mientras admin.js verifica permisos -->
   <div id="auth-loading">
@@ -306,8 +307,8 @@ import '../../styles/admin.css';
           </div>
           <div id="repairConfigPanel" class="admin-card repair-agenda-panel" style="display:none;">
             <div class="admin-section-header">
-              <h2>Configuracion de agenda</h2>
-              <button class="btn-admin btn-approve" type="button" id="appointmentConfigSave"><i class="fa-solid fa-floppy-disk"></i> Guardar configuracion</button>
+              <h2>Configuración de agenda</h2>
+              <button class="btn-admin btn-approve" type="button" id="appointmentConfigSave"><i class="fa-solid fa-floppy-disk"></i> Guardar configuración</button>
             </div>
             <div id="appointmentSettingsGrid" class="appointment-settings-grid"></div>
             <h3 style="margin-top:24px;">Dias bloqueados y reglas especiales</h3>
@@ -318,7 +319,7 @@ import '../../styles/admin.css';
                 <option value="normal">Disponible normal</option>
                 <option value="only_pickup">Solo recepcion de equipos</option>
                 <option value="only_dropoff">Solo entrega de equipos</option>
-                <option value="only_diagnostic">Solo diagnostico</option>
+                <option value="only_diagnostic">Solo diagnóstico</option>
                 <option value="custom_hours">Horario especial</option>
               </select>
               <input id="appointmentExceptionStart" class="admin-input" type="time" />
@@ -572,7 +573,7 @@ import '../../styles/admin.css';
         <button class="admin-modal-close" type="button" id="repairDeleteConfirmClose">&times;</button>
       </div>
       <div class="admin-modal-body">
-        <p style="color:var(--a-text);font-weight:700;margin:0 0 8px;">Â¿Seguro que quieres eliminar este ticket?</p>
+        <p style="color:var(--a-text);font-weight:700;margin:0 0 8px;">¿Seguro que quieres eliminar este ticket?</p>
         <p style="color:var(--a-text-dim);margin:0;">Esta accion movera el ticket a eliminado y no aparecera en la lista principal.</p>
       </div>
       <div class="admin-modal-footer">
@@ -816,8 +817,8 @@ import '../../styles/admin.css';
           if (!r.ok) return;
           const data = await r.json();
           if (activeEl)  activeEl.textContent  = data.active ?? 0;
-          const totalViews    = (data.per_minute || []).reduce((s, p) => s + Number(p.views || 0), 0);
-          const totalVisitors = (data.per_minute || []).reduce((s, p) => s + Number(p.visitors || 0), 0);
+          const totalViews    = Number(data.window_views ?? (data.per_minute || []).reduce((s, p) => s + Number(p.views || 0), 0));
+          const totalVisitors = Number(data.window_visitors ?? (data.per_minute || []).reduce((s, p) => s + Number(p.visitors || 0), 0));
           if (winViews) winViews.textContent = totalViews;
           if (winVis)   winVis.textContent   = totalVisitors;
           if (updatedEl) updatedEl.textContent = 'actualizado ' + new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });

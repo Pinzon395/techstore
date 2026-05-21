@@ -430,7 +430,8 @@ async function clearUnansweredFaqs() {
 ───────────────────────────────────────────────────────────── */
 
 async function trackPageView({ path, title, referrer, user_agent, ip, session_id, user_id }) {
-    const ipBin = ip ? Buffer.from(ip.split('.').map(n => parseInt(n, 10))) : null;
+    const ipv4 = String(ip || '').match(/(\d{1,3}\.){3}\d{1,3}$/)?.[0];
+    const ipBin = ipv4 ? Buffer.from(ipv4.split('.').map(n => parseInt(n, 10))) : null;
     await pool.execute(
         `INSERT INTO page_views (path, title, referrer, user_agent, ip, session_id, user_id)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -448,10 +449,12 @@ async function trackPageView({ path, title, referrer, user_agent, ip, session_id
 
 async function getPageViewsDaily(days = 30) {
     const [rows] = await pool.execute(
-        `SELECT date, SUM(views) as views, SUM(unique_visitors) as unique_visitors
-         FROM page_views_daily
-         WHERE date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-         GROUP BY date
+        `SELECT DATE(created_at) AS date,
+                COUNT(*) AS views,
+                COUNT(DISTINCT session_id) AS unique_visitors
+         FROM page_views
+         WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+         GROUP BY DATE(created_at)
          ORDER BY date DESC`,
         [days]
     );
@@ -460,9 +463,11 @@ async function getPageViewsDaily(days = 30) {
 
 async function getPageViewsTop(limit = 20, days = 30) {
     const [rows] = await pool.execute(
-        `SELECT path, SUM(views) as views, SUM(unique_visitors) as unique_visitors
-         FROM page_views_daily
-         WHERE date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        `SELECT path,
+                COUNT(*) AS views,
+                COUNT(DISTINCT session_id) AS unique_visitors
+         FROM page_views
+         WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
          GROUP BY path
          ORDER BY views DESC
          LIMIT ?`,
@@ -494,6 +499,13 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
          ORDER BY minute ASC`,
         [minutesWindow]
     );
+    const [windowTotals] = await pool.execute(
+        `SELECT COUNT(*) AS views,
+                COUNT(DISTINCT session_id) AS visitors
+         FROM page_views
+         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)`,
+        [minutesWindow]
+    );
     const [lastViews] = await pool.execute(
         `SELECT path, title, created_at
          FROM page_views
@@ -503,6 +515,8 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
     );
     return {
         active: active[0]?.active ?? 0,
+        window_views: windowTotals[0]?.views ?? 0,
+        window_visitors: windowTotals[0]?.visitors ?? 0,
         per_minute: perMinute,
         last_views: lastViews,
         window_minutes: minutesWindow,
@@ -717,7 +731,7 @@ async function saveAppointmentConfig({ settings = [], exceptions = [] }) {
 async function getAppointmentAvailability(date, type) {
     const requestedType = normalizeAppointmentType(type);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
-        return { available: false, message: 'Selecciona un dia disponible.', slots: [] };
+        return { available: false, message: 'Selecciona un día disponible.', slots: [] };
     }
     const today = new Date().toISOString().slice(0, 10);
     if (date < today) return { available: false, message: 'No se permiten fechas pasadas.', slots: [] };
@@ -726,7 +740,7 @@ async function getAppointmentAvailability(date, type) {
     const [[setting]] = await pool.execute('SELECT * FROM appointment_settings WHERE weekday = ?', [weekday]);
     const [[exception]] = await pool.execute('SELECT * FROM appointment_exceptions WHERE date = ?', [date]);
     const status = exception?.status || 'normal';
-    if (status === 'closed' || !setting?.is_open) return { available: false, message: 'Este dia esta bloqueado por el taller.', slots: [] };
+    if (status === 'closed' || !setting?.is_open) return { available: false, message: 'Este día está bloqueado por el taller.', slots: [] };
 
     const start = exception?.start_time || setting.start_time;
     const end = exception?.end_time || setting.end_time;
@@ -736,9 +750,9 @@ async function getAppointmentAvailability(date, type) {
         .map(item => item.trim())
         .filter(Boolean);
     if (!allowed.includes(requestedType) && !allowed.includes('otro')) {
-        return { available: false, message: 'Este dia no esta disponible para ese tipo de visita.', slots: [] };
+        return { available: false, message: 'Este día no está disponible para ese tipo de visita.', slots: [] };
     }
-    if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este dia no tiene horario configurado.', slots: [] };
+    if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este día no tiene horario configurado.', slots: [] };
 
     const [occupiedRows] = await pool.execute(
         `SELECT appointment_time FROM repairs
@@ -753,7 +767,7 @@ async function getAppointmentAvailability(date, type) {
         const slot = minutesToTime(mins);
         if (!occupied.has(slot)) slots.push(slot);
     }
-    return { available: slots.length > 0, message: slots.length ? '' : 'Este dia esta lleno.', slots };
+    return { available: slots.length > 0, message: slots.length ? '' : 'Este día está lleno.', slots };
 }
 
 async function getAdminAppointments({ from, to } = {}) {

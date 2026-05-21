@@ -6,6 +6,11 @@ let allRepairs = [];
 let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
 let analyticsData = null;
+let analyticsDailyData = [];
+let analyticsTopPagesError = null;
+let analyticsDailyError = null;
+let allUsers = [];
+let dashboardStatsUpdater = null;
 let activeRepairTicket = null;
 let appointmentConfig = { settings: [], exceptions: [] };
 let adminAppointments = [];
@@ -89,18 +94,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         function updateDashboardStats() {
             const pendingComments = allComments.filter(c => c.approved === 0).length;
-            document.getElementById('stat-comments-pending').textContent = pendingComments;
-            document.getElementById('stat-users').textContent = document.querySelectorAll('#users-tbody tr').length;
-            document.getElementById('stat-faqs-unanswered').textContent = allUnanswered.length;
+            setStatNumber('stat-comments-pending', pendingComments);
+            setStatNumber('stat-users', allUsers.length);
+            setStatNumber('stat-faqs-unanswered', allUnanswered.length);
 
             if (analyticsData) {
-                document.getElementById('stat-total-views').textContent = analyticsData.totalViews.toLocaleString('es-MX');
-                document.getElementById('stat-today-views').textContent = analyticsData.todayViews.toLocaleString('es-MX');
-                document.getElementById('stat-unique-today').textContent = analyticsData.uniqueToday.toLocaleString('es-MX');
+                setStatNumber('stat-total-views', analyticsData.totalViews || 0);
+                setStatNumber('stat-today-views', analyticsData.todayViews || 0);
+                setStatNumber('stat-unique-today', analyticsData.uniqueToday || 0);
                 renderTopPages();
                 renderDailyChart();
             }
         }
+        dashboardStatsUpdater = updateDashboardStats;
 
         tabBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -167,9 +173,12 @@ async function fetchUsers() {
         const res = await fetch(`${API_BASE}/admin/users`);
         if (!res.ok) throw new Error('Error al cargar usuarios');
         const users = await res.json();
-        renderUsers(users);
+        allUsers = Array.isArray(users) ? users : [];
+        renderUsers(allUsers);
     } catch (err) {
         console.error(err);
+        allUsers = [];
+        renderUsers([]);
     }
 }
 
@@ -319,32 +328,88 @@ function connectSSE() {
                 if (!allComments.some(c => c.id === newComment.id)) {
                     allComments.unshift(newComment); // Añadir al principio
                     renderComments();
+                    if (dashboardStatsUpdater) dashboardStatsUpdater();
                 }
-    } catch(err) {
-        alert(err.message);
+            } catch(err) {
+                console.error('SSE comment parse error:', err);
+            }
+        };
+
+        sse.onerror = () => {
+            if (liveIndicator) liveIndicator.style.display = 'none';
+            sse.close();
+            setTimeout(connectSSE, 10000);
+        };
+    } catch (err) {
+        console.error('No SSE', err);
     }
-};
+}
 
 /* ─────────────────────────────────────────────────────────────
    ANALYTICS
 ───────────────────────────────────────────────────────────── */
 async function fetchAnalytics() {
-    try {
-        const [summary, topPages] = await Promise.all([
-            fetch(`${API_BASE}/admin/analytics/summary`).then(r => r.json()),
-            fetch(`${API_BASE}/admin/analytics/top-pages?days=30&limit=10`).then(r => r.json())
-        ]);
-        analyticsData = { ...summary, topPages };
-        updateDashboardStats();
-    } catch (err) {
-        console.error('Analytics error:', err);
-    }
+    const [summaryResult, topPagesResult, dailyResult] = await Promise.allSettled([
+        fetchJsonOrThrow(`${API_BASE}/admin/analytics/summary`, 'resumen de visitas'),
+        fetchJsonOrThrow(`${API_BASE}/admin/analytics/top-pages?days=30&limit=10`, 'páginas más visitadas'),
+        fetchJsonOrThrow(`${API_BASE}/admin/analytics/daily?days=14`, 'tráfico diario')
+    ]);
+
+    const summary = summaryResult.status === 'fulfilled'
+        ? summaryResult.value
+        : { totalViews: 0, todayViews: 0, uniqueToday: 0 };
+    const topPages = topPagesResult.status === 'fulfilled' && Array.isArray(topPagesResult.value)
+        ? topPagesResult.value
+        : [];
+
+    analyticsData = { ...summary, topPages };
+    analyticsDailyData = dailyResult.status === 'fulfilled' && Array.isArray(dailyResult.value)
+        ? dailyResult.value
+        : [];
+    analyticsTopPagesError = topPagesResult.status === 'rejected' ? topPagesResult.reason : null;
+    analyticsDailyError = dailyResult.status === 'rejected' ? dailyResult.reason : null;
+
+    if (dashboardStatsUpdater) dashboardStatsUpdater();
+}
+
+async function fetchJsonOrThrow(url, label) {
+    const res = await fetch(url, { credentials: 'include' });
+    if (!res.ok) throw new Error(`No se pudo cargar ${label} (HTTP ${res.status})`);
+    return res.json();
+}
+
+function setStatNumber(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = Number(value || 0).toLocaleString('es-MX');
+}
+
+function renderAnalyticsError(err) {
+    const message = escapeHtml(err?.message || 'No se pudieron cargar las métricas.');
+    const top = document.getElementById('analytics-top-pages');
+    const chart = document.getElementById('analytics-chart');
+    if (top) top.innerHTML = `<div class="empty-state">Error al cargar páginas más visitadas: ${message}</div>`;
+    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar tráfico diario: ${message}</div>`;
+}
+
+function renderTopPagesError(err) {
+    const top = document.getElementById('analytics-top-pages');
+    if (top) top.innerHTML = `<div class="empty-state">Error al cargar páginas más visitadas: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
+}
+
+function renderDailyChartError(err) {
+    const chart = document.getElementById('analytics-chart');
+    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar tráfico diario: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
 }
 
 function renderTopPages() {
     const container = document.getElementById('analytics-top-pages');
     if (!container || !analyticsData?.topPages) return;
     container.innerHTML = '';
+    if (analyticsTopPagesError) {
+        renderTopPagesError(analyticsTopPagesError);
+        return;
+    }
 
     if (analyticsData.topPages.length === 0) {
         container.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">Sin datos aún. Las visitas se registran cuando los usuarios navegan.</div>';
@@ -382,11 +447,16 @@ function renderTopPages() {
 function renderDailyChart() {
     const ctx = document.getElementById('analytics-chart');
     if (!ctx) return;
+    if (analyticsDailyError) {
+        renderDailyChartError(analyticsDailyError);
+        return;
+    }
 
-    fetch(`${API_BASE}/admin/analytics/daily?days=14`)
-        .then(r => r.json())
-        .then(data => {
-            if (!data || data.length === 0) return;
+    const data = analyticsDailyData || [];
+    if (!data.length) {
+        ctx.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">Sin tráfico diario todavía.</div>';
+        return;
+    }
 
             const labels = data.map(d => {
                 const parts = d.date.split('-');
@@ -417,19 +487,6 @@ function renderDailyChart() {
 
             ctx.innerHTML = '';
             ctx.appendChild(barsContainer);
-        })
-        .catch(() => {});
-};
-
-        sse.onerror = () => {
-            liveIndicator.style.display = 'none';
-            sse.close();
-            setTimeout(connectSSE, 10000); // Reconectar en 10s
-        };
-
-    } catch (err) {
-        console.error("No SSE", err);
-    }
 }
 
 function escapeHtml(str) {
@@ -618,7 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFaqs();
     });
     document.addEventListener('click', (event) => {
-        const toggle = event.target.closest?.('.faq-category-toggle');
+        const toggle = event.target.closestá.('.faq-category-toggle');
         if (!toggle) return;
         const category = toggle.dataset.category;
         if (!category) return;
@@ -762,7 +819,7 @@ const REPAIR_STATUS_COLORS = {
     eliminado: '#ef4444'
 };
 
-const REPAIR_DEVICE_SERVICE_OPTIONS = window.PIXON_TICKET_OPTIONS?.services || {
+const REPAIR_DEVICE_SERVICE_OPTIONS = window.PIXON_TICKET_OPTIONSí.services || {
     'Laptop': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de batería', 'Cambio de teclado', 'Ampliación de RAM', 'Cambio a SSD', 'Formateo / Sistema operativo', 'Recuperación de datos', 'Reparación de bisagras / carcasa', 'No enciende', 'Se apaga o calienta', 'Otro'],
     'PC de escritorio': ['Mantenimiento preventivo', 'Ampliación de RAM', 'Cambio a SSD', 'Tarjeta de video', 'Fuente de poder', 'Ensamble de componentes', 'Formateo / Sistema operativo', 'Recuperación de datos', 'No enciende', 'Se apaga o calienta', 'Otro'],
     'MacBook': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de batería', 'Formateo / macOS', 'Recuperación de datos', 'No enciende', 'Otro'],
@@ -780,7 +837,7 @@ const REPAIR_DEVICE_SERVICE_OPTIONS = window.PIXON_TICKET_OPTIONS?.services || {
     'Otro': ['Otro']
 };
 
-const REPAIR_PRIORITY_OPTIONS = window.PIXON_TICKET_OPTIONS?.priorities || {
+const REPAIR_PRIORITY_OPTIONS = window.PIXON_TICKET_OPTIONSí.priorities || {
     normal: { label: 'Normal', aliases: ['normal'] },
     urgent: { label: 'Lo necesito lo antes posible', aliases: ['urgente', 'lo necesito lo antes posible', 'express', 'hoy'] },
     work_school: { label: 'Es para trabajo / escuela', aliases: ['trabajo/escuela', 'trabajo / escuela', 'trabajo', 'escuela'] },
@@ -788,15 +845,15 @@ const REPAIR_PRIORITY_OPTIONS = window.PIXON_TICKET_OPTIONS?.priorities || {
 };
 
 const APPOINTMENT_STATUS_LABELS = {
-    pendiente_confirmacion: 'Pendiente de confirmacion',
+    pendiente_confirmacion: 'Pendiente de confirmación',
     confirmada: 'Confirmada',
     reagendada: 'Reagendada',
     cancelada: 'Cancelada',
     completada: 'Completada'
 };
 
-const APPOINTMENT_TYPE_VALUES = ['Recepcion de equipo', 'Diagnostico', 'Entrega de equipo', 'Otro'];
-const WEEKDAY_LABELS = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+const APPOINTMENT_TYPE_VALUES = ['Recepción de equipo', 'Diagnóstico', 'Entrega de equipo', 'Otro'];
+const WEEKDAY_LABELS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
 function normalizeText(value) {
     return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -834,7 +891,7 @@ function inferRepairService(repair) {
     if (/lento|windows|formateo|virus|software|optimiz/.test(text)) return 'Software / optimizacion';
     if (/limpieza|temperatura|calienta|pasta|ventilador/.test(text)) return 'Mantenimiento termico';
     if (/hdmi|control|joystick|consola|xbox|playstation|ps5|ps4/.test(text)) return 'Consola / control';
-    return 'Diagnostico general';
+    return 'Diagnóstico general';
 }
 
 function getRepairIssueDescription(repair) {
@@ -1079,8 +1136,13 @@ function renderAppointmentStatusOptions(current) {
 
 function renderAppointmentTypeOptions(current) {
     return APPOINTMENT_TYPE_VALUES
-        .map(value => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(value)}</option>`)
+        .map(value => `<option value="${escapeHtml(value)}" ${normalizeText(value) === normalizeText(current) ? 'selected' : ''}>${escapeHtml(value)}</option>`)
         .join('');
+}
+
+function renderAppointmentTypeLabel(value) {
+    const normalized = normalizeText(value);
+    return APPOINTMENT_TYPE_VALUES.find(item => normalizeText(item) === normalized) || value || 'Recepción de equipo';
 }
 
 function renderRepairDetailModal(ticket) {
@@ -1185,7 +1247,7 @@ function renderRepairDetailModal(ticket) {
                 <section class="repair-ticket-section repair-ticket-appointment-section">
                     <h3>Cita / Agenda</h3>
                     <div class="repair-ticket-form-grid">
-                        <label>Tipo de visita<select id="repairAppointmentType" class="admin-input">${renderAppointmentTypeOptions(ticket.appointment_type || 'Recepcion de equipo')}</select></label>
+                        <label>Tipo de visita<select id="repairAppointmentType" class="admin-input">${renderAppointmentTypeOptions(ticket.appointment_type || 'Recepción de equipo')}</select></label>
                         <label>Estado de cita<select id="repairAppointmentStatus" class="admin-input">${renderAppointmentStatusOptions(ticket.appointment_status || 'pendiente_confirmacion')}</select></label>
                         <label>Fecha<input id="repairAppointmentDate" class="admin-input" type="date" value="${escapeHtml(ticket.appointment_date || '')}"></label>
                         <label>Hora<input id="repairAppointmentTime" class="admin-input" type="time" value="${escapeHtml(String(ticket.appointment_time || '').slice(0, 5))}"></label>
@@ -1416,7 +1478,7 @@ function renderAdminAppointments() {
             </div>
             <div>
                 <strong>${escapeHtml(item.appointment_date || '')} ${escapeHtml(String(item.appointment_time || '').slice(0, 5))}</strong>
-                <span>${escapeHtml(item.appointment_type || 'Recepcion de equipo')} | ${escapeHtml(APPOINTMENT_STATUS_LABELS[item.appointment_status] || item.appointment_status || 'Pendiente')}</span>
+                <span>${escapeHtml(renderAppointmentTypeLabel(item.appointment_type))} | ${escapeHtml(APPOINTMENT_STATUS_LABELS[item.appointment_status] || item.appointment_status || 'Pendiente')}</span>
             </div>
             <button class="btn-admin repair-open-btn" type="button" data-open-ticket="${escapeHtml(item.id)}">Abrir ticket</button>
         </div>
@@ -1425,7 +1487,7 @@ function renderAdminAppointments() {
 
 async function fetchAppointmentConfig() {
     const grid = document.getElementById('appointmentSettingsGrid');
-    if (grid) grid.innerHTML = '<div class="empty-state">Cargando configuracion...</div>';
+    if (grid) grid.innerHTML = '<div class="empty-state">Cargando configuración...</div>';
     try {
         const res = await fetch(`${API_BASE}/appointments/config`, { cache: 'no-store' });
         if (!res.ok) throw new Error('config failed');
@@ -1433,7 +1495,7 @@ async function fetchAppointmentConfig() {
         renderAppointmentConfig();
     } catch (err) {
         console.error(err);
-        if (grid) grid.innerHTML = '<div class="empty-state">No se pudo cargar la configuracion.</div>';
+        if (grid) grid.innerHTML = '<div class="empty-state">No se pudo cargar la configuración.</div>';
     }
 }
 
@@ -1480,11 +1542,11 @@ async function saveAppointmentConfigFromUI() {
             headers: JSON_HEADERS,
             body: JSON.stringify({ settings, exceptions })
         });
-        if (!res.ok) throw new Error('No se pudo guardar la configuracion');
+        if (!res.ok) throw new Error('No se pudo guardar la configuración');
         const data = await res.json();
         appointmentConfig = data.config;
         renderAppointmentConfig();
-        alert('Configuracion de agenda guardada.');
+        alert('Configuración de agenda guardada.');
     } catch (err) {
         alert(err.message);
     }
@@ -1568,24 +1630,24 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRepairs();
     });
     document.addEventListener('click', (event) => {
-        const copyBtn = event.target.closest?.('[data-copy-ticket]');
+        const copyBtn = event.target.closestá.('[data-copy-ticket]');
         if (copyBtn) {
             navigator.clipboard?.writeText(copyBtn.dataset.copyTicket || '');
             return;
         }
-        const openBtn = event.target.closest?.('[data-open-ticket]');
+        const openBtn = event.target.closestá.('[data-open-ticket]');
         if (openBtn) {
             event.preventDefault();
             openRepairTicket(openBtn.dataset.openTicket);
             return;
         }
-        const deleteBtn = event.target.closest?.('[data-delete-ticket]');
+        const deleteBtn = event.target.closestá.('[data-delete-ticket]');
         if (deleteBtn) {
             event.preventDefault();
             openRepairDeleteConfirm(deleteBtn.dataset.deleteTicket);
             return;
         }
-        const appointmentAction = event.target.closest?.('[data-appointment-action]');
+        const appointmentAction = event.target.closestá.('[data-appointment-action]');
         if (appointmentAction && activeRepairTicket) {
             event.preventDefault();
             const statusSelect = document.getElementById('repairAppointmentStatus');
@@ -1593,9 +1655,9 @@ document.addEventListener('DOMContentLoaded', () => {
             saveRepairTicketChanges();
             return;
         }
-        const row = event.target.closest?.('.repair-row');
+        const row = event.target.closestá.('.repair-row');
         if (!row) return;
-        if (event.target.closest?.('button, a, input, select, textarea')) return;
+        if (event.target.closestá.('button, a, input, select, textarea')) return;
         openRepairTicket(row.dataset.ticketId);
     });
     document.addEventListener('keydown', (event) => {

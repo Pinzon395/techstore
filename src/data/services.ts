@@ -1,5 +1,5 @@
-/**
- * Servicios — Single source of truth.
+﻿/**
+ * Servicios  -  Single source of truth.
  * Lo consumen tanto Navbar3_0.astro como las landing pages dinámicas
  * /servicios/[categoria]/[servicio].
  *
@@ -10,7 +10,7 @@
  * la categoría correspondiente. Astro generará la ruta automáticamente
  * y el navbar lo mostrará en el megamenú.
  *
- * ⚠️ PRECAUCIÓN — REGLAS DE ESTE ARCHIVO:
+ * PRECAUCION PRECAUCIÓN  -  REGLAS DE ESTE ARCHIVO:
  *
  * 1. RUTAS GENERADAS DINÁMICAMENTE:
  *    - Categorías: /servicios/{category.slug}  → [categoria]/index.astro
@@ -18,7 +18,7 @@
  *    Si cambias un 'slug' en este archivo, la URL cambia → enlaces rotos + pérdida SEO.
  *    Para renombrar un slug, añade un redirect 301 en astro.config.ts ANTES de cambiar.
  *
- * 2. customUrl — USO CORRECTO:
+ * 2. customUrl  -  USO CORRECTO:
  *    Si un servicio ya tiene su propia página dedicada (ej. /reparaciones, /paquetes),
  *    usa customUrl para apuntar a ella. Esto hace que:
  *      a) El navbar enlace directamente a esa página en lugar de generar una nueva.
@@ -52,12 +52,12 @@ export interface ServiceItem {
    *  Útil para reutilizar páginas ya hechas (/reparaciones, /paquetes, etc.). */
   customUrl?: string;
 
-  // ─── Data extendida (opcional, solo en landings premium) ───
+  // --- Data extendida (opcional, solo en landings premium) ---
   /** Keyword H1 SEO específica si difiere del label */
   seoKeyword?: string;
   /** Subtítulo grande bajo el H1 (gancho emocional / problema que resuelve) */
   hook?: string;
-  /** "Por qué nosotros" — 4-6 cards */
+  /** "Por qué nosotros"  -  4-6 cards */
   whyUs?: { icon: string; title: string; desc: string }[];
   /** Pasos del proceso paso a paso (timeline) */
   process?: { title: string; desc: string }[];
@@ -124,7 +124,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     services: [
       { slug: 'reparacion-general',   label: 'Reparación General',      customUrl: '/reparaciones' },
 
-      // ─── Cambio de pantalla (extendida 12 secciones) ───────────────────
+      // --- Cambio de pantalla (extendida 12 secciones) -------------------
       {
         slug: 'cambio-pantalla',
         label: 'Cambio de pantalla',
@@ -169,19 +169,19 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Toshiba', 'MSI', 'Samsung', 'MacBook Pro', 'MacBook Air', 'Huawei', 'Xiaomi'],
         faqs: [
-          { question: '¿Cuánto cuesta el cambio de pantalla de laptop en Cancún?',  answer: 'El precio depende del modelo, resolución y tipo de panel. Un cambio estándar suele iniciar desde <strong>$1,800 MXN</strong>, pero confirmamos el costo exacto después de revisar modelo y compatibilidad.' },
-          { question: '¿Cómo sé si necesito pantalla nueva o solo flex de video?', answer: 'Hacemos diagnóstico con monitor externo, revisión de flex, bisagras y retroiluminación. Si no necesitas pantalla nueva, te lo decimos antes de cotizar la pieza.' },
-          { question: '¿Cuánto tarda cambiar una pantalla de laptop?', answer: 'Si el panel está disponible para modelos comunes HP, Dell, Lenovo, Asus o Acer, normalmente toma <strong>24 a 48 horas</strong>. Modelos táctiles, MacBook, OLED o importados pueden tomar de <strong>3 a 7 días</strong>.' },
-          { question: '¿La pantalla queda igual que la original?', answer: 'Buscamos el panel compatible correcto por resolución, conector, tamaño, acabado y tipo de montaje. Te ofrecemos opción original o equivalente certificada según disponibilidad.' },
-          { question: '¿Qué garantía tiene la pantalla instalada?', answer: 'Entregamos <strong>6 meses de garantía por escrito</strong> sobre defecto de la pantalla instalada y mano de obra, siempre que no exista golpe, presión, humedad o mal uso posterior.' },
-          { question: '¿Tienen recolección y entrega en Cancún?', answer: 'Sí. Podemos coordinar recolección y entrega en Cancún según zona y disponibilidad. La instalación se realiza en taller para cuidar el panel, conectores y pruebas de imagen.' },
+          { question: `¿Cuánto cuesta el cambio de pantalla de laptop en Cancún?`, answer: `El precio depende del modelo, tamaño, resolución, tipo de panel y disponibilidad. Un cambio estándar suele iniciar desde <strong>$1,800 MXN</strong>, pero primero confirmamos número de parte, conector, acabado y compatibilidad para evitar pedir una pantalla incorrecta.` },
+          { question: `¿Cómo sé si necesito pantalla nueva o solo flex de video?`, answer: `Hacemos prueba con monitor externo, revisión de flex, bisagras, retroiluminación y comportamiento al mover la tapa. Si la imagen externa funciona bien, puede ser panel o flex; si también falla afuera, revisamos video o placa antes de cotizar pantalla.` },
+          { question: `¿Cuánto tarda cambiar una pantalla de laptop?`, answer: `Si el panel está disponible para modelos comunes HP, Dell, Lenovo, Asus o Acer, normalmente toma <strong>24 a 48 horas</strong>. Modelos táctiles, MacBook, OLED o importados pueden tomar de <strong>3 a 7 días</strong>, según disponibilidad.` },
+          { question: `¿La pantalla queda igual que la original?`, answer: `Buscamos el panel compatible correcto por resolución, conector, tamaño, acabado y tipo de montaje. Cuando existe opción original o equivalente certificada, te explicamos diferencia de precio y calidad antes de comprar la pieza.` },
+          { question: `¿Qué garantía tiene la pantalla instalada?`, answer: `Entregamos <strong>6 meses de garantía por escrito</strong> sobre defecto del panel instalado y mano de obra. No aplica por golpes, presión en la tapa, humedad, derrames o manipulación externa después de entregar el equipo.` },
+          { question: `¿Tienen recolección y entrega en Cancún?`, answer: `Sí, podemos coordinar recolección y entrega según zona y disponibilidad. La instalación se realiza en taller porque requiere cuidado con marco, flex, adhesivos, bisagras y pruebas de imagen antes de cerrar el equipo.` },
         ],
         relatedSlugs: ['cambio-bateria', 'cambio-teclado', 'pasta-termica', 'diagnostico'],
         relatedExternal: [
           { label: 'Limpieza por líquido derramado', href: '/limpieza-laptop-liquido', icon: 'fa-droplet', desc: 'Si tu laptop sufrió derrame, atender ambas cosas a la vez.' },
           { label: 'Paquetes de mantenimiento',     href: '/paquetes',                 icon: 'fa-box',     desc: 'Aprovecha el desarmado para limpieza completa.' },
         ],
-        // ─── NUEVAS SECCIONES para cambio-pantalla ────────────────────────
+        // --- NUEVAS SECCIONES para cambio-pantalla ------------------------
         trustStats: [
           { icon: 'fa-stethoscope', value: '100%', label: 'Diagnóstico de pantalla, flex y video' },
           { icon: 'fa-shield-halved', value: '6 meses', label: 'Garantía por escrito' },
@@ -204,7 +204,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         },
       },
 
-      // ─── Cambio de teclado (extendida) ──────────────────────────────────
+      // --- Cambio de teclado (extendida) ----------------------------------
       {
         slug: 'cambio-teclado',
         label: 'Cambio de teclado',
@@ -237,16 +237,12 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Toshiba', 'MSI', 'MacBook Pro', 'MacBook Air'],
         faqs: [
-          { question: '¿Cuánto cuesta cambiar el teclado de una laptop en Cancún?', answer: 'El cambio de teclado de laptop en Cancún inicia desde $1,550 MXN, pero el precio final depende del modelo, distribución, si es retroiluminado, si viene integrado al palmrest y la disponibilidad de la pieza.' },
-          { question: '¿Cuánto tarda el cambio de teclado de laptop?', answer: 'Si el teclado está disponible, el servicio puede tomar de 24 a 72 horas. Para modelos especiales o piezas bajo pedido, te confirmamos el tiempo real antes de solicitar la refacción.' },
-          { question: '¿Se puede cambiar solo una tecla?', answer: 'Depende del modelo y del daño. En algunos casos se puede revisar una tecla o mecanismo, pero si la matriz está dañada, hay líquido o varias teclas fallan, puede convenir cambiar el teclado completo.' },
-          { question: '¿Tienen teclado español latino con Ñ o teclado US?', answer: 'Sí. Validamos si tu laptop requiere teclado español latino con Ñ, distribución US, retroiluminado o algún molde especial antes de cotizar la pieza.' },
-          { question: '¿Qué pasa si mi teclado se mojó?', answer: 'Si cayó agua, café, refresco o humedad, primero revisamos teclado, flex, conector y placa. No recomendamos instalar un teclado nuevo sin revisar corrosión, porque la falla puede regresar.' },
-          { question: '¿Mi laptop necesita teclado nuevo o puede ser flex?', answer: 'Por eso hacemos diagnóstico. Algunas fallas vienen del flex, conector flojo, humedad, BIOS o placa, no necesariamente del teclado físico.' },
-          { question: '¿El teclado retroiluminado queda funcionando?', answer: 'Si tu modelo tiene backlit, buscamos una pieza compatible con el flex e iluminación correcta. Te confirmamos disponibilidad antes de pedirla.' },
-          { question: '¿Cambian teclado de MacBook?', answer: 'Sí, revisamos MacBook Pro y MacBook Air según generación, distribución, top case y compatibilidad de pieza. La cotización depende del modelo exacto.' },
-          { question: '¿Dan garantía por el cambio de teclado?', answer: 'Sí. El cambio de teclado incluye garantía por escrito sobre la pieza instalada y la mano de obra correspondiente, siempre que no exista daño por líquido posterior, golpes o manipulación externa.' },
-          { question: '¿Cómo sé qué teclado necesita mi laptop?', answer: 'Puedes enviarnos por WhatsApp una foto de la etiqueta inferior, modelo exacto o número de serie. Con eso revisamos compatibilidad, distribución y disponibilidad.' },
+          { question: `¿Cuánto cuesta cambiar el teclado de una laptop en Cancún?`, answer: `El cambio inicia desde <strong>$1,550 MXN</strong>, pero el precio final depende del modelo, distribución, retroiluminación, si viene integrado al palmrest y disponibilidad. Antes de cotizar revisamos número de parte, flex, conector y señales de líquido.` },
+          { question: `¿Cuánto tarda el cambio de teclado de laptop?`, answer: `Si el teclado está disponible, normalmente toma de <strong>24 a 72 horas</strong>. En modelos especiales, MacBook o equipos con palmrest integrado, el tiempo puede cambiar porque primero confirmamos pieza, compatibilidad y forma de instalación.` },
+          { question: `¿Se puede cambiar solo una tecla?`, answer: `Depende del modelo y del daño. A veces se puede revisar mecanismo o tecla suelta, pero si la matriz está dañada, hay líquido o varias teclas fallan, suele convenir reemplazar el teclado completo para que no regrese la falla.` },
+          { question: `¿Tienen teclado español latino con Ñ o teclado US?`, answer: `Sí. Validamos si tu laptop requiere español latino con Ñ, distribución US, backlit o molde especial. También revisamos número de parte y flex para evitar instalar un teclado que no coincida con símbolos, tamaño o retroiluminación.` },
+          { question: `¿Mi laptop necesita teclado nuevo o puede ser flex?`, answer: `Lo confirmamos con diagnóstico. Algunas fallas vienen de flex, conector flojo, humedad, BIOS, idioma del sistema o placa. Primero probamos zonas del teclado y conexión interna; si no requiere pieza nueva, te lo decimos.` },
+          { question: `¿Cambian teclado de MacBook?`, answer: `Sí, revisamos MacBook Pro y MacBook Air según generación, distribución, top case y compatibilidad. En algunos modelos no se cambia solo el teclado; puede requerir top case completo o desmontaje más delicado, por eso confirmamos modelo exacto antes.` },
         ],
         relatedSlugs: ['cambio-pantalla', 'diagnostico', 'pasta-termica', 'cambio-bateria'],
         relatedExternal: [
@@ -261,11 +257,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Cambio de batería (extendida) ──────────────────────────────────
+      // --- Cambio de batería (extendida) ----------------------------------
       {
         slug: 'cambio-bateria',
         label: 'Cambio de batería',
-        // ⚠️ customUrl REQUERIDO: la página dedicada está en
+        // PRECAUCION customUrl REQUERIDO: la página dedicada está en
         //   src/pages/servicios/laptop/cambio-bateria.astro
         //   (importa CambioBateriaView con diseño premium).
         //   Sin este customUrl, [servicio].astro genera un conflicto de ruta
@@ -307,16 +303,16 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         commonProblems: [
           { problem: 'Laptop dura menos de 1 hora',           solution: 'Batería con desgaste >30%. Cambio recupera autonomía original.' },
           { problem: 'No carga aunque conectada',             solution: 'Puede ser batería, cargador o flex de carga. Diagnóstico gratis lo define.' },
-          { problem: 'Batería inflamada o hinchada',          solution: 'PELIGROSO. Apaga la laptop y tráela de inmediato — riesgo de daño a placa.' },
+          { problem: 'Batería inflamada o hinchada',          solution: 'PELIGROSO. Apaga la laptop y tráela de inmediato  -  riesgo de daño a placa.' },
           { problem: 'Windows reporta "considere reemplazar"',solution: 'El sistema detectó desgaste >50%. Es buen momento para cambiar.' },
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro', 'MacBook Air', 'Toshiba', 'Samsung'],
         faqs: [
-          { question: '¿Cuánto cuesta cambiar la batería de mi laptop?',         answer: 'Entre <strong>$950 y $2,800 MXN</strong> dependiendo del modelo. Las MacBook y modelos premium cuestan más por la pieza.' },
-          { question: '¿Cuánto dura una batería nueva?',                          answer: 'Con uso normal, <strong>3-5 años</strong> manteniendo más del 80% de capacidad. Calibrar y no descargar al 0% siempre alarga la vida.' },
-          { question: '¿La batería nueva es original?',                            answer: 'Te damos a elegir: original del fabricante (más caro, capacidad idéntica) o equivalente certificada (capacidad igual o mayor, garantía 6 meses).' },
-          { question: '¿Puedo seguir usando mi laptop conectada mientras espero?',answer: 'Sí, pero la batería puede empeorar si está hinchada. <strong>Si está hinchada, NO la uses</strong> — es riesgo de daño a placa.' },
-          { question: '¿Reciclan mi batería vieja?',                               answer: 'Sí, sin costo. Es importante NO tirarla a la basura común — contamina y es peligrosa.' },
+          { question: `¿Cuánto cuesta cambiar la batería de mi laptop?`, answer: `Normalmente queda entre <strong>$950 y $2,800 MXN</strong>, dependiendo del modelo, capacidad, disponibilidad y si es una laptop premium o MacBook. Antes revisamos ciclos, desgaste, si está inflada y compatibilidad para no instalar una batería incorrecta.` },
+          { question: `¿Cuánto dura una batería nueva?`, answer: `Una batería nueva suele durar <strong>3 a 5 años</strong> con uso normal. El calor de Cancún, descargas al 0% y temperaturas altas reducen su vida útil, por eso también revisamos ventilación interna si la laptop se calienta mucho.` },
+          { question: `¿La batería nueva es original?`, answer: `Te explicamos si existe opción original del fabricante o equivalente certificada. Revisamos voltaje, conector, forma física y protección interna antes de instalar, porque una batería incorrecta puede dañar placa, carcasa o sistema de carga.` },
+          { question: `¿Puedo seguir usando mi laptop conectada mientras espero?`, answer: `Puedes usarla conectada si solo dura poco, pero no si está inflada, se calienta demasiado o levanta touchpad/carcasa. En esos casos conviene apagarla y traerla al taller para evitar daño en placa, flex o teclado.` },
+          { question: `?Reciclan mi batería vieja?`, answer: `Sí, retiramos la batería vieja y la manejamos como residuo especial sin costo adicional. No conviene tirarla a la basura común porque puede contaminar, calentarse o inflarse más con el tiempo.` },
         ],
         relatedSlugs: ['cambio-pantalla', 'cambio-teclado', 'pasta-termica', 'diagnostico'],
         relatedExternal: [
@@ -328,7 +324,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       { slug: 'reparacion-bisagras',  label: 'Reparación Bisagras',     customUrl: '/reparacion-bisagras', intro: 'Sustitución de bisagras flojas o rotas y refuerzo de carcasa agrietada.', bullets: ['Bisagras nuevas + tornillería', 'Reforzado de chasis', 'Prueba 100 ciclos apertura/cierre', 'Garantía 6 meses'], fromPrice: '$650 MXN', eta: '2-5 días' },
       { slug: 'mantenimiento-interno',label: 'Mantenimiento Preventivo',customUrl: '/paquetes' },
 
-      // ─── Cambio de pasta térmica (extendida) ────────────────────────────
+      // --- Cambio de pasta térmica (extendida) ----------------------------
       {
         slug: 'pasta-termica',
         label: 'Cambio de pasta térmica',
@@ -373,11 +369,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro', 'MacBook Air', 'Razer', 'Alienware', 'Gigabyte'],
         faqs: [
-          { question: '¿Cada cuánto debo cambiar la pasta térmica?',  answer: 'En climas calientes como Cancún recomendamos <strong>cada 18-24 meses</strong>. Si usas la laptop para gaming o video, mejor cada 12-18 meses.' },
-          { question: '¿Qué pasta usan?',                              answer: 'Por defecto Arctic MX-4 (premium, dura 8 años). Si quieres metal líquido (top performance), se cotiza aparte porque es delicado de aplicar.' },
-          { question: '¿Cuánto bajan las temperaturas?',                answer: 'Depende del estado inicial. Promedio: <strong>15-25°C menos en CPU</strong> bajo carga. En MacBooks Intel suele bajar 30°C.' },
-          { question: '¿Es seguro abrir mi laptop para esto?',          answer: 'Sí, lo hacemos cientos al año. Usamos antiestáticas, herramientas correctas y conocemos los puntos críticos de cada modelo.' },
-          { question: '¿Vale la pena en una laptop vieja?',             answer: 'Sí, es el upgrade con mejor relación costo-beneficio. Por $550 MXN extiendes vida útil 2-3 años más.' },
+          { question: `¿Cada cuánto debo cambiar la pasta térmica?`, answer: `En Cancún recomendamos cada <strong>18 a 24 meses</strong> por calor, humedad y polvo. Si usas la laptop para gaming, edición o render, puede convenir cada 12 a 18 meses. También revisamos ventilador y disipador.` },
+          { question: `¿Qué pasta usan?`, answer: `Usamos pasta térmica premium tipo Arctic MX-4 o equivalente confiable según disponibilidad y equipo. Si el modelo requiere metal líquido o compuesto especial, lo cotizamos aparte porque exige aislamiento y aplicación precisa para no poner en riesgo la placa.` },
+          { question: `¿Cuánto bajan las temperaturas?`, answer: `Depende del estado inicial, polvo y diseño del disipador. En equipos saturados es común ver mejoras de <strong>15 a 25°C</strong> bajo carga, pero lo validamos con prueba térmica antes y después. Si el problema es ventilador, te lo indicamos.` },
+          { question: `¿Es seguro abrir mi laptop para esto?`, answer: `Sí, siempre que se use herramienta correcta y cuidado antiestático. Revisamos tornillería, flex, disipador y conectores para evitar daños. Si la carcasa está frágil o hay bisagras dañadas, te avisamos antes de forzar el desarmado.` },
+          { question: `¿Vale la pena en una laptop vieja?`, answer: `Sí puede valer la pena si aún cumple tus necesidades. Bajar temperatura ayuda a evitar apagados, ruido y pérdida de rendimiento. También te decimos si conviene combinarlo con SSD, RAM o si el costo ya no justifica la inversión.` },
         ],
         relatedSlugs: ['cambio-bateria', 'upgrade', 'diagnostico'],
         relatedExternal: [
@@ -387,17 +383,17 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Upgrade SSD / RAM (extendida) ──────────────────────────────────
+      // --- Upgrade SSD / RAM (extendida) ----------------------------------
       {
         slug: 'upgrade',
         label: 'Upgrade SSD / RAM',
-        // ⚠️ customUrl REQUERIDO: la página dedicada está en
+        // PRECAUCION customUrl REQUERIDO: la página dedicada está en
         //   src/pages/servicios/laptop/upgrade.astro
         //   (diseño premium con planes de upgrade y galeria).
         //   Sin este customUrl, [servicio].astro genera un conflicto de ruta.
         customUrl: '/servicios/laptop/upgrade',
         seoKeyword: 'Upgrade de SSD y RAM para laptop en Cancún',
-        hook: 'Tu laptop puede ser hasta 5x más rápida. Migración a SSD NVMe + ampliación de RAM con clonado de tu Windows actual — sin perder NADA.',
+        hook: 'Tu laptop puede ser hasta 5x más rápida. Migración a SSD NVMe + ampliación de RAM con clonado de tu Windows actual  -  sin perder NADA.',
         intro: 'Migración a SSD NVMe/SATA y/o ampliación de memoria RAM. Tu equipo arranca en segundos y multiplica su rendimiento.',
         bullets: ['Clonado de Windows sin reinstalar nada', 'SSD desde 240 GB hasta 2 TB', 'Hasta 64 GB RAM según modelo', 'Backup completo antes de tocar nada', 'Asesoría: te decimos qué upgrade vale más la pena'],
         fromPrice: '$800 MXN + pieza', eta: '24-48 h', warranty: 'SSD: 3 años fabricante | RAM: 5 años fabricante',
@@ -428,12 +424,12 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro (Intel)', 'Toshiba', 'Samsung'],
         faqs: [
-          { question: '¿SSD o más RAM, qué da más mejora?',                            answer: 'En equipos sin SSD, el SSD da el salto más grande (5x velocidad). En equipos con SSD pero <8 GB RAM, ampliar RAM es el siguiente. <strong>Te asesoramos sin compromiso.</strong>' },
-          { question: '¿Qué SSD recomiendan?',                                         answer: 'Para uso normal: <strong>Kingston NV2 o Crucial P3 NVMe</strong> (excelente precio/rendimiento). Para gaming/profesional: <strong>Samsung 980 Pro o Crucial T500</strong>.' },
-          { question: '¿Pierdo mis programas y archivos?',                              answer: 'NO. Clonamos tu sistema actual al SSD nuevo. Conservas <strong>todo</strong> exactamente igual: Windows, programas, archivos, configuraciones.' },
-          { question: '¿Cuánta RAM máxima soporta mi laptop?',                          answer: 'Depende del modelo y del chipset. La verificamos en el diagnóstico. La mayoría soporta 16 o 32 GB; modelos premium hasta 64 GB.' },
-          { question: '¿Pueden migrar mi MacBook a SSD?',                                answer: 'Sí, MacBooks Intel (hasta 2018-2019) son fácilmente actualizables. <strong>Apple Silicon (M1/M2/M3) tiene SSD soldado</strong> y no es upgradeable.' },
-          { question: '¿Cuánto cuesta el upgrade completo?',                              answer: 'Mano de obra: $800 MXN. Piezas separadas: SSD 480 GB ~$700-900, SSD 1 TB ~$1,400-1,800, RAM 16 GB ~$900-1,300. Te lo cotizamos exacto.' },
+          { question: `¿SSD o más RAM, qué da más mejora?`, answer: `Si el equipo usa disco duro mecánico, el SSD suele dar la mejora más visible: arranque, programas y respuesta general. Si ya tiene SSD pero se satura con varias pestañas o programas, la RAM puede ser el siguiente cuello de botella.` },
+          { question: `¿Qué SSD recomiendan?`, answer: `Recomendamos SSD según compatibilidad y uso: SATA para equipos limitados, NVMe para modelos compatibles y opciones de mayor rendimiento para gaming o trabajo pesado. Validamos formato, generación, capacidad, temperatura y presupuesto antes de comprar.` },
+          { question: `¿Pierdo mis programas y archivos?`, answer: `No, si el disco actual está sano podemos clonar Windows, programas, archivos y configuración al SSD nuevo. Antes hacemos respaldo y revisamos estado SMART del disco; si está dañado, puede convenir instalación limpia o recuperación.` },
+          { question: `¿Cuánta RAM máxima soporta mi laptop?`, answer: `Depende del modelo, chipset, procesador y ranuras disponibles. Revisamos ficha técnica, módulos instalados y límite real de la placa. También confirmamos tipo de RAM y frecuencia para evitar inestabilidad o memoria no reconocida.` },
+          { question: `¿Pueden migrar mi MacBook a SSD?`, answer: `Sí en MacBook Intel compatibles donde el SSD no está soldado. En Apple Silicon M1, M2 o M3 el almacenamiento viene integrado a placa y no se amplía de forma convencional. Te confirmamos por modelo antes de prometer upgrade.` },
+          { question: `¿Cuánto cuesta el upgrade completo?`, answer: `La mano de obra inicia desde $800 MXN y las piezas se cotizan por separado según capacidad, marca y compatibilidad. Te damos opciones claras de SSD, RAM o ambos, explicando qué mejora notarás en tu uso real.` },
         ],
         relatedSlugs: ['cambio-bateria', 'pasta-termica', 'diagnostico'],
         relatedExternal: [
@@ -443,7 +439,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Diagnóstico (extendida) ────────────────────────────────────────
+      // --- Diagnóstico (extendida) ----------------------------------------
       {
         slug: 'diagnostico',
         label: 'Diagnóstico',
@@ -467,17 +463,17 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         commonProblems: [
           { problem: '"No sé qué tiene mi laptop"',           solution: 'Para eso es el diagnóstico. Te decimos exactamente qué falla.' },
-          { problem: 'Otro técnico me dijo X — quiero 2da opinión', solution: 'Te damos diagnóstico independiente sin presión de venta.' },
+          { problem: 'Otro técnico me dijo X  -  quiero 2da opinión', solution: 'Te damos diagnóstico independiente sin presión de venta.' },
           { problem: 'Antes de comprar laptop usada quiero saber estado', solution: 'Inspección de equipo previo a compra: $200 MXN, te ahorra meterte en problemas.' },
           { problem: 'Quiero saber si vale la pena arreglar o comprar nueva', solution: 'Diagnóstico + recomendación honesta. Si la reparación supera 50% del valor, te decimos.' },
         ],
         compatibleBrands: ['Cualquier marca', 'Cualquier modelo', 'Cualquier antigüedad'],
         faqs: [
-          { question: '¿Qué tan rápido me dan el diagnóstico?',          answer: 'Normalmente <strong>en 1-2 horas</strong>. Si tenemos cola, máximo 24 h. Te avisamos por WhatsApp en cuanto está.' },
-          { question: '¿Realmente es GRATIS?',                            answer: 'Sí, <strong>si autorizas la reparación con nosotros</strong>. Si decides no arreglar o llevarte el equipo a otro lado, cobramos $200-300 MXN por el tiempo invertido.' },
-          { question: '¿Qué incluye el reporte?',                          answer: 'Fallas detectadas (con fotos si es físico), causa probable, costo estimado de reparación, tiempo aproximado, y recomendación honesta sobre si vale la pena.' },
-          { question: '¿Y si descubren más fallas?',                       answer: 'Te avisamos antes de tocar nada. Tú decides qué reparar. <strong>Cero sorpresas en la cuenta final.</strong>' },
-          { question: '¿Hacen diagnóstico a domicilio?',                   answer: 'Sí en Cancún, con costo de visita ($300-500 según zona). Para diagnósticos profundos siempre recomendamos taller (mejores herramientas).' },
+          { question: `¿Qué tan rápido me dan el diagnóstico?`, answer: `Normalmente entregamos diagnóstico en <strong>1 a 2 horas</strong> si la falla es evidente y hay disponibilidad. Cuando requiere pruebas de disco, memoria, temperatura, pantalla o placa puede tomar hasta 24 horas. Te avisamos por WhatsApp con hallazgos, costo y recomendación antes de reparar.` },
+          { question: `¿El diagnóstico realmente es gratis?`, answer: `El diagnóstico se bonifica si autorizas la reparación con nosotros. Si decides no reparar o retirar el equipo, cobramos una cuota razonable por el tiempo técnico invertido. Así podemos hacer pruebas reales y darte una causa clara, no solo una opinión rápida.` },
+          { question: `¿Qué incluye el reporte técnico?`, answer: `Incluye fallas detectadas, causa probable, evidencia cuando aplica, costo estimado, tiempo de reparación y recomendación honesta. Si el equipo no conviene repararlo por costo, antigüedad o riesgo, también te lo decimos antes de que inviertas de más.` },
+          { question: `¿Qué pasa si descubren más fallas durante la revisión?`, answer: `Si aparece una falla adicional, detenemos el trabajo y te avisamos antes de cambiar piezas o aumentar costo. Tú decides qué se repara y qué se deja pendiente. No cerramos el equipo ni cobramos extras sin autorización previa.` },
+          { question: `¿Hacen diagnóstico a domicilio en Cancún?`, answer: `Podemos hacer revisión a domicilio con costo de visita, pero los diagnósticos profundos conviene hacerlos en taller. Ahí tenemos multímetro, piezas de prueba, herramientas antiestáticas y condiciones para abrir el equipo sin riesgo.` },
         ],
         relatedSlugs: ['cambio-pantalla', 'cambio-teclado', 'cambio-bateria', 'pasta-termica', 'upgrade'],
         relatedExternal: [
@@ -503,7 +499,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       { slug: 'ensambles',               label: 'Ensambles PC Gamer',      customUrl: '/ensambles' },
       { slug: 'mantenimiento-preventivo',label: 'Mantenimiento Preventivo',customUrl: '/paquetes' },
 
-      // ─── Mantenimiento correctivo (extendida) ─────────────────────────
+      // --- Mantenimiento correctivo (extendida) -------------------------
       {
         slug: 'mantenimiento-correctivo',
         label: 'Mantenimiento correctivo',
@@ -529,14 +525,14 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
           { problem: 'PC no enciende (sin LED, sin beep)',         solution: 'Diagnóstico de fuente y placa base. Reparación o reemplazo según resultado.' },
           { problem: 'Pantalla azul (BSOD) frecuente',             solution: 'Test de RAM con memtest86 + revisión SMART del disco. Identificamos causa exacta.' },
           { problem: 'Reinicios aleatorios bajo carga',            solution: 'Suele ser fuente de poder degradada o sobrecalentamiento. Lo determinamos.' },
-          { problem: 'Ruidos del disco o ventilador',              solution: 'Disco mecánico próximo a fallar — migrar a SSD ya. Ventiladores se cambian.' },
+          { problem: 'Ruidos del disco o ventilador',              solution: 'Disco mecánico próximo a fallar  -  migrar a SSD ya. Ventiladores se cambian.' },
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Acer', 'Asus', 'PCs ensambladas', 'Workstations', 'Servidores pequeños'],
         faqs: [
-          { question: '¿Cuánto cuesta una reparación correctiva?',  answer: 'Mano de obra desde <strong>$650 MXN</strong>. Las piezas se cotizan por separado tras diagnóstico. Cero sorpresas en la factura.' },
-          { question: '¿Y si el costo de la reparación es muy alto?',answer: 'Te avisamos antes de tocar nada. Si la reparación supera el 50% del valor de la PC, te recomendamos opciones.' },
-          { question: '¿Cuánto tarda?',                              answer: 'De <strong>24 a 72 horas</strong> según pieza. Si requerimos importar componente, hasta 7 días.' },
-          { question: '¿Qué cubre la garantía?',                     answer: 'La pieza reemplazada y nuestra mano de obra por 30 días. No cubre fallas en componentes que NO reemplazamos.' },
+          { question: `¿Cuánto cuesta una reparación correctiva?`, answer: `La mano de obra inicia desde <strong>$650 MXN</strong>, pero el costo final depende de la falla y piezas necesarias. Primero diagnosticamos fuente, RAM, disco, GPU, placa y temperatura; después te enviamos cotización clara para autorizar.` },
+          { question: `¿Y si el costo de la reparación es muy alto?`, answer: `Si el costo se acerca demasiado al valor real de la PC, te lo decimos antes de avanzar. A veces conviene cambiar solo una pieza, hacer upgrade o considerar otro equipo. La recomendación depende de edad, uso y disponibilidad de refacciones.` },
+          { question: `¿Cuánto tarda una reparación correctiva?`, answer: `Suele tomar de <strong>24 a 72 horas</strong> si la pieza está disponible. Si hay que pedir componente, probar estabilidad o revisar fallas intermitentes, puede tomar más. Te damos tiempo estimado después del diagnóstico.` },
+          { question: `¿Qué cubre la garantía?`, answer: `La garantía cubre la pieza reemplazada y la mano de obra relacionada con esa reparación durante el periodo indicado. No cubre componentes distintos que ya venían dañados, variaciones eléctricas, humedad, golpes o modificaciones externas posteriores.` },
         ],
         relatedSlugs: ['formateo', 'limpieza-profunda', 'upgrade', 'diagnostico'],
         relatedExternal: [
@@ -545,7 +541,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Formateo (extendida) ────────────────────────────────────────
+      // --- Formateo (extendida) ----------------------------------------
       {
         slug: 'formateo',
         label: 'Formateo',
@@ -576,11 +572,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Acer', 'Asus', 'PCs ensambladas', 'PCs gamer', 'Mini PCs'],
         faqs: [
-          { question: '¿Pierdo mis archivos?',                     answer: 'NO. <strong>Hacemos backup completo antes</strong> y los restauramos al final. Cero pérdida si autorizas el respaldo.' },
-          { question: '¿Cuánto tarda?',                            answer: '<strong>2 a 4 horas</strong> en la mayoría de casos. Mismo día para SSD; HDD puede tardar 6h.' },
-          { question: '¿Qué versión de Windows instalan?',         answer: 'Windows 10 LTSC (estable) o Windows 11 si tu equipo cumple TPM 2.0 + Secure Boot. Te asesoramos.' },
-          { question: '¿La licencia es legal?',                    answer: 'Sí. Si ya tenías licencia digital, se reactiva automáticamente. Si no, podemos cotizar OEM legal con factura.' },
-          { question: '¿Incluye paquetería de Office?',            answer: 'LibreOffice gratis incluido. Si quieres Microsoft Office original, lo cotizamos por separado.' },
+          { question: `¿Pierdo mis archivos al formatear?`, answer: `No necesariamente. Antes de formatear respaldamos documentos, escritorio, descargas, fotos y carpetas importantes que nos indiques. Si el disco está dañado o Windows no permite acceso normal, primero te avisamos porque puede requerirse recuperación.` },
+          { question: `¿Cuánto tarda el formateo de una PC?`, answer: `Normalmente tarda de <strong>2 a 4 horas</strong> en equipos con SSD y respaldo ligero. Si usa disco mecánico, tiene muchos archivos, requiere actualizaciones largas o drivers especiales, puede tomar más. Te damos tiempo real al revisar el equipo.` },
+          { question: `¿Qué versión de Windows instalan?`, answer: `Instalamos Windows 10 o Windows 11 según compatibilidad, requisitos de seguridad y uso que le darás. No forzamos Windows 11 en equipos que trabajarán peor; si conviene Windows 10 por estabilidad o rendimiento, te lo explicamos.` },
+          { question: `¿La licencia es legal?`, answer: `Sí. Si tu equipo ya tiene licencia digital, normalmente se reactiva al conectarse a internet. Si no cuenta con licencia válida, te orientamos para adquirir una opción legal; evitamos activadores dudosos que causen alertas.` },
+          { question: `?Incluye paquetería de Office?`, answer: `Incluimos paquetería básica como navegador, lector PDF, compresor y alternativa tipo LibreOffice si la necesitas. Microsoft Office original se instala solo si cuentas con licencia o autorizas cotizarla, para evitar software pirata.` },
         ],
         relatedSlugs: ['mantenimiento-correctivo', 'limpieza-profunda', 'upgrade', 'diagnostico'],
         relatedExternal: [
@@ -591,12 +587,12 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
 
       { slug: 'instalacion-sistema',     label: 'Instalación de Windows',  customUrl: '/instalacion-windows' },
 
-      // ─── Upgrade RAM/SSD PC (extendida) ──────────────────────────────
+      // --- Upgrade RAM/SSD PC (extendida) ------------------------------
       {
         slug: 'upgrade',
         label: 'Upgrade RAM / SSD',
         seoKeyword: 'Upgrade de RAM y SSD para PC en Cancún',
-        hook: 'Mejoramos tu PC sin cambiarla. Más RAM, SSD NVMe, o tarjeta gráfica nueva — con clonado de tu Windows actual y benchmark antes/después.',
+        hook: 'Mejoramos tu PC sin cambiarla. Más RAM, SSD NVMe, o tarjeta gráfica nueva  -  con clonado de tu Windows actual y benchmark antes/después.',
         intro: 'Mejoramos tu PC sin cambiarla: más RAM, SSD NVMe o tarjeta gráfica nueva. Asesoría experta para no gastar de más.',
         bullets: ['Análisis de cuello de botella real', 'Recomendación con cotización transparente', 'Instalación + pruebas + benchmark', 'Clonado de Windows sin reinstalar', 'Garantía del fabricante en cada pieza'],
         fromPrice: '$300 MXN + pieza', eta: '24-48 h', warranty: 'Pieza: garantía fabricante (1-3 años) | Mano de obra: 30 días',
@@ -621,11 +617,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Acer', 'Asus', 'PCs ensambladas', 'Workstations', 'Mini PCs'],
         faqs: [
-          { question: '¿SSD o más RAM, qué da más mejora?',        answer: 'Sin SSD, el SSD da el salto más grande (5x velocidad). Si ya tienes SSD pero <8 GB RAM, ampliar RAM es lo siguiente.' },
-          { question: '¿Pierdo mis programas?',                     answer: 'NO. Clonamos tu sistema actual. Conservas <strong>todo</strong> exactamente igual.' },
-          { question: '¿Qué SSD recomiendan?',                       answer: 'Para uso normal: <strong>Kingston NV2 o Crucial P3 NVMe</strong>. Para gaming: <strong>Samsung 980 Pro</strong>.' },
-          { question: '¿Cuánta RAM máxima soporta mi PC?',           answer: 'Depende del chipset. La verificamos en el diagnóstico. La mayoría soporta 32 o 64 GB.' },
-          { question: '¿Pueden poner GPU nueva?',                    answer: 'Sí. Verificamos compatibilidad de fuente, espacio y ranura PCIe antes de cotizar.' },
+          { question: `¿SSD o más RAM, qué da más mejora?`, answer: `Si tu PC usa disco duro mecánico, el SSD casi siempre da la mejora más grande. Si ya tiene SSD pero trabaja con muchas pestañas, juegos o programas pesados, la RAM puede ser prioridad. Revisamos uso real antes de recomendar.` },
+          { question: `¿Pierdo mis programas?`, answer: `No, cuando el disco está sano podemos clonar el sistema actual para conservar programas, archivos, sesiones y configuración. Si detectamos errores en el disco o Windows está muy dañado, te explicamos si conviene clonación o instalación limpia.` },
+          { question: `¿Qué SSD recomiendan?`, answer: `Recomendamos el SSD según tu placa, presupuesto y uso. Para oficina puede bastar un SATA o NVMe confiable; para gaming, edición o cargas pesadas conviene uno con mejor rendimiento sostenido. Validamos compatibilidad antes de comprar.` },
+          { question: `¿Cuánta RAM máxima soporta mi PC?`, answer: `Depende del chipset, procesador, placa madre y ranuras disponibles. Revisamos modelo exacto, tipo de memoria, frecuencia y capacidad máxima estable. No instalamos RAM al azar porque puede provocar reinicios o memoria no detectada.` },
+          { question: `¿Pueden poner GPU nueva?`, answer: `Sí, pero antes revisamos fuente de poder, espacio del gabinete, ranura PCIe, consumo, cuello de botella y ventilación. Una GPU nueva sin fuente adecuada o sin flujo de aire puede causar apagados o bajo rendimiento.` },
         ],
         relatedSlugs: ['formateo', 'mantenimiento-correctivo', 'limpieza-profunda', 'diagnostico'],
         relatedExternal: [
@@ -634,7 +630,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Limpieza profunda PC (extendida) ─────────────────────────────
+      // --- Limpieza profunda PC (extendida) -----------------------------
       {
         slug: 'limpieza-profunda',
         label: 'Limpieza profunda',
@@ -661,15 +657,15 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
           { problem: 'PC quema y los ventiladores rugen',        solution: 'Polvo + pasta seca. Limpieza profunda baja 20-30°C inmediatamente.' },
           { problem: 'Apagados aleatorios bajo carga',            solution: 'Throttling térmico por temperatura. Limpieza lo soluciona.' },
           { problem: 'PC con años sin servicio',                  solution: 'Acumulación crítica de polvo. Necesita limpieza profunda urgente.' },
-          { problem: 'Olor extraño o quemado al encender',        solution: 'PARA YA. Tráela de inmediato — riesgo de daño a fuente o placa.' },
+          { problem: 'Olor extraño o quemado al encender',        solution: 'PARA YA. Tráela de inmediato  -  riesgo de daño a fuente o placa.' },
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Acer', 'Asus', 'PCs ensambladas', 'PCs gamer', 'Workstations'],
         faqs: [
-          { question: '¿Cada cuánto necesito una limpieza profunda?',  answer: 'En Cancún (humedad + polvo) recomendamos <strong>cada 12-18 meses</strong>. Si tu PC está cerca de ventana o nunca se ha limpiado, urge.' },
-          { question: '¿Cuánto cuesta?',                                answer: 'Desde <strong>$600 MXN</strong>. Si requiere limpieza ultrasónica de placa por sulfatación, se cotiza extra ($300-500).' },
-          { question: '¿Qué tanto bajan las temperaturas?',              answer: 'En PCs muy sucias: <strong>20-30°C menos</strong>. En PCs con polvo moderado: 10-15°C. Reporte real al final.' },
-          { question: '¿Es seguro abrir mi PC?',                         answer: 'Sí. Antiestática, herramientas correctas, fotos del cableado. Lo hacemos cientos de veces al año.' },
-          { question: '¿Vale la pena en una PC vieja?',                   answer: 'Mucho. Por $600 MXN extiendes vida útil 2-3 años más y la temperatura vuelve a normal.' },
+          { question: `¿Cada cuánto necesito una limpieza profunda?`, answer: `En Cancún recomendamos cada <strong>12 a 18 meses</strong> por polvo, humedad y salitre. Si la PC está cerca de ventana, piso, mascotas o nunca se ha abierto, puede necesitarse antes para evitar temperaturas altas y ruido.` },
+          { question: `¿Cuánto cuesta la limpieza profunda?`, answer: `La limpieza profunda inicia desde <strong>$600 MXN</strong>. Puede cambiar si requiere desmontaje complejo, pasta térmica especial, limpieza de fuente o tratamiento por sulfatación. Antes de hacer extras te mostramos el estado interno y cotizamos.` },
+          { question: `¿Qué tanto bajan las temperaturas?`, answer: `En PCs muy sucias puede bajar de <strong>20 a 30°C</strong>; en casos moderados suele mejorar de 10 a 15°C. La cifra real depende de polvo, pasta térmica, flujo de aire y ventiladores, por eso comparamos antes/después.` },
+          { question: `¿Es seguro abrir mi PC?`, answer: `Sí, se hace con pulsera antiestática, herramientas correctas y registro del cableado antes de desmontar. Revisamos conectores, ventiladores y tornillería para no forzar piezas. Si vemos humedad u óxido, te avisamos.` },
+          { question: `¿Vale la pena en una PC vieja?`, answer: `Sí vale la pena si el equipo aún cumple su función. Una limpieza puede reducir calor, ruido y apagados, además de alargar la vida de fuente, placa y GPU. Si conviene más un upgrade, te lo diremos.` },
         ],
         relatedSlugs: ['formateo', 'mantenimiento-correctivo', 'upgrade', 'diagnostico'],
         relatedExternal: [
@@ -678,7 +674,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Diagnóstico PC (extendida) ──────────────────────────────────
+      // --- Diagnóstico PC (extendida) ----------------------------------
       {
         slug: 'diagnostico',
         label: 'Diagnóstico',
@@ -702,16 +698,16 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         commonProblems: [
           { problem: '"No sé qué tiene mi PC"',                solution: 'Para eso es el diagnóstico. Te decimos exactamente qué falla.' },
-          { problem: 'Otro técnico me dijo X — quiero 2da opinión', solution: 'Te damos diagnóstico independiente sin presión de venta.' },
-          { problem: 'Voy a comprar una PC usada — quiero saber estado', solution: 'Inspección pre-compra: $200 MXN, te ahorra meterte en problemas.' },
+          { problem: 'Otro técnico me dijo X  -  quiero 2da opinión', solution: 'Te damos diagnóstico independiente sin presión de venta.' },
+          { problem: 'Voy a comprar una PC usada  -  quiero saber estado', solution: 'Inspección pre-compra: $200 MXN, te ahorra meterte en problemas.' },
           { problem: 'Conviene reparar o comprar nueva?',       solution: 'Diagnóstico + recomendación honesta. Si supera 50% del valor, te decimos.' },
         ],
         compatibleBrands: ['Cualquier marca', 'Cualquier modelo', 'Cualquier antigüedad'],
         faqs: [
-          { question: '¿Qué tan rápido me dan el diagnóstico?',        answer: 'Normalmente <strong>1-2 horas</strong>. Si tenemos cola, máximo 24 h. Te avisamos por WhatsApp en cuanto está.' },
-          { question: '¿Es realmente GRATIS?',                          answer: 'Sí, si autorizas la reparación con nosotros. Si decides no arreglar o llevarte el equipo, cobramos $200-300 por el tiempo invertido.' },
-          { question: '¿Qué incluye el reporte?',                       answer: 'Fallas detectadas (con fotos si es físico), causa probable, costo estimado, tiempo aproximado, y recomendación honesta sobre si vale la pena.' },
-          { question: '¿Hacen diagnóstico a domicilio?',                answer: 'Sí en Cancún, con costo de visita ($300-500 según zona). Para diagnósticos profundos siempre recomendamos taller.' },
+          { question: `¿Qué tan rápido me dan el diagnóstico?`, answer: `Normalmente entregamos diagnóstico en <strong>1 a 2 horas</strong> si la falla es clara. Si hay que probar fuente, RAM, disco, GPU o temperaturas bajo carga, puede tomar hasta 24 horas. Te avisamos por WhatsApp.` },
+          { question: `¿Es realmente gratis?`, answer: `Sí, se bonifica si autorizas la reparación con nosotros. Si decides no reparar, cobramos una cuota de revisión por el tiempo técnico invertido. Esto permite hacer pruebas reales y no solo una opinión rápida.` },
+          { question: `¿Qué incluye el reporte?`, answer: `Incluye fallas detectadas, evidencia cuando aplica, causa probable, costo estimado, tiempo de reparación y recomendación honesta. Si la PC no conviene repararla por antigüedad, costo o disponibilidad de piezas, también te lo explicamos.` },
+          { question: `?Hacen diagnóstico a domicilio?`, answer: `Podemos hacer visita en Cancún con costo, pero para diagnóstico profundo recomendamos taller. Ah? podemos medir voltajes, probar piezas, revisar temperatura y abrir el equipo con seguridad. A domicilio resolvemos casos simples.` },
         ],
         relatedSlugs: ['mantenimiento-correctivo', 'formateo', 'upgrade', 'limpieza-profunda'],
         relatedExternal: [
@@ -736,7 +732,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       { slug: 'limpieza-consolas', label: 'Limpieza de Consolas',     customUrl: '/paquetes' },
       { slug: 'reparacion-controles',label: 'Reparación Controles',   customUrl: '/reparacion-controles' },
 
-      // ─── Limpieza interna consola (extendida) ────────────────────────
+      // --- Limpieza interna consola (extendida) ------------------------
       {
         slug: 'limpieza-interna',
         label: 'Limpieza interna',
@@ -781,20 +777,20 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['PlayStation 5', 'PS4 / Pro / Slim', 'Xbox Series X / S', 'Xbox One / X / S', 'Nintendo Switch', 'Switch OLED', 'Switch Lite'],
         faqs: [
-          { question: '¿Cada cuánto debo limpiar mi consola?',          answer: 'En Cancún (humedad + polvo) recomendamos <strong>cada 12-18 meses</strong>. Si juegas mucho o nunca se ha limpiado, urge.' },
-          { question: '¿Pierdo la garantía oficial?',                    answer: 'Si tu consola está en garantía oficial, sí (al abrir). Pero si tu garantía ya venció, NO hay riesgo — la consola es tuya.' },
-          { question: '¿Qué tanto baja el ruido?',                       answer: 'En consolas muy sucias el ruido baja al 30-40%. Vuelves a escuchar el juego sin auriculares.' },
-          { question: '¿Cuánto tarda?',                                  answer: '<strong>24-48 horas</strong>. Si requiere ventilador adicional, 3-5 días.' },
-          { question: '¿Es seguro abrir mi PS5/Xbox?',                   answer: 'Sí. Tenemos las herramientas correctas (TR8, T9, etc.) y conocemos cada modelo. Cero daños a sellos críticos.' },
+          { question: `¿Cada cuánto debo limpiar mi consola?`, answer: `En Cancún recomendamos limpieza cada <strong>12 a 18 meses</strong> por polvo, humedad y calor. Si juegas muchas horas, está cerca del piso, hay mascotas o el ventilador ya suena fuerte, conviene hacerlo antes para evitar apagados.` },
+          { question: `¿Pierdo la garantía oficial?`, answer: `Si la consola aún tiene garantía oficial vigente, abrirla puede afectarla. Si ya venci?, no hay problema por realizar mantenimiento profesional. Antes de abrir revisamos modelo, sellos y síntoma para que decidas con información.` },
+          { question: `¿Qué tanto baja el ruido?`, answer: `Cuando el ruido viene de polvo y temperatura, la limpieza puede reducirlo bastante porque el ventilador deja de trabajar al máximo. Si el ruido es mecánico, como zumbido o roce, puede requerir cambio de ventilador.` },
+          { question: `¿Cuánto tarda la limpieza de consola?`, answer: `El mantenimiento normalmente toma de <strong>24 a 48 horas</strong>. Si encontramos ventilador dañado, pasta térmica degradada, metal líquido mal distribuido o piezas por pedir, puede tomar más. Te avisamos antes.` },
+          { question: `¿Es seguro abrir mi PS5 o Xbox?`, answer: `Sí, usamos herramientas adecuadas para cada modelo y cuidamos flex, tornillos, clips y disipador. También revisamos humedad, polvo pegado o señales de sobrecalentamiento. No abrimos a la fuerza ni improvisamos.` },
         ],
         relatedSlugs: ['pasta-termica', 'ventilacion', 'fuente', 'diagnostico'],
         relatedExternal: [
-          { label: 'Reparación de Controles',   href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Joystick drift, gatillos, botones — lo arreglamos.' },
+          { label: 'Reparación de Controles',   href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Joystick drift, gatillos, botones  -  lo arreglamos.' },
           { label: 'Paquetes de mantenimiento', href: '/paquetes',             icon: 'fa-box',     desc: 'Servicio recurrente con descuento.' },
         ],
       },
 
-      // ─── Pasta térmica consola (extendida) ───────────────────────────
+      // --- Pasta térmica consola (extendida) ---------------------------
       {
         slug: 'pasta-termica',
         label: 'Cambio de pasta térmica',
@@ -824,11 +820,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['PlayStation 5', 'PS4 / Pro / Slim', 'Xbox Series X / S', 'Xbox One / X / S', 'Nintendo Switch', 'Switch OLED'],
         faqs: [
-          { question: '¿Vale la pena en mi consola?',                  answer: 'Si tiene <strong>+2 años o calienta mucho</strong>, MUCHO. Por $450 MXN evitas daño térmico permanente al APU.' },
-          { question: '¿Qué pasta usan?',                              answer: 'Por defecto Arctic MX-4 (premium, dura 8 años). Si quieres metal líquido, se cotiza aparte ($150-200 extra) por delicadeza.' },
-          { question: '¿Cuánto bajan las temperaturas?',                answer: '<strong>15-25°C en el APU bajo carga</strong>. Reporte real con HWMonitor antes y después.' },
-          { question: '¿Cuánto tarda?',                                answer: '<strong>24-48 horas</strong>. Tienes consola de vuelta el fin de semana.' },
-          { question: '¿Mi PS5 con sticker de garantía Sony?',         answer: 'Si la garantía oficial sigue activa, sí afecta. Si ya pasó (la mayoría) no hay impacto. Te asesoramos.' },
+          { question: `¿Vale la pena cambiar la pasta térmica de mi consola?`, answer: `Sí vale la pena si tiene más de 2 años, se calienta, hace mucho ruido o se apaga al jugar. Cambiar pasta y limpiar disipador ayuda a proteger el APU. Si el problema viene de ventilador o fuente, te lo indicamos.` },
+          { question: `¿Qué pasta usan?`, answer: `Usamos pasta premium tipo Arctic MX-4 o equivalente; en PS5 también revisamos si aplica metal líquido según modelo y estado. El metal líquido se cotiza aparte porque requiere aislamiento y manejo cuidadoso para evitar riesgo en placa.` },
+          { question: `¿Cuánto bajan las temperaturas?`, answer: `La mejora puede estar entre <strong>15 y 25°C</strong> bajo carga cuando la pasta está seca o el disipador está sucio. La cifra real depende del modelo y estado interno, por eso revisamos ventilación antes de prometer resultados.` },
+          { question: `¿Cuánto tarda el cambio de pasta en consola?`, answer: `El servicio normalmente toma de <strong>24 a 48 horas</strong>. Si requiere limpieza profunda adicional, revisión de ventilador, metal líquido o pruebas extendidas por apagados, puede tardar más. Te confirmamos al revisar la consola.` },
+          { question: `¿Mi PS5 con sticker de garantía Sony puede abrirse?`, answer: `Si tu PS5 aún conserva garantía oficial vigente, abrirla puede afectarla. Si ya venció, el mantenimiento profesional no debería representar problema. Te explicamos el riesgo antes de abrir para que decidas si conviene hacerlo.` },
         ],
         relatedSlugs: ['limpieza-interna', 'ventilacion', 'fuente', 'diagnostico'],
         relatedExternal: [
@@ -837,55 +833,53 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── HDMI consola (extendida) ─────────────────────────────────────
+      // --- HDMI consola (extendida) -------------------------------------
       {
         slug: 'hdmi',
         label: 'Reparación de HDMI',
         seoKeyword: 'Reparación de puerto HDMI de consolas en Cancún',
-        hook: '¿Tu PS5/Xbox no da imagen, parpadea o tiene puerto HDMI roto? Soldadura BGA profesional con puerto nuevo. La salvamos.',
-        intro: 'Puerto HDMI doblado, sin video o sin audio. Lo cambiamos a nivel de placa con técnica BGA profesional.',
-        bullets: ['Soldadura BGA profesional con horno reflow', 'Puerto HDMI nuevo OEM', 'Prueba 4K HDR + audio + variable refresh', 'Garantía 3 meses', 'Reparamos lo que otros descartan'],
-        fromPrice: '$1,200 MXN', eta: '3-7 días', warranty: '3 meses por escrito',
+        hook: 'Cambio de HDMI para PS5, PS4, Xbox y Nintendo Switch con diagnóstico técnico',
+        intro: '¿Tu consola enciende pero no da imagen, parpadea, no detecta señal o tiene el puerto HDMI roto? Revisamos el puerto, pines, soldadura, placa e IC de video antes de cotizar la reparación.',
+        bullets: ['Puerto HDMI doblado o roto', 'Consola enciende pero no da imagen', 'Imagen parpadea o se corta', 'Audio sin video', 'Pines dañados o flojos', 'Revisión de IC si aplica'],
+        fromPrice: 'Cotización según diagnóstico', eta: '3-7 días según daño', warranty: 'Garantía por escrito',
         whyUs: [
-          { icon: 'fa-microchip',     title: 'Soldadura BGA real',   desc: 'Horno reflow profesional, no pistolas de aire caseras.' },
-          { icon: 'fa-plug',          title: 'Puerto OEM nuevo',     desc: 'Mismo conector que el de fábrica. Cero compatibilidad rara.' },
-          { icon: 'fa-video',         title: 'Test 4K HDR',          desc: 'Probamos con Spider-Man o The Last of Us en 4K HDR.' },
-          { icon: 'fa-shield-halved', title: 'Donde otros rinden',   desc: 'Si te dijeron "no se puede", traela. La mayoría se reparan.' },
+          { icon: 'fa-magnifying-glass-chart', title: 'Diagnóstico antes de cambiar', desc: 'Revisamos puerto, pines, soldadura, placa y circuito de video antes de cotizar.' },
+          { icon: 'fa-plug-circle-bolt', title: 'Cambio de puerto HDMI', desc: 'Reemplazamos el conector cuando está quebrado, flojo, doblado o con pines dañados.' },
+          { icon: 'fa-tv', title: 'Prueba de video y audio', desc: 'Validamos señal, audio, resolución y estabilidad antes de entregar la consola.' },
+          { icon: 'fa-shield-halved', title: 'Garantía por escrito', desc: 'La garantía aplica sobre el trabajo realizado y se entrega con condiciones claras.' },
         ],
-        process: [
-          { title: 'Diagnóstico eléctrico', desc: 'Verificamos si el daño es solo puerto, o si afectó IC adyacente.' },
-          { title: 'Cotización',           desc: 'Si es solo puerto: cotización fija. Si afecta IC: te avisamos antes de continuar.' },
-          { title: 'Desoldado',            desc: 'Retiramos puerto dañado con estación de aire caliente y técnica BGA.' },
-          { title: 'Soldado nuevo',        desc: 'Aplicación de flux + posicionamiento + horneado a temperatura controlada.' },
-          { title: 'Test',                 desc: 'Encendido, 4K, HDR, audio, variable refresh. Garantía si pasa.' },
-        ],
+        process: [],
         commonProblems: [
-          { problem: 'PS5/Xbox sin imagen pero enciende',     solution: 'Puerto HDMI dañado. Reparación BGA recupera salida de video.' },
-          { problem: 'Imagen entrecortada o con líneas',      solution: 'Pines doblados o IC afectado. Lo determinamos al diagnóstico.' },
-          { problem: 'Pin del HDMI quebrado/doblado',         solution: 'Cambio de puerto completo. Cero opción a "enderezar".' },
-          { problem: 'Audio sí, video no',                    solution: 'Suele ser pin de video específico. Reparación posible.' },
+          { problem: 'PS5 o Xbox enciende pero no da imagen', solution: 'Si la consola prende, se escucha o prende el control, pero la pantalla no recibe señal, puede haber daño en el puerto HDMI o en la línea de video.' },
+          { problem: 'Imagen entrecortada, parpadeos o líneas', solution: 'Cuando la señal aparece y desaparece, revisamos pines doblados, soldadura floja, cable, configuración de resolución y posible daño en placa.' },
+          { problem: 'Puerto HDMI quebrado, flojo o doblado', solution: 'Si el conector está físico dañado, normalmente se reemplaza completo. No recomendamos enderezarlo porque puede volver a fallar o dañar la placa.' },
+          { problem: 'Hay audio pero no video', solution: 'Puede estar fallando una línea específica del HDMI, el conector, soldadura o circuito de video. Se confirma con diagnóstico técnico.' },
+          { problem: 'La consola no detecta la TV', solution: 'Revisamos puerto, cable, pantalla, configuración de salida de video y estado del conector antes de abrir la consola.' },
+          { problem: 'El HDMI se dañó por jalón o caída', solution: 'Un golpe o jalón puede levantar pistas o dañar soldadura. En ese caso se revisa si solo requiere puerto nuevo o reparación a nivel placa.' },
         ],
         compatibleBrands: ['PlayStation 5', 'PS5 Slim', 'PS4 / Pro', 'Xbox Series X / S', 'Xbox One / X / S', 'Nintendo Switch (dock)'],
         faqs: [
-          { question: '¿Cuánto cuesta reparar el HDMI?',           answer: 'Desde <strong>$1,200 MXN</strong> si es solo puerto. Si el daño afectó IC adyacentes, hasta $2,500.' },
-          { question: '¿Cuánto tarda la reparación?',              answer: '<strong>3 a 7 días</strong> dependiendo de stock del puerto OEM y complejidad.' },
-          { question: '¿Mi consola dice "señal débil" — es HDMI?', answer: 'Puede ser. También puede ser cable o TV. Diagnóstico gratis lo determina.' },
-          { question: '¿Vale la pena vs comprar nueva?',           answer: 'PS5 nueva: $12,000 MXN. Reparar HDMI: $1,200-2,500. <strong>Casi siempre vale la pena</strong>.' },
-          { question: '¿Qué garantía dan?',                        answer: '<strong>3 meses por escrito</strong>. Si el puerto reemplazado falla por defecto, lo cambiamos sin costo.' },
+          { question: `¿Cuánto cuesta reparar el puerto HDMI de una consola en Cancún?`, answer: `El costo depende del modelo de consola y del tipo de daño. No cuesta igual cambiar solo el puerto que reparar pistas, placa o IC de video. Primero diagnosticamos para darte cotización clara y evitar cambiar piezas innecesarias.` },
+          { question: `¿Cuánto tarda la reparación de HDMI?`, answer: `Normalmente toma de <strong>3 a 7 días</strong> según modelo, disponibilidad y nivel de daño. Si solo es puerto HDMI puede ser más rápido; si hay pistas levantadas o IC afectado, te avisamos antes de continuar.` },
+          { question: `¿Qué pasa si mi consola prende pero no da imagen?`, answer: `Puede ser puerto HDMI dañado, pines doblados, soldadura floja, cable, configuración de resolución o circuito de video. Revisamos señal, puerto y placa antes de cambiar piezas para evitar gastos innecesarios.` },
+          { question: `¿Se puede reparar un puerto HDMI doblado?`, answer: `Cuando el puerto está doblado o flojo, lo más seguro suele ser reemplazarlo completo. Enderezarlo rara vez queda confiable y puede levantar pistas o dañar más la placa. Primero revisamos si el daño llegó a soldadura o líneas de video.` },
+          { question: `¿Reparan HDMI de PS5 y Xbox Series?`, answer: `Sí, revisamos y reparamos HDMI en PS5, PS4, Xbox Series X, Series S y Xbox One. También revisamos Nintendo Switch cuando la falla se relaciona con salida de video, dock o señal.` },
+          { question: `¿La reparación tiene garantía?`, answer: `Sí, cuenta con garantía por escrito sobre el trabajo realizado. La garantía no aplica si el puerto vuelve a dañarse por golpe, jalón, humedad o manipulación externa, pero sí cubre la intervención realizada bajo condiciones normales.` },
         ],
-        relatedSlugs: ['fuente', 'ventilacion', 'diagnostico'],
+        relatedSlugs: ['fuente', 'ventilacion', 'diagnostico', 'limpieza-interna', 'pasta-termica'],
         relatedExternal: [
-          { label: 'Reparación de Controles', href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Si también tienes drift en el control.' },
+          { label: 'Reparación de controles', href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Si también tienes drift, botones fallando o problemas de conexión en el control.' },
+          { label: 'Mantenimiento de consola', href: '/paquetes', icon: 'fa-box', desc: 'Limpieza interna, revisión térmica y mantenimiento preventivo para consolas de alto uso.' },
         ],
       },
 
-      // ─── Fuente consola (extendida) ───────────────────────────────────
+      // --- Fuente consola (extendida) -----------------------------------
       {
         slug: 'fuente',
         label: 'Reparación de fuente',
         seoKeyword: 'Reparación de fuente de consolas en Cancún',
         hook: '¿Tu consola no enciende, beep de error o se reinicia sola? Suele ser la fuente. La reparamos a nivel componente.',
-        intro: 'Consola que no enciende, beep de error o reinicios aleatorios — fuente de poder dañada. Reparación a nivel de placa.',
+        intro: 'Consola que no enciende, beep de error o reinicios aleatorios  -  fuente de poder dañada. Reparación a nivel de placa.',
         bullets: ['Diagnóstico eléctrico con multímetro', 'Reparación o reemplazo de fuente OEM', 'Cambio de capacitores hinchados', 'Garantía 3 meses', 'Pruebas de carga 24h'],
         fromPrice: '$800 MXN', eta: '3-5 días', warranty: '3 meses por escrito',
         whyUs: [
@@ -909,10 +903,10 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['PlayStation 5', 'PS4 / Pro / Slim', 'Xbox Series X / S', 'Xbox One / X / S', 'Nintendo Switch (dock)'],
         faqs: [
-          { question: '¿Cuánto cuesta reparar la fuente?',           answer: 'De <strong>$800 a $2,500 MXN</strong> según si es solo capacitor (barato) o fuente completa.' },
-          { question: '¿Por qué se daña la fuente?',                  answer: 'Variaciones de voltaje (Cancún tiene picos), capacitores envejecidos, o líquido derramado.' },
-          { question: '¿Vale la pena vs comprar nueva?',              answer: 'PS5 nueva: $12,000. Reparar fuente: $800-2,500. <strong>Siempre vale la pena</strong> si el resto funciona.' },
-          { question: '¿Cuánto tarda?',                                answer: 'De 3 a 5 días incluyendo stress test 24h. No queremos entregarte algo que falle al día siguiente.' },
+          { question: `¿Cuánto cuesta reparar la fuente?`, answer: `La reparación de fuente suele ir de <strong>$800 a $2,500 MXN</strong>, dependiendo del modelo y daño. No cuesta igual cambiar capacitores que reemplazar una fuente completa. Primero medimos voltajes y carga para cotizar claro.` },
+          { question: `¿Por qué se daña la fuente?`, answer: `Puede dañarse por variaciones de voltaje, calor acumulado, capacitores envejecidos, humedad, salitre o derrames. En Cancún también influyen picos eléctricos y ambientes húmedos. Revisamos si el daño quedó en fuente o alcanzó placa.` },
+          { question: `¿Vale la pena reparar la fuente en vez de comprar consola nueva?`, answer: `Si el resto de la consola está en buen estado, casi siempre conviene reparar la fuente frente a comprar una nueva. Aun as?, revisamos placa, encendido y consumo antes de recomendarlo, porque no tiene sentido si existe daño mayor.` },
+          { question: `¿Cuánto tarda la reparación de fuente?`, answer: `Normalmente tarda de <strong>3 a 5 días</strong> porque hacemos diagnóstico eléctrico y pruebas de carga. No entregamos una fuente solo porque encienda; la dejamos trabajando bajo demanda para confirmar estabilidad al jugar.` },
         ],
         relatedSlugs: ['hdmi', 'limpieza-interna', 'ventilacion', 'diagnostico'],
         relatedExternal: [
@@ -920,15 +914,15 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Ventilación consola (extendida) ──────────────────────────────
+      // --- Ventilación consola (extendida) ------------------------------
       {
         slug: 'ventilacion',
-        label: 'Cambio de ventilador',
-        seoKeyword: 'Cambio de Ventilador y Reparación de Enfriamiento para Consolas PS5 y Xbox en Cancún',
-        hook: '¿Tu consola suena como turbina de avión o se apaga a los 10 minutos por sobrecalentamiento? Reemplazamos el ventilador dañado por refacciones OEM originales. Adiós ruido, adiós apagones.',
-        intro: 'Servicio experto en refrigeración de consolas en Cancún. Si el ventilador de tu PlayStation o Xbox presenta ruidos anómalos, está obstruido o dejó de girar, realizamos el cambio preciso para evitar la pérdida total del procesador.',
-        bullets: ['Ventilador OEM (Original Equipment Manufacturer)', 'Análisis de ruido e impedancia', 'Limpieza profunda de disipadores', 'Reemplazo de metal líquido o pasta térmica', 'Garantía extendida por escrito'],
-        fromPrice: '$700 MXN', eta: '24-72 h', warranty: '6 meses por escrito',
+        label: 'Sobrecalentamiento',
+        seoKeyword: 'Sobrecalentamiento de consola en Cancún',
+        hook: '¿Tu PS5, Xbox, Nintendo Switch o consola portátil se calienta, suena fuerte o se apaga al jugar? Revisamos polvo, ventilador, disipador, pasta térmica, metal líquido en PS5 y flujo de aire antes de cotizar.',
+        intro: 'Servicio técnico en Cancún para consolas con sobrecalentamiento, ruido de ventilador, apagados por temperatura o bajo rendimiento. Diagnosticamos la causa real antes de cambiar piezas.',
+        bullets: ['Diagnóstico térmico de consola', 'Revisión de ventilador y disipador', 'Pasta térmica o metal líquido según modelo', 'Limpieza interna y flujo de aire', 'Garantía por escrito'],
+        fromPrice: 'Desde $700 MXN', eta: '24-72 h', warranty: 'Garantía por escrito',
         whyUs: [
           { icon: 'fa-fan',                title: 'Refacciones Originales', desc: 'No instalamos ventiladores genéricos ruidosos. Usamos piezas Nidec o Delta, idénticas a las de fábrica para mantener el flujo de aire exacto.' },
           { icon: 'fa-microchip',          title: 'Protección al Procesador',desc: 'Un ventilador dañado quema tu APU. Nuestro servicio previene el fatal daño de "Luz Roja" o "Luz Azul" asegurando la refrigeración correcta.' },
@@ -978,10 +972,10 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         compatibleBrands: ['PlayStation 5', 'PlayStation 4 (Fat, Slim, Pro)', 'Xbox Series X / Series S', 'Xbox One (Fat, S, X)', 'Nintendo Switch (Lite, OLED)'],
         faqs: [
-          { question: '¿Si cambio el ventilador pierdo los datos o mis juegos?',        answer: 'Absolutamente no. <strong>Tus partidas y cuentas están a salvo</strong>, el trabajo es meramente en el chasis térmico, no tocamos el almacenamiento.' },
-          { question: '¿Mi ventilador puede ser reparado en vez de cambiado?',          answer: 'Normalmente no. Cuando el rodamiento de un ventilador se desgasta, no hay forma de re-centrarlo correctamente a las RPM que exige una consola.' },
-          { question: '¿Instalan refacciones genéricas que suenan más fuerte?',         answer: 'De ninguna manera. Usamos exclusivamente repuestos <strong>Originales (Nidec, Delta o equivalentes OEM)</strong> para garantizar el silencio que la consola tenía cuando la compraste.' },
-          { question: '¿Tienen los ventiladores en stock en Cancún?',                   answer: 'Tenemos el 80% de los ventiladores de consolas modernas en stock. Para modelos raros, el tiempo de importación es de 4 a 5 días hábiles.' },
+          { question: `¿Si cambio el ventilador pierdo los datos o mis juegos?`, answer: `No. El cambio de ventilador trabaja sobre el sistema térmico y no toca almacenamiento, cuentas ni partidas. Aun así, recomendamos tener datos sincronizados en la nube cuando sea posible, como buena práctica antes de cualquier servicio técnico.` },
+          { question: `¿Mi ventilador puede repararse en vez de cambiarse?`, answer: `Normalmente no conviene repararlo. Cuando el rodamiento se desgasta, el ventilador pierde centro, hace ruido o no mantiene RPM estables. Podemos limpiarlo si solo está obstruido, pero si falla motor o rodamiento, se reemplaza.` },
+          { question: `¿Instalan refacciones genéricas que suenan más fuerte?`, answer: `No instalamos piezas genéricas sin avisarte. Buscamos ventiladores OEM o equivalentes confiables, cuidando flujo de aire, conector, tamaño y nivel de ruido. Una pieza barata puede enfriar mal o provocar apagados.` },
+          { question: `¿Tienen ventiladores en stock en Cancún?`, answer: `Tenemos stock frecuente para modelos comunes, pero depende de consola y versión. Si no está disponible en Cancún, te damos tiempo real de pedido antes de abrir o cobrar. También revisamos si el problema es ventilador o solo limpieza.` },
         ],
         relatedSlugs: ['limpieza-interna', 'pasta-termica', 'fuente', 'reparacion-controles'],
         relatedExternal: [
@@ -989,7 +983,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
 
-      // ─── Diagnóstico consola (extendida) ──────────────────────────────
+      // --- Diagnóstico consola (extendida) ------------------------------
       {
         slug: 'diagnostico',
         label: 'Diagnóstico',
@@ -1014,15 +1008,15 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         commonProblems: [
           { problem: '"No sé qué tiene mi consola"',          solution: 'Para eso es el diagnóstico. Te decimos exactamente qué falla.' },
           { problem: 'Voy a comprar consola usada',           solution: 'Inspección pre-compra: $200 MXN, evita meterte en problemas.' },
-          { problem: 'Otro técnico me dijo X — quiero 2da opinión', solution: 'Diagnóstico independiente sin presión de venta.' },
+          { problem: 'Otro técnico me dijo X  -  quiero 2da opinión', solution: 'Diagnóstico independiente sin presión de venta.' },
           { problem: '¿Conviene reparar o comprar nueva?',    solution: 'Diagnóstico + recomendación honesta. Casi siempre conviene reparar.' },
         ],
         compatibleBrands: ['Cualquier PlayStation', 'Cualquier Xbox', 'Cualquier Nintendo Switch', 'Consolas retro'],
         faqs: [
-          { question: '¿Realmente es GRATIS?',                  answer: 'Sí, <strong>si autorizas la reparación con nosotros</strong>. Si no reparas, cobramos $200-300 por el tiempo invertido.' },
-          { question: '¿Qué tan rápido?',                        answer: 'Normalmente <strong>1-2 horas</strong>. Si tenemos cola, máximo 24 h.' },
-          { question: '¿Qué incluye el reporte?',               answer: 'Fallas detectadas (con fotos), causa probable, costo estimado, tiempo, y recomendación honesta.' },
-          { question: '¿Hacen diagnóstico a domicilio?',        answer: 'Para consolas casi siempre recomendamos taller (mejor equipo). En Cancún hacemos visita con costo ($300).' },
+          { question: `¿El diagnóstico de consola realmente es gratis?`, answer: `Sí, se bonifica si autorizas la reparación con nosotros. Si decides no reparar, cobramos una cuota de revisión por el tiempo técnico invertido. El objetivo es darte una causa real con pruebas, no solo decirte que cambies piezas.` },
+          { question: `¿Qué tan rápido entregan el diagnóstico?`, answer: `Una revisión básica puede tomar de <strong>1 a 2 horas</strong>, pero fallas intermitentes, apagados o problemas de video pueden requerir pruebas más largas. Si hay cola de trabajo, normalmente queda dentro de 24 horas con reporte por WhatsApp.` },
+          { question: `¿Qué incluye el reporte?`, answer: `Incluye síntoma confirmado, pruebas realizadas, causa probable, fotos si aplica, costo estimado, tiempo de reparación y recomendación honesta. Si conviene no reparar por costo o riesgo, también te lo decimos antes de que gastes.` },
+          { question: `?Hacen diagnóstico a domicilio?`, answer: `Para consolas casi siempre recomendamos taller porque ah? podemos probar fuente, video, HDMI, temperatura y controles con mejor equipo. Podemos hacer visita en Cancún con costo para revisión inicial, pero abrir y reparar se hace con más seguridad en taller.` },
         ],
         relatedSlugs: ['limpieza-interna', 'pasta-termica', 'hdmi', 'fuente'],
         relatedExternal: [
@@ -1044,9 +1038,9 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       { slug: 'cambio-pantalla',     label: 'Cambio de pantalla',     intro: 'Reemplazo de pantalla completa para iPhone, Samsung, Xiaomi y más marcas.',                                  bullets: ['Pantalla original o calidad OEM', 'Calibración de touch y color', 'Garantía 3 meses', 'Mismo día en muchos modelos'],            fromPrice: '$1,200 MXN', eta: 'Mismo día' },
       { slug: 'cambio-bateria',      label: 'Cambio de batería',      intro: 'Recuperas autonomía completa con batería nueva certificada.',                                                bullets: ['Batería con celdas nuevas', 'Sello de impermeabilidad restaurado (iPhone)', 'Garantía 6 meses'],                                   fromPrice: '$700 MXN',   eta: 'Mismo día' },
       { slug: 'reparacion-carga',    label: 'Reparación de carga',    intro: 'Sustitución de puerto de carga lightning, USB-C o micro-USB. Solucionamos cargas intermitentes.',           bullets: ['Limpieza ultrasónica del puerto', 'Reemplazo de flex o conector', 'Prueba con cable original'],                                   fromPrice: '$450 MXN',   eta: '24-48 h' },
-      { slug: 'reparacion-bocina',   label: 'Reparación de bocina',   intro: 'Bocina principal, auricular o vibrador. Si no escuchas o no te escuchan, lo arreglamos.',                  bullets: ['Limpieza o reemplazo de bocina', 'Prueba de llamada y multimedia', 'Garantía 3 meses'],                                          fromPrice: '$400 MXN',   eta: '24-48 h' },
-      { slug: 'cambio-flex-botones', label: 'Cambio de flex / botones',intro: 'Botón de power, volumen, home o flex de carga rotos. Restauramos funcionalidad.',                          bullets: ['Flex con piezas certificadas', 'Sellado contra polvo', 'Prueba completa'],                                                          fromPrice: '$350 MXN',   eta: '24-48 h' },
-        // 🌟 Liberación / Software (extendida) 🌟
+      { slug: 'reparacion-bocina',   label: 'Reparación de bocina', seoKeyword: 'Reparación de bocina de celular en Cancún', hook: 'Recupera llamadas claras, audio multimedia y volumen real sin cambiar piezas innecesarias.', intro: 'Reparamos fallas de audio en celulares: bocina principal, auricular de llamada, micrófono, vibrador, flex, rejilla obstruida o daño por humedad.', bullets: ['Diagnóstico de bocina, auricular y micrófono', 'Limpieza de rejilla o reemplazo si aplica', 'Prueba de llamada, grabación y multimedia', 'Garantía por escrito'], fromPrice: '$400 MXN', eta: '24-48 h', warranty: 'Garantía por escrito' },
+      { slug: 'cambio-flex-botones', label: 'Cambio de flex / botones',intro: 'Botón de power, volumen, home o flex de carga rotos. Restauramos funcionalidad.',                          bullets: ['Flex con piezas certificadas', 'Sellado contra polvo', 'Prueba completa'],                                                          fromPrice: '$450 MXN',   eta: '24-48 h' },
+        // ðŸŒŸ Liberación / Software (extendida) ðŸŒŸ
         { 
           slug: 'liberacion-software', 
           label: 'Liberación / software',  
@@ -1054,7 +1048,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
           hook: '¿Tu equipo viene de otro país o red? ¿Olvidaste tu contraseña o se quedó en el logo? Lo solucionamos de forma rápida y 100% segura.',
           intro: 'Servicio especializado de software: liberación de red (Unlock), bypass, flasheo, actualización de iOS/Android y eliminación de cuentas.',                  
           bullets: ['Liberación por IMEI o caja', 'Restauración de sistema (Flasheo)', 'Backup previo si es posible', 'Garantía de no pérdida de IMEI'],                                    
-          fromPrice: '$300 MXN',   eta: '1-3 h', warranty: 'Garantía por escrito',
+          fromPrice: '$650 MXN',   eta: '1-3 h', warranty: 'Garantía por escrito',
           whyUs: [
             { icon: 'fa-lock-open',      title: 'Liberación permanente', desc: 'Desbloqueos de red oficiales por IMEI o servidor. Puedes actualizar sin perder la red.' },
             { icon: 'fa-shield-halved',  title: 'Cero riesgos',          desc: 'Usamos herramientas oficiales (Z3X, Octopus, Sigma, etc). No matamos equipos.' },
@@ -1090,11 +1084,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
           ],
           compatibleBrands: ['Apple / iPhone', 'Samsung Galaxy', 'Motorola', 'Xiaomi', 'Huawei', 'Oppo', 'Honor', 'ZTE'],
           faqs: [
-            { question: '¿La liberación de red se pierde si actualizo mi celular?', answer: 'Si la liberación es de fábrica (por IMEI o servidor oficial), <strong>es permanente</strong> y puedes actualizar sin problema. Te avisaremos el método exacto antes de proceder.' },
-            { question: '¿Pueden desbloquear un celular con reporte de robo (Blacklist)?', answer: 'Hacemos verificación previa. No realizamos trabajos que infrinjan normativas legales sobre equipos reportados por hurto o extravío.' },
-            { question: '¿Se borran mis datos al hacer una liberación?', answer: 'Generalmente no. Para liberación de red los datos se conservan. Si el trabajo requiere un flasheo o Bypass (FRP), entonces sí se formatea el equipo.' },
-            { question: '¿Cuánto tiempo tarda?', answer: 'La mayoría de cuentas Google o flasheos toman de 1 a 3 horas. Las liberaciones por código o servidor internacional pueden tardar desde 15 minutos hasta 5 días hábiles, dependiendo de la compañía original.' },
-          ],
+          { question: `¿La liberación de red se pierde si actualizo mi celular?`, answer: `Si la liberación es de fábrica, por IMEI o servidor oficial, suele ser permanente y puedes actualizar sin perder señal. Antes de trabajar te explicamos el método, riesgo y compatibilidad con tu compañía para que sepas qué esperar después de actualizar.` },
+          { question: `¿Pueden desbloquear un celular con reporte de robo o blacklist?`, answer: `Hacemos verificación previa del estatus, pero no realizamos trabajos que infrinjan normativas legales sobre equipos reportados por robo, hurto o extravío. Si el problema es cuenta, red o software legítimo, te explicamos opciones permitidas.` },
+          { question: `¿Se borran mis datos al hacer una liberación?`, answer: `Generalmente no se borran en una liberación de red, pero depende del método. Si requiere flasheo, bypass FRP o restauración profunda, sí puede formatearse. Antes de iniciar te avisamos si existe riesgo para fotos, chats, cuentas o archivos.` },
+          { question: `¿Cuánto tiempo tarda?`, answer: `La mayoría de cuentas Google o flasheos toman de 1 a 3 horas. Las liberaciones por código o servidor internacional pueden tardar desde 15 minutos hasta 5 días hábiles, dependiendo de la compañía original y disponibilidad del servicio.` },
+        ],
           relatedSlugs: ['reparacion-general', 'cambio-pantalla', 'cambio-bateria', 'diagnostico'],
           relatedExternal: [
             { label: 'Servicio en Laptops', href: '/servicios/laptop', icon: 'fa-laptop', desc: 'También reparamos laptops y MacBooks con problemas de software.' },
@@ -1113,8 +1107,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     heroBg: 'linear-gradient(135deg, #115e59 0%, #14b8a6 100%)',
     services: [
       { slug: 'reparacion-general', label: 'Reparación General', customUrl: '/reparaciones' },
-      { slug: 'mantenimiento',      label: 'Mantenimiento',                intro: 'Servicio integral preventivo: limpieza, lubricación y calibración de cabezales.',                       bullets: ['Calibración de cabezales', 'Limpieza de bandeja y rodillos', 'Test de impresión', 'Reporte de estado'], fromPrice: '$450 MXN', eta: '24-48 h' },
-      { slug: 'limpieza-interna',   label: 'Limpieza interna',             intro: 'Polvo, restos de tinta seca y papel atorado: limpieza completa para evitar fallas.',                   bullets: ['Desarmado parcial', 'Limpieza con aire y solventes seguros', 'Lubricación de partes móviles'],         fromPrice: '$400 MXN', eta: 'Mismo día' },
+      { slug: 'mantenimiento',      label: 'Mantenimiento',                intro: 'Servicio integral preventivo: limpieza, lubricación y calibración de cabezales.',                       bullets: ['Calibración de cabezales', 'Limpieza de bandeja y rodillos', 'Test de impresión', 'Reporte de estado'], fromPrice: '$750 MXN', eta: '24-48 h' },
       {
         slug: 'cambio-tinta-toner',
         label: 'Cambio de tinta / tóner',
@@ -1122,19 +1115,19 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         hook: 'Recarga, instalación y prueba de impresión para que tu equipo vuelva a imprimir claro, limpio y sin manchas.',
         intro: 'Recarga, instalación de cartuchos originales o sistema de tinta continua.',
         bullets: ['Instalación de tinta, tóner o cartucho', 'Revisión de niveles y reconocimiento', 'Limpieza básica de cabezal si aplica', 'Reseteo de chip si aplica', 'Prueba de impresión'],
-        fromPrice: '$200 MXN + insumo',
+        fromPrice: '$650 MXN + insumo',
         eta: 'Mismo día',
         faqs: [
-          { question: '¿Cuánto cuesta cambiar tinta o tóner en Cancún?', answer: 'La inversión inicia desde $200 MXN + insumo. El precio final depende del modelo de impresora, tipo de cartucho, tóner, tinta o sistema de tinta continua.' },
-          { question: '¿Cambian cartuchos originales y compatibles?', answer: 'Sí, podemos instalar cartuchos originales o compatibles según disponibilidad y compatibilidad del modelo.' },
-          { question: '¿Recargan tóner?', answer: 'Sí, dependiendo del tipo de cartucho y estado físico del tóner. Primero revisamos si conviene recargar o reemplazar.' },
-          { question: '¿Por qué mi impresora imprime con rayas?', answer: 'Puede ser tinta baja, cabezal tapado, cartucho dañado, mala calidad de tinta o falta de mantenimiento.' },
-          { question: '¿Qué pasa si mi impresora no reconoce el cartucho?', answer: 'Revisamos chip, contactos, compatibilidad, instalación y configuración antes de recomendar otro cartucho.' },
-          { question: '¿Atienden impresoras en Cancún para oficina o negocio?', answer: 'Sí, atendemos impresoras domésticas, escolares, de oficina y negocios en Cancún.' },
+          { question: `¿Cuánto cuesta cambiar tinta o tóner en Cancún?`, answer: `La inversión inicia desde $650 MXN + insumo. El precio final depende del modelo de impresora, tipo de cartucho, tóner, tinta o sistema continuo. Antes de instalar revisamos compatibilidad y reconocimiento para evitar desperdiciar insumos.` },
+          { question: `¿Cambian cartuchos originales y compatibles?`, answer: `Sí, instalamos cartuchos originales o compatibles según disponibilidad, pero primero validamos que el modelo los reconozca correctamente. También revisamos chip, contactos y configuración para evitar que compres un insumo que la impresora no acepte.` },
+          { question: `¿Recargan tóner?`, answer: `Sí, dependiendo del cartucho, estado del tóner y desgaste de piezas internas. Primero revisamos si conviene recargar o reemplazar, porque un cartucho dañado puede provocar manchas, fugas o mala calidad aunque tenga tóner nuevo.` },
+          { question: `¿Por qué mi impresora imprime con rayas?`, answer: `Puede deberse a tinta baja, cabezal tapado, cartucho dañado, mala calidad de tinta, tóner irregular o falta de mantenimiento. Revisamos patrón de impresión, niveles y estado del cabezal antes de recomendar cambio de insumo.` },
+          { question: `¿Qué pasa si mi impresora no reconoce el cartucho?`, answer: `Revisamos chip, contactos, compatibilidad, instalación, firmware y configuración antes de recomendar comprar otro cartucho. A veces se corrige limpiando contactos o reinstalando correctamente; otras veces sí requiere insumo compatible distinto.` },
+          { question: `¿Atienden impresoras para oficina o negocio?`, answer: `Sí, atendemos impresoras domásticas, escolares, de oficina y negocios en Cancún. En equipos de alto uso también revisamos volumen de impresión, tipo de insumo y mantenimiento preventivo para reducir atascos, manchas y fallas recurrentes.` },
         ],
-        relatedSlugs: ['mantenimiento', 'limpieza-interna', 'atascos', 'conectividad', 'diagnostico'],
+        relatedSlugs: ['mantenimiento', 'atascos', 'conectividad', 'diagnostico'],
       },
-      { slug: 'atascos',            label: 'Reparación de atascos',        intro: 'Papel atascado, sensores rotos o rodillos sucios — solucionamos para que vuelva a alimentar.',         bullets: ['Limpieza/sustitución de rodillos', 'Calibración de sensores', 'Test continuo 50 hojas'],                fromPrice: '$450 MXN', eta: '24-48 h' },
+      { slug: 'atascos',            label: 'Reparación de atascos',        intro: 'Papel atascado, sensores rotos o rodillos sucios  -  solucionamos para que vuelva a alimentar.',         bullets: ['Limpieza/sustitución de rodillos', 'Calibración de sensores', 'Test continuo 50 hojas'],                fromPrice: '$450 MXN', eta: '24-48 h' },
       { slug: 'rodillos',           label: 'Rodillos / alimentación',      intro: 'Rodillos gastados que ya no agarran el papel. Los cambiamos por nuevos.',                              bullets: ['Rodillos OEM', 'Limpieza del trayecto del papel', 'Garantía 3 meses'],                                    fromPrice: '$750 MXN', eta: '2-4 días' },
       { slug: 'conectividad',       label: 'Conectividad / configuración', intro: 'Configuramos tu impresora WiFi, Ethernet o USB en cualquier dispositivo.',                              bullets: ['Configuración WiFi / IP fija', 'Drivers en PC, Mac o móvil', 'Pruebas con cada dispositivo'],            fromPrice: '$550 MXN', eta: '1-2 h' },
       { slug: 'diagnostico',        label: 'Diagnóstico',                  intro: 'Revisamos qué tiene tu impresora y te damos cotización sin costo.',                                     bullets: ['Test eléctrico y mecánico', 'Revisión de cabezales y software', 'Reporte por escrito'],                  fromPrice: 'GRATIS',    eta: '1 h' },

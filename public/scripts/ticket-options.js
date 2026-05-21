@@ -39,7 +39,7 @@
         'Consola de videojuegos': ['Servicios de Consola', 'Reparación General', 'Limpieza de Consolas', 'Reparación Controles', 'Limpieza interna', 'Cambio de pasta térmica', 'Reparación de HDMI', 'Reparación de fuente', 'Cambio de ventilador', 'Diagnóstico', 'No da video', 'Se apaga sola', 'Otro'],
         'Control de videojuegos': ['Reparación Controles', 'Drift en joystick', 'Botón no funciona', 'Gatillos', 'Batería', 'Pin de carga', 'Otro'],
         'Control de consola': ['Reparación Controles', 'Drift en joystick', 'Botón no funciona', 'Gatillos', 'Batería', 'Pin de carga', 'Otro'],
-        'Impresora': ['Servicios de Impresora', 'Reparación General', 'Mantenimiento', 'Limpieza interna', 'Cambio de tinta / tóner', 'Reparación de atascos', 'Rodillos / alimentación', 'Conectividad / configuración', 'Diagnóstico', 'Atasco de papel', 'Almohadillas', 'Cabezales tapados', 'No imprime', 'Otro'],
+        'Impresora': ['Servicios de Impresora', 'Reparación General', 'Mantenimiento', 'Cambio de tinta / tóner', 'Reparación de atascos', 'Rodillos / alimentación', 'Conectividad / configuración', 'Diagnóstico', 'Atasco de papel', 'Almohadillas', 'Cabezales tapados', 'No imprime', 'Otro'],
         'Monitor': ['No da imagen', 'Líneas / manchas', 'Fuente / alimentación', 'Otro'],
         'Componente PC': ['Diagnóstico', 'Tarjeta de video', 'Fuente de poder', 'Motherboard', 'RAM / SSD', 'Otro'],
         'Equipo gamer': ['Ensambles PC Gamer', 'Mantenimiento Preventivo', 'Cambio de pasta térmica', 'Optimización del Sistema', 'Upgrade RAM / SSD', 'Limpieza profunda', 'Diagnóstico', 'Otro'],

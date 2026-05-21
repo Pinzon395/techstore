@@ -669,7 +669,7 @@ async function bootstrap() {
         if (!device_type || String(device_type).trim().length < 2) errors.push('El tipo de equipo es requerido.');
         if (!issue_description || String(issue_description).trim().length < 10) errors.push('La descripción del problema es muy corta.');
         
-        if (!appointment_date) errors.push('Selecciona un dia disponible.');
+        if (!appointment_date) errors.push('Selecciona un día disponible.');
         if (!appointment_time) errors.push('Selecciona un horario disponible.');
 
         if (errors.length > 0) {
@@ -679,7 +679,7 @@ async function bootstrap() {
         const availability = await getAppointmentAvailability(appointment_date, appointment_type);
         const cleanAppointmentTime = String(appointment_time || '').slice(0, 5);
         if (!availability.available || !availability.slots.includes(cleanAppointmentTime)) {
-            return res.status(409).json({ success: false, message: 'Ese horario ya no esta disponible. Elige otro.' });
+            return res.status(409).json({ success: false, message: 'Ese horario ya no está disponible. Elige otro.' });
         }
         
         // Crear ticket con user_id del usuario autenticado

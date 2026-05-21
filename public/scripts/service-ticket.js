@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
         appointmentTime.innerHTML = '<option value="">Selecciona fecha primero...</option>';
         if (!date) return;
         if (date < todayISO()) {
-            appointmentTime.innerHTML = '<option value="">Dia no disponible</option>';
-            if (appointmentHint) appointmentHint.textContent = 'Selecciona un dia disponible. No se permiten fechas pasadas.';
+            appointmentTime.innerHTML = '<option value="">Día no disponible</option>';
+            if (appointmentHint) appointmentHint.textContent = 'Selecciona un día disponible. No se permiten fechas pasadas.';
             return;
         }
         appointmentTime.disabled = true;
@@ -190,18 +190,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`/api/appointments/availability?date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}`, { cache: 'no-store' });
             const data = await res.json().catch(() => ({}));
             if (!res.ok || !data.available) {
-                appointmentTime.innerHTML = `<option value="">${data.message || 'Este dia esta bloqueado por el taller.'}</option>`;
-                if (appointmentHint) appointmentHint.textContent = data.message || 'Este dia esta bloqueado por el taller.';
+                appointmentTime.innerHTML = `<option value="">${data.message || 'Este día está bloqueado por el taller.'}</option>`;
+                if (appointmentHint) appointmentHint.textContent = data.message || 'Este día está bloqueado por el taller.';
                 return;
             }
             const slots = Array.isArray(data.slots) ? data.slots : [];
             appointmentTime.innerHTML = slots.length
                 ? '<option value="">Selecciona un horario...</option>' + slots.map(slot => `<option value="${slot}">${slot}</option>`).join('')
-                : '<option value="">Dia lleno o sin horarios disponibles</option>';
+                : '<option value="">Día lleno o sin horarios disponibles</option>';
             if (appointmentHint) {
                 appointmentHint.textContent = slots.length
-                    ? 'Tu visita quedara registrada como pendiente de confirmacion.'
-                    : 'Este dia esta lleno o no tiene horarios disponibles para el tipo de visita seleccionado.';
+                    ? 'Tu visita quedará registrada como pendiente de confirmación.'
+                    : 'Este día está lleno o no tiene horarios disponibles para el tipo de visita seleccionado.';
             }
         } catch (err) {
             console.error('availability error:', err);
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ].join('\n');
 
         if (appointmentDate && appointmentTime && (!appointmentDate.value || !appointmentTime.value)) {
-            errorText.textContent = !appointmentDate.value ? 'Selecciona un dia disponible.' : 'Selecciona un horario disponible.';
+            errorText.textContent = !appointmentDate.value ? 'Selecciona un día disponible.' : 'Selecciona un horario disponible.';
             errorMsg.style.display = 'flex';
             return;
         }
@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('st_success_service').textContent = `${device} - ${service}`;
         const successMessage = document.getElementById('st_success_message') || document.querySelector('#st_success_overlay h2 + p');
         if (successMessage && ticketData.appointment_date && ticketData.appointment_time) {
-            successMessage.textContent = `Ticket creado correctamente. Registramos tu visita para el ${ticketData.appointment_date} a las ${ticketData.appointment_time}. Un tecnico se pondra en contacto contigo para confirmar detalles.`;
+            successMessage.textContent = `Ticket creado correctamente. Registramos tu visita para el ${ticketData.appointment_date} a las ${ticketData.appointment_time}. Un técnico se pondrá en contacto contigo para confirmar detalles.`;
             successMessage.style.display = '';
         }
         
