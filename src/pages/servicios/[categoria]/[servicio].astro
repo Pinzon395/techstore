@@ -8,6 +8,8 @@ import CommentsSection from '../../../components/CommentsSection.astro';
 import ContactSection from '../../../components/ContactSection.astro';
 import RelatedServicesSection from '../../../components/RelatedServicesSection.astro';
 import MantenimientoTermicoView from '../../../components/views/MantenimientoTermicoView.astro';
+import ConsoleThermalPasteView from '../../../components/views/ConsoleThermalPasteView.astro';
+import ConsolePowerSupplyView from '../../../components/views/ConsolePowerSupplyView.astro';
 import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
@@ -42,8 +44,10 @@ const isPrinterConnectivity = category.slug === 'impresora' && service.slug === 
 const isPrinterRollers = category.slug === 'impresora' && service.slug === 'rodillos';
 const isPrinterJams = category.slug === 'impresora' && service.slug === 'atascos';
 const isConsoleCleaning = category.slug === 'consola' && service.slug === 'limpieza-interna';
+const isConsoleThermalPaste = category.slug === 'consola' && service.slug === 'pasta-termica';
+const isConsolePowerSupply = category.slug === 'consola' && service.slug === 'fuente';
 const isConsoleHdmi = category.slug === 'consola' && service.slug === 'hdmi';
-const isConsoleOverheating = category.slug === 'consola' && service.slug === 'ventilacion';
+const isConsoleOverheating = category.slug === 'consola' && service.slug === 'sobrecalentamiento';
 const isPhoneSpeakerRepair = category.slug === 'telefono' && service.slug === 'reparacion-bocina';
 const isPhoneScreenReplacement = category.slug === 'telefono' && service.slug === 'cambio-pantalla';
 const isPhoneSoftwareUnlock = category.slug === 'telefono' && service.slug === 'liberacion-software';
@@ -68,6 +72,10 @@ const seoTitle = isPcFormat
   ? 'Reparación de atascos de impresora en Cancún | Pixon PC'
   : isConsoleCleaning
   ? 'Limpieza de consolas en Cancún | PS5, Xbox, Switch y Steam Deck'
+  : isConsoleThermalPaste
+  ? 'Cambio de pasta térmica de consolas en Cancún | PS5, Xbox y Switch'
+  : isConsolePowerSupply
+  ? 'Reparación de fuente de consolas en Cancún | PS5, Xbox y Switch'
   : isConsoleHdmi
   ? 'Reparación de puerto HDMI de consolas en Cancún | Pixon PC'
   : isConsoleOverheating
@@ -103,6 +111,10 @@ const description = isPcFormat
   ? 'Reparación de atascos de impresora en Cancún desde $450 MXN. Revisamos ruta de papel, sensores, rodillos, bandejas y alimentación para evitar fallas repetidas.'
   : isConsoleCleaning
   ? 'Limpieza interna de consolas en Cancún para PS5, Xbox, Nintendo Switch, Steam Deck y ROG Ally. Mantenimiento térmico, polvo, ventilador, pasta y metal líquido con garantía.'
+  : isConsoleThermalPaste
+  ? 'Cambio de pasta térmica de consolas en Cancún. Revisamos PS5, Xbox, Nintendo Switch, Steam Deck, ROG Ally, metal líquido, disipador, ventilador y polvo.'
+  : isConsolePowerSupply
+  ? 'Reparación de fuente de consolas en Cancún. Diagnosticamos PS5, PS4, Xbox, Nintendo Switch, voltajes, fusibles, capacitores, consumo y placa antes de cotizar.'
   : isConsoleHdmi
   ? 'Reparación de puerto HDMI de consolas en Cancún. Cambio de HDMI para PS5, PS4, Xbox y Nintendo Switch con diagnóstico de puerto, placa e IC de video.'
   : isConsoleOverheating
@@ -139,6 +151,10 @@ const waMessage = encodeURIComponent(isPcFormat
   ? 'Hola, quiero cotizar reparación de atascos de impresora en Cancún. Puedo enviar marca, modelo y foto o video del atasco.'
   : isConsoleCleaning
   ? 'Hola, quiero cotizar limpieza interna de consola en Cancún. Puedo enviar modelo, fotos y decir si es PS5, Xbox, Nintendo Switch, Steam Deck o ROG Ally.'
+  : isConsoleThermalPaste
+  ? 'Hola, quiero cotizar cambio de pasta térmica para consola en Cancún. Mi consola se calienta, suena fuerte o se apaga al jugar.'
+  : isConsolePowerSupply
+  ? 'Hola, quiero cotizar reparación de fuente de consola en Cancún. Mi consola no enciende, se apaga o se reinicia.'
   : isConsoleHdmi
   ? 'Hola, quiero cotizar reparación de puerto HDMI de consola en Cancún. Mi consola enciende pero no da imagen o tiene el HDMI dañado.'
   : isConsoleOverheating
@@ -469,6 +485,10 @@ const consoleCleaningFaqs = [
 
   {isConsoleOverheating ? (
     <MantenimientoTermicoView service={service} category={category} />
+  ) : isConsoleThermalPaste ? (
+    <ConsoleThermalPasteView service={service} category={category} />
+  ) : isConsolePowerSupply ? (
+    <ConsolePowerSupplyView service={service} category={category} />
   ) : service.slug === 'cambio-bateria' ? (
     <CambioBateriaView service={service} category={category} />
   ) : (

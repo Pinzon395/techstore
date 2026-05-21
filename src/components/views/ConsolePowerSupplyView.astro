@@ -1,0 +1,645 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero cotizar reparación de fuente de consola en Cancún. Mi consola no enciende, se apaga o se reinicia.'
+);
+
+const symptoms = [
+  ['Sin LED ni sonido', 'Puede ser fuente sin salida, fusible abierto, capacitor dañado, línea en corto o daño en placa.'],
+  ['Enciende y se apaga', 'La fuente puede caer bajo carga, protegerse por consumo irregular o fallar cuando la consola exige potencia.'],
+  ['Beep, luz y apagón', 'Revisamos voltajes, consumo, fuente, placa y conectores antes de decir que la fuente está muerta.'],
+  ['Olor a quemado', 'No conviene insistir. Puede haber componente recalentado, humedad, corto o daño de alimentación.'],
+  ['Se reinicia jugando', 'Bajo carga, una fuente débil puede perder estabilidad aunque encienda normal en menú.'],
+  ['Después de apagón o pico', 'En Cancún los picos eléctricos y humedad pueden afectar fuente, reguladores y capacitores.'],
+];
+
+const flow = [
+  ['Entrada AC', 'Revisamos cable, conector, fusible, entrada de corriente y señales de daño por variación eléctrica.'],
+  ['Salida DC', 'Medimos voltajes de salida y estabilidad para saber si la fuente entrega energía correcta.'],
+  ['Carga real', 'Probamos comportamiento cuando la consola exige potencia, no solo si prende un segundo.'],
+  ['Placa y consumo', 'Si la fuente está bien, buscamos corto, humedad, reguladores o líneas afectadas en placa.'],
+];
+
+const platforms = [
+  ['PS5 / PS5 Slim', 'Revisión de fuente interna, consumo, conectores, apagones, luz azul/blanca y estabilidad bajo carga.'],
+  ['PS4 / PS4 Pro', 'Diagnóstico de fuente, fusibles, capacitores, entrada AC, apagados y fallas de encendido.'],
+  ['Xbox Series X / S', 'Pruebas de alimentación, apagados repentinos, fuente interna y consumo bajo juegos pesados.'],
+  ['Xbox One', 'Revisión de fuente externa o interna según modelo, voltajes, conectores y reinicios.'],
+  ['Nintendo Switch Dock', 'Diagnóstico cuando no carga, no da video por dock o falla alimentación del accesorio.'],
+  ['Consolas portátiles', 'Steam Deck, ROG Ally y similares requieren revisar cargador, batería, placa y circuito de carga.'],
+];
+
+const faqs = [
+  {
+    question: '¿Cuánto cuesta reparar la fuente de una consola en Cancún?',
+    answer: 'La reparación inicia desde $800 MXN, pero puede variar según modelo y daño. No cuesta igual cambiar capacitores, reparar una línea o reemplazar una fuente completa. Primero medimos voltajes y consumo para darte una cotización clara.',
+  },
+  {
+    question: '¿Cómo sé si la falla es fuente o placa?',
+    answer: 'No se puede confirmar solo por el síntoma. Una consola que no enciende puede tener fuente dañada, corto en placa, humedad, conector afectado o consumo irregular. Por eso hacemos medición eléctrica antes de cambiar piezas.',
+  },
+  {
+    question: '¿Por qué mi consola enciende y se apaga al instante?',
+    answer: 'Puede ser protección de la fuente, caída de voltaje bajo carga, corto, daño en placa o consumo anormal. Revisamos si la fuente entrega voltajes estables y si la consola consume dentro de rango.',
+  },
+  {
+    question: '¿Conviene reparar la fuente o cambiarla completa?',
+    answer: 'Depende del daño y disponibilidad de refacción. Si el daño es puntual, reparar puede ser más conveniente; si la fuente está muy dañada o comprometida, recomendamos reemplazo. Te explicamos antes de autorizar.',
+  },
+  {
+    question: '¿Los apagones de luz pueden dañar la consola?',
+    answer: 'Sí. Variaciones eléctricas, apagones, humedad y contactos flojos pueden afectar fuente, capacitores, fusibles y reguladores. En Cancún recomendamos regulador o supresor de picos para consolas de alto valor.',
+  },
+  {
+    question: '¿La reparación de fuente tiene garantía?',
+    answer: 'Sí, entregamos garantía por escrito sobre la intervención realizada. No cubre nuevos picos eléctricos, humedad posterior, golpes o manipulación externa, pero sí el trabajo realizado bajo uso normal.',
+  },
+];
+---
+
+<div class="console-power-page">
+  <section class="ps-hero">
+    <div class="container ps-hero-grid">
+      <div class="ps-hero-copy">
+        <span class="ps-kicker"><i class="fa-solid fa-bolt"></i> Diagnóstico eléctrico de consolas en Cancún</span>
+        <h1>Reparación de fuente de consolas en Cancún</h1>
+        <h2>PS5, PS4, Xbox y Nintendo Switch que no encienden, se apagan o reinician.</h2>
+        <p>Si tu consola no prende, hace beep, se apaga al jugar, huele a quemado o falló después de un apagón, revisamos fuente, voltajes, consumo, fusibles, capacitores, conectores y placa antes de cotizar.</p>
+        <div class="ps-hero-actions">
+          <a class="ps-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank"><i class="fa-brands fa-whatsapp"></i> Cotizar fuente</a>
+          <a class="ps-secondary" href="#diagnostico-fuente">Ver diagnóstico</a>
+        </div>
+      </div>
+      <aside class="ps-lab-panel" aria-label="Resumen del diagnóstico de fuente">
+        <div class="ps-meter">
+          <span class="ps-meter-needle"></span>
+          <strong>{service.fromPrice || '$800 MXN'}</strong>
+          <small>Diagnóstico con medición eléctrica</small>
+        </div>
+        <div class="ps-lab-readout">
+          <span>Voltajes</span>
+          <span>Consumo</span>
+          <span>Fusibles</span>
+          <span>Capacitores</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="ps-section ps-symptoms" id="diagnostico-fuente">
+    <div class="container">
+      <div class="ps-head-row">
+        <div>
+          <span class="ps-eyebrow">Síntomas reales</span>
+          <h2>Fallas de fuente de consola que revisamos antes de cambiar piezas</h2>
+        </div>
+        <p>No todas las consolas que no encienden tienen la fuente dañada. Primero separamos fuente, placa, consumo, humedad y conectores para evitar diagnósticos falsos.</p>
+      </div>
+      <div class="ps-symptom-table">
+        {symptoms.map(([title, text]) => (
+          <article>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ps-section ps-flow">
+    <div class="container ps-flow-grid">
+      <div class="ps-flow-copy">
+        <span class="ps-eyebrow">Ruta eléctrica</span>
+        <h2>Medimos la ruta de energía completa: entrada, salida, carga y placa</h2>
+        <p>Una fuente puede parecer buena en vacío y fallar cuando la consola exige potencia. Por eso probamos estabilidad y consumo, no solo si prende un instante.</p>
+      </div>
+      <div class="ps-circuit-line">
+        {flow.map(([title, text], index) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ps-section ps-platforms">
+    <div class="container">
+      <div class="ps-centered">
+        <span class="ps-eyebrow">Consolas compatibles</span>
+        <h2>Reparación de fuente para PS5, PS4, Xbox Series, Xbox One y Switch en Cancún</h2>
+        <p>Cada modelo usa alimentación distinta. Ajustamos las pruebas según fuente interna, fuente externa, dock, cargador, consumo y circuito de placa.</p>
+      </div>
+      <div class="ps-platform-list">
+        {platforms.map(([title, text]) => (
+          <article>
+            <strong>{title}</strong>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ps-section ps-decision">
+    <div class="container ps-decision-layout">
+      <div>
+        <span class="ps-eyebrow">Reparar o reemplazar</span>
+        <h2>No siempre conviene cambiar la fuente completa</h2>
+        <p>Si el daño está localizado, puede repararse a nivel componente. Si la fuente está comprometida o no es estable, recomendamos reemplazo. La decisión se toma con medición, no por suposición.</p>
+      </div>
+      <div class="ps-decision-columns">
+        <div>
+          <h3>Puede repararse si:</h3>
+          <ul>
+            <li>Hay capacitor dañado</li>
+            <li>Fusible o línea puntual falló</li>
+            <li>La placa principal no está en corto</li>
+            <li>La fuente responde estable después de prueba</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Conviene reemplazar si:</h3>
+          <ul>
+            <li>Hay daño extendido</li>
+            <li>La fuente cae bajo carga</li>
+            <li>Existe recalentamiento severo</li>
+            <li>La reparación no quedaría confiable</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ps-section ps-cancun">
+    <div class="container ps-cancun-band">
+      <div>
+        <span class="ps-eyebrow">Energía y clima de Cancún</span>
+        <h2>Apagones, humedad y picos eléctricos pueden dañar la fuente</h2>
+        <p>En Cancún una consola puede sufrir por variaciones de voltaje, contactos flojos, humedad ambiental y calor acumulado. Revisamos señales eléctricas y te decimos cómo prevenir que vuelva a pasar.</p>
+      </div>
+      <div class="ps-protection-strip">
+        <span><i class="fa-solid fa-plug-circle-bolt"></i> Supresor de picos</span>
+        <span><i class="fa-solid fa-water"></i> Evitar humedad</span>
+        <span><i class="fa-solid fa-temperature-high"></i> Buena ventilación</span>
+        <span><i class="fa-solid fa-power-off"></i> No insistir si huele a quemado</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="ps-section ps-qa">
+    <div class="container ps-qa-grid">
+      <div>
+        <span class="ps-eyebrow">Pruebas finales</span>
+        <h2>Una fuente reparada debe sostener carga, no solo encender</h2>
+      </div>
+      <div class="ps-qa-checks">
+        <span>Encendido estable</span>
+        <span>Voltajes correctos</span>
+        <span>Prueba bajo carga</span>
+        <span>Revisión de temperatura</span>
+        <span>Sin olor ni ruido anormal</span>
+        <span>Garantía por escrito</span>
+      </div>
+    </div>
+  </section>
+
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Servicios relacionados para consolas"
+    eyebrow="Servicios complementarios"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre reparación de fuente de consolas en Cancún"
+    description="Resolvemos dudas sobre consolas que no encienden, apagones, fuente dañada, placa, voltajes, tiempos, precio y garantía."
+    items={faqs}
+    ariaLabel="Preguntas frecuentes sobre reparación de fuente de consolas en Cancún"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    sectionClass="faq-section"
+    gridClass="faq-grid"
+    backgroundColor="#F8FAFC"
+    questionColor="#0F2A4A"
+    itemGap="8px"
+    questionPadding="16px 18px"
+  />
+
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" />
+  <ContactSection id="ubicacion" />
+</div>
+
+<style is:global>
+  .console-power-page {
+    background: #07111f;
+    color: #e2e8f0;
+    letter-spacing: 0;
+  }
+  .ps-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 38px 0 48px;
+    background:
+      linear-gradient(90deg, rgba(56,189,248,.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(56,189,248,.06) 1px, transparent 1px),
+      radial-gradient(circle at 12% 18%, rgba(59,130,246,.2), transparent 30%),
+      radial-gradient(circle at 82% 22%, rgba(245,158,11,.16), transparent 28%),
+      linear-gradient(135deg, #06111f 0%, #0b1120 58%, #111827 100%);
+    background-size: 36px 36px, 36px 36px, auto, auto, auto;
+  }
+  .ps-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1.05fr) minmax(320px,.95fr);
+    gap: 28px;
+    align-items: center;
+  }
+  .ps-kicker,
+  .ps-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #67e8f9;
+    font-size: .78rem;
+    font-weight: 950;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .ps-hero h1 {
+    max-width: 800px;
+    margin: 10px 0;
+    color: #fff;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.95rem, 3.75vw, 3.25rem);
+    line-height: 1.08;
+    letter-spacing: 0;
+  }
+  .ps-hero h2 {
+    max-width: 760px;
+    color: #dbeafe;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.02rem, 1.55vw, 1.28rem);
+    line-height: 1.32;
+    letter-spacing: 0;
+    margin: 0 0 12px;
+  }
+  .ps-hero p {
+    max-width: 760px;
+    color: #cbd5e1;
+    line-height: 1.66;
+    letter-spacing: 0;
+    margin: 0;
+    font-weight: 650;
+  }
+  .ps-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .ps-primary,
+  .ps-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 12px;
+    padding: 13px 18px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+  .ps-primary {
+    color: #fff !important;
+    background: #2563eb;
+    box-shadow: 0 18px 38px rgba(37,99,235,.24);
+  }
+  .ps-secondary {
+    color: #dbeafe !important;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+  }
+  .ps-lab-panel {
+    border: 1px solid rgba(125,211,252,.22);
+    border-radius: 28px;
+    padding: 18px;
+    background: rgba(2,6,23,.72);
+    box-shadow: 0 28px 80px rgba(0,0,0,.34);
+  }
+  .ps-meter {
+    position: relative;
+    min-height: 220px;
+    border-radius: 22px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at center, rgba(14,165,233,.2), transparent 48%),
+      linear-gradient(135deg, rgba(15,23,42,.9), rgba(30,41,59,.72));
+  }
+  .ps-meter::before {
+    content: "";
+    position: absolute;
+    width: 230px;
+    height: 230px;
+    border-radius: 999px;
+    border: 2px solid rgba(125,211,252,.22);
+    border-bottom-color: rgba(245,158,11,.55);
+  }
+  .ps-meter-needle {
+    position: absolute;
+    width: 90px;
+    height: 3px;
+    border-radius: 999px;
+    background: #f59e0b;
+    transform: rotate(-25deg);
+    transform-origin: right center;
+    box-shadow: 0 0 20px rgba(245,158,11,.55);
+  }
+  .ps-meter strong {
+    position: relative;
+    z-index: 1;
+    color: #67e8f9;
+    font-family: 'Kanit', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    margin-top: 30px;
+  }
+  .ps-meter small {
+    position: relative;
+    z-index: 1;
+    color: #cbd5e1;
+    font-weight: 800;
+    margin-top: 72px;
+  }
+  .ps-lab-readout {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .ps-lab-readout span {
+    color: #dbeafe;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(148,163,184,.16);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    font-weight: 850;
+  }
+  .ps-section {
+    padding: 50px 0;
+    background: #f8fafc;
+  }
+  .ps-section h2,
+  .ps-centered h2 {
+    color: #0f2a4a;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.7rem, 2.8vw, 2.55rem);
+    line-height: 1.14;
+    letter-spacing: 0;
+    margin: 10px 0 12px;
+  }
+  .ps-section p,
+  .ps-centered p {
+    color: #475569;
+    line-height: 1.68;
+    letter-spacing: 0;
+    margin: 0;
+  }
+  .ps-head-row {
+    display: grid;
+    grid-template-columns: minmax(0,.92fr) minmax(280px,.62fr);
+    gap: 24px;
+    align-items: end;
+    margin-bottom: 22px;
+  }
+  .ps-symptom-table {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    border: 1px solid #dbeafe;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 20px 44px rgba(15,42,74,.08);
+  }
+  .ps-symptom-table article {
+    padding: 18px;
+    border-right: 1px solid #dbeafe;
+    border-bottom: 1px solid #dbeafe;
+    min-height: 136px;
+  }
+  .ps-symptom-table article:nth-child(3n) { border-right: 0; }
+  .ps-symptom-table article:nth-last-child(-n + 3) { border-bottom: 0; }
+  .ps-symptom-table h3,
+  .ps-circuit-line h3,
+  .ps-platform-list strong,
+  .ps-decision-columns h3 {
+    color: #0f2a4a;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.04rem;
+    line-height: 1.28;
+    letter-spacing: 0;
+    margin: 0 0 8px;
+  }
+  .ps-flow,
+  .ps-qa {
+    background: #0b1120 !important;
+  }
+  .ps-flow-grid,
+  .ps-decision-layout,
+  .ps-cancun-band,
+  .ps-qa-grid {
+    display: grid;
+    grid-template-columns: .82fr 1.18fr;
+    gap: 26px;
+    align-items: center;
+  }
+  .ps-flow h2,
+  .ps-qa h2 {
+    color: #f8fafc;
+  }
+  .ps-flow p {
+    color: #cbd5e1;
+  }
+  .ps-circuit-line {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,.14);
+    border-bottom: 1px solid rgba(255,255,255,.14);
+  }
+  .ps-circuit-line article {
+    display: grid;
+    grid-template-columns: 54px minmax(0,1fr);
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .ps-circuit-line article:last-child { border-bottom: 0; }
+  .ps-circuit-line span {
+    color: #67e8f9;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 950;
+  }
+  .ps-circuit-line h3 { color: #f8fafc; }
+  .ps-circuit-line p { color: #cbd5e1; }
+  .ps-centered {
+    max-width: 900px;
+    margin: 0 auto 24px;
+    text-align: center;
+  }
+  .ps-platform-list {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 0 28px;
+    border-top: 1px solid rgba(15,42,74,.14);
+    border-bottom: 1px solid rgba(15,42,74,.14);
+  }
+  .ps-platform-list article {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(15,42,74,.12);
+  }
+  .ps-platform-list article:nth-last-child(-n + 2) { border-bottom: 0; }
+  .ps-platform-list p {
+    color: #475569;
+  }
+  .ps-decision {
+    background: #eef6ff !important;
+  }
+  .ps-decision-columns {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 14px;
+  }
+  .ps-decision-columns div {
+    background: #fff;
+    border: 1px solid #dbeafe;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 14px 34px rgba(15,42,74,.08);
+  }
+  .ps-decision-columns ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 9px;
+  }
+  .ps-decision-columns li {
+    color: #334155;
+    font-weight: 740;
+    padding-left: 18px;
+    position: relative;
+  }
+  .ps-decision-columns li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .68em;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #2563eb;
+  }
+  .ps-cancun {
+    background: #f8fafc !important;
+  }
+  .ps-protection-strip,
+  .ps-qa-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .ps-protection-strip span {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #0f2a4a;
+    background: #fff;
+    border: 1px solid rgba(15,42,74,.1);
+    border-radius: 999px;
+    padding: 11px 14px;
+    font-weight: 900;
+  }
+  .ps-protection-strip i {
+    color: #0ea5e9;
+  }
+  .ps-qa-checks span {
+    color: #dbeafe;
+    border: 1px solid rgba(125,211,252,.2);
+    background: rgba(255,255,255,.06);
+    border-radius: 999px;
+    padding: 11px 14px;
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+  .console-power-page .svc-related {
+    background: #0b1120;
+  }
+  .console-power-page .svc-related .ux-h2,
+  .console-power-page .svc-related .related-card h4 {
+    color: #fff !important;
+  }
+  .console-power-page .svc-related .related-card p {
+    color: #cbd5e1 !important;
+  }
+  @media (max-width: 980px) {
+    .ps-hero-grid,
+    .ps-head-row,
+    .ps-flow-grid,
+    .ps-decision-layout,
+    .ps-cancun-band,
+    .ps-qa-grid {
+      grid-template-columns: 1fr;
+    }
+    .ps-symptom-table {
+      grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+    .ps-symptom-table article:nth-child(3n) { border-right: 1px solid #dbeafe; }
+    .ps-symptom-table article:nth-child(2n) { border-right: 0; }
+    .ps-symptom-table article:nth-last-child(-n + 3) { border-bottom: 1px solid #dbeafe; }
+    .ps-symptom-table article:nth-last-child(-n + 2) { border-bottom: 0; }
+  }
+  @media (max-width: 700px) {
+    .ps-hero {
+      padding: 30px 0 40px;
+    }
+    .ps-hero h1 {
+      font-size: clamp(1.8rem, 8.4vw, 2.42rem);
+    }
+    .ps-section {
+      padding: 38px 0;
+    }
+    .ps-symptom-table,
+    .ps-platform-list,
+    .ps-decision-columns {
+      grid-template-columns: 1fr;
+    }
+    .ps-symptom-table article,
+    .ps-symptom-table article:nth-child(2n),
+    .ps-symptom-table article:nth-child(3n),
+    .ps-symptom-table article:nth-last-child(-n + 2),
+    .ps-platform-list article,
+    .ps-platform-list article:nth-last-child(-n + 2) {
+      border-right: 0;
+      border-bottom: 1px solid #dbeafe;
+    }
+    .ps-symptom-table article:last-child,
+    .ps-platform-list article:last-child {
+      border-bottom: 0;
+    }
+  }
+</style>

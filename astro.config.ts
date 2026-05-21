@@ -17,6 +17,7 @@ export default defineConfig({
   redirects: {
     '/formateo-optimizacion': '/instalacion-windows',
     '/b2b': '/empresas',
+    '/servicios/consola/ventilacion': '/servicios/consola/sobrecalentamiento',
   },
   build: {
     format: 'file', // emite /comentarios.html en vez de /comentarios/index.html

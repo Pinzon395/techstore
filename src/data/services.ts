@@ -783,7 +783,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
           { question: `¿Cuánto tarda la limpieza de consola?`, answer: `El mantenimiento normalmente toma de <strong>24 a 48 horas</strong>. Si encontramos ventilador dañado, pasta térmica degradada, metal líquido mal distribuido o piezas por pedir, puede tomar más. Te avisamos antes.` },
           { question: `¿Es seguro abrir mi PS5 o Xbox?`, answer: `Sí, usamos herramientas adecuadas para cada modelo y cuidamos flex, tornillos, clips y disipador. También revisamos humedad, polvo pegado o señales de sobrecalentamiento. No abrimos a la fuerza ni improvisamos.` },
         ],
-        relatedSlugs: ['pasta-termica', 'ventilacion', 'fuente', 'diagnostico'],
+        relatedSlugs: ['pasta-termica', 'sobrecalentamiento', 'fuente', 'diagnostico'],
         relatedExternal: [
           { label: 'Reparación de Controles',   href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Joystick drift, gatillos, botones  -  lo arreglamos.' },
           { label: 'Paquetes de mantenimiento', href: '/paquetes',             icon: 'fa-box',     desc: 'Servicio recurrente con descuento.' },
@@ -794,11 +794,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       {
         slug: 'pasta-termica',
         label: 'Cambio de pasta térmica',
-        seoKeyword: 'Cambio de pasta térmica para PS5, Xbox y Switch en Cancún',
-        hook: 'La pasta de fábrica de PS5/Xbox seca rápido en climas calientes. La cambiamos por premium y bajan las temperaturas hasta 25°C.',
-        intro: 'Reemplazo de pasta térmica del APU en PS5, Xbox y Switch. Bajan temperaturas, vuelve el silencio y se acaban los reinicios.',
-        bullets: ['Pasta de alto rendimiento (Arctic MX-4 o Thermal Grizzly)', 'Stress test con MonHun, Spider-Man o juego intensivo', 'Limpieza de disipador incluida', 'Garantía 3 meses', 'Reporte de temperaturas antes/después'],
-        fromPrice: '$450 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        seoKeyword: 'Cambio de pasta térmica de consolas en Cancún',
+        hook: '¿Tu PS5, Xbox, Nintendo Switch, Steam Deck o ROG Ally se calienta, suena fuerte o se apaga al jugar? Revisamos pasta térmica, metal líquido, disipador, ventilador y polvo antes de cotizar.',
+        intro: 'Cambio de pasta térmica de consolas en Cancún para PS5, PS4, Xbox, Nintendo Switch, Steam Deck y ROG Ally. Revisamos metal líquido en PS5, flujo de aire, disipador y ventilador con garantía por escrito.',
+        bullets: ['Diagnóstico térmico antes de cambiar compuesto', 'Pasta premium según modelo', 'Revisión de metal líquido en PS5', 'Limpieza de disipador y flujo de aire', 'Prueba de ruido y estabilidad'],
+        fromPrice: '$850 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
         whyUs: [
           { icon: 'fa-temperature-arrow-down', title: 'Bajan 15-25°C',  desc: 'En APU bajo carga. Tu consola deja de calentar como horno.' },
           { icon: 'fa-volume-low',             title: 'Adiós al ruido', desc: 'Ventilador deja de girar al máximo todo el tiempo.' },
@@ -826,7 +826,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
           { question: `¿Cuánto tarda el cambio de pasta en consola?`, answer: `El servicio normalmente toma de <strong>24 a 48 horas</strong>. Si requiere limpieza profunda adicional, revisión de ventilador, metal líquido o pruebas extendidas por apagados, puede tardar más. Te confirmamos al revisar la consola.` },
           { question: `¿Mi PS5 con sticker de garantía Sony puede abrirse?`, answer: `Si tu PS5 aún conserva garantía oficial vigente, abrirla puede afectarla. Si ya venció, el mantenimiento profesional no debería representar problema. Te explicamos el riesgo antes de abrir para que decidas si conviene hacerlo.` },
         ],
-        relatedSlugs: ['limpieza-interna', 'ventilacion', 'fuente', 'diagnostico'],
+        relatedSlugs: ['limpieza-interna', 'sobrecalentamiento', 'fuente', 'diagnostico'],
         relatedExternal: [
           { label: 'Reparación de Controles',  href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Aprovecha visita para arreglar el control con drift.' },
           { label: 'Paquetes de mantenimiento',href: '/paquetes',             icon: 'fa-box',     desc: 'Plan anual con descuento.' },
@@ -866,7 +866,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
           { question: `¿Reparan HDMI de PS5 y Xbox Series?`, answer: `Sí, revisamos y reparamos HDMI en PS5, PS4, Xbox Series X, Series S y Xbox One. También revisamos Nintendo Switch cuando la falla se relaciona con salida de video, dock o señal.` },
           { question: `¿La reparación tiene garantía?`, answer: `Sí, cuenta con garantía por escrito sobre el trabajo realizado. La garantía no aplica si el puerto vuelve a dañarse por golpe, jalón, humedad o manipulación externa, pero sí cubre la intervención realizada bajo condiciones normales.` },
         ],
-        relatedSlugs: ['fuente', 'ventilacion', 'diagnostico', 'limpieza-interna', 'pasta-termica'],
+        relatedSlugs: ['fuente', 'sobrecalentamiento', 'diagnostico', 'limpieza-interna', 'pasta-termica'],
         relatedExternal: [
           { label: 'Reparación de controles', href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Si también tienes drift, botones fallando o problemas de conexión en el control.' },
           { label: 'Mantenimiento de consola', href: '/paquetes', icon: 'fa-box', desc: 'Limpieza interna, revisión térmica y mantenimiento preventivo para consolas de alto uso.' },
@@ -878,9 +878,9 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         slug: 'fuente',
         label: 'Reparación de fuente',
         seoKeyword: 'Reparación de fuente de consolas en Cancún',
-        hook: '¿Tu consola no enciende, beep de error o se reinicia sola? Suele ser la fuente. La reparamos a nivel componente.',
-        intro: 'Consola que no enciende, beep de error o reinicios aleatorios  -  fuente de poder dañada. Reparación a nivel de placa.',
-        bullets: ['Diagnóstico eléctrico con multímetro', 'Reparación o reemplazo de fuente OEM', 'Cambio de capacitores hinchados', 'Garantía 3 meses', 'Pruebas de carga 24h'],
+        hook: '¿Tu PS5, PS4, Xbox o Nintendo Switch no enciende, hace beep, se apaga al jugar o falló después de un apagón? Medimos fuente, voltajes, fusibles, capacitores, consumo y placa antes de cotizar.',
+        intro: 'Reparación de fuente de consolas en Cancún para PS5, PS4, Xbox Series, Xbox One y Nintendo Switch. Diagnosticamos alimentación, voltajes, consumo y placa antes de cambiar piezas.',
+        bullets: ['Diagnóstico eléctrico con multímetro', 'Medición de voltajes y consumo', 'Revisión de fusibles y capacitores', 'Reparación o reemplazo según daño', 'Prueba bajo carga y garantía por escrito'],
         fromPrice: '$800 MXN', eta: '3-5 días', warranty: '3 meses por escrito',
         whyUs: [
           { icon: 'fa-bolt',          title: 'Diagnóstico eléctrico', desc: 'Multímetro + osciloscopio. Identificamos componente exacto.' },
@@ -905,18 +905,18 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         faqs: [
           { question: `¿Cuánto cuesta reparar la fuente?`, answer: `La reparación de fuente suele ir de <strong>$800 a $2,500 MXN</strong>, dependiendo del modelo y daño. No cuesta igual cambiar capacitores que reemplazar una fuente completa. Primero medimos voltajes y carga para cotizar claro.` },
           { question: `¿Por qué se daña la fuente?`, answer: `Puede dañarse por variaciones de voltaje, calor acumulado, capacitores envejecidos, humedad, salitre o derrames. En Cancún también influyen picos eléctricos y ambientes húmedos. Revisamos si el daño quedó en fuente o alcanzó placa.` },
-          { question: `¿Vale la pena reparar la fuente en vez de comprar consola nueva?`, answer: `Si el resto de la consola está en buen estado, casi siempre conviene reparar la fuente frente a comprar una nueva. Aun as?, revisamos placa, encendido y consumo antes de recomendarlo, porque no tiene sentido si existe daño mayor.` },
+          { question: `¿Vale la pena reparar la fuente en vez de comprar consola nueva?`, answer: `Si el resto de la consola está en buen estado, casi siempre conviene reparar la fuente frente a comprar una nueva. Aun así, revisamos placa, encendido y consumo antes de recomendarlo, porque no tiene sentido si existe daño mayor.` },
           { question: `¿Cuánto tarda la reparación de fuente?`, answer: `Normalmente tarda de <strong>3 a 5 días</strong> porque hacemos diagnóstico eléctrico y pruebas de carga. No entregamos una fuente solo porque encienda; la dejamos trabajando bajo demanda para confirmar estabilidad al jugar.` },
         ],
-        relatedSlugs: ['hdmi', 'limpieza-interna', 'ventilacion', 'diagnostico'],
+        relatedSlugs: ['hdmi', 'limpieza-interna', 'sobrecalentamiento', 'diagnostico'],
         relatedExternal: [
           { label: 'Reparación de Controles', href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Si también tienes drift.' },
         ],
       },
 
-      // --- Ventilación consola (extendida) ------------------------------
+      // --- Sobrecalentamiento consola (extendida) -----------------------
       {
-        slug: 'ventilacion',
+        slug: 'sobrecalentamiento',
         label: 'Sobrecalentamiento',
         seoKeyword: 'Sobrecalentamiento de consola en Cancún',
         hook: '¿Tu PS5, Xbox, Nintendo Switch o consola portátil se calienta, suena fuerte o se apaga al jugar? Revisamos polvo, ventilador, disipador, pasta térmica, metal líquido en PS5 y flujo de aire antes de cotizar.',
