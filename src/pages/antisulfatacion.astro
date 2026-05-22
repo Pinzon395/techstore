@@ -5,421 +5,773 @@ import Footer from '../components/Footer.astro';
 import FaqSection from '../components/FaqSection.astro';
 import CommentsSection from '../components/CommentsSection.astro';
 import ServiceTicketSection from '../components/ServiceTicketSection.astro';
+import RelatedServicesSection from '../components/RelatedServicesSection.astro';
+import { SERVICE_CATEGORIES } from '../data/services';
+
+const pcCategory = SERVICE_CATEGORIES.find((category) => category.slug === 'pc');
+const diagnosticService = pcCategory?.services.find((service) => service.slug === 'diagnostico');
+
+const waMessage = encodeURIComponent('Hola, necesito revisión por sulfatación en Cancún. Mi equipo tuvo humedad, salitre o contacto con líquido y quiero saber si se puede rescatar.');
 
 const faqs = [
-  { question: `¿Qué es la sulfataci?n y por qué afecta más en Cancún?`, answer: `La sulfataci?n es oxidaci?n y corrosi?n en contactos, pistas y componentes por humedad, salinidad y residuos. En Cancún ocurre con más frecuencia por clima costero y humedad alta. Si no se atiende, puede provocar falsos contactos, cortos o equipos que dejan de encender.` },
-  { question: `¿Pueden recuperar un equipo con sulfataci?n severa?`, answer: `Sí en muchos casos, pero depende del daño real en placa y componentes. Hacemos limpieza ultrasónica, neutralización, secado controlado y revisión de continuidad. Si hay IC, memoria, conectores o pistas dañadas, te cotizamos reparación adicional antes de continuar.` },
-  { question: `¿Cuánto tarda el tratamiento?`, answer: `Normalmente toma de 2 a 4 días hábiles porque no es solo limpiar. Incluye desarmado, limpieza ultrasónica, neutralización química, secado controlado, revisión de continuidad, sellado anti-humedad y pruebas de encendido o estabilidad según el equipo.` },
-  { question: `¿La protecci?n es permanente?`, answer: `No es permanente, pero puede extender bastante la vida útil si se combina con mantenimiento preventivo. En zonas costeras recomendamos revisión cada 12 meses, evitar guardar equipos en lugares húmedos y atender rápido cualquier derrame o señal de corrosi?n.` },
+  {
+    question: '¿Qué es la sulfatación y por qué afecta tanto en Cancún?',
+    answer: 'La sulfatación es corrosión en pistas, conectores y componentes electrónicos causada por humedad, salitre, residuos o líquido. En Cancún ocurre con más frecuencia por el clima costero, la humedad ambiental y equipos guardados cerca de ventanas, playa, aire acondicionado o zonas húmedas.',
+  },
+  {
+    question: '¿Se puede recuperar una laptop o PC con placa sulfatada?',
+    answer: 'Sí, en muchos casos se puede recuperar, pero depende del daño real. Primero revisamos placa, conectores, líneas de voltaje, pistas y componentes críticos. Si solo hay residuos o corrosión superficial, el tratamiento puede ser suficiente; si hay pistas comidas o componentes dañados, se cotiza reparación adicional.',
+  },
+  {
+    question: '¿La antisulfatación es lo mismo que limpiar una laptop mojada?',
+    answer: 'No. La limpieza por líquido atiende un derrame reciente para evitar corrosión. La antisulfatación se usa cuando ya existe oxidación, sulfato, falso contacto, pistas dañadas o daño avanzado por humedad. Es un trabajo más técnico porque puede requerir microscopio, baño ultrasónico, continuidad y reparación de pistas.',
+  },
+  {
+    question: '¿Cuánto tarda el tratamiento de antisulfatación?',
+    answer: 'Depende del equipo y nivel de daño. Un caso moderado puede tomar de 2 a 4 días hábiles, pero una placa con corrosión severa, fallas intermitentes o necesidad de reconstruir pistas puede tardar más. No se entrega solo porque enciende; se prueba estabilidad antes de recomendar entrega.',
+  },
+  {
+    question: '¿Qué pasa si sigo usando el equipo con sulfatación?',
+    answer: 'Usarlo puede empeorar el daño. La humedad y el sulfato pueden provocar cortos, falsos contactos, consumo anormal, daño de conectores, teclado, puertos o placa madre. Si el equipo tuvo líquido o señales de corrosión, lo mejor es apagarlo, no cargarlo y llevarlo a revisión.',
+  },
+  {
+    question: '¿La protección antihumedad es permanente?',
+    answer: 'No es permanente. Ayuda a proteger zonas intervenidas y reduce riesgo, pero Cancún sigue siendo un ambiente agresivo para electrónica. Recomendamos mantenimiento preventivo, evitar humedad directa, no guardar equipos en mochilas húmedas y revisar cada 6 a 12 meses si el equipo trabaja en zonas costeras.',
+  },
+  {
+    question: '¿La antisulfatación garantiza que el equipo dure años?',
+    answer: 'No se puede prometer eso cuando hubo daño por líquido o corrosión. El objetivo es detener el avance, recuperar funcionamiento cuando sea posible y rescatar información si el equipo está comprometido. Te explicamos el riesgo real antes de invertir en una reparación mayor.',
+  },
+];
+
+const relatedItems = [
+  { href: '/limpieza-laptop-liquido', icon: 'fa-droplet-slash', label: 'Limpieza por líquido', desc: 'Servicio urgente si acaba de caer agua, café, refresco o humedad sobre tu equipo.', cta: 'Ver servicio →' },
+  { href: '/servicios/laptop/diagnostico', icon: 'fa-laptop-medical', label: 'Diagnóstico de laptop', desc: 'Revisamos pantalla, batería, teclado, carga, placa, temperatura y señales de humedad.', cta: 'Ver diagnóstico →' },
+  { href: '/servicios/pc/diagnostico', icon: 'fa-desktop', label: 'Diagnóstico de PC', desc: 'Pruebas de fuente, RAM, SSD, placa, Windows, temperatura y daño por corrosión.', cta: 'Ver diagnóstico →' },
+  { href: '/servicios/laptop/pasta-termica', icon: 'fa-temperature-three-quarters', label: 'Mantenimiento térmico', desc: 'Limpieza interna, pasta térmica y revisión de temperatura para laptops en Cancún.', cta: 'Ver servicio →' },
+  { href: '/servicios/pc/limpieza-profunda', icon: 'fa-spray-can-sparkles', label: 'Limpieza profunda PC', desc: 'Retiro de polvo, revisión de conectores, fuente, ventiladores y humedad en PC.', cta: 'Ver servicio →' },
+  { href: '/paquetes', icon: 'fa-box', label: 'Paquetes de mantenimiento', desc: 'Mantenimiento preventivo para laptops, PCs y equipos usados en clima húmedo.', cta: 'Ver paquetes →' },
+  { href: '/servicios/laptop/cambio-teclado', icon: 'fa-keyboard', label: 'Cambio de teclado', desc: 'Útil cuando el líquido afectó teclado, flex, conector o matriz de teclas.', cta: 'Ver servicio →' },
+  { href: '/servicios/laptop/cambio-bateria', icon: 'fa-battery-three-quarters', label: 'Cambio de batería', desc: 'Revisión de batería inflada, dañada por humedad o fallas de carga.', cta: 'Ver servicio →' },
+  { href: '/reparaciones', icon: 'fa-screwdriver-wrench', label: 'Reparación general', desc: 'Reparaciones de laptop, PC, celulares, consolas e impresoras con diagnóstico claro.', cta: 'Ver reparaciones →' },
+  { href: '/empresas', icon: 'fa-building-shield', label: 'Soporte B2B', desc: 'Mantenimiento preventivo y revisión de humedad para oficinas, hoteles y negocios.', cta: 'Ver B2B →' },
+  { href: '/garantia', icon: 'fa-shield-halved', label: 'Garantía Pixon', desc: 'Conoce condiciones de garantía, límites por humedad y cobertura por servicio.', cta: 'Ver garantía →' },
+  { href: '/contacto', icon: 'fa-location-dot', label: 'Ubicación y contacto', desc: 'Agenda revisión en Cancún y recibe orientación antes de mover tu equipo.', cta: 'Contactar →' },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Antisulfatación en Cancún',
+    serviceType: 'Tratamiento de sulfatación y corrosión en placas electrónicas',
+    url: 'https://pixon.com.mx/antisulfatacion',
+    description: 'Servicio de antisulfatación en Cancún para laptops, PCs, MacBook, consolas y equipos afectados por humedad, salitre, corrosión o líquidos.',
+    provider: { '@id': 'https://pixon.com.mx/#business' },
+    areaServed: [
+      { '@type': 'City', name: 'Cancún' },
+      { '@type': 'State', name: 'Quintana Roo' },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  },
 ];
 ---
 
 <Base
-  title="Reparación por Antisulfatación en Cancún | Pixon PC"
-  description="Expertos en Antisulfatación en Cancún. Reparación de placas madre, reconstrucción de pistas y limpieza química ultrasónica tras daños por líquidos. ¡Canjea tu Diagnóstico Gratis!"
+  title="Antisulfatación en Cancún | Reparación por humedad y salitre"
+  description="Antisulfatación en Cancún para laptops, PCs, MacBook y equipos con corrosión por humedad, salitre o líquidos. Baño ultrasónico, revisión de placa y diagnóstico claro."
   canonical="https://pixon.com.mx/antisulfatacion"
   image="/assets/images/reparacion-sulfatacion-cancun.jpeg"
-  schema={[
-    {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": "Reparación por Antisulfatación de Laptops",
-        "provider": {
-            "@type": "LocalBusiness",
-            "name": "Pixon PC",
-            "image": "https://pixon.com.mx/LOGOCIRCULAR.png",
-            "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Cancún",
-                "addressRegion": "Q.R.",
-                "addressCountry": "MX"
-            },
-            "telephone": "+529986690777"
-        },
-        "areaServed": {
-            "@type": "City",
-            "name": "Cancún"
-        },
-        "serviceType": "Reparación de circuitos y pistas de cobre dañadas por sulfatación",
-        "url": "https://pixon.com.mx/antisulfatacion",
-        "description": "Servicio especializado de antisulfatación en Cancún. Limpieza química ultrasónica, reconstrucción de pistas de cobre y sellado UV para placas madre con daño por líquido.",
-        "offers": {
-            "@type": "Offer",
-            "priceCurrency": "MXN",
-            "price": "1500",
-            "availability": "https://schema.org/InStock"
-        }
-    }
-]}
+  schema={schema}
 >
   <Navbar />
-<!-- ═══ 1. HERO — ANTISULFATACIÓN ═══ -->
-    <header class="page-hero bg-emerald-grad" style="padding: 110px 0 80px; text-align: center; color: white; position: relative; overflow: hidden;">
-        <div style="position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.2) 0%, transparent 70%); pointer-events:none;"></div>
-        <div class="container" style="position:relative; z-index:1; max-width: 900px;">
-            <div style="display:inline-flex; align-items:center; gap:8px; background: rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#6ee7b7; padding:8px 20px; border-radius:30px; font-size:0.85rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:28px;">
-                <i class="fa-solid fa-microchip"></i> Microelectrónica Avanzada
-            </div>
-            <h1 style="font-size: clamp(2.4rem, 6vw, 4.2rem); margin-bottom: 24px; line-height:1.1; font-weight: 900; letter-spacing: -1px;">
-                ¿Óxido verde en tu placa?<br>
-                <span style="color:#10b981; text-shadow: 0 0 20px rgba(16,185,129,0.4);">Revertimos la Corrosión.</span>
-            </h1>
-            <p style="font-size: 1.15rem; max-width: 760px; margin: 0 auto 35px; color: #94a3b8; line-height: 1.6;">
-                La sulfatación es el cáncer silencioso de la electrónica. Si tu laptop sufrió un derrame y dejó de funcionar, aplicamos baños químicos ultrasónicos y reconstruimos las pistas dañadas a nivel microscópico en Cancún.
-            </p>
-            <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-                <button class="btn btn-primary" style="background: #10b981; border-color: #10b981; box-shadow: 0 10px 25px rgba(16,185,129,0.3); font-size: 1.1rem; padding: 14px 32px;"
-                    onclick="document.getElementById('golden-offer').scrollIntoView({behavior:'smooth'})">
-                    <i class="fa-solid fa-gift" style="font-size: 1.2rem;"></i> Obtener Diagnóstico Gratis
-                </button>
-                <button onclick="document.getElementById('proceso').scrollIntoView({behavior:'smooth'})"
-                    class="btn btn-outline" style="border-color: rgba(255,255,255,0.2); color: #fff; font-size: 1.1rem; padding: 14px 32px; background: rgba(255,255,255,0.05);">
-                    <i class="fa-solid fa-microscope"></i> Ver Proceso Técnico
-                </button>
-            </div>
-            <div class="trust-bar">
-                <div class="trust-item"><i class="fa-solid fa-flask"></i> Baño Ultrasónico</div>
-                <div class="trust-item"><i class="fa-solid fa-code-branch"></i> Reconstrucción de Pistas</div>
-                <div class="trust-item"><i class="fa-solid fa-sun"></i> Sellado UV Antihumedad</div>
-            </div>
-        </div>
-    </header>
 
-    <!-- ═══ 2. GOLDEN STAMP OFFER ═══ -->
-    <section id="golden-offer" class="golden-stamp-container">
-        <div class="container" style="position:relative; z-index:2; max-width: 800px;">
-            <div class="golden-badge-img">
-                <i class="fa-solid fa-award"></i>
-            </div>
-            <h2 style="font-size: clamp(1.8rem, 4vw, 2.6rem); color: #fff; margin-bottom: 15px; font-weight: 900;">
-                <span class="text-gold">DIAGNÓSTICO GRATUITO</span> DE DAÑOS
-            </h2>
-            <p style="color: #cbd5e1; font-size: 1.1rem; margin-bottom: 30px; line-height: 1.6;">
-                La evaluación con microscopio de una placa base sulfatada normalmente tiene un costo de $450 MXN. <strong>Canjea tu cupón web hoy y obtén una revisión profunda y presupuesto 100% gratis.</strong> Sin compromisos.
-            </p>
-            <button class="btn-gold" onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%21%20Quiero%20canjear%20el%20Diagn%C3%B3stico%20Gratis%20para%20una%20placa%20sulfatada')">
-                <i class="fa-solid fa-ticket"></i> Canjear Diagnóstico Gratis
-            </button>
+  <main class="anti-page">
+    <section class="anti-hero">
+      <div class="container anti-hero-grid">
+        <div class="anti-hero-copy">
+          <span class="anti-kicker"><i class="fa-solid fa-droplet-slash"></i> Clima costero · Cancún</span>
+          <h1>Antisulfatación en Cancún para laptops, PCs y placas con corrosión</h1>
+          <h2>Tratamiento técnico contra humedad, salitre, líquido derramado, óxido verde y falsos contactos.</h2>
+          <p>Si tu equipo se mojó, estuvo guardado en humedad, vive cerca del mar o empezó con fallas extrañas, revisamos placa, conectores, pistas, puertos y componentes antes de declarar pérdida total.</p>
+          <div class="anti-hero-badges">
+            <span>Baño ultrasónico</span>
+            <span>Revisión con microscopio</span>
+            <span>Placa y conectores</span>
+            <span>Servicio local en Cancún</span>
+          </div>
+          <div class="anti-actions">
+            <a class="anti-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">
+              <i class="fa-brands fa-whatsapp"></i> Revisar equipo sulfatado
+            </a>
+            <a class="anti-secondary" href="#diagnostico">Ver señales de daño</a>
+          </div>
         </div>
+        <aside class="anti-lab-card" aria-label="Resumen de antisulfatación">
+          <img src="/assets/images/reparacion-sulfatacion-cancun.jpeg" alt="Reparación por antisulfatación en Cancún" loading="eager" />
+          <div>
+            <span>Diagnóstico visual</span>
+            <strong>Humedad + salitre</strong>
+            <p>En Cancún la corrosión puede avanzar aunque el equipo parezca seco. No lo cargues ni lo enciendas hasta revisarlo.</p>
+          </div>
+        </aside>
+      </div>
     </section>
 
-    <!-- ═══ 3. ¿QUÉ ES LA SULFATACIÓN? ═══ -->
-    <section id="que-es" class="section-padding" style="background:#fff;">
-        <div class="container" style="max-width:1000px;">
-            <div class="section-title text-center" style="margin-bottom:3rem;">
-                <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--emerald-500);margin-bottom:10px;">
-                    <i class="fa-solid fa-virus"></i> El Enemigo Silencioso
-                </span>
-                <h2 class="h2-responsive" style="color:#0f172a;">¿Qué es Exactamente la Sulfatación?</h2>
-                <p style="color:#64748b;max-width:700px;margin:0 auto; font-size:1.05rem;">
-                    Cuando el líquido (agua, café, humedad extrema) entra en contacto con la corriente eléctrica de tu placa madre, genera una reacción de electrólisis. El cobre de los circuitos se oxida y se transforma en un polvo verde/blanco que corta la comunicación entre componentes.
-                </p>
-            </div>
-            <div class="flex-centered-grid">
-                <div class="symmetrical-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:30px; flex: 1 1 300px; max-width: 450px;">
-                    <i class="fa-solid fa-droplet-slash" style="color:#ef4444; font-size:2.4rem; margin-bottom:15px;"></i>
-                    <h3 style="font-size:1.3rem; color:#0f172a; margin-bottom:10px;">El Problema</h3>
-                    <p style="color:#475569; line-height:1.6;">El óxido literalmente "come" las pistas de cobre. Es como un cáncer: si no se detiene a tiempo con químicos, avanzará hasta que la placa sea declarada pérdida total. Secar la laptop por fuera no detiene este proceso químico.</p>
-                </div>
-                <div class="symmetrical-card" style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:20px; padding:30px; flex: 1 1 300px; max-width: 450px;">
-                    <i class="fa-solid fa-shield-virus" style="color:var(--emerald-600); font-size:2.4rem; margin-bottom:15px;"></i>
-                    <h3 style="font-size:1.3rem; color:#064e3b; margin-bottom:10px;">Nuestra Solución</h3>
-                    <p style="color:#065f46; line-height:1.6;">Utilizamos solventes químicos de alta pureza y tinas ultrasónicas para remover todo rastro de mineral oxidado. Luego, bajo el microscopio, restauramos las conexiones perdidas soldando hilos de cobre ultrafinos.</p>
-                </div>
-            </div>
-        </div>
+    <section class="anti-strip" aria-label="Resumen técnico">
+      <div class="container anti-strip-grid">
+        <article><strong>24-72 h</strong><span>primer avance según daño</span></article>
+        <article><strong>Microscopio</strong><span>revisión de pistas y conectores</span></article>
+        <article><strong>Ultrasónico</strong><span>limpieza química controlada</span></article>
+        <article><strong>Cancún</strong><span>enfoque humedad y salitre</span></article>
+      </div>
     </section>
 
-    <!-- ═══ 4. SÍNTOMAS DE ALERTA ═══ -->
-    <section id="sintomas" class="section-padding" style="background:#f8fafc; border-top:1px solid #e2e8f0;">
-        <div class="container" style="max-width:900px;">
-            <div class="section-title text-center" style="margin-bottom:2.5rem;">
-                <h2 class="h2-responsive" style="color:#0f172a;">Síntomas de una Placa Madre Sulfatada</h2>
-                <p style="color:#64748b;">Si tu equipo presenta alguno de estos comportamientos tras un incidente, la corrosión ya ha comenzado.</p>
-            </div>
-            <div class="flex-centered-grid" style="gap:15px;">
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1 1 200px; display:flex; gap:15px; align-items:center; box-shadow:0 4px 6px rgba(0,0,0,0.02);">
-                    <i class="fa-solid fa-power-off" style="color:#ef4444; font-size:1.5rem;"></i>
-                    <span style="font-weight:600; color:#0f172a;">No enciende o da chispazos</span>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1 1 200px; display:flex; gap:15px; align-items:center; box-shadow:0 4px 6px rgba(0,0,0,0.02);">
-                    <i class="fa-solid fa-fan" style="color:#3b82f6; font-size:1.5rem;"></i>
-                    <span style="font-weight:600; color:#0f172a;">Ventiladores giran al 100% sin dar video</span>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1 1 200px; display:flex; gap:15px; align-items:center; box-shadow:0 4px 6px rgba(0,0,0,0.02);">
-                    <i class="fa-solid fa-battery-quarter" style="color:#eab308; font-size:1.5rem;"></i>
-                    <span style="font-weight:600; color:#0f172a;">Batería no carga / Led parpadea</span>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1 1 200px; display:flex; gap:15px; align-items:center; box-shadow:0 4px 6px rgba(0,0,0,0.02);">
-                    <i class="fa-solid fa-keyboard" style="color:#8b5cf6; font-size:1.5rem;"></i>
-                    <span style="font-weight:600; color:#0f172a;">Teclado o puertos USB dejan de funcionar</span>
-                </div>
-            </div>
-            <div class="text-center" style="margin-top: 30px;">
-                <a href="/limpieza-laptop-liquido" style="color:var(--emerald-600); font-weight:700; text-decoration:underline;">¿Apenas se te cayó líquido hoy? Ve a nuestro servicio de Limpieza Preventiva Urgente.</a>
-            </div>
+    <section class="anti-section anti-light" id="diagnostico">
+      <div class="container">
+        <div class="anti-head">
+          <span class="anti-eyebrow">Diagnóstico frecuente</span>
+          <h2>Señales de sulfatación que vemos en equipos de Cancún</h2>
+          <p>La corrosión no siempre aparece como “óxido verde” visible. A veces se nota como encendido intermitente, puertos fallando, carga inestable o equipo que murió después de varios días.</p>
         </div>
+        <div class="anti-symptom-layout">
+          <div class="anti-signal-panel">
+            <h3>Si pasó esto, no lo sigas usando</h3>
+            <p>Encender o cargar un equipo con humedad puede convertir una limpieza recuperable en reparación de placa.</p>
+            <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">Pedir revisión urgente</a>
+          </div>
+          <div class="anti-symptom-grid">
+            {[
+              ['No enciende después de humedad', 'Puede haber corto, consumo anormal o corrosión en líneas principales.'],
+              ['Carga intermitente', 'El sulfato suele afectar centro de carga, flex, batería o conectores.'],
+              ['Teclado o USB fallan', 'La humedad puede viajar por flex y conectores aunque el derrame haya sido pequeño.'],
+              ['Ventilador enciende pero no da video', 'Revisamos placa, RAM, BIOS, GPU integrada y líneas dañadas.'],
+              ['Manchas blancas o verdes', 'Son residuos de corrosión, minerales o salitre sobre contactos y soldaduras.'],
+              ['Falla días después del derrame', 'Aunque se haya secado por fuera, la reacción química puede seguir avanzando.'],
+            ].map(([title, text], index) => (
+              <article>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- ═══ 5. PROCESO (STEP BY STEP) ═══ -->
-    <section id="proceso" class="section-padding" style="background:#fff;">
-        <div class="container">
-            <div class="section-title text-center" style="margin-bottom:3rem;">
-                <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--emerald-500);margin-bottom:10px;">
-                    <i class="fa-solid fa-microscope"></i> Laboratorio Electrónico
-                </span>
-                <h2 class="h2-responsive" style="color:#0f172a;">Nuestro Proceso de Antisulfatación</h2>
-                <p style="color:#64748b;max-width:620px;margin:0 auto;">Un trabajo clínico, nivel componente. No improvisamos; restauramos usando estándares de la industria.</p>
-            </div>
-            <div class="timeline-grid" style="max-width:1200px;margin:0 auto;">
-                <!-- Paso 1 -->
-                <div class="proceso-card symmetrical-card">
-                    <div class="proceso-num">1</div>
-                    <h4>Inspección Microscópica</h4>
-                    <p>Mapeamos bajo el microscopio todas las áreas afectadas por el óxido verde para determinar viabilidad.</p>
-                </div>
-                <!-- Paso 2 -->
-                <div class="proceso-card symmetrical-card">
-                    <div class="proceso-num">2</div>
-                    <h4>Baño Ultrasónico Químico</h4>
-                    <p>Sumergimos la placa en una tina de cavitación con isopropílico de alta pureza para desprender toda sal y mineral.</p>
-                </div>
-                <!-- Paso 3 -->
-                <div class="proceso-card symmetrical-card">
-                    <div class="proceso-num">3</div>
-                    <h4>Reconstrucción BGA / Pistas</h4>
-                    <p>Re-estañamos pistas corroídas. Si una línea se cortó, soldamos un micro-hilo de cobre (jumper) para unirla.</p>
-                </div>
-                <!-- Paso 4 -->
-                <div class="proceso-card symmetrical-card">
-                    <div class="proceso-num">4</div>
-                    <h4>Sellado Máscara UV</h4>
-                    <p>Aplicamos soldermask curada con luz ultravioleta sobre las reparaciones para protegerlas permanentemente de la humedad.</p>
-                </div>
-            </div>
+    <section class="anti-section anti-dark">
+      <div class="container anti-split">
+        <div>
+          <span class="anti-eyebrow">Por qué pasa</span>
+          <h2>Humedad, salitre y corriente: la mezcla que destruye pistas</h2>
+          <p>El daño por sulfatación aparece cuando humedad o líquido se combina con corriente eléctrica. El cobre, soldaduras y conectores empiezan a oxidarse; después llegan falsos contactos, líneas abiertas, cortos o componentes que dejan de responder.</p>
         </div>
+        <div class="anti-cause-list">
+          <article><i class="fa-solid fa-water"></i><div><h3>Humedad ambiental</h3><p>Equipos cerca de ventanas, aire acondicionado, terrazas o mochilas húmedas.</p></div></article>
+          <article><i class="fa-solid fa-umbrella-beach"></i><div><h3>Salitre costero</h3><p>El aire de costa acelera corrosión en conectores, tornillos, puertos y placas.</p></div></article>
+          <article><i class="fa-solid fa-mug-hot"></i><div><h3>Derrames</h3><p>Café, refresco, agua, alcohol y bebidas azucaradas dejan residuos conductivos.</p></div></article>
+          <article><i class="fa-solid fa-bolt"></i><div><h3>Corriente activa</h3><p>Seguir cargando o prendiendo el equipo puede provocar corto y daño mayor.</p></div></article>
+        </div>
+      </div>
     </section>
 
-    <!-- ═══ 6. GALERÍA DE CASOS REALES ═══ -->
+    <section class="anti-section anti-light">
+      <div class="container">
+        <div class="anti-head">
+          <span class="anti-eyebrow">Proceso técnico</span>
+          <h2>Cómo trabajamos una placa sulfatada</h2>
+          <p>No es solo “limpiar con alcohol”. Tratamos la corrosión por etapas para saber si el equipo puede recuperarse y qué piezas quedaron comprometidas.</p>
+        </div>
+        <div class="anti-process">
+          {[
+            ['01', 'Inspección', 'Revisamos zonas visibles, conectores, batería, puerto de carga, teclado, flex y señales de líquido.'],
+            ['02', 'Desarmado seguro', 'Separamos placa y componentes para evitar que residuos sigan dañando piezas sanas.'],
+            ['03', 'Baño ultrasónico', 'Usamos limpieza química controlada para remover residuos, sales y corrosión superficial.'],
+            ['04', 'Secado controlado', 'No se entrega húmedo ni se prueba antes de completar secado y revisión visual.'],
+            ['05', 'Continuidad y voltajes', 'Revisamos líneas críticas, consumo, cortos, conectores y pistas comprometidas.'],
+            ['06', 'Prueba final', 'Probamos encendido, carga, teclado, puertos, temperatura y estabilidad según el equipo.'],
+          ].map(([num, title, text]) => (
+            <article>
+              <strong>{num}</strong>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="anti-section anti-compare">
+      <div class="container anti-compare-grid">
+        <div>
+          <span class="anti-eyebrow">Decisión correcta</span>
+          <h2>¿Limpieza por líquido o antisulfatación?</h2>
+          <p>El servicio correcto depende del tiempo que pasó, tipo de líquido, si se conectó a corriente y si ya existe corrosión visible o fallas intermitentes.</p>
+        </div>
+        <div class="anti-columns">
+          <article>
+            <h3>Limpieza por líquido si:</h3>
+            <ul>
+              <li>El derrame fue reciente</li>
+              <li>El equipo aún no presenta óxido</li>
+              <li>No se ha cargado después del incidente</li>
+              <li>Queremos prevenir corrosión futura</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Antisulfatación si:</h3>
+            <ul>
+              <li>Ya hay manchas verdes, blancas o negras</li>
+              <li>Pasaron días o semanas con humedad</li>
+              <li>Hay puertos, teclado o carga fallando</li>
+              <li>La placa requiere revisión de pistas</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="anti-section anti-dark">
+      <div class="container">
+        <div class="anti-head anti-head-dark">
+          <span class="anti-eyebrow">Equipos atendidos</span>
+          <h2>Antisulfatación para laptops, PCs, MacBook, consolas y celulares</h2>
+          <p>Cada equipo se abre de forma distinta y no todos tienen la misma posibilidad de recuperación. Revisamos riesgo, acceso a placa, piezas disponibles y prioridad de rescate de información.</p>
+        </div>
+        <div class="anti-device-grid">
+          {[
+            ['fa-laptop', 'Laptops Windows', 'HP, Dell, Lenovo, Asus, Acer y equipos usados en escuela, trabajo u oficina.'],
+            ['fa-laptop-code', 'MacBook', 'Revisión de placa, top case, batería, teclado, trackpad y daño por líquido.'],
+            ['fa-desktop', 'PC de escritorio', 'Placa madre, fuente, GPU, RAM, puertos, polvo pegado y sulfatación por humedad.'],
+            ['fa-gamepad', 'Consolas', 'PS5, Xbox, Nintendo Switch, Steam Deck y portátiles con humedad o corrosión.'],
+            ['fa-mobile-screen-button', 'Celulares', 'Conectores, flex, puerto de carga, audio, pantalla y señales de líquido.'],
+            ['fa-print', 'Impresoras', 'Tarjetas, sensores, conectores y equipos expuestos a humedad en oficina o negocio.'],
+          ].map(([icon, title, text]) => (
+            <article>
+              <i class={`fa-solid ${icon}`}></i>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="anti-section anti-light">
+      <div class="container anti-rescue-grid">
+        <div>
+          <span class="anti-eyebrow">Prioridad real</span>
+          <h2>Primero buscamos salvar información y estabilizar el equipo</h2>
+          <p>Cuando una placa ya está sulfatada, la recuperación no siempre significa “quedó como nueva”. A veces el objetivo principal es recuperar archivos, estabilizar encendido, confirmar viabilidad o evitar gastar en una reparación que no conviene.</p>
+        </div>
+        <div class="anti-rescue-cards">
+          <article><strong>01</strong><h3>Rescate de datos</h3><p>Si el equipo enciende, priorizamos respaldo antes de pruebas largas.</p></article>
+          <article><strong>02</strong><h3>Viabilidad</h3><p>Te decimos si conviene reparar, limpiar, cambiar pieza o declarar pérdida.</p></article>
+          <article><strong>03</strong><h3>Riesgo transparente</h3><p>El daño por líquido no se promete como reparación eterna. Se explica el riesgo real.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="anti-section anti-prevention">
+      <div class="container anti-prevention-card">
+        <div>
+          <span class="anti-eyebrow">Prevención en Cancún</span>
+          <h2>Cómo reducir sulfatación por clima, humedad y salitre</h2>
+          <p>La prevención importa mucho más en Cancún que en ciudades secas. Si tu equipo trabaja en oficina con aire acondicionado, cerca de playa, hotel, local comercial o zona húmeda, conviene revisar conectores y limpieza interna con más frecuencia.</p>
+        </div>
+        <div class="anti-prevention-list">
+          <span>No guardar laptops en mochilas húmedas</span>
+          <span>Evitar ventanas, terrazas o piso</span>
+          <span>No cargar después de derrame</span>
+          <span>Revisar cada 6-12 meses</span>
+          <span>Usar fundas secas y ventilación</span>
+          <span>Atender líquido en las primeras horas</span>
+        </div>
+      </div>
+    </section>
+
     <ServiceTicketSection
       defaultDevice="Laptop / PC"
-      defaultService="Antisulfatacion"
-      title="Crear Ticket de Antisulfatacion"
-      subtitle="Cuentanos que liquido o humedad afecto tu equipo y revisamos el caso antes de cotizar."
+      defaultService="Antisulfatación"
+      sourcePage="/antisulfatacion"
+      title="Crear ticket de antisulfatación"
+      subtitle="Cuéntanos si hubo líquido, humedad, salitre o señales de corrosión. Te contactaremos para revisar viabilidad y siguiente paso."
     />
 
-    <section id="galeria" class="section-padding" style="background:#f8fafc; border-top:1px solid #e2e8f0;">
-        <div class="container">
-            <div class="section-title text-center" style="margin-bottom:3rem;">
-                <h2 class="h2-responsive" style="color:#0f172a;">Cirugías Electrónicas: Antes y Después</h2>
-                <p style="color:#64748b;max-width:560px;margin:0 auto;">Evidencia real de placas rescatadas de la muerte clínica por corrosión en nuestro laboratorio.</p>
-            </div>
-            <div class="flex-centered-grid" style="gap:30px;">
-                <!-- Card 1: MacBook por derrame -->
-                <div class="symmetrical-card" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.05);border:1px solid #e2e8f0; flex: 1 1 300px; max-width: 450px;">
-                    <div style="display:flex;height:240px;">
-                        <div style="flex:1;background:url('/assets/images/mantenimiento-macbook-cancun.jpeg') center/cover;position:relative;">
-                            <span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:white;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:bold;">ANTES</span>
-                        </div>
-                        <div style="flex:1;background:url('/assets/images/reparacion-mac-cancun.jpeg') center/cover;position:relative;border-left:2px solid #fff;">
-                            <span style="position:absolute;top:10px;left:10px;background:var(--emerald-500);color:white;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:bold;">DESPUÉS</span>
-                        </div>
-                    </div>
-                    <div style="padding:18px 20px;">
-                        <h3 style="font-size:1.05rem;color:#0f172a;margin-bottom:5px;">MacBook Pro - Derrame de Líquido</h3>
-                        <p style="color:#64748b;font-size:0.9rem;margin:0;">Limpieza química ultrasónica y reconstrucción de pistas corroídas tras derrame de bebida. Placa rescatada al 100%.</p>
-                    </div>
-                </div>
-                <!-- Card 2: Laptop Windows por agua -->
-                <div class="symmetrical-card" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.05);border:1px solid #e2e8f0; flex: 1 1 300px; max-width: 450px;">
-                    <div style="display:flex;height:240px;">
-                        <div style="flex:1;background:url('/assets/images/AntesBisagra2.jpg') center/cover;position:relative;">
-                            <span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.8);color:white;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:bold;">ANTES</span>
-                        </div>
-                        <div style="flex:1;background:url('/assets/images/DespuesBisagra2.jpg') center/cover;position:relative;border-left:2px solid #fff;">
-                            <span style="position:absolute;top:10px;left:10px;background:var(--emerald-500);color:white;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:bold;">DESPUÉS</span>
-                        </div>
-                    </div>
-                    <div style="padding:18px 20px;">
-                        <h3 style="font-size:1.05rem;color:#0f172a;margin-bottom:5px;">Laptop Windows - Agua de Lluvia</h3>
-                        <p style="color:#64748b;font-size:0.9rem;margin:0;">Tratamiento anti-corrosión en placa madre y circuitos principales tras exposición prolongada a humedad.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ 7. RIESGOS DE IGNORARLO ═══ -->
-    <section id="riesgos" class="section-padding" style="background:#fff;">
-        <div class="container" style="max-width:900px;">
-            <div class="section-title text-center" style="margin-bottom:2.5rem;">
-                <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:10px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Consecuencias
-                </span>
-                <h2 class="h2-responsive" style="color:#0f172a;">El Tiempo Juega en tu Contra</h2>
-                <p style="color:#64748b;">Dejar una placa con rastros de líquido en Cancún (humedad + salitre) acelera exponencialmente el daño.</p>
-            </div>
-            <div class="flex-centered-grid" style="gap:20px;">
-                <div class="symmetrical-card" style="background:#fff; border:1px solid #fecaca; border-radius:16px; padding:24px; flex:1 1 260px; max-width:380px;">
-                    <i class="fa-solid fa-fire" style="color:#ef4444; font-size:1.8rem; margin-bottom:12px;"></i>
-                    <h4 style="font-size:1.1rem; margin-bottom:8px;">Cortocircuito Mayor</h4>
-                    <p style="color:#64748b; font-size:0.92rem;">El óxido conduce electricidad. Si cruza dos líneas de voltaje distinto, quemará procesadores o chips integrados.</p>
-                </div>
-                <div class="symmetrical-card" style="background:#fff; border:1px solid #fecaca; border-radius:16px; padding:24px; flex:1 1 260px; max-width:380px;">
-                    <i class="fa-solid fa-battery-slash" style="color:#ef4444; font-size:1.8rem; margin-bottom:12px;"></i>
-                    <h4 style="font-size:1.1rem; margin-bottom:8px;">Pérdida Total del Equipo</h4>
-                    <p style="color:#64748b; font-size:0.92rem;">Llega un punto donde el ácido carcome múltiples capas internas de la placa base (PCB), haciendo imposible la soldadura.</p>
-                </div>
-                <div class="symmetrical-card" style="background:#fff; border:1px solid #fecaca; border-radius:16px; padding:24px; flex:1 1 260px; max-width:380px;">
-                    <i class="fa-solid fa-database" style="color:#ef4444; font-size:1.8rem; margin-bottom:12px;"></i>
-                    <h4 style="font-size:1.1rem; margin-bottom:8px;">Datos Irrecuperables</h4>
-                    <p style="color:#64748b; font-size:0.92rem;">Si la sulfatación alcanza los circuitos del disco duro o la memoria soldada, perderás fotos, archivos y licencias.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ 8. EQUIPOS QUE REPARAMOS ═══ -->
-    <section id="equipos" class="section-padding" style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">
-        <div class="container" style="max-width:1000px; text-align:center;">
-            <h2 class="h2-responsive" style="color:#0f172a; margin-bottom:30px;">Equipos que Reciben Antisulfatación</h2>
-            <div class="flex-centered-grid">
-                <div style="background:#fff; border-radius:12px; padding:20px 40px; box-shadow:0 4px 10px rgba(0,0,0,0.03); border:1px solid #e2e8f0; font-weight:700; color:#334155;"><i class="fa-brands fa-apple text-emerald"></i> MacBooks (Air / Pro)</div>
-                <div style="background:#fff; border-radius:12px; padding:20px 40px; box-shadow:0 4px 10px rgba(0,0,0,0.03); border:1px solid #e2e8f0; font-weight:700; color:#334155;"><i class="fa-brands fa-windows text-emerald"></i> Laptops Windows</div>
-                <div style="background:#fff; border-radius:12px; padding:20px 40px; box-shadow:0 4px 10px rgba(0,0,0,0.03); border:1px solid #e2e8f0; font-weight:700; color:#334155;"><i class="fa-solid fa-microchip text-emerald"></i> Tarjetas de Video (GPUs)</div>
-                <div style="background:#fff; border-radius:12px; padding:20px 40px; box-shadow:0 4px 10px rgba(0,0,0,0.03); border:1px solid #e2e8f0; font-weight:700; color:#334155;"><i class="fa-solid fa-gamepad text-emerald"></i> Consolas y Controles</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ 9. PRECIOS Y VALOR ═══ -->
-    <section id="precios" class="section-padding" style="background:#fff;">
-        <div class="container" style="max-width:800px; text-align:center;">
-            <h2 class="h2-responsive" style="color:#0f172a;">Precios de Microelectrónica</h2>
-            <p style="color:#64748b; margin-bottom: 40px;">Hacer soldadura bajo microscopio requiere altísima especialización y equipo de laboratorio. Es una fracción del costo de comprar una placa base nueva.</p>
-            
-            <div class="symmetrical-card" style="background:var(--emerald-900); color:white; border-radius:24px; padding:40px; position:relative; overflow:hidden; border:2px solid var(--emerald-500); box-shadow:0 20px 40px rgba(16,185,129,0.2);">
-                <div style="position:absolute; top:-50px; right:-50px; width:150px; height:150px; background:var(--emerald-500); filter:blur(60px); opacity:0.4;"></div>
-                <h3 style="font-size:1.5rem; margin-bottom:15px; color:#6ee7b7;">Reparación por Antisulfatación</h3>
-                <div style="font-size:3rem; font-weight:900; margin-bottom:10px;">Desde $1,500 <span style="font-size:1rem; font-weight:500; opacity:0.7;">MXN</span></div>
-                <p style="opacity:0.8; font-size:0.95rem; margin-bottom:25px;">El costo exacto depende de cuántos chips, integrados (IC) o pistas (jumpers) haya que reconstruir.</p>
-                <ul style="list-style:none; padding:0; margin:0 auto 30px; text-align:left; max-width:350px; font-size:0.95rem;">
-                    <li style="margin-bottom:10px;"><i class="fa-solid fa-check text-emerald" style="margin-right:10px;"></i> Diagnóstico transparente inicial</li>
-                    <li style="margin-bottom:10px;"><i class="fa-solid fa-check text-emerald" style="margin-right:10px;"></i> Baño químico ultrasónico incluido</li>
-                    <li style="margin-bottom:10px;"><i class="fa-solid fa-check text-emerald" style="margin-right:10px;"></i> Reconstrucción de pistas de cobre</li>
-                    <li><i class="fa-solid fa-check text-emerald" style="margin-right:10px;"></i> Pruebas de encendido y estrés</li>
-                </ul>
-                <button class="btn btn-primary" style="background:#fff; color:var(--emerald-900); font-weight:800; padding:15px 30px; width:100%; border:none;" onclick="smartWaRedirect('https://wa.me/529986690777')">Solicitar Cotización</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ 10. SERVICIOS COMPLEMENTARIOS (INTERNAL LINKING) ═══ -->
-    <section id="servicios-relacionados" class="section-padding" style="background:#f8fafc; border-top:1px solid #e2e8f0;">
-        <div class="container" style="max-width:1100px;">
-            <div class="section-title text-center" style="margin-bottom:2.5rem;">
-                <h2 class="h2-responsive" style="color:#0f172a;">Otras Soluciones para tu Equipo</h2>
-            </div>
-            <div class="flex-centered-grid">
-                <a href="/limpieza-laptop-liquido" class="symmetrical-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:24px; text-decoration:none; flex:1 1 250px; max-width:350px;">
-                    <i class="fa-solid fa-droplet" style="color:#3b82f6; font-size:1.8rem; margin-bottom:15px;"></i>
-                    <h4 style="color:#0f172a; font-size:1.1rem; margin-bottom:8px;">Limpieza Preventiva (Líquidos)</h4>
-                    <p style="color:#64748b; font-size:0.9rem;">Si el derrame acaba de ocurrir y la placa aún no hace cortocircuito.</p>
-                </a>
-                <a href="/instalacion-windows" class="symmetrical-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:24px; text-decoration:none; flex:1 1 250px; max-width:350px;">
-                    <i class="fa-brands fa-windows" style="color:#0ea5e9; font-size:1.8rem; margin-bottom:15px;"></i>
-                    <h4 style="color:#0f172a; font-size:1.1rem; margin-bottom:8px;">Reinstalación de Sistema</h4>
-                    <p style="color:#64748b; font-size:0.9rem;">Formateo e instalación limpia de Windows si el disco sufrió fallos lógicos.</p>
-                </a>
-                <a href="/mantenimiento-mac" class="symmetrical-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:24px; text-decoration:none; flex:1 1 250px; max-width:350px;">
-                    <i class="fa-brands fa-apple" style="color:#0f172a; font-size:1.8rem; margin-bottom:15px;"></i>
-                    <h4 style="color:#0f172a; font-size:1.1rem; margin-bottom:8px;">Especialistas en Mac</h4>
-                    <p style="color:#64748b; font-size:0.9rem;">Servicio especializado con tornillería y diagramas exclusivos de Apple.</p>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══ 11. GARANTÍA Y CONDICIONES (HONESTIDAD) ═══ -->
-    <section id="garantia" class="section-padding" style="background:#fff;">
-        <div class="container" style="max-width:900px;">
-            <div class="section-title text-center" style="margin-bottom:2.5rem;">
-                <h2 class="h2-responsive" style="color:#0f172a;">Políticas de Transparencia</h2>
-                <p style="color:#64748b;">Hablamos con la verdad: restaurar placas dañadas por líquidos es complejo.</p>
-            </div>
-            <div class="flex-centered-grid">
-                <div class="symmetrical-card" style="background:#fef2f2; border:1px solid #fecaca; border-radius:16px; padding:24px; flex:1 1 280px; max-width:400px;">
-                    <i class="fa-solid fa-handshake-angle" style="color:#ef4444; font-size:1.5rem; margin-bottom:10px;"></i>
-                    <h4 style="color:#991b1b; margin-bottom:10px;">Cobramos por Éxito</h4>
-                    <p style="color:#b91c1c; font-size:0.9rem;">Si, y solo si, la computadora vuelve a encender de manera estable, se efectúa el cobro. Si tras todo el proceso microelectrónico la placa no revive, <strong>no te cobramos un solo peso.</strong></p>
-                </div>
-                <div class="symmetrical-card" style="background:#fff7ed; border:1px solid #fed7aa; border-radius:16px; padding:24px; flex:1 1 280px; max-width:400px;">
-                    <i class="fa-solid fa-shield-halved" style="color:#f97316; font-size:1.5rem; margin-bottom:10px;"></i>
-                    <h4 style="color:#c2410c; margin-bottom:10px;">Sin Garantía a Largo Plazo</h4>
-                    <p style="color:#c2410c; font-size:0.9rem;">El óxido es impredecible y el líquido puede ocultarse bajo componentes BGA. El objetivo primario de este servicio es "revivir" la máquina para <strong>rescatar tu información</strong>, no garantizar su durabilidad a 5 años.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    
-
-    <!-- ═══ 13. UBICACIÓN Y CTA FINAL ═══ -->
-    <section id="cta-final" class="section-padding" style="background:#fff;">
-        <div class="container" style="max-width:900px;">
-            <div style="background:var(--emerald-900); border-radius:24px; padding:50px 40px; text-align:center; color:white; position:relative; overflow:hidden;">
-                <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 80%); pointer-events:none;"></div>
-                <h3 style="font-size:clamp(1.6rem, 3.5vw, 2.2rem); margin-bottom:15px; font-weight:800; position:relative; z-index:1;">Rescata tu Inversión en Cancún</h3>
-                <p style="font-size:1.1rem; color:#d1fae5; max-width:650px; margin:0 auto 24px; position:relative; z-index:1;">
-                    Cubrimos Zona Hotelera, Polígono Sur, Haciendas y todo Cancún. Pide tu recolección urgente antes de que el óxido avance más.
-                </p>
-                <!-- Mapa de Google Maps -->
-                <div style="position:relative; z-index:1; margin-bottom:28px; border-radius:16px; overflow:hidden;">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3722.87!2d-86.8462!3d21.1375!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zPixon+PC+Canc%C3%BAn!5e0!3m2!1ses!2smx!4v1683000000000"
-                        width="100%" height="220" style="border:0; filter:brightness(0.9) saturate(1.2);" allowfullscreen="" loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade" title="Ubicación Pixon PC Cancún"></iframe>
-                </div>
-                <div style="position:relative; z-index:1; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
-                    <button class="btn btn-primary" style="background:#fff; color:var(--emerald-900); font-weight:800; font-size:1.1rem; padding:14px 30px; border-radius:30px;"
-                        onclick="smartWaRedirect('https://wa.me/529986690777?text=URGENTE%3A%20Requiero%20recolecci%C3%B3n%20para%20antisulfataci%C3%B3n')">
-                        <i class="fa-brands fa-whatsapp"></i> Agendar Recolección Express
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- MOBILE STICKY CTA PARA EMERGENCIAS -->
-    <div class="mobile-sticky-cta">
-        <div style="display: flex; flex-direction: column;">
-            <span style="color: var(--gold-main); font-size: 0.75rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.5px;"><i class="fa-solid fa-award"></i> Diagnóstico Gratis</span>
-            <p style="margin: 0; font-size: 0.95rem; font-weight: 700; color: #0f172a; line-height: 1.2;">Canjea hoy</p>
-        </div>
-        <button class="btn btn-primary" style="background: var(--gold-main); border-color: var(--gold-main); padding: 10px 20px; font-size: 0.95rem; font-weight: 800; color:#fff;"
-            onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%21%20Quiero%20canjear%20el%20Diagn%C3%B3stico%20Gratis')">
-            Canjear <i class="fa-solid fa-arrow-right"></i>
-        </button>
-    </div>
+    <RelatedServicesSection
+      items={relatedItems}
+      title="Servicios relacionados con humedad, líquido y corrosión"
+      eyebrow="Servicios complementarios"
+      initialLimit={8}
+    />
 
     <FaqSection
-      title="Preguntas frecuentes sobre antisulfatación"
-      description="Lo que más preguntan sobre proteger tu equipo del salitre."
+      id="faq"
+      title="Preguntas frecuentes sobre antisulfatación en Cancún"
+      description="Resolvemos dudas sobre sulfatación, humedad, salitre, líquido derramado, baño ultrasónico, reparación de pistas, tiempos y posibilidades reales de recuperación."
       items={faqs}
+      ariaLabel="Preguntas frecuentes sobre antisulfatación en Cancún"
       viewMoreHref="/preguntas-frecuentes"
-      viewMoreLabel="Ver todas las preguntas"
+      viewMoreLabel="Ver más preguntas frecuentes"
+      backgroundColor="#0B1120"
+      titleColor="#F8FAFC"
+      descriptionColor="#CBD5E1"
+      questionColor="#F8FAFC"
+      itemGap="10px"
+      questionPadding="16px 18px"
+      sectionClass="anti-faq"
     />
 
-    <CommentsSection viewMoreHref="/comentarios" />
+    <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" />
+  </main>
 
-    <!-- FOOTER INJECTED BY SYNC -->
   <Footer />
-
-
-    <!-- ═══ Scripts ═══ -->
-    <!-- ═══ Cookie Banner ═══ -->
 </Base>
 
-<script>
-
-</script>
+<style is:global>
+  .anti-page {
+    background: #07111f;
+    color: #e2e8f0;
+    letter-spacing: 0;
+  }
+  .anti-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 42px 0 54px;
+    background:
+      radial-gradient(circle at 12% 15%, rgba(16,185,129,.22), transparent 30%),
+      radial-gradient(circle at 86% 18%, rgba(56,189,248,.18), transparent 30%),
+      linear-gradient(135deg, #06111f 0%, #0b1120 54%, #102a25 100%);
+  }
+  .anti-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(148,163,184,.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(148,163,184,.06) 1px, transparent 1px);
+    background-size: 44px 44px;
+    opacity: .38;
+  }
+  .anti-hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+    gap: 34px;
+    align-items: center;
+  }
+  .anti-kicker,
+  .anti-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #5eead4;
+    font-size: .78rem;
+    font-weight: 950;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .anti-hero h1 {
+    margin: 12px 0 12px;
+    color: #fff;
+    font-size: clamp(2.15rem, 4.8vw, 4.6rem);
+    line-height: .98;
+    letter-spacing: 0;
+  }
+  .anti-hero h2 {
+    margin: 0 0 14px;
+    color: #ccfbf1;
+    font-size: clamp(1.05rem, 2vw, 1.5rem);
+    line-height: 1.3;
+    font-weight: 900;
+  }
+  .anti-hero p {
+    color: #cbd5e1;
+    max-width: 780px;
+    line-height: 1.7;
+    font-size: 1.04rem;
+  }
+  .anti-hero-badges,
+  .anti-actions,
+  .anti-prevention-list,
+  .anti-area-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  .anti-hero-badges {
+    margin: 18px 0 22px;
+  }
+  .anti-hero-badges span {
+    border: 1px solid rgba(94,234,212,.28);
+    background: rgba(15,23,42,.66);
+    color: #ecfeff;
+    padding: 8px 11px;
+    border-radius: 999px;
+    font-weight: 850;
+    font-size: .84rem;
+  }
+  .anti-primary,
+  .anti-secondary,
+  .anti-signal-panel a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+  .anti-primary,
+  .anti-signal-panel a {
+    background: #10b981;
+    color: #031b16;
+    box-shadow: 0 16px 34px rgba(16,185,129,.24);
+  }
+  .anti-secondary {
+    color: #e0f2fe;
+    border: 1px solid rgba(226,232,240,.22);
+    background: rgba(15,23,42,.64);
+  }
+  .anti-lab-card {
+    overflow: hidden;
+    border-radius: 26px;
+    background: rgba(15,23,42,.78);
+    border: 1px solid rgba(148,163,184,.18);
+    box-shadow: 0 28px 70px rgba(0,0,0,.32);
+  }
+  .anti-lab-card img {
+    display: block;
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+  }
+  .anti-lab-card div {
+    padding: 20px;
+  }
+  .anti-lab-card span {
+    color: #5eead4;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: .76rem;
+  }
+  .anti-lab-card strong {
+    display: block;
+    margin: 6px 0;
+    color: #fff;
+    font-size: 1.4rem;
+  }
+  .anti-lab-card p {
+    margin: 0;
+    color: #cbd5e1;
+  }
+  .anti-strip {
+    background: #0b1120;
+    border-top: 1px solid rgba(148,163,184,.14);
+    border-bottom: 1px solid rgba(148,163,184,.14);
+    padding: 18px 0;
+  }
+  .anti-strip-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .anti-strip article {
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(15,23,42,.72);
+    border: 1px solid rgba(148,163,184,.14);
+  }
+  .anti-strip strong {
+    display: block;
+    color: #fff;
+    font-size: 1.18rem;
+  }
+  .anti-strip span {
+    color: #cbd5e1;
+    font-weight: 750;
+  }
+  .anti-section {
+    padding: 56px 0;
+  }
+  .anti-light {
+    background: #f8fafc;
+    color: #0f2a4a;
+  }
+  .anti-light *,
+  .anti-compare *,
+  .anti-prevention * {
+    color: #0f2a4a;
+  }
+  .anti-dark {
+    background: #07111f;
+    color: #f8fafc;
+  }
+  .anti-dark *,
+  .anti-dark h2,
+  .anti-dark h3 {
+    color: #f8fafc;
+  }
+  .anti-head {
+    max-width: 880px;
+    margin: 0 auto 28px;
+    text-align: center;
+  }
+  .anti-head h2,
+  .anti-split h2,
+  .anti-compare h2,
+  .anti-rescue-grid h2,
+  .anti-prevention-card h2 {
+    margin: 8px 0 12px;
+    font-size: clamp(1.9rem, 3.2vw, 3.3rem);
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+  .anti-head p,
+  .anti-split p,
+  .anti-compare p,
+  .anti-rescue-grid p,
+  .anti-prevention-card p {
+    line-height: 1.72;
+  }
+  .anti-light .anti-eyebrow,
+  .anti-compare .anti-eyebrow,
+  .anti-prevention .anti-eyebrow {
+    color: #047857;
+  }
+  .anti-light p,
+  .anti-compare p,
+  .anti-prevention p {
+    color: #334155;
+  }
+  .anti-symptom-layout,
+  .anti-split,
+  .anti-compare-grid,
+  .anti-rescue-grid,
+  .anti-prevention-card {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 28px;
+    align-items: center;
+  }
+  .anti-signal-panel {
+    padding: 24px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #064e3b, #0f172a);
+    box-shadow: 0 24px 54px rgba(15,42,74,.18);
+  }
+  .anti-signal-panel h3,
+  .anti-signal-panel p {
+    color: #fff;
+  }
+  .anti-signal-panel p {
+    color: #ccfbf1;
+  }
+  .anti-symptom-grid,
+  .anti-process,
+  .anti-device-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .anti-symptom-grid article,
+  .anti-process article,
+  .anti-device-grid article,
+  .anti-rescue-cards article,
+  .anti-columns article {
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(15,42,74,.12);
+    box-shadow: 0 14px 30px rgba(15,42,74,.06);
+  }
+  .anti-symptom-grid span,
+  .anti-process strong,
+  .anti-rescue-cards strong {
+    color: #0d9488;
+    font-weight: 950;
+  }
+  .anti-symptom-grid h3,
+  .anti-process h3,
+  .anti-rescue-cards h3,
+  .anti-columns h3 {
+    margin: 8px 0;
+    color: #0f2a4a;
+    font-size: 1.02rem;
+    line-height: 1.25;
+  }
+  .anti-symptom-grid p,
+  .anti-process p,
+  .anti-rescue-cards p {
+    margin: 0;
+    color: #334155;
+    line-height: 1.58;
+  }
+  .anti-cause-list {
+    display: grid;
+    gap: 12px;
+  }
+  .anti-cause-list article {
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(15,23,42,.72);
+    border: 1px solid rgba(148,163,184,.16);
+  }
+  .anti-cause-list i,
+  .anti-device-grid i {
+    color: #5eead4;
+    font-size: 1.5rem;
+  }
+  .anti-cause-list h3,
+  .anti-cause-list p {
+    margin: 0;
+  }
+  .anti-cause-list p,
+  .anti-head-dark p {
+    color: #cbd5e1;
+  }
+  .anti-compare {
+    background: #ecfeff;
+  }
+  .anti-columns,
+  .anti-rescue-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .anti-columns ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 9px;
+  }
+  .anti-columns li {
+    color: #334155;
+    font-weight: 820;
+  }
+  .anti-columns li::before {
+    content: "•";
+    color: #0d9488;
+    font-weight: 900;
+    margin-right: 8px;
+  }
+  .anti-device-grid article {
+    background: rgba(15,23,42,.72);
+    border-color: rgba(148,163,184,.16);
+    box-shadow: none;
+  }
+  .anti-device-grid p {
+    color: #cbd5e1;
+  }
+  .anti-prevention {
+    background: #f8fafc;
+  }
+  .anti-prevention-card {
+    padding: 28px;
+    border-radius: 28px;
+    background: #fff;
+    border: 1px solid rgba(15,42,74,.10);
+    box-shadow: 0 18px 40px rgba(15,42,74,.08);
+  }
+  .anti-prevention-list span {
+    display: inline-flex;
+    padding: 10px 12px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    border: 1px solid rgba(13,148,136,.18);
+    color: #064e3b;
+    font-weight: 850;
+  }
+  .anti-page .svc-related {
+    background: #0b1120;
+  }
+  .anti-page .svc-related,
+  .anti-page .svc-related * {
+    color: #f8fafc;
+  }
+  .anti-page .svc-related .ux-eyebrow,
+  .anti-page .svc-related .related-card i,
+  .anti-page .svc-related .related-card span,
+  .anti-page .svc-related .related-toggle {
+    color: #5eead4;
+  }
+  .anti-page .svc-related .related-card p {
+    color: #cbd5e1;
+  }
+  .anti-page .service-ticket-section,
+  .anti-page .service-ticket-section * {
+    color: #0f2a4a;
+  }
+  .anti-page .anti-faq .section-title h2,
+  .anti-page .anti-faq .section-title p {
+    color: #f8fafc !important;
+  }
+  .anti-page .anti-faq .faq-item {
+    background: rgba(15,23,42,.72) !important;
+    border-color: rgba(148,163,184,.22) !important;
+  }
+  .anti-page .anti-faq .faq-item,
+  .anti-page .anti-faq .faq-item *,
+  .anti-page .anti-faq .faq-question,
+  .anti-page .anti-faq .faq-question:hover,
+  .anti-page .anti-faq .faq-answer-inner {
+    color: #f8fafc !important;
+  }
+  .anti-page .anti-faq .faq-answer-inner {
+    color: #e2e8f0 !important;
+  }
+  @media (max-width: 980px) {
+    .anti-hero-grid,
+    .anti-symptom-layout,
+    .anti-split,
+    .anti-compare-grid,
+    .anti-rescue-grid,
+    .anti-prevention-card {
+      grid-template-columns: 1fr;
+    }
+    .anti-strip-grid,
+    .anti-symptom-grid,
+    .anti-process,
+    .anti-device-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .anti-hero {
+      padding: 30px 0 38px;
+    }
+    .anti-section {
+      padding: 40px 0;
+    }
+    .anti-strip-grid,
+    .anti-symptom-grid,
+    .anti-process,
+    .anti-device-grid,
+    .anti-columns,
+    .anti-rescue-cards {
+      grid-template-columns: 1fr;
+    }
+    .anti-primary,
+    .anti-secondary {
+      width: 100%;
+    }
+    .anti-lab-card img {
+      height: 210px;
+    }
+  }
+</style>

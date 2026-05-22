@@ -11,6 +11,7 @@ import MantenimientoTermicoView from '../../../components/views/MantenimientoTer
 import ConsoleThermalPasteView from '../../../components/views/ConsoleThermalPasteView.astro';
 import ConsolePowerSupplyView from '../../../components/views/ConsolePowerSupplyView.astro';
 import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
+import PcDiagnosticView from '../../../components/views/PcDiagnosticView.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
 
@@ -36,6 +37,7 @@ const isLaptopKeyboardReplacement = category.slug === 'laptop' && service.slug =
 const isLaptopThermalPaste = category.slug === 'laptop' && service.slug === 'pasta-termica';
 const isPcUpgrade = category.slug === 'pc' && service.slug === 'upgrade';
 const isPcFormat = category.slug === 'pc' && service.slug === 'formateo';
+const isPcDiagnostic = category.slug === 'pc' && service.slug === 'diagnostico';
 const isPrinterService = category.slug === 'impresora';
 const isPrinterMaintenance = category.slug === 'impresora' && service.slug === 'mantenimiento';
 const isPrinterInkToner = category.slug === 'impresora' && service.slug === 'cambio-tinta-toner';
@@ -58,6 +60,8 @@ const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardRe
 const seoKeyword = service.seoKeyword || service.label;
 const seoTitle = isPcFormat
   ? 'Formateo de PC en Cancún | Windows, respaldo y drivers'
+  : isPcDiagnostic
+  ? 'Diagnóstico de PC en Cancún | Pixon PC'
   : isPrinterMaintenance
   ? 'Mantenimiento de impresoras en Cancún | Pixon PC'
   : isPrinterInkToner
@@ -97,6 +101,8 @@ const seoTitle = isPcFormat
   : `${seoKeyword} para ${category.title} en Cancún | Pixon PC`;
 const description = isPcFormat
   ? 'Formateo de PC en Cancún desde $750 MXN. Windows limpio, respaldo de archivos, drivers, paquetería básica y optimización.'
+  : isPcDiagnostic
+  ? 'Diagnóstico de PC en Cancún para computadoras que no encienden, se reinician, van lentas, tienen pantalla azul, fallas de Windows, fuente, RAM, SSD, GPU o temperatura.'
   : isPrinterMaintenance
   ? 'Mantenimiento de impresoras en Cancún desde $750 MXN. Limpieza, rodillos, bandejas, cabezales, tóner, tinta, prueba de impresión y revisión preventiva.'
   : isPrinterInkToner
@@ -137,6 +143,8 @@ const description = isPcFormat
 
 const waMessage = encodeURIComponent(isPcFormat
   ? 'Hola, quiero cotizar formateo de PC en Cancún con respaldo, Windows, drivers y optimización.'
+  : isPcDiagnostic
+  ? 'Hola, quiero agendar diagnóstico de PC en Cancún. Mi computadora presenta una falla y quiero saber qué tiene antes de reparar.'
   : isPrinterMaintenance
   ? 'Hola, quiero cotizar mantenimiento de impresora en Cancún. Puedo enviar marca, modelo y la falla que presenta.'
   : isPrinterInkToner
@@ -489,6 +497,8 @@ const consoleCleaningFaqs = [
     <ConsoleThermalPasteView service={service} category={category} />
   ) : isConsolePowerSupply ? (
     <ConsolePowerSupplyView service={service} category={category} />
+  ) : isPcDiagnostic ? (
+    <PcDiagnosticView service={service} category={category} />
   ) : service.slug === 'cambio-bateria' ? (
     <CambioBateriaView service={service} category={category} />
   ) : (

@@ -2,7 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const srcDir = path.join(__dirname, 'src');
+const projectRoot = path.resolve(__dirname, '..', '..');
+const srcDir = path.join(projectRoot, 'src');
 let fixedCount = 0;
 let errorCount = 0;
 
@@ -21,7 +22,7 @@ function processDirectory(dir) {
         } else if (entry.name.endsWith('.astro')) {
             try {
                 fixEncoding(fullPath);
-                const relative = path.relative(__dirname, fullPath);
+                const relative = path.relative(projectRoot, fullPath);
                 console.log(`Fixed: ${relative}`);
                 fixedCount++;
             } catch (err) {

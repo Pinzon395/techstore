@@ -1,0 +1,844 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero agendar diagnóstico de PC en Cancún. Mi computadora no funciona bien y quiero saber qué tiene antes de reparar.'
+);
+
+const symptoms = [
+  ['PC no enciende', 'Probamos fuente de poder, botón, placa madre, RAM, conectores y consumo antes de recomendar piezas.'],
+  ['Pantalla azul o reinicios', 'Revisamos memoria RAM, disco, controladores, temperatura, eventos de Windows y estabilidad bajo carga.'],
+  ['PC lenta o congelada', 'Identificamos si la causa es disco duro, SSD degradado, poca RAM, virus, Windows dañado o temperatura.'],
+  ['No da video', 'Separamos falla de monitor, cable, GPU, RAM, placa, BIOS y fuente para evitar diagnósticos falsos.'],
+  ['Se calienta o se apaga', 'Medimos temperatura, ventiladores, pasta térmica, flujo de aire, polvo y consumo en pruebas reales.'],
+  ['Errores de Windows o virus', 'Revisamos sistema, malware, arranque, drivers, actualizaciones y respaldo antes de formatear.'],
+];
+
+const testMatrix = [
+  {
+    title: 'Hardware',
+    icon: 'fa-microchip',
+    items: ['Fuente de poder', 'RAM', 'SSD / HDD', 'GPU', 'Motherboard', 'Puertos y cables'],
+  },
+  {
+    title: 'Windows y software',
+    icon: 'fa-window-restore',
+    items: ['Arranque', 'Drivers', 'Virus', 'Pantalla azul', 'Eventos del sistema', 'Programas dañados'],
+  },
+  {
+    title: 'Temperatura',
+    icon: 'fa-temperature-three-quarters',
+    items: ['CPU', 'GPU', 'Ventiladores', 'Pasta térmica', 'Polvo interno', 'Flujo de aire'],
+  },
+  {
+    title: 'Uso real',
+    icon: 'fa-gauge-high',
+    items: ['Prueba de carga', 'Estabilidad', 'Rendimiento', 'Ruido', 'Consumo', 'Recomendación final'],
+  },
+];
+
+const deliverables = [
+  ['Diagnóstico claro', 'Te decimos qué falla, por qué ocurre y qué tan urgente es repararlo.'],
+  ['Cotización antes de tocar piezas', 'No cambiamos fuente, RAM, SSD o placa sin confirmar la causa probable.'],
+  ['Recomendación honesta', 'Si conviene reparar, formatear, hacer upgrade o reemplazar el equipo, te lo explicamos.'],
+  ['Evidencia por WhatsApp', 'Compartimos hallazgos, fotos o lecturas cuando ayudan a entender la falla.'],
+];
+
+const areas = ['Cancún Centro', 'Huayacán', 'Cumbres', 'Bonampak', 'Zona Hotelera', 'Puerto Cancún', 'Polígono Sur', 'Quintana Roo'];
+
+const faqs = [
+  {
+    question: '¿Cuánto cuesta el diagnóstico de PC en Cancún?',
+    answer: 'El diagnóstico de PC es gratis. El tiempo sí depende del tipo de problema: una revisión completa puede tomar hasta 6 horas y, si la falla es intermitente o requiere pruebas largas de temperatura, fuente, RAM, disco o Windows, puede tomar más. Te avisamos por WhatsApp antes de continuar.',
+  },
+  {
+    question: '¿Qué revisan en un diagnóstico de computadora?',
+    answer: 'Revisamos fuente de poder, RAM, disco duro o SSD, temperatura, ventiladores, GPU, placa madre, Windows, drivers, virus, arranque y comportamiento bajo uso real. El objetivo es encontrar la causa de la falla antes de cambiar piezas o recomendar formateo.',
+  },
+  {
+    question: '¿Pueden saber si mi PC necesita formateo o reparación?',
+    answer: 'Sí. Muchas fallas parecen de Windows, pero realmente vienen de disco, RAM, temperatura o fuente. Primero separamos software y hardware; si basta reparar Windows o formatear, te lo decimos. Si hay daño físico, te explicamos el costo y la prioridad.',
+  },
+  {
+    question: '¿Cuánto tarda el diagnóstico de una PC?',
+    answer: 'Un diagnóstico completo puede tomar hasta 6 horas según el problema del equipo. En fallas intermitentes, reinicios aleatorios, pantalla azul, temperatura o pruebas cruzadas de piezas, puede tardar más porque necesitamos reproducir la falla con seguridad antes de cotizar.',
+  },
+  {
+    question: '¿Qué pasa si mi PC no enciende?',
+    answer: 'No asumimos de inmediato que es placa madre. Primero revisamos cable, fuente de poder, botón de encendido, conectores, RAM, consumo, corto y señales visuales. Solo después de esas pruebas se determina si la falla está en fuente, placa u otro componente.',
+  },
+  {
+    question: '¿Me entregan reporte o solo me dicen el problema?',
+    answer: 'Te damos una explicación clara por WhatsApp con el diagnóstico, recomendación, cotización y tiempo estimado. Cuando aplica, agregamos fotos, lecturas o evidencia para que entiendas por qué conviene reparar, formatear, limpiar o hacer upgrade.',
+  },
+];
+---
+
+<div class="pc-diagnostic-page">
+  <section class="pd-hero">
+    <div class="container pd-hero-grid">
+      <div class="pd-hero-copy">
+        <span class="pd-kicker"><i class="fa-solid fa-stethoscope"></i> Servicio técnico de computadoras en Cancún</span>
+        <h1>Diagnóstico de PC en Cancún</h1>
+        <h2>Revisión profesional para computadoras que no encienden, van lentas, se reinician o fallan.</h2>
+        <p>Antes de cambiar piezas o formatear, revisamos hardware, Windows, fuente de poder, RAM, SSD, GPU, temperatura y placa madre para encontrar la causa real de la falla.</p>
+        <div class="pd-badges" aria-label="Beneficios del diagnóstico de PC">
+          <span>Reporte claro</span>
+          <span>Pruebas reales</span>
+          <span>Sin cambiar piezas a ciegas</span>
+          <span>Servicio local en Cancún</span>
+        </div>
+        <div class="pd-actions">
+          <a class="pd-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">
+            <i class="fa-brands fa-whatsapp"></i> Agendar diagnóstico
+          </a>
+          <a class="pd-secondary" href="#diagnostico-pc">Ver qué revisamos</a>
+        </div>
+      </div>
+      <aside class="pd-hero-panel" aria-label="Resumen del servicio de diagnóstico de PC">
+        <div class="pd-panel-top">
+          <span>Diagnóstico técnico</span>
+          <strong>GRATIS</strong>
+          <small>El tiempo depende del problema del equipo. Un diagnóstico completo puede tomar hasta 6 horas y, si la falla es intermitente o requiere pruebas extendidas, puede tardar más.</small>
+        </div>
+        <div class="pd-scan-card">
+          <div class="pd-scan-line"><span>Fuente</span><strong>Voltaje</strong></div>
+          <div class="pd-scan-line"><span>RAM</span><strong>Memtest</strong></div>
+          <div class="pd-scan-line"><span>SSD / HDD</span><strong>SMART</strong></div>
+          <div class="pd-scan-line"><span>Windows</span><strong>Eventos</strong></div>
+        </div>
+        <p>No prometemos reparación sin revisar. Primero diagnosticamos, luego cotizamos.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="pd-section pd-intro" id="diagnostico-pc">
+    <div class="container pd-intro-grid">
+      <div>
+        <span class="pd-eyebrow">Diagnóstico real</span>
+        <h2>No cambiamos piezas sin comprobar la falla</h2>
+        <p>Una PC lenta, una pantalla azul o una computadora que no enciende pueden tener varias causas. El diagnóstico técnico evita gastar en piezas innecesarias y permite decidir si conviene reparar, formatear, limpiar o hacer upgrade.</p>
+      </div>
+      <div class="pd-proof-strip">
+        <article>
+          <strong>Hasta 6 h</strong>
+          <span>según la falla</span>
+        </article>
+        <article>
+          <strong>Reporte</strong>
+          <span>por WhatsApp</span>
+        </article>
+        <article>
+          <strong>Cotización</strong>
+          <span>antes de reparar</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="pd-section pd-symptoms">
+    <div class="container">
+      <div class="pd-section-head">
+        <span class="pd-eyebrow">Diagnóstico frecuente</span>
+        <h2>Fallas de PC que revisamos en Cancún</h2>
+        <p>Atendemos computadoras de escritorio, PC gamer, equipos de oficina y PCs ensambladas con problemas de encendido, rendimiento, temperatura, Windows o componentes.</p>
+      </div>
+      <div class="pd-symptom-grid">
+        {symptoms.map(([title, text], index) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pd-section pd-matrix">
+    <div class="container pd-matrix-layout">
+      <div class="pd-matrix-copy">
+        <span class="pd-eyebrow">Pruebas técnicas</span>
+        <h2>Revisamos hardware, Windows, temperatura y uso real</h2>
+        <p>Un buen diagnóstico de PC no se queda en “puede ser la placa”. Probamos por bloques para separar fallas de fuente, memoria, disco, sistema, drivers, virus y calor.</p>
+      </div>
+      <div class="pd-matrix-grid">
+        {testMatrix.map((group) => (
+          <article>
+            <h3><i class={`fa-solid ${group.icon}`}></i> {group.title}</h3>
+            <ul>
+              {group.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pd-section pd-decision">
+    <div class="container pd-decision-card">
+      <div>
+        <span class="pd-eyebrow">Decisión honesta</span>
+        <h2>¿Conviene reparar, formatear, actualizar o cambiar la PC?</h2>
+        <p>Después del diagnóstico te explicamos el camino más lógico. A veces basta formatear Windows; otras veces el problema es disco, RAM, fuente, temperatura o una pieza que ya no conviene reparar.</p>
+      </div>
+      <div class="pd-decision-columns">
+        <div>
+          <h3>Puede resolverse con servicio si:</h3>
+          <ul>
+            <li>Windows está dañado o lleno de virus</li>
+            <li>El disco duro está saturado pero recuperable</li>
+            <li>Hay polvo, temperatura alta o pasta seca</li>
+            <li>La fuente o RAM se puede reemplazar</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Conviene evaluar cambio si:</h3>
+          <ul>
+            <li>La reparación supera el valor del equipo</li>
+            <li>La placa madre tiene daño severo</li>
+            <li>No hay piezas compatibles disponibles</li>
+            <li>El equipo ya no cubre tu trabajo diario</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pd-section pd-deliverables">
+    <div class="container pd-deliverables-grid">
+      <div>
+        <span class="pd-eyebrow">Entrega clara</span>
+        <h2>Te vas con diagnóstico, prioridad y cotización</h2>
+        <p>La idea es que sepas qué tiene tu computadora, cuánto cuesta resolverlo y qué tan urgente es actuar. Sin tecnicismos innecesarios y sin presión de venta.</p>
+      </div>
+      <div class="pd-deliverables-list">
+        {deliverables.map(([title, text]) => (
+          <article>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pd-section pd-local">
+    <div class="container pd-local-band">
+      <div>
+        <span class="pd-eyebrow">SEO local Cancún</span>
+        <h2>Diagnóstico de computadoras para hogares, gamers y oficinas en Cancún</h2>
+        <p>Atendemos PCs de trabajo, equipos gamer, computadoras de oficina y equipos familiares en Cancún. Podemos orientarte por WhatsApp antes de mover el equipo para evitar riesgos innecesarios.</p>
+      </div>
+      <div class="pd-area-chips">
+        {areas.map((area) => <span>{area}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Servicios relacionados con diagnóstico de PC"
+    eyebrow="Servicios complementarios"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  <ServiceTicketSection
+    defaultDevice="PC"
+    defaultService="Diagnóstico de PC"
+    sourcePage="/servicios/pc/diagnostico"
+    title="Crear ticket de diagnóstico de PC"
+    subtitle="Cuéntanos qué falla presenta tu computadora y te contactaremos para revisar, cotizar y explicarte el siguiente paso."
+  />
+
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre diagnóstico de PC en Cancún"
+    description="Resolvemos dudas sobre computadoras que no encienden, van lentas, se reinician, tienen pantalla azul, virus, fallas de Windows, fuente, RAM, SSD o temperatura."
+    items={faqs}
+    ariaLabel="Preguntas frecuentes sobre diagnóstico de PC en Cancún"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    sectionClass="pd-faq"
+    backgroundColor="#0B1120"
+    titleColor="#F8FAFC"
+    descriptionColor="#CBD5E1"
+    questionColor="#F8FAFC"
+    itemGap="10px"
+    questionPadding="16px 18px"
+  />
+
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" />
+  <ContactSection id="ubicacion" />
+</div>
+
+<style is:global>
+  .pc-diagnostic-page {
+    background: #07111f;
+    color: #e2e8f0;
+    letter-spacing: 0;
+  }
+  .pd-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 34px 0 44px;
+    background:
+      radial-gradient(circle at 12% 20%, rgba(56,189,248,.20), transparent 28%),
+      radial-gradient(circle at 86% 18%, rgba(37,99,235,.18), transparent 30%),
+      linear-gradient(135deg, #06111f 0%, #0b1120 58%, #10203a 100%);
+  }
+  .pd-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(148,163,184,.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(148,163,184,.06) 1px, transparent 1px);
+    background-size: 42px 42px;
+    opacity: .45;
+    pointer-events: none;
+  }
+  .pd-hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr);
+    gap: 30px;
+    align-items: center;
+  }
+  .pd-kicker,
+  .pd-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #67e8f9;
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .pd-hero h1 {
+    margin: 12px 0 10px;
+    color: #fff;
+    font-size: clamp(2.25rem, 4.6vw, 4.35rem);
+    line-height: .98;
+    letter-spacing: 0;
+    max-width: 780px;
+  }
+  .pd-hero h2 {
+    margin: 0 0 14px;
+    color: #bae6fd;
+    font-size: clamp(1.08rem, 2vw, 1.5rem);
+    line-height: 1.3;
+    font-weight: 850;
+    max-width: 760px;
+  }
+  .pd-hero p {
+    margin: 0;
+    color: #cbd5e1;
+    max-width: 760px;
+    font-size: 1.02rem;
+    line-height: 1.68;
+  }
+  .pd-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 20px;
+  }
+  .pd-badges span,
+  .pd-area-chips span {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(125,211,252,.24);
+    background: rgba(15,23,42,.70);
+    color: #e0f2fe;
+    padding: 8px 11px;
+    border-radius: 999px;
+    font-weight: 850;
+    font-size: .84rem;
+  }
+  .pd-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .pd-primary,
+  .pd-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+  .pd-primary {
+    color: #07111f;
+    background: #38bdf8;
+    box-shadow: 0 16px 36px rgba(56,189,248,.28);
+  }
+  .pd-secondary {
+    color: #e0f2fe;
+    border: 1px solid rgba(226,232,240,.22);
+    background: rgba(15,23,42,.64);
+  }
+  .pd-hero-panel {
+    border: 1px solid rgba(148,163,184,.20);
+    border-radius: 24px;
+    padding: 20px;
+    background: rgba(15,23,42,.78);
+    box-shadow: 0 28px 70px rgba(0,0,0,.32);
+    backdrop-filter: blur(18px);
+  }
+  .pd-panel-top {
+    display: grid;
+    gap: 4px;
+    padding: 18px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(14,165,233,.18), rgba(30,41,59,.88));
+    border: 1px solid rgba(125,211,252,.20);
+  }
+  .pd-panel-top span {
+    color: #bae6fd;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: .76rem;
+  }
+  .pd-panel-top strong {
+    color: #fff;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1;
+  }
+  .pd-panel-top small,
+  .pd-hero-panel p {
+    color: #cbd5e1;
+  }
+  .pd-scan-card {
+    display: grid;
+    gap: 9px;
+    margin: 16px 0;
+  }
+  .pd-scan-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    background: rgba(2,6,23,.52);
+    border: 1px solid rgba(148,163,184,.14);
+  }
+  .pd-scan-line span {
+    color: #cbd5e1;
+  }
+  .pd-scan-line strong {
+    color: #67e8f9;
+  }
+  .pd-section {
+    padding: 46px 0;
+  }
+  .pd-intro {
+    background: #f8fafc;
+    color: #0f2a4a;
+  }
+  .pd-intro,
+  .pd-deliverables,
+  .pd-local,
+  .pd-intro *,
+  .pd-deliverables *,
+  .pd-local * {
+    color: #0f2a4a;
+  }
+  .pd-hero,
+  .pd-symptoms,
+  .pd-matrix,
+  .pd-decision,
+  .pd-hero *,
+  .pd-symptoms *,
+  .pd-matrix *,
+  .pd-decision * {
+    color: #f8fafc;
+  }
+  .pd-intro-grid,
+  .pd-matrix-layout,
+  .pd-deliverables-grid,
+  .pd-local-band {
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    gap: 28px;
+    align-items: center;
+  }
+  .pd-intro .pd-eyebrow,
+  .pd-deliverables .pd-eyebrow,
+  .pd-local .pd-eyebrow {
+    color: #0369a1;
+  }
+  .pd-intro h2,
+  .pd-deliverables h2,
+  .pd-local h2 {
+    color: #0f2a4a;
+    font-size: clamp(1.85rem, 3vw, 3rem);
+    line-height: 1.05;
+    margin: 8px 0 12px;
+  }
+  .pd-intro p,
+  .pd-deliverables p,
+  .pd-local p {
+    color: #334155;
+    line-height: 1.7;
+  }
+  .pd-proof-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .pd-proof-strip article {
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(15,42,74,.10);
+    box-shadow: 0 18px 36px rgba(15,42,74,.08);
+  }
+  .pd-proof-strip strong {
+    display: block;
+    color: #0f2a4a;
+    font-size: 1.25rem;
+  }
+  .pd-proof-strip span {
+    color: #64748b;
+    font-weight: 750;
+  }
+  .pd-proof-strip article *,
+  .pd-deliverables-list article *,
+  .pd-local-band * {
+    color: #0f2a4a;
+  }
+  .pd-section-head {
+    max-width: 860px;
+    margin: 0 auto 24px;
+    text-align: center;
+  }
+  .pd-section-head h2,
+  .pd-matrix h2,
+  .pd-decision h2 {
+    color: #fff;
+    font-size: clamp(1.9rem, 3.2vw, 3.2rem);
+    line-height: 1.05;
+    margin: 8px 0 12px;
+  }
+  .pd-section-head p,
+  .pd-matrix p,
+  .pd-decision p {
+    color: #cbd5e1;
+    line-height: 1.7;
+  }
+  .pd-symptom-grid article *,
+  .pd-matrix-grid article *,
+  .pd-decision-card * {
+    color: #f8fafc;
+  }
+  .pd-symptoms {
+    background: #f8fafc;
+    color: #0f2a4a;
+  }
+  .pd-symptoms,
+  .pd-symptoms * {
+    color: #0f2a4a;
+  }
+  .pd-symptoms .pd-eyebrow {
+    color: #0369a1;
+  }
+  .pd-symptoms .pd-section-head h2 {
+    color: #0f2a4a;
+  }
+  .pd-symptoms .pd-section-head p {
+    color: #334155;
+  }
+  .pd-symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .pd-symptom-grid article {
+    min-height: 190px;
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(15,42,74,.12);
+    box-shadow: 0 14px 30px rgba(15,42,74,.06);
+  }
+  .pd-symptom-grid span {
+    color: #38bdf8;
+    font-weight: 950;
+    font-size: .86rem;
+  }
+  .pd-symptom-grid h3 {
+    margin: 10px 0 8px;
+    color: #0f2a4a;
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+  .pd-symptom-grid p {
+    color: #334155;
+    line-height: 1.58;
+    margin: 0;
+  }
+  .pd-matrix {
+    background: #f8fafc;
+    color: #0f2a4a;
+  }
+  .pd-matrix,
+  .pd-matrix * {
+    color: #0f2a4a;
+  }
+  .pd-matrix .pd-eyebrow {
+    color: #0369a1;
+  }
+  .pd-matrix h2 {
+    color: #0f2a4a;
+  }
+  .pd-matrix p {
+    color: #334155;
+  }
+  .pd-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .pd-matrix-grid article {
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(15,42,74,.12);
+    box-shadow: 0 14px 30px rgba(15,42,74,.06);
+  }
+  .pd-matrix-grid h3 {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 12px;
+    color: #0f2a4a;
+    font-size: 1.02rem;
+    font-weight: 950;
+  }
+  .pd-matrix-grid ul,
+  .pd-decision-columns ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .pd-matrix-grid li,
+  .pd-decision-columns li {
+    color: #cbd5e1;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .pd-matrix .pd-matrix-grid article *,
+  .pd-symptoms .pd-symptom-grid article * {
+    color: #0f2a4a;
+  }
+  .pd-matrix .pd-matrix-grid li {
+    color: #334155;
+    font-weight: 850;
+  }
+  .pd-matrix .pd-matrix-grid h3 {
+    color: #0f2a4a;
+    font-weight: 950;
+  }
+  .pd-matrix-grid li::before,
+  .pd-decision-columns li::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    margin-top: .55em;
+    background: #38bdf8;
+    flex: 0 0 auto;
+  }
+  .pd-decision {
+    background: linear-gradient(135deg, #07111f, #10203a);
+  }
+  .pd-decision-card {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 26px;
+    align-items: center;
+    padding: 26px;
+    border-radius: 26px;
+    border: 1px solid rgba(148,163,184,.18);
+    background: rgba(15,23,42,.66);
+  }
+  .pd-decision-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .pd-decision-columns > div {
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(2,6,23,.54);
+    border: 1px solid rgba(148,163,184,.14);
+  }
+  .pd-decision-columns h3 {
+    color: #fff;
+    margin: 0 0 12px;
+    font-size: 1rem;
+  }
+  .pd-deliverables,
+  .pd-local {
+    background: #f8fafc;
+  }
+  .pd-deliverables-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .pd-deliverables-list article {
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(15,42,74,.10);
+    box-shadow: 0 14px 30px rgba(15,42,74,.06);
+  }
+  .pd-deliverables-list h3 {
+    color: #0f2a4a;
+    margin: 0 0 8px;
+    font-size: 1rem;
+  }
+  .pd-deliverables-list p {
+    margin: 0;
+    font-size: .95rem;
+  }
+  .pd-local-band {
+    padding: 24px;
+    border-radius: 26px;
+    background:
+      linear-gradient(135deg, rgba(224,242,254,.92), rgba(255,255,255,.96)),
+      #fff;
+    border: 1px solid rgba(15,42,74,.10);
+  }
+  .pd-area-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    justify-content: flex-end;
+  }
+  .pd-area-chips span {
+    color: #0f2a4a;
+    background: #fff;
+    border-color: rgba(15,42,74,.12);
+  }
+  .pc-diagnostic-page .svc-related {
+    background: #0b1120;
+  }
+  .pc-diagnostic-page .svc-related,
+  .pc-diagnostic-page .svc-related * {
+    color: #f8fafc;
+  }
+  .pc-diagnostic-page .svc-related .ux-eyebrow,
+  .pc-diagnostic-page .svc-related .related-card i,
+  .pc-diagnostic-page .svc-related .related-card span,
+  .pc-diagnostic-page .svc-related .related-toggle {
+    color: #38bdf8;
+  }
+  .pc-diagnostic-page .svc-related .related-card p {
+    color: #cbd5e1;
+  }
+  .pc-diagnostic-page .service-ticket-section,
+  .pc-diagnostic-page .service-ticket-section * {
+    color: #0f2a4a;
+  }
+  .pc-diagnostic-page .service-ticket-section input,
+  .pc-diagnostic-page .service-ticket-section select,
+  .pc-diagnostic-page .service-ticket-section textarea {
+    color: #0f2a4a;
+  }
+  .pc-diagnostic-page .pd-faq .faq-answer-inner {
+    color: #e2e8f0;
+    line-height: 1.7;
+  }
+  .pc-diagnostic-page .pd-faq .section-title h2,
+  .pc-diagnostic-page .pd-faq .section-title p {
+    color: #f8fafc !important;
+  }
+  .pc-diagnostic-page .pd-faq .faq-item,
+  .pc-diagnostic-page .pd-faq .faq-item * {
+    color: #f8fafc !important;
+  }
+  .pc-diagnostic-page .pd-faq .faq-item {
+    background: rgba(15, 23, 42, 0.72) !important;
+    border-color: rgba(148, 163, 184, 0.22) !important;
+    box-shadow: none !important;
+  }
+  .pc-diagnostic-page .pd-faq .faq-item:hover,
+  .pc-diagnostic-page .pd-faq .faq-item--open {
+    background: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(56, 189, 248, 0.42) !important;
+  }
+  .pc-diagnostic-page .pd-faq .faq-question,
+  .pc-diagnostic-page .pd-faq .faq-question:hover,
+  .pc-diagnostic-page .pd-faq .faq-question span,
+  .pc-diagnostic-page .pd-faq .faq-chevron {
+    color: #f8fafc !important;
+    background: transparent !important;
+  }
+  .pc-diagnostic-page .pd-faq .faq-answer-inner {
+    color: #e2e8f0 !important;
+  }
+  @media (max-width: 980px) {
+    .pd-hero-grid,
+    .pd-intro-grid,
+    .pd-matrix-layout,
+    .pd-decision-card,
+    .pd-deliverables-grid,
+    .pd-local-band {
+      grid-template-columns: 1fr;
+    }
+    .pd-symptom-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .pd-area-chips {
+      justify-content: flex-start;
+    }
+  }
+  @media (max-width: 640px) {
+    .pd-hero {
+      padding: 26px 0 34px;
+    }
+    .pd-section {
+      padding: 34px 0;
+    }
+    .pd-hero h1 {
+      font-size: clamp(2rem, 12vw, 3rem);
+    }
+    .pd-proof-strip,
+    .pd-symptom-grid,
+    .pd-matrix-grid,
+    .pd-decision-columns,
+    .pd-deliverables-list {
+      grid-template-columns: 1fr;
+    }
+    .pd-hero-panel,
+    .pd-decision-card,
+    .pd-local-band {
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .pd-primary,
+    .pd-secondary {
+      width: 100%;
+    }
+  }
+</style>
