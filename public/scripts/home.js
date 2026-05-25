@@ -1,4 +1,4 @@
-﻿function smartWaRedirect(url) {
+�function smartWaRedirect(url) {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile) { window.location.href = url; } else { window.open(url, '_blank'); }
   }
@@ -194,7 +194,7 @@ let activeRepairVideo = null;
 
       const iframe = document.createElement('iframe');
       iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1&controls=0&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&disablekb=1&origin=${encodeURIComponent(window.location.origin)}`;
-      iframe.title = thumb.getAttribute('aria-label') || 'Video de reparaciÃ³n Pixon PC';
+      iframe.title = thumb.getAttribute('aria-label') || 'Video de reparación Pixon PC';
       iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
       iframe.setAttribute('allowfullscreen', '');
       iframe.style.position = 'absolute';

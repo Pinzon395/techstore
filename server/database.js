@@ -1,10 +1,10 @@
-я╗┐/**
+ /**
  * ============================================================
- *  server/database.js  ├втВмтАЭ MariaDB via mysql2/promise (pool)
+ *  server/database.js  тм MariaDB via mysql2/promise (pool)
  * ============================================================
  *
- *  Reemplaza la versi├Г┬│n anterior basada en better-sqlite3.
- *  API p├Г┬║blica (nombres de funciones) es la misma, pero todas
+ *  Reemplaza la versi├│n anterior basada en better-sqlite3.
+ *  API p├║blica (nombres de funciones) es la misma, pero todas
  *  las funciones ahora son ASYNC. Los handlers en server.js
  *  deben usar await.
  *
@@ -24,7 +24,7 @@ const { runtimeMigrationsEnabled, warnRuntimeMigrationsDisabled } = require('./d
 
 const dbEmitter = new EventEmitter();
 
-// SECURITY-2 (C1) ├втВмтАЭ Allow-list para HTML de respuestas de FAQ.
+// SECURITY-2 (C1) тм Allow-list para HTML de respuestas de FAQ.
 // Solo etiquetas de formato basico. Sin script, iframe, on*, etc.
 const FAQ_HTML_CONFIG = {
     ALLOWED_TAGS: ['br', 'b', 'i', 'strong', 'em', 'a', 'code', 'p', 'ul', 'ol', 'li'],
@@ -41,20 +41,20 @@ function sanitizeFaqIcon(icon) {
 
 let pool = null;
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-   INICIALIZACI├ГтАЬN
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+   INICIALIZACI├N
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 
 async function initDB() {
     pool = createPoolFromEnv();
 
-    // Probar conexi├Г┬│n real
+    // Probar conexi├│n real
     const [rows] = await pool.query('SELECT 1 AS ok');
     if (!rows[0] || rows[0].ok !== 1) {
-        throw new Error('MariaDB no respondi├Г┬│ a SELECT 1');
+        throw new Error('MariaDB no respondi├│ a SELECT 1');
     }
 
-    console.log(`├░┼╕тАФтАЮ├п┬╕┬П  MariaDB conectada ├втАатАЩ ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+    console.log(`Ёxя╕П  MariaDB conectada т  ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
 
     if (runtimeMigrationsEnabled()) {
         await runRuntimeMigrations();
@@ -206,21 +206,21 @@ async function ensureAnalyticsSchema() {
 }
 
 
-/** Devuelve el pool. ├Г┼бtil para integraciones externas (session store). */
+/** Devuelve el pool. ├atil para integraciones externas (session store). */
 function getDB() {
     if (!pool) throw new Error('Pool no inicializado. Llama a initDB() primero.');
     return pool;
 }
 
-/** Convierte avatar_url ├втАатАЩ avatar para mantener compat con el c├Г┬│digo antiguo. */
+/** Convierte avatar_url т  avatar para mantener compat con el c├│digo antiguo. */
 function mapUserCompat(row) {
     if (!row) return null;
     return { ...row, avatar: row.avatar_url ?? null };
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
    COMENTARIOS
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 
 async function getAllComments() {
     const [rows] = await pool.execute(`
@@ -243,7 +243,7 @@ async function getAllCommentsAdmin() {
 
 async function insertComment({ name, stars, text, user_id, user_email }) {
     // Los comentarios entran como pendientes (approved=0)
-    // M4 ├втВмтАЭ guardar user_id ademas de email (FK SET NULL si el usuario se borra)
+    // M4 тм guardar user_id ademas de email (FK SET NULL si el usuario se borra)
     const [info] = await pool.execute(
         'INSERT INTO comments (user_id, name, stars, text, approved, user_email) VALUES (?, ?, ?, ?, 0, ?)',
         [user_id || null, name, stars, text, user_email || null]
@@ -252,7 +252,7 @@ async function insertComment({ name, stars, text, user_id, user_email }) {
         'SELECT id, name, stars, text, approved, user_email, created_at FROM comments WHERE id = ?',
         [info.insertId]
     );
-    // Notificar SOLO al panel admin (espera aprobaci├Г┬│n antes de salir al carrusel p├Г┬║blico)
+    // Notificar SOLO al panel admin (espera aprobaci├│n antes de salir al carrusel p├║blico)
     dbEmitter.emit('admin-pending', newRow);
     return newRow;
 }
@@ -267,7 +267,7 @@ async function approveComment(id) {
             'SELECT id, name, stars, text, created_at FROM comments WHERE id = ?',
             [id]
         );
-        dbEmitter.emit('new-comment', comment); // r├Г┬нo de comentarios p├Г┬║blico
+        dbEmitter.emit('new-comment', comment); // r├нo de comentarios p├║blico
     }
     return info.affectedRows > 0;
 }
@@ -280,9 +280,9 @@ async function deleteComment(id) {
     return info.affectedRows > 0;
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-   ADMIN_LOGS ├втВмтАЭ auditoria de acciones admin (SECURITY-3 M6)
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+   ADMIN_LOGS тм auditoria de acciones admin (SECURITY-3 M6)
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 
 /**
  * Registra una accion administrativa en admin_logs.
@@ -310,9 +310,9 @@ async function logAdminAction({ user_id, action, entity, entity_id, diff, ip, us
     }
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
    USUARIOS (OAuth + perfil)
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 
 async function findOrCreateGoogleUser(profile) {
     const email  = profile.emails?.[0]?.value || null;
@@ -345,7 +345,7 @@ async function findOrCreateGoogleUser(profile) {
             [newId]
         );
     } else {
-        // M5 ├втВмтАЭ usuario existente: NO sobrescribir role_id en cada login.
+        // M5 тм usuario existente: NO sobrescribir role_id en cada login.
         // Si manana promueves manualmente a un usuario en el panel, no se pierde.
         // Solo refrescamos avatar y last_login_at.
         if (user.avatar_url !== avatar) {
@@ -394,9 +394,9 @@ async function getAllUsersAdmin() {
     return rows;
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
    FAQs
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 
 async function getAllFaqs() {
     const [rows] = await pool.execute(
@@ -406,7 +406,7 @@ async function getAllFaqs() {
 }
 
 async function insertFaq({ category, icon, question, answer, display_order }) {
-    // C1 ├втВмтАЭ sanitiza answer y icon antes de guardar
+    // C1 тм sanitiza answer y icon antes de guardar
     const cleanAnswer = sanitizeFaqAnswer(answer);
     const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
@@ -418,7 +418,7 @@ async function insertFaq({ category, icon, question, answer, display_order }) {
 }
 
 async function updateFaq(id, { category, icon, question, answer, display_order }) {
-    // C1 ├втВмтАЭ sanitiza tambien al actualizar
+    // C1 тм sanitiza tambien al actualizar
     const cleanAnswer = sanitizeFaqAnswer(answer);
     const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
@@ -454,9 +454,9 @@ async function clearUnansweredFaqs() {
     return info.affectedRows;
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-   PAGE VIEWS ├втВмтАЭ Analytics
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+   PAGE VIEWS тм Analytics
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 
 async function trackPageView({ path, title, referrer, user_agent, ip, session_id, user_id }) {
     const ipv4 = String(ip || '').match(/(\d{1,3}\.){3}\d{1,3}$/)?.[0];
@@ -507,9 +507,9 @@ async function getPageViewsTop(limit = 20, days = 30) {
 
 /**
  * Datos para el dashboard "live" del admin:
- *  - active: sesiones ├Г┬║nicas con actividad en los ├Г┬║ltimos 5 min
- *  - per_minute: vistas agrupadas por minuto en los ├Г┬║ltimos 30 min (para sparkline)
- *  - last_views: ├Г┬║ltimas N vistas con path + tiempo relativo
+ *  - active: sesiones ├║nicas con actividad en los ├║ltimos 5 min
+ *  - per_minute: vistas agrupadas por minuto en los ├║ltimos 30 min (para sparkline)
+ *  - last_views: ├║ltimas N vistas con path + tiempo relativo
  */
 async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
     const [active] = await pool.execute(
@@ -574,9 +574,9 @@ async function getPageViewsSummary() {
     };
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
    TALLER Y TICKETS (Repairs)
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 async function getAllRepairsAdmin() {
     const [rows] = await pool.execute(`
         SELECT r.*, u.name as user_name, u.email as user_email
@@ -760,7 +760,7 @@ async function saveAppointmentConfig({ settings = [], exceptions = [] }) {
 async function getAppointmentAvailability(date, type) {
     const requestedType = normalizeAppointmentType(type);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
-        return { available: false, message: 'Selecciona un d├Г┬нa disponible.', slots: [] };
+        return { available: false, message: 'Selecciona un d├нa disponible.', slots: [] };
     }
     const today = new Date().toISOString().slice(0, 10);
     if (date < today) return { available: false, message: 'No se permiten fechas pasadas.', slots: [] };
@@ -769,7 +769,7 @@ async function getAppointmentAvailability(date, type) {
     const [[setting]] = await pool.execute('SELECT * FROM appointment_settings WHERE weekday = ?', [weekday]);
     const [[exception]] = await pool.execute('SELECT * FROM appointment_exceptions WHERE date = ?', [date]);
     const status = exception?.status || 'normal';
-    if (status === 'closed' || !setting?.is_open) return { available: false, message: 'Este d├Г┬нa est├Г┬б bloqueado por el taller.', slots: [] };
+    if (status === 'closed' || !setting?.is_open) return { available: false, message: 'Este d├нa est├б bloqueado por el taller.', slots: [] };
 
     const start = exception?.start_time || setting.start_time;
     const end = exception?.end_time || setting.end_time;
@@ -779,9 +779,9 @@ async function getAppointmentAvailability(date, type) {
         .map(item => item.trim())
         .filter(Boolean);
     if (!allowed.includes(requestedType) && !allowed.includes('otro')) {
-        return { available: false, message: 'Este d├Г┬нa no est├Г┬б disponible para ese tipo de visita.', slots: [] };
+        return { available: false, message: 'Este d├нa no est├б disponible para ese tipo de visita.', slots: [] };
     }
-    if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este d├Г┬нa no tiene horario configurado.', slots: [] };
+    if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este d├нa no tiene horario configurado.', slots: [] };
 
     const [occupiedRows] = await pool.execute(
         `SELECT appointment_time FROM repairs
@@ -796,7 +796,7 @@ async function getAppointmentAvailability(date, type) {
         const slot = minutesToTime(mins);
         if (!occupied.has(slot)) slots.push(slot);
     }
-    return { available: slots.length > 0, message: slots.length ? '' : 'Este d├Г┬нa est├Г┬б lleno.', slots };
+    return { available: slots.length > 0, message: slots.length ? '' : 'Este d├нa est├б lleno.', slots };
 }
 
 async function getAdminAppointments({ from, to } = {}) {
@@ -814,9 +814,9 @@ async function getAdminAppointments({ from, to } = {}) {
     return rows;
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
    ENSAMBLES Y PRODUCTOS (Builds)
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 async function getAllBuildsAdmin() {
     const [rows] = await pool.execute(`
         SELECT p.*, b.build_category, b.performance_tier,
@@ -829,7 +829,7 @@ async function getAllBuildsAdmin() {
     return rows;
 }
 
-// M3 ├втВмтАЭ version publica: nunca expone cost, compare_price, stock_alert, sku.
+// M3 тм version publica: nunca expone cost, compare_price, stock_alert, sku.
 // Solo campos seguros para mostrar en /api/builds y la tienda.
 async function getAllBuildsPublic() {
     const [rows] = await pool.execute(`
@@ -891,9 +891,9 @@ async function insertBuildAdmin({ title, description, price, build_category, per
 }
 
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
    USER REPAIRS - Tickets del cliente
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 async function getUserRepairs(userId) {
     const [rows] = await pool.execute(`
         SELECT r.*, u.name as user_name, u.email as user_email
@@ -939,9 +939,9 @@ module.exports = {
     getAllBuildsPublic,
     insertBuildAdmin,
     logAdminAction,
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-       PAGE VIEWS ├втВмтАЭ Analytics
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+       PAGE VIEWS тм Analytics
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     trackPageView,
     getPageViewsDaily,
     getPageViewsTop,

@@ -1,12 +1,12 @@
-ï»¿// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-//  Navbar 3.0 Ã¢â‚¬â€ JavaScript v3.2 Ã¢â‚¬â€ Full UX Overhaul
-//  Ã‚Â· Desktop: 4s auto-close, 2s cross-section, 3s exit grace
-//  Ã‚Â· Mobile: stable accordion, no accidental close on scroll
-//  Ã‚Â· Gap tolerance 400ms between nested items
-//  Ã‚Â· Click-outside closes all (including mobile hamburger)
-//  Ã‚Â· Progressive scroll-hide (2 scrolls to fully hide)
-//  Ã‚Â· All routes unchanged
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+ÿ// â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"
+//  Navbar 3.0 â¬ JavaScript v3.2 â¬ Full UX Overhaul
+//  Â· Desktop: 4s auto-close, 2s cross-section, 3s exit grace
+//  Â· Mobile: stable accordion, no accidental close on scroll
+//  Â· Gap tolerance 400ms between nested items
+//  Â· Click-outside closes all (including mobile hamburger)
+//  Â· Progressive scroll-hide (2 scrolls to fully hide)
+//  Â· All routes unchanged
+// â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"
 
 const IS_MOBILE = () => window.innerWidth <= 750;
 
@@ -19,11 +19,11 @@ mobileMenuBtn?.addEventListener('click', () => {
   navMenu?.classList.toggle('active');
   navMenu?.classList.remove('is-menu-peeking');
   mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  mobileMenuBtn.setAttribute('aria-label', isOpen ? 'Cerrar menÃƒÂº' : 'Abrir menÃƒÂº');
+  mobileMenuBtn.setAttribute('aria-label', isOpen ? 'Cerrar menÃº' : 'Abrir menÃº');
   if (!isOpen) closeAllCascades();
 });
 
-// 2. DROPDOWNS ESTÃƒÂNDAR (sin cascade Ã¢â‚¬â€ compatibilidad futura)
+// 2. DROPDOWNS ESTÃNDAR (sin cascade â¬ compatibilidad futura)
 document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').forEach((trigger) => {
   trigger.addEventListener('click', (e) => {
     if (!IS_MOBILE()) return;
@@ -44,7 +44,7 @@ document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').f
   });
 });
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Shared state Ã¢â€â‚¬Ã¢â€â‚¬
+// â¬â¬ Shared state â¬â¬
 let autoCloseTimer = null;
 let crossSectionTimer = null;
 let lastOpenedCascade = null;
@@ -91,7 +91,7 @@ function closeMobileMenu() {
   navMenu?.classList.remove('active', 'is-menu-peeking');
   mobileMenuBtn?.classList.remove('active');
   mobileMenuBtn?.setAttribute('aria-expanded', 'false');
-  mobileMenuBtn?.setAttribute('aria-label', 'Abrir menÃƒÂº');
+  mobileMenuBtn?.setAttribute('aria-label', 'Abrir menÃº');
   closeAllCascades();
   lastOpenedCascade = null;
   activeCascade = null;
@@ -144,7 +144,7 @@ document.querySelectorAll('.has-cascade > .nav-dd-trigger').forEach((trigger) =>
   });
 });
 
-// 4. TOLERANCIA DE GAPS Ã¢â‚¬â€ L1 panel: 3s de gracia
+// 4. TOLERANCIA DE GAPS â¬ L1 panel: 3s de gracia
 document.querySelectorAll('.v3-cascade-l1').forEach((l1) => {
   let l1Timer = null;
   l1.addEventListener('mouseenter', () => { clearTimers(); if (l1Timer) { clearTimeout(l1Timer); l1Timer = null; } });
@@ -180,7 +180,7 @@ document.querySelectorAll('.cascade-item').forEach((item) => {
   });
 });
 
-// 5. CASCADE CATEGORÃƒÂAS
+// 5. CASCADE CATEGORÃAS
 document.querySelectorAll('.cascade-cat-link').forEach((link) => {
   link.addEventListener('click', (e) => {
     const item = link.parentElement;

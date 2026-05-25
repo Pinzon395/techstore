@@ -1,10 +1,10 @@
-я╗┐/**
+ /**
  * ============================================================
- *  server/server.js  ├втВмтАЭ API Express + MariaDB + Auth
+ *  server/server.js  тм API Express + MariaDB + Auth
  * ============================================================
  *
  *  Migrado a MariaDB (mysql2/promise pool) + express-mysql-session.
- *  Las funciones de DB son async ├втВмтАЭ todos los handlers usan await.
+ *  Las funciones de DB son async тм todos los handlers usan await.
  * ============================================================
  */
 
@@ -91,7 +91,7 @@ const {
 const app = express();
 app.disable('x-powered-by');
 
-// Cache HTTP para contenido est├Г┬бtico
+// Cache HTTP para contenido est├бtico
 const cacheMiddleware = (duration) => (req, res, next) => {
   if (req.method === 'GET') {
     res.set('Cache-Control', `public, max-age=${duration}`);
@@ -134,9 +134,9 @@ function isTrustedRequestOrigin(req) {
     }
 }
 
-/* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-   BOOTSTRAP ├втВмтАЭ todo el setup que necesita la DB lista va dentro
-├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+/* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+   BOOTSTRAP тм todo el setup que necesita la DB lista va dentro
+тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 async function bootstrap() {
     await initDB();
 
@@ -168,11 +168,11 @@ async function bootstrap() {
         }
     });
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
        MIDDLEWARES GLOBALES
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
 
-    // SECURITY-2 (M1+C2) ├втВмтАЭ Helmet con CSP pragmatica.
+    // SECURITY-2 (M1+C2) тм Helmet con CSP pragmatica.
     // El sitio tiene 207+ inline event handlers (onclick=...) y multiples
     // <script> inline. Refactorizar todo a addEventListener es un proyecto
     // aparte, asi que CSP usa 'unsafe-inline' para script-src y style-src,
@@ -217,7 +217,7 @@ async function bootstrap() {
         const pathname = req.path;
         if (/\.(jpe?g|png)$/i.test(pathname) && req.accepts('image/webp')) {
             const webpPath = pathname.replace(/\.(jpe?g|png)$/i, '.webp');
-            // Tras cutover a Astro, dev y prod sirven de dist/ ├втВмтАЭ un solo path.
+            // Tras cutover a Astro, dev y prod sirven de dist/ тм un solo path.
             const fullPath = path.join(distPath, webpPath);
             if (fs.existsSync(fullPath)) {
                 req.url = webpPath;
@@ -240,13 +240,13 @@ async function bootstrap() {
     app.use('/api/track/view', express.text({ type: '*/*', limit: '10kb' }));
     app.use(express.json({ limit: '10kb' }));
 
-    // SECURITY-2 ├втВмтАЭ bloquear /admin* a no-admins ANTES de cualquier static.
-    // Sin este pre-gate, /admin/admin.html y /admin/ se serv├Г┬нan sin auth.
-    // Hooks de auth a├Г┬║n no existen aqu├Г┬н (passport va m├Г┬бs abajo) por lo que
-    // re-evaluamos la sesi├Г┬│n cuando ya est├Г┬й inicializada (req.isAuthenticated
-    // existe solo despu├Г┬йs de session+passport), pero los handlers reales en
-    // app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, ├втВм┬ж)
-    // se montan despu├Г┬йs de passport y bloquean la entrada.
+    // SECURITY-2 тм bloquear /admin* a no-admins ANTES de cualquier static.
+    // Sin este pre-gate, /admin/admin.html y /admin/ se serv├нan sin auth.
+    // Hooks de auth a├║n no existen aqu├н (passport va m├бs abajo) por lo que
+    // re-evaluamos la sesi├│n cuando ya est├й inicializada (req.isAuthenticated
+    // existe solo despu├йs de session+passport), pero los handlers reales en
+    // app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, тмж)
+    // se montan despu├йs de passport y bloquean la entrada.
     app.use((req, res, next) => {
         const p = req.path;
         if (p === '/admin' || p === '/admin/' || p === '/admin/admin.html') {
@@ -310,7 +310,7 @@ async function bootstrap() {
             }
         });
 
-    // M2 ├втВмтАЭ CORS con metodos completos
+    // M2 тм CORS con metodos completos
     app.use(cors({
         origin: Array.from(trustedOrigins),
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -318,7 +318,7 @@ async function bootstrap() {
         credentials: true
     }));
 
-    // SECURITY-2 (B2) ├втВмтАЭ Rate-limit. Protege OAuth callback de brute-force
+    // SECURITY-2 (B2) тм Rate-limit. Protege OAuth callback de brute-force
     // y endpoints publicos de spam.
     const authLimiter = createLimiter({
         windowMs: 10 * 60 * 1000,    // 10 min
@@ -362,10 +362,10 @@ async function bootstrap() {
     app.use('/auth/', authLimiter);
     app.use('/api/admin', adminMutationLimiter);
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
        SESIONES + PASSPORT
-       (usa la tabla `sessions` que ya cre├Г┬│ 01-schema.sql)
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+       (usa la tabla `sessions` que ya cre├│ 01-schema.sql)
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.set('trust proxy', 1);
 
     app.use(session({
@@ -378,7 +378,7 @@ async function bootstrap() {
         resave: false,
         saveUninitialized: false,
         cookie: {
-            // M1 ├втВмтАЭ secure din├Г┬бmica. En prod Cloudflare entrega HTTPS y trust proxy=1
+            // M1 тм secure din├бmica. En prod Cloudflare entrega HTTPS y trust proxy=1
             // ya hace que Express vea X-Forwarded-Proto correctamente.
             secure:   'auto',
             httpOnly: true,
@@ -430,16 +430,16 @@ async function bootstrap() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-       M8 ├втВмтАЭ CSRF m├Г┬нnimo: cualquier request que muta estado debe
-       traer header X-Requested-With:fetch. Esto bloquea CSRF cl├Г┬бsico
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+       M8 тм CSRF m├нnimo: cualquier request que muta estado debe
+       traer header X-Requested-With:fetch. Esto bloquea CSRF cl├бsico
        basado en formularios cross-site (no pueden setear ese header
        sin pasar por preflight CORS).
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.use((req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
         if (req.path.startsWith('/auth/')) return next();
-        // /api/track/view es fire-and-forget v├Г┬нa navigator.sendBeacon que NO
+        // /api/track/view es fire-and-forget v├нa navigator.sendBeacon que NO
         // permite setear headers custom. Es lectura-pasiva (no muta cuentas
         // ni privilegios), por lo que no necesita CSRF.
         if (req.path === '/api/track/view') return next();
@@ -452,9 +452,9 @@ async function bootstrap() {
         next();
     });
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-       AUTORIZACI├ГтАЬN
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+       AUTORIZACI├N
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     function requireAuth(req, res, next) {
         if (req.isAuthenticated()) return next();
         res.status(401).json({ error: 'No autorizado' });
@@ -465,7 +465,7 @@ async function bootstrap() {
         res.status(403).json({ error: 'Prohibido' });
     }
 
-    // SECURITY-2 (M2) ├втВмтАЭ gate del HTML del panel admin a nivel servidor.
+    // SECURITY-2 (M2) тм gate del HTML del panel admin a nivel servidor.
     // Antes la proteccion era solo client-side (admin.js mostraba "Acceso
     // Denegado"). Ahora ni siquiera se sirve el HTML a no-admins.
     function gateAdminPage(req, res, next) {
@@ -507,7 +507,7 @@ async function bootstrap() {
         });
     }
 
-    // SECURITY-3 (M6) ├втВмтАЭ wrapper que extrae datos del req para admin_logs.
+    // SECURITY-3 (M6) тм wrapper que extrae datos del req para admin_logs.
     // Llamar despues de la mutacion: audit(req, 'delete', 'comment', id)
     function audit(req, action, entity, entity_id, diff) {
         return logAdminAction({
@@ -530,9 +530,9 @@ async function bootstrap() {
             .replace(/'/g, '&#39;');
     }
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
        AUTH
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.get('/auth/google', requireGoogleOAuthConfigured, (req, res, next) => {
         const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '';
         if (returnTo.startsWith('/') && !returnTo.startsWith('//')) {
@@ -541,7 +541,7 @@ async function bootstrap() {
         passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
     });
 
-    // SECURITY-2 (M5) ├втВмтАЭ regenerar la sesion previene session fixation:
+    // SECURITY-2 (M5) тм regenerar la sesion previene session fixation:
     // un atacante no puede preparar una cookie y heredarla autenticada.
     app.get('/auth/google/callback', requireGoogleOAuthConfigured, (req, res, next) => {
         passport.authenticate('google', (err, user, info) => {
@@ -588,7 +588,7 @@ async function bootstrap() {
     <h1>No se pudo iniciar sesion con Google</h1>
     <p>Detalle tecnico:</p>
     <code>${escapeHtml(reason)}</code>
-    <p><a href="/auth/google">Intentar de nuevo</a> ├В┬╖ <a href="/">Volver al inicio</a></p>
+    <p><a href="/auth/google">Intentar de nuevo</a> ┬╖ <a href="/">Volver al inicio</a></p>
   </main>
 </body>
 </html>`);
@@ -607,10 +607,10 @@ async function bootstrap() {
 
     app.post('/api/me/profile', profileLimiter, requireAuth, ah(async (req, res) => {
         const { phone } = req.body;
-        // M7 ├втВмтАЭ validar phone con regex (10-15 digitos, opcional + al inicio)
+        // M7 тм validar phone con regex (10-15 digitos, opcional + al inicio)
         const cleanedPhone = cleanPhone(phone);
         if (!/^\+?\d{10,15}$/.test(cleanedPhone)) {
-            return res.status(400).json({ error: 'N├Г┬║mero de celular inv├Г┬бlido (10├втВмтАЬ15 d├Г┬нgitos, opcional + al inicio).' });
+            return res.status(400).json({ error: 'N├║mero de celular inv├бlido (10тм15 d├нgitos, opcional + al inicio).' });
         }
 
         const success = await updateUserProfile(req.user.id, { phone: cleanedPhone });
@@ -622,9 +622,9 @@ async function bootstrap() {
         }
     }));
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-       API P├Г┼бBLICA
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+       API P├aBLICA
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.use('/api', createHealthRoutes({ getClientCount: () => sseClients.size }));
 
     app.get('/api/comments', ah(async (_req, res) => {
@@ -633,10 +633,10 @@ async function bootstrap() {
         res.json(comments);
     }));
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-       GOOGLE PLACES API ├втВмтАЭ Rese├Г┬▒as reales de Google Maps
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+       GOOGLE PLACES API тм Rese├▒as reales de Google Maps
        Cacheado 1h en memoria (Places API es billable, ~$17/1000 calls)
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     const googleReviewsCache = { data: null, expires: 0 };
     const GOOGLE_REVIEWS_TTL = 60 * 60 * 1000; // 1 hora
 
@@ -653,11 +653,11 @@ async function bootstrap() {
                 reviews: [],
                 rating: 0,
                 total: 0,
-                hint: 'Configura GOOGLE_PLACES_API_KEY y GOOGLE_PLACE_ID en .env para mostrar rese├Г┬▒as reales de Google Maps.'
+                hint: 'Configura GOOGLE_PLACES_API_KEY y GOOGLE_PLACE_ID en .env para mostrar rese├▒as reales de Google Maps.'
             });
         }
 
-        // Servir desde cach├Г┬й si a├Г┬║n es v├Г┬бlido (evita llamadas billables repetidas)
+        // Servir desde cach├й si a├║n es v├бlido (evita llamadas billables repetidas)
         if (googleReviewsCache.data && Date.now() < googleReviewsCache.expires) {
             return res.json({ ...googleReviewsCache.data, cached: true });
         }
@@ -766,7 +766,7 @@ async function bootstrap() {
             const avgTimeSec = Math.round(sseStats.totalTimeSec / sseStats.visits);
             const disconnectTimeStr = new Date(disconnectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City', hour12: false });
             
-            console.log(`[${disconnectTimeStr}] SSE #${clientId} desconectado. Dur├Г┬│: ${durationSec}s. ` +
+            console.log(`[${disconnectTimeStr}] SSE #${clientId} desconectado. Dur├│: ${durationSec}s. ` +
                         `Subtotal Hoy -> Visitas: ${sseStats.visits} | Promedio: ${avgTimeSec}s | Tiempo Total: ${sseStats.totalTimeSec}s`);
         });
     });
@@ -787,16 +787,16 @@ async function bootstrap() {
 
         if (errors.length) return res.status(400).json({ errors });
 
-        // M4 ├втВмтАЭ guardar user_id ademas de email para no perder trazabilidad
+        // M4 тм guardar user_id ademas de email para no perder trazabilidad
         const user_id    = req.user?.id    || null;
         const user_email = req.user?.email || null;
         const created = await insertComment({ name: cleanName, stars: cleanStars, text: cleanComment, user_id, user_email });
-        res.status(201).json({ success: true, message: 'Comentario enviado para revisi├Г┬│n.', comment: created });
+        res.status(201).json({ success: true, message: 'Comentario enviado para revisi├│n.', comment: created });
     }));
 
-    // ├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р
-    // TICKETS ├втВмтАЭ Crear ticket de servicio con auth
-    // ├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р├втАв┬Р
+    // т"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Р
+    // TICKETS тм Crear ticket de servicio con auth
+    // т"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Рт"Р
     app.get('/api/appointments/config', ah(async (_req, res) => {
         res.set('Cache-Control', 'no-store');
         res.json(await getAppointmentConfig());
@@ -840,12 +840,12 @@ async function bootstrap() {
         // Validaciones
         const errors = [];
         if (cleanedName.length < 2) errors.push('El nombre es requerido.');
-        if (!isValidPhone(cleanedPhone)) errors.push('El tel├Г┬йfono de contacto es requerido.');
+        if (!isValidPhone(cleanedPhone)) errors.push('El tel├йfono de contacto es requerido.');
         if (customer_email && !cleanedEmail) errors.push('El correo no tiene un formato valido.');
         if (cleanedDeviceType.length < 2) errors.push('El tipo de equipo es requerido.');
-        if (cleanedIssue.length < 10) errors.push('La descripci├Г┬│n del problema es muy corta.');
+        if (cleanedIssue.length < 10) errors.push('La descripci├│n del problema es muy corta.');
         
-        if (!cleanedAppointmentDate) errors.push('Selecciona un d├Г┬нa disponible.');
+        if (!cleanedAppointmentDate) errors.push('Selecciona un d├нa disponible.');
         if (!cleanedAppointmentTime) errors.push('Selecciona un horario disponible.');
 
         if (errors.length > 0) {
@@ -854,13 +854,13 @@ async function bootstrap() {
 
         const availability = await getAppointmentAvailability(cleanedAppointmentDate, cleanedAppointmentType);
         if (!availability.available || !availability.slots.includes(cleanedAppointmentTime)) {
-            return res.status(409).json({ success: false, message: 'Ese horario ya no est├Г┬б disponible. Elige otro.' });
+            return res.status(409).json({ success: false, message: 'Ese horario ya no est├б disponible. Elige otro.' });
         }
         
         // Crear ticket con user_id del usuario autenticado
         const user_id = req.user?.id || null;
         
-        // Preparar detalles uniendo el servicio y la descripci├Г┬│n
+        // Preparar detalles uniendo el servicio y la descripci├│n
         const details = [
             `Servicio solicitado: ${cleanedService}`,
             `\n${cleanedIssue}`
@@ -926,15 +926,15 @@ async function bootstrap() {
         res.json({ success: true });
     }));
 
-    // M3 ├втВмтАЭ endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
+    // M3 тм endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
     app.get('/api/builds', ah(async (_req, res) => {
         const builds = await getAllBuildsPublic();
         res.json(builds);
     }));
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-        ANALYTICS ├втВмтАЭ Page View Tracking
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+        ANALYTICS тм Page View Tracking
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.post('/api/track/view', trackingLimiter, (req, res) => {
         const payload = typeof req.body === 'string'
             ? (() => {
@@ -961,9 +961,9 @@ async function bootstrap() {
         res.json({ ok: true });
     });
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-        PANEL DE ADMINISTRACI├ГтАЬN
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+        PANEL DE ADMINISTRACI├N
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.get('/api/admin/users', requireAdmin, ah(async (_req, res) => {
         const users = await getAllUsersAdmin();
         res.json(users);
@@ -1137,9 +1137,9 @@ async function bootstrap() {
         res.json({ success: true });
     }));
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
         ADMIN ANALYTICS
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.get('/api/admin/analytics/summary', requireAdmin, ah(async (_req, res) => {
         res.json(await getPageViewsSummary());
     }));
@@ -1150,8 +1150,8 @@ async function bootstrap() {
     }));
 
     /**
-     * Live analytics: visitantes activos (├Г┬║ltimos 5 min), vistas por minuto
-     * (├Г┬║ltimos 30 min para sparkline) y ├Г┬║ltimas N p├Г┬бginas vistas.
+     * Live analytics: visitantes activos (├║ltimos 5 min), vistas por minuto
+     * (├║ltimos 30 min para sparkline) y ├║ltimas N p├бginas vistas.
      * Polling-friendly desde el dashboard cada ~10 s.
      */
     app.get('/api/admin/analytics/live', requireAdmin, ah(async (req, res) => {
@@ -1167,18 +1167,18 @@ async function bootstrap() {
         res.json(await getPageViewsTop(limit, days));
     }));
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
         ARCHIVOS ESTATICOS Y RUTAS HTML
-        Tras el cutover Astro, dev y prod sirven el MISMO ├Г┬бrbol dist/.
-        Por eso la tabla de rutas y el handler son ├Г┬║nicos.
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+        Tras el cutover Astro, dev y prod sirven el MISMO ├бrbol dist/.
+        Por eso la tabla de rutas y el handler son ├║nicos.
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     {
-        // Las p├Г┬бginas Astro emiten archivos planos en dist/<ruta>.html
-        // (build.format = 'file' en astro.config.ts). Las ├Г┬║nicas p├Г┬бginas
-        // que a├Г┬║n vienen del build legacy de Vite son la home (index.html),
-        // la home en ingl├Г┬йs y el panel admin.
+        // Las p├бginas Astro emiten archivos planos en dist/<ruta>.html
+        // (build.format = 'file' en astro.config.ts). Las ├║nicas p├бginas
+        // que a├║n vienen del build legacy de Vite son la home (index.html),
+        // la home en ingl├йs y el panel admin.
         const pages = {
-            // Legacy Vite (sin equivalente Astro todav├Г┬нa)
+            // Legacy Vite (sin equivalente Astro todav├нa)
             '/':                            'index.html',
             '/en':                          'en.html',
             '/admin':                       'admin/admin.html',
@@ -1214,11 +1214,11 @@ async function bootstrap() {
             '/preguntas-frecuentes':        'preguntas-frecuentes.html',
             '/privacidad':                  'privacidad.html',
             '/garantia':                    'garantia.html',
-            // VISTAS DE PRUEBAS ├втВмтАЭ no listadas en sitemap, pero sirven con HTTP 200
+            // VISTAS DE PRUEBAS тм no listadas en sitemap, pero sirven con HTTP 200
             '/test-navbar-3':               'test-navbar-3.html',
             // Hub general de servicios
             '/servicios':                   'servicios/index.html',
-            // P├Г┬бginas en ingl├Г┬йs (Astro)
+            // P├бginas en ingl├йs (Astro)
             '/en/packages':                 'en/packages.html',
             '/en/pc-builds':                'en/pc-builds.html',
             '/en/repairs':                  'en/repairs.html',
@@ -1242,15 +1242,15 @@ async function bootstrap() {
         legacyRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
-        // M6 ├втВмтАЭ canonicaliza /b2b -> /B2B (Preferencia del usuario por May├Г┬║sculas)
+        // M6 тм canonicaliza /b2b -> /B2B (Preferencia del usuario por May├║sculas)
         app.get('/b2b', (req, res, next) => {
             if (req.path === '/b2b') return res.redirect(301, '/B2B');
             next();
         });
 
-        // SECURITY-2 (M2) ├втВмтАЭ gate del HTML admin antes del catch-all.
+        // SECURITY-2 (M2) тм gate del HTML admin antes del catch-all.
         // Acepta /admin y /admin/ (con trailing slash) y bloquea acceso directo
-        // a /admin/admin.html (que el static middleware servir├Г┬нa sin gate).
+        // a /admin/admin.html (que el static middleware servir├нa sin gate).
         app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, (_req, res) => {
             res.sendFile(path.join(distPath, 'admin/admin.html'), {
                 headers: { 'Cache-Control': 'no-store' }
@@ -1276,7 +1276,7 @@ async function bootstrap() {
                 }
             }
 
-            // Resoluci├Г┬│n din├Г┬бmica para rutas Astro (build.format='file' emite <ruta>.html)
+            // Resoluci├│n din├бmica para rutas Astro (build.format='file' emite <ruta>.html)
             // Ej: /servicios/laptop/cambio-pantalla -> dist/servicios/laptop/cambio-pantalla.html
             // Solo si la ruta es "segura" (sin .. ni caracteres raros).
             if (/^\/[a-zA-Z0-9/_-]+$/.test(cleanPath)) {
@@ -1305,9 +1305,9 @@ async function bootstrap() {
         });
     }
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
-       MANEJO DE ERRORES (handlers async sin catch caen aqu├Г┬н)
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
+       MANEJO DE ERRORES (handlers async sin catch caen aqu├н)
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     app.use((req, res, next) => {
         if (req.path.startsWith('/api') || req.path.startsWith('/auth')) {
             return res.status(404).json({
@@ -1322,9 +1322,9 @@ async function bootstrap() {
 
     app.use(errorHandler);
 
-    /* ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм
+    /* тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм
        ARRANCAR
-    ├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм├втАЭтВм */
+    тмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтмтм */
     const server = app.listen(PORT, () => {
         const mode = process.env.NODE_ENV || 'development';
         console.log(`

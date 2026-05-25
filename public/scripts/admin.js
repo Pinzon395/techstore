@@ -1,4 +1,4 @@
-ï»¿'use strict';
+ÿ'use strict';
 
 const API_BASE = '/api';
 let allComments = [];
@@ -17,7 +17,7 @@ let adminAppointments = [];
 let activeAppointmentFilter = 'today';
 let pendingDeleteRepairId = null;
 
-// M8 Ã¢â‚¬â€ header CSRF que el backend exige en POST/PUT/DELETE.
+// M8 â¬ header CSRF que el backend exige en POST/PUT/DELETE.
 // Helper para no olvidarlo en ninguna llamada de escritura.
 const CSRF_HEADER = { 'X-Requested-With': 'fetch' };
 const JSON_HEADERS = { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' };
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <img src="${meData.user.avatar || 'https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff'}" 
                      style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #6366f1;">
                 <span style="font-weight: 600;">${meData.user.name.split(' ')[0]}</span>
-                <a href="/auth/logout" style="color: #94a3b8; margin-left: 10px;" title="Cerrar sesiÃƒÂ³n">
+                <a href="/auth/logout" style="color: #94a3b8; margin-left: 10px;" title="Cerrar sesiÃ³n">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </a>
             </div>
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     subtitle.textContent = 'Gestiona las preguntas frecuentes y las dudas sin responder.';
                 } else if (targetView === 'repairs') {
                     if(viewRepairs) viewRepairs.style.display = 'block';
-                    subtitle.textContent = 'Administra los tickets de reparaciÃƒÂ³n y mantenimientos.';
+                    subtitle.textContent = 'Administra los tickets de reparaciÃ³n y mantenimientos.';
                 } else if (targetView === 'builds') {
                     if(viewBuilds) viewBuilds.style.display = 'block';
                     subtitle.textContent = 'Gestiona los paquetes y ensambles pre-configurados.';
@@ -227,7 +227,7 @@ function renderComments() {
     if (currentFilter === 'approved') filtered = allComments.filter(c => c.approved === 1);
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div id="empty-state">No hay comentarios en esta categorÃƒÂ­a.</div>`;
+        grid.innerHTML = `<div id="empty-state">No hay comentarios en esta categorÃ­a.</div>`;
         return;
     }
 
@@ -277,7 +277,7 @@ function renderComments() {
 }
 
 window.approveComment = async function(id) {
-    if (!confirmAdminAction('Ã‚Â¿Seguro que deseas aprobar este comentario para que aparezca pÃƒÂºblicamente?')) return;
+    if (!confirmAdminAction('Â¿Seguro que deseas aprobar este comentario para que aparezca pÃºblicamente?')) return;
     try {
         const res = await fetch(`${API_BASE}/admin/comments/${id}/approve`, { method: 'POST', headers: CSRF_HEADER, credentials: 'include' });
         if (!res.ok) {
@@ -296,7 +296,7 @@ window.approveComment = async function(id) {
 };
 
 window.deleteComment = async function(id) {
-    if (!confirmAdminAction('Ã‚Â¿Seguro que deseas eliminar definitivamente este comentario?')) return;
+    if (!confirmAdminAction('Â¿Seguro que deseas eliminar definitivamente este comentario?')) return;
     try {
         const res = await fetch(`${API_BASE}/admin/comments/${id}`, { method: 'DELETE', headers: CSRF_HEADER, credentials: 'include' });
         if (!res.ok) {
@@ -328,7 +328,7 @@ function connectSSE() {
                 const newComment = JSON.parse(e.data);
                 // Evitar duplicados
                 if (!allComments.some(c => c.id === newComment.id)) {
-                    allComments.unshift(newComment); // AÃƒÂ±adir al principio
+                    allComments.unshift(newComment); // AÃ±adir al principio
                     renderComments();
                     if (dashboardStatsUpdater) dashboardStatsUpdater();
                 }
@@ -347,14 +347,14 @@ function connectSSE() {
     }
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
    ANALYTICS
-Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
 async function fetchAnalytics() {
     const [summaryResult, topPagesResult, dailyResult] = await Promise.allSettled([
         fetchJsonOrThrow(`${API_BASE}/admin/analytics/summary`, 'resumen de visitas'),
-        fetchJsonOrThrow(`${API_BASE}/admin/analytics/top-pages?days=30&limit=10`, 'pÃƒÂ¡ginas mÃƒÂ¡s visitadas'),
-        fetchJsonOrThrow(`${API_BASE}/admin/analytics/daily?days=14`, 'trÃƒÂ¡fico diario')
+        fetchJsonOrThrow(`${API_BASE}/admin/analytics/top-pages?days=30&limit=10`, 'pÃ¡ginas mÃ¡s visitadas'),
+        fetchJsonOrThrow(`${API_BASE}/admin/analytics/daily?days=14`, 'trÃ¡fico diario')
     ]);
 
     const summary = summaryResult.status === 'fulfilled'
@@ -387,21 +387,21 @@ function setStatNumber(id, value) {
 }
 
 function renderAnalyticsError(err) {
-    const message = escapeHtml(err?.message || 'No se pudieron cargar las mÃƒÂ©tricas.');
+    const message = escapeHtml(err?.message || 'No se pudieron cargar las mÃ©tricas.');
     const top = document.getElementById('analytics-top-pages');
     const chart = document.getElementById('analytics-chart');
-    if (top) top.innerHTML = `<div class="empty-state">Error al cargar pÃƒÂ¡ginas mÃƒÂ¡s visitadas: ${message}</div>`;
-    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar trÃƒÂ¡fico diario: ${message}</div>`;
+    if (top) top.innerHTML = `<div class="empty-state">Error al cargar pÃ¡ginas mÃ¡s visitadas: ${message}</div>`;
+    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar trÃ¡fico diario: ${message}</div>`;
 }
 
 function renderTopPagesError(err) {
     const top = document.getElementById('analytics-top-pages');
-    if (top) top.innerHTML = `<div class="empty-state">Error al cargar pÃƒÂ¡ginas mÃƒÂ¡s visitadas: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
+    if (top) top.innerHTML = `<div class="empty-state">Error al cargar pÃ¡ginas mÃ¡s visitadas: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
 }
 
 function renderDailyChartError(err) {
     const chart = document.getElementById('analytics-chart');
-    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar trÃƒÂ¡fico diario: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
+    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar trÃ¡fico diario: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
 }
 
 function renderTopPages() {
@@ -414,7 +414,7 @@ function renderTopPages() {
     }
 
     if (analyticsData.topPages.length === 0) {
-        container.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">Sin datos aÃƒÂºn. Las visitas se registran cuando los usuarios navegan.</div>';
+        container.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">Sin datos aÃºn. Las visitas se registran cuando los usuarios navegan.</div>';
         return;
     }
 
@@ -423,7 +423,7 @@ function renderTopPages() {
 
     analyticsData.topPages.forEach((page, i) => {
         const path = page.path || '/';
-        const displayPath = path.length > 40 ? path.slice(0, 40) + 'Ã¢â‚¬Â¦' : path;
+        const displayPath = path.length > 40 ? path.slice(0, 40) + 'â¬¦' : path;
         const maxWidth = Math.min((page.views / analyticsData.topPages[0].views) * 100, 100);
 
         const row = document.createElement('div');
@@ -456,7 +456,7 @@ function renderDailyChart() {
 
     const data = analyticsDailyData || [];
     if (!data.length) {
-        ctx.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">Sin trÃƒÂ¡fico diario todavÃƒÂ­a.</div>';
+        ctx.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">Sin trÃ¡fico diario todavÃ­a.</div>';
         return;
     }
 
@@ -526,9 +526,9 @@ function confirmAdminAction(message) {
     return window.confirm(message);
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
    FAQ AND UNANSWERED LOGIC
-Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
 let allFaqs = [];
 let allUnanswered = [];
 let openFaqCategories = new Set();
@@ -547,7 +547,7 @@ async function fetchFaqs() {
 async function fetchUnanswered() {
     try {
         const res = await fetch(`${API_BASE}/admin/faqs/unanswered`, INCLUDE_CREDENTIALS);
-        if (!res.ok) throw new Error('Error al cargar bÃƒÂºsquedas sin respuesta');
+        if (!res.ok) throw new Error('Error al cargar bÃºsquedas sin respuesta');
         allUnanswered = await res.json();
         renderUnanswered();
     } catch (err) {
@@ -561,7 +561,7 @@ function renderUnanswered() {
     tbody.innerHTML = '';
 
     if (allUnanswered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b;">No hay registros de bÃƒÂºsquedas sin respuesta. Ã°Å¸Å½â€°</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b;">No hay registros de bÃºsquedas sin respuesta. ğx}0</td></tr>`;
         return;
     }
 
@@ -684,7 +684,7 @@ function renderFaqs() {
     }
 }
 
-// Escuchar bÃƒÂºsqueda en tiempo real
+// Escuchar bÃºsqueda en tiempo real
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('faqSearchInput');
     if(searchInput) {
@@ -714,7 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.clearUnanswered = async function() {
-    if (!confirmAdminAction('Ã‚Â¿Seguro que deseas vaciar el registro de bÃƒÂºsquedas sin respuesta?')) return;
+    if (!confirmAdminAction('Â¿Seguro que deseas vaciar el registro de bÃºsquedas sin respuesta?')) return;
     try {
         const res = await fetch(`${API_BASE}/admin/faqs/unanswered`, { method: 'DELETE', headers: CSRF_HEADER, credentials: 'include' });
         if (!res.ok) throw new Error('Error al limpiar');
@@ -793,7 +793,7 @@ window.saveFaqModal = async function() {
 };
 
 window.deleteAdminFaq = async function(id) {
-    if (!confirmAdminAction('Ã‚Â¿Seguro que deseas eliminar esta pregunta frecuente?')) return;
+    if (!confirmAdminAction('Â¿Seguro que deseas eliminar esta pregunta frecuente?')) return;
     try {
         const res = await fetch(`${API_BASE}/admin/faqs/${id}`, { method: 'DELETE', headers: CSRF_HEADER, credentials: 'include' });
         if (!res.ok) throw new Error('Error al eliminar FAQ');
@@ -803,9 +803,9 @@ window.deleteAdminFaq = async function(id) {
     }
 };
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
    TALLER (REPAIRS) LOGIC
-Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
 async function fetchRepairs() {
     try {
         const res = await fetch(`${API_BASE}/admin/repairs`, INCLUDE_CREDENTIALS);
@@ -821,7 +821,7 @@ async function fetchRepairs() {
 const REPAIR_STATUS_LABELS = {
     new: 'Nuevo',
     received: 'Recibido',
-    diagnosing: 'En revisiÃƒÂ³n',
+    diagnosing: 'En revisiÃ³n',
     contacted: 'Contactado',
     quoted: 'Cotizado',
     approved: 'Aprobado',
@@ -849,20 +849,20 @@ const REPAIR_STATUS_COLORS = {
 };
 
 const REPAIR_DEVICE_SERVICE_OPTIONS = window.PIXON_TICKET_OPTIONS?.services || {
-    'Laptop': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de baterÃƒÂ­a', 'Cambio de teclado', 'AmpliaciÃƒÂ³n de RAM', 'Cambio a SSD', 'Formateo / Sistema operativo', 'RecuperaciÃƒÂ³n de datos', 'ReparaciÃƒÂ³n de bisagras / carcasa', 'No enciende', 'Se apaga o calienta', 'Otro'],
-    'PC de escritorio': ['Mantenimiento preventivo', 'AmpliaciÃƒÂ³n de RAM', 'Cambio a SSD', 'Tarjeta de video', 'Fuente de poder', 'Ensamble de componentes', 'Formateo / Sistema operativo', 'RecuperaciÃƒÂ³n de datos', 'No enciende', 'Se apaga o calienta', 'Otro'],
-    'MacBook': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de baterÃƒÂ­a', 'Formateo / macOS', 'RecuperaciÃƒÂ³n de datos', 'No enciende', 'Otro'],
-    'iMac': ['Mantenimiento preventivo', 'Cambio a SSD', 'AmpliaciÃƒÂ³n de RAM', 'Formateo / macOS', 'Otro'],
-    'Celular': ['Cambio de pantalla', 'Cambio de baterÃƒÂ­a', 'Pin de carga', 'BaÃƒÂ±ado / Mojado', 'No enciende', 'Desbloqueo / Software', 'Otro'],
-    'iPhone': ['Cambio de pantalla', 'Cambio de baterÃƒÂ­a', 'Pin de carga', 'BaÃƒÂ±ado / Mojado', 'No enciende', 'Otro'],
-    'iPad / Tablet': ['Cambio de pantalla', 'Cambio de baterÃƒÂ­a', 'Pin de carga', 'Otro'],
-    'Consola de videojuegos': ['Mantenimiento preventivo', 'Cambio de pasta tÃƒÂ©rmica / Metal lÃƒÂ­quido', 'ReparaciÃƒÂ³n de puerto HDMI', 'No da video', 'Se apaga sola', 'Mando no conecta', 'Otro'],
-    'Control de videojuegos': ['Drift en joystick', 'BotÃƒÂ³n no funciona', 'Gatillos', 'BaterÃƒÂ­a', 'Pin de carga', 'Otro'],
+    'Laptop': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de baterÃ­a', 'Cambio de teclado', 'AmpliaciÃ³n de RAM', 'Cambio a SSD', 'Formateo / Sistema operativo', 'RecuperaciÃ³n de datos', 'ReparaciÃ³n de bisagras / carcasa', 'No enciende', 'Se apaga o calienta', 'Otro'],
+    'PC de escritorio': ['Mantenimiento preventivo', 'AmpliaciÃ³n de RAM', 'Cambio a SSD', 'Tarjeta de video', 'Fuente de poder', 'Ensamble de componentes', 'Formateo / Sistema operativo', 'RecuperaciÃ³n de datos', 'No enciende', 'Se apaga o calienta', 'Otro'],
+    'MacBook': ['Mantenimiento preventivo', 'Cambio de pantalla', 'Cambio de baterÃ­a', 'Formateo / macOS', 'RecuperaciÃ³n de datos', 'No enciende', 'Otro'],
+    'iMac': ['Mantenimiento preventivo', 'Cambio a SSD', 'AmpliaciÃ³n de RAM', 'Formateo / macOS', 'Otro'],
+    'Celular': ['Cambio de pantalla', 'Cambio de baterÃ­a', 'Pin de carga', 'BaÃ±ado / Mojado', 'No enciende', 'Desbloqueo / Software', 'Otro'],
+    'iPhone': ['Cambio de pantalla', 'Cambio de baterÃ­a', 'Pin de carga', 'BaÃ±ado / Mojado', 'No enciende', 'Otro'],
+    'iPad / Tablet': ['Cambio de pantalla', 'Cambio de baterÃ­a', 'Pin de carga', 'Otro'],
+    'Consola de videojuegos': ['Mantenimiento preventivo', 'Cambio de pasta tÃ©rmica / Metal lÃ­quido', 'ReparaciÃ³n de puerto HDMI', 'No da video', 'Se apaga sola', 'Mando no conecta', 'Otro'],
+    'Control de videojuegos': ['Drift en joystick', 'BotÃ³n no funciona', 'Gatillos', 'BaterÃ­a', 'Pin de carga', 'Otro'],
     'Impresora': ['Mantenimiento', 'Atasco de papel', 'Almohadillas', 'Cabezales tapados', 'No imprime', 'Otro'],
-    'Monitor': ['No da imagen', 'LÃƒÂ­neas / manchas', 'Fuente / alimentaciÃƒÂ³n', 'Otro'],
-    'Componente PC': ['DiagnÃƒÂ³stico', 'Tarjeta de video', 'Fuente de poder', 'Motherboard', 'RAM / SSD', 'Otro'],
-    'Equipo gamer': ['Mantenimiento preventivo', 'Cambio de pasta tÃƒÂ©rmica / Metal lÃƒÂ­quido', 'OptimizaciÃƒÂ³n gaming', 'Upgrade de componentes', 'Otro'],
-    'Equipo empresarial / B2B': ['Mantenimiento de flotilla', 'PÃƒÂ³liza de soporte', 'InstalaciÃƒÂ³n de red', 'Otro'],
+    'Monitor': ['No da imagen', 'LÃ­neas / manchas', 'Fuente / alimentaciÃ³n', 'Otro'],
+    'Componente PC': ['DiagnÃ³stico', 'Tarjeta de video', 'Fuente de poder', 'Motherboard', 'RAM / SSD', 'Otro'],
+    'Equipo gamer': ['Mantenimiento preventivo', 'Cambio de pasta tÃ©rmica / Metal lÃ­quido', 'OptimizaciÃ³n gaming', 'Upgrade de componentes', 'Otro'],
+    'Equipo empresarial / B2B': ['Mantenimiento de flotilla', 'PÃ³liza de soporte', 'InstalaciÃ³n de red', 'Otro'],
     'Otro': ['Otro']
 };
 
@@ -870,19 +870,19 @@ const REPAIR_PRIORITY_OPTIONS = window.PIXON_TICKET_OPTIONS?.priorities || {
     normal: { label: 'Normal', aliases: ['normal'] },
     urgent: { label: 'Lo necesito lo antes posible', aliases: ['urgente', 'lo necesito lo antes posible', 'express', 'hoy'] },
     work_school: { label: 'Es para trabajo / escuela', aliases: ['trabajo/escuela', 'trabajo / escuela', 'trabajo', 'escuela'] },
-    quote: { label: 'Solo quiero cotizar', aliases: ['solo cotizar', 'cotizar', 'cotizacion', 'cotizaciÃƒÂ³n'] }
+    quote: { label: 'Solo quiero cotizar', aliases: ['solo cotizar', 'cotizar', 'cotizacion', 'cotizaciÃ³n'] }
 };
 
 const APPOINTMENT_STATUS_LABELS = {
-    pendiente_confirmacion: 'Pendiente de confirmaciÃƒÂ³n',
+    pendiente_confirmacion: 'Pendiente de confirmaciÃ³n',
     confirmada: 'Confirmada',
     reagendada: 'Reagendada',
     cancelada: 'Cancelada',
     completada: 'Completada'
 };
 
-const APPOINTMENT_TYPE_VALUES = ['RecepciÃƒÂ³n de equipo', 'DiagnÃƒÂ³stico', 'Entrega de equipo', 'Otro'];
-const WEEKDAY_LABELS = ['Domingo', 'Lunes', 'Martes', 'MiÃƒÂ©rcoles', 'Jueves', 'Viernes', 'SÃƒÂ¡bado'];
+const APPOINTMENT_TYPE_VALUES = ['RecepciÃ³n de equipo', 'DiagnÃ³stico', 'Entrega de equipo', 'Otro'];
+const WEEKDAY_LABELS = ['Domingo', 'Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado'];
 
 function normalizeText(value) {
     return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -920,7 +920,7 @@ function inferRepairService(repair) {
     if (/lento|windows|formateo|virus|software|optimiz/.test(text)) return 'Software / optimizacion';
     if (/limpieza|temperatura|calienta|pasta|ventilador/.test(text)) return 'Mantenimiento termico';
     if (/hdmi|control|joystick|consola|xbox|playstation|ps5|ps4/.test(text)) return 'Consola / control';
-    return 'DiagnÃƒÂ³stico general';
+    return 'DiagnÃ³stico general';
 }
 
 function getRepairIssueDescription(repair) {
@@ -1058,12 +1058,12 @@ function parseRepairDetails(repair) {
     const notes = String(repair.notes_internal || '');
     const service = parseRepairLine(reported, 'Servicio solicitado') || inferRepairService(repair);
     const description = getRepairIssueDescription(repair);
-    const sourcePage = parseRepairLine(reported, 'Pagina de origen') || parseRepairLine(reported, 'PÃƒÂ¡gina de origen') || parseRepairLine(notes, 'Pagina de origen') || parseRepairLine(notes, 'PÃƒÂ¡gina de origen');
+    const sourcePage = parseRepairLine(reported, 'Pagina de origen') || parseRepairLine(reported, 'PÃ¡gina de origen') || parseRepairLine(notes, 'Pagina de origen') || parseRepairLine(notes, 'PÃ¡gina de origen');
     const contactPref = parseRepairLine(reported, 'Contacto pref.') || parseRepairLine(reported, 'Contacto preferido') || parseRepairLine(notes, 'Contacto pref.');
     const turnsOn = parseRepairLine(reported, 'Enciende') || parseRepairLine(notes, 'Enciende');
-    const liquid = parseRepairLine(reported, 'Liquidos') || parseRepairLine(reported, 'LÃƒÂ­quidos') || parseRepairLine(notes, 'Liquidos') || parseRepairLine(notes, 'LÃƒÂ­quidos');
-    const previousRepair = parseRepairLine(reported, 'Reparacion previa') || parseRepairLine(reported, 'ReparaciÃƒÂ³n previa') || parseRepairLine(notes, 'Reparacion previa') || parseRepairLine(notes, 'ReparaciÃƒÂ³n previa');
-    const imagesRaw = parseRepairLine(reported, 'Imagenes') || parseRepairLine(reported, 'ImÃƒÂ¡genes') || parseRepairLine(notes, 'Imagenes') || parseRepairLine(notes, 'ImÃƒÂ¡genes');
+    const liquid = parseRepairLine(reported, 'Liquidos') || parseRepairLine(reported, 'LÃ­quidos') || parseRepairLine(notes, 'Liquidos') || parseRepairLine(notes, 'LÃ­quidos');
+    const previousRepair = parseRepairLine(reported, 'Reparacion previa') || parseRepairLine(reported, 'ReparaciÃ³n previa') || parseRepairLine(notes, 'Reparacion previa') || parseRepairLine(notes, 'ReparaciÃ³n previa');
+    const imagesRaw = parseRepairLine(reported, 'Imagenes') || parseRepairLine(reported, 'ImÃ¡genes') || parseRepairLine(notes, 'Imagenes') || parseRepairLine(notes, 'ImÃ¡genes');
     const images = imagesRaw ? imagesRaw.split(/[,|]/).map(item => item.trim()).filter(Boolean) : [];
     const b2bLine = String(notes.match(/B2B Info:\s*([^\n\r]+)/i)?.[1] || '');
     const b2b = {
@@ -1171,7 +1171,7 @@ function renderAppointmentTypeOptions(current) {
 
 function renderAppointmentTypeLabel(value) {
     const normalized = normalizeText(value);
-    return APPOINTMENT_TYPE_VALUES.find(item => normalizeText(item) === normalized) || value || 'RecepciÃƒÂ³n de equipo';
+    return APPOINTMENT_TYPE_VALUES.find(item => normalizeText(item) === normalized) || value || 'RecepciÃ³n de equipo';
 }
 
 function renderRepairDetailModal(ticket) {
@@ -1208,7 +1208,7 @@ function renderRepairDetailModal(ticket) {
                     <h3>Datos del cliente</h3>
                     <div class="repair-ticket-field-grid">
                         ${renderRepairField('Nombre completo', clientName)}
-                        ${renderRepairField('WhatsApp / telÃƒÂ©fono', ticket.contact_phone)}
+                        ${renderRepairField('WhatsApp / telÃ©fono', ticket.contact_phone)}
                         ${renderRepairField('Correo', contactEmail)}
                         ${renderRepairField('Medio de contacto preferido', details.contactPref)}
                     </div>
@@ -1222,20 +1222,20 @@ function renderRepairDetailModal(ticket) {
                         ${renderRepairField('Tipo de servicio', details.service)}
                         ${renderRepairField('Marca', ticket.device_brand)}
                         ${renderRepairField('Modelo', ticket.device_model)}
-                        ${renderRepairField('NÃƒÂºmero de serie', ticket.serial_number)}
+                        ${renderRepairField('NÃºmero de serie', ticket.serial_number)}
                         ${renderRepairField('Si el equipo enciende', details.turnsOn)}
-                        ${renderRepairField('Contacto con lÃƒÂ­quidos', details.liquid)}
-                        ${renderRepairField('ReparaciÃƒÂ³n previa', details.previousRepair)}
+                        ${renderRepairField('Contacto con lÃ­quidos', details.liquid)}
+                        ${renderRepairField('ReparaciÃ³n previa', details.previousRepair)}
                     </div>
                 </section>
 
                 <section class="repair-ticket-section repair-ticket-issue-section">
                     <h3>Falla reportada</h3>
                     ${renderRepairField('Servicio solicitado', details.service)}
-                    ${renderRepairText('DescripciÃƒÂ³n completa', details.description)}
-                    ${renderRepairField('PÃƒÂ¡gina de origen', details.sourcePage)}
+                    ${renderRepairText('DescripciÃ³n completa', details.description)}
+                    ${renderRepairField('PÃ¡gina de origen', details.sourcePage)}
                     <div class="repair-ticket-images">
-                        <strong>ImÃƒÂ¡genes adjuntas</strong>
+                        <strong>ImÃ¡genes adjuntas</strong>
                         ${details.images.length ? details.images.map(src => `<a href="${escapeHtml(src)}" target="_blank" rel="noopener"><img src="${escapeHtml(src)}" alt="Imagen adjunta del ticket" loading="lazy"></a>`).join('') : '<span>No especificado</span>'}
                     </div>
                 </section>
@@ -1257,7 +1257,7 @@ function renderRepairDetailModal(ticket) {
 
             <div class="repair-ticket-column">
                 <section class="repair-ticket-section repair-ticket-admin-section">
-                    <h3>GestiÃƒÂ³n interna</h3>
+                    <h3>GestiÃ³n interna</h3>
                     <div class="repair-ticket-form-grid">
                         <label>Estado del ticket<select id="repairDetailStatus" class="admin-input">${renderRepairStatusOptions(ticket.status)}</select></label>
                         <label>Prioridad<select id="repairDetailPriority" class="admin-input">${renderRepairPriorityOptions(ticket.priority || 'normal')}</select></label>
@@ -1268,15 +1268,15 @@ function renderRepairDetailModal(ticket) {
                         ${renderRepairField('Fecha de cita', formatRepairDate(ticket.appointment_at))}
                         ${renderRepairField('Fecha prometida', formatRepairDate(ticket.promised_at))}
                         ${renderRepairField('Fecha de entrega', formatRepairDate(ticket.delivered_at))}
-                        ${renderRepairField('GarantÃƒÂ­a', formatRepairDate(ticket.warranty_until))}
+                        ${renderRepairField('GarantÃ­a', formatRepairDate(ticket.warranty_until))}
                     </div>
-                    <label class="repair-ticket-label">DiagnÃƒÂ³stico tÃƒÂ©cnico<textarea id="repairDetailDiagnostic" class="admin-input" rows="5">${escapeHtml(ticket.diagnostic || '')}</textarea></label>
+                    <label class="repair-ticket-label">DiagnÃ³stico tÃ©cnico<textarea id="repairDetailDiagnostic" class="admin-input" rows="5">${escapeHtml(ticket.diagnostic || '')}</textarea></label>
                     <label class="repair-ticket-label">Notas internas<textarea id="repairDetailNotes" class="admin-input" rows="6">${escapeHtml(ticket.notes_internal || '')}</textarea></label>
                 </section>
                 <section class="repair-ticket-section repair-ticket-appointment-section">
                     <h3>Cita / Agenda</h3>
                     <div class="repair-ticket-form-grid">
-                        <label>Tipo de visita<select id="repairAppointmentType" class="admin-input">${renderAppointmentTypeOptions(ticket.appointment_type || 'RecepciÃƒÂ³n de equipo')}</select></label>
+                        <label>Tipo de visita<select id="repairAppointmentType" class="admin-input">${renderAppointmentTypeOptions(ticket.appointment_type || 'RecepciÃ³n de equipo')}</select></label>
                         <label>Estado de cita<select id="repairAppointmentStatus" class="admin-input">${renderAppointmentStatusOptions(ticket.appointment_status || 'pendiente_confirmacion')}</select></label>
                         <label>Fecha<input id="repairAppointmentDate" class="admin-input" type="date" value="${escapeHtml(ticket.appointment_date || '')}"></label>
                         <label>Hora<input id="repairAppointmentTime" class="admin-input" type="time" value="${escapeHtml(String(ticket.appointment_time || '').slice(0, 5))}"></label>
@@ -1309,7 +1309,7 @@ async function openRepairTicket(ticketId) {
     document.body.classList.add('modal-open');
     if (title) title.textContent = 'Cargando ticket...';
     if (meta) meta.innerHTML = '';
-    body.innerHTML = '<div class="empty-state">Cargando informaciÃƒÂ³n completa del ticket...</div>';
+    body.innerHTML = '<div class="empty-state">Cargando informaciÃ³n completa del ticket...</div>';
     try {
         const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(ticketId)}`, { cache: 'no-store', credentials: 'include' });
         if (!res.ok) throw new Error(`load failed: ${res.status}`);
@@ -1323,7 +1323,7 @@ async function openRepairTicket(ticketId) {
             renderRepairDetailModal(fallbackTicket);
             return;
         }
-        body.innerHTML = '<div class="empty-state">No se pudo cargar la informaciÃƒÂ³n completa del ticket. Intenta de nuevo.</div>';
+        body.innerHTML = '<div class="empty-state">No se pudo cargar la informaciÃ³n completa del ticket. Intenta de nuevo.</div>';
     }
 }
 
@@ -1374,9 +1374,9 @@ async function saveRepairTicketChanges() {
     }
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
    TALLER (REPAIRS) UI
-Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
 
 function renderRepairs() {
     const tbody = document.getElementById('repairs-tbody');
@@ -1390,7 +1390,7 @@ function renderRepairs() {
     }
 
     if (filteredRepairs.length === 0) {
-        const message = allRepairs.length === 0 ? 'AÃƒÂºn no hay tickets registrados.' : 'No hay tickets que coincidan con los filtros.';
+        const message = allRepairs.length === 0 ? 'AÃºn no hay tickets registrados.' : 'No hay tickets que coincidan con los filtros.';
         tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b;">${message}</td></tr>`;
         return;
     }
@@ -1517,7 +1517,7 @@ function renderAdminAppointments() {
 
 async function fetchAppointmentConfig() {
     const grid = document.getElementById('appointmentSettingsGrid');
-    if (grid) grid.innerHTML = '<div class="empty-state">Cargando configuraciÃƒÂ³n...</div>';
+    if (grid) grid.innerHTML = '<div class="empty-state">Cargando configuraciÃ³n...</div>';
     try {
         const res = await fetch(`${API_BASE}/appointments/config`, { cache: 'no-store' });
         if (!res.ok) throw new Error('config failed');
@@ -1525,7 +1525,7 @@ async function fetchAppointmentConfig() {
         renderAppointmentConfig();
     } catch (err) {
         console.error(err);
-        if (grid) grid.innerHTML = '<div class="empty-state">No se pudo cargar la configuraciÃƒÂ³n.</div>';
+        if (grid) grid.innerHTML = '<div class="empty-state">No se pudo cargar la configuraciÃ³n.</div>';
     }
 }
 
@@ -1573,7 +1573,7 @@ async function saveAppointmentConfigFromUI() {
             credentials: 'include',
             body: JSON.stringify({ settings, exceptions })
         });
-        if (!res.ok) throw new Error('No se pudo guardar la configuraciÃƒÂ³n');
+        if (!res.ok) throw new Error('No se pudo guardar la configuraciÃ³n');
         const data = await res.json();
         appointmentConfig = data.config;
         renderAppointmentConfig();
