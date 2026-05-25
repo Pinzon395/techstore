@@ -1,4 +1,4 @@
-ÿfunction smartWaRedirect(url) {
+function smartWaRedirect(url) {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile) { window.location.href = url; } else { window.open(url, '_blank'); }
   }

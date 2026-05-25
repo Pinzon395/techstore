@@ -27,13 +27,31 @@ function hasDoubleEncoding(buffer) {
   }
 }
 
+function hasLeadingStrayByte(buffer) {
+  return buffer.length > 0 && (buffer[0] === 0xFF || buffer[0] === 0xFE);
+}
+
 function fixFile(filePath) {
-  const buf = fs.readFileSync(filePath);
-  if (!hasDoubleEncoding(buf)) return false;
-  const garbledStr = buf.toString('utf8');
-  const fixedBuf = Buffer.from(garbledStr, 'latin1');
-  fs.writeFileSync(filePath, fixedBuf);
-  return true;
+  let buf = fs.readFileSync(filePath);
+  let changed = false;
+
+  // Step 1: strip leading stray bytes (0xFF / 0xFE)
+  if (hasLeadingStrayByte(buf)) {
+    let start = 0;
+    while (start < buf.length && (buf[start] === 0xFF || buf[start] === 0xFE)) start++;
+    buf = buf.subarray(start);
+    changed = true;
+  }
+
+  // Step 2: fix double-UTF-8 encoding
+  if (hasDoubleEncoding(buf)) {
+    const garbledStr = buf.toString('utf8');
+    buf = Buffer.from(garbledStr, 'latin1');
+    changed = true;
+  }
+
+  if (changed) fs.writeFileSync(filePath, buf);
+  return changed;
 }
 
 function processDirectory(dir) {

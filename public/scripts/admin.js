@@ -1,4 +1,4 @@
-ÿ'use strict';
+'use strict';
 
 const API_BASE = '/api';
 let allComments = [];
