@@ -34,7 +34,14 @@ if not exist "dist" (
 
 echo [*] Verificando MariaDB...
 net start MariaDB >nul 2>&1
-echo [OK] MariaDB verificado.
+sc query MariaDB | findstr /I "RUNNING" >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] MariaDB no esta corriendo. Revisa el servicio MariaDB.
+    pause
+    exit /b 1
+) else (
+    echo [OK] MariaDB activo.
+)
 
 where cloudflared >nul 2>&1
 if errorlevel 1 (
@@ -44,25 +51,14 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set "NODE_RUNNING="
-for /f "tokens=5" %%P in ('netstat -ano ^| findstr /R /C:":3000 .*LISTENING"') do set "NODE_RUNNING=%%P"
-
-set "TUNNEL_RUNNING="
-for /f "tokens=2" %%P in ('tasklist /FI "IMAGENAME eq cloudflared.exe" /NH 2^>nul ^| findstr /I "cloudflared.exe"') do set "TUNNEL_RUNNING=%%P"
+echo [*] Cerrando instancias anteriores del servidor y tunel...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process -Filter \"name = 'node.exe'\" | Where-Object { $_.CommandLine -like '*\techstore\*' -or $_.CommandLine -like '*server/server.js*' -or $_.CommandLine -like '*server\\server.js*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>&1
+taskkill /F /IM cloudflared.exe >nul 2>&1
+timeout /t 2 /nobreak >nul
 
 echo [*] Abriendo servidor y tunel en ventanas CMD...
-
-if defined NODE_RUNNING (
-    echo [OK] Servidor Node ya esta activo en puerto 3000. PID: %NODE_RUNNING%
-) else (
-    start "SERVIDOR NODE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title SERVIDOR NODE - PIXON PC && color 0A && npm run start"
-)
-
-if defined TUNNEL_RUNNING (
-    echo [OK] Cloudflare Tunnel ya esta activo. PID: %TUNNEL_RUNNING%
-) else (
-    start "TUNEL CLOUDFLARE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title TUNEL CLOUDFLARE - PIXON PC && color 0E && cloudflared tunnel run %TUNNEL_NAME%"
-)
+start "SERVIDOR NODE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title SERVIDOR NODE - PIXON PC && color 0A && npm run start"
+start "TUNEL CLOUDFLARE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title TUNEL CLOUDFLARE - PIXON PC && color 0E && cloudflared tunnel run %TUNNEL_NAME%"
 
 echo [OK] Servicios enviados a ventanas CMD.
 echo Local:   http://localhost:3000
