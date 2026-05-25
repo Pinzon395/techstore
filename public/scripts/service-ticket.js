@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSubmit = document.getElementById('btn_st_submit');
     const errorMsg = document.getElementById('st_error_msg');
     const errorText = document.getElementById('st_error_text');
+    const defaultSubmitHtml = '<i class="fa-solid fa-paper-plane"></i> Solicitar revisión y cotización';
 
     const authOverlay = document.getElementById('ticket-auth-overlay');
     const btnCancelAuth = document.getElementById('btn-cancel-auth');
@@ -96,6 +97,31 @@ document.addEventListener('DOMContentLoaded', () => {
             || normalizedOptions.find(item => targetTokens.length > 0 && targetTokens.every(token => item.value.includes(token)))?.option
             || normalizedOptions.find(item => target.includes(item.value))?.option
             || null;
+    }
+
+    function clearFieldErrors() {
+        form.querySelectorAll('[aria-invalid="true"]').forEach((field) => {
+            field.removeAttribute('aria-invalid');
+        });
+    }
+
+    function showError(message, field) {
+        if (errorText) errorText.textContent = message;
+        if (errorMsg) errorMsg.style.display = 'flex';
+        if (field) {
+            field.setAttribute('aria-invalid', 'true');
+            field.focus({ preventScroll: false });
+        }
+    }
+
+    function isValidPhone(value) {
+        const digits = String(value || '').replace(/\D/g, '');
+        return digits.length >= 8;
+    }
+
+    function isValidEmail(value) {
+        const trimmed = String(value || '').trim();
+        return !trimmed || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
     }
 
     // 1. Manejo de dependencias (Dispositivo -> Servicio)
@@ -279,9 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (err) {
             console.error('Error auto-submit:', err);
-            errorText.textContent = 'Hubo un error al procesar tu solicitud después del inicio de sesión. Por favor intenta de nuevo.';
-            errorMsg.style.display = 'flex';
-            btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Crear Ticket de Servicio';
+            showError('Hubo un error al procesar tu solicitud después del inicio de sesión. Por favor intenta de nuevo.');
+            btnSubmit.innerHTML = defaultSubmitHtml;
             btnSubmit.disabled = false;
         }
     }
@@ -290,15 +315,62 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorMsg.style.display = 'none';
+        clearFieldErrors();
 
         // Construir Payload
-        let finalDevice = deviceSelect.value === 'Otro' ? deviceOtherInput.value : deviceSelect.value;
-        let finalService = serviceSelect.value === 'Otro' ? serviceOtherInput.value : serviceSelect.value;
+        let finalDevice = deviceSelect.value === 'Otro' ? deviceOtherInput.value.trim() : deviceSelect.value;
+        let finalService = serviceSelect.value === 'Otro' ? serviceOtherInput.value.trim() : serviceSelect.value;
         
         const isB2B = deviceSelect.value === 'Equipo empresarial / B2B';
-        const brand = document.getElementById('st_brand').value;
-        const model = document.getElementById('st_model').value;
-        const description = document.getElementById('st_description').value;
+        const nameInput = document.getElementById('st_name');
+        const phoneInput = document.getElementById('st_phone');
+        const emailInput = document.getElementById('st_email');
+        const descriptionInput = document.getElementById('st_description');
+        const brand = document.getElementById('st_brand').value.trim();
+        const model = document.getElementById('st_model').value.trim();
+        const description = descriptionInput.value.trim();
+
+        if (!nameInput.value.trim()) {
+            showError('Ingresa tu nombre.', nameInput);
+            return;
+        }
+        if (!isValidPhone(phoneInput.value)) {
+            showError('Ingresa un WhatsApp o teléfono válido.', phoneInput);
+            return;
+        }
+        if (!isValidEmail(emailInput.value)) {
+            showError('Ingresa un correo válido o deja el campo vacío.', emailInput);
+            return;
+        }
+        if (!finalDevice) {
+            showError(deviceSelect.value === 'Otro' ? 'Especifica qué dispositivo necesitas revisar.' : 'Selecciona tu dispositivo.', deviceSelect.value === 'Otro' ? deviceOtherInput : deviceSelect);
+            return;
+        }
+        if (!finalService) {
+            showError(serviceSelect.value === 'Otro' ? 'Describe el servicio que necesitas.' : 'Selecciona el servicio que necesitas.', serviceSelect.value === 'Otro' ? serviceOtherInput : serviceSelect);
+            return;
+        }
+        if (!description) {
+            showError('Escribe una breve descripción del problema.', descriptionInput);
+            return;
+        }
+        if (isB2B) {
+            const company = document.getElementById('st_b2b_company');
+            const quantity = document.getElementById('st_b2b_quantity');
+            const types = document.getElementById('st_b2b_types');
+            if (!company.value.trim()) {
+                showError('Ingresa el nombre de la empresa.', company);
+                return;
+            }
+            if (!quantity.value || Number(quantity.value) < 1) {
+                showError('Ingresa la cantidad de equipos.', quantity);
+                return;
+            }
+            if (!types.value) {
+                showError('Selecciona el tipo de equipos.', types);
+                return;
+            }
+        }
         
         const issueDetails = [
             description,
@@ -315,15 +387,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ].join('\n');
 
         if (appointmentDate && appointmentTime && (!appointmentDate.value || !appointmentTime.value)) {
-            errorText.textContent = !appointmentDate.value ? 'Selecciona un día disponible.' : 'Selecciona un horario disponible.';
-            errorMsg.style.display = 'flex';
+            showError(!appointmentDate.value ? 'Selecciona un día disponible.' : 'Selecciona un horario disponible.', !appointmentDate.value ? appointmentDate : appointmentTime);
             return;
         }
 
         const payload = {
-            customer_name: document.getElementById('st_name').value,
-            customer_phone: document.getElementById('st_phone').value,
-            customer_email: document.getElementById('st_email').value || null,
+            customer_name: nameInput.value.trim(),
+            customer_phone: phoneInput.value.trim(),
+            customer_email: emailInput.value.trim() || null,
             device_type: finalDevice,
             service_requested: finalService,
             issue_description: issueDetails,
@@ -341,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (isB2B) {
-            payload.b2b_company = document.getElementById('st_b2b_company').value;
+            payload.b2b_company = document.getElementById('st_b2b_company').value.trim();
             payload.b2b_quantity = document.getElementById('st_b2b_quantity').value;
             payload.b2b_type = document.getElementById('st_b2b_types').value;
             payload.b2b_frequency = document.getElementById('st_b2b_frequency').value;
@@ -383,9 +454,11 @@ document.addEventListener('DOMContentLoaded', () => {
             showSuccess(result.ticket_code, finalDevice, finalService, payload);
 
         } catch (err) {
-            errorText.textContent = err.message;
-            errorMsg.style.display = 'flex';
-            btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Crear Ticket de Servicio';
+            const message = err?.message && err.message !== 'Failed to fetch'
+                ? err.message
+                : 'No se pudo enviar tu solicitud. Intenta nuevamente o contáctanos por WhatsApp.';
+            showError(message);
+            btnSubmit.innerHTML = defaultSubmitHtml;
             btnSubmit.disabled = false;
         }
     });
@@ -395,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.removeItem('pixon_pending_ticket');
             authOverlay.style.display = 'none';
             form.style.display = 'flex';
-            btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Crear Ticket de Servicio';
+            btnSubmit.innerHTML = defaultSubmitHtml;
             btnSubmit.disabled = false;
         });
     }

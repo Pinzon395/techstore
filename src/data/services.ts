@@ -151,7 +151,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
             eyebrow: 'Cuidado y Limpieza',
             title: '¿Cómo cuidar tu nueva pantalla?',
             intro: 'Evita volver a dañarla siguiendo estas recomendaciones sencillas para limpieza y transporte.',
-            imgSrc: '/assets/images/reparacion-mac-cancun.jpeg',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
             imgAlt: 'Limpieza de pantalla de laptop',
             reverse: false,
             points: [
@@ -190,7 +190,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
         specialistTitle: 'Especialistas en cambio de pantalla de laptop en Cancún',
         specialistDesc: 'En Pixon PC verificamos modelo exacto, tamaño, resolución, tipo de conector, acabado del panel y compatibilidad antes de cotizar. Trabajamos con pantallas de calidad verificada para laptops Windows y MacBook, con garantía clara y pruebas de imagen antes de entregar.',
-        specialistImage: '/assets/images/reparacion-mac-cancun.jpeg',
+        specialistImage: '/assets/images/responsive/reparacion-mac-cancun.webp',
         screenTypes: [
           { label: 'HD (1366x768)', desc: 'Panel estándar para laptops de entrada y oficina' },
           { label: 'FHD (1920x1080)', desc: 'La resolución más común para laptop de trabajo, escuela y gaming' },
@@ -290,7 +290,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
             eyebrow: 'Cuidado y Rendimiento',
             title: '¿Cómo alargar la vida útil de tu nueva batería?',
             intro: 'Una vez instalada tu nueva batería, seguir estas recomendaciones de nuestros ingenieros garantizará que te dure años con excelente rendimiento.',
-            imgSrc: '/assets/images/reparacion-mac-cancun.jpeg',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
             imgAlt: 'Mantenimiento de baterías',
             reverse: false,
             points: [
@@ -351,7 +351,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
             eyebrow: 'Mantenimiento Óptimo',
             title: 'Mantén tu laptop fresca',
             intro: 'La pasta térmica nueva hace maravillas, pero el entorno y tus hábitos son clave para que la temperatura no vuelva a subir.',
-            imgSrc: '/assets/images/reparacion-mac-cancun.jpeg',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
             imgAlt: 'Pasta térmica en laptop',
             reverse: true,
             points: [
@@ -764,7 +764,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
             eyebrow: 'Prevención de Daños',
             title: 'Cómo evitar que tu consola se llene de polvo',
             intro: 'Tu PS5 o Xbox es una aspiradora de polvo. Si la ubicas bien, el mantenimiento te durará el doble.',
-            imgSrc: '/assets/images/reparacion-mac-cancun.jpeg',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
             imgAlt: 'Limpieza de polvo consola PS5',
             reverse: false,
             points: [
@@ -959,7 +959,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
             eyebrow: 'Prevención y Hábitos',
             title: '¿Por qué se dañan los ventiladores?',
             intro: 'Un reemplazo de ventilador no sirve de mucho si el entorno de juego sigue siendo el mismo. Aquí están los factores que más destruyen este componente.',
-            imgSrc: '/assets/images/reparacion-mac-cancun.jpeg',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
             imgAlt: 'Daños por polvo en consolas de videojuegos',
             reverse: true,
             points: [
@@ -1071,7 +1071,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
               eyebrow: 'Cuidado y Rendimiento',
               title: '¿Cómo alargar la vida útil de tu nueva batería?',
               intro: 'Una vez instalada tu nueva batería, seguir estas recomendaciones de nuestros ingenieros garantizará que te dure años con excelente rendimiento.',
-              imgSrc: '/assets/images/reparacion-mac-cancun.jpeg', // Fallback a una imagen de laptop reparandose
+              imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp', // Fallback a una imagen de laptop reparandose
               imgAlt: 'Mantenimiento y cuidado de baterías en Cancún',
               reverse: false,
               points: [

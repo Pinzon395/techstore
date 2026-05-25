@@ -41,6 +41,26 @@
         MAX_DUPLICATES:  4,
     };
 
+    function showCommentMessage(section, message, type = 'error') {
+        const host = section || document;
+        let box = host.querySelector ? host.querySelector('[data-comment-message]') : null;
+        if (!box && section) {
+            box = document.createElement('div');
+            box.setAttribute('data-comment-message', '');
+            box.setAttribute('role', 'status');
+            box.setAttribute('aria-live', 'polite');
+            box.style.cssText = 'margin-top:12px;padding:12px 14px;border-radius:10px;font-weight:700;font-size:.95rem;';
+            const form = section.querySelector('#commentForm') || section.querySelector('form');
+            if (form) form.appendChild(box);
+        }
+        if (!box) return;
+        box.textContent = message;
+        box.style.display = 'block';
+        box.style.color = type === 'success' ? '#065f46' : '#991b1b';
+        box.style.background = type === 'success' ? '#d1fae5' : '#fee2e2';
+        box.style.border = type === 'success' ? '1px solid #10b981' : '1px solid #fca5a5';
+    }
+
     /* ────────────────────────────────────────────────────────
        API BASE
        Siempre relativo: en producción Express sirve la API en el
@@ -840,7 +860,7 @@
 
                 } catch (err) {
                     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar Comentario'; }
-                    alert('Error al publicar: ' + err.message);
+                    showCommentMessage(section, 'No se pudo publicar: ' + err.message, 'error');
                 }
             });
         }

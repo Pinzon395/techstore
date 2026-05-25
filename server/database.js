@@ -1,10 +1,10 @@
-/**
+﻿/**
  * ============================================================
- *  server/database.js  — MariaDB via mysql2/promise (pool)
+ *  server/database.js  â€” MariaDB via mysql2/promise (pool)
  * ============================================================
  *
- *  Reemplaza la versión anterior basada en better-sqlite3.
- *  API pública (nombres de funciones) es la misma, pero todas
+ *  Reemplaza la versiÃ³n anterior basada en better-sqlite3.
+ *  API pÃºblica (nombres de funciones) es la misma, pero todas
  *  las funciones ahora son ASYNC. Los handlers en server.js
  *  deben usar await.
  *
@@ -16,14 +16,15 @@
 'use strict';
 
 require('dotenv').config();
-const mysql = require('mysql2/promise');
 const DOMPurify = require('isomorphic-dompurify');
 const { EventEmitter } = require('events');
 const crypto = require('crypto');
+const { createPoolFromEnv } = require('./db/connection');
+const { runtimeMigrationsEnabled, warnRuntimeMigrationsDisabled } = require('./db/migrations');
 
 const dbEmitter = new EventEmitter();
 
-// SECURITY-2 (C1) — Allow-list para HTML de respuestas de FAQ.
+// SECURITY-2 (C1) â€” Allow-list para HTML de respuestas de FAQ.
 // Solo etiquetas de formato basico. Sin script, iframe, on*, etc.
 const FAQ_HTML_CONFIG = {
     ALLOWED_TAGS: ['br', 'b', 'i', 'strong', 'em', 'a', 'code', 'p', 'ul', 'ol', 'li'],
@@ -40,48 +41,45 @@ function sanitizeFaqIcon(icon) {
 
 let pool = null;
 
-/* ─────────────────────────────────────────────────────────────
-   INICIALIZACIÓN
-───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   INICIALIZACIÃ“N
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 async function initDB() {
-    pool = mysql.createPool({
-        host:               process.env.DB_HOST     || '127.0.0.1',
-        port:               +(process.env.DB_PORT   || 3306),
-        user:               process.env.DB_USER     || 'pixon_app',
-        password:           process.env.DB_PASSWORD || '',
-        database:           process.env.DB_NAME     || 'pixon',
-        waitForConnections: true,
-        connectionLimit:    10,
-        queueLimit:         0,
-        charset:            'utf8mb4',
-        timezone:           'Z',
-        dateStrings:        true,        // fechas como strings ISO (consistente con SQLite)
-        namedPlaceholders:  false
-    });
+    pool = createPoolFromEnv();
 
-    // Probar conexión real
+    // Probar conexiÃ³n real
     const [rows] = await pool.query('SELECT 1 AS ok');
     if (!rows[0] || rows[0].ok !== 1) {
-        throw new Error('MariaDB no respondió a SELECT 1');
+        throw new Error('MariaDB no respondiÃ³ a SELECT 1');
     }
 
-    console.log(`🗄️  MariaDB conectada → ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+    console.log(`ðŸ—„ï¸  MariaDB conectada â†’ ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
 
-    // Migración: comments.stars TINYINT -> DECIMAL(2,1) (soporta medias estrellas)
+    if (runtimeMigrationsEnabled()) {
+        await runRuntimeMigrations();
+    } else {
+        warnRuntimeMigrationsDisabled();
+    }
+
+    return pool;
+}
+
+async function runRuntimeMigrations() {
+    // Migracion: comments.stars TINYINT -> DECIMAL(2,1) (soporta medias estrellas)
     try {
         const [cols] = await pool.query(
             "SELECT DATA_TYPE, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'comments' AND COLUMN_NAME = 'stars'"
         );
         if (cols[0] && cols[0].DATA_TYPE === 'tinyint') {
-            console.log('🔧 Migrando comments.stars TINYINT → DECIMAL(2,1) para soportar medias estrellas...');
+            console.log('Migrando comments.stars TINYINT -> DECIMAL(2,1) para soportar medias estrellas...');
             await pool.query(
                 'ALTER TABLE comments MODIFY COLUMN stars DECIMAL(2,1) UNSIGNED NOT NULL'
             );
-            console.log('✅ Columna comments.stars migrada a DECIMAL(2,1)');
+            console.log('Columna comments.stars migrada a DECIMAL(2,1)');
         }
     } catch (err) {
-        console.warn('⚠️  No se pudo verificar/migrar comments.stars:', err.message);
+        console.warn('No se pudo verificar/migrar comments.stars:', err.message);
     }
 
     try {
@@ -101,8 +99,6 @@ async function initDB() {
 
     await ensureAppointmentSchema();
     await ensureAnalyticsSchema();
-
-    return pool;
 }
 
 async function ensureAppointmentSchema() {
@@ -210,21 +206,21 @@ async function ensureAnalyticsSchema() {
 }
 
 
-/** Devuelve el pool. Útil para integraciones externas (session store). */
+/** Devuelve el pool. Ãštil para integraciones externas (session store). */
 function getDB() {
     if (!pool) throw new Error('Pool no inicializado. Llama a initDB() primero.');
     return pool;
 }
 
-/** Convierte avatar_url → avatar para mantener compat con el código antiguo. */
+/** Convierte avatar_url â†’ avatar para mantener compat con el cÃ³digo antiguo. */
 function mapUserCompat(row) {
     if (!row) return null;
     return { ...row, avatar: row.avatar_url ?? null };
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    COMENTARIOS
-───────────────────────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 async function getAllComments() {
     const [rows] = await pool.execute(`
@@ -247,7 +243,7 @@ async function getAllCommentsAdmin() {
 
 async function insertComment({ name, stars, text, user_id, user_email }) {
     // Los comentarios entran como pendientes (approved=0)
-    // M4 — guardar user_id ademas de email (FK SET NULL si el usuario se borra)
+    // M4 â€” guardar user_id ademas de email (FK SET NULL si el usuario se borra)
     const [info] = await pool.execute(
         'INSERT INTO comments (user_id, name, stars, text, approved, user_email) VALUES (?, ?, ?, ?, 0, ?)',
         [user_id || null, name, stars, text, user_email || null]
@@ -256,7 +252,7 @@ async function insertComment({ name, stars, text, user_id, user_email }) {
         'SELECT id, name, stars, text, approved, user_email, created_at FROM comments WHERE id = ?',
         [info.insertId]
     );
-    // Notificar SOLO al panel admin (espera aprobación antes de salir al carrusel público)
+    // Notificar SOLO al panel admin (espera aprobaciÃ³n antes de salir al carrusel pÃºblico)
     dbEmitter.emit('admin-pending', newRow);
     return newRow;
 }
@@ -271,7 +267,7 @@ async function approveComment(id) {
             'SELECT id, name, stars, text, created_at FROM comments WHERE id = ?',
             [id]
         );
-        dbEmitter.emit('new-comment', comment); // río de comentarios público
+        dbEmitter.emit('new-comment', comment); // rÃ­o de comentarios pÃºblico
     }
     return info.affectedRows > 0;
 }
@@ -284,9 +280,9 @@ async function deleteComment(id) {
     return info.affectedRows > 0;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ADMIN_LOGS — auditoria de acciones admin (SECURITY-3 M6)
-───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   ADMIN_LOGS â€” auditoria de acciones admin (SECURITY-3 M6)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
  * Registra una accion administrativa en admin_logs.
@@ -314,9 +310,9 @@ async function logAdminAction({ user_id, action, entity, entity_id, diff, ip, us
     }
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    USUARIOS (OAuth + perfil)
-───────────────────────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 async function findOrCreateGoogleUser(profile) {
     const email  = profile.emails?.[0]?.value || null;
@@ -349,7 +345,7 @@ async function findOrCreateGoogleUser(profile) {
             [newId]
         );
     } else {
-        // M5 — usuario existente: NO sobrescribir role_id en cada login.
+        // M5 â€” usuario existente: NO sobrescribir role_id en cada login.
         // Si manana promueves manualmente a un usuario en el panel, no se pierde.
         // Solo refrescamos avatar y last_login_at.
         if (user.avatar_url !== avatar) {
@@ -398,9 +394,9 @@ async function getAllUsersAdmin() {
     return rows;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    FAQs
-───────────────────────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 async function getAllFaqs() {
     const [rows] = await pool.execute(
@@ -410,7 +406,7 @@ async function getAllFaqs() {
 }
 
 async function insertFaq({ category, icon, question, answer, display_order }) {
-    // C1 — sanitiza answer y icon antes de guardar
+    // C1 â€” sanitiza answer y icon antes de guardar
     const cleanAnswer = sanitizeFaqAnswer(answer);
     const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
@@ -422,7 +418,7 @@ async function insertFaq({ category, icon, question, answer, display_order }) {
 }
 
 async function updateFaq(id, { category, icon, question, answer, display_order }) {
-    // C1 — sanitiza tambien al actualizar
+    // C1 â€” sanitiza tambien al actualizar
     const cleanAnswer = sanitizeFaqAnswer(answer);
     const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
@@ -458,9 +454,9 @@ async function clearUnansweredFaqs() {
     return info.affectedRows;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   PAGE VIEWS — Analytics
-───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   PAGE VIEWS â€” Analytics
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 async function trackPageView({ path, title, referrer, user_agent, ip, session_id, user_id }) {
     const ipv4 = String(ip || '').match(/(\d{1,3}\.){3}\d{1,3}$/)?.[0];
@@ -511,9 +507,9 @@ async function getPageViewsTop(limit = 20, days = 30) {
 
 /**
  * Datos para el dashboard "live" del admin:
- *  - active: sesiones únicas con actividad en los últimos 5 min
- *  - per_minute: vistas agrupadas por minuto en los últimos 30 min (para sparkline)
- *  - last_views: últimas N vistas con path + tiempo relativo
+ *  - active: sesiones Ãºnicas con actividad en los Ãºltimos 5 min
+ *  - per_minute: vistas agrupadas por minuto en los Ãºltimos 30 min (para sparkline)
+ *  - last_views: Ãºltimas N vistas con path + tiempo relativo
  */
 async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
     const [active] = await pool.execute(
@@ -578,9 +574,9 @@ async function getPageViewsSummary() {
     };
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    TALLER Y TICKETS (Repairs)
-───────────────────────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function getAllRepairsAdmin() {
     const [rows] = await pool.execute(`
         SELECT r.*, u.name as user_name, u.email as user_email
@@ -764,7 +760,7 @@ async function saveAppointmentConfig({ settings = [], exceptions = [] }) {
 async function getAppointmentAvailability(date, type) {
     const requestedType = normalizeAppointmentType(type);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
-        return { available: false, message: 'Selecciona un día disponible.', slots: [] };
+        return { available: false, message: 'Selecciona un dÃ­a disponible.', slots: [] };
     }
     const today = new Date().toISOString().slice(0, 10);
     if (date < today) return { available: false, message: 'No se permiten fechas pasadas.', slots: [] };
@@ -773,7 +769,7 @@ async function getAppointmentAvailability(date, type) {
     const [[setting]] = await pool.execute('SELECT * FROM appointment_settings WHERE weekday = ?', [weekday]);
     const [[exception]] = await pool.execute('SELECT * FROM appointment_exceptions WHERE date = ?', [date]);
     const status = exception?.status || 'normal';
-    if (status === 'closed' || !setting?.is_open) return { available: false, message: 'Este día está bloqueado por el taller.', slots: [] };
+    if (status === 'closed' || !setting?.is_open) return { available: false, message: 'Este dÃ­a estÃ¡ bloqueado por el taller.', slots: [] };
 
     const start = exception?.start_time || setting.start_time;
     const end = exception?.end_time || setting.end_time;
@@ -783,9 +779,9 @@ async function getAppointmentAvailability(date, type) {
         .map(item => item.trim())
         .filter(Boolean);
     if (!allowed.includes(requestedType) && !allowed.includes('otro')) {
-        return { available: false, message: 'Este día no está disponible para ese tipo de visita.', slots: [] };
+        return { available: false, message: 'Este dÃ­a no estÃ¡ disponible para ese tipo de visita.', slots: [] };
     }
-    if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este día no tiene horario configurado.', slots: [] };
+    if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este dÃ­a no tiene horario configurado.', slots: [] };
 
     const [occupiedRows] = await pool.execute(
         `SELECT appointment_time FROM repairs
@@ -800,7 +796,7 @@ async function getAppointmentAvailability(date, type) {
         const slot = minutesToTime(mins);
         if (!occupied.has(slot)) slots.push(slot);
     }
-    return { available: slots.length > 0, message: slots.length ? '' : 'Este día está lleno.', slots };
+    return { available: slots.length > 0, message: slots.length ? '' : 'Este dÃ­a estÃ¡ lleno.', slots };
 }
 
 async function getAdminAppointments({ from, to } = {}) {
@@ -818,9 +814,9 @@ async function getAdminAppointments({ from, to } = {}) {
     return rows;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    ENSAMBLES Y PRODUCTOS (Builds)
-───────────────────────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function getAllBuildsAdmin() {
     const [rows] = await pool.execute(`
         SELECT p.*, b.build_category, b.performance_tier,
@@ -833,7 +829,7 @@ async function getAllBuildsAdmin() {
     return rows;
 }
 
-// M3 — version publica: nunca expone cost, compare_price, stock_alert, sku.
+// M3 â€” version publica: nunca expone cost, compare_price, stock_alert, sku.
 // Solo campos seguros para mostrar en /api/builds y la tienda.
 async function getAllBuildsPublic() {
     const [rows] = await pool.execute(`
@@ -895,9 +891,9 @@ async function insertBuildAdmin({ title, description, price, build_category, per
 }
 
 
-/* ─────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    USER REPAIRS - Tickets del cliente
-───────────────────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function getUserRepairs(userId) {
     const [rows] = await pool.execute(`
         SELECT r.*, u.name as user_name, u.email as user_email
@@ -943,9 +939,9 @@ module.exports = {
     getAllBuildsPublic,
     insertBuildAdmin,
     logAdminAction,
-    /* ─────────────────────────────────────────────────────────
-       PAGE VIEWS — Analytics
-    ───────────────────────────────────────────────────────── */
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       PAGE VIEWS â€” Analytics
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     trackPageView,
     getPageViewsDaily,
     getPageViewsTop,

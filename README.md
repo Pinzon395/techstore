@@ -109,6 +109,26 @@ npm run dev:astro   # Astro dev server en puerto 4321
 npm run setup:local # npm ci + build
 ```
 
+## QA, deploy y monitoreo
+
+Documentacion operativa:
+
+- `docs/QA_CHECKLIST.md`: checklist antes de deploy.
+- `docs/DEPLOY_MONITORING.md`: pasos de produccion, health check, migraciones, backups y rollback.
+- `docs/SEO_LOCAL_AVANZADO.md`: pendientes SEO local que requieren datos reales.
+
+Validacion minima antes de subir:
+
+```powershell
+npm run build
+node --check server\server.js
+node --check public\scripts\admin.js
+node --check public\scripts\comments.js
+node --check public\scripts\service-ticket.js
+```
+
+En produccion, `SESSION_SECRET` es obligatorio. Las migraciones runtime deben mantenerse desactivadas salvo ventana controlada con backup usando `ALLOW_RUNTIME_MIGRATIONS=true`.
+
 ## Cloudflare Tunnel
 
 Instala `cloudflared`:

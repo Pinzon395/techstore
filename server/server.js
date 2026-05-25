@@ -1,10 +1,10 @@
-/**
+﻿/**
  * ============================================================
- *  server/server.js  — API Express + MariaDB + Auth
+ *  server/server.js  â€” API Express + MariaDB + Auth
  * ============================================================
  *
  *  Migrado a MariaDB (mysql2/promise pool) + express-mysql-session.
- *  Las funciones de DB son async — todos los handlers usan await.
+ *  Las funciones de DB son async â€” todos los handlers usan await.
  * ============================================================
  */
 
@@ -15,13 +15,30 @@ const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const MySQLStore = require('express-mysql-session')(session);
+const { ah } = require('./middlewares/async.middleware');
+const { createLimiter } = require('./middlewares/rateLimit.middleware');
+const { errorHandler } = require('./middlewares/error.middleware');
+const createHealthRoutes = require('./routes/health.routes');
+const {
+    cleanText,
+    cleanMultilineText,
+    stripHtml,
+    cleanPhone,
+    isValidPhone,
+    cleanEmail,
+    cleanDate,
+    cleanTime,
+    cleanBoolean,
+    toPositiveInt,
+    hasHtml
+} = require('./utils/validators');
+const { logError } = require('./utils/logger');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = String(process.env.SESSION_SECRET || '').trim();
@@ -74,7 +91,7 @@ const {
 const app = express();
 app.disable('x-powered-by');
 
-// Cache HTTP para contenido estático
+// Cache HTTP para contenido estÃ¡tico
 const cacheMiddleware = (duration) => (req, res, next) => {
   if (req.method === 'GET') {
     res.set('Cache-Control', `public, max-age=${duration}`);
@@ -96,9 +113,6 @@ const resolvePort = () => {
 
 const PORT = resolvePort();
 
-// Helper para envolver handlers async sin perder errores en Express 4
-const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-
 const trustedOrigins = new Set([
     'http://localhost:3000',
     'http://localhost:3001',
@@ -106,25 +120,6 @@ const trustedOrigins = new Set([
     'http://localhost:5174',
     'https://pixon.com.mx'
 ]);
-
-const cleanText = (value, max = 500) => String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
-const cleanMultilineText = (value, max = 2000) => String(value || '').replace(/\r\n/g, '\n').trim().slice(0, max);
-const cleanPhone = (value) => String(value || '').trim().replace(/[^\d+]/g, '').slice(0, 16);
-const isValidPhone = (value) => /^\+?\d{8,15}$/.test(value);
-const cleanEmail = (value) => {
-    const email = String(value || '').trim().toLowerCase().slice(0, 254);
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
-};
-const cleanDate = (value) => {
-    const date = String(value || '').trim();
-    return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : '';
-};
-const cleanTime = (value) => {
-    const time = String(value || '').trim().slice(0, 5);
-    return /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : '';
-};
-const cleanBoolean = (value) => value === true || value === 'true' || value === '1' || value === 1;
-const rateLimitMessage = (message) => ({ error: message });
 
 function isTrustedRequestOrigin(req) {
     const source = req.get('origin') || req.get('referer');
@@ -139,9 +134,9 @@ function isTrustedRequestOrigin(req) {
     }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   BOOTSTRAP — todo el setup que necesita la DB lista va dentro
-───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   BOOTSTRAP â€” todo el setup que necesita la DB lista va dentro
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function bootstrap() {
     await initDB();
 
@@ -173,11 +168,11 @@ async function bootstrap() {
         }
     });
 
-    /* ─────────────────────────────────────────────────────────
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
        MIDDLEWARES GLOBALES
-    ───────────────────────────────────────────────────────── */
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-    // SECURITY-2 (M1+C2) — Helmet con CSP pragmatica.
+    // SECURITY-2 (M1+C2) â€” Helmet con CSP pragmatica.
     // El sitio tiene 207+ inline event handlers (onclick=...) y multiples
     // <script> inline. Refactorizar todo a addEventListener es un proyecto
     // aparte, asi que CSP usa 'unsafe-inline' para script-src y style-src,
@@ -222,7 +217,7 @@ async function bootstrap() {
         const pathname = req.path;
         if (/\.(jpe?g|png)$/i.test(pathname) && req.accepts('image/webp')) {
             const webpPath = pathname.replace(/\.(jpe?g|png)$/i, '.webp');
-            // Tras cutover a Astro, dev y prod sirven de dist/ — un solo path.
+            // Tras cutover a Astro, dev y prod sirven de dist/ â€” un solo path.
             const fullPath = path.join(distPath, webpPath);
             if (fs.existsSync(fullPath)) {
                 req.url = webpPath;
@@ -245,13 +240,13 @@ async function bootstrap() {
     app.use('/api/track/view', express.text({ type: '*/*', limit: '10kb' }));
     app.use(express.json({ limit: '10kb' }));
 
-    // SECURITY-2 — bloquear /admin* a no-admins ANTES de cualquier static.
-    // Sin este pre-gate, /admin/admin.html y /admin/ se servían sin auth.
-    // Hooks de auth aún no existen aquí (passport va más abajo) por lo que
-    // re-evaluamos la sesión cuando ya esté inicializada (req.isAuthenticated
-    // existe solo después de session+passport), pero los handlers reales en
-    // app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, …)
-    // se montan después de passport y bloquean la entrada.
+    // SECURITY-2 â€” bloquear /admin* a no-admins ANTES de cualquier static.
+    // Sin este pre-gate, /admin/admin.html y /admin/ se servÃ­an sin auth.
+    // Hooks de auth aÃºn no existen aquÃ­ (passport va mÃ¡s abajo) por lo que
+    // re-evaluamos la sesiÃ³n cuando ya estÃ© inicializada (req.isAuthenticated
+    // existe solo despuÃ©s de session+passport), pero los handlers reales en
+    // app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, â€¦)
+    // se montan despuÃ©s de passport y bloquean la entrada.
     app.use((req, res, next) => {
         const p = req.path;
         if (p === '/admin' || p === '/admin/' || p === '/admin/admin.html') {
@@ -315,7 +310,7 @@ async function bootstrap() {
             }
         });
 
-    // M2 — CORS con metodos completos
+    // M2 â€” CORS con metodos completos
     app.use(cors({
         origin: Array.from(trustedOrigins),
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -323,49 +318,42 @@ async function bootstrap() {
         credentials: true
     }));
 
-    // SECURITY-2 (B2) — Rate-limit. Protege OAuth callback de brute-force
+    // SECURITY-2 (B2) â€” Rate-limit. Protege OAuth callback de brute-force
     // y endpoints publicos de spam.
-    const authLimiter = rateLimit({
+    const authLimiter = createLimiter({
         windowMs: 10 * 60 * 1000,    // 10 min
         max: 30,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: rateLimitMessage('Demasiados intentos. Espera unos minutos.')
+        message: 'Demasiados intentos. Espera unos minutos.'
     });
-    const writeLimiter = rateLimit({
+    const formLimiter = createLimiter({
         windowMs: 60 * 1000,         // 1 min
         max: 10,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: rateLimitMessage('Demasiadas peticiones. Espera un momento.')
+        message: 'Demasiadas peticiones. Espera un momento.'
     });
-    const ticketLimiter = rateLimit({
+    const commentLimiter = createLimiter({
+        windowMs: 10 * 60 * 1000,
+        max: 6,
+        message: 'Demasiados comentarios enviados. Espera unos minutos.'
+    });
+    const ticketLimiter = createLimiter({
         windowMs: 10 * 60 * 1000,
         max: 5,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: rateLimitMessage('Demasiados tickets creados. Espera unos minutos.')
+        message: 'Demasiados tickets creados. Espera unos minutos.'
     });
-    const profileLimiter = rateLimit({
+    const profileLimiter = createLimiter({
         windowMs: 5 * 60 * 1000,
         max: 10,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: rateLimitMessage('Demasiadas actualizaciones de perfil. Espera unos minutos.')
+        message: 'Demasiadas actualizaciones de perfil. Espera unos minutos.'
     });
-    const trackingLimiter = rateLimit({
+    const trackingLimiter = createLimiter({
         windowMs: 60 * 1000,
         max: 120,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: rateLimitMessage('Demasiados eventos.')
+        message: 'Demasiados eventos.'
     });
-    const adminWriteLimiter = rateLimit({
+    const adminWriteLimiter = createLimiter({
         windowMs: 60 * 1000,
         max: 120,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: rateLimitMessage('Demasiadas acciones administrativas.')
+        message: 'Demasiadas acciones administrativas.'
     });
     const adminMutationLimiter = (req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
@@ -374,10 +362,10 @@ async function bootstrap() {
     app.use('/auth/', authLimiter);
     app.use('/api/admin', adminMutationLimiter);
 
-    /* ─────────────────────────────────────────────────────────
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
        SESIONES + PASSPORT
-       (usa la tabla `sessions` que ya creó 01-schema.sql)
-    ───────────────────────────────────────────────────────── */
+       (usa la tabla `sessions` que ya creÃ³ 01-schema.sql)
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     app.set('trust proxy', 1);
 
     app.use(session({
@@ -390,7 +378,7 @@ async function bootstrap() {
         resave: false,
         saveUninitialized: false,
         cookie: {
-            // M1 — secure dinámica. En prod Cloudflare entrega HTTPS y trust proxy=1
+            // M1 â€” secure dinÃ¡mica. En prod Cloudflare entrega HTTPS y trust proxy=1
             // ya hace que Express vea X-Forwarded-Proto correctamente.
             secure:   'auto',
             httpOnly: true,
@@ -442,16 +430,16 @@ async function bootstrap() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    /* ─────────────────────────────────────────────────────────
-       M8 — CSRF mínimo: cualquier request que muta estado debe
-       traer header X-Requested-With:fetch. Esto bloquea CSRF clásico
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       M8 â€” CSRF mÃ­nimo: cualquier request que muta estado debe
+       traer header X-Requested-With:fetch. Esto bloquea CSRF clÃ¡sico
        basado en formularios cross-site (no pueden setear ese header
        sin pasar por preflight CORS).
-    ───────────────────────────────────────────────────────── */
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     app.use((req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
         if (req.path.startsWith('/auth/')) return next();
-        // /api/track/view es fire-and-forget vía navigator.sendBeacon que NO
+        // /api/track/view es fire-and-forget vÃ­a navigator.sendBeacon que NO
         // permite setear headers custom. Es lectura-pasiva (no muta cuentas
         // ni privilegios), por lo que no necesita CSRF.
         if (req.path === '/api/track/view') return next();
@@ -464,9 +452,9 @@ async function bootstrap() {
         next();
     });
 
-    /* ─────────────────────────────────────────────────────────
-       AUTORIZACIÓN
-    ───────────────────────────────────────────────────────── */
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       AUTORIZACIÃ“N
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     function requireAuth(req, res, next) {
         if (req.isAuthenticated()) return next();
         res.status(401).json({ error: 'No autorizado' });
@@ -477,7 +465,7 @@ async function bootstrap() {
         res.status(403).json({ error: 'Prohibido' });
     }
 
-    // SECURITY-2 (M2) — gate del HTML del panel admin a nivel servidor.
+    // SECURITY-2 (M2) â€” gate del HTML del panel admin a nivel servidor.
     // Antes la proteccion era solo client-side (admin.js mostraba "Acceso
     // Denegado"). Ahora ni siquiera se sirve el HTML a no-admins.
     function gateAdminPage(req, res, next) {
@@ -519,7 +507,7 @@ async function bootstrap() {
         });
     }
 
-    // SECURITY-3 (M6) — wrapper que extrae datos del req para admin_logs.
+    // SECURITY-3 (M6) â€” wrapper que extrae datos del req para admin_logs.
     // Llamar despues de la mutacion: audit(req, 'delete', 'comment', id)
     function audit(req, action, entity, entity_id, diff) {
         return logAdminAction({
@@ -542,9 +530,9 @@ async function bootstrap() {
             .replace(/'/g, '&#39;');
     }
 
-    /* ─────────────────────────────────────────────────────────
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
        AUTH
-    ───────────────────────────────────────────────────────── */
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     app.get('/auth/google', requireGoogleOAuthConfigured, (req, res, next) => {
         const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '';
         if (returnTo.startsWith('/') && !returnTo.startsWith('//')) {
@@ -553,12 +541,12 @@ async function bootstrap() {
         passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
     });
 
-    // SECURITY-2 (M5) — regenerar la sesion previene session fixation:
+    // SECURITY-2 (M5) â€” regenerar la sesion previene session fixation:
     // un atacante no puede preparar una cookie y heredarla autenticada.
     app.get('/auth/google/callback', requireGoogleOAuthConfigured, (req, res, next) => {
         passport.authenticate('google', (err, user, info) => {
             if (err) {
-                console.error('[auth] Google callback error:', err.message);
+                logError(err, req, 'auth');
                 return next(err);
             }
             if (!user) {
@@ -600,7 +588,7 @@ async function bootstrap() {
     <h1>No se pudo iniciar sesion con Google</h1>
     <p>Detalle tecnico:</p>
     <code>${escapeHtml(reason)}</code>
-    <p><a href="/auth/google">Intentar de nuevo</a> · <a href="/">Volver al inicio</a></p>
+    <p><a href="/auth/google">Intentar de nuevo</a> Â· <a href="/">Volver al inicio</a></p>
   </main>
 </body>
 </html>`);
@@ -619,10 +607,10 @@ async function bootstrap() {
 
     app.post('/api/me/profile', profileLimiter, requireAuth, ah(async (req, res) => {
         const { phone } = req.body;
-        // M7 — validar phone con regex (10-15 digitos, opcional + al inicio)
+        // M7 â€” validar phone con regex (10-15 digitos, opcional + al inicio)
         const cleanedPhone = cleanPhone(phone);
         if (!/^\+?\d{10,15}$/.test(cleanedPhone)) {
-            return res.status(400).json({ error: 'Número de celular inválido (10–15 dígitos, opcional + al inicio).' });
+            return res.status(400).json({ error: 'NÃºmero de celular invÃ¡lido (10â€“15 dÃ­gitos, opcional + al inicio).' });
         }
 
         const success = await updateUserProfile(req.user.id, { phone: cleanedPhone });
@@ -634,12 +622,10 @@ async function bootstrap() {
         }
     }));
 
-    /* ─────────────────────────────────────────────────────────
-       API PÚBLICA
-    ───────────────────────────────────────────────────────── */
-    app.get('/api/health', (_req, res) => {
-        res.json({ ok: true, ts: new Date().toISOString(), clients: sseClients.size, db: 'mariadb' });
-    });
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       API PÃšBLICA
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    app.use('/api', createHealthRoutes({ getClientCount: () => sseClients.size }));
 
     app.get('/api/comments', ah(async (_req, res) => {
         const comments = await getAllComments();
@@ -647,10 +633,10 @@ async function bootstrap() {
         res.json(comments);
     }));
 
-    /* ─────────────────────────────────────────────────────────
-       GOOGLE PLACES API — Reseñas reales de Google Maps
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       GOOGLE PLACES API â€” ReseÃ±as reales de Google Maps
        Cacheado 1h en memoria (Places API es billable, ~$17/1000 calls)
-    ───────────────────────────────────────────────────────── */
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     const googleReviewsCache = { data: null, expires: 0 };
     const GOOGLE_REVIEWS_TTL = 60 * 60 * 1000; // 1 hora
 
@@ -667,11 +653,11 @@ async function bootstrap() {
                 reviews: [],
                 rating: 0,
                 total: 0,
-                hint: 'Configura GOOGLE_PLACES_API_KEY y GOOGLE_PLACE_ID en .env para mostrar reseñas reales de Google Maps.'
+                hint: 'Configura GOOGLE_PLACES_API_KEY y GOOGLE_PLACE_ID en .env para mostrar reseÃ±as reales de Google Maps.'
             });
         }
 
-        // Servir desde caché si aún es válido (evita llamadas billables repetidas)
+        // Servir desde cachÃ© si aÃºn es vÃ¡lido (evita llamadas billables repetidas)
         if (googleReviewsCache.data && Date.now() < googleReviewsCache.expires) {
             return res.json({ ...googleReviewsCache.data, cached: true });
         }
@@ -730,7 +716,7 @@ async function bootstrap() {
 
             res.json(payload);
         } catch (err) {
-            console.error('Google Places API error:', err.message);
+            logError(err, _req, 'google-places');
             res.json({
                 source: 'error',
                 configured: true,
@@ -780,36 +766,37 @@ async function bootstrap() {
             const avgTimeSec = Math.round(sseStats.totalTimeSec / sseStats.visits);
             const disconnectTimeStr = new Date(disconnectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City', hour12: false });
             
-            console.log(`[${disconnectTimeStr}] SSE #${clientId} desconectado. Duró: ${durationSec}s. ` +
+            console.log(`[${disconnectTimeStr}] SSE #${clientId} desconectado. DurÃ³: ${durationSec}s. ` +
                         `Subtotal Hoy -> Visitas: ${sseStats.visits} | Promedio: ${avgTimeSec}s | Tiempo Total: ${sseStats.totalTimeSec}s`);
         });
     });
 
-    app.post('/api/comments', writeLimiter, requireAuth, ah(async (req, res) => {
+    app.post('/api/comments', commentLimiter, requireAuth, ah(async (req, res) => {
         const { name, stars, text } = req.body;
-        const cleanName = String(name || '').trim().slice(0, 60);
-        const cleanText = String(text || '').trim().slice(0, 500);
+        const cleanName = stripHtml(name, 60);
+        const cleanComment = stripHtml(text, 500);
         // stars admite incrementos de 0.5 entre 0.5 y 5
         const cleanStars = Math.round(parseFloat(stars) * 2) / 2;
 
         const errors = [];
         if (cleanName.length < 2) errors.push('El nombre es muy corto.');
-        if (cleanText.length < 10) errors.push('El comentario es muy corto.');
+        if (cleanComment.length < 10) errors.push('El comentario es muy corto.');
+        if (hasHtml(name) || hasHtml(text)) errors.push('No se permite HTML en comentarios.');
         if (isNaN(cleanStars) || cleanStars < 0.5 || cleanStars > 5)
             errors.push('Estrellas invalidas (0.5 - 5).');
 
         if (errors.length) return res.status(400).json({ errors });
 
-        // M4 — guardar user_id ademas de email para no perder trazabilidad
+        // M4 â€” guardar user_id ademas de email para no perder trazabilidad
         const user_id    = req.user?.id    || null;
         const user_email = req.user?.email || null;
-        const created = await insertComment({ name: cleanName, stars: cleanStars, text: cleanText, user_id, user_email });
-        res.status(201).json({ success: true, message: 'Comentario enviado para revisión.', comment: created });
+        const created = await insertComment({ name: cleanName, stars: cleanStars, text: cleanComment, user_id, user_email });
+        res.status(201).json({ success: true, message: 'Comentario enviado para revisiÃ³n.', comment: created });
     }));
 
-    // ═══════════════════════════════════════════════════════════════
-    // TICKETS — Crear ticket de servicio con auth
-    // ═══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // TICKETS â€” Crear ticket de servicio con auth
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     app.get('/api/appointments/config', ah(async (_req, res) => {
         res.set('Cache-Control', 'no-store');
         res.json(await getAppointmentConfig());
@@ -817,7 +804,12 @@ async function bootstrap() {
 
     app.get('/api/appointments/availability', ah(async (req, res) => {
         res.set('Cache-Control', 'no-store');
-        const result = await getAppointmentAvailability(req.query.date, req.query.type);
+        const date = cleanDate(req.query.date);
+        const type = cleanText(req.query.type || 'recepcion', 40);
+        if (!date) {
+            return res.status(400).json({ success: false, message: 'Fecha invalida.' });
+        }
+        const result = await getAppointmentAvailability(date, type);
         res.status(result.available ? 200 : 409).json(result);
     }));
 
@@ -848,12 +840,12 @@ async function bootstrap() {
         // Validaciones
         const errors = [];
         if (cleanedName.length < 2) errors.push('El nombre es requerido.');
-        if (!isValidPhone(cleanedPhone)) errors.push('El teléfono de contacto es requerido.');
+        if (!isValidPhone(cleanedPhone)) errors.push('El telÃ©fono de contacto es requerido.');
         if (customer_email && !cleanedEmail) errors.push('El correo no tiene un formato valido.');
         if (cleanedDeviceType.length < 2) errors.push('El tipo de equipo es requerido.');
-        if (cleanedIssue.length < 10) errors.push('La descripción del problema es muy corta.');
+        if (cleanedIssue.length < 10) errors.push('La descripciÃ³n del problema es muy corta.');
         
-        if (!cleanedAppointmentDate) errors.push('Selecciona un día disponible.');
+        if (!cleanedAppointmentDate) errors.push('Selecciona un dÃ­a disponible.');
         if (!cleanedAppointmentTime) errors.push('Selecciona un horario disponible.');
 
         if (errors.length > 0) {
@@ -862,13 +854,13 @@ async function bootstrap() {
 
         const availability = await getAppointmentAvailability(cleanedAppointmentDate, cleanedAppointmentType);
         if (!availability.available || !availability.slots.includes(cleanedAppointmentTime)) {
-            return res.status(409).json({ success: false, message: 'Ese horario ya no está disponible. Elige otro.' });
+            return res.status(409).json({ success: false, message: 'Ese horario ya no estÃ¡ disponible. Elige otro.' });
         }
         
         // Crear ticket con user_id del usuario autenticado
         const user_id = req.user?.id || null;
         
-        // Preparar detalles uniendo el servicio y la descripción
+        // Preparar detalles uniendo el servicio y la descripciÃ³n
         const details = [
             `Servicio solicitado: ${cleanedService}`,
             `\n${cleanedIssue}`
@@ -926,23 +918,23 @@ async function bootstrap() {
         res.json(faqs);
     }));
 
-    app.post('/api/faqs/unanswered', writeLimiter, ah(async (req, res) => {
-        const query = cleanText(req.body?.query, 180);
+    app.post('/api/faqs/unanswered', formLimiter, ah(async (req, res) => {
+        const query = stripHtml(req.body?.query, 180);
         if (query.length >= 3) {
             await logUnansweredFaq(query);
         }
         res.json({ success: true });
     }));
 
-    // M3 — endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
+    // M3 â€” endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
     app.get('/api/builds', ah(async (_req, res) => {
         const builds = await getAllBuildsPublic();
         res.json(builds);
     }));
 
-    /* ─────────────────────────────────────────────────────────
-        ANALYTICS — Page View Tracking
-    ───────────────────────────────────────────────────────── */
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        ANALYTICS â€” Page View Tracking
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     app.post('/api/track/view', trackingLimiter, (req, res) => {
         const payload = typeof req.body === 'string'
             ? (() => {
@@ -965,13 +957,13 @@ async function bootstrap() {
             ip: req.ip,
             session_id,
             user_id
-        }).catch(e => console.error('track error:', e.message));
+        }).catch(e => logError(e, req, 'analytics'));
         res.json({ ok: true });
     });
 
-    /* ─────────────────────────────────────────────────────────
-        PANEL DE ADMINISTRACIÓN
-    ───────────────────────────────────────────────────────── */
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        PANEL DE ADMINISTRACIÃ“N
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     app.get('/api/admin/users', requireAdmin, ah(async (_req, res) => {
         const users = await getAllUsersAdmin();
         res.json(users);
@@ -984,7 +976,12 @@ async function bootstrap() {
 
     app.get('/api/admin/appointments', requireAdmin, ah(async (req, res) => {
         res.set('Cache-Control', 'no-store');
-        res.json(await getAdminAppointments({ from: req.query.from, to: req.query.to }));
+        const from = req.query.from ? cleanDate(req.query.from) : '';
+        const to = req.query.to ? cleanDate(req.query.to) : '';
+        if ((req.query.from && !from) || (req.query.to && !to)) {
+            return res.status(400).json({ success: false, message: 'Rango de fechas invalido.' });
+        }
+        res.json(await getAdminAppointments({ from, to }));
     }));
 
     app.patch('/api/admin/appointments/config', requireAdmin, ah(async (req, res) => {
@@ -994,34 +991,51 @@ async function bootstrap() {
     }));
 
     app.get(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
-        const ticket = await getRepairAdminById(req.params.id);
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
+        const ticket = await getRepairAdminById(id);
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
         res.json({ success: true, ticket });
     }));
 
     app.patch(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
-        const ticket = await updateRepairAdmin(req.params.id, req.body || {});
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
+        const ticket = await updateRepairAdmin(id, req.body || {});
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
         await audit(req, 'update', 'repair', ticket?.id, { ticket_code: ticket?.ticket_code });
         res.json({ success: true, message: 'Cambios guardados correctamente.', ticket });
     }));
 
     app.patch('/api/admin/tickets/:id/appointment', requireAdmin, ah(async (req, res) => {
-        const ticket = await updateRepairAdmin(req.params.id, req.body || {});
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
+        const ticket = await updateRepairAdmin(id, req.body || {});
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
         await audit(req, 'update', 'repair_appointment', ticket?.id, { ticket_code: ticket?.ticket_code });
         res.json({ success: true, message: 'Cita actualizada correctamente.', ticket });
     }));
 
     app.patch('/api/admin/tickets/:id/delete', requireAdmin, ah(async (req, res) => {
-        const ok = await softDeleteRepairAdmin(req.params.id, req.user?.id);
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
+        const ok = await softDeleteRepairAdmin(id, req.user?.id);
         if (!ok) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
-        await audit(req, 'delete', 'repair', req.params.id);
+        await audit(req, 'delete', 'repair', id);
         res.json({ success: true, message: 'Ticket eliminado correctamente.' });
     }));
 
     app.post('/api/admin/repairs', requireAdmin, ah(async (req, res) => {
-        const repair = await insertRepairAdmin(req.body);
+        const payload = req.body || {};
+        const errors = [];
+        if (cleanText(payload.user_name, 80).length < 2) errors.push('El nombre del cliente es requerido.');
+        if (cleanText(payload.device_type, 80).length < 2) errors.push('El tipo de equipo es requerido.');
+        if (cleanMultilineText(payload.reported_issue, 1800).length < 5) errors.push('El problema reportado es requerido.');
+        if (payload.contact_email && !cleanEmail(payload.contact_email)) errors.push('El correo no tiene un formato valido.');
+        if (payload.contact_phone && !isValidPhone(cleanPhone(payload.contact_phone))) errors.push('El telefono no tiene un formato valido.');
+        if (errors.length) return res.status(400).json({ success: false, message: errors.join(' ') });
+
+        const repair = await insertRepairAdmin(payload);
         await audit(req, 'create', 'repair', repair?.id, { ticket_code: repair?.ticket_code });
         res.status(201).json({ success: true, repair });
     }));
@@ -1032,7 +1046,15 @@ async function bootstrap() {
     }));
 
     app.post('/api/admin/builds', requireAdmin, ah(async (req, res) => {
-        const build = await insertBuildAdmin(req.body);
+        const payload = req.body || {};
+        const errors = [];
+        if (cleanText(payload.title, 120).length < 3) errors.push('El titulo del ensamble es requerido.');
+        if (cleanMultilineText(payload.description, 1200).length < 10) errors.push('La descripcion del ensamble es requerida.');
+        if (cleanText(payload.price, 80).length < 1) errors.push('El precio o rango visible es requerido.');
+        if (String(payload.image_url || '').length > 500) errors.push('La URL de imagen es demasiado larga.');
+        if (errors.length) return res.status(400).json({ success: false, message: errors.join(' ') });
+
+        const build = await insertBuildAdmin(payload);
         await audit(req, 'create', 'build', build?.id, { title: build?.title, price: build?.price });
         res.status(201).json({ success: true, build });
     }));
@@ -1043,7 +1065,8 @@ async function bootstrap() {
     }));
 
     app.post('/api/admin/comments/:id/approve', requireAdmin, ah(async (req, res) => {
-        const id = parseInt(req.params.id, 10);
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
         const success = await approveComment(id);
         if (success) {
             await audit(req, 'approve', 'comment', id);
@@ -1052,7 +1075,8 @@ async function bootstrap() {
     }));
 
     app.delete('/api/admin/comments/:id', requireAdmin, ah(async (req, res) => {
-        const id = parseInt(req.params.id, 10);
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
         const success = await deleteComment(id);
         if (success) {
             await audit(req, 'delete', 'comment', id);
@@ -1075,20 +1099,29 @@ async function bootstrap() {
     });
 
     app.post('/api/admin/faqs', requireAdmin, ah(async (req, res) => {
-        const faq = await insertFaq(req.body);
+        const payload = req.body || {};
+        const errors = [];
+        if (cleanText(payload.category, 80).length < 2) errors.push('La categoria es requerida.');
+        if (stripHtml(payload.question, 220).length < 5) errors.push('La pregunta es requerida.');
+        if (cleanMultilineText(payload.answer, 3000).length < 5) errors.push('La respuesta es requerida.');
+        if (errors.length) return res.status(400).json({ success: false, message: errors.join(' ') });
+
+        const faq = await insertFaq(payload);
         await audit(req, 'create', 'faq', faq?.id, { question: faq?.question, category: faq?.category });
         res.status(201).json(faq);
     }));
 
     app.put('/api/admin/faqs/:id', requireAdmin, ah(async (req, res) => {
-        const id = parseInt(req.params.id, 10);
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
         const success = await updateFaq(id, req.body);
         if (success) await audit(req, 'update', 'faq', id, { category: req.body?.category, question: req.body?.question });
         res.json({ success });
     }));
 
     app.delete('/api/admin/faqs/:id', requireAdmin, ah(async (req, res) => {
-        const id = parseInt(req.params.id, 10);
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
         const success = await deleteFaq(id);
         if (success) await audit(req, 'delete', 'faq', id);
         res.json({ success });
@@ -1104,21 +1137,21 @@ async function bootstrap() {
         res.json({ success: true });
     }));
 
-    /* ─────────────────────────────────────────────────────────
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         ADMIN ANALYTICS
-    ───────────────────────────────────────────────────────── */
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     app.get('/api/admin/analytics/summary', requireAdmin, ah(async (_req, res) => {
         res.json(await getPageViewsSummary());
     }));
 
     app.get('/api/admin/analytics/daily', requireAdmin, ah(async (req, res) => {
-        const days = parseInt(req.query.days, 10) || 30;
+        const days = Math.min(365, Math.max(1, parseInt(req.query.days, 10) || 30));
         res.json(await getPageViewsDaily(days));
     }));
 
     /**
-     * Live analytics: visitantes activos (últimos 5 min), vistas por minuto
-     * (últimos 30 min para sparkline) y últimas N páginas vistas.
+     * Live analytics: visitantes activos (Ãºltimos 5 min), vistas por minuto
+     * (Ãºltimos 30 min para sparkline) y Ãºltimas N pÃ¡ginas vistas.
      * Polling-friendly desde el dashboard cada ~10 s.
      */
     app.get('/api/admin/analytics/live', requireAdmin, ah(async (req, res) => {
@@ -1129,23 +1162,23 @@ async function bootstrap() {
     }));
 
     app.get('/api/admin/analytics/top-pages', requireAdmin, ah(async (req, res) => {
-        const days = parseInt(req.query.days, 10) || 30;
-        const limit = parseInt(req.query.limit, 10) || 20;
+        const days = Math.min(365, Math.max(1, parseInt(req.query.days, 10) || 30));
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
         res.json(await getPageViewsTop(limit, days));
     }));
 
-    /* ─────────────────────────────────────────────────────────
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         ARCHIVOS ESTATICOS Y RUTAS HTML
-        Tras el cutover Astro, dev y prod sirven el MISMO árbol dist/.
-        Por eso la tabla de rutas y el handler son únicos.
-    ───────────────────────────────────────────────────────── */
+        Tras el cutover Astro, dev y prod sirven el MISMO Ã¡rbol dist/.
+        Por eso la tabla de rutas y el handler son Ãºnicos.
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     {
-        // Las páginas Astro emiten archivos planos en dist/<ruta>.html
-        // (build.format = 'file' en astro.config.ts). Las únicas páginas
-        // que aún vienen del build legacy de Vite son la home (index.html),
-        // la home en inglés y el panel admin.
+        // Las pÃ¡ginas Astro emiten archivos planos en dist/<ruta>.html
+        // (build.format = 'file' en astro.config.ts). Las Ãºnicas pÃ¡ginas
+        // que aÃºn vienen del build legacy de Vite son la home (index.html),
+        // la home en inglÃ©s y el panel admin.
         const pages = {
-            // Legacy Vite (sin equivalente Astro todavía)
+            // Legacy Vite (sin equivalente Astro todavÃ­a)
             '/':                            'index.html',
             '/en':                          'en.html',
             '/admin':                       'admin/admin.html',
@@ -1181,11 +1214,11 @@ async function bootstrap() {
             '/preguntas-frecuentes':        'preguntas-frecuentes.html',
             '/privacidad':                  'privacidad.html',
             '/garantia':                    'garantia.html',
-            // VISTAS DE PRUEBAS — no listadas en sitemap, pero sirven con HTTP 200
+            // VISTAS DE PRUEBAS â€” no listadas en sitemap, pero sirven con HTTP 200
             '/test-navbar-3':               'test-navbar-3.html',
             // Hub general de servicios
             '/servicios':                   'servicios/index.html',
-            // Páginas en inglés (Astro)
+            // PÃ¡ginas en inglÃ©s (Astro)
             '/en/packages':                 'en/packages.html',
             '/en/pc-builds':                'en/pc-builds.html',
             '/en/repairs':                  'en/repairs.html',
@@ -1209,15 +1242,15 @@ async function bootstrap() {
         legacyRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
-        // M6 — canonicaliza /b2b -> /B2B (Preferencia del usuario por Mayúsculas)
+        // M6 â€” canonicaliza /b2b -> /B2B (Preferencia del usuario por MayÃºsculas)
         app.get('/b2b', (req, res, next) => {
             if (req.path === '/b2b') return res.redirect(301, '/B2B');
             next();
         });
 
-        // SECURITY-2 (M2) — gate del HTML admin antes del catch-all.
+        // SECURITY-2 (M2) â€” gate del HTML admin antes del catch-all.
         // Acepta /admin y /admin/ (con trailing slash) y bloquea acceso directo
-        // a /admin/admin.html (que el static middleware serviría sin gate).
+        // a /admin/admin.html (que el static middleware servirÃ­a sin gate).
         app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, (_req, res) => {
             res.sendFile(path.join(distPath, 'admin/admin.html'), {
                 headers: { 'Cache-Control': 'no-store' }
@@ -1243,7 +1276,7 @@ async function bootstrap() {
                 }
             }
 
-            // Resolución dinámica para rutas Astro (build.format='file' emite <ruta>.html)
+            // ResoluciÃ³n dinÃ¡mica para rutas Astro (build.format='file' emite <ruta>.html)
             // Ej: /servicios/laptop/cambio-pantalla -> dist/servicios/laptop/cambio-pantalla.html
             // Solo si la ruta es "segura" (sin .. ni caracteres raros).
             if (/^\/[a-zA-Z0-9/_-]+$/.test(cleanPath)) {
@@ -1272,19 +1305,26 @@ async function bootstrap() {
         });
     }
 
-    /* ─────────────────────────────────────────────────────────
-       MANEJO DE ERRORES (handlers async sin catch caen aquí)
-    ───────────────────────────────────────────────────────── */
-    app.use((err, req, res, _next) => {
-        console.error(`✗ ${req.method} ${req.path}:`, err.message);
-        if (!res.headersSent) {
-            res.status(500).json({ error: 'Error interno del servidor' });
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       MANEJO DE ERRORES (handlers async sin catch caen aquÃ­)
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    app.use((req, res, next) => {
+        if (req.path.startsWith('/api') || req.path.startsWith('/auth')) {
+            return res.status(404).json({
+                ok: false,
+                success: false,
+                error: 'Ruta no encontrada',
+                message: 'Ruta no encontrada'
+            });
         }
+        next();
     });
 
-    /* ─────────────────────────────────────────────────────────
+    app.use(errorHandler);
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
        ARRANCAR
-    ───────────────────────────────────────────────────────── */
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     const server = app.listen(PORT, () => {
         const mode = process.env.NODE_ENV || 'development';
         console.log(`
