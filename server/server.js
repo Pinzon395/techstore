@@ -318,7 +318,7 @@ async function bootstrap() {
         cookie: {
             // M1 — secure dinámica. En prod Cloudflare entrega HTTPS y trust proxy=1
             // ya hace que Express vea X-Forwarded-Proto correctamente.
-            secure:   isProd,
+            secure:   'auto',
             httpOnly: true,
             sameSite: 'lax',
             maxAge:   7 * 24 * 60 * 60 * 1000
@@ -456,6 +456,15 @@ async function bootstrap() {
         });
     }
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     /* ─────────────────────────────────────────────────────────
        AUTH
     ───────────────────────────────────────────────────────── */
@@ -469,11 +478,18 @@ async function bootstrap() {
 
     // SECURITY-2 (M5) — regenerar la sesion previene session fixation:
     // un atacante no puede preparar una cookie y heredarla autenticada.
-    app.get('/auth/google/callback',
-        requireGoogleOAuthConfigured,
-        passport.authenticate('google', { failureRedirect: '/' }),
-        (req, res, next) => {
-            const user = req.user;
+    app.get('/auth/google/callback', requireGoogleOAuthConfigured, (req, res, next) => {
+        passport.authenticate('google', (err, user, info) => {
+            if (err) {
+                console.error('[auth] Google callback error:', err.message);
+                return next(err);
+            }
+            if (!user) {
+                const reason = info?.message || info?.toString?.() || 'Google no devolvio un usuario valido.';
+                console.warn('[auth] Google login failed:', reason);
+                return res.redirect(`/auth/failure?reason=${encodeURIComponent(reason)}`);
+            }
+
             const returnTo = req.session.returnTo || '/';
             req.session.regenerate((err) => {
                 if (err) return next(err);
@@ -482,8 +498,36 @@ async function bootstrap() {
                     res.redirect(returnTo);
                 });
             });
-        }
-    );
+        })(req, res, next);
+    });
+
+    app.get('/auth/failure', (req, res) => {
+        const reason = String(req.query.reason || 'No se pudo iniciar sesion con Google.').slice(0, 500);
+        res.status(401).send(`<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error al iniciar sesion - Pixon PC</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0f172a;color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    main{width:min(92vw,620px);background:#111827;border:1px solid #334155;border-radius:16px;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.35)}
+    h1{font-size:1.4rem;margin:0 0 12px;color:#fff}
+    p{line-height:1.6;color:#cbd5e1}
+    code{display:block;white-space:pre-wrap;background:#020617;border:1px solid #334155;border-radius:8px;padding:10px;color:#93c5fd}
+    a{color:#93c5fd}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>No se pudo iniciar sesion con Google</h1>
+    <p>Detalle tecnico:</p>
+    <code>${escapeHtml(reason)}</code>
+    <p><a href="/auth/google">Intentar de nuevo</a> · <a href="/">Volver al inicio</a></p>
+  </main>
+</body>
+</html>`);
+    });
 
     app.get('/auth/logout', (req, res, next) => {
         req.logout(err => {

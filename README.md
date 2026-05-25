@@ -92,11 +92,11 @@ Luego pega en `.env`:
 ```env
 GOOGLE_CLIENT_ID=tu-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=tu-client-secret
-GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+GOOGLE_CALLBACK_URL=/auth/google/callback
 ADMIN_EMAIL=tu-correo-admin@gmail.com
 ```
 
-En produccion con `https://pixon.com.mx`, cambia `GOOGLE_CALLBACK_URL` a `https://pixon.com.mx/auth/google/callback` y reinicia el servidor.
+Deja `GOOGLE_CALLBACK_URL=/auth/google/callback` para que el callback use el mismo dominio desde donde se inicia sesion: `localhost` en local y `pixon.com.mx` en produccion.
 
 ## Comandos npm
 
