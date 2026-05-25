@@ -44,18 +44,11 @@ if errorlevel 1 (
     exit /b 1
 )
 
-where wt >nul 2>&1
-if errorlevel 1 (
-    echo [ADVERTENCIA] Windows Terminal no esta disponible. Se abriran ventanas CMD separadas.
-    start "SERVIDOR NODE - PIXON PC" cmd /k "cd /d ""%PROJECT_DIR%"" && npm run start"
-    start "TUNEL CLOUDFLARE - PIXON PC" cmd /k "cd /d ""%PROJECT_DIR%"" && cloudflared tunnel run %TUNNEL_NAME%"
-    exit /b 0
-)
+echo [*] Abriendo servidor y tunel en ventanas CMD...
+start "SERVIDOR NODE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title SERVIDOR NODE - PIXON PC && color 0A && npm run start"
+start "TUNEL CLOUDFLARE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title TUNEL CLOUDFLARE - PIXON PC && color 0E && cloudflared tunnel run %TUNNEL_NAME%"
 
-echo [*] Abriendo servidor y tunel en Windows Terminal...
-wt -d "%PROJECT_DIR%" cmd /k "title SERVIDOR NODE - PIXON PC & color 0A & npm run start" ^; new-tab -d "%PROJECT_DIR%" cmd /k "title TUNEL CLOUDFLARE - PIXON PC & color 0E & cloudflared tunnel run %TUNNEL_NAME%"
-
-echo [OK] Servicios enviados a Windows Terminal.
+echo [OK] Servicios enviados a ventanas CMD.
 echo Local:   http://localhost:3000
 echo Publico: https://pixon.com.mx
 ping 127.0.0.1 -n 4 >nul
