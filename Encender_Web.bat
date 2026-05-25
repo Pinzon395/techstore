@@ -44,9 +44,25 @@ if errorlevel 1 (
     exit /b 1
 )
 
+set "NODE_RUNNING="
+for /f "tokens=5" %%P in ('netstat -ano ^| findstr /R /C:":3000 .*LISTENING"') do set "NODE_RUNNING=%%P"
+
+set "TUNNEL_RUNNING="
+for /f "tokens=2" %%P in ('tasklist /FI "IMAGENAME eq cloudflared.exe" /NH 2^>nul ^| findstr /I "cloudflared.exe"') do set "TUNNEL_RUNNING=%%P"
+
 echo [*] Abriendo servidor y tunel en ventanas CMD...
-start "SERVIDOR NODE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title SERVIDOR NODE - PIXON PC && color 0A && npm run start"
-start "TUNEL CLOUDFLARE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title TUNEL CLOUDFLARE - PIXON PC && color 0E && cloudflared tunnel run %TUNNEL_NAME%"
+
+if defined NODE_RUNNING (
+    echo [OK] Servidor Node ya esta activo en puerto 3000. PID: %NODE_RUNNING%
+) else (
+    start "SERVIDOR NODE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title SERVIDOR NODE - PIXON PC && color 0A && npm run start"
+)
+
+if defined TUNNEL_RUNNING (
+    echo [OK] Cloudflare Tunnel ya esta activo. PID: %TUNNEL_RUNNING%
+) else (
+    start "TUNEL CLOUDFLARE - PIXON PC" cmd.exe /k "cd /d ""%PROJECT_DIR%"" && title TUNEL CLOUDFLARE - PIXON PC && color 0E && cloudflared tunnel run %TUNNEL_NAME%"
+)
 
 echo [OK] Servicios enviados a ventanas CMD.
 echo Local:   http://localhost:3000
