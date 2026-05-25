@@ -71,6 +71,33 @@ Variables principales:
 - `ADMIN_EMAIL`: email que recibe rol admin al iniciar sesion.
 - `GOOGLE_PLACES_API_KEY`, `GOOGLE_PLACE_ID`: resenas de Google Maps.
 
+## Login Con Google
+
+El login falla con `Error 401: invalid_client` o `OAuth client was not found` cuando `GOOGLE_CLIENT_ID` esta vacio, mal copiado o el cliente fue borrado en Google Cloud.
+
+En Google Cloud Console crea una credencial de tipo **OAuth client ID** para **Web application** y registra estos valores:
+
+```text
+Authorized JavaScript origins:
+http://localhost:3000
+https://pixon.com.mx
+
+Authorized redirect URIs:
+http://localhost:3000/auth/google/callback
+https://pixon.com.mx/auth/google/callback
+```
+
+Luego pega en `.env`:
+
+```env
+GOOGLE_CLIENT_ID=tu-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=tu-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+ADMIN_EMAIL=tu-correo-admin@gmail.com
+```
+
+En produccion con `https://pixon.com.mx`, cambia `GOOGLE_CALLBACK_URL` a `https://pixon.com.mx/auth/google/callback` y reinicia el servidor.
+
 ## Comandos npm
 
 ```powershell

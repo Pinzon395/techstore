@@ -325,19 +325,32 @@ async function bootstrap() {
         }
     }));
 
-    passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID || 'no_client_id',
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'no_secret',
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback',
-        proxy: true
-    }, async (accessToken, refreshToken, profile, done) => {
-        try {
-            const user = await findOrCreateGoogleUser(profile);
-            return done(null, user);
-        } catch (err) {
-            return done(err);
-        }
-    }));
+    const googleClientID = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+    const googleClientSecret = String(process.env.GOOGLE_CLIENT_SECRET || '').trim();
+    const googleCallbackURL = String(process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback').trim();
+    const googleOAuthConfigured = Boolean(
+        googleClientID &&
+        googleClientSecret &&
+        googleClientID.endsWith('.apps.googleusercontent.com')
+    );
+
+    if (googleOAuthConfigured) {
+        passport.use(new GoogleStrategy({
+            clientID: googleClientID,
+            clientSecret: googleClientSecret,
+            callbackURL: googleCallbackURL,
+            proxy: true
+        }, async (accessToken, refreshToken, profile, done) => {
+            try {
+                const user = await findOrCreateGoogleUser(profile);
+                return done(null, user);
+            } catch (err) {
+                return done(err);
+            }
+        }));
+    } else {
+        console.warn('[auth] Google OAuth no configurado. Define GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET validos en .env.');
+    }
 
     passport.serializeUser((user, done) => {
         done(null, user.id);
@@ -395,6 +408,40 @@ async function bootstrap() {
         res.redirect('/?adminRequired=1');
     }
 
+    function requireGoogleOAuthConfigured(req, res, next) {
+        if (googleOAuthConfigured) return next();
+        if (req.accepts('html')) {
+            return res.status(503).send(`<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login no configurado - Pixon PC</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0f172a;color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    main{width:min(92vw,560px);background:#111827;border:1px solid #334155;border-radius:16px;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.35)}
+    h1{font-size:1.4rem;margin:0 0 12px;color:#fff}
+    p{line-height:1.6;color:#cbd5e1}
+    code{background:#020617;border:1px solid #334155;border-radius:6px;padding:2px 6px;color:#93c5fd}
+    a{color:#93c5fd}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Login con Google no configurado</h1>
+    <p>El servidor no tiene un <code>GOOGLE_CLIENT_ID</code> y <code>GOOGLE_CLIENT_SECRET</code> validos en <code>.env</code>.</p>
+    <p>Crea credenciales OAuth en Google Cloud y registra como redirect URI: <code>${googleCallbackURL}</code>.</p>
+    <p><a href="/">Volver al inicio</a></p>
+  </main>
+</body>
+</html>`);
+        }
+        return res.status(503).json({
+            error: 'Google OAuth no configurado',
+            message: 'Define GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET validos en .env.'
+        });
+    }
+
     // SECURITY-3 (M6) — wrapper que extrae datos del req para admin_logs.
     // Llamar despues de la mutacion: audit(req, 'delete', 'comment', id)
     function audit(req, action, entity, entity_id, diff) {
@@ -412,7 +459,7 @@ async function bootstrap() {
     /* ─────────────────────────────────────────────────────────
        AUTH
     ───────────────────────────────────────────────────────── */
-    app.get('/auth/google', (req, res, next) => {
+    app.get('/auth/google', requireGoogleOAuthConfigured, (req, res, next) => {
         const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '';
         if (returnTo.startsWith('/') && !returnTo.startsWith('//')) {
             req.session.returnTo = returnTo.slice(0, 240);
@@ -423,6 +470,7 @@ async function bootstrap() {
     // SECURITY-2 (M5) — regenerar la sesion previene session fixation:
     // un atacante no puede preparar una cookie y heredarla autenticada.
     app.get('/auth/google/callback',
+        requireGoogleOAuthConfigured,
         passport.authenticate('google', { failureRedirect: '/' }),
         (req, res, next) => {
             const user = req.user;
