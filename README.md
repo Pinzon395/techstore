@@ -40,7 +40,7 @@ GRANT ALL PRIVILEGES ON pixon_db.* TO 'pixon_app'@'127.0.0.1';
 FLUSH PRIVILEGES;
 ```
 
-Cambia `cambia_esta_password` tambien en `.env`.
+Cambia `cambia_esta_password` por una contraseña real y guardala solo en `.env`. No uses `root` como usuario de la app.
 
 Para arrancar local:
 
@@ -65,7 +65,7 @@ Archivo base: `.env.example`.
 Variables principales:
 
 - `PORT`: puerto del servidor Express. En produccion local se usa `3000`.
-- `SESSION_SECRET`: secreto largo para cookies de sesion.
+- `SESSION_SECRET`: secreto largo para cookies de sesion. En produccion es obligatorio.
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`: conexion MariaDB.
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`: login con Google.
 - `ADMIN_EMAIL`: email que recibe rol admin al iniciar sesion.

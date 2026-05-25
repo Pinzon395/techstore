@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Database = require('better-sqlite3');
 const mysql = require('mysql2/promise');
+require('dotenv').config();
 
 async function migrate() {
     try {
@@ -15,11 +16,11 @@ async function migrate() {
 
         console.log('Conectando a MariaDB...');
         const mariadb = await mysql.createConnection({
-            host: 'localhost',
-            port: 3306,
-            user: 'root',
-            password: 'PinzonRood395/2026',
-            database: 'pixon_db'
+            host: process.env.DB_HOST || '127.0.0.1',
+            port: +(process.env.DB_PORT || 3306),
+            user: process.env.DB_USER || 'pixon_app',
+            password: process.env.DB_PASSWORD || '',
+            database: process.env.DB_NAME || 'pixon_db'
         });
 
         console.log('Migrando usuarios...');

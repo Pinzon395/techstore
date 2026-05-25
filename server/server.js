@@ -23,6 +23,13 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const MySQLStore = require('express-mysql-session')(session);
 
+const isProduction = process.env.NODE_ENV === 'production';
+const sessionSecret = String(process.env.SESSION_SECRET || '').trim();
+
+if (isProduction && !sessionSecret) {
+    throw new Error('SESSION_SECRET es obligatorio en produccion.');
+}
+
 const {
     initDB,
     getDB,
@@ -312,7 +319,7 @@ async function bootstrap() {
             checkExpirationInterval: 900000,
             expiration: 604800000
         }, getDB()),
-        secret: process.env.SESSION_SECRET || 'default_secret',
+        secret: sessionSecret || 'dev_session_secret_only_for_local',
         resave: false,
         saveUninitialized: false,
         cookie: {
