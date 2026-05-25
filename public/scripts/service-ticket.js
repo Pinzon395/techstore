@@ -268,6 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+                credentials: 'include',
                 body: JSON.stringify(ticketData)
             });
 
@@ -369,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+                credentials: 'include',
                 body: JSON.stringify(payload)
             });
 

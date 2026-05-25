@@ -99,6 +99,46 @@ const PORT = resolvePort();
 // Helper para envolver handlers async sin perder errores en Express 4
 const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
+const trustedOrigins = new Set([
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://pixon.com.mx'
+]);
+
+const cleanText = (value, max = 500) => String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
+const cleanMultilineText = (value, max = 2000) => String(value || '').replace(/\r\n/g, '\n').trim().slice(0, max);
+const cleanPhone = (value) => String(value || '').trim().replace(/[^\d+]/g, '').slice(0, 16);
+const isValidPhone = (value) => /^\+?\d{8,15}$/.test(value);
+const cleanEmail = (value) => {
+    const email = String(value || '').trim().toLowerCase().slice(0, 254);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+};
+const cleanDate = (value) => {
+    const date = String(value || '').trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : '';
+};
+const cleanTime = (value) => {
+    const time = String(value || '').trim().slice(0, 5);
+    return /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : '';
+};
+const cleanBoolean = (value) => value === true || value === 'true' || value === '1' || value === 1;
+const rateLimitMessage = (message) => ({ error: message });
+
+function isTrustedRequestOrigin(req) {
+    const source = req.get('origin') || req.get('referer');
+    if (!source) return true;
+
+    try {
+        const url = new URL(source);
+        const currentOrigin = `${req.protocol}://${req.get('host')}`;
+        return trustedOrigins.has(url.origin) || url.origin === currentOrigin;
+    } catch (_err) {
+        return false;
+    }
+}
+
 /* ─────────────────────────────────────────────────────────────
    BOOTSTRAP — todo el setup que necesita la DB lista va dentro
 ───────────────────────────────────────────────────────────── */
@@ -277,13 +317,7 @@ async function bootstrap() {
 
     // M2 — CORS con metodos completos
     app.use(cors({
-        origin: [
-            'http://localhost:5173',
-            'http://localhost:5174',
-            'http://localhost:3000',
-            'http://localhost:3001',
-            'https://pixon.com.mx',
-        ],
+        origin: Array.from(trustedOrigins),
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'X-Requested-With'],
         credentials: true
@@ -296,16 +330,49 @@ async function bootstrap() {
         max: 30,
         standardHeaders: true,
         legacyHeaders: false,
-        message: { error: 'Demasiados intentos. Espera unos minutos.' }
+        message: rateLimitMessage('Demasiados intentos. Espera unos minutos.')
     });
     const writeLimiter = rateLimit({
         windowMs: 60 * 1000,         // 1 min
         max: 10,
         standardHeaders: true,
         legacyHeaders: false,
-        message: { error: 'Demasiadas peticiones. Espera un momento.' }
+        message: rateLimitMessage('Demasiadas peticiones. Espera un momento.')
     });
+    const ticketLimiter = rateLimit({
+        windowMs: 10 * 60 * 1000,
+        max: 5,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: rateLimitMessage('Demasiados tickets creados. Espera unos minutos.')
+    });
+    const profileLimiter = rateLimit({
+        windowMs: 5 * 60 * 1000,
+        max: 10,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: rateLimitMessage('Demasiadas actualizaciones de perfil. Espera unos minutos.')
+    });
+    const trackingLimiter = rateLimit({
+        windowMs: 60 * 1000,
+        max: 120,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: rateLimitMessage('Demasiados eventos.')
+    });
+    const adminWriteLimiter = rateLimit({
+        windowMs: 60 * 1000,
+        max: 120,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: rateLimitMessage('Demasiadas acciones administrativas.')
+    });
+    const adminMutationLimiter = (req, res, next) => {
+        if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+        return adminWriteLimiter(req, res, next);
+    };
     app.use('/auth/', authLimiter);
+    app.use('/api/admin', adminMutationLimiter);
 
     /* ─────────────────────────────────────────────────────────
        SESIONES + PASSPORT
@@ -388,6 +455,9 @@ async function bootstrap() {
         // permite setear headers custom. Es lectura-pasiva (no muta cuentas
         // ni privilegios), por lo que no necesita CSRF.
         if (req.path === '/api/track/view') return next();
+        if (!isTrustedRequestOrigin(req)) {
+            return res.status(403).json({ error: 'CSRF: origen no permitido' });
+        }
         if (req.get('X-Requested-With') !== 'fetch') {
             return res.status(403).json({ error: 'CSRF: header X-Requested-With requerido' });
         }
@@ -547,18 +617,18 @@ async function bootstrap() {
         res.json({ user: req.user || null });
     });
 
-    app.post('/api/me/profile', requireAuth, ah(async (req, res) => {
+    app.post('/api/me/profile', profileLimiter, requireAuth, ah(async (req, res) => {
         const { phone } = req.body;
         // M7 — validar phone con regex (10-15 digitos, opcional + al inicio)
-        const cleanPhone = String(phone || '').trim().replace(/[^\d+]/g, '').slice(0, 16);
-        if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
+        const cleanedPhone = cleanPhone(phone);
+        if (!/^\+?\d{10,15}$/.test(cleanedPhone)) {
             return res.status(400).json({ error: 'Número de celular inválido (10–15 dígitos, opcional + al inicio).' });
         }
 
-        const success = await updateUserProfile(req.user.id, { phone: cleanPhone });
+        const success = await updateUserProfile(req.user.id, { phone: cleanedPhone });
         if (success) {
-            req.user.phone = cleanPhone;
-            res.json({ success: true, phone: cleanPhone });
+            req.user.phone = cleanedPhone;
+            res.json({ success: true, phone: cleanedPhone });
         } else {
             res.status(500).json({ error: 'No se pudo actualizar el perfil.' });
         }
@@ -751,7 +821,7 @@ async function bootstrap() {
         res.status(result.available ? 200 : 409).json(result);
     }));
 
-    app.post('/api/tickets', requireAuth, ah(async (req, res) => {
+    app.post('/api/tickets', ticketLimiter, requireAuth, ah(async (req, res) => {
         const { 
             customer_name, customer_phone, customer_email, 
             device_type, service_requested, issue_description,
@@ -760,24 +830,38 @@ async function bootstrap() {
             appointment_type, appointment_date, appointment_time, appointment_datetime,
             appointment_delivery_method, appointment_note, appointment_status
         } = req.body;
+
+        const cleanedName = cleanText(customer_name, 80);
+        const cleanedPhone = cleanPhone(customer_phone);
+        const cleanedEmail = customer_email ? cleanEmail(customer_email) : null;
+        const cleanedDeviceType = cleanText(device_type, 80);
+        const cleanedService = cleanText(service_requested || 'Revision', 120);
+        const cleanedIssue = cleanMultilineText(issue_description, 1800);
+        const cleanedBrand = cleanText(device_brand, 80);
+        const cleanedModel = cleanText(device_model, 100);
+        const cleanedAppointmentDate = cleanDate(appointment_date);
+        const cleanedAppointmentTime = cleanTime(appointment_time);
+        const cleanedAppointmentType = cleanText(appointment_type || 'recepcion', 40);
+        const cleanedDeliveryMethod = cleanText(appointment_delivery_method, 80);
+        const cleanedAppointmentNote = cleanText(appointment_note, 300);
         
         // Validaciones
         const errors = [];
-        if (!customer_name || String(customer_name).trim().length < 2) errors.push('El nombre es requerido.');
-        if (!customer_phone || String(customer_phone).trim().length < 8) errors.push('El teléfono de contacto es requerido.');
-        if (!device_type || String(device_type).trim().length < 2) errors.push('El tipo de equipo es requerido.');
-        if (!issue_description || String(issue_description).trim().length < 10) errors.push('La descripción del problema es muy corta.');
+        if (cleanedName.length < 2) errors.push('El nombre es requerido.');
+        if (!isValidPhone(cleanedPhone)) errors.push('El teléfono de contacto es requerido.');
+        if (customer_email && !cleanedEmail) errors.push('El correo no tiene un formato valido.');
+        if (cleanedDeviceType.length < 2) errors.push('El tipo de equipo es requerido.');
+        if (cleanedIssue.length < 10) errors.push('La descripción del problema es muy corta.');
         
-        if (!appointment_date) errors.push('Selecciona un día disponible.');
-        if (!appointment_time) errors.push('Selecciona un horario disponible.');
+        if (!cleanedAppointmentDate) errors.push('Selecciona un día disponible.');
+        if (!cleanedAppointmentTime) errors.push('Selecciona un horario disponible.');
 
         if (errors.length > 0) {
             return res.status(400).json({ success: false, message: errors.join(' ') });
         }
 
-        const availability = await getAppointmentAvailability(appointment_date, appointment_type);
-        const cleanAppointmentTime = String(appointment_time || '').slice(0, 5);
-        if (!availability.available || !availability.slots.includes(cleanAppointmentTime)) {
+        const availability = await getAppointmentAvailability(cleanedAppointmentDate, cleanedAppointmentType);
+        if (!availability.available || !availability.slots.includes(cleanedAppointmentTime)) {
             return res.status(409).json({ success: false, message: 'Ese horario ya no está disponible. Elige otro.' });
         }
         
@@ -786,10 +870,10 @@ async function bootstrap() {
         
         // Preparar detalles uniendo el servicio y la descripción
         const details = [
-            `Servicio solicitado: ${service_requested || 'Revisión'}`,
-            `\n${issue_description}`
+            `Servicio solicitado: ${cleanedService}`,
+            `\n${cleanedIssue}`
         ].join('\n');
-        const urgencyText = String(issue_description || '').match(/Urgencia:\s*([^\n\r]+)/i)?.[1] || '';
+        const urgencyText = cleanedIssue.match(/Urgencia:\s*([^\n\r]+)/i)?.[1] || '';
         const normalizedUrgency = urgencyText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         const priority = normalizedUrgency.includes('urgente')
             ? 'urgent'
@@ -801,27 +885,27 @@ async function bootstrap() {
         
         const ticket = await insertRepairAdmin({
             user_id,
-            user_name: customer_name,
-            device_type: String(device_type).trim(),
-            device_brand: device_brand ? String(device_brand).trim() : null,
-            device_model: device_model ? String(device_model).trim() : null,
+            user_name: cleanedName,
+            device_type: cleanedDeviceType,
+            device_brand: cleanedBrand || null,
+            device_model: cleanedModel || null,
             reported_issue: details,
-            contact_phone: String(customer_phone).trim(),
-            contact_email: customer_email ? String(customer_email).trim() : null,
+            contact_phone: cleanedPhone,
+            contact_email: cleanedEmail,
             priority,
-            is_b2b,
-            b2b_company,
-            b2b_quantity,
-            b2b_type,
-            b2b_frequency,
-            b2b_invoice,
-            appointment_type,
-            appointment_date,
-            appointment_time: cleanAppointmentTime,
-            appointment_datetime: appointment_datetime || `${appointment_date} ${cleanAppointmentTime}:00`,
-            appointment_delivery_method,
-            appointment_note,
-            appointment_status: appointment_status || 'pendiente_confirmacion'
+            is_b2b: cleanBoolean(is_b2b),
+            b2b_company: cleanText(b2b_company, 120),
+            b2b_quantity: cleanText(b2b_quantity, 40),
+            b2b_type: cleanText(b2b_type, 160),
+            b2b_frequency: cleanText(b2b_frequency, 80),
+            b2b_invoice: cleanText(b2b_invoice, 20),
+            appointment_type: cleanedAppointmentType,
+            appointment_date: cleanedAppointmentDate,
+            appointment_time: cleanedAppointmentTime,
+            appointment_datetime: `${cleanedAppointmentDate} ${cleanedAppointmentTime}:00`,
+            appointment_delivery_method: cleanedDeliveryMethod,
+            appointment_note: cleanedAppointmentNote,
+            appointment_status: cleanText(appointment_status || 'pendiente_confirmacion', 40)
         });
         
         res.status(201).json({ success: true, message: 'Ticket creado exitosamente.', ticket_code: ticket.ticket_code, ticket });
@@ -843,8 +927,8 @@ async function bootstrap() {
     }));
 
     app.post('/api/faqs/unanswered', writeLimiter, ah(async (req, res) => {
-        const { query } = req.body;
-        if (query && query.length >= 3) {
+        const query = cleanText(req.body?.query, 180);
+        if (query.length >= 3) {
             await logUnansweredFaq(query);
         }
         res.json({ success: true });
@@ -859,19 +943,23 @@ async function bootstrap() {
     /* ─────────────────────────────────────────────────────────
         ANALYTICS — Page View Tracking
     ───────────────────────────────────────────────────────── */
-    app.post('/api/track/view', (req, res) => {
+    app.post('/api/track/view', trackingLimiter, (req, res) => {
         const payload = typeof req.body === 'string'
             ? (() => {
                 try { return JSON.parse(req.body || '{}'); } catch (_e) { return {}; }
             })()
             : (req.body || {});
-        const { path, title, referrer } = payload;
-        if (!path) return res.status(400).json({ error: 'path required' });
+        const pagePath = cleanText(payload.path, 300);
+        const pageTitle = cleanText(payload.title, 180);
+        const referrer = cleanText(payload.referrer, 500);
+        if (!pagePath || !pagePath.startsWith('/') || pagePath.startsWith('//')) {
+            return res.status(400).json({ error: 'path required' });
+        }
         const session_id = req.sessionID || null;
         const user_id = req.user?.id || null;
         trackPageView({
-            path,
-            title,
+            path: pagePath,
+            title: pageTitle,
             referrer,
             user_agent: req.get('user-agent'),
             ip: req.ip,
