@@ -32,6 +32,7 @@ const {
 const siteUrl = 'https://pixon.com.mx';
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
+const effectiveRobots = lang === 'en' && robots === 'index, follow' ? 'noindex, follow' : robots;
 
 const defaultSchema = [
   {
@@ -100,13 +101,6 @@ const defaultSchema = [
       "opens": "09:00",
       "closes": "19:00"
     }],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "47",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
     "sameAs": [
       "https://www.facebook.com/people/Pixon-PC/61556271364935/",
       "https://www.instagram.com/pixonpc/",
@@ -116,7 +110,34 @@ const defaultSchema = [
   }
 ];
 
-const allSchema = [...defaultSchema, ...schema];
+const isGlobalSchema = (item: any) => {
+  const type = item?.['@type'];
+  const types = Array.isArray(type) ? type : [type];
+  return types.some((value) => ['WebSite', 'LocalBusiness', 'ProfessionalService', 'Organization'].includes(value));
+};
+
+const stripUnverifiedReviewSchema = (item: any): any => {
+  if (Array.isArray(item)) return item.map(stripUnverifiedReviewSchema).filter(Boolean);
+  if (!item || typeof item !== 'object') return item;
+
+  const type = item['@type'];
+  const types = Array.isArray(type) ? type : [type];
+  if (types.includes('AggregateRating') || types.includes('Review')) return null;
+
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(item)) {
+    if (['aggregateRating', 'review', 'reviews'].includes(key)) continue;
+    const nextValue = stripUnverifiedReviewSchema(value);
+    if (nextValue === null) continue;
+    if (Array.isArray(nextValue) && nextValue.length === 0) continue;
+    cleaned[key] = nextValue;
+  }
+  return cleaned;
+};
+
+const allSchema = [...defaultSchema, ...schema.filter((item) => !isGlobalSchema(item))]
+  .map(stripUnverifiedReviewSchema)
+  .filter(Boolean);
 ---
 
 <!DOCTYPE html>
@@ -126,11 +147,11 @@ const allSchema = [...defaultSchema, ...schema];
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title}</title>
   <meta name="description" content={description}>
-  <meta name="robots" content={robots}>
+  <meta name="robots" content={effectiveRobots}>
   <link rel="canonical" href={fullCanonical} />
 
   <link rel="icon" href="/favicon.png" type="image/png" sizes="any">
-  <link rel="icon" type="image/png" sizes="192x192" href="/LOGOCIRCULAR.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/LOGO192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="theme-color" content="#2563eb">
   <link rel="manifest" href="/manifest.json">

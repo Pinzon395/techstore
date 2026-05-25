@@ -1259,7 +1259,16 @@ async function bootstrap() {
                 }
             }
 
-            res.sendFile(path.join(distPath, 'index.html'), sendFileOptions);
+            const notFoundPath = path.join(distPath, '404.html');
+            if (fs.existsSync(notFoundPath)) {
+                return res.status(404).sendFile(notFoundPath, {
+                    headers: {
+                        'Cache-Control': 'public, max-age=300, s-maxage=3600'
+                    }
+                });
+            }
+
+            res.status(404).send('Not found');
         });
     }
 
