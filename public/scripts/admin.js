@@ -21,6 +21,7 @@ let pendingDeleteRepairId = null;
 // Helper para no olvidarlo en ninguna llamada de escritura.
 const CSRF_HEADER = { 'X-Requested-With': 'fetch' };
 const JSON_HEADERS = { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' };
+const INCLUDE_CREDENTIALS = { credentials: 'include' };
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Verificar permisos
@@ -28,7 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const adminContent = document.getElementById('admin-content');
     
     try {
-        const meRes = await fetch(`${API_BASE}/me`);
+        const meRes = await fetch(`${API_BASE}/me`, INCLUDE_CREDENTIALS);
+        if (!meRes.ok) throw new Error(`No se pudo validar la sesion (HTTP ${meRes.status})`);
         const meData = await meRes.json();
         
         if (!meData.user || meData.user.role !== 'admin') {
@@ -159,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function fetchComments() {
     try {
-        const res = await fetch(`${API_BASE}/admin/comments`);
+        const res = await fetch(`${API_BASE}/admin/comments`, INCLUDE_CREDENTIALS);
         if (!res.ok) throw new Error('Error al cargar comentarios');
         allComments = await res.json();
         renderComments();
@@ -170,7 +172,7 @@ async function fetchComments() {
 
 async function fetchUsers() {
     try {
-        const res = await fetch(`${API_BASE}/admin/users`);
+        const res = await fetch(`${API_BASE}/admin/users`, INCLUDE_CREDENTIALS);
         if (!res.ok) throw new Error('Error al cargar usuarios');
         const users = await res.json();
         allUsers = Array.isArray(users) ? users : [];
@@ -518,7 +520,7 @@ async function fetchFaqs() {
 
 async function fetchUnanswered() {
     try {
-        const res = await fetch(`${API_BASE}/admin/faqs/unanswered`);
+        const res = await fetch(`${API_BASE}/admin/faqs/unanswered`, INCLUDE_CREDENTIALS);
         if (!res.ok) throw new Error('Error al cargar búsquedas sin respuesta');
         allUnanswered = await res.json();
         renderUnanswered();
@@ -675,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFaqs();
     });
     document.addEventListener('click', (event) => {
-        const toggle = event.target.closestá.('.faq-category-toggle');
+        const toggle = event.target.closest('.faq-category-toggle');
         if (!toggle) return;
         const category = toggle.dataset.category;
         if (!category) return;
@@ -688,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.clearUnanswered = async function() {
     if (!confirm('¿Seguro que deseas vaciar el registro de búsquedas sin respuesta?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/faqs/unanswered`, { method: 'DELETE', headers: CSRF_HEADER });
+        const res = await fetch(`${API_BASE}/admin/faqs/unanswered`, { method: 'DELETE', headers: CSRF_HEADER, credentials: 'include' });
         if (!res.ok) throw new Error('Error al limpiar');
         allUnanswered = [];
         renderUnanswered();
@@ -753,6 +755,7 @@ window.saveFaqModal = async function() {
         const res = await fetch(url, {
             method: method,
             headers: JSON_HEADERS,
+            credentials: 'include',
             body: JSON.stringify(payload)
         });
         if(!res.ok) throw new Error('Error al guardar la FAQ');
@@ -766,7 +769,7 @@ window.saveFaqModal = async function() {
 window.deleteAdminFaq = async function(id) {
     if (!confirm('¿Seguro que deseas eliminar esta pregunta frecuente?')) return;
     try {
-        const res = await fetch(`${API_BASE}/admin/faqs/${id}`, { method: 'DELETE', headers: CSRF_HEADER });
+        const res = await fetch(`${API_BASE}/admin/faqs/${id}`, { method: 'DELETE', headers: CSRF_HEADER, credentials: 'include' });
         if (!res.ok) throw new Error('Error al eliminar FAQ');
         await fetchFaqs();
     } catch (err) {
@@ -779,7 +782,7 @@ window.deleteAdminFaq = async function(id) {
 ───────────────────────────────────────────────────────────── */
 async function fetchRepairs() {
     try {
-        const res = await fetch(`${API_BASE}/admin/repairs`);
+        const res = await fetch(`${API_BASE}/admin/repairs`, INCLUDE_CREDENTIALS);
         if (!res.ok) throw new Error('Error al cargar tickets');
         allRepairs = await res.json();
         populateRepairFilters();
@@ -1282,7 +1285,7 @@ async function openRepairTicket(ticketId) {
     if (meta) meta.innerHTML = '';
     body.innerHTML = '<div class="empty-state">Cargando información completa del ticket...</div>';
     try {
-        const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(ticketId)}`, { cache: 'no-store' });
+        const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(ticketId)}`, { cache: 'no-store', credentials: 'include' });
         if (!res.ok) throw new Error(`load failed: ${res.status}`);
         const data = await res.json();
         const ticket = data.ticket || data.repair || data;
@@ -1329,6 +1332,7 @@ async function saveRepairTicketChanges() {
         const res = await fetch(`${API_BASE}/admin/tickets/${activeRepairTicket.id}`, {
             method: 'PATCH',
             headers: JSON_HEADERS,
+            credentials: 'include',
             body: JSON.stringify(payload)
         });
         if (!res.ok) throw new Error('save failed');
@@ -1452,7 +1456,7 @@ async function fetchAdminAppointments() {
     const list = document.getElementById('appointmentsList');
     if (list) list.innerHTML = '<div class="empty-state">Cargando agenda...</div>';
     try {
-        const res = await fetch(`${API_BASE}/admin/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { cache: 'no-store' });
+        const res = await fetch(`${API_BASE}/admin/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { cache: 'no-store', credentials: 'include' });
         if (!res.ok) throw new Error('appointments failed');
         adminAppointments = await res.json();
         renderAdminAppointments();
@@ -1540,6 +1544,7 @@ async function saveAppointmentConfigFromUI() {
         const res = await fetch(`${API_BASE}/admin/appointments/config`, {
             method: 'PATCH',
             headers: JSON_HEADERS,
+            credentials: 'include',
             body: JSON.stringify({ settings, exceptions })
         });
         if (!res.ok) throw new Error('No se pudo guardar la configuración');
@@ -1595,7 +1600,8 @@ async function deleteRepairTicketConfirmed() {
     try {
         const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(ticketId)}/delete`, {
             method: 'PATCH',
-            headers: JSON_HEADERS
+            headers: JSON_HEADERS,
+            credentials: 'include'
         });
         if (!res.ok) throw new Error('No se pudo eliminar el ticket');
         allRepairs = allRepairs.filter(item => String(item.id) !== String(ticketId));
@@ -1630,24 +1636,24 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRepairs();
     });
     document.addEventListener('click', (event) => {
-        const copyBtn = event.target.closestá.('[data-copy-ticket]');
+        const copyBtn = event.target.closest('[data-copy-ticket]');
         if (copyBtn) {
             navigator.clipboard?.writeText(copyBtn.dataset.copyTicket || '');
             return;
         }
-        const openBtn = event.target.closestá.('[data-open-ticket]');
+        const openBtn = event.target.closest('[data-open-ticket]');
         if (openBtn) {
             event.preventDefault();
             openRepairTicket(openBtn.dataset.openTicket);
             return;
         }
-        const deleteBtn = event.target.closestá.('[data-delete-ticket]');
+        const deleteBtn = event.target.closest('[data-delete-ticket]');
         if (deleteBtn) {
             event.preventDefault();
             openRepairDeleteConfirm(deleteBtn.dataset.deleteTicket);
             return;
         }
-        const appointmentAction = event.target.closestá.('[data-appointment-action]');
+        const appointmentAction = event.target.closest('[data-appointment-action]');
         if (appointmentAction && activeRepairTicket) {
             event.preventDefault();
             const statusSelect = document.getElementById('repairAppointmentStatus');
@@ -1655,9 +1661,9 @@ document.addEventListener('DOMContentLoaded', () => {
             saveRepairTicketChanges();
             return;
         }
-        const row = event.target.closestá.('.repair-row');
+        const row = event.target.closest('.repair-row');
         if (!row) return;
-        if (event.target.closestá.('button, a, input, select, textarea')) return;
+        if (event.target.closest('button, a, input, select, textarea')) return;
         openRepairTicket(row.dataset.ticketId);
     });
     document.addEventListener('keydown', (event) => {
@@ -1771,6 +1777,7 @@ window.saveRepair = async function() {
         const res = await fetch(`${API_BASE}/admin/repairs`, {
             method: 'POST',
             headers: JSON_HEADERS,
+            credentials: 'include',
             body: JSON.stringify(payload)
         });
         if(!res.ok) throw new Error('Error al crear el ticket');
@@ -1783,7 +1790,7 @@ window.saveRepair = async function() {
 };
 async function fetchBuilds() {
     try {
-        const res = await fetch(`${API_BASE}/admin/builds`);
+        const res = await fetch(`${API_BASE}/admin/builds`, INCLUDE_CREDENTIALS);
         if (!res.ok) throw new Error('Error al cargar ensambles');
         allBuilds = await res.json();
         renderBuilds();
@@ -1859,6 +1866,7 @@ window.saveBuild = async function() {
         const res = await fetch(`${API_BASE}/admin/builds`, {
             method: 'POST',
             headers: JSON_HEADERS,
+            credentials: 'include',
             body: JSON.stringify(payload)
         });
         if(!res.ok) throw new Error('Error al guardar el ensamble');

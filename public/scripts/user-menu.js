@@ -37,6 +37,14 @@ function whenIdle(cb) {
     }
 }
 
+function getAdminHref() {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]') {
+        return 'https://pixon.com.mx/admin';
+    }
+    return '/admin';
+}
+
 async function fetchCurrentUser() {
     try {
         const res = await fetch('/api/me', { credentials: 'include' });
@@ -87,7 +95,9 @@ function renderDesktopAuth(user) {
     const adminGear = document.getElementById('nav-admin-gear');
     if (adminGear) {
         adminGear.style.display = isAdmin ? 'inline-flex' : 'none';
+        adminGear.href = getAdminHref();
     }
+    const adminHref = getAdminHref();
 
     area.innerHTML = `
         <div class="nav-user-wrapper" id="nav-user-wrapper">
@@ -110,7 +120,7 @@ function renderDesktopAuth(user) {
                 </div>
                 <div class="nav-dropdown-divider"></div>
                 ${isAdmin ? `
-                <a href="/admin" class="nav-dropdown-item" id="nav-item-admin" role="menuitem">
+                <a href="${adminHref}" class="nav-dropdown-item" id="nav-item-admin" role="menuitem">
                     <i class="fa-solid fa-gauge-high"></i> Panel de Admin
                 </a>` : ''}
                 <button class="nav-dropdown-item" id="nav-item-profile" role="menuitem" style="width:100%; text-align:left; border:none; background:transparent; font-family:inherit; cursor:pointer;">
@@ -167,13 +177,14 @@ function renderMobileAuth(user) {
 
     const isAdmin   = user.role === 'admin';
     const firstName = (user.name || 'Usuario').split(' ')[0];
+    const adminHref = getAdminHref();
 
     area.innerHTML = `
         <span class="nav-mobile-username">
             <i class="fa-solid fa-circle-user"></i>&nbsp;${escapeHtml(firstName)}
         </span>
         ${isAdmin ? `
-        <a href="/admin" class="nav-links nav-admin-mobile" id="btn-admin-mobile">
+        <a href="${adminHref}" class="nav-links nav-admin-mobile" id="btn-admin-mobile">
             <i class="fa-solid fa-gear"></i>&nbsp;Panel de Admin
         </a>` : ''}
         <button class="nav-links" id="nav-item-profile-mobile" style="width:100%; text-align:left; border:none; background:transparent; font-family:inherit; cursor:pointer; color:#94a3b8; font-weight:600; padding:12px 15px; border-radius:8px; display:flex; align-items:center; gap:8px;">

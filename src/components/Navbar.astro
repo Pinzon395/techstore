@@ -297,7 +297,7 @@ const t = lang === 'en' ? {
     <!-- Actions (desktop) -->
     <div class="nav-actions">
       <a
-        href="/admin"
+        href="https://pixon.com.mx/admin"
         class="nav-admin-gear"
         id="nav-admin-gear"
         title="Panel de administración"
@@ -1045,7 +1045,14 @@ navMenu?.addEventListener('touchmove', (e) => {
 const adminGear = document.getElementById('nav-admin-gear');
 if (adminGear) {
   fetch('/api/me', { credentials: 'include' })
-    .then((r) => r.json()).then((d) => { if (d?.user?.role === 'admin') adminGear.style.display = 'inline-flex'; })
+    .then((r) => r.json()).then((d) => {
+      if (d?.user?.role === 'admin') {
+        adminGear.href = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+          ? 'https://pixon.com.mx/admin'
+          : '/admin';
+        adminGear.style.display = 'inline-flex';
+      }
+    })
     .catch(() => {});
 }
 
