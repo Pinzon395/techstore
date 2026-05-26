@@ -3,1233 +3,324 @@ import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
+
+const faqCategories = [
+  {
+    title: 'Servicio, diagnóstico y tiempos',
+    icon: 'fa-screwdriver-wrench',
+    items: [
+      {
+        question: '¿El diagnóstico tiene costo?',
+        answer: 'El diagnóstico inicial es gratis y sin compromiso. Revisamos el equipo, explicamos la falla real y te damos costo antes de reparar.',
+      },
+      {
+        question: '¿Cuánto tarda una reparación?',
+        answer: 'Depende de la falla. Un mantenimiento puede tardar de 2 a 4 horas; reparaciones con piezas, placa o pruebas de estabilidad pueden tomar de 24 a 72 horas.',
+      },
+      {
+        question: '¿Me avisan antes de cambiar piezas?',
+        answer: 'Sí. No cambiamos piezas sin autorización. Primero enviamos diagnóstico, costo, tiempo estimado y condiciones de garantía.',
+      },
+      {
+        question: '¿Puedo llevar mi propio repuesto?',
+        answer: 'Sí, podemos instalarlo si es compatible. La garantía aplicaría sobre la mano de obra, no sobre la pieza que trae el cliente.',
+      },
+    ],
+  },
+  {
+    title: 'Laptops y computadoras',
+    icon: 'fa-laptop',
+    items: [
+      {
+        question: '¿Reparan laptops que no encienden?',
+        answer: 'Sí. Revisamos cargador, centro de carga, batería, placa, RAM, SSD, BIOS y líneas principales antes de cotizar.',
+      },
+      {
+        question: '¿Cambian pantallas, teclados y baterías?',
+        answer: 'Sí. Trabajamos pantallas, teclados, baterías, bisagras, carcasas, centros de carga, ventiladores, SSD y RAM según modelo.',
+      },
+      {
+        question: '¿Mi información se borra durante la reparación?',
+        answer: 'No tocamos archivos personales salvo que el servicio requiera respaldo, clonado o formateo. En ese caso pedimos autorización antes.',
+      },
+      {
+        question: '¿Qué hago si mi laptop se calienta mucho?',
+        answer: 'Conviene revisarla. En Cancún el calor, polvo y humedad saturan ventiladores y pasta térmica más rápido que en climas secos.',
+      },
+    ],
+  },
+  {
+    title: 'PC gamer, ensambles y upgrades',
+    icon: 'fa-desktop',
+    items: [
+      {
+        question: '¿Arman PC gamer si yo compro las piezas?',
+        answer: 'Sí. Podemos ensamblar, ordenar cableado, actualizar BIOS, instalar Windows, configurar drivers y hacer pruebas de temperatura.',
+      },
+      {
+        question: '¿Qué incluye el mantenimiento Pro Gamer?',
+        answer: 'Incluye limpieza profunda, revisión térmica, pasta de alto rendimiento, mantenimiento de GPU compatible y pruebas bajo carga.',
+      },
+      {
+        question: '¿Instalan SSD, RAM o tarjeta gráfica?',
+        answer: 'Sí. Verificamos compatibilidad de placa, fuente, gabinete, BIOS y temperatura antes de instalar.',
+      },
+      {
+        question: '¿Hacen optimización para más FPS?',
+        answer: 'Sí. Optimizamos Windows, drivers, inicio, energía, latencia y configuración de juegos cuando el hardware lo permite.',
+      },
+    ],
+  },
+  {
+    title: 'Humedad, líquido y antisulfatación',
+    icon: 'fa-droplet-slash',
+    items: [
+      {
+        question: '¿Qué es la sulfatación?',
+        answer: 'Es corrosión en pistas, conectores y componentes por humedad, salitre, líquido o residuos. En Cancún es común por el clima costero.',
+      },
+      {
+        question: '¿Qué hago si se mojó mi equipo?',
+        answer: 'Apágalo, no lo cargues, no uses secadora y tráelo a revisión. Encenderlo con humedad puede provocar corto y daño de placa.',
+      },
+      {
+        question: '¿La antisulfatación garantiza que quedará como nuevo?',
+        answer: 'No se promete eso cuando hay corrosión. Primero buscamos detener avance, recuperar funcionamiento, rescatar datos y explicar el riesgo real.',
+      },
+      {
+        question: '¿Cada cuánto conviene dar mantenimiento en Cancún?',
+        answer: 'Para equipos de uso diario recomendamos cada 6 a 8 meses. Si está cerca de playa, ventana, humedad o polvo, puede necesitarse antes.',
+      },
+    ],
+  },
+  {
+    title: 'Celulares, tablets y consolas',
+    icon: 'fa-gamepad',
+    items: [
+      {
+        question: '¿Reparan celulares e iPhone?',
+        answer: 'Sí. Revisamos pantalla, batería, cámara, centro de carga, micrófono, audio, software y daño por líquido.',
+      },
+      {
+        question: '¿Reparan PS5, Xbox y Nintendo Switch?',
+        answer: 'Sí. Atendemos sobrecalentamiento, HDMI, limpieza profunda, pasta térmica, ruido, apagados y controles con drift.',
+      },
+      {
+        question: '¿Qué es joystick drift?',
+        answer: 'Es cuando el control detecta movimiento aunque no lo estés tocando. Se revisa el módulo analógico y se reemplaza si está dañado.',
+      },
+      {
+        question: '¿También ven tablets o iPad?',
+        answer: 'Sí. Podemos revisar pantalla, batería, puerto de carga, software y daño por líquido en tablets compatibles.',
+      },
+    ],
+  },
+  {
+    title: 'Windows, software y datos',
+    icon: 'fa-window-restore',
+    items: [
+      {
+        question: '¿Instalan Windows con drivers?',
+        answer: 'Sí. Instalamos Windows 10 u 11, drivers, actualizaciones y programas básicos. Si hay datos importantes, cotizamos respaldo antes.',
+      },
+      {
+        question: '¿Quitan virus y programas basura?',
+        answer: 'Sí. Revisamos malware, programas de inicio, extensiones sospechosas, archivos temporales y configuración que afecta rendimiento.',
+      },
+      {
+        question: '¿Recuperan archivos borrados o discos dañados?',
+        answer: 'Sí, primero evaluamos el tipo de daño. La recuperación depende de si la falla es lógica, física o por corrupción avanzada.',
+      },
+      {
+        question: '¿Pueden hacer soporte remoto?',
+        answer: 'Sí, para problemas de software, configuración, lentitud, programas, correo y algunas revisiones de Windows.',
+      },
+    ],
+  },
+  {
+    title: 'Empresas, pagos y factura',
+    icon: 'fa-building-shield',
+    items: [
+      {
+        question: '¿Atienden empresas en Cancún?',
+        answer: 'Sí. Atendemos oficinas, hoteles, restaurantes, escuelas y negocios con soporte por lote o póliza mensual.',
+      },
+      {
+        question: '¿Facturan?',
+        answer: 'Sí. Emitimos CFDI para personas físicas y morales. Solicítalo al cotizar para registrar los datos correctos.',
+      },
+      {
+        question: '¿Aceptan tarjeta o transferencia?',
+        answer: 'Sí. Aceptamos efectivo, transferencia y tarjeta según el servicio. Para empresas podemos cotizar condiciones específicas.',
+      },
+      {
+        question: '¿Dan reportes por equipo?',
+        answer: 'Sí. En servicios B2B podemos documentar folio, evidencia, estado inicial, trabajos realizados y recomendaciones.',
+      },
+    ],
+  },
+  {
+    title: 'Ubicación, domicilio y garantía',
+    icon: 'fa-location-dot',
+    items: [
+      {
+        question: '¿Dónde están ubicados?',
+        answer: 'Estamos en Haciendas, Cancún, Quintana Roo 77539. Trabajamos con cita para recibir tu equipo con orden y seguimiento.',
+      },
+      {
+        question: '¿Tienen recolección y entrega?',
+        answer: 'Sí. Podemos coordinar recolección y entrega en Cancún según zona, horario y disponibilidad.',
+      },
+      {
+        question: '¿Qué cubre la garantía?',
+        answer: 'Cubre mano de obra y piezas instaladas según el servicio. No cubre golpes, líquido posterior, variaciones eléctricas o manipulación externa.',
+      },
+      {
+        question: '¿Cómo activo mi garantía?',
+        answer: 'Contáctanos por WhatsApp con tu folio, ticket o datos del servicio. Revisamos el caso y te indicamos el siguiente paso.',
+      },
+    ],
+  },
+  {
+    title: 'English support',
+    icon: 'fa-globe',
+    items: [
+      {
+        question: 'Do you speak English?',
+        answer: 'Yes. We can assist tourists, digital nomads and expats in English by WhatsApp.',
+      },
+      {
+        question: 'Do you offer hotel pickup?',
+        answer: 'Yes. We can coordinate pickup and delivery in the Hotel Zone depending on schedule and location.',
+      },
+      {
+        question: 'Can you repair laptops for travelers?',
+        answer: 'Yes. We handle diagnosis, Windows issues, charging problems, overheating, SSD upgrades and emergency data backup.',
+      },
+    ],
+  },
+];
+
+const allFaqs = faqCategories.flatMap((category) => category.items);
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: allFaqs.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  },
+];
 ---
 
 <Base
   title="Preguntas frecuentes sobre reparación en Cancún | Pixon PC"
-  description="Preguntas frecuentes sobre reparación de computadoras, laptops, celulares y consolas en Cancún. Diagnóstico gratis, garantía por escrito y servicio a domicilio. Pixon PC."
+  description="Preguntas frecuentes de Pixon PC sobre reparación de computadoras, laptops, consolas, celulares, humedad, garantía, domicilio, pagos y soporte para empresas en Cancún."
   canonical="https://pixon.com.mx/preguntas-frecuentes"
   image="/LOGOCIRCULAR.png"
-  schema={[
-    {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-            {
-                "@type": "Question",
-                "name": "¿Hacen servicio a domicilio o recolección en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Ofrecemos recolección y entrega a domicilio dentro de Cancún (Haciendas, Supermanzanas, Zona Hotelera, Polígono Sur, Huayacán, Puerto Morelos y más). Contáctanos por WhatsApp para coordinar, puede aplicar cargo extra por zona."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿El diagnóstico tiene costo?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "El diagnóstico inicial es gratuito. Te informamos qué tiene tu equipo y cuánto costaría antes de hacer nada. Si decides no proceder, no pagas nada."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cuánto cuesta el mantenimiento de una laptop en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "El mantenimiento básico de laptop en Cancún va desde $450 MXN. Incluye limpieza interna, cambio de pasta térmica, revisión de ventiladores y optimización de software."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan MacBook en Cancún? ¿Qué modelos?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí, reparamos MacBook Air y Pro con chip M1, M2, M3 e Intel en Cancún. Servicios: cambio de batería, reparación de pantalla Retina, limpieza por líquido derramado, mantenimiento térmico y recuperación de datos."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan bisagras rotas de laptop?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Reparamos bisagras rotas o sueltas en laptops HP, Dell, Lenovo, Acer y más. Usamos resina epóxica de alta resistencia. Precio desde $650 MXN con garantía por escrito."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cuánto cuesta cambiar la pantalla de una laptop en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Desde $1,200 MXN para modelos estándar hasta $3,500 MXN para pantallas 4K. Incluye mano de obra y la pantalla nueva. Diagnóstico gratis."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan iPhones en Cancún? ¿Qué modelos?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí, reparamos todos los modelos de iPhone desde el XR hasta el 16 Pro Max en Cancún. Servicios: cambio de pantalla, batería, cámara, Face ID, centro de carga, micrófono y altavoces."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cuánto cuesta cambiar la pantalla de un iPhone en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "iPhone XR desde $1,200 MXN, iPhone 13/14 desde $2,200 MXN, iPhone 15/16 Pro Max desde $3,500 MXN. Dos opciones: pantalla original o compatible de alta calidad."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan Samsung Galaxy en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí, reparamos Samsung Galaxy S23, S24, A34, A54, A15, M series y Note en Cancún. Cambio de pantalla AMOLED, batería, centro de carga, cámara y reparación de software."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Mi celular se mojó, todavía tiene solución?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí, en muchos casos sí. Apágalo de inmediato y no lo conectes a corriente. Realizamos limpieza ultrasónica y reparación a nivel componente. La humedad y el salitre de Cancún aceleran la corrosión."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cambian baterías de celular en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Cambio de batería para iPhone desde $650 MXN y para Samsung Galaxy desde $550 MXN con 30 días de garantía."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan consolas PS5, Xbox y Nintendo Switch en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí, realizamos limpieza profunda y reparación de consolas PS5, Xbox Series/One y Nintendo Switch en Cancún. Solucionamos problemas de sobrecalentamiento, fallas de HDMI, ruido excesivo y controles con drift."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Qué es el Joystick Drift y cómo lo reparan?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "El Joystick Drift ocurre cuando el analógico registra movimiento sin que lo toques. Lo solucionamos reemplazando el potenciómetro analógico dañado. Aplica para PS5 DualSense, Xbox y Switch Pro."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Mi PS5 no da imagen, ¿qué puede ser?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "La causa más común es el puerto HDMI dañado. También puede ser problema de la fuente de poder o placa principal. Ofrecemos diagnóstico gratis."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Mi Xbox se apaga sola, ¿qué hago?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Es por sobrecalentamiento. El polvo y humedad de Cancún bloquean los ventiladores. Una limpieza profunda con cambio de pasta térmica resuelve el problema desde $550 MXN."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cuánto cuesta la limpieza de una consola en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "La limpieza profunda de consola (PS5, Xbox, Switch) cuesta desde $550 MXN. Incluye desmontaje completo, limpieza de ventiladores y cambio de pasta térmica."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan impresoras en Cancún? ¿Qué marcas?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Reparamos impresoras Epson, HP, Canon y Brother en Cancún. Mantenimiento de cabezales, limpieza ultrasónica, cambio de fusor, rodillos y configuración WiFi."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan tablets y iPads en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Reparamos iPad (todos los modelos), Samsung Tab y Lenovo Tab. Servicios: cambio de pantalla, batería, conector USB-C y reparación de software."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Reparan audífonos en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Reparamos AirPods (batería y estuche), Sony WH/WF, JBL, Beats. Cambio de batería, reparación de conector Jack, cable o driver. Limpieza ultrasónica disponible."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿En qué zonas de Cancún dan servicio a domicilio?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Cubrimos toda Cancún: Zona Hotelera, Supermanzanas, Haciendas, Polígono Sur, Huayacán, Puerto Morelos, Puerto Juárez y Regiones 200-300. También llegamos a Playa del Carmen."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cuánto cuesta el servicio a domicilio?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Desde $50 MXN en zonas cercanas hasta $150 MXN en Zona Hotelera. Te confirmamos el costo exacto al cotizar."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Ofrecen soporte técnico remoto?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Para problemas de software, virus o configuración. Desde $200 MXN, lo resolvemos en el momento vía conexión remota."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Dan garantía por escrito?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí, todos nuestros servicios incluyen garantía por escrito. Si algo falla por causa de nuestro trabajo, lo corregimos sin costo adicional."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Aceptan tarjetas y dan factura?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí aceptamos transferencia bancaria y tarjetas de débito/crédito. Emitimos factura electrónica (CFDI) para personas físicas y morales."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Qué cubre la garantía?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Cubre la mano de obra y refacciones de la reparación. No cubre daños físicos posteriores. 30 días para reparaciones simples, 90 días para reparaciones mayores."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cómo activo mi garantía?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Contáctanos por WhatsApp o teléfono con tu número de servicio. Te atenderemos sin costo dentro del período de garantía."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Aceptan pagos a meses sin intereses?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Aceptamos pago de contado en efectivo, transferencia y tarjetas. No manejamos meses sin intereses, pero ofrecemos descuentos por pago en efectivo."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Pueden recuperar datos de un disco duro dañado?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Recuperamos datos de discos duros internos, externos, SSD y USB en Cancún. Diagnóstico gratis antes de cobrar."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cuánto cuesta la recuperación de datos en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Por software desde $800 MXN. Con daño físico desde $1,500 MXN. Cotizamos después del diagnóstico sin costo."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Tienen planes de soporte técnico para empresas en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Ofrecemos pólizas de mantenimiento mensual y por lote para empresas, hoteles y oficinas. Incluye CFDI 4.0, contratos NDA y canal prioritario."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Dan mantenimiento a equipos de hoteles y restaurantes?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Tenemos clientes hoteleros en Zona Hotelera. Ofrecemos mantenimiento preventivo programado, equipos de cómputo, impresoras, redes WiFi y sistemas POS."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Ofrecen soporte para sistemas CONTPAQi?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Damos soporte a CONTPAQi (Contabilidad, Nóminas, Bancos, Factura Electrónica) en Cancún. Instalación, configuración y resolución de errores."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Do you speak English? (¿Hablan inglés?)",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes! We speak English. We have experience serving digital nomads, tourists, and expats in Cancún. Contact us on WhatsApp."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Do you offer hotel pickup for repairs?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes! We can pick up and deliver your device directly to your hotel in the Hotel Zone. Contact us on WhatsApp to schedule."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Mi laptop tiene virus, ¿cuánto cuesta limpiarlo?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Desde $350 MXN. Incluye análisis completo, eliminación de amenazas, instalación de antivirus y optimización del sistema."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cuánto cuesta instalar Windows en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Instalación de Windows 10 u 11 con drivers y programas básicos: $500 MXN. Incluye respaldo de archivos antes de formatear."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Mi computadora está muy lenta, ¿qué puedo hacer?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Ofrecemos optimización del sistema desde $350 MXN. Incluye limpieza de archivos basura, desfragmentación y revisión de salud del disco duro."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Venden e instalan SSD en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. SSD de 240GB, 480GB y 1TB. El cambio revive cualquier laptop vieja. Precio desde $1,200 MXN (SSD 240GB + instalación)."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Qué es la sulfatación y por qué afecta en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Es la corrosión de componentes electrónicos por humedad, salitre y calor de Cancún. Ofrecemos diagnóstico y tratamiento anti-sulfatación con baño ultrasónico."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Cada cuándo debo dar mantenimiento a mi PC en Cancún?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Por el clima de Cancún, recomendamos mantenimiento preventivo cada 4-6 meses. La humedad y el salitre aceleran el desgaste de los componentes."
-                }
-            }
-        ]
-    }
-]}
+  schema={schema}
 >
   <Navbar />
-<!-- ═══ NAVBAR ═══ -->
   <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Centro de Ayuda / Preguntas' }]} />
 
-    <!-- HERO -->
-    <header class="faq-hero">
-        <div class="container">
-            <h1>Preguntas frecuentes sobre reparación en Cancún</h1>
-            <p>Resolvemos las dudas más comunes sobre reparación de laptops, computadoras, celulares, impresoras y consolas en Cancún. Diagnóstico gratis, garantía por escrito y atención directa.</p>
-        </div>
-    </header>
-
-    <!-- BUSCADOR DE PREGUNTAS -->
-    <div class="faq-search-bar" id="faq-search-bar">
-        <div class="container">
-            <div class="faq-search-wrap" style="position:relative;">
-                <span class="faq-search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="search" id="faq-search-input" placeholder="Busca: celular, laptop, garantia, domicilio, impresora..." autocomplete="off" aria-label="Buscar preguntas frecuentes">
-                <span id="faq-result-count" style="position:absolute; right:40px; top:50%; transform:translateY(-50%); font-size:0.8rem; color:#94a3b8; pointer-events:none; display:none;"></span>
-                <div id="faq-suggestions" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e2e8f0; border-top:none; border-radius:0 0 16px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.1); z-index:100; display:none; overflow:hidden;"></div>
-            </div>
-        </div>
+  <header class="faq-hero">
+    <div class="container">
+      <h1>Preguntas frecuentes sobre reparación en Cancún</h1>
+      <p>Resolvemos dudas sobre laptops, PCs gamer, celulares, consolas, humedad, garantía, domicilio, pagos y soporte para empresas.</p>
     </div>
-    <script>
-    (function(){
-        var input = document.getElementById('faq-search-input') as HTMLInputElement;
-        var sugBox = document.getElementById('faq-suggestions') as HTMLElement;
-        var noResults = document.getElementById('faq-no-results') as HTMLElement | null;
-        var resultCount = document.getElementById('faq-result-count') as HTMLElement | null;
-        var isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
-        if(!input) return;
+  </header>
 
-        function normalize(str: string){ return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
-
-        function closeFaqItem(item: Element) {
-            item.classList.remove('faq-item--open');
-            var question = item.querySelector('.faq-question');
-            var answer = item.querySelector('.faq-answer') as HTMLElement | null;
-            if(question) question.setAttribute('aria-expanded', 'false');
-            if(answer) {
-                answer.setAttribute('aria-hidden', 'true');
-                answer.style.maxHeight = '0px';
-            }
-        }
-
-        function openFaqItem(item: Element, button: Element) {
-            var answer = item.querySelector('.faq-answer') as HTMLElement | null;
-            button.setAttribute('aria-expanded', 'true');
-            item.classList.add('faq-item--open');
-            if(answer) {
-                answer.setAttribute('aria-hidden', 'false');
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-            }
-        }
-
-        function toggleFaq(button: Element) {
-            var item = button.closest('.faq-item');
-            if(!item) return;
-            var root = item.closest('#preguntas-frecuentes-content') || document;
-            var wasOpen = button.getAttribute('aria-expanded') === 'true';
-
-            root.querySelectorAll('.faq-item').forEach(function(i){
-                closeFaqItem(i);
-            });
-
-            if(!wasOpen) openFaqItem(item, button);
-        }
-
-        (window as any).toggleFaq = toggleFaq;
-
-        window.addEventListener('resize', function(){
-            document.querySelectorAll('.faq-item--open .faq-answer').forEach(function(answer){
-                (answer as HTMLElement).style.maxHeight = (answer as HTMLElement).scrollHeight + 'px';
-            });
-        });
-
-        function saveUnanswered(query: string) {
-            if(!query || query.length < 3) return;
-            fetch('/api/faqs/unanswered', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
-                body: JSON.stringify({ query: query })
-            }).catch(e => {});
-        }
-
-        var allItems: any[] = [];
-        var allQuestions: any[] = [];
-
-        function initQuestions() {
-            allItems = Array.from(document.querySelectorAll('.faq-item'));
-            allQuestions = allItems.map(function(item){
-                var btn = item.querySelector('.faq-question span');
-                var ans = item.querySelector('.faq-answer-inner');
-                var tq = btn ? btn.textContent.trim().toLowerCase() : '';
-                var ta = ans ? ans.textContent.trim().toLowerCase() : '';
-                return { el: item, text: tq + " " + ta };
-            });
-        }
-
-        function renderFaqs(faqs: any[]) {
-            const container = document.getElementById('dynamic-faqs-container');
-            if(!container) return;
-            
-            // SEO Schema
-            const schema = {
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": faqs.map(f => ({
-                    "@type": "Question",
-                    "name": f.question,
-                    "acceptedAnswer": { "@type": "Answer", "text": f.answer }
-                }))
-            };
-            let script = document.createElement('script');
-            script.type = 'application/ld+json';
-            script.textContent = JSON.stringify(schema);
-            document.head.appendChild(script);
-
-            const grouped: Record<string, { icon: string; items: any[] }> = {};
-            faqs.forEach(f => {
-                if(!grouped[f.category]) grouped[f.category] = { icon: f.icon, items: [] };
-                grouped[f.category].items.push(f);
-            });
-
-            let html = '';
-
-            for(const [cat, data] of Object.entries(grouped)) {
-                html += '<h2 class="faq-category-title"><i class="' + data.icon + '"></i> ' + cat + '</h2>';
-                html += '<div class="faq-page-grid" data-cat="' + cat + '" data-icon="' + data.icon + '">';
-                data.items.forEach((item: any) => {
-                    html += '<div class="faq-item" id="faq-' + item.id + '">';
-                    if(isAdmin) {
-                        html += '<div style="background:#3b82f6;color:#fff;padding:4px 8px;font-size:12px;display:flex;justify-content:space-between;border-radius:15px 15px 0 0;">' +
-                                '<span>ID: ' + item.id + ' (Orden: ' + item.display_order + ')</span>' +
-                                '<div><button onclick="editFaq(' + item.id + ')" style="background:#fff;color:#3b82f6;border:none;border-radius:4px;padding:2px 8px;margin-right:5px;cursor:pointer;">✎ Editar</button>' +
-                                '<button onclick="deleteFaq(' + item.id + ')" style="background:#ef4444;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;">🗑</button></div></div>';
-                    }
-                    html += '<button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">' +
-                            '<span>' + item.question + '</span>' +
-                            '<i class="fa-solid fa-chevron-down faq-chevron"></i>' +
-                            '</button>' +
-                            '<div class="faq-answer" aria-hidden="true">' +
-                            '<div class="faq-answer-inner">' + item.answer + '</div>' +
-                            '</div></div>';
-                });
-                if(isAdmin) {
-                    html += '<button onclick="addFaq(\'' + cat + '\', \'' + data.icon + '\')" style="width:100%;padding:10px;margin-top:10px;background:#eff6ff;color:#3b82f6;border:2px dashed #bfdbfe;border-radius:10px;cursor:pointer;font-weight:bold;">+ Nueva Pregunta en ' + cat + '</button>';
-                }
-                html += '</div>';
-            }
-            container.innerHTML = html;
-            initQuestions();
-
-            if(isAdmin) injectAdminUnanswered();
-        }
-
-        (window as any).editFaq = function(id: number) {
-            var item = allItems.find(i => i.id === 'faq-' + id) || document.getElementById('faq-' + id);
-            if(!item) return;
-            var question = item.querySelector('.faq-question span').textContent;
-            var answer = item.querySelector('.faq-answer-inner').innerHTML;
-            
-            var newQ = prompt('Editar pregunta:', question);
-            if(newQ === null) return;
-            var newA = prompt('Editar respuesta (acepta HTML):', answer);
-            if(newA === null) return;
-            var order = prompt('Orden de visualización (ej: 0):', '0');
-
-            // Find cat and icon
-            var grid = item.closest('.faq-page-grid');
-            var cat = grid.getAttribute('data-cat');
-            var icon = grid.getAttribute('data-icon');
-
-            fetch('/api/admin/faqs/' + id, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
-                body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order || '0') })
-            }).then(r => r.json()).then((res: any) => {
-                if(res.success) location.reload();
-                else alert('Error: Asegúrate de estar logueado como administrador.');
-            });
-        };
-
-        (window as any).deleteFaq = function(id: number) {
-            if(!confirm('¿Seguro que deseas eliminar esta pregunta?')) return;
-            fetch('/api/admin/faqs/' + id, { method: 'DELETE', headers: { 'X-Requested-With': 'fetch' } })
-            .then(r => r.json()).then((res: any) => {
-                if(res.success) location.reload();
-                else alert('Error: Asegúrate de estar logueado como administrador.');
-            });
-        };
-
-        (window as any).addFaq = function(cat: string, icon: string) {
-            var newQ = prompt('Nueva pregunta:');
-            if(!newQ) return;
-            var newA = prompt('Respuesta (acepta HTML):');
-            if(!newA) return;
-            var order = prompt('Orden de visualización (ej: 0):', '0');
-
-            fetch('/api/admin/faqs', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
-                body: JSON.stringify({ category: cat, icon: icon, question: newQ, answer: newA, display_order: parseInt(order || '0') })
-            }).then(r => {
-                if(r.status === 201) location.reload();
-                else alert('Error: Asegúrate de estar logueado como administrador.');
-            });
-        };
-
-        function injectAdminUnanswered() {
-            if(document.getElementById('faq-admin-panel')) return;
-            fetch('/api/admin/faqs/unanswered').then(r => r.json()).then((entries: any) => {
-                if(!Array.isArray(entries)) return;
-                var panel = document.createElement('div');
-                panel.id = 'faq-admin-panel';
-                panel.style.cssText = 'position:fixed; bottom:0; left:0; right:0; background:#0f172a; color:#fff; padding:20px; z-index:9999; max-height:60vh; overflow-y:auto; border-top:3px solid #3b82f6; font-family:monospace; font-size:0.85rem;';
-                panel.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">' +
-                    '<strong style="font-size:1rem; color:#60a5fa;">📊 Base de Datos — Búsquedas sin respuesta (' + entries.length + ')</strong>' +
-                    '<div style="display:flex; gap:10px;">' +
-                    '<button onclick="fetch(\'/api/admin/faqs/unanswered\',{method:\'DELETE\'}).then(()=>location.reload())" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:6px 14px; cursor:pointer; font-size:0.8rem;">🗑 Vaciar DB</button>' +
-                    '<button onclick="this.closest(\'div\').parentNode.parentNode.remove()" style="background:#475569; color:#fff; border:none; border-radius:8px; padding:6px 14px; cursor:pointer; font-size:0.8rem;">✕ Cerrar</button></div></div>' +
-                    (entries.length === 0
-                        ? '<p style="color:#94a3b8;">No hay búsquedas sin respuesta registradas en la DB. 🎉</p>'
-                        : '<table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid #334155;"><th style="text-align:left; padding:6px 10px; color:#93c5fd;">Pregunta</th><th style="padding:6px 10px; color:#93c5fd;">Veces</th><th style="padding:6px 10px; color:#93c5fd;">Última</th></tr></thead><tbody>' +
-                        entries.map(function(r){
-                            var date = r.last_seen ? new Date(r.last_seen).toLocaleDateString('es-MX') : '-';
-                            return '<tr style="border-bottom:1px solid #1e293b;"><td style="padding:8px 10px;">' + r.query + '</td><td style="text-align:center; padding:8px 10px; color:' + (r.count > 2 ? '#f87171' : '#fbbf24') + '; font-weight:700;">' + r.count + '</td><td style="padding:8px 10px; color:#64748b; font-size:0.8rem;">' + date + '</td></tr>';
-                        }).join('') +
-                        '</tbody></table>'
-                    );
-                document.body.appendChild(panel);
-            }).catch(e => console.error(e));
-        }
-
-        function loadAdminFaqs() {
-            fetch('/api/faqs')
-                .then(res => res.json())
-                .then((data: any) => {
-                    if(data && data.length > 0) renderFaqs(data);
-                    else initQuestions();
-                })
-                .catch(() => initQuestions());
-        }
-
-        var saveTimer: number | null = null;
-        var lastSavedQuery = '';
-
-        function doSearch(){
-            if(allQuestions.length === 0) initQuestions();
-            if(!input) return;
-            var query = normalize(input.value);
-            var visible = 0;
-            var suggestions: any[] = [];
-
-            document.querySelectorAll('.faq-category-title').forEach(function(t){ (t as HTMLElement).style.display='none'; });
-
-            allQuestions.forEach(function(q){
-                if(!query){
-                    q.el.style.display = '';
-                    visible++;
-                } else if(normalize(q.text).indexOf(query) !== -1){
-                    q.el.style.display = '';
-                    visible++;
-                    if(suggestions.length < 5) suggestions.push(q);
-                } else {
-                    closeFaqItem(q.el);
-                    q.el.style.display = 'none';
-                }
-            });
-
-            document.querySelectorAll('.faq-page-grid').forEach(function(grid){
-                var hasVisible = Array.from(grid.querySelectorAll('.faq-item')).some(function(i){ return (i as HTMLElement).style.display !== 'none'; });
-                var title = grid.previousElementSibling;
-                while(title && !title.classList.contains('faq-category-title')) title = title.previousElementSibling;
-                if(title) (title as HTMLElement).style.display = hasVisible ? '' : 'none';
-            });
-
-            if(query && resultCount){
-                resultCount.textContent = visible + (visible === 1 ? ' resultado' : ' resultados');
-                (resultCount as HTMLElement).style.display = 'block';
-            } else if(resultCount){
-                (resultCount as HTMLElement).style.display = 'none';
-            }
-
-            if(noResults) {
-                if(query && visible === 0) {
-                    (noResults as HTMLElement).style.display = 'block';
-                    var waBtn = noResults.querySelector('.btn-faq-wa');
-                    if(waBtn) {
-                        var encoded = encodeURIComponent('Hola, pregunté "' + input.value + '" en las FAQs y no encontré respuesta. ¿Me ayudan?');
-                        (waBtn as HTMLAnchorElement).href = 'https://wa.me/529986690777?text=' + encoded;
-                    }
-                    clearTimeout(saveTimer ?? undefined);
-                    saveTimer = window.setTimeout(function(){
-                        if(normalize(input.value) !== lastSavedQuery) {
-                            saveUnanswered(input.value);
-                            lastSavedQuery = normalize(input.value);
-                        }
-                    }, 2000);
-                } else {
-                    (noResults as HTMLElement).style.display = 'none';
-                    clearTimeout(saveTimer ?? undefined);
-                }
-            }
-
-            if(query && query.length >= 2 && suggestions.length > 0){
-                sugBox.innerHTML = suggestions.map(function(s){
-                    var txt = s.el.querySelector('.faq-question span').textContent.trim();
-                    return '<div class="faq-sug-item" style="padding:12px 20px; cursor:pointer; font-size:0.95rem; color:#334155; border-bottom:1px solid #f1f5f9; transition:background 0.2s;"><i class="fa-solid fa-magnifying-glass" style="color:#94a3b8; margin-right:10px; font-size:0.8rem;"></i>' + txt + '</div>';
-                }).join('');
-                (sugBox as HTMLElement).style.display = 'block';
-                sugBox.querySelectorAll('.faq-sug-item').forEach(function(item, idx){
-                    item.addEventListener('click', function(){
-                        var target = suggestions[idx].el;
-                        (sugBox as HTMLElement).style.display = 'none';
-                        input.value = '';
-                        doSearch();
-                        target.scrollIntoView({ behavior:'smooth', block:'center' });
-                        var btn = target.querySelector('.faq-question');
-                        if(btn && btn.getAttribute('aria-expanded') !== 'true') btn.click();
-                    });
-                });
-            } else {
-                (sugBox as HTMLElement).style.display = 'none';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            noResults = document.getElementById('faq-no-results') as HTMLElement | null;
-            resultCount = document.getElementById('faq-result-count') as HTMLElement | null;
-            initQuestions();
-            if(isAdmin) loadAdminFaqs();
-            input.addEventListener('input', doSearch);
-            input.addEventListener('keydown', function(e){
-                if(e.key === 'Escape'){ (sugBox as HTMLElement).style.display='none'; input.value=''; doSearch(); }
-                if(e.key === 'Enter' && input.value.trim().length > 0){
-                    var query = normalize(input.value);
-                    var hasResults = allQuestions.some(function(q: any){ return normalize(q.text).indexOf(query) !== -1; });
-                    if(!hasResults && input.value.length >= 3) { saveUnanswered(input.value); }
-                    (sugBox as HTMLElement).style.display = 'none';
-                }
-            });
-            document.addEventListener('click', function(e){
-                if(!(e.target as HTMLElement).closest('.faq-search-wrap')) (sugBox as HTMLElement).style.display='none';
-            });
-        });
-    })();
-    </script>
-
-<style is:inline>
-  #preguntas-frecuentes-content .faq-page-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-
-  #preguntas-frecuentes-content .faq-item {
-    padding: 0;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    overflow: hidden;
-    transition: border-color .25s ease, box-shadow .25s ease;
-  }
-
-  #preguntas-frecuentes-content .faq-item--open {
-    border-color: #2563eb;
-    box-shadow: 0 10px 28px rgba(37, 99, 235, .12);
-  }
-
-  #preguntas-frecuentes-content .faq-question {
-    min-height: 64px;
-    width: 100%;
-    padding: 18px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    background: transparent;
-    border: 0;
-    color: #0f172a;
-    cursor: pointer;
-    font: 800 .98rem/1.35 var(--font-main);
-    text-align: left;
-  }
-
-  #preguntas-frecuentes-content .faq-question > span {
-    min-width: 0;
-    display: block;
-  }
-
-  #preguntas-frecuentes-content .faq-chevron {
-    flex: 0 0 auto;
-    color: #2563eb;
-    transition: transform .25s ease;
-  }
-
-  #preguntas-frecuentes-content .faq-item--open .faq-chevron {
-    transform: rotate(180deg);
-  }
-
-  #preguntas-frecuentes-content .faq-answer {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height .3s ease;
-  }
-
-  #preguntas-frecuentes-content .faq-answer-inner {
-    padding: 0 22px 22px;
-    color: #475569;
-    font-size: .96rem;
-    line-height: 1.7;
-  }
-
-  #faq-suggestions .faq-sug-item:hover {
-    background: #f1f5f9;
-  }
-
-  @media (max-width: 640px) {
-    #preguntas-frecuentes-content .faq-question {
-      min-height: 58px;
-      padding: 16px 18px;
-      font-size: .92rem;
-    }
-
-    #preguntas-frecuentes-content .faq-answer-inner {
-      padding: 0 18px 18px;
-      font-size: .92rem;
-    }
-  }
-</style>
-
-
-<!-- MAIN FAQ CONTENT -->
-<section class="faq-page-content" id="preguntas-frecuentes-content">
-    <div class="container" style="max-width: 900px;">
-
-        <div id="dynamic-faqs-container">
-            <!-- Contenido estático de respaldo — visible para Google y usuarios sin JS -->
-            <!-- La vista pública conserva el FAQ completo; /api/faqs solo reemplaza este bloque en modo admin. -->
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-laptop"></i> Laptops y Computadoras</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Hacen servicio a domicilio o recolección en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Ofrecemos recolección y entrega a domicilio dentro de Cancún (Haciendas, Supermanzanas, Zona Hotelera, Polígono Sur, Huayacán, Puerto Morelos y más). Contáctanos por WhatsApp para coordinar, puede aplicar cargo extra por zona.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿El diagnóstico tiene costo?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">El diagnóstico inicial es gratuito. Te informamos qué tiene tu equipo y cuánto costaría antes de hacer nada. Si decides no proceder, no pagas nada.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Voy a perder mi información y archivos personales?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">No. En un mantenimiento estándar nunca tocamos tus archivos. Si la reparación requiere formateo, te avisamos primero y te ayudamos con el respaldo. Tu información es prioritaria.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-4">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto tiempo tarda una reparación?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Un mantenimiento estándar o limpieza tarda entre 1 y 3 días hábiles. Reparaciones más complejas pueden tomar 3 a 5 días, dependiendo de las piezas. Si necesitas tu equipo urgente, tenemos Servicio Express en 24 horas (contacta por WhatsApp).</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-lap5">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto cuesta el mantenimiento de una laptop en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">El mantenimiento básico de laptop en Cancún va desde $450 MXN. Incluye limpieza interna, cambio de pasta térmica, revisión de ventiladores y optimización de software. El precio varía según el modelo y la complejidad. Contáctanos para un diagnóstico gratis sin compromiso.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-lap6">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan MacBook en Cancún? ¿Qué modelos?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí, reparamos MacBook Air y Pro con chip M1, M2, M3 e Intel en Cancún. Servicios: cambio de batería, reparación de pantalla Retina, limpieza por líquido derramado, mantenimiento térmico y recuperación de datos. No somos Apple Store, pero hacemos todo lo que Apple no cubre fuera de garantía.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-lap7">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan bisagras rotas de laptop?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Es una de las reparaciones más comunes. Reparamos bisagras rotas o sueltas en laptops HP, Dell, Lenovo, Acer y más. Usamos resina epóxica de alta resistencia. El servicio incluye garantía por escrito. Precio desde $650 MXN.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-lap8">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto cuesta cambiar la pantalla de una laptop en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">El cambio de pantalla de laptop varía según el modelo y la resolución. Desde $1,200 MXN para modelos estándar hasta $3,500 MXN para pantallas 4K o de alta gama. Incluye mano de obra y la pantalla nueva. Diagnóstico gratis.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-mobile-screen-button"></i> Celulares</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-cel1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan iPhones en Cancún? ¿Qué modelos?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí, reparamos todos los modelos de iPhone desde el XR hasta el 16 Pro Max en Cancún. Servicios: cambio de pantalla, batería, cámara, Face ID, centro de carga, micrófono y altavoces. Usamos refacciones originales y compatibles de alta calidad.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-cel2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto cuesta cambiar la pantalla de un iPhone en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">El precio depende del modelo. iPhone XR: desde $1,200 MXN, iPhone 13/14: desde $2,200 MXN, iPhone 15/16 Pro Max: desde $3,500 MXN. Te damos dos opciones: pantalla original (más cara) o pantalla de alta calidad compatible (más económica). Ambas con garantía.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-cel3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan Samsung Galaxy en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí, reparamos Samsung Galaxy S23, S24, A34, A54, A15, M series y Note en Cancún. Cambio de pantalla AMOLED, batería, centro de carga, cámara y reparación de software. No somos centro autorizado Samsung, por eso nuestros precios son más accesibles.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-cel4">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Mi celular se mojó, todavía tiene solución?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí, en muchos casos sí. Si se te mojó el celular, apágalo de inmediato y no lo conectes a corriente. Tráelo con nosotros para un diagnóstico. Realizamos limpieza ultrasónica y reparación a nivel componente si es necesario. La humedad y el salitre de Cancún aceleran la corrosión, así que entre más rápido lo traigas, mejores probabilidades de recuperarlo.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-cel5">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cambian baterías de celular en Cancún? ¿Cuánto cuesta?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Cambio de batería para iPhone desde $650 MXN y para Samsung Galaxy desde $550 MXN. La batería nueva incluye 30 días de garantía. El servicio tarda aproximadamente 1 hora si tenemos la batería en existencia.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-gamepad"></i> Consolas y Controles</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-8">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan consolas PS5, Xbox y Nintendo Switch en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí, realizamos limpieza profunda y reparación de consolas PS5, Xbox Series/One y Nintendo Switch en Cancún. Solucionamos problemas de sobrecalentamiento, fallas de HDMI, ruido excesivo y controles con drift (cámara que se mueve sola).</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-9">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Qué es el Joystick Drift y cómo lo reparan?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">El Joystick Drift ocurre cuando el analógico de tu control registra movimiento sin que lo toques (la cámara se mueve sola). Lo solucionamos reemplazando el potenciómetro analógico dañado. Aplica para controles PS5 DualSense, Xbox y Switch Pro. Si son Joy-Con de Nintendo Switch, podemos reemplazar el stick completo.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-con1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>Mi PS5 no da imagen, ¿qué puede ser?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Si tu PS5 enciende pero no da imagen, la causa más común es el puerto HDMI dañado (por tirar la consola o conectar mal el cable). También puede ser un problema de la fuente de poder o la placa principal. Ofrecemos diagnóstico gratis para determinar la falla exacta.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-con2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>Mi Xbox se apaga sola, ¿qué hago?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">El apagón repentino en Xbox Series X/S y One generalmente es por sobrecalentamiento. El polvo y la humedad de Cancún bloquean los ventiladores y la pasta térmica se seca. Una limpieza profunda con cambio de pasta térmica resuelve el problema. Precio desde $550 MXN.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-con3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto cuesta la limpieza de una consola en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">La limpieza profunda de consola (PS5, Xbox, Switch) cuesta desde $550 MXN. Incluye: desmontaje completo, limpieza de ventiladores y disipadores, cambio de pasta térmica, reassembly y prueba de funcionamiento. El servicio tarda 1-2 días hábiles.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-print"></i> Impresoras y Tablets</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-imp1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan impresoras en Cancún? ¿Qué marcas?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Reparamos impresoras Epson, HP, Canon y Brother en Cancún. Servicios: mantenimiento de cabezales, limpieza ultrasónica, cambio de fusor, rodillos, solución de atascos de papel, errores de tinta y configuración WiFi. También ofrecemos servicio a domicilio para empresas.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-imp2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan tablets y iPads en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Reparamos iPad (todos los modelos), Samsung Tab y Lenovo Tab en Cancún. Los servicios más comunes son cambio de pantalla, batería, conector USB-C y reparación de software. Precio de diagnóstico gratis.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-imp3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Reparan audífonos en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Reparamos audífonos AirPods (batería y estuche), Sony WH/WF series, JBL, Beats y más. Servicios: cambio de batería, reparación de conector Jack, cable o driver dañado. También ofrecemos limpieza ultrasónica de audífonos.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-truck-fast"></i> Servicio a Domicilio y Cobertura</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-dom1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿En qué zonas de Cancún dan servicio a domicilio?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Cubrimos toda Cancún: Zona Hotelera, Supermanzanas (1-100), Haciendas (Real del Caribe, Hacienda del Mar), Polígono Sur, Huayacán, Puerto Morelos, Puerto Juárez y Regiones 200-300. También llegamos a Playa del Carmen con costo de traslado adicional.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-dom2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto cuesta el servicio a domicilio?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">La recolección y entrega a domicilio tiene un costo adicional que depende de la zona. En Haciendas y Supermanzanas cercanas puede ser desde $50 MXN. En Zona Hotelera desde $150 MXN. Te confirmamos el costo exacto cuando cotices.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-dom3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Ofrecen soporte técnico remoto?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Para problemas de software, virus, instalación de programas o configuración, podemos conectarnos de forma remota a tu computadora. El soporte remoto cuesta desde $200 MXN y lo resolvemos en el momento. Solo necesitas internet y que estés frente al equipo.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-shield-halved"></i> Garantía y Pagos</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-5">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Dan garantía por escrito?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí, todos nuestros servicios incluyen garantía por escrito. Si algo falla por causa de nuestro trabajo, lo corregimos sin costo adicional.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-6">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Aceptan tarjetas y dan factura?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí aceptamos transferencia bancaria y tarjetas de débito/crédito. También emitimos factura electrónica (CFDI) para personas físicas y morales. Ideal para empresas y hoteles.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-gar1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Qué cubre la garantía?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">La garantía cubre la mano de obra y las refacciones utilizadas en la reparación. No cubre daños físicos posteriores (golpes, líquidos, maltrato). El período de garantía varía según el servicio: 30 días para reparaciones simples, 90 días para reparaciones mayores.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-gar2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cómo activo mi garantía?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Solo contáctanos por WhatsApp o teléfono con tu número de servicio. Te atenderemos sin costo dentro del período de garantía. Guarda tu ticket o factura para agilizar el proceso.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-gar3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Aceptan pagos a meses sin intereses?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Actualmente aceptamos pago de contado en efectivo, transferencia y tarjetas de débito/crédito. No manejamos meses sin intereses, pero nuestros precios son los más competitivos de Cancún. Pregunta por nuestros descuentos por pago en efectivo.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-floppy-disk"></i> Recuperación de Datos</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-dat1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Pueden recuperar datos de un disco duro dañado?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Recuperamos datos de discos duros internos, externos, SSD y USB en Cancún. Ya sea por formateo accidental, borrado de archivos, disco que no enciende o daño físico. El diagnóstico es gratis y te decimos si es posible recuperar tus archivos antes de cobrar nada.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-dat2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto cuesta la recuperación de datos en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">El precio depende del tipo de falla. Recuperación por software (formateo, borrado): desde $800 MXN. Recuperación con daño físico (discos que no giran, cabezales dañados): desde $1,500 MXN. Te cotizamos después del diagnóstico sin costo.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-building-shield"></i> Soporte B2B para Empresas</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-10">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Tienen planes de soporte técnico para empresas en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Ofrecemos pólizas de mantenimiento mensual y por lote para empresas, hoteles y oficinas en Cancún. Incluye facturación CFDI 4.0, contratos NDA, reporte por equipo y canal de atención prioritario. Cotizamos según el número de equipos.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-b2b1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Dan mantenimiento a equipos de hoteles y restaurantes?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Tenemos clientes hoteleros en la Zona Hotelera de Cancún y restaurantes locales. Ofrecemos mantenimiento preventivo programado para que nunca pares operación. Atendemos equipos de cómputo, impresoras, redes WiFi y sistemas POS. Facturamos CFDI 4.0 para tu contabilidad.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-b2b2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Ofrecen soporte para sistemas CONTPAQi?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Damos soporte a sistemas CONTPAQi (Contabilidad, Nóminas, Bancos, Factura Electrónica) en Cancún. Instalación, configuración, migración y resolución de errores. Soporte remoto y presencial.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-globe"></i> English Support</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-7">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>Do you speak English? (¿Hablan inglés?)</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Yes! We speak English. We have experience serving digital nomads, tourists, and expats in Cancún. Contact us on WhatsApp and we will assist you in English. We offer laptop repair, iPhone screen replacement, console repair, and data recovery services for the Hotel Zone and all Cancún.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-en1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>Do you offer hotel pickup for repairs?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Yes! We can pick up and deliver your device directly to your hotel in the Hotel Zone. Contact us on WhatsApp to schedule. We serve tourists and digital nomads with fast turnaround times. Free diagnosis, warranty included.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-virus"></i> Virus, Software y Optimización</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-sw1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>Mi laptop tiene virus, ¿cuánto cuesta limpiarlo?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">La limpieza de virus y eliminación de malware cuesta desde $350 MXN. Incluye análisis completo, eliminación de amenazas, instalación de antivirus y optimización del sistema. Si el virus dañó archivos del sistema, es posible que necesite una reinstalación de Windows (desde $500 MXN).</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-sw2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cuánto cuesta instalar Windows en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">La instalación de Windows 10 u 11 con drivers, actualizaciones y programas básicos cuesta $500 MXN. Incluye respaldo de tus archivos antes de formatear. Si solo necesitas formateo rápido sin respaldo, desde $350 MXN. Precio fijo, sin sorpresas.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-sw3">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>Mi computadora está muy lenta, ¿qué puedo hacer?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">La lentitud generalmente se debe a: disco duro lleno, programas innecesarios iniciando, virus o falta de mantenimiento. Ofrecemos optimización del sistema desde $350 MXN que incluye limpieza de archivos basura, desfragmentación, desactivación de programas innecesarios y revisión de salud del disco duro. Si el disco duro ya falla, recomendamos cambiarlo por un SSD.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-sw4">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Venden e instalan SSD en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Sí. Vendemos e instalamos SSD de 240GB, 480GB y 1TB. El cambio de disco duro a SSD revive cualquier laptop vieja. Incluye: el SSD, instalación física, clonado de tus datos o instalación limpia de Windows. Precio desde $1,200 MXN (SSD 240GB + servicio).</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="faq-category-title"><i class="fa-solid fa-screwdriver-wrench"></i> Antisulfatación y Clima de Cancún</h2>
-            <div class="faq-page-grid">
-                <div class="faq-item" id="faq-static-ant1">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Qué es la sulfatación y por qué afecta en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">La sulfatación es la corrosión de los componentes electrónicos causada por la humedad, el salitre y el calor extremo de Cancún. Con el tiempo, los contactos metálicos se oxidan y los circuitos dejan de funcionar. Es el enemigo #1 de los equipos electrónicos en la Riviera Maya. Ofrecemos diagnóstico y tratamiento anti-sulfatación con baño ultrasónico.</div>
-                    </div>
-                </div>
-                <div class="faq-item" id="faq-static-ant2">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <span>¿Cada cuándo debo dar mantenimiento a mi PC en Cancún?</span>
-                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer" aria-hidden="true">
-                        <div class="faq-answer-inner">Por el clima de Cancún (humedad, salitre, calor), recomendamos mantenimiento preventivo cada 4-6 meses para laptops y PCs de escritorio. En ciudades con clima seco, el mantenimiento se hace cada año. Aquí en Cancún el polvo y la humedad aceleran el desgaste. No esperes a que tu equipo empiece a fallar.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mensaje sin resultados -->
-        <div class="faq-no-results" id="faq-no-results" style="background:#fff; border-radius:20px; padding:48px 28px; border:2px dashed #e2e8f0; box-shadow:0 4px 20px rgba(0,0,0,0.04);">
-            <span class="faq-no-icon" style="font-size:2.8rem; display:block; margin-bottom:16px; color:#3b82f6;"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <h3 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin-bottom:8px;">No encontramos esa pregunta</h3>
-            <p style="color:#64748b; margin-bottom:6px;">Mándanosla por WhatsApp — te respondemos en minutos y <strong>la agregamos al FAQ</strong>.</p>
-            <p style="font-size:0.82rem; color:#94a3b8; margin-bottom:24px;"><i class="fa-solid fa-check-circle" style="color:#22c55e;"></i> Tu búsqueda fue guardada para mejorar esta sección.</p>
-            <a href="https://wa.me/529986690777?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20servicio" class="btn-faq-wa" target="_blank" rel="noopener" style="font-size:1rem; padding:14px 32px;">
-                <i class="fa-brands fa-whatsapp"></i> Preguntar por WhatsApp
-            </a>
-        </div>
-
-        <!-- CTA Final -->
-        <div class="epic-cta-box" style="margin-top: 5rem;">
-            <h2 style="font-weight: 800; font-size: 2rem; color: #020617; margin-bottom: 10px;">Tu equipo en manos expertas.</h2>
-            <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 30px;">Garantía por escrito, pago con tarjeta, entrega y recolección a domicilio ágil en Cancún.</p>
-            <button onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20leí%20las%20preguntas%20frecuentes%20y%20quiero%20agendar%20hoy')" class="btn btn-primary btn-large pulse" style="display:inline-flex; align-items:center;">
-                <i class="fa-brands fa-whatsapp" style="margin-right:8px; font-size:1.2rem;"></i> Agendar Diagnóstico Hoy
-            </button>
-        </div>
-        
+  <div class="faq-search-bar" id="faq-search-bar">
+    <div class="container">
+      <div class="faq-search-wrap" style="position:relative;">
+        <span class="faq-search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="search" id="faq-search-input" placeholder="Busca: laptop, garantía, humedad, domicilio, empresa..." autocomplete="off" aria-label="Buscar preguntas frecuentes">
+        <span id="faq-result-count" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:0.8rem; color:#94a3b8; pointer-events:none; display:none;"></span>
+      </div>
     </div>
-</section>
+  </div>
 
-        <div id="location-placeholder"></div>
+  <section class="faq-page-content" id="preguntas-frecuentes-content">
+    <div class="container">
+      {faqCategories.map((category, categoryIndex) => (
+        <section class="faq-category-block" data-faq-category>
+          <h2 class="faq-category-title" style={categoryIndex === 0 ? 'margin-top:0;' : ''}>
+            <i class={`fa-solid ${category.icon}`}></i> {category.title}
+          </h2>
+          <div class="faq-page-grid">
+            {category.items.map((item, itemIndex) => (
+              <div class="faq-item" id={`faq-${categoryIndex}-${itemIndex}`} data-faq-item>
+                <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                  <span>{item.question}</span>
+                  <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                </button>
+                <div class="faq-answer" aria-hidden="true">
+                  <div class="faq-answer-inner">{item.answer}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
 
-    <!-- ═══ FOOTER ═══ -->
+      <div class="faq-no-results" id="faq-no-results" style="display:none; background:#fff; border-radius:20px; padding:48px 28px; border:2px dashed #e2e8f0; box-shadow:0 4px 20px rgba(0,0,0,0.04); text-align:center;">
+        <span class="faq-no-icon" style="font-size:2.8rem; display:block; margin-bottom:16px; color:#3b82f6;"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <h3 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin-bottom:8px;">No encontramos esa pregunta</h3>
+        <p style="color:#64748b; margin-bottom:24px;">Mándanosla por WhatsApp y te respondemos directo.</p>
+        <a href="https://wa.me/529986690777?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20servicio" class="btn-faq-wa" target="_blank" rel="noopener">
+          <i class="fa-brands fa-whatsapp"></i> Preguntar por WhatsApp
+        </a>
+      </div>
+
+      <div class="epic-cta-box" style="margin-top: 5rem;">
+        <h2 style="font-weight: 800; font-size: 2rem; color: #020617; margin-bottom: 10px;">Tu equipo en manos expertas.</h2>
+        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 30px;">Garantía por escrito, pago con tarjeta, entrega y recolección a domicilio en Cancún.</p>
+        <button onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20le%C3%AD%20las%20preguntas%20frecuentes%20y%20quiero%20agendar%20hoy')" class="btn btn-primary btn-large pulse" style="display:inline-flex; align-items:center;">
+          <i class="fa-brands fa-whatsapp" style="margin-right:8px; font-size:1.2rem;"></i> Agendar diagnóstico hoy
+        </button>
+      </div>
+    </div>
+  </section>
+
   <Footer />
-    <!-- ═══ Cookie Banner ═══ -->
 </Base>
 
+<script is:inline>
+  (function () {
+    const input = document.getElementById('faq-search-input');
+    const resultCount = document.getElementById('faq-result-count');
+    const emptyState = document.getElementById('faq-no-results');
+    const categoryBlocks = Array.from(document.querySelectorAll('[data-faq-category]'));
+    const faqItems = Array.from(document.querySelectorAll('[data-faq-item]'));
+
+    function normalize(value) {
+      return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function filterFaqs() {
+      const query = normalize(input.value.trim());
+      let visible = 0;
+
+      faqItems.forEach((item) => {
+        const matches = !query || normalize(item.textContent || '').includes(query);
+        item.style.display = matches ? '' : 'none';
+        if (matches) visible += 1;
+      });
+
+      categoryBlocks.forEach((block) => {
+        const hasVisibleItem = Array.from(block.querySelectorAll('[data-faq-item]')).some((item) => item.style.display !== 'none');
+        block.style.display = hasVisibleItem ? '' : 'none';
+      });
+
+      if (resultCount) {
+        resultCount.style.display = query ? 'block' : 'none';
+        resultCount.textContent = `${visible}`;
+      }
+      if (emptyState) emptyState.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    input?.addEventListener('input', filterFaqs);
+  })();
+</script>
