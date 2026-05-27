@@ -3,7 +3,7 @@
  * Maneja cache offline y mejora rendimiento
  */
 
-const CACHE_NAME = 'pixon-v1';
+const CACHE_NAME = 'pixon-rollback-80b34d0-20260527';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -131,5 +131,10 @@ function isStaticResource(pathname) {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((names) => Promise.all(names.map((name) => caches.delete(name))))
+    );
   }
 });

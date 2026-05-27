@@ -1,26 +1,25 @@
 /**
  * PWA Registration - Pixon PC
- * Registra el Service Worker para funcionalidad offline
+ * Registra el Service Worker y aplica actualizaciones sin dejar cache vieja.
  */
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js', {
+      const registration = await navigator.serviceWorker.register('/sw.js?v=rollback-80b34d0-20260527', {
         scope: '/'
       });
       console.log('[PWA] Service Worker registered:', registration.scope);
 
-      // Check for updates
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
+        if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('[PWA] New version available');
-            if (confirm('Nueva versión disponible. ¿Recargar?')) {
-              newWorker.postMessage({ type: 'SKIP_WAITING' });
-              window.location.reload();
-            }
+            console.log('[PWA] New version available, applying automatically');
+            newWorker.postMessage({ type: 'CLEAR_CACHE' });
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+            window.location.reload();
           }
         });
       });
@@ -30,11 +29,10 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Detect PWA install prompt
 let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  deferredPrompt = event;
   console.log('[PWA] Install prompt available');
 });
 
@@ -46,5 +44,4 @@ async function installPWA() {
   deferredPrompt = null;
 }
 
-// Expose for manual trigger
 window.installPWA = installPWA;
