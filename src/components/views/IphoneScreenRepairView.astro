@@ -1,0 +1,1362 @@
+---
+// IphoneScreenRepairView.astro — Reparación de pantalla iPhone en Cancún
+// SEO local premium | Pixon PC
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+
+const waMsg = encodeURIComponent('Hola, quiero cotizar reparación de pantalla de iPhone en Cancún. Puedo enviar modelo y foto del daño.');
+
+const sintomas = [
+  { icon: 'fa-display', title: 'Pantalla negra', desc: 'Enciende, vibra o hace sonidos pero no muestra imagen.', urgent: false },
+  { icon: 'fa-hand-pointer', title: 'Touch no responde', desc: 'La pantalla no detecta toques o tiene zonas muertas.', urgent: false },
+  { icon: 'fa-bolt', title: 'Líneas o manchas', desc: 'Aparecen líneas verticales, manchas de tinta o parpadeos.', urgent: false },
+  { icon: 'fa-mobile-screen', title: 'Cristal estrellado', desc: 'El cristal está quebrado, aunque display e imagen funcionen.', urgent: false },
+  { icon: 'fa-droplet', title: 'Daño por humedad', desc: 'El iPhone se mojó y la pantalla parpadea o tiene manchas.', urgent: true },
+  { icon: 'fa-sun', title: 'Brillo o colores mal', desc: 'Colores apagados, tonalidad amarillenta o brillo irregular.', urgent: false },
+  { icon: 'fa-camera', title: 'Cámara frontal mal', desc: 'Sensor de proximidad o Face ID fallan tras caída.', urgent: false },
+];
+
+const modelos = [
+  'iPhone 16 Pro Max', 'iPhone 16 Pro', 'iPhone 16 Plus', 'iPhone 16',
+  'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
+  'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
+  'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13 Mini', 'iPhone 13',
+  'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12 Mini', 'iPhone 12',
+  'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11',
+  'iPhone XS Max', 'iPhone XS', 'iPhone XR',
+];
+
+const proceso = [
+  { step: '01', icon: 'fa-stethoscope', title: 'Diagnóstico visual', desc: 'Revisamos display, touch, frame, Face ID, cámara frontal y sensores de proximidad.' },
+  { step: '02', icon: 'fa-droplet', title: 'Revisión de humedad', desc: 'Inspeccionamos indicadores LCI y conectores antes de abrir o instalar cualquier pantalla.' },
+  { step: '03', icon: 'fa-tag', title: 'Cotización clara', desc: 'Confirmamos modelo, tipo de pantalla disponible (OLED original, OLED OEM, Incell) y precio final.' },
+  { step: '04', icon: 'fa-screwdriver-wrench', title: 'Reemplazo con herramienta certificada', desc: 'Desmontaje seguro, sellado con adhesivo nuevo, correcta presión de pantalla y marcos.' },
+  { step: '05', icon: 'fa-magnifying-glass', title: 'Pruebas post-instalación', desc: 'Verificamos touch, brillo, colores, Face ID, cámara frontal, proximidad y audio.' },
+  { step: '06', icon: 'fa-shield-halved', title: 'Entrega con garantía', desc: 'Entregamos con garantía por escrito sobre la pantalla instalada y la mano de obra.' },
+];
+
+const tiposPantalla = [
+  { tipo: 'OLED Original', calidad: 'La mejor', desc: 'Mismos colores, brillo máximo y respuesta táctil que de fábrica. Ideal para modelos Pro y Pro Max.', color: '#22c55e' },
+  { tipo: 'OLED OEM / Refurbished', calidad: 'Muy buena', desc: 'Paneles OLED con calidad cercana al original, colores profundos y tacto preciso.', color: '#3b82f6' },
+  { tipo: 'Incell LCD', calidad: 'Buena', desc: 'Opción económica para modelos compatibles. Touch preciso aunque brillo y contraste son menores que OLED.', color: '#f59e0b' },
+];
+
+const faqItems = [
+  { question: '¿Cuánto cuesta reparar la pantalla de un iPhone en Cancún?', answer: 'El costo depende del modelo, el tipo de pantalla disponible (OLED original, OLED OEM o Incell) y si hay daño adicional en el frame o conectores. Antes de instalar te explicamos opciones y precios reales para que decidas con toda la información.' },
+  { question: '¿Afecta el Face ID al cambiar la pantalla?', answer: 'El Face ID depende del módulo TrueDepth fijo en el frame, no en el panel mismo. Si el Face ID funciona antes del cambio y el técnico tiene el cuidado de no dañar el flex del sensor, debería quedar igual. En Pixon PC hacemos prueba de Face ID antes y después de instalar.' },
+  { question: '¿Cuánto tarda el cambio de pantalla de iPhone?', answer: 'En la mayoría de modelos el reemplazo toma de 1 a 2 horas en taller. Si el equipo tiene daño adicional en frame, flex o humedad que requiera atención previa, te avisamos el tiempo real antes de comenzar.' },
+  { question: '¿Qué pasa si el iPhone se cayó al agua antes de romperse?', answer: 'Si hubo contacto con agua, conviene revisar humedad, indicadores LCI y conectores antes de instalar una pantalla nueva. Cambiar pantalla sobre un iPhone con humedad interna puede causar que la nueva pantalla falle en poco tiempo.' },
+  { question: '¿Qué diferencia hay entre pantalla original y OEM?', answer: 'La pantalla original de Apple ofrece los mismos colores, brillo máximo y tacto exacto que de fábrica. La OEM/refurbished usa panel OLED de calidad muy cercana con precio menor. La Incell es la opción más económica para modelos compatibles pero con brillo y contraste menores. Te explicamos cada opción según tu modelo.' },
+  { question: '¿La reparación tiene garantía?', answer: 'Sí, entregamos garantía por escrito sobre la pantalla instalada y la mano de obra. No cubre nuevos golpes, caídas, presión excesiva sobre el display, humedad posterior o manipulación externa después de la entrega.' },
+];
+
+const related = [
+  { href: '/servicios/telefono/cambio-bateria-iphone', icon: 'fa-battery-half', label: 'Cambio de batería iPhone', desc: 'Si la batería drena rápido o el equipo se apaga, revisamos salud y capacidad real.' },
+  { href: '/servicios/telefono/reparacion-carga-iphone', icon: 'fa-plug', label: 'Reparación de carga iPhone', desc: 'Puerto de carga, cable Lightning o USB-C que no conecta correctamente.' },
+  { href: '/servicios/telefono/reparacion-face-id-iphone', icon: 'fa-face-smile', label: 'Reparación de Face ID', desc: 'Face ID deja de funcionar tras caída o cambio previo de pantalla.' },
+  { href: '/servicios/telefono/reparacion-camara-iphone', icon: 'fa-camera', label: 'Reparación de cámara iPhone', desc: 'Cámara frontal o trasera con manchas, enfoque fallido o imagen oscura.' },
+  { href: '/servicios/telefono/diagnostico-iphone', icon: 'fa-stethoscope', label: 'Diagnóstico iPhone', desc: 'Si no estás seguro de qué falla, primero revisamos y luego cotizamos.' },
+  { href: '/servicios/telefono/reparacion-iphone', icon: 'fa-mobile-screen', label: 'Todos los servicios iPhone', desc: 'Batería, Face ID, carga, bocina, botones, humedad y más.' },
+];
+---
+
+<div class="isr-wrapper">
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 1 · HERO
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-hero">
+    <div class="isr-hero-glow" aria-hidden="true"></div>
+    <div class="isr-hero-grid-bg" aria-hidden="true"></div>
+    <div class="container isr-hero-inner">
+
+      <!-- Columna texto -->
+      <div class="isr-hero-copy">
+        <span class="isr-badge">
+          <i class="fa-brands fa-apple"></i> Servicio técnico de iPhone en Cancún
+        </span>
+        <h1 class="isr-h1">
+          Reparación de pantalla de <span class="isr-gradient">iPhone en Cancún</span>
+        </h1>
+        <p class="isr-sub">
+          Revisamos display, touch, Frame, Face ID y humedad antes de instalar cualquier pantalla nueva. Sin cambios a ciegas.
+        </p>
+
+        <div class="isr-chips">
+          <div class="isr-chip"><i class="fa-solid fa-magnifying-glass"></i> Diagnóstico antes de cotizar</div>
+          <div class="isr-chip"><i class="fa-solid fa-face-smile"></i> Face ID preservado</div>
+          <div class="isr-chip isr-chip--green"><i class="fa-solid fa-shield-halved"></i> Garantía por escrito</div>
+          <div class="isr-chip"><i class="fa-solid fa-stopwatch"></i> 1-2 horas en taller</div>
+          <div class="isr-chip"><i class="fa-brands fa-apple"></i> iPhone 11 al 16 Pro Max</div>
+        </div>
+
+        <div class="isr-trust-bar">
+          <span><i class="fa-solid fa-star"></i> 5.0 en Google</span>
+          <span><i class="fa-solid fa-location-dot"></i> Cancún, Q. Roo</span>
+          <span><i class="fa-solid fa-clock"></i> Cita el mismo día</span>
+        </div>
+
+        <div class="isr-cta-group">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="isr-btn-wa">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar pantalla por WhatsApp
+          </a>
+          <a href="#proceso" class="isr-btn-outline">
+            Ver proceso <i class="fa-solid fa-arrow-down"></i>
+          </a>
+        </div>
+        <p class="isr-micro">Envía modelo y foto del daño para cotización exacta.</p>
+      </div>
+
+      <!-- Columna visual: tarjeta de diagnóstico -->
+      <div class="isr-hero-card-wrap">
+        <div class="isr-hero-card">
+          <div class="isr-card-header">
+            <i class="fa-brands fa-apple"></i>
+            <span>Diagnóstico de pantalla iPhone</span>
+          </div>
+
+          <div class="isr-phone-visual" aria-hidden="true">
+            <div class="isr-phone-frame">
+              <div class="isr-phone-notch"></div>
+              <div class="isr-phone-screen">
+                <div class="isr-crack isr-crack-a"></div>
+                <div class="isr-crack isr-crack-b"></div>
+                <div class="isr-crack isr-crack-c"></div>
+                <div class="isr-screen-glow"></div>
+              </div>
+              <div class="isr-phone-home"></div>
+            </div>
+          </div>
+
+          <ul class="isr-card-checks">
+            <li><i class="fa-solid fa-circle-check"></i> Display, touch y brillo</li>
+            <li><i class="fa-solid fa-circle-check"></i> Face ID y cámara frontal</li>
+            <li><i class="fa-solid fa-circle-check"></i> Frame y conectores</li>
+            <li><i class="fa-solid fa-circle-check"></i> Indicadores de humedad</li>
+          </ul>
+
+          <div class="isr-card-types">
+            <span class="isr-type isr-type--oled">OLED Original</span>
+            <span class="isr-type isr-type--oem">OLED OEM</span>
+            <span class="isr-type isr-type--incell">Incell</span>
+          </div>
+
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="isr-card-cta">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar por modelo
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 2 · SÍNTOMAS
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-sintomas">
+    <div class="container">
+      <div class="isr-section-head">
+        <span class="isr-eyebrow"><i class="fa-solid fa-stethoscope"></i> Diagnóstico</span>
+        <h2 class="isr-h2">¿Tu iPhone presenta alguno de estos síntomas?</h2>
+        <p class="isr-desc">Muchos problemas de pantalla en iPhone tienen solución directa, pero algunos requieren revisar humedad, frame o conectores antes de instalar. Aquí identificamos qué aplica para tu caso.</p>
+      </div>
+
+      <div class="isr-sintomas-grid">
+        {sintomas.map((s, i) => (
+          <article class={`isr-sintoma-card${s.urgent ? ' isr-sintoma-card--urgent' : ''}`}>
+            <div class="isr-sintoma-num">{String(i + 1).padStart(2, '0')}</div>
+            <div class="isr-sintoma-icon">
+              <i class={`fa-solid ${s.icon}`}></i>
+            </div>
+            <div class="isr-sintoma-body">
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+              {s.urgent && <span class="isr-sintoma-urgent-tag"><i class="fa-solid fa-triangle-exclamation"></i> Atender antes de cargar</span>}
+            </div>
+          </article>
+        ))}
+        <div class="isr-sintoma-cta-card">
+          <i class="fa-brands fa-apple"></i>
+          <strong>¿Reconoces tu falla?</strong>
+          <p>Envíanos el modelo y la descripción para cotizar sin compromiso.</p>
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-whatsapp"></i> Escribir ahora
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 3 · TIPOS DE PANTALLA
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-tipos">
+    <div class="container">
+      <div class="isr-section-head">
+        <span class="isr-eyebrow"><i class="fa-solid fa-layer-group"></i> Calidades disponibles</span>
+        <h2 class="isr-h2">¿Qué tipo de pantalla se usa en la reparación?</h2>
+        <p class="isr-desc">No todas las pantallas de iPhone son iguales. Te explicamos cada opción disponible para que decidas según tu presupuesto y exigencia.</p>
+      </div>
+
+      <div class="isr-tipos-grid">
+        {tiposPantalla.map((t) => (
+          <div class="isr-tipo-card" style={`--tipo-color: ${t.color}`}>
+            <div class="isr-tipo-header">
+              <strong class="isr-tipo-name">{t.tipo}</strong>
+              <span class="isr-tipo-quality">{t.calidad}</span>
+            </div>
+            <p class="isr-tipo-desc">{t.desc}</p>
+            <div class="isr-tipo-dot" aria-hidden="true"></div>
+          </div>
+        ))}
+      </div>
+
+      <p class="isr-tipos-note">
+        <i class="fa-solid fa-circle-info"></i>
+        La disponibilidad depende del modelo. Te confirmamos opciones reales antes de cotizar.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 4 · MODELOS ATENDIDOS
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-modelos">
+    <div class="container">
+      <div class="isr-section-head">
+        <span class="isr-eyebrow"><i class="fa-brands fa-apple"></i> Compatibilidad</span>
+        <h2 class="isr-h2">Modelos de iPhone que atendemos en Cancún</h2>
+        <p class="isr-desc">Desde iPhone 11 hasta el iPhone 16 Pro Max. Si tienes un modelo más antiguo, pregúntanos disponibilidad.</p>
+      </div>
+      <div class="isr-modelos-grid">
+        {modelos.map((m) => (
+          <div class="isr-modelo-tag">
+            <i class="fa-brands fa-apple"></i> {m}
+          </div>
+        ))}
+      </div>
+      <p class="isr-tipos-note">
+        <i class="fa-solid fa-mobile-screen"></i>
+        ¿No ves tu modelo? Escríbenos — también atendemos modelos anteriores según disponibilidad de pantalla.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 5 · PROCESO TÉCNICO
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-proceso" id="proceso">
+    <div class="container">
+      <div class="isr-proceso-layout">
+        <div class="isr-proceso-copy">
+          <span class="isr-eyebrow"><i class="fa-solid fa-list-check"></i> Proceso técnico</span>
+          <h2 class="isr-h2">Así hacemos el cambio de pantalla de iPhone en Cancún</h2>
+          <p class="isr-desc">No instalamos pantalla sin revisar primero. Cada iPhone pasa por diagnóstico real antes de abrir — así evitamos cambios que no resuelven la falla o daños adicionales durante el servicio.</p>
+
+          <div class="isr-proceso-tags">
+            <span><i class="fa-solid fa-droplet-slash"></i> Revisión de humedad</span>
+            <span><i class="fa-solid fa-face-smile"></i> Face ID preservado</span>
+            <span><i class="fa-solid fa-certificate"></i> Adhesivo nuevo</span>
+            <span><i class="fa-solid fa-shield-check"></i> Garantía incluida</span>
+          </div>
+
+          <!-- Imagen contextual -->
+          <div class="isr-proceso-img">
+            <img
+              src="/assets/images/responsive/reparacion-celulares-cancun.webp"
+              srcset="/assets/images/responsive/reparacion-celulares-cancun-sm.webp 480w, /assets/images/responsive/reparacion-celulares-cancun-md.webp 768w, /assets/images/responsive/reparacion-celulares-cancun.webp 1200w"
+              sizes="(max-width: 640px) 480px, (max-width: 1024px) 768px, 560px"
+              alt="Técnico reparando pantalla de iPhone en Cancún en taller Pixon PC"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="isr-img-badge">
+              <i class="fa-brands fa-apple"></i>
+              <span>Reparación especializada iPhone · Cancún</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="isr-proceso-steps">
+          {proceso.map((p) => (
+            <article class="isr-step">
+              <div class="isr-step-num">{p.step}</div>
+              <div class="isr-step-icon"><i class={`fa-solid ${p.icon}`}></i></div>
+              <div class="isr-step-body">
+                <h3>{p.title}</h3>
+                <p>{p.desc}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 6 · TICKET DE SERVICIO
+  ═══════════════════════════════════════════════ -->
+  <ServiceTicketSection
+    defaultDevice="iPhone"
+    defaultService="Reparación de pantalla"
+    title="Crear ticket de pantalla iPhone"
+    subtitle="Cuéntanos el modelo y el daño. Te cotizamos la opción correcta sin compromiso."
+  />
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 7 · GALERÍA / ANTES Y DESPUÉS
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-galeria">
+    <div class="container">
+      <div class="isr-galeria-layout">
+        <div class="isr-galeria-copy">
+          <span class="isr-eyebrow"><i class="fa-solid fa-images"></i> Proceso real</span>
+          <h2 class="isr-h2">Cómo queda el iPhone tras la reparación de pantalla</h2>
+          <p class="isr-desc">Después de instalar la pantalla hacemos pruebas completas: touch en toda la superficie, brillo al máximo, colores, Face ID, cámara frontal, proximidad y audio. No entregamos hasta validar todo.</p>
+
+          <div class="isr-galeria-checks">
+            <span><i class="fa-solid fa-hand-pointer"></i> Touch completo</span>
+            <span><i class="fa-solid fa-sun"></i> Brillo y colores</span>
+            <span><i class="fa-solid fa-face-smile"></i> Face ID funcional</span>
+            <span><i class="fa-solid fa-camera"></i> Cámara frontal</span>
+            <span><i class="fa-solid fa-volume-high"></i> Audio y auricular</span>
+          </div>
+
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="isr-btn-wa isr-btn-wa--sm">
+            <i class="fa-brands fa-whatsapp"></i> Agendar revisión
+          </a>
+        </div>
+
+        <div class="isr-galeria-imgs">
+          <div class="isr-galeria-main">
+            <img
+              src="/assets/images/responsive/servicio-celulares-cancun.webp"
+              srcset="/assets/images/responsive/servicio-celulares-cancun-sm.webp 480w, /assets/images/responsive/servicio-celulares-cancun-md.webp 768w, /assets/images/responsive/servicio-celulares-cancun.webp 1200w"
+              sizes="(max-width: 640px) 480px, (max-width: 1024px) 768px, 600px"
+              alt="Pantalla de iPhone reparada en Cancún — taller Pixon PC"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="isr-galeria-label"><i class="fa-solid fa-circle-check"></i> Reparación completada</div>
+          </div>
+          <div class="isr-galeria-side">
+            <div class="isr-galeria-item">
+              <img
+                src="/assets/images/responsive/reparacion-celulares-cancun.webp"
+                alt="Revisión técnica de iPhone antes de reparar pantalla en Cancún"
+                loading="lazy"
+                decoding="async"
+              />
+              <span>Diagnóstico previo</span>
+            </div>
+            <div class="isr-galeria-item">
+              <img
+                src="/assets/images/responsive/servicio-celulares-cancun.webp"
+                alt="iPhone con pantalla reparada y prueba de touch en Cancún"
+                loading="lazy"
+                decoding="async"
+              />
+              <span>Prueba final</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 8 · POR QUÉ ELEGIRNOS
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-porque">
+    <div class="container">
+      <div class="isr-section-head text-center">
+        <span class="isr-eyebrow"><i class="fa-solid fa-award"></i> Diferencial</span>
+        <h2 class="isr-h2">¿Por qué confiar tu iPhone a Pixon PC Cancún?</h2>
+        <p class="isr-desc">No instalamos pantallas sin diagnóstico. No prometemos lo que no podemos garantizar. Trabajamos con herramienta certificada, adhesivo nuevo, pruebas completas y garantía por escrito.</p>
+      </div>
+
+      <div class="isr-porque-grid">
+        <div class="isr-porque-card">
+          <div class="isr-porque-icon"><i class="fa-solid fa-stethoscope"></i></div>
+          <h3>Diagnóstico primero</h3>
+          <p>Antes de abrir el iPhone revisamos display, touch, humedad, frame y sensores para saber exactamente qué necesitas.</p>
+        </div>
+        <div class="isr-porque-card">
+          <div class="isr-porque-icon"><i class="fa-solid fa-face-smile"></i></div>
+          <h3>Face ID preservado</h3>
+          <p>Cuidamos el módulo TrueDepth durante el proceso para que Face ID quede funcionando igual que antes.</p>
+        </div>
+        <div class="isr-porque-card">
+          <div class="isr-porque-icon"><i class="fa-solid fa-layer-group"></i></div>
+          <h3>Opciones de calidad reales</h3>
+          <p>Te explicamos diferencia entre OLED original, OEM e Incell para que elijas según tu modelo y presupuesto.</p>
+        </div>
+        <div class="isr-porque-card">
+          <div class="isr-porque-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <h3>Garantía por escrito</h3>
+          <p>Entregamos garantía sobre la pantalla instalada y la mano de obra. No son palabras, es un documento.</p>
+        </div>
+        <div class="isr-porque-card">
+          <div class="isr-porque-icon"><i class="fa-solid fa-vial"></i></div>
+          <h3>Pruebas antes de entregar</h3>
+          <p>Touch, brillo, colores, Face ID, cámara frontal, sensor de proximidad y audio. Todo validado en taller.</p>
+        </div>
+        <div class="isr-porque-card">
+          <div class="isr-porque-icon"><i class="fa-solid fa-location-dot"></i></div>
+          <h3>Servicio local en Cancún</h3>
+          <p>Taller físico en Cancún. Sin envíos de riesgo, sin tiempos de espera a distancia. Tu iPhone en manos locales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 9 · SERVICIOS RELACIONADOS
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-related">
+    <div class="container">
+      <div class="isr-section-head text-center">
+        <span class="isr-eyebrow"><i class="fa-solid fa-link"></i> Más servicios</span>
+        <h2 class="isr-h2">Otros servicios de iPhone que podrían necesitas</h2>
+        <p class="isr-desc">Si tu iPhone tiene más de una falla, revisamos todo antes de cotizar para darte una solución completa.</p>
+      </div>
+
+      <div class="isr-related-grid">
+        {related.map((r) => (
+          <a href={r.href} class="isr-related-card">
+            <div class="isr-related-icon"><i class={`fa-solid ${r.icon}`}></i></div>
+            <div class="isr-related-body">
+              <strong>{r.label}</strong>
+              <p>{r.desc}</p>
+            </div>
+            <i class="fa-solid fa-arrow-right isr-related-arrow"></i>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 10 · FAQ
+  ═══════════════════════════════════════════════ -->
+  <FaqSection
+    id="faq-iphone-pantalla"
+    title="Preguntas frecuentes sobre reparación de pantalla iPhone en Cancún"
+    description="Respondemos dudas sobre costos, calidad de pantalla, Face ID, garantía y tiempos de reparación."
+    items={faqItems}
+    backgroundColor="#0B1120"
+    questionColor="#f8fafc"
+    faqAccent="#3b82f6"
+  />
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 11 · COMENTARIOS
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-comments">
+    <CommentsSection
+      title="Lo que dicen nuestros clientes sobre la reparación de iPhone"
+      description="Clientes en Cancún que trajeron su iPhone con pantalla dañada y lo recibieron con touch perfecto, brillo, Face ID y garantía por escrito."
+      dark={true}
+    />
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 12 · CTA FINAL
+  ═══════════════════════════════════════════════ -->
+  <section class="isr-cta-final">
+    <div class="container">
+      <div class="isr-cta-final-inner">
+        <div class="isr-cta-final-copy">
+          <h2>Recupera tu iPhone con pantalla perfecta en Cancún</h2>
+          <p>Diagnóstico real, pantalla correcta según tu modelo, Face ID preservado y garantía por escrito. Sin sorpresas.</p>
+        </div>
+        <div class="isr-cta-final-buttons">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="isr-btn-wa">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp
+          </a>
+          <a href="/servicios/telefono/reparacion-iphone" class="isr-btn-outline">
+            Ver todos los servicios <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style is:global>
+/* ══════════════════════════════════════════════════
+   VARIABLES TEMA iPhone Screen Repair
+══════════════════════════════════════════════════ */
+.isr-wrapper {
+  --isr-bg: #050d1f;
+  --isr-bg2: #0B1120;
+  --isr-bg3: #0f172a;
+  --isr-bg4: #1e293b;
+  --isr-primary: #3b82f6;
+  --isr-primary-light: #60a5fa;
+  --isr-accent: #818cf8;
+  --isr-green: #22c55e;
+  --isr-amber: #f59e0b;
+  --isr-text: #f8fafc;
+  --isr-muted: #94a3b8;
+  --isr-border: rgba(255, 255, 255, 0.08);
+  font-family: 'Inter', 'Kanit', sans-serif;
+  background: var(--isr-bg2);
+  color: var(--isr-text);
+}
+
+/* ── UTILITIES ── */
+.isr-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--isr-primary-light);
+  margin-bottom: 12px;
+}
+.isr-eyebrow i { color: var(--isr-primary-light); }
+
+.isr-h2 {
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 800;
+  color: var(--isr-text);
+  line-height: 1.2;
+  margin-bottom: 12px;
+  font-family: 'Kanit', sans-serif;
+}
+
+.isr-desc {
+  color: var(--isr-muted);
+  font-size: 0.97rem;
+  line-height: 1.7;
+  max-width: 680px;
+}
+
+.isr-section-head {
+  margin-bottom: 40px;
+}
+.isr-section-head.text-center {
+  text-align: center;
+}
+.isr-section-head.text-center .isr-desc {
+  margin: 0 auto;
+}
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 1 · HERO
+══════════════════════════════════════════════════ */
+.isr-hero {
+  position: relative;
+  background: linear-gradient(135deg, #030a1a 0%, #0a1628 55%, #050d1f 100%);
+  padding: 72px 0 56px;
+  overflow: hidden;
+}
+
+.isr-hero-glow {
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(59,130,246,0.16) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.isr-hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.isr-hero-inner {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 48px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Badge */
+.isr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: #93c5fd;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+
+/* H1 */
+.isr-h1 {
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  font-family: 'Kanit', sans-serif;
+}
+.isr-gradient {
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.isr-sub {
+  color: rgba(255,255,255,0.72);
+  font-size: 1rem;
+  line-height: 1.55;
+  max-width: 520px;
+  margin-bottom: 18px;
+}
+
+/* Chips */
+.isr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.isr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #cbd5e1;
+  font-size: 0.77rem;
+  font-weight: 600;
+  transition: border-color 0.2s;
+}
+.isr-chip i { color: var(--isr-primary-light); font-size: 0.78rem; }
+.isr-chip:hover { border-color: rgba(59,130,246,0.3); }
+.isr-chip--green {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.22);
+  color: #86efac;
+}
+.isr-chip--green i { color: #4ade80; }
+
+/* Trust bar */
+.isr-trust-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.isr-trust-bar span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--isr-muted);
+  font-size: 0.84rem;
+}
+.isr-trust-bar i { color: #f59e0b; }
+
+/* CTA buttons */
+.isr-cta-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.isr-btn-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(22,163,74,0.3);
+}
+.isr-btn-wa:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(22,163,74,0.4); }
+.isr-btn-wa--sm { padding: 10px 18px; font-size: 0.88rem; }
+.isr-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(59,130,246,0.4);
+  color: #93c5fd;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.isr-btn-outline:hover {
+  border-color: var(--isr-primary);
+  background: rgba(59,130,246,0.08);
+}
+
+.isr-micro { color: var(--isr-muted); font-size: 0.8rem; }
+
+/* ── Hero Card ── */
+.isr-hero-card-wrap { display: flex; justify-content: center; }
+.isr-hero-card {
+  background: linear-gradient(145deg, #111d34, #0d1a2d);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 20px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.isr-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #93c5fd;
+  margin-bottom: 20px;
+}
+.isr-card-header i { font-size: 1rem; }
+
+/* Phone Visual */
+.isr-phone-visual { display: flex; justify-content: center; margin-bottom: 20px; }
+.isr-phone-frame {
+  width: 110px;
+  height: 190px;
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 2px solid rgba(59,130,246,0.3);
+  border-radius: 24px;
+  padding: 8px 6px;
+  position: relative;
+  box-shadow: 0 0 30px rgba(59,130,246,0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.isr-phone-notch {
+  width: 40px;
+  height: 8px;
+  background: #050d1f;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+.isr-phone-screen {
+  flex: 1;
+  width: 100%;
+  background: linear-gradient(135deg, #1a2a44, #0d1a2d);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.isr-screen-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 40% 40%, rgba(59,130,246,0.15) 0%, transparent 65%);
+}
+.isr-crack {
+  position: absolute;
+  background: rgba(255,255,255,0.5);
+  transform-origin: top left;
+}
+.isr-crack-a { width: 1px; height: 55px; top: 10px; left: 30px; transform: rotate(30deg); }
+.isr-crack-b { width: 1px; height: 45px; top: 15px; left: 32px; transform: rotate(65deg); }
+.isr-crack-c { width: 1px; height: 40px; top: 35px; left: 20px; transform: rotate(-20deg); }
+.isr-phone-home {
+  width: 30px;
+  height: 5px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 3px;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+/* Card checks */
+.isr-card-checks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.isr-card-checks li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: #cbd5e1;
+}
+.isr-card-checks i { color: #22c55e; }
+
+/* Card types */
+.isr-card-types {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.isr-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.isr-type--oled { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+.isr-type--oem  { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; }
+.isr-type--incell{ background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; }
+
+.isr-card-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.87rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.isr-card-cta:hover { opacity: 0.92; }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 2 · SÍNTOMAS
+══════════════════════════════════════════════════ */
+.isr-sintomas {
+  padding: 64px 0;
+  background: var(--isr-bg3);
+}
+.isr-sintomas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.isr-sintoma-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--isr-border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  position: relative;
+}
+.isr-sintoma-card:hover {
+  border-color: rgba(59,130,246,0.3);
+  box-shadow: 0 4px 16px rgba(59,130,246,0.08);
+}
+.isr-sintoma-card--urgent {
+  border-color: rgba(239,68,68,0.3);
+  background: rgba(239,68,68,0.04);
+}
+.isr-sintoma-card--urgent:hover { border-color: rgba(239,68,68,0.5); }
+.isr-sintoma-num {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--isr-muted);
+  position: absolute;
+  top: 12px;
+  right: 14px;
+}
+.isr-sintoma-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(59,130,246,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.isr-sintoma-icon i { color: var(--isr-primary-light); font-size: 1.1rem; }
+.isr-sintoma-card--urgent .isr-sintoma-icon {
+  background: rgba(239,68,68,0.1);
+}
+.isr-sintoma-card--urgent .isr-sintoma-icon i { color: #f87171; }
+.isr-sintoma-body h3 { font-size: 0.9rem; font-weight: 700; color: var(--isr-text); margin-bottom: 4px; }
+.isr-sintoma-body p { font-size: 0.82rem; color: var(--isr-muted); line-height: 1.5; margin: 0; }
+.isr-sintoma-urgent-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fca5a5;
+  margin-top: 8px;
+}
+
+.isr-sintoma-cta-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(129,140,248,0.06));
+  border: 1px solid rgba(59,130,246,0.25);
+  border-radius: 14px;
+  padding: 24px 16px;
+}
+.isr-sintoma-cta-card i.fa-brands { font-size: 2rem; color: var(--isr-primary-light); }
+.isr-sintoma-cta-card strong { color: var(--isr-text); font-size: 0.95rem; }
+.isr-sintoma-cta-card p { color: var(--isr-muted); font-size: 0.83rem; margin: 0; }
+.isr-sintoma-cta-card a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  background: #16a34a;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.isr-sintoma-cta-card a:hover { opacity: 0.88; }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 3 · TIPOS DE PANTALLA
+══════════════════════════════════════════════════ */
+.isr-tipos {
+  padding: 64px 0;
+  background: var(--isr-bg2);
+}
+.isr-tipos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.isr-tipo-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--isr-border);
+  border-top: 3px solid var(--tipo-color, #3b82f6);
+  border-radius: 14px;
+  padding: 22px 20px;
+  position: relative;
+  transition: box-shadow 0.25s;
+}
+.isr-tipo-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.isr-tipo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.isr-tipo-name { color: var(--isr-text); font-size: 0.95rem; font-weight: 700; }
+.isr-tipo-quality {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--tipo-color);
+  background: rgba(0,0,0,0.2);
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--tipo-color);
+}
+.isr-tipo-desc { color: var(--isr-muted); font-size: 0.85rem; line-height: 1.55; margin: 0; }
+.isr-tipo-dot {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tipo-color);
+  box-shadow: 0 0 8px var(--tipo-color);
+}
+.isr-tipos-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--isr-muted);
+  font-size: 0.84rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--isr-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+.isr-tipos-note i { color: var(--isr-primary-light); }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 4 · MODELOS
+══════════════════════════════════════════════════ */
+.isr-modelos {
+  padding: 64px 0;
+  background: var(--isr-bg3);
+}
+.isr-modelos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.isr-modelo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  transition: border-color 0.2s, background 0.2s;
+}
+.isr-modelo-tag:hover {
+  border-color: rgba(59,130,246,0.35);
+  background: rgba(59,130,246,0.07);
+}
+.isr-modelo-tag i { color: var(--isr-muted); }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 5 · PROCESO
+══════════════════════════════════════════════════ */
+.isr-proceso {
+  padding: 64px 0;
+  background: var(--isr-bg2);
+}
+.isr-proceso-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: start;
+}
+.isr-proceso-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.isr-proceso-tags span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(59,130,246,0.25);
+  color: #93c5fd;
+  font-size: 0.77rem;
+  font-weight: 600;
+  background: rgba(59,130,246,0.06);
+}
+.isr-proceso-tags span i { font-size: 0.76rem; }
+.isr-proceso-img {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+.isr-proceso-img img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+.isr-img-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(5,13,31,0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #93c5fd;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* Steps */
+.isr-proceso-steps { display: flex; flex-direction: column; gap: 16px; }
+.isr-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--isr-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: border-color 0.25s;
+}
+.isr-step:hover { border-color: rgba(59,130,246,0.25); }
+.isr-step-num {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--isr-primary-light);
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.isr-step-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(59,130,246,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.isr-step-icon i { color: var(--isr-primary-light); font-size: 0.95rem; }
+.isr-step-body h3 { font-size: 0.88rem; font-weight: 700; color: var(--isr-text); margin-bottom: 4px; }
+.isr-step-body p  { font-size: 0.82rem; color: var(--isr-muted); line-height: 1.5; margin: 0; }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 7 · GALERÍA
+══════════════════════════════════════════════════ */
+.isr-galeria {
+  padding: 64px 0;
+  background: #0B1120;
+}
+.isr-galeria-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+.isr-galeria-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0 24px;
+}
+.isr-galeria-checks span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(34,197,94,0.25);
+  color: #86efac;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(34,197,94,0.06);
+}
+.isr-galeria-checks i { color: #4ade80; font-size: 0.78rem; }
+.isr-galeria-imgs { display: flex; flex-direction: column; gap: 12px; }
+.isr-galeria-main {
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+.isr-galeria-main img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+.isr-galeria-label {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(5,13,31,0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(34,197,94,0.35);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: #86efac;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.isr-galeria-side { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.isr-galeria-item { border-radius: 12px; overflow: hidden; position: relative; }
+.isr-galeria-item img { width: 100%; height: 130px; object-fit: cover; display: block; }
+.isr-galeria-item span {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(5,13,31,0.82);
+  color: #cbd5e1;
+  font-size: 0.73rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 6px;
+}
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 8 · POR QUÉ ELEGIRNOS
+══════════════════════════════════════════════════ */
+.isr-porque {
+  padding: 64px 0;
+  background: var(--isr-bg3);
+}
+.isr-porque-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+.isr-porque-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--isr-border);
+  border-radius: 14px;
+  padding: 24px 20px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.isr-porque-card:hover {
+  border-color: rgba(59,130,246,0.28);
+  box-shadow: 0 4px 20px rgba(59,130,246,0.06);
+}
+.isr-porque-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(59,130,246,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.isr-porque-icon i { color: var(--isr-primary-light); font-size: 1.2rem; }
+.isr-porque-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--isr-text); margin-bottom: 6px; }
+.isr-porque-card p  { font-size: 0.83rem; color: var(--isr-muted); line-height: 1.55; margin: 0; }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 9 · SERVICIOS RELACIONADOS
+══════════════════════════════════════════════════ */
+.isr-related {
+  padding: 64px 0;
+  background: var(--isr-bg2);
+}
+.isr-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 40px;
+}
+.isr-related-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--isr-border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  text-decoration: none;
+  transition: border-color 0.25s, background 0.25s;
+}
+.isr-related-card:hover {
+  border-color: rgba(59,130,246,0.3);
+  background: rgba(59,130,246,0.05);
+}
+.isr-related-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: rgba(59,130,246,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.isr-related-icon i { color: var(--isr-primary-light); font-size: 1rem; }
+.isr-related-body { flex: 1; }
+.isr-related-body strong { display: block; color: var(--isr-text); font-size: 0.88rem; font-weight: 700; margin-bottom: 3px; }
+.isr-related-body p { color: var(--isr-muted); font-size: 0.8rem; margin: 0; line-height: 1.45; }
+.isr-related-arrow { color: var(--isr-muted); font-size: 0.8rem; flex-shrink: 0; transition: color 0.2s, transform 0.2s; }
+.isr-related-card:hover .isr-related-arrow { color: var(--isr-primary-light); transform: translateX(3px); }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 11 · COMENTARIOS
+══════════════════════════════════════════════════ */
+.isr-comments { background: #0B1120; }
+
+/* ══════════════════════════════════════════════════
+   SECCIÓN 12 · CTA FINAL
+══════════════════════════════════════════════════ */
+.isr-cta-final {
+  padding: 72px 0;
+  background: linear-gradient(135deg, #030a1a 0%, #0a1628 60%, #050d1f 100%);
+  position: relative;
+  overflow: hidden;
+}
+.isr-cta-final::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(59,130,246,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.isr-cta-final-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+.isr-cta-final-copy h2 {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  font-family: 'Kanit', sans-serif;
+}
+.isr-cta-final-copy p { color: var(--isr-muted); font-size: 0.95rem; margin: 0; max-width: 540px; }
+.isr-cta-final-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .isr-hero-inner,
+  .isr-proceso-layout,
+  .isr-galeria-layout {
+    grid-template-columns: 1fr;
+  }
+  .isr-hero-card-wrap { margin-top: 8px; }
+  .isr-hero-card { max-width: 100%; }
+  .isr-cta-final-inner { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 600px) {
+  .isr-hero { padding: 48px 0 40px; }
+  .isr-h1 { font-size: 1.75rem; }
+  .isr-galeria-side { grid-template-columns: 1fr; }
+  .isr-trust-bar { gap: 10px 14px; }
+  .isr-cta-group { flex-direction: column; }
+  .isr-btn-wa, .isr-btn-outline { justify-content: center; }
+}
+</style>

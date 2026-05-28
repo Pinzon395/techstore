@@ -75,7 +75,7 @@ function injectBannerStyles() {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            z-index: 99999;
+            z-index: 990;
             width: min(340px, calc(100vw - 40px));
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);

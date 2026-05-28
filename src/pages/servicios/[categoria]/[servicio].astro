@@ -12,6 +12,7 @@ import ConsoleThermalPasteView from '../../../components/views/ConsoleThermalPas
 import ConsolePowerSupplyView from '../../../components/views/ConsolePowerSupplyView.astro';
 import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
 import PcDiagnosticView from '../../../components/views/PcDiagnosticView.astro';
+import IphoneScreenRepairView from '../../../components/views/IphoneScreenRepairView.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
 import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
@@ -57,6 +58,7 @@ const isPhoneSoftwareUnlock = category.slug === 'telefono' && service.slug === '
 const isPhoneFlexButtons = category.slug === 'telefono' && service.slug === 'cambio-flex-botones';
 const isPhoneDiagnostic = category.slug === 'telefono' && service.slug === 'diagnostico';
 const isIphoneService = category.slug === 'telefono' && (service.slug === 'reparacion-iphone' || service.slug.endsWith('-iphone'));
+const isIphoneScreenRepair = category.slug === 'telefono' && service.slug === 'reparacion-pantalla-iphone';
 const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
@@ -470,7 +472,6 @@ const pageSchema = [
   ]),
   buildFAQSchema(visibleFaqs),
 ];
-
 ---
 
 <Base
@@ -513,6 +514,8 @@ const pageSchema = [
     <ConsolePowerSupplyView service={service} category={category} />
   ) : isPcDiagnostic ? (
     <PcDiagnosticView service={service} category={category} />
+  ) : isIphoneScreenRepair ? (
+    <IphoneScreenRepairView service={service} category={category} />
   ) : service.slug === 'cambio-bateria' ? (
     <CambioBateriaView service={service} category={category} />
   ) : (
