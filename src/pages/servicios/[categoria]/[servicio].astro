@@ -13,6 +13,7 @@ import ConsolePowerSupplyView from '../../../components/views/ConsolePowerSupply
 import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
 import PcDiagnosticView from '../../../components/views/PcDiagnosticView.astro';
 import IphoneScreenRepairView from '../../../components/views/IphoneScreenRepairView.astro';
+import IphoneBatteryReplacementView from '../../../components/views/IphoneBatteryReplacementView.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
 import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
@@ -59,6 +60,7 @@ const isPhoneFlexButtons = category.slug === 'telefono' && service.slug === 'cam
 const isPhoneDiagnostic = category.slug === 'telefono' && service.slug === 'diagnostico';
 const isIphoneService = category.slug === 'telefono' && (service.slug === 'reparacion-iphone' || service.slug.endsWith('-iphone'));
 const isIphoneScreenRepair = category.slug === 'telefono' && service.slug === 'reparacion-pantalla-iphone';
+const isIphoneBatteryReplacement = category.slug === 'telefono' && service.slug === 'cambio-bateria-iphone';
 const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
@@ -98,6 +100,8 @@ const seoTitle = isPcFormat
   ? 'Cambio de flex y botones de celular en Cancún | Pixon PC'
   : isPhoneDiagnostic
   ? 'Diagnóstico de celulares en Cancún | Pixon PC'
+  : isIphoneBatteryReplacement
+  ? 'Cambio de batería iPhone en Cancún | Pixon PC'
   : isLaptopKeyboardReplacement
   ? 'Cambio de teclado de laptop en Cancún | Pixon PC'
   : isIphoneService
@@ -141,6 +145,8 @@ const description = isPcFormat
   ? 'Cambio de flex, botón power, volumen, home, mute y botones laterales de celular en Cancún. Revisamos flex, humedad, carcasa y placa antes de cotizar.'
   : isPhoneDiagnostic
   ? 'Diagnóstico de celulares en Cancún para fallas de pantalla, batería, carga, audio, cámaras, humedad, placa y software. Revisamos antes de cambiar piezas.'
+  : isIphoneBatteryReplacement
+  ? 'Cambio de batería iPhone en Cancún con diagnóstico de salud, carga, consumo, temperatura, batería inflada y garantía por escrito. Servicio local Pixon PC.'
   : isLaptopKeyboardReplacement
   ? 'Cambio y reparación de teclado de laptop en Cancún. Revisamos flex, conector, líquido, backlit y compatibilidad antes de instalar.'
   : service.intro
@@ -516,6 +522,8 @@ const pageSchema = [
     <PcDiagnosticView service={service} category={category} />
   ) : isIphoneScreenRepair ? (
     <IphoneScreenRepairView service={service} category={category} />
+  ) : isIphoneBatteryReplacement ? (
+    <IphoneBatteryReplacementView service={service} category={category} />
   ) : service.slug === 'cambio-bateria' ? (
     <CambioBateriaView service={service} category={category} />
   ) : (
