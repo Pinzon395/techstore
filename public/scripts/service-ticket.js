@@ -118,10 +118,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getAbsoluteTop(element) {
+        let top = 0;
+        let curr = element;
+        while (curr) {
+            top += curr.offsetTop;
+            curr = curr.offsetParent;
+        }
+        return top;
+    }
+
     function scrollTicketStateIntoView(panel) {
         if (!panel) return;
         const target = ticketContainer || ticketSection || panel;
-        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 96);
+        const absoluteTop = getAbsoluteTop(target);
+        const top = Math.max(0, absoluteTop - 96);
         const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         window.requestAnimationFrame(() => {
