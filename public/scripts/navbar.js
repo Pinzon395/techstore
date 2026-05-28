@@ -1,12 +1,12 @@
-// â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"
-//  Navbar 3.0 â¬ JavaScript v3.2 â¬ Full UX Overhaul
+// --------------------------------------------------------
+//  Navbar 3.0 Ã¢Â¬ JavaScript v3.2 Ã¢Â¬ Full UX Overhaul
 //  Â· Desktop: 4s auto-close, 2s cross-section, 3s exit grace
 //  Â· Mobile: stable accordion, no accidental close on scroll
 //  Â· Gap tolerance 400ms between nested items
 //  Â· Click-outside closes all (including mobile hamburger)
 //  Â· Progressive scroll-hide (2 scrolls to fully hide)
 //  Â· All routes unchanged
-// â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"
+// --------------------------------------------------------
 
 const IS_MOBILE = () => window.innerWidth <= 750;
 
@@ -23,7 +23,7 @@ mobileMenuBtn?.addEventListener('click', () => {
   if (!isOpen) closeAllCascades();
 });
 
-// 2. DROPDOWNS ESTÃNDAR (sin cascade â¬ compatibilidad futura)
+// 2. DROPDOWNS ESTÃNDAR (sin cascade Ã¢Â¬ compatibilidad futura)
 document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').forEach((trigger) => {
   trigger.addEventListener('click', (e) => {
     if (!IS_MOBILE()) return;
@@ -44,7 +44,7 @@ document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').f
   });
 });
 
-// â¬â¬ Shared state â¬â¬
+// Ã¢Â¬Ã¢Â¬ Shared state Ã¢Â¬Ã¢Â¬
 let autoCloseTimer = null;
 let crossSectionTimer = null;
 let lastOpenedCascade = null;
@@ -144,7 +144,7 @@ document.querySelectorAll('.has-cascade > .nav-dd-trigger').forEach((trigger) =>
   });
 });
 
-// 4. TOLERANCIA DE GAPS â¬ L1 panel: 3s de gracia
+// 4. TOLERANCIA DE GAPS Ã¢Â¬ L1 panel: 3s de gracia
 document.querySelectorAll('.v3-cascade-l1').forEach((l1) => {
   let l1Timer = null;
   l1.addEventListener('mouseenter', () => { clearTimers(); if (l1Timer) { clearTimeout(l1Timer); l1Timer = null; } });

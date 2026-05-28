@@ -1,6 +1,6 @@
 /**
  * ============================================================
- *  server/database.js  â¬ MariaDB via mysql2/promise (pool)
+ *  server/database.js  Ã¢Â¬ MariaDB via mysql2/promise (pool)
  * ============================================================
  *
  *  Reemplaza la versiÃ³n anterior basada en better-sqlite3.
@@ -24,7 +24,7 @@ const { runtimeMigrationsEnabled, warnRuntimeMigrationsDisabled } = require('./d
 
 const dbEmitter = new EventEmitter();
 
-// SECURITY-2 (C1) â¬ Allow-list para HTML de respuestas de FAQ.
+// SECURITY-2 (C1) Ã¢Â¬ Allow-list para HTML de respuestas de FAQ.
 // Solo etiquetas de formato basico. Sin script, iframe, on*, etc.
 const FAQ_HTML_CONFIG = {
     ALLOWED_TAGS: ['br', 'b', 'i', 'strong', 'em', 'a', 'code', 'p', 'ul', 'ol', 'li'],
@@ -41,9 +41,9 @@ function sanitizeFaqIcon(icon) {
 
 let pool = null;
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-   INICIALIZACIÃN
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+   INICIALIZACIÃ“N
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 
 async function initDB() {
     pool = createPoolFromEnv();
@@ -54,7 +54,7 @@ async function initDB() {
         throw new Error('MariaDB no respondiÃ³ a SELECT 1');
     }
 
-    console.log(`ðxï¸  MariaDB conectada â  ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+    console.log(`Ã°xÃ¯Â¸Â  MariaDB conectada Ã¢  ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
 
     if (runtimeMigrationsEnabled()) {
         await runRuntimeMigrations();
@@ -206,21 +206,21 @@ async function ensureAnalyticsSchema() {
 }
 
 
-/** Devuelve el pool. Ãatil para integraciones externas (session store). */
+/** Devuelve el pool. Ãštil para integraciones externas (session store). */
 function getDB() {
     if (!pool) throw new Error('Pool no inicializado. Llama a initDB() primero.');
     return pool;
 }
 
-/** Convierte avatar_url â  avatar para mantener compat con el cÃ³digo antiguo. */
+/** Convierte avatar_url Ã¢  avatar para mantener compat con el cÃ³digo antiguo. */
 function mapUserCompat(row) {
     if (!row) return null;
     return { ...row, avatar: row.avatar_url ?? null };
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
    COMENTARIOS
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 
 async function getAllComments() {
     const [rows] = await pool.execute(`
@@ -243,7 +243,7 @@ async function getAllCommentsAdmin() {
 
 async function insertComment({ name, stars, text, user_id, user_email }) {
     // Los comentarios entran como pendientes (approved=0)
-    // M4 â¬ guardar user_id ademas de email (FK SET NULL si el usuario se borra)
+    // M4 Ã¢Â¬ guardar user_id ademas de email (FK SET NULL si el usuario se borra)
     const [info] = await pool.execute(
         'INSERT INTO comments (user_id, name, stars, text, approved, user_email) VALUES (?, ?, ?, ?, 0, ?)',
         [user_id || null, name, stars, text, user_email || null]
@@ -280,9 +280,9 @@ async function deleteComment(id) {
     return info.affectedRows > 0;
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-   ADMIN_LOGS â¬ auditoria de acciones admin (SECURITY-3 M6)
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+   ADMIN_LOGS Ã¢Â¬ auditoria de acciones admin (SECURITY-3 M6)
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 
 /**
  * Registra una accion administrativa en admin_logs.
@@ -310,9 +310,9 @@ async function logAdminAction({ user_id, action, entity, entity_id, diff, ip, us
     }
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
    USUARIOS (OAuth + perfil)
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 
 async function findOrCreateGoogleUser(profile) {
     const email  = profile.emails?.[0]?.value || null;
@@ -345,7 +345,7 @@ async function findOrCreateGoogleUser(profile) {
             [newId]
         );
     } else {
-        // M5 â¬ usuario existente: NO sobrescribir role_id en cada login.
+        // M5 Ã¢Â¬ usuario existente: NO sobrescribir role_id en cada login.
         // Si manana promueves manualmente a un usuario en el panel, no se pierde.
         // Solo refrescamos avatar y last_login_at.
         if (user.avatar_url !== avatar) {
@@ -394,9 +394,9 @@ async function getAllUsersAdmin() {
     return rows;
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
    FAQs
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 
 async function getAllFaqs() {
     const [rows] = await pool.execute(
@@ -406,7 +406,7 @@ async function getAllFaqs() {
 }
 
 async function insertFaq({ category, icon, question, answer, display_order }) {
-    // C1 â¬ sanitiza answer y icon antes de guardar
+    // C1 Ã¢Â¬ sanitiza answer y icon antes de guardar
     const cleanAnswer = sanitizeFaqAnswer(answer);
     const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
@@ -418,7 +418,7 @@ async function insertFaq({ category, icon, question, answer, display_order }) {
 }
 
 async function updateFaq(id, { category, icon, question, answer, display_order }) {
-    // C1 â¬ sanitiza tambien al actualizar
+    // C1 Ã¢Â¬ sanitiza tambien al actualizar
     const cleanAnswer = sanitizeFaqAnswer(answer);
     const cleanIcon   = sanitizeFaqIcon(icon);
     const [info] = await pool.execute(
@@ -454,9 +454,9 @@ async function clearUnansweredFaqs() {
     return info.affectedRows;
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-   PAGE VIEWS â¬ Analytics
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+   PAGE VIEWS Ã¢Â¬ Analytics
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 
 async function trackPageView({ path, title, referrer, user_agent, ip, session_id, user_id }) {
     const ipv4 = String(ip || '').match(/(\d{1,3}\.){3}\d{1,3}$/)?.[0];
@@ -574,9 +574,9 @@ async function getPageViewsSummary() {
     };
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
    TALLER Y TICKETS (Repairs)
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 async function getAllRepairsAdmin() {
     const [rows] = await pool.execute(`
         SELECT r.*, u.name as user_name, u.email as user_email
@@ -814,9 +814,9 @@ async function getAdminAppointments({ from, to } = {}) {
     return rows;
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
    ENSAMBLES Y PRODUCTOS (Builds)
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 async function getAllBuildsAdmin() {
     const [rows] = await pool.execute(`
         SELECT p.*, b.build_category, b.performance_tier,
@@ -829,7 +829,7 @@ async function getAllBuildsAdmin() {
     return rows;
 }
 
-// M3 â¬ version publica: nunca expone cost, compare_price, stock_alert, sku.
+// M3 Ã¢Â¬ version publica: nunca expone cost, compare_price, stock_alert, sku.
 // Solo campos seguros para mostrar en /api/builds y la tienda.
 async function getAllBuildsPublic() {
     const [rows] = await pool.execute(`
@@ -891,9 +891,9 @@ async function insertBuildAdmin({ title, description, price, build_category, per
 }
 
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
    USER REPAIRS - Tickets del cliente
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 async function getUserRepairs(userId) {
     const [rows] = await pool.execute(`
         SELECT r.*, u.name as user_name, u.email as user_email
@@ -939,9 +939,9 @@ module.exports = {
     getAllBuildsPublic,
     insertBuildAdmin,
     logAdminAction,
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-       PAGE VIEWS â¬ Analytics
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+       PAGE VIEWS Ã¢Â¬ Analytics
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     trackPageView,
     getPageViewsDaily,
     getPageViewsTop,

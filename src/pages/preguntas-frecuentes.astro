@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../lib/schema';
 
 const faqCategories = [
   {
@@ -11,19 +12,19 @@ const faqCategories = [
     items: [
       {
         question: '¿El diagnóstico tiene costo?',
-        answer: 'El diagnóstico inicial es gratis y sin compromiso. Revisamos el equipo, explicamos la falla real y te damos costo antes de reparar.',
+        answer: 'El diagnóstico inicial es gratis y sin compromiso. Revisamos el equipo, confirmamos la falla real y te damos un costo antes de reparar. No cambiamos piezas ni hacemos procesos delicados sin tu autorización.',
       },
       {
         question: '¿Cuánto tarda una reparación?',
-        answer: 'Depende de la falla. Un mantenimiento puede tardar de 2 a 4 horas; reparaciones con piezas, placa o pruebas de estabilidad pueden tomar de 24 a 72 horas.',
+        answer: 'Depende de la falla y de si requiere refacción. Un mantenimiento puede quedar el mismo día; una reparación con placa, pantalla, teclado, batería o pruebas de estabilidad suele tomar de 24 a 72 horas. Siempre te damos tiempo estimado antes de iniciar.',
       },
       {
         question: '¿Me avisan antes de cambiar piezas?',
-        answer: 'Sí. No cambiamos piezas sin autorización. Primero enviamos diagnóstico, costo, tiempo estimado y condiciones de garantía.',
+        answer: 'Sí. Primero enviamos diagnóstico, costo, tiempo estimado y condiciones de garantía. Si encontramos una falla adicional durante la revisión, te avisamos por WhatsApp antes de continuar.',
       },
       {
         question: '¿Puedo llevar mi propio repuesto?',
-        answer: 'Sí, podemos instalarlo si es compatible. La garantía aplicaría sobre la mano de obra, no sobre la pieza que trae el cliente.',
+        answer: 'Sí, podemos instalarlo si es compatible con el modelo exacto del equipo. En ese caso la garantía aplica sobre la mano de obra, pero no sobre la pieza que trae el cliente.',
       },
     ],
   },
@@ -33,19 +34,19 @@ const faqCategories = [
     items: [
       {
         question: '¿Reparan laptops que no encienden?',
-        answer: 'Sí. Revisamos cargador, centro de carga, batería, placa, RAM, SSD, BIOS y líneas principales antes de cotizar.',
+        answer: 'Sí. Revisamos cargador, centro de carga, batería, placa, RAM, SSD, BIOS y líneas principales de energía. La idea es diagnosticar antes de cambiar piezas para evitar gastos innecesarios.',
       },
       {
         question: '¿Cambian pantallas, teclados y baterías?',
-        answer: 'Sí. Trabajamos pantallas, teclados, baterías, bisagras, carcasas, centros de carga, ventiladores, SSD y RAM según modelo.',
+        answer: 'Sí. Trabajamos pantallas, teclados, baterías, bisagras, carcasas, centros de carga, ventiladores, SSD y RAM según el modelo. Antes de cotizar confirmamos compatibilidad y disponibilidad de la refacción.',
       },
       {
         question: '¿Mi información se borra durante la reparación?',
-        answer: 'No tocamos archivos personales salvo que el servicio requiera respaldo, clonado o formateo. En ese caso pedimos autorización antes.',
+        answer: 'No tocamos archivos personales en diagnósticos, limpiezas o cambios de piezas. Si el servicio requiere respaldo, clonado, recuperación de datos o formateo, pedimos autorización antes de hacerlo.',
       },
       {
         question: '¿Qué hago si mi laptop se calienta mucho?',
-        answer: 'Conviene revisarla. En Cancún el calor, polvo y humedad saturan ventiladores y pasta térmica más rápido que en climas secos.',
+        answer: 'Conviene revisarla pronto. En Cancún el calor, polvo, humedad y salitre saturan ventiladores y pasta térmica más rápido que en climas secos. Una limpieza preventiva puede evitar apagados, lentitud y daño de placa.',
       },
     ],
   },
@@ -55,19 +56,19 @@ const faqCategories = [
     items: [
       {
         question: '¿Arman PC gamer si yo compro las piezas?',
-        answer: 'Sí. Podemos ensamblar, ordenar cableado, actualizar BIOS, instalar Windows, configurar drivers y hacer pruebas de temperatura.',
+        answer: 'Sí. Podemos ensamblar, ordenar cableado, actualizar BIOS, instalar Windows, configurar drivers y hacer pruebas de temperatura. También revisamos compatibilidad de fuente, gabinete, tarjeta madre, RAM y GPU antes del armado.',
       },
       {
         question: '¿Qué incluye el mantenimiento Pro Gamer?',
-        answer: 'Incluye limpieza profunda, revisión térmica, pasta de alto rendimiento, mantenimiento de GPU compatible y pruebas bajo carga.',
+        answer: 'Incluye limpieza profunda, revisión térmica, pasta de alto rendimiento, mantenimiento de GPU compatible y pruebas bajo carga. Es recomendado para equipos que juegan muchas horas, hacen streaming o trabajan con render y edición.',
       },
       {
         question: '¿Instalan SSD, RAM o tarjeta gráfica?',
-        answer: 'Sí. Verificamos compatibilidad de placa, fuente, gabinete, BIOS y temperatura antes de instalar.',
+        answer: 'Sí. Verificamos compatibilidad de placa, fuente, gabinete, BIOS y temperatura antes de instalar. Si vas a migrar de disco duro a SSD, también podemos clonar el sistema para conservar archivos y programas cuando sea viable.',
       },
       {
         question: '¿Hacen optimización para más FPS?',
-        answer: 'Sí. Optimizamos Windows, drivers, inicio, energía, latencia y configuración de juegos cuando el hardware lo permite.',
+        answer: 'Sí. Optimizamos Windows, drivers, inicio, energía, latencia y configuración de juegos cuando el hardware lo permite. No prometemos FPS irreales: primero revisamos temperaturas, cuello de botella y estado del sistema.',
       },
     ],
   },
@@ -77,19 +78,19 @@ const faqCategories = [
     items: [
       {
         question: '¿Qué es la sulfatación?',
-        answer: 'Es corrosión en pistas, conectores y componentes por humedad, salitre, líquido o residuos. En Cancún es común por el clima costero.',
+        answer: 'Es corrosión en pistas, conectores y componentes por humedad, salitre, líquido o residuos. En Cancún es común por el clima costero, sobre todo en equipos cerca de ventanas, playa, aire acondicionado o zonas húmedas.',
       },
       {
         question: '¿Qué hago si se mojó mi equipo?',
-        answer: 'Apágalo, no lo cargues, no uses secadora y tráelo a revisión. Encenderlo con humedad puede provocar corto y daño de placa.',
+        answer: 'Apágalo, no lo cargues, no uses secadora y no intentes encenderlo para probar. Lo correcto es abrirlo, desconectar energía interna, limpiar residuos y revisar corrosión antes de aplicar corriente.',
       },
       {
         question: '¿La antisulfatación garantiza que quedará como nuevo?',
-        answer: 'No se promete eso cuando hay corrosión. Primero buscamos detener avance, recuperar funcionamiento, rescatar datos y explicar el riesgo real.',
+        answer: 'No se promete eso cuando hay corrosión. Primero buscamos detener el avance, recuperar funcionamiento, rescatar datos si aplica y explicarte el riesgo real. Si la placa está muy dañada, te lo decimos antes de invertir más.',
       },
       {
         question: '¿Cada cuánto conviene dar mantenimiento en Cancún?',
-        answer: 'Para equipos de uso diario recomendamos cada 6 a 8 meses. Si está cerca de playa, ventana, humedad o polvo, puede necesitarse antes.',
+        answer: 'Para equipos de uso diario recomendamos revisión cada 6 a 8 meses. Si el equipo está cerca de playa, humedad, polvo, mascotas o trabaja muchas horas, puede necesitar mantenimiento antes.',
       },
     ],
   },
@@ -99,19 +100,19 @@ const faqCategories = [
     items: [
       {
         question: '¿Reparan celulares e iPhone?',
-        answer: 'Sí. Revisamos pantalla, batería, cámara, centro de carga, micrófono, audio, software y daño por líquido.',
+        answer: 'Sí. Revisamos pantalla, batería, cámara, centro de carga, micrófono, bocina, software y daño por líquido. Antes de cambiar piezas confirmamos si la falla viene de refacción, flex, humedad, placa o configuración.',
       },
       {
         question: '¿Reparan PS5, Xbox y Nintendo Switch?',
-        answer: 'Sí. Atendemos sobrecalentamiento, HDMI, limpieza profunda, pasta térmica, ruido, apagados y controles con drift.',
+        answer: 'Sí. Atendemos sobrecalentamiento, HDMI, limpieza profunda, pasta térmica, ruido, apagados y controles con drift. Cada consola se revisa por modelo porque PS5, Xbox y Switch tienen procesos térmicos diferentes.',
       },
       {
         question: '¿Qué es joystick drift?',
-        answer: 'Es cuando el control detecta movimiento aunque no lo estés tocando. Se revisa el módulo analógico y se reemplaza si está dañado.',
+        answer: 'Es cuando el control detecta movimiento aunque no estés tocando la palanca. Revisamos suciedad, desgaste del módulo analógico, flex y placa del control para decidir si conviene limpieza, ajuste o reemplazo.',
       },
       {
         question: '¿También ven tablets o iPad?',
-        answer: 'Sí. Podemos revisar pantalla, batería, puerto de carga, software y daño por líquido en tablets compatibles.',
+        answer: 'Sí. Podemos revisar pantalla, batería, puerto de carga, software y daño por líquido en tablets compatibles. Te pedimos modelo exacto para confirmar disponibilidad de piezas y riesgo de apertura.',
       },
     ],
   },
@@ -121,19 +122,19 @@ const faqCategories = [
     items: [
       {
         question: '¿Instalan Windows con drivers?',
-        answer: 'Sí. Instalamos Windows 10 u 11, drivers, actualizaciones y programas básicos. Si hay datos importantes, cotizamos respaldo antes.',
+        answer: 'Sí. Instalamos Windows 10 u 11, drivers, actualizaciones y programas básicos. Si hay datos importantes, primero cotizamos respaldo o clonado para evitar pérdida de información.',
       },
       {
         question: '¿Quitan virus y programas basura?',
-        answer: 'Sí. Revisamos malware, programas de inicio, extensiones sospechosas, archivos temporales y configuración que afecta rendimiento.',
+        answer: 'Sí. Revisamos malware, programas de inicio, extensiones sospechosas, archivos temporales y configuraciones que afectan rendimiento. También te indicamos qué hábitos o programas estaban causando el problema.',
       },
       {
         question: '¿Recuperan archivos borrados o discos dañados?',
-        answer: 'Sí, primero evaluamos el tipo de daño. La recuperación depende de si la falla es lógica, física o por corrupción avanzada.',
+        answer: 'Sí, primero evaluamos el tipo de daño. La recuperación depende de si la falla es lógica, física o por corrupción avanzada. Si el disco hace ruidos, no conviene seguirlo usando porque puede empeorar.',
       },
       {
         question: '¿Pueden hacer soporte remoto?',
-        answer: 'Sí, para problemas de software, configuración, lentitud, programas, correo y algunas revisiones de Windows.',
+        answer: 'Sí, para problemas de software, configuración, lentitud, programas, correo y algunas revisiones de Windows. Si el caso requiere abrir el equipo o revisar hardware, te indicamos llevarlo o coordinar recolección.',
       },
     ],
   },
@@ -143,19 +144,19 @@ const faqCategories = [
     items: [
       {
         question: '¿Atienden empresas en Cancún?',
-        answer: 'Sí. Atendemos oficinas, hoteles, restaurantes, escuelas y negocios con soporte por lote o póliza mensual.',
+        answer: 'Sí. Atendemos oficinas, hoteles, restaurantes, escuelas y negocios con soporte por lote o póliza mensual. Podemos documentar equipos, fallas, evidencias, recomendaciones y prioridades por área.',
       },
       {
         question: '¿Facturan?',
-        answer: 'Sí. Emitimos CFDI para personas físicas y morales. Solicítalo al cotizar para registrar los datos correctos.',
+        answer: 'Sí. Emitimos CFDI para personas físicas y morales. Solicítalo al cotizar para registrar los datos correctos y evitar retrasos al cerrar el servicio.',
       },
       {
         question: '¿Aceptan tarjeta o transferencia?',
-        answer: 'Sí. Aceptamos efectivo, transferencia y tarjeta según el servicio. Para empresas podemos cotizar condiciones específicas.',
+        answer: 'Sí. Aceptamos efectivo, transferencia y tarjeta según el servicio. Para empresas podemos cotizar condiciones específicas cuando hay varios equipos o mantenimiento recurrente.',
       },
       {
         question: '¿Dan reportes por equipo?',
-        answer: 'Sí. En servicios B2B podemos documentar folio, evidencia, estado inicial, trabajos realizados y recomendaciones.',
+        answer: 'Sí. En servicios B2B podemos documentar folio, evidencia, estado inicial, trabajos realizados, piezas instaladas y recomendaciones preventivas para cada equipo.',
       },
     ],
   },
@@ -165,19 +166,19 @@ const faqCategories = [
     items: [
       {
         question: '¿Dónde están ubicados?',
-        answer: 'Estamos en Haciendas, Cancún, Quintana Roo 77539. Trabajamos con cita para recibir tu equipo con orden y seguimiento.',
+        answer: 'Estamos en Haciendas, Cancún, Quintana Roo 77539. Trabajamos con cita para recibir tu equipo con orden, folio y seguimiento por WhatsApp.',
       },
       {
         question: '¿Tienen recolección y entrega?',
-        answer: 'Sí. Podemos coordinar recolección y entrega en Cancún según zona, horario y disponibilidad.',
+        answer: 'Sí. Podemos coordinar recolección y entrega en Cancún según zona, horario y tipo de equipo. Para reparaciones delicadas te orientamos antes de moverlo para evitar más daño.',
       },
       {
         question: '¿Qué cubre la garantía?',
-        answer: 'Cubre mano de obra y piezas instaladas según el servicio. No cubre golpes, líquido posterior, variaciones eléctricas o manipulación externa.',
+        answer: 'Cubre mano de obra y piezas instaladas según el servicio realizado. No cubre golpes, líquido posterior, variaciones eléctricas, manipulación externa o fallas en componentes no intervenidos.',
       },
       {
         question: '¿Cómo activo mi garantía?',
-        answer: 'Contáctanos por WhatsApp con tu folio, ticket o datos del servicio. Revisamos el caso y te indicamos el siguiente paso.',
+        answer: 'Contáctanos por WhatsApp con tu folio, ticket o datos del servicio. Revisamos el caso, validamos la intervención anterior y te indicamos el siguiente paso.',
       },
     ],
   },
@@ -187,15 +188,15 @@ const faqCategories = [
     items: [
       {
         question: 'Do you speak English?',
-        answer: 'Yes. We can assist tourists, digital nomads and expats in English by WhatsApp.',
+        answer: 'Yes. We can assist tourists, digital nomads and expats in English by WhatsApp. We can explain the diagnosis, cost and repair timing before starting the service.',
       },
       {
         question: 'Do you offer hotel pickup?',
-        answer: 'Yes. We can coordinate pickup and delivery in the Hotel Zone depending on schedule and location.',
+        answer: 'Yes. We can coordinate pickup and delivery in the Hotel Zone depending on schedule, location and device type. Send your hotel area and device model by WhatsApp.',
       },
       {
         question: 'Can you repair laptops for travelers?',
-        answer: 'Yes. We handle diagnosis, Windows issues, charging problems, overheating, SSD upgrades and emergency data backup.',
+        answer: 'Yes. We handle diagnosis, Windows issues, charging problems, overheating, SSD upgrades and emergency data backup for travelers in Cancun.',
       },
     ],
   },
@@ -203,15 +204,11 @@ const faqCategories = [
 
 const allFaqs = faqCategories.flatMap((category) => category.items);
 const schema = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: allFaqs.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
-    })),
-  },
+  buildBreadcrumbSchema([
+    { label: 'Inicio', href: '/' },
+    { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
+  ]),
+  buildFAQSchema(allFaqs),
 ];
 ---
 
@@ -237,7 +234,7 @@ const schema = [
       <div class="faq-search-wrap" style="position:relative;">
         <span class="faq-search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
         <input type="search" id="faq-search-input" placeholder="Busca: laptop, garantía, humedad, domicilio, empresa..." autocomplete="off" aria-label="Buscar preguntas frecuentes">
-        <span id="faq-result-count" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:0.8rem; color:#94a3b8; pointer-events:none; display:none;"></span>
+        <span id="faq-result-count" aria-live="polite" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:0.8rem; color:#64748b; pointer-events:none; display:none;"></span>
       </div>
     </div>
   </div>
@@ -251,12 +248,12 @@ const schema = [
           </h2>
           <div class="faq-page-grid">
             {category.items.map((item, itemIndex) => (
-              <div class="faq-item" id={`faq-${categoryIndex}-${itemIndex}`} data-faq-item>
-                <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+              <div class="faq-item" id={`faq-${categoryIndex}-${itemIndex}`} data-faq-item data-faq-text={`${item.question} ${item.answer}`}>
+                <button class="faq-question" type="button" aria-expanded="false" aria-controls={`faq-answer-${categoryIndex}-${itemIndex}`} data-faq-question onclick="window.toggleFaq && window.toggleFaq(this)">
                   <span>{item.question}</span>
-                  <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                  <i class="fa-solid fa-chevron-down faq-chevron" aria-hidden="true"></i>
                 </button>
-                <div class="faq-answer" aria-hidden="true">
+                <div class="faq-answer" id={`faq-answer-${categoryIndex}-${itemIndex}`} aria-hidden="true">
                   <div class="faq-answer-inner">{item.answer}</div>
                 </div>
               </div>
@@ -284,43 +281,91 @@ const schema = [
     </div>
   </section>
 
-  <Footer />
-</Base>
+  <script is:inline>
+    (function () {
+      const input = document.getElementById('faq-search-input');
+      const resultCount = document.getElementById('faq-result-count');
+      const emptyState = document.getElementById('faq-no-results');
+      const categoryBlocks = Array.from(document.querySelectorAll('[data-faq-category]'));
+      const faqItems = Array.from(document.querySelectorAll('[data-faq-item]'));
 
-<script is:inline>
-  (function () {
-    const input = document.getElementById('faq-search-input');
-    const resultCount = document.getElementById('faq-result-count');
-    const emptyState = document.getElementById('faq-no-results');
-    const categoryBlocks = Array.from(document.querySelectorAll('[data-faq-category]'));
-    const faqItems = Array.from(document.querySelectorAll('[data-faq-item]'));
+      function normalize(value) {
+        return String(value || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
 
-    function normalize(value) {
-      return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
+      function closeFaq(item) {
+        const button = item.querySelector('[data-faq-question]');
+        const answer = item.querySelector('.faq-answer');
+        item.classList.remove('faq-item--open');
+        button?.setAttribute('aria-expanded', 'false');
+        answer?.setAttribute('aria-hidden', 'true');
+        if (answer) answer.style.maxHeight = '0px';
+      }
 
-    function filterFaqs() {
-      const query = normalize(input.value.trim());
-      let visible = 0;
+      function openFaq(item) {
+        const button = item.querySelector('[data-faq-question]');
+        const answer = item.querySelector('.faq-answer');
+        item.classList.add('faq-item--open');
+        button?.setAttribute('aria-expanded', 'true');
+        answer?.setAttribute('aria-hidden', 'false');
+        if (answer) answer.style.maxHeight = `${answer.scrollHeight}px`;
+      }
+
+      function toggleFaq(button) {
+        const item = button.closest('[data-faq-item]');
+        if (!item) return;
+        if (item.classList.contains('faq-item--open')) closeFaq(item);
+        else openFaq(item);
+      }
+
+      window.toggleFaq = toggleFaq;
 
       faqItems.forEach((item) => {
-        const matches = !query || normalize(item.textContent || '').includes(query);
-        item.style.display = matches ? '' : 'none';
-        if (matches) visible += 1;
+        const answer = item.querySelector('.faq-answer');
+        if (answer) answer.style.maxHeight = '0px';
       });
 
-      categoryBlocks.forEach((block) => {
-        const hasVisibleItem = Array.from(block.querySelectorAll('[data-faq-item]')).some((item) => item.style.display !== 'none');
-        block.style.display = hasVisibleItem ? '' : 'none';
-      });
+      function filterFaqs() {
+        const query = normalize(input?.value || '');
+        let visible = 0;
 
-      if (resultCount) {
-        resultCount.style.display = query ? 'block' : 'none';
-        resultCount.textContent = `${visible}`;
+        faqItems.forEach((item) => {
+          const searchableText = normalize(item.getAttribute('data-faq-text') || item.textContent || '');
+          const matches = !query || searchableText.includes(query);
+          item.hidden = !matches;
+          item.style.display = matches ? '' : 'none';
+          if (!matches) closeFaq(item);
+          if (matches) visible += 1;
+        });
+
+        categoryBlocks.forEach((block) => {
+          const hasVisibleItem = Array.from(block.querySelectorAll('[data-faq-item]')).some((item) => !item.hidden);
+          block.hidden = !hasVisibleItem;
+          block.style.display = hasVisibleItem ? '' : 'none';
+        });
+
+        if (resultCount) {
+          resultCount.style.display = query ? 'block' : 'none';
+          resultCount.textContent = `${visible} ${visible === 1 ? 'resultado' : 'resultados'}`;
+        }
+        if (emptyState) emptyState.style.display = visible === 0 ? 'block' : 'none';
       }
-      if (emptyState) emptyState.style.display = visible === 0 ? 'block' : 'none';
-    }
 
-    input?.addEventListener('input', filterFaqs);
-  })();
-</script>
+      input?.addEventListener('input', filterFaqs);
+      window.addEventListener('resize', () => {
+        faqItems.forEach((item) => {
+          if (item.classList.contains('faq-item--open')) openFaq(item);
+        });
+      });
+
+      filterFaqs();
+    })();
+  </script>
+
+  <Footer />
+</Base>

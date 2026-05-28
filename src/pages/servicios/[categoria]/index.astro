@@ -10,6 +10,7 @@ import Breadcrumb from '../../../components/Breadcrumb.astro';
 import CommentsSection from '../../../components/CommentsSection.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
+import { buildBreadcrumbSchema, buildServiceSchema } from '../../../lib/schema';
 
 export function getStaticPaths() {
   return SERVICE_CATEGORIES.map((category) => ({
@@ -28,15 +29,21 @@ const featured = category.services.slice(0, 3);
 const remaining = category.services.slice(3);
 
 const schema = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
-      { '@type': 'ListItem', position: 2, name: 'Servicios', item: 'https://pixon.com.mx/servicios' },
-      { '@type': 'ListItem', position: 3, name: category.title, item: canonical },
-    ],
-  },
+  buildBreadcrumbSchema([
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: category.title, href: `/servicios/${category.slug}` },
+  ]),
+  buildServiceSchema({
+    service: {
+      label: `Reparación de ${category.title} en Cancún`,
+      slug: category.slug,
+      intro: description,
+    },
+    category,
+    url: canonical,
+    description,
+  }),
 ];
 ---
 

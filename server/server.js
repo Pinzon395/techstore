@@ -1,10 +1,10 @@
 /**
  * ============================================================
- *  server/server.js  â¬ API Express + MariaDB + Auth
+ *  server/server.js  Ã¢Â¬ API Express + MariaDB + Auth
  * ============================================================
  *
  *  Migrado a MariaDB (mysql2/promise pool) + express-mysql-session.
- *  Las funciones de DB son async â¬ todos los handlers usan await.
+ *  Las funciones de DB son async Ã¢Â¬ todos los handlers usan await.
  * ============================================================
  */
 
@@ -134,9 +134,9 @@ function isTrustedRequestOrigin(req) {
     }
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-   BOOTSTRAP â¬ todo el setup que necesita la DB lista va dentro
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+/* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+   BOOTSTRAP Ã¢Â¬ todo el setup que necesita la DB lista va dentro
+Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 async function bootstrap() {
     await initDB();
 
@@ -168,11 +168,11 @@ async function bootstrap() {
         }
     });
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
        MIDDLEWARES GLOBALES
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
 
-    // SECURITY-2 (M1+C2) â¬ Helmet con CSP pragmatica.
+    // SECURITY-2 (M1+C2) Ã¢Â¬ Helmet con CSP pragmatica.
     // El sitio tiene 207+ inline event handlers (onclick=...) y multiples
     // <script> inline. Refactorizar todo a addEventListener es un proyecto
     // aparte, asi que CSP usa 'unsafe-inline' para script-src y style-src,
@@ -212,12 +212,28 @@ async function bootstrap() {
     const rootPath = path.join(__dirname, '..');
     const distPath = path.join(__dirname, '../dist');
 
+    function setUtf8StaticHeaders(res, filePath) {
+        if (/\.html?$/i.test(filePath)) {
+            res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+        } else if (/\.css$/i.test(filePath)) {
+            res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+        } else if (/\.(js|mjs)$/i.test(filePath)) {
+            res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+        } else if (/\.json$/i.test(filePath)) {
+            res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        } else if (/\.xml$/i.test(filePath)) {
+            res.setHeader('Content-Type', 'application/xml; charset=UTF-8');
+        } else if (/\.txt$/i.test(filePath)) {
+            res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+        }
+    }
+
     // WebP content negotiation: si el browser acepta WebP y existe .webp, servirlo
     app.use((req, res, next) => {
         const pathname = req.path;
         if (/\.(jpe?g|png)$/i.test(pathname) && req.accepts('image/webp')) {
             const webpPath = pathname.replace(/\.(jpe?g|png)$/i, '.webp');
-            // Tras cutover a Astro, dev y prod sirven de dist/ â¬ un solo path.
+            // Tras cutover a Astro, dev y prod sirven de dist/ Ã¢Â¬ un solo path.
             const fullPath = path.join(distPath, webpPath);
             if (fs.existsSync(fullPath)) {
                 req.url = webpPath;
@@ -240,7 +256,7 @@ async function bootstrap() {
     app.use('/api/track/view', express.text({ type: '*/*', limit: '10kb' }));
     app.use(express.json({ limit: '10kb' }));
 
-    // SECURITY-2 â¬ bloquear /admin* a no-admins ANTES de cualquier static.
+    // SECURITY-2 Ã¢Â¬ bloquear /admin* a no-admins ANTES de cualquier static.
     // Sin este pre-gate, /admin/admin.html y /admin/ se servÃ­an sin auth.
     // Hooks de auth aÃºn no existen aquÃ­ (passport va mÃ¡s abajo) por lo que
     // re-evaluamos la sesiÃ³n cuando ya estÃ© inicializada (req.isAuthenticated
@@ -268,7 +284,13 @@ async function bootstrap() {
     // Para ver cambios: correr `npm run build` (o `npm run build:astro` solo).
     const isProd = process.env.NODE_ENV === 'production';
     if (!isProd) {
-        app.use(staticSkipAdmin(express.static(distPath, { index: false, maxAge: 0, etag: false, redirect: false })));
+        app.use(staticSkipAdmin(express.static(distPath, {
+            index: false,
+            maxAge: 0,
+            etag: false,
+            redirect: false,
+            setHeaders: setUtf8StaticHeaders
+        })));
     } else {
         app.use(staticSkipAdmin(express.static(distPath, {
             maxAge: '1y',
@@ -276,6 +298,7 @@ async function bootstrap() {
             index: false,
             redirect: false,
             setHeaders: (res, filePath) => {
+                setUtf8StaticHeaders(res, filePath);
                 const p = filePath.replace(/\\/g, '/');
                 if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/.test(p)) {
                     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
@@ -294,9 +317,9 @@ async function bootstrap() {
             const file = path.join(distPath, 'robots.txt');
             res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
             if (fs.existsSync(file)) {
-                res.type('text/plain').sendFile(file);
+                res.type('text/plain; charset=UTF-8').sendFile(file);
             } else {
-                res.type('text/plain').send('User-agent: *\nAllow: /\n\nSitemap: https://pixon.com.mx/sitemap.xml\n');
+                res.type('text/plain; charset=UTF-8').send('User-agent: *\nAllow: /\n\nSitemap: https://pixon.com.mx/sitemap.xml\n');
             }
         });
 
@@ -304,13 +327,13 @@ async function bootstrap() {
             const file = path.join(distPath, 'sitemap.xml');
             res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
             if (fs.existsSync(file)) {
-                res.type('application/xml').sendFile(file);
+                res.type('application/xml; charset=UTF-8').sendFile(file);
             } else {
                 res.status(404).send('Sitemap not found');
             }
         });
 
-    // M2 â¬ CORS con metodos completos
+    // M2 Ã¢Â¬ CORS con metodos completos
     app.use(cors({
         origin: Array.from(trustedOrigins),
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -318,7 +341,7 @@ async function bootstrap() {
         credentials: true
     }));
 
-    // SECURITY-2 (B2) â¬ Rate-limit. Protege OAuth callback de brute-force
+    // SECURITY-2 (B2) Ã¢Â¬ Rate-limit. Protege OAuth callback de brute-force
     // y endpoints publicos de spam.
     const authLimiter = createLimiter({
         windowMs: 10 * 60 * 1000,    // 10 min
@@ -362,10 +385,10 @@ async function bootstrap() {
     app.use('/auth/', authLimiter);
     app.use('/api/admin', adminMutationLimiter);
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
        SESIONES + PASSPORT
        (usa la tabla `sessions` que ya creÃ³ 01-schema.sql)
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.set('trust proxy', 1);
 
     app.use(session({
@@ -378,7 +401,7 @@ async function bootstrap() {
         resave: false,
         saveUninitialized: false,
         cookie: {
-            // M1 â¬ secure dinÃ¡mica. En prod Cloudflare entrega HTTPS y trust proxy=1
+            // M1 Ã¢Â¬ secure dinÃ¡mica. En prod Cloudflare entrega HTTPS y trust proxy=1
             // ya hace que Express vea X-Forwarded-Proto correctamente.
             secure:   'auto',
             httpOnly: true,
@@ -430,12 +453,12 @@ async function bootstrap() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-       M8 â¬ CSRF mÃ­nimo: cualquier request que muta estado debe
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+       M8 Ã¢Â¬ CSRF mÃ­nimo: cualquier request que muta estado debe
        traer header X-Requested-With:fetch. Esto bloquea CSRF clÃ¡sico
        basado en formularios cross-site (no pueden setear ese header
        sin pasar por preflight CORS).
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.use((req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
         if (req.path.startsWith('/auth/')) return next();
@@ -452,9 +475,9 @@ async function bootstrap() {
         next();
     });
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-       AUTORIZACIÃN
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+       AUTORIZACIÃ“N
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     function requireAuth(req, res, next) {
         if (req.isAuthenticated()) return next();
         res.status(401).json({ error: 'No autorizado' });
@@ -465,7 +488,7 @@ async function bootstrap() {
         res.status(403).json({ error: 'Prohibido' });
     }
 
-    // SECURITY-2 (M2) â¬ gate del HTML del panel admin a nivel servidor.
+    // SECURITY-2 (M2) Ã¢Â¬ gate del HTML del panel admin a nivel servidor.
     // Antes la proteccion era solo client-side (admin.js mostraba "Acceso
     // Denegado"). Ahora ni siquiera se sirve el HTML a no-admins.
     function gateAdminPage(req, res, next) {
@@ -507,7 +530,7 @@ async function bootstrap() {
         });
     }
 
-    // SECURITY-3 (M6) â¬ wrapper que extrae datos del req para admin_logs.
+    // SECURITY-3 (M6) Ã¢Â¬ wrapper que extrae datos del req para admin_logs.
     // Llamar despues de la mutacion: audit(req, 'delete', 'comment', id)
     function audit(req, action, entity, entity_id, diff) {
         return logAdminAction({
@@ -530,9 +553,9 @@ async function bootstrap() {
             .replace(/'/g, '&#39;');
     }
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
        AUTH
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.get('/auth/google', requireGoogleOAuthConfigured, (req, res, next) => {
         const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '';
         if (returnTo.startsWith('/') && !returnTo.startsWith('//')) {
@@ -541,7 +564,7 @@ async function bootstrap() {
         passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
     });
 
-    // SECURITY-2 (M5) â¬ regenerar la sesion previene session fixation:
+    // SECURITY-2 (M5) Ã¢Â¬ regenerar la sesion previene session fixation:
     // un atacante no puede preparar una cookie y heredarla autenticada.
     app.get('/auth/google/callback', requireGoogleOAuthConfigured, (req, res, next) => {
         passport.authenticate('google', (err, user, info) => {
@@ -607,10 +630,10 @@ async function bootstrap() {
 
     app.post('/api/me/profile', profileLimiter, requireAuth, ah(async (req, res) => {
         const { phone } = req.body;
-        // M7 â¬ validar phone con regex (10-15 digitos, opcional + al inicio)
+        // M7 Ã¢Â¬ validar phone con regex (10-15 digitos, opcional + al inicio)
         const cleanedPhone = cleanPhone(phone);
         if (!/^\+?\d{10,15}$/.test(cleanedPhone)) {
-            return res.status(400).json({ error: 'NÃºmero de celular invÃ¡lido (10â¬15 dÃ­gitos, opcional + al inicio).' });
+            return res.status(400).json({ error: 'NÃºmero de celular invÃ¡lido (10Ã¢Â¬15 dÃ­gitos, opcional + al inicio).' });
         }
 
         const success = await updateUserProfile(req.user.id, { phone: cleanedPhone });
@@ -622,9 +645,9 @@ async function bootstrap() {
         }
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-       API PÃaBLICA
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+       API PÃšBLICA
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.use('/api', createHealthRoutes({ getClientCount: () => sseClients.size }));
 
     app.get('/api/comments', ah(async (_req, res) => {
@@ -633,10 +656,10 @@ async function bootstrap() {
         res.json(comments);
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-       GOOGLE PLACES API â¬ ReseÃ±as reales de Google Maps
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+       GOOGLE PLACES API Ã¢Â¬ ReseÃ±as reales de Google Maps
        Cacheado 1h en memoria (Places API es billable, ~$17/1000 calls)
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     const googleReviewsCache = { data: null, expires: 0 };
     const GOOGLE_REVIEWS_TTL = 60 * 60 * 1000; // 1 hora
 
@@ -728,7 +751,7 @@ async function bootstrap() {
     }));
 
     app.get('/api/comments/stream', (req, res) => {
-        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Content-Type', 'text/event-stream; charset=UTF-8');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('X-Accel-Buffering', 'no');
@@ -787,16 +810,16 @@ async function bootstrap() {
 
         if (errors.length) return res.status(400).json({ errors });
 
-        // M4 â¬ guardar user_id ademas de email para no perder trazabilidad
+        // M4 Ã¢Â¬ guardar user_id ademas de email para no perder trazabilidad
         const user_id    = req.user?.id    || null;
         const user_email = req.user?.email || null;
         const created = await insertComment({ name: cleanName, stars: cleanStars, text: cleanComment, user_id, user_email });
         res.status(201).json({ success: true, message: 'Comentario enviado para revisiÃ³n.', comment: created });
     }));
 
-    // â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"
-    // TICKETS â¬ Crear ticket de servicio con auth
-    // â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"â"
+    // ---------------------------------------------------------------
+    // TICKETS Ã¢Â¬ Crear ticket de servicio con auth
+    // ---------------------------------------------------------------
     app.get('/api/appointments/config', ah(async (_req, res) => {
         res.set('Cache-Control', 'no-store');
         res.json(await getAppointmentConfig());
@@ -926,15 +949,15 @@ async function bootstrap() {
         res.json({ success: true });
     }));
 
-    // M3 â¬ endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
+    // M3 Ã¢Â¬ endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
     app.get('/api/builds', ah(async (_req, res) => {
         const builds = await getAllBuildsPublic();
         res.json(builds);
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-        ANALYTICS â¬ Page View Tracking
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+        ANALYTICS Ã¢Â¬ Page View Tracking
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.post('/api/track/view', trackingLimiter, (req, res) => {
         const payload = typeof req.body === 'string'
             ? (() => {
@@ -961,9 +984,9 @@ async function bootstrap() {
         res.json({ ok: true });
     });
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-        PANEL DE ADMINISTRACIÃN
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
+        PANEL DE ADMINISTRACIÃ“N
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.get('/api/admin/users', requireAdmin, ah(async (_req, res) => {
         const users = await getAllUsersAdmin();
         res.json(users);
@@ -1085,7 +1108,7 @@ async function bootstrap() {
     }));
 
     app.get('/api/admin/comments/stream', requireAdmin, (req, res) => {
-        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Content-Type', 'text/event-stream; charset=UTF-8');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('X-Accel-Buffering', 'no');
@@ -1137,9 +1160,9 @@ async function bootstrap() {
         res.json({ success: true });
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
         ADMIN ANALYTICS
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.get('/api/admin/analytics/summary', requireAdmin, ah(async (_req, res) => {
         res.json(await getPageViewsSummary());
     }));
@@ -1167,11 +1190,11 @@ async function bootstrap() {
         res.json(await getPageViewsTop(limit, days));
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
         ARCHIVOS ESTATICOS Y RUTAS HTML
         Tras el cutover Astro, dev y prod sirven el MISMO Ã¡rbol dist/.
         Por eso la tabla de rutas y el handler son Ãºnicos.
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     {
         // Las pÃ¡ginas Astro emiten archivos planos en dist/<ruta>.html
         // (build.format = 'file' en astro.config.ts). Las Ãºnicas pÃ¡ginas
@@ -1214,7 +1237,7 @@ async function bootstrap() {
             '/preguntas-frecuentes':        'preguntas-frecuentes.html',
             '/privacidad':                  'privacidad.html',
             '/garantia':                    'garantia.html',
-            // VISTAS DE PRUEBAS â¬ no listadas en sitemap, pero sirven con HTTP 200
+            // VISTAS DE PRUEBAS Ã¢Â¬ no listadas en sitemap, pero sirven con HTTP 200
             '/test-navbar-3':               'test-navbar-3.html',
             // Hub general de servicios
             '/servicios':                   'servicios/index.html',
@@ -1242,13 +1265,13 @@ async function bootstrap() {
         legacyRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
-        // M6 â¬ canonicaliza /b2b -> /B2B (Preferencia del usuario por MayÃºsculas)
+        // M6 Ã¢Â¬ canonicaliza /b2b -> /B2B (Preferencia del usuario por MayÃºsculas)
         app.get('/b2b', (req, res, next) => {
             if (req.path === '/b2b') return res.redirect(301, '/B2B');
             next();
         });
 
-        // SECURITY-2 (M2) â¬ gate del HTML admin antes del catch-all.
+        // SECURITY-2 (M2) Ã¢Â¬ gate del HTML admin antes del catch-all.
         // Acepta /admin y /admin/ (con trailing slash) y bloquea acceso directo
         // a /admin/admin.html (que el static middleware servirÃ­a sin gate).
         app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, (_req, res) => {
@@ -1305,9 +1328,9 @@ async function bootstrap() {
         });
     }
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
        MANEJO DE ERRORES (handlers async sin catch caen aquÃ­)
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     app.use((req, res, next) => {
         if (req.path.startsWith('/api') || req.path.startsWith('/auth')) {
             return res.status(404).json({
@@ -1322,9 +1345,9 @@ async function bootstrap() {
 
     app.use(errorHandler);
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬
        ARRANCAR
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬Ã¢Â¬ */
     const server = app.listen(PORT, () => {
         const mode = process.env.NODE_ENV || 'development';
         console.log(`

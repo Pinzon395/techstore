@@ -1,4 +1,4 @@
-﻿---
+---
 import Base from '../../../layouts/Base.astro';
 import Navbar from '../../../components/Navbar.astro';
 import Footer from '../../../components/Footer.astro';
@@ -14,6 +14,7 @@ import CambioBateriaView from '../../../components/views/CambioBateriaView.astro
 import PcDiagnosticView from '../../../components/views/PcDiagnosticView.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
+import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
 
 export function getStaticPaths() {
   const paths: any[] = [];
@@ -184,45 +185,10 @@ const waMessage = encodeURIComponent(isPcFormat
 // Hooks y Bullets
 const hook = service.hook || `Evita fallas costosas y recupera el rendimiento de tu ${category.title}`;
 
-const pageSchema = isLaptopKeyboardReplacement ? [
-  {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Cambio de teclado de laptop en Cancún",
-    "description": description,
-    "serviceType": "Reparación y cambio de teclado de laptop",
-    "url": canonical,
-    "provider": { "@id": "https://pixon.com.mx/#business" },
-    "areaServed": [
-      { "@type": "City", "name": "Cancún" },
-      { "@type": "State", "name": "Quintana Roo" }
-    ],
-    "offers": {
-      "@type": "Offer",
-      "price": "1550",
-      "priceCurrency": "MXN",
-      "availability": "https://schema.org/InStock",
-      "description": "Precio desde. El costo final depende del modelo, distribución, disponibilidad y si el teclado viene integrado al palmrest."
-    }
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": (service.faqs || []).map((item: any) => ({
-      "@type": "Question",
-      "name": item.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": item.answer.replace(/<[^>]*>/g, '')
-      }
-    }))
-  }
-] : [];
-
 // FAQ items con SEO local
 const faqItems = [
   { question: `¿Cuánto tiempo toma este servicio en Cancún?`, answer: `El tiempo depende del tipo de intervención, disponibilidad de refacciones y gravedad de la falla. En servicios simples puede resolverse el mismo día; en reparaciones con piezas o pruebas extendidas puede tomar de 24 a 72 horas. Siempre te damos tiempo estimado antes de iniciar.` },
-  { question: `¿Mi equipo está seguro durante la reparación?`, answer: `Sí. Trabajamos con ?rea antiestática, herramienta adecuada y revisión documentada del estado del equipo. No borramos información ni cambiamos piezas sin autorizaci?n. Si el servicio implica riesgo para datos o componentes, te lo explicamos antes de continuar.` },
+  { question: `¿Mi equipo está seguro durante la reparación?`, answer: `Sí. Trabajamos con área antiestática, herramienta adecuada y revisión documentada del estado del equipo. No borramos información ni cambiamos piezas sin autorización. Si el servicio implica riesgo para datos o componentes, te lo explicamos antes de continuar.` },
   { question: `¿Ofrecen garantía por escrito?`, answer: `Sí, entregamos garantía por escrito según el tipo de servicio y pieza instalada. La garantía cubre la intervención realizada bajo uso normal, pero no aplica por golpes, humedad, manipulación externa, variaciones eléctricas o fallas en piezas no intervenidas.` },
   { question: `¿Qué marcas atienden en Cancún?`, answer: `Trabajamos con marcas comunes como HP, Dell, Lenovo, Asus, Acer, MSI, Apple, PlayStation, Xbox, Nintendo, Epson, Canon, Brother y equipos ensamblados. La compatibilidad final se confirma por modelo, síntoma y disponibilidad de refacciones.` },
   { question: `¿Tienen servicio a domicilio o debo llevar el equipo?`, answer: `Contamos con taller físico en Cancún para diagnósticos y reparaciones que requieren herramienta especializada. En algunos casos podemos coordinar recolección, entrega o visita según zona, disponibilidad y tipo de equipo. Te orientamos por WhatsApp antes de moverlo.` },
@@ -268,8 +234,8 @@ const printerDiagnosticFaqs = [
   { question: `¿Qué incluye el diagnóstico de impresora en Cancún?`, answer: `Revisamos calidad de impresión, bandejas, rodillos, cabezales, cartuchos, tóner, sensores, conexión USB/WiFi, drivers y mensajes de error. El objetivo es identificar la causa real antes de cotizar, porque una impresora que no imprime no siempre necesita tinta.` },
   { question: `?Si mi impresora no imprime siempre necesita tinta o tóner?`, answer: `No necesariamente. Puede ser cola de impresión, driver dañado, cabezal tapado, cartucho no reconocido, chip, rodillos, conexión de red o error interno. Primero hacemos pruebas para evitar que compres insumos que no resolver?n la falla.` },
   { question: `¿Atienden impresoras HP, Epson, Canon y Brother?`, answer: `Sí. Revisamos HP, Epson, Canon, Brother, Samsung, Xerox, Lexmark, Ricoh, Kyocera, Pantum y multifuncionales comunes. También atendemos impresoras de casa, escuela, oficina y negocios en Cancún con alto volumen de impresión.` },
-  { question: `¿Pueden revisar impresoras con atascos de papel?`, answer: `Sí. Revisamos ruta de papel, rodillos, sensores, bandejas, restos de papel y separaci?n de hojas. Si requiere limpieza, ajuste o refacci?n, te lo explicamos antes de avanzar para evitar que el atasco vuelva a repetirse.` },
-  { question: `?También diagnostican impresoras para oficina o empresa?`, answer: `Sí. Podemos revisar equipos de alto uso, multifuncionales y flotillas peque?as para negocios que necesitan impresión estable. También orientamos sobre mantenimiento preventivo, insumos adecuados y fallas repetidas por volumen de trabajo.` },
+  { question: `¿Pueden revisar impresoras con atascos de papel?`, answer: `Sí. Revisamos ruta de papel, rodillos, sensores, bandejas, restos de papel y separación de hojas. Si requiere limpieza, ajuste o refacción, te lo explicamos antes de avanzar para evitar que el atasco vuelva a repetirse.` },
+  { question: `?También diagnostican impresoras para oficina o empresa?`, answer: `Sí. Podemos revisar equipos de alto uso, multifuncionales y flotillas pequeñas para negocios que necesitan impresión estable. También orientamos sobre mantenimiento preventivo, insumos adecuados y fallas repetidas por volumen de trabajo.` },
   { question: `¿Cuánto tarda el diagnóstico?`, answer: `Normalmente se revisa el mismo día o dentro de 24 horas, según carga de trabajo, tipo de impresora y complejidad de la falla. Si hay que hacer pruebas de red, cabezal, sensores o alimentaci?n de papel, te avisamos por WhatsApp antes de reparar.` },
 ];
 
@@ -298,10 +264,10 @@ const printerDiagnosticRelatedServices = [
 
 const printerConnectivityFaqs = [
   { question: `¿Qué incluye la configuración de impresora WiFi en Cancún?`, answer: `Incluye conexión por WiFi, USB o Ethernet, instalación de drivers, configuración de IP cuando aplica, revisión de cola de impresión y prueba real desde los equipos autorizados. También verificamos que la impresora quede visible y estable en la red.` },
-  { question: `¿Pueden conectar mi impresora a laptop, PC y celular?`, answer: `Sí. Podemos configurar impresoras en Windows, Mac, iPhone, Android y equipos compartidos en red, siempre que el modelo sea compatible. Si alg?n dispositivo requiere app, driver especial o permisos de red, lo revisamos durante la instalación.` },
+  { question: `¿Pueden conectar mi impresora a laptop, PC y celular?`, answer: `Sí. Podemos configurar impresoras en Windows, Mac, iPhone, Android y equipos compartidos en red, siempre que el modelo sea compatible. Si algún dispositivo requiere app, driver especial o permisos de red, lo revisamos durante la instalación.` },
   { question: `¿El servicio cuesta $550 MXN?`, answer: `La configuración base inicia en <strong>$550 MXN</strong>. El costo puede cambiar si son varios equipos, red empresarial, IP fija, instalación compleja o si la impresora tiene una falla adicional. Te avisamos antes de hacer trabajos extra.` },
   { question: `¿Qué pasa si la impresora no aparece en la red?`, answer: `Revisamos WiFi, router, IP, driver, cola de impresión, modo de conexión y compatibilidad. Si el problema viene de firmware, tarjeta de red, sistema operativo o falla física de la impresora, te lo explicamos antes de cotizar reparación.` },
-  { question: `?También configuran impresoras para oficina o negocio?`, answer: `Sí. Configuramos impresoras compartidas, equipos administrativos, laptops, m?viles, red local e impresoras de uso diario para negocios en Cancún. También podemos dejar recomendaciones para evitar conflictos de IP o desconexiones recurrentes.` },
+  { question: `?También configuran impresoras para oficina o negocio?`, answer: `Sí. Configuramos impresoras compartidas, equipos administrativos, laptops, móviles, red local e impresoras de uso diario para negocios en Cancún. También podemos dejar recomendaciones para evitar conflictos de IP o desconexiones recurrentes.` },
   { question: `¿Dejan prueba de impresión?`, answer: `Sí. Antes de terminar validamos que la impresora responda desde los equipos configurados y dejamos prueba de impresión o escaneo cuando aplica. No damos por terminado el servicio solo porque aparezca conectada en la lista de dispositivos.` },
 ];
 
@@ -320,11 +286,11 @@ const printerConnectivityRelatedServices = [
 ];
 
 const printerRollersFaqs = [
-  { question: `¿Cuánto cuesta cambiar rodillos de impresora en Cancún?`, answer: `El servicio inicia en <strong>$750 MXN</strong>. El costo final depende del modelo, tipo de rodillo, disponibilidad de refacci?n, desgaste de bandejas y si también requiere limpieza o reparación de sensores. Primero revisamos para confirmar la causa.` },
+  { question: `¿Cuánto cuesta cambiar rodillos de impresora en Cancún?`, answer: `El servicio inicia en <strong>$750 MXN</strong>. El costo final depende del modelo, tipo de rodillo, disponibilidad de refacción, desgaste de bandejas y si también requiere limpieza o reparación de sensores. Primero revisamos para confirmar la causa.` },
   { question: `¿Cómo sé si mi impresora necesita rodillos nuevos?`, answer: `Las señales comunes son que no jala hojas, toma varias al mismo tiempo, marca atasco sin papel atorado, deja la hoja a medias o hace ruido al alimentar. También revisamos bandeja, separador y sensores antes de recomendar cambio.` },
-  { question: `?Cambiar rodillos elimina los atascos de papel?`, answer: `Si la causa son rodillos gastados, sucios o cristalizados, s? puede resolver el problema. Pero antes revisamos ruta de papel, bandeja, sensores y separaci?n de hojas, porque un atasco también puede venir de residuos, humedad o piezas desalineadas.` },
+  { question: `?Cambiar rodillos elimina los atascos de papel?`, answer: `Si la causa son rodillos gastados, sucios o cristalizados, sí puede resolver el problema. Pero antes revisamos ruta de papel, bandeja, sensores y separación de hojas, porque un atasco también puede venir de residuos, humedad o piezas desalineadas.` },
   { question: `¿Atienden impresoras HP, Epson, Canon y Brother?`, answer: `Sí. Revisamos impresoras HP, Epson, Canon, Brother, Samsung, Xerox, Lexmark, Ricoh, Kyocera y modelos de oficina o negocio en Cancún. La disponibilidad de rodillos depende del modelo exacto y versión del equipo.` },
-  { question: `¿Cuánto tarda el cambio de rodillos?`, answer: `Normalmente toma de 2 a 4 días según modelo y disponibilidad de refacci?n. Si solo requiere limpieza, ajuste o retiro de residuos puede resolverse más rápido. Te confirmamos tiempo antes de pedir piezas o desarmar el mecanismo.` },
+  { question: `¿Cuánto tarda el cambio de rodillos?`, answer: `Normalmente toma de 2 a 4 días según modelo y disponibilidad de refacción. Si solo requiere limpieza, ajuste o retiro de residuos puede resolverse más rápido. Te confirmamos tiempo antes de pedir piezas o desarmar el mecanismo.` },
   { question: `¿Dan garantía por el cambio de rodillos?`, answer: `Sí. La garantía aplica sobre la pieza instalada y mano de obra bajo uso normal. No cubre daño por objetos extraños, papel inadecuado, humedad, manipulación externa o fallas en sensores/piezas distintas que no se hayan reparado.` },
 ];
 
@@ -348,7 +314,7 @@ const printerJamsFaqs = [
   { question: `¿Puedo sacar el papel atorado yo mismo?`, answer: `Puedes retirar papel visible con cuidado, sin jalar fuerte ni usar objetos metálicos. Si el papel se rompe, queda dentro o el atasco regresa, conviene revisión para no dañar sensores, rodillos o engranes internos.` },
   { question: `¿Atienden atascos en impresoras HP, Epson, Canon y Brother?`, answer: `Sí. Revisamos HP, Epson, Canon, Brother, Samsung, Xerox, Lexmark, Ricoh, Kyocera y multifuncionales de casa, oficina o negocio en Cancún. El procedimiento depende del tipo de mecanismo y ruta de papel.` },
   { question: `¿El atasco siempre significa que necesita rodillos nuevos?`, answer: `No siempre. A veces basta limpieza, ajuste de bandeja, retiro de residuos o calibraci?n. Primero revisamos ruta de papel, sensores, bandeja y rodillos antes de recomendar cambio de pieza o mantenimiento profundo.` },
-  { question: `¿Cuánto tarda la reparación de atascos?`, answer: `Normalmente toma de 24 a 48 horas según modelo y gravedad del atasco. Si requiere refacci?n, limpieza interna profunda o pruebas con varias hojas, te avisamos antes de avanzar para que autorices tiempo y costo.` },
+  { question: `¿Cuánto tarda la reparación de atascos?`, answer: `Normalmente toma de 24 a 48 horas según modelo y gravedad del atasco. Si requiere refacción, limpieza interna profunda o pruebas con varias hojas, te avisamos antes de avanzar para que autorices tiempo y costo.` },
 ];
 
 const printerJamsRelatedServices = [
@@ -374,7 +340,7 @@ const pcFormatFaqs = [
   { question: `?Incluye Office?`, answer: `Podemos instalar Office si cuentas con licencia o una alternativa como LibreOffice si necesitas paquetería básica. También podemos dejar navegador, lector PDF, compresor y herramientas esenciales para trabajo o escuela.` },
   { question: `¿El formateo quita virus?`, answer: `Sí, una instalación limpia elimina la mayoría de virus, programas dañinos y configuraciones alteradas. Antes revisamos si la lentitud viene solo de software o si hay disco dañado, poca RAM o temperatura alta.` },
   { question: `¿Pueden formatear una laptop también?`, answer: `Sí. También realizamos formateo de laptop en Cancún con respaldo, Windows, drivers y optimización inicial. En laptops revisamos batería, temperatura y estado del disco cuando el síntoma principal es lentitud o apagados.` },
-  { question: `¿Qué pasa si mi disco está dañado?`, answer: `Si detectamos fallas en el disco, te avisamos antes de instalar Windows. En algunos casos conviene cambiar a SSD, clonar si todav?a se puede o hacer recuperaci?n de información primero para evitar perder archivos.` },
+  { question: `¿Qué pasa si mi disco está dañado?`, answer: `Si detectamos fallas en el disco, te avisamos antes de instalar Windows. En algunos casos conviene cambiar a SSD, clonar si todavía se puede o hacer recuperaci?n de información primero para evitar perder archivos.` },
   { question: `¿La licencia de Windows queda activada?`, answer: `Si tu equipo ya tiene licencia digital, normalmente se reactiva al conectarse a internet. Si no cuenta con licencia válida, te orientamos para usar una opción legal y estable; evitamos activadores inseguros.` },
 ];
 
@@ -455,6 +421,41 @@ const consoleCleaningFaqs = [
   { question: '¿Atienden Nintendo Switch, Steam Deck y ROG Ally?', answer: 'Sí. Trabajamos Nintendo Switch, Switch OLED, Switch Lite, Steam Deck, ROG Ally, Lenovo Legion Go y consolas portátiles similares. Cada equipo se abre distinto, por eso revisamos modelo exacto, síntomas y riesgo antes de cotizar.' },
   { question: '¿Qué síntomas indican que mi consola necesita limpieza?', answer: 'Ruido fuerte, calentamiento, apagados al jugar, bajones de rendimiento, olor a polvo caliente, ventilador acelerado o aviso de temperatura son señales comunes. También conviene revisar si nunca se ha abierto y ya tiene más de un año en uso fuerte.' },
   { question: '¿La limpieza tiene garantía?', answer: 'Sí, entregamos garantía por escrito sobre la intervención realizada. La garantía cubre el servicio de mantenimiento bajo uso normal; no cubre golpes, humedad posterior, manipulación externa, fallas de fuente, HDMI, placa o piezas que ya estaban dañadas antes del mantenimiento.' },
+];
+
+const visibleFaqs = isPcFormat
+  ? pcFormatFaqs
+  : isPrinterMaintenance
+  ? printerMaintenanceFaqs
+  : isPrinterDiagnostic
+  ? printerDiagnosticFaqs
+  : isPrinterConnectivity
+  ? printerConnectivityFaqs
+  : isPrinterRollers
+  ? printerRollersFaqs
+  : isPrinterJams
+  ? printerJamsFaqs
+  : isConsoleCleaning
+  ? consoleCleaningFaqs
+  : isPhoneSpeakerRepair
+  ? phoneSpeakerFaqs
+  : isPhoneScreenReplacement
+  ? phoneScreenFaqs
+  : isPhoneSoftwareUnlock
+  ? phoneSoftwareFaqs
+  : isPhoneFlexButtons
+  ? phoneFlexFaqs
+  : service.faqs || [];
+
+const pageSchema = [
+  buildServiceSchema({ service, category, url: canonical, description }),
+  buildBreadcrumbSchema([
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: category.title, href: `/servicios/${category.slug}` },
+    { label: service.label, href: `/servicios/${category.slug}/${service.slug}` },
+  ]),
+  buildFAQSchema(visibleFaqs),
 ];
 
 ---
@@ -1337,7 +1338,7 @@ const consoleCleaningFaqs = [
               </div>
               <div class="printer-dx-mini-grid">
                 <span><i class="fa-solid fa-magnifying-glass-chart"></i> Causa real</span>
-                <span><i class="fa-solid fa-wifi"></i> Conexi?n</span>
+                <span><i class="fa-solid fa-wifi"></i> Conexión</span>
                 <span><i class="fa-solid fa-file-lines"></i> Prueba final</span>
                 <span><i class="fa-solid fa-hand-holding-dollar"></i> Cotización</span>
               </div>
@@ -1374,7 +1375,7 @@ const consoleCleaningFaqs = [
                 </div>
                 <div class="rollers-status">
                   <i class="fa-solid fa-circle-check"></i>
-                  <span>Alimentaci?n estable</span>
+                  <span>Alimentación estable</span>
                 </div>
               </div>
               <div class="printer-rollers-price">
@@ -2863,7 +2864,7 @@ const consoleCleaningFaqs = [
           <div class="container text-center">
             <span class="ux-eyebrow">Marcas compatibles</span>
             <h2>Servicio para impresoras HP, Epson, Canon, Brother y más en Cancún</h2>
-            <p>Validamos marca, modelo, tipo de tecnolog?a, insumo y disponibilidad antes de recomendar reparación, limpieza, configuración o mantenimiento.</p>
+            <p>Validamos marca, modelo, tipo de tecnología, insumo y disponibilidad antes de recomendar reparación, limpieza, configuración o mantenimiento.</p>
             <div class="printer-brand-chips">
               {['HP', 'Epson', 'Canon', 'Brother', 'Samsung', 'Xerox', 'Lexmark', 'Ricoh', 'Kyocera', 'Pantum', 'Zebra', 'Multifuncionales'].map((brand) => <span>{brand}</span>)}
             </div>
@@ -2873,7 +2874,7 @@ const consoleCleaningFaqs = [
         <section class="printer-dx-section printer-dx-next">
           <div class="container">
             <div class="printer-dx-head">
-              <span class="ux-eyebrow">Despu?s del diagnóstico</span>
+              <span class="ux-eyebrow">Después del diagnóstico</span>
               <h2>Te damos una ruta clara según la falla encontrada</h2>
               <p>Si conviene mantenimiento, cambio de insumo, limpieza de cabezales, reparación de atascos o configuración de red, lo sabrás antes de autorizar cualquier trabajo.</p>
             </div>
@@ -2904,12 +2905,12 @@ const consoleCleaningFaqs = [
             </div>
             <div class="printer-connectivity-grid">
               {[
-                ['fa-wifi', 'Conexi?n WiFi', 'Vinculamos la impresora a tu red y validamos que responda desde los equipos autorizados.'],
+                ['fa-wifi', 'Conexión WiFi', 'Vinculamos la impresora a tu red y validamos que responda desde los equipos autorizados.'],
                 ['fa-network-wired', 'Ethernet / IP fija', 'Configuramos red local, IP, puerto TCP/IP y equipos compartidos cuando aplica.'],
                 ['fa-usb', 'USB directo', 'Instalamos driver y dejamos la impresora lista cuando la conexión es por cable.'],
                 ['fa-laptop', 'PC, Mac y laptop', 'Configuración en Windows o macOS con prueba de impresión desde cada equipo.'],
                 ['fa-mobile-screen', 'Celular y tablet', 'Configuración en iPhone, Android o apps del fabricante si el modelo lo permite.'],
-                ['fa-print', 'Prueba final', 'Validamos impresión, cola, selecci?n de impresora predeterminada y funcionamiento real.'],
+                ['fa-print', 'Prueba final', 'Validamos impresión, cola, selección de impresora predeterminada y funcionamiento real.'],
               ].map(([icon, title, text]) => (
                 <article class="printer-connectivity-card">
                   <i class={`fa-solid ${icon}`}></i>
@@ -2931,7 +2932,7 @@ const consoleCleaningFaqs = [
             <div class="printer-connectivity-steps">
               {[
                 ['01', 'Revisamos red y modelo', 'Identificamos si conviene WiFi, USB, Ethernet, IP fija o app del fabricante.'],
-                ['02', 'Instalamos drivers', 'Usamos driver compatible para Windows, Mac o m?vil según el caso.'],
+                ['02', 'Instalamos drivers', 'Usamos driver compatible para Windows, Mac o móvil según el caso.'],
                 ['03', 'Probamos impresión', 'Validamos cola, predeterminada, permisos y prueba final desde tus equipos.'],
               ].map(([num, title, text]) => (
                 <article><span>{num}</span><div><h3>{title}</h3><p>{text}</p></div></article>
@@ -2944,7 +2945,7 @@ const consoleCleaningFaqs = [
           <div class="container">
             <div class="printer-connectivity-head text-center">
               <span class="ux-eyebrow">Problemas comunes</span>
-              <h2>Solucionamos fallas t?picas de impresoras en red</h2>
+              <h2>Solucionamos fallas típicas de impresoras en red</h2>
               <p>Si tu impresora antes funcionaba y ahora aparece desconectada, no imprime desde un equipo o no se encuentra en WiFi, lo revisamos sin adivinar.</p>
             </div>
             <div class="printer-connectivity-issue-grid">
@@ -2984,7 +2985,7 @@ const consoleCleaningFaqs = [
         <section class="printer-rollers-section printer-rollers-symptoms" id="rodillos-impresora">
           <div class="container">
             <div class="printer-rollers-head">
-              <span class="ux-eyebrow">Alimentaci?n de papel</span>
+              <span class="ux-eyebrow">Alimentación de papel</span>
               <h2>Reparación de rodillos de impresora en Cancún para que vuelva a tomar hojas</h2>
               <p>Cuando los rodillos se gastan, endurecen o se llenan de polvo, la impresora deja de alimentar bien. Revisamos el mecanismo antes de cambiar piezas para confirmar que la reparación sea la correcta.</p>
             </div>
@@ -2992,7 +2993,7 @@ const consoleCleaningFaqs = [
               {[
                 ['fa-file-circle-xmark', 'No toma papel', 'La bandeja tiene hojas pero la impresora no las arrastra o marca error de alimentación.'],
                 ['fa-layer-group', 'Toma varias hojas', 'El separador o rodillo puede estar gastado y deja pasar dos o más hojas al mismo tiempo.'],
-                ['fa-file-circle-exclamation', 'Atascos constantes', 'Revisamos ruta de papel, sensores y presi?n de rodillos antes de cotizar.'],
+                ['fa-file-circle-exclamation', 'Atascos constantes', 'Revisamos ruta de papel, sensores y presión de rodillos antes de cotizar.'],
                 ['fa-volume-high', 'Ruido al jalar hojas', 'Puede haber desgaste, rodillo duro, eje sucio o pieza forzada en el mecanismo.'],
                 ['fa-ruler-horizontal', 'Hoja entra chueca', 'Validamos guías, bandeja, rodillos laterales y tracción irregular.'],
                 ['fa-print', 'Imprime incompleto', 'Si la hoja se detiene a medias, revisamos alimentación, sensores y motor de arrastre.'],
@@ -3032,7 +3033,7 @@ const consoleCleaningFaqs = [
             <div class="printer-rollers-process-grid">
               {[
                 ['01', 'Prueba de alimentación', 'Probamos varias hojas para reproducir la falla y ubicar el punto exacto.'],
-                ['02', 'Limpieza y revisión', 'Retiramos polvo, residuos y revisamos presi?n, sensor y trayecto.'],
+                ['02', 'Limpieza y revisión', 'Retiramos polvo, residuos y revisamos presión, sensor y trayecto.'],
                 ['03', 'Cambio o ajuste', 'Si el rodillo está gastado, endurecido o liso, cotizamos reemplazo compatible.'],
                 ['04', 'Prueba continua', 'Validamos alimentación con varias hojas antes de entregar el equipo.'],
               ].map(([num, title, text]) => (
@@ -3080,7 +3081,7 @@ const consoleCleaningFaqs = [
               {[
                 ['fa-file-circle-xmark', 'Papel atorado', 'Retiramos residuos sin forzar piezas ni sensores.'],
                 ['fa-layer-group', 'Toma doble hoja', 'Revisamos separador, humedad del papel y desgaste.'],
-                ['fa-ruler-combined', 'Hoja chueca', 'Ajustamos guías, bandeja y presi?n de arrastre.'],
+                ['fa-ruler-combined', 'Hoja chueca', 'Ajustamos guías, bandeja y presión de arrastre.'],
                 ['fa-triangle-exclamation', 'Error sin papel visible', 'Buscamos sensor bloqueado o residuo interno.'],
               ].map(([icon, title, text]) => (
                 <article class="jams-compact-card">
@@ -3138,7 +3139,7 @@ const consoleCleaningFaqs = [
           <div class="container">
             <div class="printer-section-head">
               <span class="ux-eyebrow">Diagnóstico inicial</span>
-              <h2>Se?ales de que tu impresora necesita tinta, tóner o revisión</h2>
+              <h2>Señales de que tu impresora necesita tinta, tóner o revisión</h2>
               <p>No todas las fallas de impresión se solucionan cambiando el cartucho. Revisamos si el problema viene de falta de tinta, tóner bajo, cartucho no reconocido, cabezal tapado, chip, rodillos o configuración de impresión.</p>
             </div>
             <div class="printer-card-grid">
@@ -3550,7 +3551,7 @@ const consoleCleaningFaqs = [
               )}
               <h3><i class="fa-solid fa-circle-xmark"></i> Antes</h3>
               {isLaptopScreenReplacement && (
-                <p class="ba-col-desc">S?ntomas que revisamos para confirmar si el daño viene del panel, flex, bisagras o tarjeta de video.</p>
+                <p class="ba-col-desc">Síntomas que revisamos para confirmar si el daño viene del panel, flex, bisagras o tarjeta de video.</p>
               )}
               {service.beforeAfter.before.map((item) => (
                 <div class="ba-item"><i class="fa-solid fa-xmark"></i> {item}</div>
@@ -3563,7 +3564,7 @@ const consoleCleaningFaqs = [
                   Pantalla instalada y probada
                 </div>
               )}
-              <h3><i class="fa-solid fa-circle-check"></i> Despu?s</h3>
+              <h3><i class="fa-solid fa-circle-check"></i> Después</h3>
               {isLaptopScreenReplacement && (
                 <p class="ba-col-desc">Resultado que buscamos antes de cerrar el equipo: imagen limpia, brillo estable y funcionamiento continuo.</p>
               )}
@@ -3598,7 +3599,7 @@ const consoleCleaningFaqs = [
         <div class="container">
           <div class="ux-section-header">
             <span class="ux-eyebrow">Diagnóstico Inicial</span>
-            <h2 class="ux-h2">Se?ales de que necesitas <span class="ux-text-accent">{service.label.toLowerCase()}</span></h2>
+            <h2 class="ux-h2">Señales de que necesitas <span class="ux-text-accent">{service.label.toLowerCase()}</span></h2>
             <p>Si tu {category.title} presenta alguno de estos s?ntomas, es momento de intervenir antes de que el daño sea mayor o irreversible.</p>
           </div>
 
@@ -3615,7 +3616,7 @@ const consoleCleaningFaqs = [
             </div>
             <div class="ux-symptom-card">
               <div class="symptom-icon"><i class="fa-solid fa-volume-high"></i></div>
-              <h3>Ruidos Extra?os</h3>
+              <h3>Ruidos Extraños</h3>
               <p>Los ventiladores suenan muy fuerte o hacen ruidos mecánicos.</p>
             </div>
           </div>
@@ -3638,7 +3639,7 @@ const consoleCleaningFaqs = [
           </div>
           <div class="ux-benefits-text">
             <span class="ux-eyebrow">Diferenciador Pixon</span>
-            <h2 class="ux-h2">No es solo reparar, es <span class="ux-text-accent">Ingenier?a Aplicada</span></h2>
+            <h2 class="ux-h2">No es solo reparar, es <span class="ux-text-accent">Ingeniería Aplicada</span></h2>
             <p>Un mal {service.label.toLowerCase()} puede causar cortos circuitos o dañar tu {category.title} para siempre. Nosotros aplicamos estándares técnicos rigurosos en Cancún.</p>
 
             <div class="ux-benefit-list">
@@ -3659,7 +3660,7 @@ const consoleCleaningFaqs = [
               <div class="benefit-row">
                 <i class="fa-solid fa-user-shield"></i>
                 <div>
-                  <h4>Protección de tu Informaci?n</h4>
+                  <h4>Protección de tu Información</h4>
                   <p>Tus datos son sagrados. Tu privacidad y archivos están 100% seguros y respaldados.</p>
                 </div>
               </div>
@@ -3700,7 +3701,7 @@ const consoleCleaningFaqs = [
             ) : isLaptopKeyboardReplacement ? (
               <>Proceso para reparar o cambiar teclado de laptop en <span class="ux-text-accent">Cancún</span></>
             ) : (
-              <>Nuestra Metodolog?a de <span class="ux-text-accent">Trabajo</span></>
+              <>Nuestra Metodología de <span class="ux-text-accent">Trabajo</span></>
             )}
           </h2>
           {isLaptopScreenReplacement && (
@@ -3843,9 +3844,9 @@ const consoleCleaningFaqs = [
                 <li><i class="fa-solid fa-check"></i> Respaldo de tus archivos importantes</li>
                 <li><i class="fa-solid fa-check"></i> Instalación limpia de Windows</li>
                 <li><i class="fa-solid fa-check"></i> Drivers oficiales del equipo</li>
-                <li><i class="fa-solid fa-check"></i> Paqueter?a básica instalada</li>
+                <li><i class="fa-solid fa-check"></i> Paquetería básica instalada</li>
                 <li><i class="fa-solid fa-check"></i> Antivirus básico configurado</li>
-                <li><i class="fa-solid fa-check"></i> Optimizaci?n post-instalación</li>
+                <li><i class="fa-solid fa-check"></i> Optimización post-instalación</li>
               </ul>
               <p>El precio puede variar si se requiere respaldo pesado, recuperaci?n de información, instalación de SSD o licencia nueva de Windows.</p>
             </div>
@@ -3869,8 +3870,8 @@ const consoleCleaningFaqs = [
                       <h3>{item.title}</h3>
                       <p>{[
                         'Español latino con Ñ, US, backlit o molde especial según modelo.',
-                        'Buscamos teclado compatible con iluminaci?n si tu equipo la trae.',
-                        'Validamos número de parte, conector, torniller?a y palmrest.',
+                        'Buscamos teclado compatible con iluminación si tu equipo la trae.',
+                        'Validamos número de parte, conector, tornillería y palmrest.',
                         'Te decimos si hay stock en Cancún o si debe pedirse fuera.',
                         'La garantía aplica sobre pieza instalada y mano de obra.',
                         'Te explicamos costo, tiempo y compatibilidad antes de autorizar.',
@@ -4093,10 +4094,10 @@ const consoleCleaningFaqs = [
             {[
               ['fa-keyboard', 'Teclado español latino con Ñ', 'Ideal si quieres conservar distribución en español, tecla Ñ y símbolos correctos para uso diario, escuela o trabajo.'],
               ['fa-language', 'Teclado US para laptop', 'Si tu equipo usa distribución americana, validamos que el teclado coincida con el idioma, tamaño y posición de teclas.'],
-              ['fa-lightbulb', 'Teclado retroiluminado o backlit', 'Si tu laptop trae iluminaci?n, buscamos teclado compatible con flex backlit para conservar esa funci?n.'],
+              ['fa-lightbulb', 'Teclado retroiluminado o backlit', 'Si tu laptop trae iluminación, buscamos teclado compatible con flex backlit para conservar esa función.'],
               ['fa-laptop', 'Teclado integrado al palmrest', 'Algunos modelos no cambian solo el teclado: requieren palmrest completo. Te avisamos antes de pedir la pieza.'],
               ['fa-gamepad', 'Teclado para laptop gamer', 'Revisamos compatibilidad en modelos gaming donde el teclado puede tener RGB, backlit especial o estructura integrada.'],
-              ['fa-laptop-code', 'Teclado para MacBook', 'Validamos generación, distribución, top case, bater?a y compatibilidad antes de cotizar el reemplazo.'],
+              ['fa-laptop-code', 'Teclado para MacBook', 'Validamos generación, distribución, top case, batería y compatibilidad antes de cotizar el reemplazo.'],
             ].map(([icon, title, text]) => (
               <article class="keyboard-type-card">
                 <i class={`fa-solid ${icon}`}></i>

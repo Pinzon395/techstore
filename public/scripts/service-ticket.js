@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('serviceTicketForm');
     if (!form) return;
 
+    const ticketSection = form.closest('.service-ticket-section');
+    const ticketContainer = form.closest('.service-ticket-section .container') || form.parentElement;
+
     const deviceSelect = document.getElementById('st_device');
     const deviceOtherContainer = document.getElementById('st_device_other_container');
     const deviceOtherInput = document.getElementById('st_device_other');
@@ -29,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const authOverlay = document.getElementById('ticket-auth-overlay');
     const btnCancelAuth = document.getElementById('btn-cancel-auth');
+    const successOverlay = document.getElementById('st_success_overlay');
     const prioritySelect = document.getElementById('st_priority');
     const ticketOptions = window.PIXON_TICKET_OPTIONS || {};
     const appointmentType = document.getElementById('st_appointment_type');
@@ -112,6 +116,27 @@ document.addEventListener('DOMContentLoaded', () => {
             field.setAttribute('aria-invalid', 'true');
             field.focus({ preventScroll: false });
         }
+    }
+
+    function scrollTicketStateIntoView(panel) {
+        if (!panel) return;
+        const target = ticketContainer || ticketSection || panel;
+        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 96);
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        window.requestAnimationFrame(() => {
+            window.scrollTo({
+                top,
+                behavior: reduceMotion ? 'auto' : 'smooth'
+            });
+
+            window.setTimeout(() => {
+                if (!panel.hasAttribute('tabindex')) {
+                    panel.setAttribute('tabindex', '-1');
+                }
+                panel.focus({ preventScroll: true });
+            }, reduceMotion ? 0 : 220);
+        });
     }
 
     function isValidPhone(value) {
@@ -432,6 +457,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('pixon_pending_ticket', JSON.stringify(payload));
                 form.style.display = 'none';
                 authOverlay.style.display = 'block';
+                btnSubmit.innerHTML = defaultSubmitHtml;
+                btnSubmit.disabled = false;
+                scrollTicketStateIntoView(authOverlay);
                 return;
             }
 
@@ -470,13 +498,14 @@ document.addEventListener('DOMContentLoaded', () => {
             form.style.display = 'flex';
             btnSubmit.innerHTML = defaultSubmitHtml;
             btnSubmit.disabled = false;
+            scrollTicketStateIntoView(form);
         });
     }
 
     function showSuccess(folio, device, service, ticketData = {}) {
         form.style.display = 'none';
         authOverlay.style.display = 'none';
-        document.getElementById('st_success_overlay').style.display = 'block';
+        if (successOverlay) successOverlay.style.display = 'block';
         document.getElementById('st_success_folio').textContent = folio;
         document.getElementById('st_success_service').textContent = `${device} - ${service}`;
         const successMessage = document.getElementById('st_success_message') || document.querySelector('#st_success_overlay h2 + p');
@@ -489,6 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const phone = "5219986690777"; // El número base de WhatsApp, puedes ajustarlo
         const msg = encodeURIComponent(`Hola, acabo de generar el ticket de servicio en su página web.\nFolio: ${folio}\nServicio: ${device} - ${service}`);
         document.getElementById('st_wa_link').href = `https://wa.me/${phone}?text=${msg}`;
+        scrollTicketStateIntoView(successOverlay);
     }
 
     // Al cargar, verificar
