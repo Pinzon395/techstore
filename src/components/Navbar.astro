@@ -151,18 +151,62 @@ const t = lang === 'en' ? {
                   <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
                   <span>{cat.title}</span>
                 </li>
-                {cat.services.map((s) => (
-                  <li role="none">
-                    <a
-                      href={s.customUrl ? s.customUrl : `/servicios/${cat.slug}/${s.slug}`}
-                      class="v3-sub-link"
-                      role="menuitem"
-                    >
-                      <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
-                      {s.label}
-                    </a>
-                  </li>
-                ))}
+                {cat.services.filter((s) => !s.navHidden).map((s) => {
+                  const serviceHref = s.customUrl ? s.customUrl : `/servicios/${cat.slug}/${s.slug}`;
+                  const hasChildren = Array.isArray(s.navChildren) && s.navChildren.length > 0;
+
+                  return (
+                    <li role="none" class:list={['v3-sub-item', { 'has-l3': hasChildren }]}>
+                      {hasChildren ? (
+                        <>
+                          <button
+                            type="button"
+                            class="v3-sub-link v3-sub-trigger"
+                            role="menuitem"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                          >
+                            <span>{s.label}</span>
+                            <i class="fa-solid fa-chevron-right v3-l3-arrow" aria-hidden="true"></i>
+                          </button>
+
+                          <ul class="v3-cascade-l3" role="menu" aria-label={`Servicios de ${s.label}`}>
+                            <li class="v3-l2-header v3-l3-header" role="presentation">
+                              <span>iPhone</span>
+                            </li>
+                            {s.navChildren?.map((child) => (
+                              <li role="none">
+                                <a
+                                  href={child.customUrl ? child.customUrl : `/servicios/${cat.slug}/${child.slug}`}
+                                  class="v3-sub-link v3-l3-link"
+                                  role="menuitem"
+                                >
+                                  <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
+                                  {child.label}
+                                </a>
+                              </li>
+                            ))}
+                            <li class="v3-l2-footer" role="none">
+                              <a href={serviceHref} class="v3-all-link">
+                                Ver todos los servicios de iPhone
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                              </a>
+                            </li>
+                          </ul>
+                        </>
+                      ) : (
+                        <a
+                          href={serviceHref}
+                          class="v3-sub-link"
+                          role="menuitem"
+                        >
+                          <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
+                          {s.label}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
                 <li class="v3-l2-footer" role="none">
                   <a href={`/servicios/${cat.slug}`} class="v3-all-link">
                     Ver todos los servicios de {cat.title}
@@ -471,8 +515,8 @@ const t = lang === 'en' ? {
     top: -8px;
     left: calc(100% + 2px);
     min-width: 250px;
-    max-height: 70vh;
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
     padding: 8px 0;
     background: #fff;
     border-radius: 12px;
@@ -544,6 +588,118 @@ const t = lang === 'en' ? {
     transform: translateX(2px);
   }
 
+  .navbar-v3 .v3-sub-item {
+    position: relative;
+  }
+
+  .navbar-v3 .v3-sub-trigger {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .navbar-v3 .v3-sub-trigger span {
+    flex: 1;
+    text-align: left;
+  }
+
+  .navbar-v3 .v3-l3-arrow {
+    margin-left: auto;
+    font-size: .62rem;
+    color: #cbd5e1;
+    transition: transform .15s, color .12s;
+  }
+
+  .navbar-v3 .v3-sub-item.has-l3:hover > .v3-sub-trigger,
+  .navbar-v3 .v3-sub-item.has-l3:focus-within > .v3-sub-trigger,
+  .navbar-v3 .v3-sub-item.has-l3.open > .v3-sub-trigger {
+    background: #f1f5f9 !important;
+    color: #2563eb !important;
+    padding-left: 20px !important;
+  }
+
+  .navbar-v3 .v3-sub-item.has-l3:hover > .v3-sub-trigger .v3-l3-arrow,
+  .navbar-v3 .v3-sub-item.has-l3:focus-within > .v3-sub-trigger .v3-l3-arrow,
+  .navbar-v3 .v3-sub-item.has-l3.open > .v3-sub-trigger .v3-l3-arrow {
+    color: #2563eb;
+    transform: translateX(2px);
+  }
+
+  .navbar-v3 .v3-cascade-l3 {
+    list-style: none;
+    margin: 0;
+    position: absolute;
+    top: -8px;
+    left: calc(100% + 2px);
+    min-width: 286px;
+    max-height: min(70vh, 560px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 0;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,.05);
+    box-shadow: 0 16px 40px rgba(15,23,42,.14), 0 0 0 1px rgba(15,23,42,.06);
+    z-index: 1150;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(6px);
+    transition:
+      opacity .18s cubic-bezier(.4,0,.2,1),
+      transform .18s cubic-bezier(.4,0,.2,1),
+      visibility .18s;
+    pointer-events: none;
+  }
+
+  .navbar-v3 .v3-sub-item.has-l3:hover > .v3-cascade-l3,
+  .navbar-v3 .v3-sub-item.has-l3:focus-within > .v3-cascade-l3,
+  .navbar-v3 .v3-sub-item.has-l3.open > .v3-cascade-l3 {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .navbar-v3 .v3-l3-header {
+    color: #64748b;
+  }
+
+  .navbar-v3 .v3-l3-link {
+    white-space: nowrap;
+  }
+
+  .navbar-v3 .v3-cascade-l1,
+  .navbar-v3 .v3-cascade-l2,
+  .navbar-v3 .v3-cascade-l3 {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overscroll-behavior: contain;
+  }
+
+  .navbar-v3 .v3-cascade-l1::-webkit-scrollbar,
+  .navbar-v3 .v3-cascade-l2::-webkit-scrollbar,
+  .navbar-v3 .v3-cascade-l3::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  @media (max-width: 1120px) {
+    .navbar-v3 .v3-cascade-l3 {
+      left: auto;
+      right: calc(100% + 2px);
+      transform: translateX(-6px);
+    }
+
+    .navbar-v3 .v3-sub-item.has-l3:hover > .v3-cascade-l3,
+    .navbar-v3 .v3-sub-item.has-l3:focus-within > .v3-cascade-l3,
+    .navbar-v3 .v3-sub-item.has-l3.open > .v3-cascade-l3 {
+      transform: translateX(0);
+    }
+  }
+
   /* Footer "Ver todos" del sub-menú */
   .navbar-v3 .v3-l2-footer {
     padding: 8px 14px 4px;
@@ -605,9 +761,17 @@ const t = lang === 'en' ? {
   .navbar-v3 .nav-menu.active {
     max-height: calc(100dvh - 50px);
     overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
+  }
+
+  .navbar-v3 .nav-menu.active::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
   }
 
   .navbar-v3 .nav-menu.active.is-menu-peeking {
@@ -719,7 +883,7 @@ const t = lang === 'en' ? {
     margin: 0 !important;
   }
   .navbar-v3 .cascade-item.open > .v3-cascade-l2 {
-    max-height: 850px; /* Más alto por si el espaciado empuja todo abajo */
+    max-height: 1600px;
     padding: 8px 0 14px !important;
   }
 
@@ -748,6 +912,77 @@ const t = lang === 'en' ? {
   .navbar-v3 .v3-sub-link:active { background: #eff6ff !important; color: #2563eb !important; }
   .navbar-v3 .v3-sub-link:hover .v3-sub-arrow,
   .navbar-v3 .v3-sub-link:active .v3-sub-arrow { color: #2563eb; }
+
+  .navbar-v3 .v3-sub-item {
+    margin: 4px 10px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .navbar-v3 .v3-sub-item > .v3-sub-link {
+    margin: 0;
+  }
+
+  .navbar-v3 .v3-sub-trigger {
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .navbar-v3 .v3-sub-trigger span {
+    flex: 1;
+    text-align: left;
+  }
+
+  .navbar-v3 .v3-l3-arrow {
+    margin-left: 0;
+    font-size: .72rem;
+    color: #64748b;
+    transition: transform .25s cubic-bezier(.4,0,.2,1), color .15s;
+  }
+
+  .navbar-v3 .v3-sub-item.open > .v3-sub-trigger {
+    background: #eaf2ff !important;
+    color: #2563eb !important;
+  }
+
+  .navbar-v3 .v3-sub-item.open > .v3-sub-trigger .v3-l3-arrow {
+    transform: rotate(90deg);
+    color: #2563eb;
+  }
+
+  .navbar-v3 .v3-cascade-l3 {
+    position: static !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1),
+                padding .2s ease;
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    box-shadow: none !important;
+    border: none !important;
+    border-top: 1px solid #dbeafe !important;
+    padding: 0 !important;
+    margin: 0 10px 0 18px !important;
+  }
+
+  .navbar-v3 .v3-sub-item.open > .v3-cascade-l3 {
+    max-height: 960px;
+    padding: 8px 0 12px !important;
+  }
+
+  .navbar-v3 .v3-l3-link {
+    padding-left: 34px !important;
+    margin: 3px 8px;
+    font-size: .94rem !important;
+  }
 
   /*  -> -> Footer "Ver todos" en mobile  -> -> */
   .navbar-v3 .v3-l2-footer { padding: 12px 12px 6px; margin-top: 8px; border-top: 1px solid #e2e8f0; }

@@ -75,8 +75,14 @@ function closeCascade(el) {
   el.querySelectorAll('.cascade-item.open').forEach((sub) => {
     sub.classList.remove('open');
     sub.querySelector('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+    sub.querySelector('.v3-cascade-l2')?.style.removeProperty('max-height');
   });
   el.querySelectorAll('.cascade-item.intent-open').forEach((sub) => sub.classList.remove('intent-open'));
+  el.querySelectorAll('.v3-sub-item.open').forEach((sub) => {
+    sub.classList.remove('open');
+    sub.querySelector('.v3-sub-trigger')?.setAttribute('aria-expanded', 'false');
+    sub.querySelector('.v3-cascade-l3')?.style.removeProperty('max-height');
+  });
   if (activeCascade === el) activeCascade = null;
 }
 
@@ -95,6 +101,41 @@ function closeMobileMenu() {
   closeAllCascades();
   lastOpenedCascade = null;
   activeCascade = null;
+}
+
+function syncMobileSubmenuHeight(item) {
+  if (!IS_MOBILE() || !item) return;
+  const l3 = item.querySelector('.v3-cascade-l3');
+  const categoryItem = item.closest('.cascade-item');
+  const l2 = categoryItem?.querySelector('.v3-cascade-l2');
+
+  if (l3) {
+    if (item.classList.contains('open')) {
+      l3.style.maxHeight = `${l3.scrollHeight + 16}px`;
+    } else {
+      l3.style.removeProperty('max-height');
+    }
+  }
+
+  if (l2 && categoryItem?.classList.contains('open')) {
+    window.requestAnimationFrame(() => {
+      l2.style.maxHeight = `${l2.scrollHeight + 24}px`;
+    });
+  }
+}
+
+function syncMobileCategoryHeight(item) {
+  if (!IS_MOBILE() || !item) return;
+  const l2 = item.querySelector('.v3-cascade-l2');
+  if (!l2) return;
+  if (item.classList.contains('open')) {
+    window.requestAnimationFrame(() => {
+      l2.style.maxHeight = `${l2.scrollHeight + 24}px`;
+    });
+  } else {
+    l2.style.removeProperty('max-height');
+    item.querySelectorAll('.v3-cascade-l3').forEach((l3) => l3.style.removeProperty('max-height'));
+  }
 }
 
 // 3. CASCADE TRIGGERS
@@ -199,9 +240,56 @@ document.querySelectorAll('.cascade-cat-link').forEach((link) => {
     const isOpen = item.classList.toggle('open');
     link.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     item.parentElement?.querySelectorAll('.cascade-item.open').forEach((sib) => {
-      if (sib !== item) { sib.classList.remove('open'); sib.querySelector('.cascade-cat-link')?.setAttribute('aria-expanded', 'false'); }
+      if (sib !== item) {
+        sib.classList.remove('open');
+        sib.querySelector('.cascade-cat-link')?.setAttribute('aria-expanded', 'false');
+        sib.querySelector('.v3-cascade-l2')?.style.removeProperty('max-height');
+        sib.querySelectorAll('.v3-sub-item.open').forEach((sub) => {
+          sub.classList.remove('open');
+          sub.querySelector('.v3-sub-trigger')?.setAttribute('aria-expanded', 'false');
+          sub.querySelector('.v3-cascade-l3')?.style.removeProperty('max-height');
+        });
+      }
     });
+    syncMobileCategoryHeight(item);
   });
+});
+
+document.querySelectorAll('.v3-sub-trigger').forEach((trigger) => {
+  trigger.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const item = trigger.closest('.v3-sub-item');
+    if (!item?.querySelector('.v3-cascade-l3')) return;
+
+    const isOpen = item.classList.toggle('open');
+    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    item.parentElement?.querySelectorAll('.v3-sub-item.open').forEach((sib) => {
+      if (sib !== item) {
+        sib.classList.remove('open');
+        sib.querySelector('.v3-sub-trigger')?.setAttribute('aria-expanded', 'false');
+        sib.querySelector('.v3-cascade-l3')?.style.removeProperty('max-height');
+      }
+    });
+    syncMobileSubmenuHeight(item);
+    if (IS_MOBILE() && isOpen) {
+      window.setTimeout(() => {
+        trigger.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }, 80);
+    }
+  });
+});
+
+document.querySelectorAll('.v3-cascade-l1, .v3-cascade-l2, .v3-cascade-l3').forEach((panel) => {
+  panel.addEventListener('wheel', (e) => {
+    if (IS_MOBILE()) return;
+    const canScroll = panel.scrollHeight > panel.clientHeight;
+    if (canScroll) {
+      panel.scrollTop += e.deltaY;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+  }, { passive: false });
 });
 
 // 6. CLICK FUERA

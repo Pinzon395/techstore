@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Servicios  -  Single source of truth.
  * Lo consumen tanto Navbar3_0.astro como las landing pages dinámicas
  * /servicios/[categoria]/[servicio].
@@ -43,6 +43,10 @@
 export interface ServiceItem {
   slug: string;       // segmento URL (ej. 'cambio-pantalla')
   label: string;      // título visible (ej. 'Cambio de pantalla')
+  /** Oculta el servicio del megamenu principal, pero conserva su ruta dinamica. */
+  navHidden?: boolean;
+  /** Servicios anidados que se muestran como tercer nivel en el navbar. */
+  navChildren?: Pick<ServiceItem, 'slug' | 'label' | 'customUrl'>[];
   intro?: string;     // descripción 1-2 líneas para el hero de la landing
   bullets?: string[]; // beneficios / qué incluye
   fromPrice?: string; // ej. '$650 MXN'
@@ -1039,68 +1043,219 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     blurb: 'iPhone, Samsung y más',
     heroBg: 'linear-gradient(135deg, #0e7490 0%, #06b6d4 100%)',
     services: [
+      { slug: 'diagnostico',         label: 'Diagnóstico',            intro: 'Revisión completa para identificar fallas y cotizar sin compromiso.',                                       bullets: ['Test de pantalla, batería, carga, bocinas, cámaras', 'Reporte detallado', 'GRATIS si autorizas reparación'],                       fromPrice: 'GRATIS',      eta: '1 h' },
       { slug: 'reparacion-general',  label: 'Reparación General',     customUrl: '/reparaciones' },
+      {
+        slug: 'reparacion-iphone',
+        label: 'Reparación de iPhone',
+        seoKeyword: 'Reparación de iPhone en Cancún',
+        hook: 'Revisamos pantalla, batería, carga, cámara, audio, botones, humedad y fallas de sistema antes de recomendar una reparación.',
+        intro: 'Servicio técnico para iPhone en Cancún con diagnóstico por modelo y cotización clara antes de cambiar refacciones.',
+        bullets: [
+          'Revisión de pantalla, batería, carga, cámara y audio',
+          'Diagnóstico de humedad, botones, Face ID y fallas intermitentes',
+          'Cotización por modelo antes de comprar o instalar refacciones',
+          'Comunicación por WhatsApp durante el proceso'
+        ],
+        warranty: 'Garantía por escrito cuando aplica a la refacción instalada',
+        navChildren: [
+          { slug: 'reparacion-pantalla-iphone', label: 'Reparación de pantalla iPhone' },
+          { slug: 'cambio-bateria-iphone', label: 'Cambio de batería iPhone' },
+          { slug: 'reparacion-face-id-iphone', label: 'Reparación de Face ID' },
+          { slug: 'reparacion-camara-iphone', label: 'Reparación de cámara iPhone' },
+          { slug: 'reparacion-carga-iphone', label: 'Reparación de carga iPhone' },
+          { slug: 'reparacion-bocina-iphone', label: 'Reparación de bocina iPhone' },
+          { slug: 'reparacion-microfono-iphone', label: 'Reparación de micrófono iPhone' },
+          { slug: 'reparacion-botones-iphone', label: 'Reparación de botones iPhone' },
+          { slug: 'reparacion-humedad-iphone', label: 'Reparación por humedad iPhone' },
+          { slug: 'diagnostico-iphone', label: 'Diagnóstico iPhone' },
+        ],
+        whyUs: [
+          { icon: 'fa-magnifying-glass', title: 'Diagnóstico por modelo', desc: 'Confirmamos modelo, síntoma y pieza probable antes de cotizar.' },
+          { icon: 'fa-mobile-screen', title: 'Pruebas completas', desc: 'Probamos pantalla, touch, carga, audio, cámaras, botones y batería.' },
+          { icon: 'fa-droplet', title: 'Humedad con cuidado', desc: 'Si hubo líquido, revisamos conectores y corrosión antes de encender o cambiar piezas.' },
+          { icon: 'fa-comment-dots', title: 'Cotización clara', desc: 'Te explicamos opciones y tiempos por WhatsApp antes de autorizar.' },
+        ],
+        process: [
+          { title: 'Recepción del equipo', desc: 'Registramos modelo, falla reportada, estado físico y datos de contacto.' },
+          { title: 'Diagnóstico técnico', desc: 'Revisamos funciones principales y señales de daño por golpe, humedad o desgaste.' },
+          { title: 'Cotización', desc: 'Te indicamos qué pieza o servicio conviene y si hay disponibilidad.' },
+          { title: 'Pruebas de entrega', desc: 'Validamos funciones reparadas y básicas antes de entregar el iPhone.' },
+        ],
+        commonProblems: [
+          { problem: 'Pantalla rota, sin touch o con manchas', solution: 'Revisamos si requiere pantalla completa, ajuste de flex o diagnóstico de placa.' },
+          { problem: 'Batería que dura poco o se apaga', solution: 'Probamos salud de batería, consumo y carga antes de recomendar reemplazo.' },
+          { problem: 'No carga o carga intermitente', solution: 'Revisamos puerto, flex, limpieza, cable, batería y circuito de carga.' },
+          { problem: 'Face ID, cámara, bocina o micrófono fallan', solution: 'Probamos cada módulo para separar falla de pieza, flex, humedad o sistema.' },
+        ],
+        compatibleBrands: ['iPhone'],
+        faqs: [
+          { question: '¿Qué reparaciones de iPhone hacen en Cancún?', answer: 'Atendemos pantalla, batería, carga, cámara, audio, micrófono, botones, humedad, diagnóstico y fallas de sistema. Primero confirmamos modelo y síntoma para cotizar correctamente.' },
+          { question: '¿Pueden revisar mi iPhone antes de cambiar piezas?', answer: 'Sí. Revisamos funciones principales, estado físico, humedad y comportamiento del equipo antes de recomendar una refacción.' },
+          { question: '¿Cuánto tarda una reparación de iPhone?', answer: 'Depende del modelo, disponibilidad de refacción y tipo de falla. Te damos tiempo estimado después de revisar el equipo y confirmar pieza.' },
+          { question: '¿Mis datos se borran durante la reparación?', answer: 'En reparaciones físicas normalmente no se borran, pero si el trabajo requiere restauración o software te avisamos antes para que autorices.' },
+        ],
+        relatedSlugs: ['reparacion-pantalla-iphone', 'cambio-bateria-iphone', 'reparacion-carga-iphone', 'diagnostico-iphone'],
+      },
       { slug: 'cambio-pantalla',     label: 'Cambio de pantalla',     intro: 'Reemplazo de pantalla completa para iPhone, Samsung, Xiaomi y más marcas.',                                  bullets: ['Pantalla original o calidad OEM', 'Calibración de touch y color', 'Garantía 3 meses', 'Mismo día en muchos modelos'],            fromPrice: '$1,200 MXN', eta: 'Mismo día' },
       { slug: 'cambio-bateria',      label: 'Cambio de batería',      intro: 'Recuperas autonomía completa con batería nueva certificada.',                                                bullets: ['Batería con celdas nuevas', 'Sello de impermeabilidad restaurado (iPhone)', 'Garantía 6 meses'],                                   fromPrice: '$700 MXN',   eta: 'Mismo día' },
       { slug: 'reparacion-carga',    label: 'Reparación de carga',    intro: 'Sustitución de puerto de carga lightning, USB-C o micro-USB. Solucionamos cargas intermitentes.',           bullets: ['Limpieza ultrasónica del puerto', 'Reemplazo de flex o conector', 'Prueba con cable original'],                                   fromPrice: '$450 MXN',   eta: '24-48 h' },
       { slug: 'reparacion-bocina',   label: 'Reparación de bocina', seoKeyword: 'Reparación de bocina de celular en Cancún', hook: 'Recupera llamadas claras, audio multimedia y volumen real sin cambiar piezas innecesarias.', intro: 'Reparamos fallas de audio en celulares: bocina principal, auricular de llamada, micrófono, vibrador, flex, rejilla obstruida o daño por humedad.', bullets: ['Diagnóstico de bocina, auricular y micrófono', 'Limpieza de rejilla o reemplazo si aplica', 'Prueba de llamada, grabación y multimedia', 'Garantía por escrito'], fromPrice: '$400 MXN', eta: '24-48 h', warranty: 'Garantía por escrito' },
       { slug: 'cambio-flex-botones', label: 'Cambio de flex / botones',intro: 'Botón de power, volumen, home o flex de carga rotos. Restauramos funcionalidad.',                          bullets: ['Flex con piezas certificadas', 'Sellado contra polvo', 'Prueba completa'],                                                          fromPrice: '$450 MXN',   eta: '24-48 h' },
-        // ðŸŒŸ Liberación / Software (extendida) ðŸŒŸ
-        { 
-          slug: 'liberacion-software', 
-          label: 'Liberación / software',  
-          seoKeyword: 'Liberación y software para celulares en Cancún',
-          hook: '¿Tu equipo viene de otro país o red? ¿Olvidaste tu contraseña o se quedó en el logo? Lo solucionamos de forma rápida y 100% segura.',
-          intro: 'Servicio especializado de software: liberación de red (Unlock), bypass, flasheo, actualización de iOS/Android y eliminación de cuentas.',                  
-          bullets: ['Liberación por IMEI o caja', 'Restauración de sistema (Flasheo)', 'Backup previo si es posible', 'Garantía de no pérdida de IMEI'],                                    
-          fromPrice: '$650 MXN',   eta: '1-3 h', warranty: 'Garantía por escrito',
-          whyUs: [
-            { icon: 'fa-lock-open',      title: 'Liberación permanente', desc: 'Desbloqueos de red oficiales por IMEI o servidor. Puedes actualizar sin perder la red.' },
-            { icon: 'fa-shield-halved',  title: 'Cero riesgos',          desc: 'Usamos herramientas oficiales (Z3X, Octopus, Sigma, etc). No matamos equipos.' },
-            { icon: 'fa-user-secret',    title: 'Privacidad total',      desc: 'Tus fotos, chats y cuentas están a salvo. Si hacemos bypass o flasheo, borramos datos de forma segura.' },
-            { icon: 'fa-bolt',           title: 'Mismo día',             desc: 'El 90% de los trabajos de software quedan listos el mismo día.' },
-          ],
-          process: [
-            { title: '1. Verificación de Estatus', desc: 'Checamos el IMEI en lista negra global (Blacklist) para confirmar viabilidad.' },
-            { title: '2. Cotización y Método',     desc: 'Determinamos si requiere código, servidor, o caja de liberación y cotizamos.' },
-            { title: '3. Ejecución Segura',        desc: 'Conectamos al servidor o herramienta especializada para aplicar el desbloqueo o flasheo.' },
-            { title: '4. Pruebas y Entrega',       desc: 'Probamos señal con chips Telcel, AT&T y Movistar, y verificamos funciones.' },
-          ],
-          educationalBlocks: [
-            {
-              eyebrow: 'Cuidado y Rendimiento',
-              title: '¿Cómo alargar la vida útil de tu nueva batería?',
-              intro: 'Una vez instalada tu nueva batería, seguir estas recomendaciones de nuestros ingenieros garantizará que te dure años con excelente rendimiento.',
-              imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp', // Fallback a una imagen de laptop reparandose
-              imgAlt: 'Mantenimiento y cuidado de baterías en Cancún',
-              reverse: false,
-              points: [
-                { icon: 'fa-plug-circle-check', title: 'Regla del 20-80', text: 'Intenta mantener la carga entre el 20% y el 80%. No dejes que baje a 0% con frecuencia, ya que estresa las celdas de litio.' },
-                { icon: 'fa-temperature-low', title: 'Evita el calor extremo', text: 'No dejes tu laptop en el auto bajo el sol de Cancún. El calor degrada la química interna permanentemente.' },
-                { icon: 'fa-calendar-check', title: 'Ciclos de calibración', text: 'Una vez al mes, cárgala al 100%, úsala hasta que se apague y recárgala al máximo. Esto mantiene al sistema calibrado.' }
-              ]
-            }
-          ],
-          commonProblems: [
-            { problem: 'Equipo "Atrapado en el logo" (Bootloop)', solution: 'Flasheo de firmware oficial original para revivir el dispositivo.' },
-            { problem: 'Red no disponible / SIM inválida',        solution: 'Liberación de red para uso con cualquier compañía telefónica.' },
-            { problem: 'Olvidé mi PIN, Patrón o Contraseña',      solution: 'Hard reset + Bypass o eliminación de cuenta Google (FRP) o iCloud.' },
-            { problem: 'Errores constantes de aplicaciones',      solution: 'Restauración profunda de fábrica y actualización a la última versión limpia.' },
-          ],
-          compatibleBrands: ['Apple / iPhone', 'Samsung Galaxy', 'Motorola', 'Xiaomi', 'Huawei', 'Oppo', 'Honor', 'ZTE'],
-          faqs: [
-          { question: `¿La liberación de red se pierde si actualizo mi celular?`, answer: `Si la liberación es de fábrica, por IMEI o servidor oficial, suele ser permanente y puedes actualizar sin perder señal. Antes de trabajar te explicamos el método, riesgo y compatibilidad con tu compañía para que sepas qué esperar después de actualizar.` },
-          { question: `¿Pueden desbloquear un celular con reporte de robo o blacklist?`, answer: `Hacemos verificación previa del estatus, pero no realizamos trabajos que infrinjan normativas legales sobre equipos reportados por robo, hurto o extravío. Si el problema es cuenta, red o software legítimo, te explicamos opciones permitidas.` },
-          { question: `¿Se borran mis datos al hacer una liberación?`, answer: `Generalmente no se borran en una liberación de red, pero depende del método. Si requiere flasheo, bypass FRP o restauración profunda, sí puede formatearse. Antes de iniciar te avisamos si existe riesgo para fotos, chats, cuentas o archivos.` },
-          { question: `¿Cuánto tiempo tarda?`, answer: `La mayoría de cuentas Google o flasheos toman de 1 a 3 horas. Las liberaciones por código o servidor internacional pueden tardar desde 15 minutos hasta 5 días hábiles, dependiendo de la compañía original y disponibilidad del servicio.` },
+      { 
+        slug: 'liberacion-software', 
+        label: 'Liberación / software',  
+        seoKeyword: 'Liberación y software para celulares en Cancún',
+        hook: '¿Tu equipo viene de otro país o red? ¿Olvidaste tu contraseña o se quedó en el logo? Lo solucionamos de forma rápida y 100% segura.',
+        intro: 'Servicio especializado de software: liberación de red (Unlock), bypass, flasheo, actualización de iOS/Android y eliminación de cuentas.',                  
+        bullets: ['Liberación por IMEI o caja', 'Restauración de sistema (Flasheo)', 'Backup previo si es posible', 'Garantía de no pérdida de IMEI'],                                    
+        fromPrice: '$650 MXN',   eta: '1-3 h', warranty: 'Garantía por escrito',
+        whyUs: [
+          { icon: 'fa-lock-open',      title: 'Liberación permanente', desc: 'Desbloqueos de red oficiales por IMEI o servidor. Puedes actualizar sin perder la red.' },
+          { icon: 'fa-shield-halved',  title: 'Cero riesgos',          desc: 'Usamos herramientas oficiales (Z3X, Octopus, Sigma, etc). No matamos equipos.' },
+          { icon: 'fa-user-secret',    title: 'Privacidad total',      desc: 'Tus fotos, chats y cuentas están a salvo. Si hacemos bypass o flasheo, borramos datos de forma segura.' },
+          { icon: 'fa-bolt',           title: 'Mismo día',             desc: 'El 90% de los trabajos de software quedan listos el mismo día.' },
         ],
-          relatedSlugs: ['reparacion-general', 'cambio-pantalla', 'cambio-bateria', 'diagnostico'],
-          relatedExternal: [
-            { label: 'Servicio en Laptops', href: '/servicios/laptop', icon: 'fa-laptop', desc: 'También reparamos laptops y MacBooks con problemas de software.' },
-            { label: 'Visítanos', href: '/contacto', icon: 'fa-location-dot', desc: 'Ven a nuestra sucursal para una revisión rápida.' },
-          ],
-        },
-      { slug: 'diagnostico',         label: 'Diagnóstico',            intro: 'Revisión completa para identificar fallas y cotizar sin compromiso.',                                       bullets: ['Test de pantalla, batería, carga, bocinas, cámaras', 'Reporte detallado', 'GRATIS si autorizas reparación'],                       fromPrice: 'GRATIS',      eta: '1 h' },
+        process: [
+          { title: '1. Verificación de Estatus', desc: 'Checamos el IMEI en lista negra global (Blacklist) para confirmar viabilidad.' },
+          { title: '2. Cotización y Método',     desc: 'Determinamos si requiere código, servidor, o caja de liberación y cotizamos.' },
+          { title: '3. Ejecución Segura',        desc: 'Conectamos al servidor o herramienta especializada para aplicar el desbloqueo o flasheo.' },
+          { title: '4. Pruebas y Entrega',       desc: 'Probamos señal con chips Telcel, AT&T y Movistar, y verificamos funciones.' },
+        ],
+        educationalBlocks: [
+          {
+            eyebrow: 'Cuidado y Rendimiento',
+            title: '¿Cómo alargar la vida útil de tu nueva batería?',
+            intro: 'Una vez instalada tu nueva batería, seguir estas recomendaciones de nuestros ingenieros garantizará que te dure años con excelente rendimiento.',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
+            imgAlt: 'Mantenimiento y cuidado de baterías en Cancún',
+            reverse: false,
+            points: [
+              { icon: 'fa-plug-circle-check', title: 'Regla del 20-80', text: 'Intenta mantener la carga entre el 20% y el 80%. No dejes que baje a 0% con frecuencia, ya que estresa las celdas de litio.' },
+              { icon: 'fa-temperature-low', title: 'Evita el calor extremo', text: 'No dejes tu laptop en el auto bajo el sol de Cancún. El calor degrada la química interna permanentemente.' },
+              { icon: 'fa-calendar-check', title: 'Ciclos de calibración', text: 'Una vez al mes, cárgala al 100%, úsala hasta que se apague y recárgala al máximo. Esto mantiene al sistema calibrado.' }
+            ]
+          }
+        ],
+        commonProblems: [
+          { problem: 'Equipo "Atrapado en el logo" (Bootloop)', solution: 'Flasheo de firmware oficial original para revivir el dispositivo.' },
+          { problem: 'Red no disponible / SIM inválida',        solution: 'Liberación de red para uso con cualquier compañía telefónica.' },
+          { problem: 'Olvidé mi PIN, Patrón o Contraseña',      solution: 'Hard reset + Bypass o eliminación de cuenta Google (FRP) o iCloud.' },
+          { problem: 'Errores constantes de aplicaciones',      solution: 'Restauración profunda de fábrica y actualización a la última versión limpia.' },
+        ],
+        compatibleBrands: ['Apple / iPhone', 'Samsung Galaxy', 'Motorola', 'Xiaomi', 'Huawei', 'Oppo', 'Honor', 'ZTE'],
+        faqs: [
+        { question: `¿La liberación de red se pierde si actualizo mi celular?`, answer: `Si la liberación es de fábrica, por IMEI o servidor oficial, suele ser permanente y puedes actualizar sin perder señal. Antes de trabajar te explicamos el método, riesgo y compatibilidad con tu compañía para que sepas qué esperar después de actualizar.` },
+        { question: `¿Pueden desbloquear un celular con reporte de robo o blacklist?`, answer: `Hacemos verificación previa del estatus, pero no realizamos trabajos que infrinjan normativas legales sobre equipos reportados por robo, hurto o extravío. Si el problema es cuenta, red o software legítimo, te explicamos opciones permitidas.` },
+        { question: `¿Se borran mis datos al hacer una liberación?`, answer: `Generalmente no se borran en una liberación de red, pero depende del método. Si requiere flasheo, bypass FRP o restauración profunda, sí puede formatearse. Antes de iniciar te avisamos si existe riesgo para fotos, chats, cuentas o archivos.` },
+        { question: `¿Cuánto tiempo tarda?`, answer: `La mayoría de cuentas Google o flasheos toman de 1 a 3 horas. Las liberaciones por código o servidor internacional pueden tardar desde 15 minutos hasta 5 días hábiles, dependiendo de la compañía original y disponibilidad del servicio.` },
+      ],
+        relatedSlugs: ['reparacion-general', 'cambio-pantalla', 'cambio-bateria', 'diagnostico'],
+        relatedExternal: [
+          { label: 'Servicio en Laptops', href: '/servicios/laptop', icon: 'fa-laptop', desc: 'También reparamos laptops y MacBooks con problemas de software.' },
+          { label: 'Visítanos', href: '/contacto', icon: 'fa-location-dot', desc: 'Ven a nuestra sucursal para una revisión rápida.' },
+        ],
+      },
+      {
+        slug: 'reparacion-pantalla-iphone',
+        label: 'Reparación de pantalla iPhone',
+        navHidden: true,
+        seoKeyword: 'Reparación de pantalla iPhone en Cancún',
+        intro: 'Revisión y reemplazo de pantalla para iPhone con prueba de touch, brillo, color, sensores y estado físico antes de entregar.',
+        bullets: ['Diagnóstico de display y touch', 'Validación de sensores y brillo', 'Cotización por modelo antes de instalar'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'cambio-bateria-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'cambio-bateria-iphone',
+        label: 'Cambio de batería iPhone',
+        navHidden: true,
+        seoKeyword: 'Cambio de batería iPhone en Cancún',
+        intro: 'Revisamos salud de batería, ciclos, consumo y carga para confirmar si conviene reemplazarla.',
+        bullets: ['Prueba de salud y consumo', 'Revisión de carga y apagados', 'Cotización por modelo'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'reparacion-carga-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'reparacion-face-id-iphone',
+        label: 'Reparación de Face ID',
+        navHidden: true,
+        seoKeyword: 'Reparación de Face ID iPhone en Cancún',
+        intro: 'Diagnóstico de Face ID para fallas por golpe, humedad, flex, cámara TrueDepth o configuración del sistema.',
+        bullets: ['Prueba de Face ID y sensores', 'Revisión de golpes o humedad', 'Diagnóstico antes de cotizar'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'reparacion-camara-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'reparacion-camara-iphone',
+        label: 'Reparación de cámara iPhone',
+        navHidden: true,
+        seoKeyword: 'Reparación de cámara iPhone en Cancún',
+        intro: 'Revisión de cámara frontal o trasera, enfoque, manchas, vibración, app de cámara y posible daño por golpe.',
+        bullets: ['Prueba de cámara frontal y trasera', 'Revisión de enfoque y manchas', 'Diagnóstico por modelo'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'reparacion-face-id-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'reparacion-carga-iphone',
+        label: 'Reparación de carga iPhone',
+        navHidden: true,
+        seoKeyword: 'Reparación de carga iPhone en Cancún',
+        intro: 'Solución para iPhone que no carga, carga intermitente o no reconoce cable, revisando puerto, flex, batería y consumo.',
+        bullets: ['Limpieza y revisión de puerto', 'Prueba con cable y cargador', 'Revisión de flex y batería'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'cambio-bateria-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'reparacion-bocina-iphone',
+        label: 'Reparación de bocina iPhone',
+        navHidden: true,
+        seoKeyword: 'Reparación de bocina iPhone en Cancún',
+        intro: 'Diagnóstico de audio para bocina, auricular, volumen bajo, distorsión o fallas después de humedad.',
+        bullets: ['Prueba de llamadas y multimedia', 'Revisión de rejillas y bocina', 'Diagnóstico de humedad si aplica'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'reparacion-microfono-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'reparacion-microfono-iphone',
+        label: 'Reparación de micrófono iPhone',
+        navHidden: true,
+        seoKeyword: 'Reparación de micrófono iPhone en Cancún',
+        intro: 'Revisamos micrófonos de llamada, video, notas de voz y apps cuando no te escuchan o el audio sale bajo.',
+        bullets: ['Prueba de grabación y llamada', 'Revisión de flex y rejillas', 'Diagnóstico por función afectada'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'reparacion-bocina-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'reparacion-botones-iphone',
+        label: 'Reparación de botones iPhone',
+        navHidden: true,
+        seoKeyword: 'Reparación de botones iPhone en Cancún',
+        intro: 'Revisión de botón power, volumen, silencio, home en modelos compatibles y flex relacionados.',
+        bullets: ['Prueba de botones físicos', 'Revisión de flex y carcasa', 'Cotización por modelo'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'cambio-flex-botones', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'reparacion-humedad-iphone',
+        label: 'Reparación por humedad iPhone',
+        navHidden: true,
+        seoKeyword: 'Reparación por humedad iPhone en Cancún',
+        intro: 'Atención para iPhone con contacto con agua o humedad, priorizando diagnóstico y limpieza técnica antes de cambiar piezas.',
+        bullets: ['Revisión de indicadores y conectores', 'Limpieza técnica si aplica', 'Prueba de funciones afectadas'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'reparacion-carga-iphone', 'diagnostico-iphone'],
+      },
+      {
+        slug: 'diagnostico-iphone',
+        label: 'Diagnóstico iPhone',
+        navHidden: true,
+        seoKeyword: 'Diagnóstico iPhone en Cancún',
+        intro: 'Revisión técnica para identificar la causa de fallas en pantalla, batería, carga, audio, cámara, humedad o sistema.',
+        bullets: ['Prueba de funciones principales', 'Revisión física y de síntomas', 'Cotización clara antes de reparar'],
+        compatibleBrands: ['iPhone'],
+        relatedSlugs: ['reparacion-iphone', 'reparacion-pantalla-iphone', 'cambio-bateria-iphone'],
+      },
     ],
   },
   {

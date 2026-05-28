@@ -56,6 +56,7 @@ const isPhoneScreenReplacement = category.slug === 'telefono' && service.slug ==
 const isPhoneSoftwareUnlock = category.slug === 'telefono' && service.slug === 'liberacion-software';
 const isPhoneFlexButtons = category.slug === 'telefono' && service.slug === 'cambio-flex-botones';
 const isPhoneDiagnostic = category.slug === 'telefono' && service.slug === 'diagnostico';
+const isIphoneService = category.slug === 'telefono' && (service.slug === 'reparacion-iphone' || service.slug.endsWith('-iphone'));
 const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
@@ -97,6 +98,8 @@ const seoTitle = isPcFormat
   ? 'Diagnóstico de celulares en Cancún | Pixon PC'
   : isLaptopKeyboardReplacement
   ? 'Cambio de teclado de laptop en Cancún | Pixon PC'
+  : isIphoneService
+  ? `${seoKeyword} | Pixon PC`
   : isLaptopLocalReplacement
   ? `${seoKeyword} con garantía | Pixon PC`
   : `${seoKeyword} para ${category.title} en Cancún | Pixon PC`;
@@ -141,6 +144,16 @@ const description = isPcFormat
   : service.intro
   ? `${service.intro} Cotización gratis, diagnóstico claro y reparación profesional en Cancún.`
   : `Servicio especializado de ${service.label} para ${category.title} en Cancún. Diagnóstico profundo y garantía por escrito.`;
+const faqServiceContext = category.slug === 'telefono'
+  ? 'celular'
+  : category.slug === 'pc'
+  ? 'PC'
+  : category.slug === 'consola'
+  ? 'consola'
+  : category.slug === 'impresora'
+  ? 'impresora'
+  : 'laptop';
+const genericFaqTitle = `Preguntas frecuentes sobre ${service.label} de ${faqServiceContext} en Cancún`;
 
 const waMessage = encodeURIComponent(isPcFormat
   ? 'Hola, quiero cotizar formateo de PC en Cancún con respaldo, Windows, drivers y optimización.'
@@ -3917,7 +3930,7 @@ const pageSchema = [
               ) : isLaptopKeyboardReplacement ? (
                 <>Fallas de teclado de laptop que revisamos en <span class="ux-text-accent">Cancún</span></>
               ) : (
-                <>Problemas comunes ? <span class="ux-text-accent">Soluciones reales</span></>
+                <>Problemas comunes y <span class="ux-text-accent">soluciones reales</span></>
               )}
             </h2>
             {isLaptopScreenReplacement && (
@@ -4290,7 +4303,7 @@ const pageSchema = [
     {(!isPhoneSoftwareUnlock && (service.faqs || isPcFormat || isPrinterMaintenance || isPrinterDiagnostic || isPrinterConnectivity || isPrinterRollers || isPrinterJams || isConsoleCleaning)) && (
       <FaqSection
         id="faq"
-        title={isPcFormat ? 'Preguntas frecuentes sobre formateo de PC en Cancún' : isPrinterMaintenance ? 'Preguntas frecuentes sobre mantenimiento de impresoras en Cancún' : isPrinterDiagnostic ? 'Preguntas frecuentes sobre diagnóstico de impresoras en Cancún' : isPrinterConnectivity ? 'Preguntas frecuentes sobre configuración de impresoras en Cancún' : isPrinterRollers ? 'Preguntas frecuentes sobre cambio de rodillos de impresora en Cancún' : isPrinterJams ? 'Preguntas frecuentes sobre reparación de atascos de impresora en Cancún' : isPrinterInkToner ? 'Preguntas frecuentes sobre cambio de tinta y tóner en Cancún' : isConsoleCleaning ? 'Preguntas frecuentes sobre limpieza de consolas en Cancún' : isConsoleHdmi ? 'Preguntas frecuentes sobre reparación HDMI de consolas en Cancún' : isLaptopKeyboardReplacement ? 'Preguntas frecuentes sobre cambio de teclado de laptop en Cancún' : `Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
+        title={isPcFormat ? 'Preguntas frecuentes sobre formateo de PC en Cancún' : isPrinterMaintenance ? 'Preguntas frecuentes sobre mantenimiento de impresoras en Cancún' : isPrinterDiagnostic ? 'Preguntas frecuentes sobre diagnóstico de impresoras en Cancún' : isPrinterConnectivity ? 'Preguntas frecuentes sobre configuración de impresoras en Cancún' : isPrinterRollers ? 'Preguntas frecuentes sobre cambio de rodillos de impresora en Cancún' : isPrinterJams ? 'Preguntas frecuentes sobre reparación de atascos de impresora en Cancún' : isPrinterInkToner ? 'Preguntas frecuentes sobre cambio de tinta y tóner en Cancún' : isConsoleCleaning ? 'Preguntas frecuentes sobre limpieza de consolas en Cancún' : isConsoleHdmi ? 'Preguntas frecuentes sobre reparación HDMI de consolas en Cancún' : isLaptopKeyboardReplacement ? 'Preguntas frecuentes sobre cambio de teclado de laptop en Cancún' : genericFaqTitle}
         description={isPcFormat
           ? 'Resolvemos dudas sobre precio, tiempos, respaldo, Windows 10, Windows 11, drivers, virus, Office, SSD y licencia antes de formatear tu PC en Cancún.'
           : isPrinterMaintenance
@@ -4315,7 +4328,7 @@ const pageSchema = [
         viewMoreHref="/preguntas-frecuentes"
         viewMoreLabel="Ver más preguntas frecuentes"
         items={isPcFormat ? pcFormatFaqs : isPrinterMaintenance ? printerMaintenanceFaqs : isPrinterDiagnostic ? printerDiagnosticFaqs : isPrinterConnectivity ? printerConnectivityFaqs : isPrinterRollers ? printerRollersFaqs : isPrinterJams ? printerJamsFaqs : isConsoleCleaning ? consoleCleaningFaqs : isPhoneSpeakerRepair ? phoneSpeakerFaqs : service.faqs}
-        ariaLabel={isPcFormat ? 'Preguntas frecuentes sobre formateo de PC en Cancún' : isPrinterMaintenance ? 'Preguntas frecuentes sobre mantenimiento de impresoras en Cancún' : isPrinterDiagnostic ? 'Preguntas frecuentes sobre diagnóstico de impresoras en Cancún' : isPrinterConnectivity ? 'Preguntas frecuentes sobre configuración de impresoras en Cancún' : isPrinterRollers ? 'Preguntas frecuentes sobre cambio de rodillos de impresora en Cancún' : isPrinterJams ? 'Preguntas frecuentes sobre reparación de atascos de impresora en Cancún' : isPrinterInkToner ? 'Preguntas frecuentes sobre cambio de tinta y tóner en Cancún' : isConsoleCleaning ? 'Preguntas frecuentes sobre limpieza de consolas en Cancún' : isConsoleHdmi ? 'Preguntas frecuentes sobre reparación HDMI de consolas en Cancún' : `Preguntas frecuentes sobre ${service.label} de laptop en Cancún`}
+        ariaLabel={isPcFormat ? 'Preguntas frecuentes sobre formateo de PC en Cancún' : isPrinterMaintenance ? 'Preguntas frecuentes sobre mantenimiento de impresoras en Cancún' : isPrinterDiagnostic ? 'Preguntas frecuentes sobre diagnóstico de impresoras en Cancún' : isPrinterConnectivity ? 'Preguntas frecuentes sobre configuración de impresoras en Cancún' : isPrinterRollers ? 'Preguntas frecuentes sobre cambio de rodillos de impresora en Cancún' : isPrinterJams ? 'Preguntas frecuentes sobre reparación de atascos de impresora en Cancún' : isPrinterInkToner ? 'Preguntas frecuentes sobre cambio de tinta y tóner en Cancún' : isConsoleCleaning ? 'Preguntas frecuentes sobre limpieza de consolas en Cancún' : isConsoleHdmi ? 'Preguntas frecuentes sobre reparación HDMI de consolas en Cancún' : genericFaqTitle}
         sectionClass="faq-section"
         gridClass="faq-grid"
         backgroundColor="#F8F9FC"
