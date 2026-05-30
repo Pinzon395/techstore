@@ -133,6 +133,20 @@ function syncMobileSubmenuHeight(item) {
   }
 }
 
+function keepMobileTriggerVisible(trigger) {
+  if (!IS_MOBILE() || !navMenu?.classList.contains('active') || !trigger) return;
+  const menuRect = navMenu.getBoundingClientRect();
+  const triggerRect = trigger.getBoundingClientRect();
+  const topGap = triggerRect.top - menuRect.top;
+  const bottomGap = triggerRect.bottom - menuRect.bottom;
+
+  if (topGap < 16) {
+    navMenu.scrollBy({ top: topGap - 16, behavior: 'smooth' });
+  } else if (bottomGap > -16) {
+    navMenu.scrollBy({ top: bottomGap + 16, behavior: 'smooth' });
+  }
+}
+
 function syncMobileCategoryHeight(item) {
   if (!IS_MOBILE() || !item) return;
   const l2 = item.querySelector('.v3-cascade-l2');
@@ -288,7 +302,7 @@ document.querySelectorAll('.v3-sub-trigger').forEach((trigger) => {
     syncMobileSubmenuHeight(item);
     if (IS_MOBILE() && isOpen) {
       window.setTimeout(() => {
-        trigger.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        keepMobileTriggerVisible(trigger);
       }, 80);
     }
   });

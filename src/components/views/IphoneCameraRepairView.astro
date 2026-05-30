@@ -1,0 +1,838 @@
+---
+// IphoneCameraRepairView.astro - Reparación de cámara iPhone en Cancún
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import Footer from '../Footer.astro';
+
+const waMsg = encodeURIComponent('Hola, quiero cotizar reparación de cámara iPhone en Cancún. Puedo enviar modelo, fotos del problema y síntomas.');
+
+const heroBadges = [
+  'Cámara frontal y trasera',
+  'Enfoque y estabilizador',
+  'Manchas o lente roto',
+  'Diagnóstico por modelo',
+  'Garantía por escrito',
+];
+
+const symptoms = [
+  { icon: 'fa-camera', title: 'Cámara negra', text: 'La app abre, pero no muestra imagen o se queda congelada.' },
+  { icon: 'fa-bullseye', title: 'No enfoca', text: 'La imagen sale borrosa aunque limpies el lente o cambies de distancia.' },
+  { icon: 'fa-circle-dot', title: 'Manchas en imagen', text: 'Aparecen puntos, sombras, rayas o manchas al tomar fotos.' },
+  { icon: 'fa-video', title: 'Vibra al grabar', text: 'La cámara tiembla, hace ruido o vibra al abrir video.' },
+  { icon: 'fa-face-smile', title: 'Selfie falla', text: 'La cámara frontal no abre, sale negra o falla después de una caída.' },
+  { icon: 'fa-bolt', title: 'Flash no funciona', text: 'El flash no enciende, parpadea o no sincroniza con la foto.' },
+  { icon: 'fa-droplet', title: 'Humedad en lente', text: 'Se ve empañado por dentro o falla después de mojarse.' },
+  { icon: 'fa-mobile-screen', title: 'Error tras reparación', text: 'La cámara falló después de pantalla, batería o golpe previo.' },
+];
+
+const diagnostic = [
+  ['01', 'Prueba de app Cámara', 'Probamos foto, video, zoom, enfoque, cámara frontal, trasera y cambios entre lentes.'],
+  ['02', 'Revisión física', 'Validamos cristal, lente, frame, golpes, humedad y suciedad interna antes de abrir.'],
+  ['03', 'Sensores y flex', 'Revisamos conectores, flex, sensores cercanos y si la falla se relaciona con reparación previa.'],
+  ['04', 'Cotización real', 'Te explicamos si conviene limpieza, ajuste, cambio de cámara o diagnóstico avanzado.'],
+];
+
+const cameraTypes = [
+  { title: 'Cámara trasera', badge: 'Foto y video', text: 'Revisión de lente principal, enfoque, estabilizador, manchas, vibración, zoom y flash.' },
+  { title: 'Cámara frontal', badge: 'Selfie y video', text: 'Diagnóstico de cámara frontal, flex, sensores cercanos y funcionamiento en videollamada.' },
+  { title: 'Cristal de cámara', badge: 'Lente exterior', text: 'Cuando el cristal está estrellado o rayado, revisamos si solo requiere cristal o módulo completo.' },
+];
+
+const process = [
+  { n: '01', title: 'Recepción y pruebas', text: 'Confirmamos modelo, síntomas, golpes, humedad y comportamiento de cámara frontal y trasera.' },
+  { n: '02', title: 'Revisión externa', text: 'Inspeccionamos cristal, lente, polvo, manchas, frame y señales de golpe.' },
+  { n: '03', title: 'Diagnóstico interno', text: 'Abrimos solo si aplica para revisar flex, conectores, humedad y módulo de cámara.' },
+  { n: '04', title: 'Opciones de reparación', text: 'Te decimos si conviene limpieza, ajuste, cambio de cristal o reemplazo de cámara.' },
+  { n: '05', title: 'Instalación cuidada', text: 'Trabajamos con herramienta adecuada, cuidando flex, sensores y sellado del equipo.' },
+  { n: '06', title: 'Pruebas antes de entregar', text: 'Probamos foto, video, enfoque, zoom, flash, videollamada y estabilidad.' },
+];
+
+const models = [
+  'iPhone 16 Pro Max', 'iPhone 16 Pro', 'iPhone 16 Plus', 'iPhone 16',
+  'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
+  'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
+  'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13 Mini', 'iPhone 13',
+  'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12 Mini', 'iPhone 12',
+  'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11', 'iPhone XR', 'iPhone XS',
+];
+
+const proofChecks = [
+  'Foto frontal y trasera',
+  'Video y audio de grabación',
+  'Flash y enfoque',
+  'Zoom y cambio de lentes',
+  'Videollamada si aplica',
+  'Revisión de calentamiento',
+];
+
+const faqItems = [
+  { question: '¿Cuánto cuesta reparar la cámara de un iPhone en Cancún?', answer: 'El costo depende del modelo, tipo de cámara afectada, disponibilidad de refacción y si el daño es lente, módulo, flex, humedad o reparación previa. Pedimos modelo y fotos del problema para cotizar mejor.' },
+  { question: '¿Se puede cambiar solo el cristal de la cámara?', answer: 'En algunos casos sí, pero primero revisamos si el cristal roto dañó el lente interno, si entró polvo o si el módulo ya presenta manchas, vibración o desenfoque.' },
+  { question: '¿Por qué mi cámara vibra o hace ruido?', answer: 'Puede ser falla del estabilizador, golpe en el módulo, daño interno o problema de enfoque. No recomendamos seguir forzando la cámara sin revisión porque la falla puede empeorar.' },
+  { question: '¿También revisan cámara frontal?', answer: 'Sí. Revisamos cámara frontal, flex, sensores cercanos y funcionamiento en foto, video y videollamada. Si hay relación con Face ID o sensores, lo aclaramos antes de cotizar.' },
+  { question: '¿Qué pasa si el iPhone se mojó?', answer: 'Primero revisamos humedad, conectores y estado interno. No conviene instalar cámara nueva sin revisar líquido porque la falla puede regresar o afectar otros componentes.' },
+  { question: '¿Dan garantía por la reparación?', answer: 'Sí, entregamos garantía por escrito sobre la pieza instalada y mano de obra, siempre que no exista daño posterior por golpe, humedad o manipulación externa.' },
+];
+---
+
+<div class="icr-wrapper">
+  <section class="icr-hero">
+    <div class="container icr-hero-grid">
+      <div>
+        <span class="icr-eyebrow"><i class="fa-brands fa-apple"></i> Servicio técnico iPhone Cancún</span>
+        <h1>Reparación de cámara iPhone en Cancún</h1>
+        <p class="icr-sub">Diagnóstico de cámara frontal, trasera, enfoque, manchas, vibración y lente roto antes de cambiar piezas.</p>
+        <p class="icr-copy">Si tu iPhone toma fotos borrosas, abre la cámara en negro, vibra al grabar o tiene manchas en la imagen, revisamos módulo, lente, flex, sensores y señales de humedad antes de cotizar.</p>
+        <div class="icr-chips">
+          {heroBadges.map((badge) => <span>{badge}</span>)}
+        </div>
+        <div class="icr-actions">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="icr-btn icr-btn-wa"><i class="fa-brands fa-whatsapp"></i> Cotizar cámara por WhatsApp</a>
+          <a href="#proceso" class="icr-btn icr-btn-outline">Ver proceso <i class="fa-solid fa-arrow-down"></i></a>
+        </div>
+        <small>Envía modelo, foto del lente y una imagen donde se vea la falla.</small>
+      </div>
+      <aside class="icr-hero-card">
+        <div class="icr-camera-visual" aria-hidden="true">
+          <div class="icr-phone-back">
+            <div class="icr-camera-island">
+              <span class="lens lens-main"></span>
+              <span class="lens lens-two"></span>
+              <span class="lens lens-three"></span>
+              <span class="icr-flash"></span>
+              <span class="icr-sensor"></span>
+            </div>
+            <span class="icr-apple-mark"><i class="fa-brands fa-apple"></i></span>
+            <span class="icr-scan-line"></span>
+          </div>
+          <div class="icr-visual-note">
+            <strong>Diagnóstico de cámara</strong>
+            <span>lente, módulo, enfoque y humedad</span>
+          </div>
+        </div>
+        <ul>
+          {proofChecks.map((item) => <li><i class="fa-solid fa-circle-check"></i>{item}</li>)}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="icr-section icr-light">
+    <div class="container">
+      <div class="icr-head">
+        <span class="icr-eyebrow">Síntomas</span>
+        <h2>Fallas comunes de cámara en iPhone</h2>
+        <p>La cámara puede fallar por golpe, humedad, lente dañado, flex flojo, estabilizador o reparación previa. Primero identificamos la causa real.</p>
+      </div>
+      <div class="icr-symptom-grid">
+        {symptoms.map((item) => (
+          <article class="icr-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="icr-section icr-light icr-diagnostic-section">
+    <div class="container icr-diagnostic-grid">
+      <div>
+        <span class="icr-eyebrow">Diagnóstico real</span>
+        <h2>No cambiamos la cámara sin probar enfoque, lente y humedad</h2>
+        <p>Una cámara negra no siempre significa módulo dañado. Puede ser app, flex, humedad, lente sucio, reparación previa o daño en conectores.</p>
+      </div>
+      <div class="icr-diagnostic-list">
+        {diagnostic.map(([n, title, text]) => (
+          <article>
+            <span>{n}</span>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="icr-section icr-light">
+    <div class="container">
+      <div class="icr-head">
+        <span class="icr-eyebrow">Tipos de reparación</span>
+        <h2>Qué se revisa antes de cotizar la cámara</h2>
+        <p>Te explicamos si el problema está en cámara frontal, cámara trasera, cristal exterior, enfoque, flash o daño por humedad.</p>
+      </div>
+      <div class="icr-type-grid">
+        {cameraTypes.map((item) => (
+          <article class="icr-type-card">
+            <span>{item.badge}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="icr-section icr-process" id="proceso">
+    <div class="container">
+      <div class="icr-head">
+        <span class="icr-eyebrow">Proceso técnico</span>
+        <h2>Proceso de reparación de cámara iPhone en Cancún</h2>
+        <p>Revisamos síntomas, lente, enfoque, humedad y conectores antes de instalar cualquier pieza nueva.</p>
+      </div>
+      <div class="icr-timeline">
+        {process.map((step) => (
+          <article>
+            <span>{step.n}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="icr-section icr-dark-alt">
+    <div class="container icr-proof-grid">
+      <div>
+        <span class="icr-eyebrow">Pruebas de entrega</span>
+        <h2>No entregamos sin probar cámara en uso real</h2>
+        <p>Antes de avisarte por WhatsApp probamos foto, video, enfoque, flash, cambios de lente, cámara frontal y trasera.</p>
+      </div>
+      <div class="icr-proof-list">
+        {proofChecks.map((item) => <span><i class="fa-solid fa-check"></i>{item}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="icr-section icr-light">
+    <div class="container">
+      <div class="icr-head">
+        <span class="icr-eyebrow">Compatibilidad</span>
+        <h2>Cámara iPhone 11, 12, 13, 14, 15 y 16 en Cancún</h2>
+        <p>Trabajamos diagnóstico y reparación de cámara iPhone Cancún por modelo exacto. Si tienes un modelo anterior, revisamos disponibilidad.</p>
+      </div>
+      <div class="icr-model-grid">
+        {models.map((model) => <span><i class="fa-brands fa-apple"></i>{model}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="icr-section icr-dark-alt">
+    <div class="container icr-warning-grid">
+      <div>
+        <span class="icr-eyebrow">Antes de reparar</span>
+        <h2>Golpe, humedad o lente roto cambian el diagnóstico</h2>
+        <p>Si el lente está roto o entró humedad, revisar primero evita instalar una cámara que vuelva a fallar por polvo, líquido o daño interno.</p>
+      </div>
+      <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="icr-btn icr-btn-wa">Enviar fotos del problema</a>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    defaultDevice="iPhone"
+    defaultService="Reparación de cámara"
+    title="Crear ticket de cámara iPhone"
+    subtitle="Cuéntanos modelo, cámara afectada y síntomas. Te contactaremos para confirmar diagnóstico y cotización."
+  />
+
+  <section class="icr-related-shell">
+    <RelatedServicesSection
+      category={category}
+      service={service}
+      eyebrow="Servicios relacionados"
+      title="Otros servicios de iPhone que podrías necesitar"
+      compact={true}
+      includeCategoryServices={true}
+      initialLimit={4}
+    />
+  </section>
+
+  <FaqSection
+    id="faq-camara-iphone"
+    title="Preguntas frecuentes sobre reparación de cámara iPhone en Cancún"
+    description="Respondemos dudas sobre cámara frontal, trasera, lente roto, enfoque, humedad, costos y garantía."
+    items={faqItems}
+    backgroundColor="#0B1120"
+    questionColor="#f8fafc"
+    titleColor="#f8fafc"
+    descriptionColor="#cfe7f6"
+    faqAccent="#3b82f6"
+    sectionClass="icr-faq-dark"
+  />
+
+  <section class="icr-comments">
+    <CommentsSection
+      title="Clientes que repararon su iPhone en Pixon PC"
+      description="Opiniones de clientes en Cancún que trajeron iPhone con cámara negra, lente roto, manchas o enfoque fallando."
+      dark={true}
+    />
+  </section>
+
+  <section class="icr-contact-shell">
+    <ContactSection id="ubicacion" />
+  </section>
+</div>
+
+<Footer />
+
+<style is:global>
+.icr-wrapper {
+  --icr-dark: #0B1120;
+  --icr-dark-2: #0f172a;
+  --icr-line: rgba(147,197,253,.18);
+  --icr-blue: #2563eb;
+  --icr-cyan: #93c5fd;
+  --icr-text: #0f2a4a;
+  --icr-muted: #475569;
+  --icr-soft: #cfe7f6;
+  --icr-white: #f8fafc;
+  background: var(--icr-dark);
+  color: var(--icr-white);
+  overflow-x: hidden;
+}
+.icr-wrapper h1,
+.icr-wrapper h2,
+.icr-wrapper h3 {
+  font-family: 'Kanit', sans-serif;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+.icr-hero {
+  padding: 50px 0 44px;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(59,130,246,.24), transparent 30%),
+    linear-gradient(135deg, #050d1f, #0B1120 58%, #0f172a);
+}
+.icr-hero-grid,
+.icr-diagnostic-grid,
+.icr-proof-grid,
+.icr-warning-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, .72fr);
+  gap: 32px;
+  align-items: center;
+}
+.icr-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--icr-cyan);
+  font-size: .76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+}
+.icr-hero h1 {
+  color: var(--icr-white);
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  margin: 0 0 10px;
+  max-width: 760px;
+}
+.icr-sub {
+  color: #dbeafe;
+  font-size: clamp(1rem, 1.8vw, 1.14rem);
+  line-height: 1.45;
+  margin: 0 0 10px;
+  max-width: 680px;
+}
+.icr-copy {
+  color: var(--icr-soft);
+  line-height: 1.6;
+  margin: 0 0 16px;
+  max-width: 700px;
+}
+.icr-chips,
+.icr-actions,
+.icr-model-grid,
+.icr-proof-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.icr-chips { margin-bottom: 18px; }
+.icr-chips span,
+.icr-model-grid span,
+.icr-proof-list span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--icr-line);
+  background: rgba(248,250,252,.06);
+  color: #dbeafe;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: .78rem;
+  font-weight: 750;
+}
+.icr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 850;
+  font-size: .9rem;
+}
+.icr-btn-wa {
+  background: #16a34a;
+  color: var(--icr-white);
+  box-shadow: 0 14px 34px rgba(22,163,74,.22);
+}
+.icr-btn-outline {
+  border: 1px solid rgba(147,197,253,.28);
+  color: #dbeafe;
+  background: rgba(248,250,252,.06);
+}
+.icr-hero small {
+  color: #a9bdd6;
+  display: block;
+  margin-top: 8px;
+}
+.icr-hero-card {
+  background: linear-gradient(180deg, rgba(248,250,252,.1), rgba(248,250,252,.045));
+  border: 1px solid var(--icr-line);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 24px 54px rgba(2,6,23,.34);
+}
+.icr-camera-visual {
+  min-height: 260px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(96,165,250,.28), transparent 28%),
+    linear-gradient(145deg, rgba(15,23,42,.86), rgba(2,6,23,.42));
+  border: 1px solid rgba(147,197,253,.16);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.icr-camera-visual::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(147,197,253,.12);
+  border-radius: 16px;
+  pointer-events: none;
+}
+.icr-phone-back {
+  width: min(210px, 72%);
+  aspect-ratio: 9 / 16;
+  max-height: 238px;
+  border-radius: 30px;
+  background:
+    linear-gradient(145deg, rgba(226,232,240,.14), rgba(15,23,42,.18)),
+    linear-gradient(160deg, #1e293b 0%, #0f172a 54%, #020617 100%);
+  border: 1px solid rgba(226,232,240,.22);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 22px 55px rgba(2,6,23,.54);
+  position: relative;
+  transform: rotate(-7deg);
+}
+.icr-phone-back::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 24px;
+  border: 1px solid rgba(147,197,253,.08);
+}
+.icr-camera-island {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 104px;
+  height: 104px;
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(248,250,252,.18), rgba(15,23,42,.76)),
+    #172033;
+  border: 1px solid rgba(226,232,240,.24);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 16px 34px rgba(2,6,23,.42);
+}
+.icr-camera-visual .lens {
+  position: absolute;
+  border-radius: 999px;
+  border: 6px solid #111827;
+  background:
+    radial-gradient(circle at 34% 30%, #eff6ff 0 8%, #60a5fa 9% 24%, #1d4ed8 42%, #020617 76%);
+  box-shadow:
+    inset 0 0 0 2px rgba(147,197,253,.2),
+    0 10px 20px rgba(2,6,23,.42);
+}
+.icr-camera-visual .lens::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(248,250,252,.8);
+  top: 9px;
+  left: 10px;
+}
+.lens-main { width: 50px; height: 50px; left: 10px; top: 10px; }
+.lens-two { width: 44px; height: 44px; right: 10px; top: 34px; }
+.lens-three { width: 46px; height: 46px; left: 14px; bottom: 8px; }
+.icr-flash,
+.icr-sensor {
+  position: absolute;
+  border-radius: 999px;
+}
+.icr-flash {
+  width: 19px;
+  height: 19px;
+  right: 18px;
+  top: 13px;
+  background: radial-gradient(circle at 35% 35%, #fff7ed, #fbbf24 45%, #92400e);
+  box-shadow: 0 0 18px rgba(251,191,36,.35);
+}
+.icr-sensor {
+  width: 14px;
+  height: 14px;
+  right: 21px;
+  bottom: 18px;
+  background: radial-gradient(circle, #93c5fd, #172554 66%);
+  border: 2px solid rgba(15,23,42,.95);
+}
+.icr-apple-mark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(226,232,240,.22);
+  font-size: 2rem;
+}
+.icr-scan-line {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 38px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(96,165,250,.86), transparent);
+  box-shadow: 0 0 18px rgba(96,165,250,.46);
+}
+.icr-visual-note {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  max-width: 178px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(15,23,42,.78);
+  border: 1px solid rgba(147,197,253,.2);
+  box-shadow: 0 14px 32px rgba(2,6,23,.32);
+}
+.icr-visual-note strong,
+.icr-visual-note span {
+  display: block;
+}
+.icr-visual-note strong {
+  color: #f8fafc;
+  font-size: .82rem;
+  font-family: 'Kanit', sans-serif;
+}
+.icr-visual-note span {
+  color: #cfe7f6;
+  font-size: .72rem;
+  line-height: 1.25;
+}
+.icr-hero-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+.icr-hero-card li {
+  color: #dbeafe;
+  font-size: .82rem;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.icr-hero-card li i { color: #86efac; }
+.icr-section {
+  padding: 62px 0;
+}
+.icr-light,
+.icr-process {
+  background: #f8fafc;
+  color: var(--icr-text);
+}
+.icr-dark {
+  background: var(--icr-dark);
+}
+.icr-dark-alt {
+  background: linear-gradient(180deg, #0f172a, #0B1120);
+}
+.icr-head {
+  max-width: 860px;
+  margin-bottom: 30px;
+}
+.icr-head h2,
+.icr-diagnostic-grid h2,
+.icr-proof-grid h2,
+.icr-warning-grid h2 {
+  color: var(--icr-white);
+  margin: 0 0 10px;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+}
+.icr-head p,
+.icr-diagnostic-grid p,
+.icr-proof-grid p,
+.icr-warning-grid p {
+  color: var(--icr-soft);
+  line-height: 1.65;
+  margin: 0;
+}
+.icr-light .icr-eyebrow,
+.icr-process .icr-eyebrow { color: var(--icr-blue); }
+.icr-light .icr-head h2,
+.icr-light .icr-card h3,
+.icr-light .icr-type-card h3,
+.icr-process .icr-head h2,
+.icr-process .icr-timeline h3 {
+  color: var(--icr-text);
+}
+.icr-light .icr-head p,
+.icr-light .icr-card p,
+.icr-light .icr-type-card p,
+.icr-process .icr-head p,
+.icr-process .icr-timeline p {
+  color: var(--icr-muted);
+}
+.icr-diagnostic-section .icr-diagnostic-grid h2,
+.icr-diagnostic-section .icr-diagnostic-list h3 {
+  color: var(--icr-text);
+}
+.icr-diagnostic-section .icr-diagnostic-grid p,
+.icr-diagnostic-section .icr-diagnostic-list p {
+  color: var(--icr-muted);
+}
+.icr-diagnostic-section .icr-diagnostic-list article {
+  background: #ffffff;
+  border-color: rgba(15,42,74,.12);
+  box-shadow: 0 14px 34px rgba(15,42,74,.08);
+}
+.icr-diagnostic-section .icr-diagnostic-list span {
+  background: #eaf3ff;
+  color: var(--icr-blue);
+}
+.icr-symptom-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.icr-card,
+.icr-type-card,
+.icr-timeline article {
+  background: #ffffff;
+  border: 1px solid rgba(15,42,74,.12);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 14px 32px rgba(15,42,74,.07);
+}
+.icr-card i {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #eaf3ff;
+  color: var(--icr-blue);
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+}
+.icr-card h3,
+.icr-type-card h3,
+.icr-timeline h3,
+.icr-diagnostic-list h3 {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+.icr-card p,
+.icr-type-card p,
+.icr-timeline p,
+.icr-diagnostic-list p {
+  font-size: .88rem;
+  line-height: 1.55;
+  margin: 0;
+}
+.icr-diagnostic-list {
+  display: grid;
+  gap: 10px;
+}
+.icr-diagnostic-list article {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 14px;
+  padding: 16px;
+  background: rgba(248,250,252,.055);
+  border: 1px solid var(--icr-line);
+  border-radius: 16px;
+}
+.icr-diagnostic-list span,
+.icr-timeline span {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(96,165,250,.14);
+  color: var(--icr-cyan);
+  font-weight: 900;
+}
+.icr-diagnostic-list h3 { color: var(--icr-white); }
+.icr-diagnostic-list p { color: var(--icr-soft); }
+.icr-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.icr-type-card > span {
+  display: inline-flex;
+  color: var(--icr-blue);
+  background: #eaf3ff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: .74rem;
+  font-weight: 850;
+  margin-bottom: 12px;
+}
+.icr-timeline {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+.icr-timeline article {
+  min-height: 188px;
+}
+.icr-timeline span {
+  background: #eaf3ff;
+  color: var(--icr-blue);
+  margin-bottom: 14px;
+}
+.icr-proof-list span { min-height: 40px; }
+.icr-proof-list i { color: #86efac; }
+.icr-model-grid span {
+  background: #ffffff;
+  color: var(--icr-text);
+  border-color: rgba(15,42,74,.12);
+}
+.icr-related-shell {
+  background: var(--icr-dark);
+}
+.icr-related-shell :global(section),
+.icr-related-shell :global(.related-services-section) {
+  background: var(--icr-dark) !important;
+}
+.icr-contact-shell,
+.icr-contact-shell #ubicacion.contact {
+  background: #f8fafc !important;
+}
+.icr-contact-shell #ubicacion.contact h2,
+.icr-contact-shell #ubicacion.contact h3,
+.icr-contact-shell #ubicacion.contact strong {
+  color: var(--icr-text) !important;
+}
+.icr-contact-shell #ubicacion.contact p,
+.icr-contact-shell #ubicacion.contact span,
+.icr-contact-shell #ubicacion.contact li,
+.icr-contact-shell #ubicacion.contact .description-text {
+  color: var(--icr-muted) !important;
+}
+.icr-contact-shell #ubicacion.contact .glass-card,
+.icr-contact-shell #ubicacion.contact .coverage-area,
+.icr-contact-shell #ubicacion.contact .contact-form {
+  background: #ffffff !important;
+  border-color: rgba(15,42,74,.12) !important;
+  box-shadow: 0 14px 34px rgba(15,42,74,.08) !important;
+}
+.icr-faq-dark {
+  background: var(--icr-dark) !important;
+}
+.icr-faq-dark .container { max-width: 900px; }
+.icr-faq-dark .faq-item,
+.icr-faq-dark .faq-item--open {
+  background: rgba(248,250,252,.045) !important;
+  border-color: var(--icr-line) !important;
+  box-shadow: none !important;
+}
+.icr-faq-dark .faq-item:hover {
+  background: rgba(59,130,246,.08) !important;
+  border-color: rgba(96,165,250,.42) !important;
+}
+.icr-faq-dark .faq-question,
+.icr-faq-dark .faq-question:hover,
+.icr-faq-dark .faq-question:focus,
+.icr-faq-dark .faq-page-content .faq-item--open .faq-question {
+  background: transparent !important;
+  color: var(--icr-white) !important;
+}
+.icr-faq-dark .faq-answer-inner { color: var(--icr-soft) !important; }
+.icr-comments { background: var(--icr-dark); }
+@media (max-width: 1100px) {
+  .icr-symptom-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .icr-timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .icr-hero-grid,
+  .icr-diagnostic-grid,
+  .icr-proof-grid,
+  .icr-warning-grid,
+  .icr-type-grid {
+    grid-template-columns: 1fr;
+  }
+  .icr-hero-card { max-width: 540px; }
+}
+@media (max-width: 620px) {
+  .icr-hero { padding: 34px 0; }
+  .icr-section { padding: 46px 0; }
+  .icr-hero h1 { font-size: clamp(1.82rem, 11vw, 2.35rem); }
+  .icr-copy { font-size: .92rem; }
+  .icr-symptom-grid,
+  .icr-timeline,
+  .icr-hero-card ul {
+    grid-template-columns: 1fr;
+  }
+  .icr-actions { flex-direction: column; }
+  .icr-btn { width: 100%; }
+  .icr-camera-visual { min-height: 230px; }
+  .icr-phone-back {
+    width: min(178px, 68%);
+    max-height: 210px;
+    transform: rotate(-5deg);
+  }
+  .icr-camera-island {
+    width: 92px;
+    height: 92px;
+    border-radius: 24px;
+  }
+  .lens-main { width: 44px; height: 44px; }
+  .lens-two { width: 39px; height: 39px; }
+  .lens-three { width: 40px; height: 40px; }
+  .icr-visual-note {
+    max-width: 150px;
+    right: 10px;
+    bottom: 10px;
+  }
+}
+</style>

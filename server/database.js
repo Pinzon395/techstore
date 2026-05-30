@@ -542,12 +542,41 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
          LIMIT ?`,
         [recentLimit]
     );
+    const [groupedPages] = await pool.execute(
+        `SELECT
+            normalized_path AS path,
+            MAX(title) AS title,
+            MAX(created_at) AS last_seen,
+            COUNT(*) AS total_views,
+            COUNT(*) AS week_views,
+            SUM(CASE WHEN DATE(created_at) = CURDATE() THEN 1 ELSE 0 END) AS today_views,
+            SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE) THEN 1 ELSE 0 END) AS window_views,
+            COUNT(DISTINCT COALESCE(session_id, CONCAT('view-', id))) AS week_visitors
+         FROM (
+            SELECT
+                id,
+                title,
+                created_at,
+                session_id,
+                CASE
+                    WHEN TRIM(TRAILING '/' FROM SUBSTRING_INDEX(path, '?', 1)) = '' THEN '/'
+                    ELSE TRIM(TRAILING '/' FROM SUBSTRING_INDEX(path, '?', 1))
+                END AS normalized_path
+            FROM page_views
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+         ) pv
+         GROUP BY normalized_path
+         ORDER BY week_views DESC, last_seen DESC
+         LIMIT ?`,
+        [minutesWindow, recentLimit]
+    );
     return {
         active: active[0]?.active ?? 0,
         window_views: windowTotals[0]?.views ?? 0,
         window_visitors: windowTotals[0]?.visitors ?? 0,
         per_minute: perMinute,
         last_views: lastViews,
+        grouped_pages: groupedPages,
         window_minutes: minutesWindow,
         ts: Date.now(),
     };
