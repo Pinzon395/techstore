@@ -123,9 +123,9 @@ function renderDesktopAuth(user) {
                 <a href="${adminHref}" class="nav-dropdown-item" id="nav-item-admin" role="menuitem">
                     <i class="fa-solid fa-gauge-high"></i> Panel de Admin
                 </a>` : ''}
-                <button class="nav-dropdown-item" id="nav-item-profile" role="menuitem" style="width:100%; text-align:left; border:none; background:transparent; font-family:inherit; cursor:pointer;">
-                    <i class="fa-solid fa-user-pen"></i> Completar Perfil
-                </button>
+                <a href="/cuenta" class="nav-dropdown-item" id="nav-item-profile" role="menuitem">
+                    <i class="fa-solid fa-circle-user"></i> Mi cuenta
+                </a>
                 <a href="/auth/logout" class="nav-dropdown-item nav-dropdown-logout" id="nav-item-logout" role="menuitem">
                     <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
                 </a>
@@ -187,9 +187,9 @@ function renderMobileAuth(user) {
         <a href="${adminHref}" class="nav-links nav-admin-mobile" id="btn-admin-mobile">
             <i class="fa-solid fa-gear"></i>&nbsp;Panel de Admin
         </a>` : ''}
-        <button class="nav-links" id="nav-item-profile-mobile" style="width:100%; text-align:left; border:none; background:transparent; font-family:inherit; cursor:pointer; color:#94a3b8; font-weight:600; padding:12px 15px; border-radius:8px; display:flex; align-items:center; gap:8px;">
-            <i class="fa-solid fa-user-pen"></i>&nbsp;Completar Perfil
-        </button>
+        <a href="/cuenta" class="nav-links" id="nav-item-profile-mobile" style="color:#94a3b8; font-weight:600; padding:12px 15px; border-radius:8px; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-circle-user"></i>&nbsp;Mi cuenta
+        </a>
         <a href="/auth/logout" class="nav-links nav-logout-mobile" id="btn-logout-mobile">
             <i class="fa-solid fa-right-from-bracket"></i>&nbsp;Cerrar sesión
         </a>`;
@@ -200,8 +200,8 @@ function setupProfileListeners() {
     const btnDesktop = document.getElementById('nav-item-profile');
     const btnMobile = document.getElementById('nav-item-profile-mobile');
 
-    if (btnDesktop) btnDesktop.addEventListener('click', openProfileModal);
-    if (btnMobile) btnMobile.addEventListener('click', openProfileModal);
+    if (btnDesktop && btnDesktop.tagName === 'BUTTON') btnDesktop.addEventListener('click', openProfileModal);
+    if (btnMobile && btnMobile.tagName === 'BUTTON') btnMobile.addEventListener('click', openProfileModal);
 }
 
 function openProfileModal() {

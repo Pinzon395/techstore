@@ -1,0 +1,485 @@
+---
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waMsg = encodeURIComponent('Hola, quiero cotizar reparacion de microfono iPhone en Cancun. No me escuchan en llamadas, notas de voz, video o WhatsApp.');
+
+const keywords = [
+  'reparacion microfono iPhone Cancun',
+  'no me escuchan en llamadas iPhone',
+  'microfono iPhone no funciona',
+  'notas de voz iPhone no graba',
+  'WhatsApp no graba audio iPhone',
+  'video iPhone sin audio',
+  'Siri no escucha iPhone',
+  'microfono iPhone se escucha bajo',
+  'flex de carga iPhone microfono',
+  'servicio tecnico iPhone Cancun',
+];
+
+const symptoms = [
+  { icon: 'fa-phone-volume', title: 'No te escuchan en llamadas', text: 'La otra persona no oye tu voz, se escucha cortada, muy baja o con ruido durante llamadas normales.', tag: 'llamadas iPhone' },
+  { icon: 'fa-microphone-slash', title: 'Notas de voz no graba', text: 'La app graba silencio, ruido, audio muy bajo o no detecta voz aunque el iPhone parezca funcionar.', tag: 'notas de voz' },
+  { icon: 'fa-comment-dots', title: 'WhatsApp no manda audio', text: 'Los audios de WhatsApp salen vacios, bajos, distorsionados o la app no capta el microfono.', tag: 'WhatsApp iPhone' },
+  { icon: 'fa-video', title: 'Videos sin audio', text: 'La camara graba imagen pero el audio sale bajo, saturado, con viento o completamente mudo.', tag: 'video sin audio' },
+  { icon: 'fa-headset', title: 'Altavoz o videollamada falla', text: 'En altavoz, FaceTime o videollamada puede fallar otro microfono distinto al de llamada normal.', tag: 'FaceTime / altavoz' },
+  { icon: 'fa-face-smile', title: 'Siri o dictado no escucha', text: 'Siri, dictado o busqueda por voz no detectan tu voz o reaccionan de forma intermitente.', tag: 'Siri no escucha' },
+  { icon: 'fa-droplet', title: 'Falla despues de mojarse', text: 'Agua, vapor, sudor o salitre pueden tapar rejillas, oxidar conectores o dañar el flex.', tag: 'humedad' },
+  { icon: 'fa-plug', title: 'Falla junto con carga', text: 'En algunos modelos el microfono inferior se relaciona con el flex de carga y requiere revisar ambos.', tag: 'flex de carga' },
+];
+
+const micZones = [
+  { icon: 'fa-mobile-screen-button', title: 'Microfono inferior', text: 'Suele usarse en llamadas normales y puede estar ligado al flex de carga en varios modelos.' },
+  { icon: 'fa-video', title: 'Microfono de video', text: 'Puede afectar grabacion de video, camara, audio ambiente y reduccion de ruido.' },
+  { icon: 'fa-headset', title: 'Microfono superior', text: 'Puede intervenir en altavoz, videollamadas, FaceTime, Siri y cancelacion de ruido.' },
+  { icon: 'fa-border-all', title: 'Rejillas y mallas', text: 'Polvo, humedad, maquillaje o residuos pueden bloquear la entrada de audio sin que el modulo este dañado.' },
+];
+
+const diagnosis = [
+  ['01', 'Prueba de llamada', 'Probamos llamada normal, altavoz y comportamiento con varias apps si el equipo permite acceso.'],
+  ['02', 'Prueba de grabacion', 'Revisamos Notas de Voz, video frontal, video trasero, WhatsApp, Siri y dictado.'],
+  ['03', 'Revision de rejillas', 'Buscamos suciedad, humedad, polvo compactado, malla bloqueada o daño en el frame.'],
+  ['04', 'Revision interna si aplica', 'Si el sintoma apunta a hardware, revisamos flex, conectores, carga, humedad y reparaciones previas.'],
+];
+
+const causes = [
+  { icon: 'fa-broom', title: 'Rejilla tapada', text: 'Suciedad, pelusa, maquillaje o residuos pueden bloquear el audio sin requerir cambio de pieza.' },
+  { icon: 'fa-droplet-slash', title: 'Humedad o salitre', text: 'El clima de Cancun, lluvia o playa pueden oxidar conectores o dejar residuos conductivos.' },
+  { icon: 'fa-plug-circle-bolt', title: 'Flex de carga afectado', text: 'En algunos iPhone, el microfono inferior comparte modulo o ruta con el puerto de carga.' },
+  { icon: 'fa-mobile-screen', title: 'Golpe o reparacion previa', text: 'Una caida o un ensamble anterior puede dejar un conector flojo, malla tapada o flex dañado.' },
+  { icon: 'fa-gear', title: 'Permisos o software', text: 'Apps sin permiso, fallas de iOS o configuracion pueden parecer falla fisica de microfono.' },
+  { icon: 'fa-microchip', title: 'Falla en placa', text: 'Si los microfonos y flex estan bien, se revisan lineas, consumo o daño interno.' },
+];
+
+const process = [
+  { step: '01', title: 'Recepcion y sintomas', text: 'Confirmamos si falla llamada, WhatsApp, video, Siri, altavoz o todas las funciones.' },
+  { step: '02', title: 'Pruebas por app', text: 'Probamos telefono, notas de voz, camara, WhatsApp, FaceTime, Siri y dictado.' },
+  { step: '03', title: 'Inspeccion externa', text: 'Revisamos rejillas, puerto, carcasa, suciedad, humedad, golpes y mallas obstruidas.' },
+  { step: '04', title: 'Diagnostico interno', text: 'Si aplica, revisamos flex de carga, microfonos, conectores, humedad y reparaciones previas.' },
+  { step: '05', title: 'Cotizacion de solucion', text: 'Te decimos si conviene limpieza, cambio de flex, microfono, carga o diagnostico de placa.' },
+  { step: '06', title: 'Pruebas finales', text: 'Validamos llamada, grabacion, video, WhatsApp, altavoz, Siri y estabilidad antes de entregar.' },
+];
+
+const tests = [
+  { icon: 'fa-phone', title: 'Llamada normal', text: 'Validamos que la otra persona escuche claro y sin cortes.' },
+  { icon: 'fa-microphone-lines', title: 'Notas de voz', text: 'Probamos volumen, claridad y ruido de fondo en grabacion.' },
+  { icon: 'fa-video', title: 'Video frontal y trasero', text: 'Confirmamos audio al grabar con ambas camaras.' },
+  { icon: 'fa-comment-dots', title: 'WhatsApp', text: 'Revisamos notas de voz y comportamiento dentro de la app.' },
+  { icon: 'fa-headset', title: 'Altavoz y FaceTime', text: 'Probamos microfonos usados en altavoz y videollamada.' },
+  { icon: 'fa-wand-magic-sparkles', title: 'Siri y dictado', text: 'Confirmamos deteccion de voz cuando aplica.' },
+];
+
+const care = [
+  { icon: 'fa-droplet-slash', title: 'Evita humedad', text: 'No grabes ni cargues si el iPhone se mojo o estuvo expuesto a vapor.' },
+  { icon: 'fa-broom', title: 'No limpies con agujas', text: 'Puedes romper mallas, empujar suciedad o dañar el microfono.' },
+  { icon: 'fa-shield-halved', title: 'Usa funda sin tapar rejillas', text: 'Algunas fundas bloquean microfonos inferiores o superiores.' },
+  { icon: 'fa-gear', title: 'Revisa permisos de apps', text: 'Si solo falla en una app, puede ser permiso de microfono o configuracion.' },
+  { icon: 'fa-volume-low', title: 'Atiende audio bajo a tiempo', text: 'Si cada vez te escuchan menos, puede haber suciedad, humedad o flex degradado.' },
+  { icon: 'fa-comment-dots', title: 'Describe donde falla', text: 'Dinos si falla en llamadas, WhatsApp, video, Siri, altavoz o todo.' },
+];
+
+const relatedItems = [
+  { href: '/servicios/telefono/reparacion-bocina-iphone', icon: 'fa-volume-high', label: 'Reparacion de bocina iPhone', desc: 'Si tu no escuchas, falla el auricular, bocina, timbre o audio multimedia.' },
+  { href: '/servicios/telefono/reparacion-carga-iphone', icon: 'fa-plug', label: 'Reparacion de carga iPhone', desc: 'En modelos donde el microfono inferior se relaciona con el flex de carga.' },
+  { href: '/servicios/telefono/reparacion-humedad-iphone', icon: 'fa-droplet', label: 'Reparacion por humedad iPhone', desc: 'Si el microfono fallo despues de lluvia, playa, vapor, sudor o alberca.' },
+  { href: '/servicios/telefono/reparacion-camara-iphone', icon: 'fa-camera', label: 'Reparacion de camara iPhone', desc: 'Si el problema aparece en video, camara frontal o trasera.' },
+  { href: '/servicios/telefono/diagnostico-iphone', icon: 'fa-stethoscope', label: 'Diagnostico iPhone', desc: 'Para separar falla de app, rejilla, microfono, flex, humedad o placa.' },
+  { href: '/servicios/telefono/reparacion-iphone', icon: 'fa-screwdriver-wrench', label: 'Servicio tecnico iPhone', desc: 'Revision general para pantalla, bateria, carga, audio, camaras, botones y humedad.' },
+];
+
+const models = [
+  'iPhone 16 Pro Max', 'iPhone 16 Pro', 'iPhone 16 Plus', 'iPhone 16',
+  'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
+  'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
+  'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13 Mini', 'iPhone 13',
+  'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12 Mini', 'iPhone 12',
+  'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11', 'iPhone XR', 'iPhone XS',
+];
+
+const faqItems = [
+  { question: 'Cuanto cuesta reparar el microfono de un iPhone en Cancun?', answer: 'Depende del modelo y de si la falla viene de rejilla tapada, microfono, flex de carga, humedad, app, software o placa. Primero probamos llamadas, grabacion y video para cotizar correctamente.' },
+  { question: 'Por que no me escuchan en llamadas desde mi iPhone?', answer: 'Puede ser microfono inferior, rejilla obstruida, flex, humedad, permisos, software, cancelacion de ruido o falla interna. Se prueba llamada normal, altavoz, notas de voz y video.' },
+  { question: 'Si WhatsApp no graba audios, es el microfono?', answer: 'No siempre. Puede ser permiso de la app, configuracion, software o un microfono especifico. Probamos WhatsApp junto con Notas de Voz y Camara para confirmar.' },
+  { question: 'El video graba sin audio, que puede ser?', answer: 'Puede fallar un microfono distinto al de llamada normal, haber malla tapada, humedad o problema de software. Revisamos video frontal, trasero y grabacion de voz.' },
+  { question: 'La reparacion de microfono borra mis datos?', answer: 'No. Una reparacion fisica de microfono o flex normalmente no borra informacion. Si hubiera trabajo de software con riesgo para datos, te avisamos antes.' },
+  { question: 'Cuanto tarda reparar microfono iPhone?', answer: 'Depende del modelo, disponibilidad de pieza y si hay humedad o daño adicional. Tras el diagnostico te damos tiempo estimado antes de iniciar.' },
+  { question: 'Dan garantia por reparacion de microfono iPhone?', answer: 'Si, entregamos garantia por escrito sobre la reparacion realizada, excepto daños posteriores por humedad, golpe, manipulacion externa o fallas no relacionadas.' },
+];
+---
+
+<div class="imic-page">
+  <section class="imic-hero">
+    <div class="imic-container imic-hero-grid">
+      <div>
+        <span class="imic-eyebrow"><i class="fa-brands fa-apple"></i> Servicio tecnico iPhone en Cancun</span>
+        <h1>Reparacion de microfono iPhone en Cancun</h1>
+        <h2>Solucion para llamadas sin voz, audios de WhatsApp, notas de voz, video sin audio y Siri que no escucha</h2>
+        <p class="imic-lead">Si no te escuchan en llamadas, tus notas de voz salen vacias, WhatsApp no graba audio o los videos salen sin sonido, revisamos microfonos, rejillas, flex de carga, humedad, apps y placa antes de cambiar piezas.</p>
+        <p>El iPhone usa varios microfonos segun la funcion. Por eso una llamada puede fallar aunque el video grabe, o WhatsApp puede fallar aunque Notas de Voz funcione.</p>
+        <div class="imic-keywords">
+          {keywords.map((keyword) => <span>{keyword}</span>)}
+        </div>
+        <div class="imic-actions">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="imic-btn imic-btn-primary"><i class="fa-brands fa-whatsapp"></i> Cotizar microfono iPhone</a>
+          <a href="#fallas-microfono" class="imic-btn imic-btn-secondary"><i class="fa-solid fa-arrow-down"></i> Ver fallas</a>
+        </div>
+      </div>
+      <aside class="imic-hero-card">
+        <div class="imic-phone-visual" aria-hidden="true">
+          <div class="imic-phone">
+            <span class="imic-notch"></span>
+            <i class="fa-brands fa-apple"></i>
+            <span class="imic-mic imic-mic-top"></span>
+            <span class="imic-mic imic-mic-bottom"></span>
+            <span class="imic-wave imic-wave-a"></span>
+            <span class="imic-wave imic-wave-b"></span>
+          </div>
+        </div>
+        <div class="imic-card-body">
+          <h3>Prueba de microfonos</h3>
+          <ul>
+            {['Llamada normal', 'Notas de voz', 'WhatsApp', 'Video frontal y trasero', 'Siri y dictado', 'Humedad, rejilla y flex'].map((item) => (
+              <li><i class="fa-solid fa-check"></i>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    defaultDevice="iPhone"
+    defaultService="Reparacion de microfono iPhone"
+    sourcePage="/servicios/telefono/reparacion-microfono-iphone"
+    title="Crear ticket de reparacion de microfono iPhone"
+    subtitle="Cuentanos si falla en llamadas, WhatsApp, notas de voz, video, Siri, altavoz o despues de humedad."
+  />
+
+  <section class="imic-section imic-light" id="fallas-microfono">
+    <div class="imic-container">
+      <div class="imic-head">
+        <span class="imic-eyebrow">Fallas frecuentes</span>
+        <h2>Problemas de microfono iPhone que revisamos antes de cotizar</h2>
+        <p>Primero ubicamos en que funcion falla: llamada, altavoz, WhatsApp, video, Notas de Voz, Siri o todas. Eso cambia el diagnostico.</p>
+      </div>
+      <div class="imic-grid imic-grid-4">
+        {symptoms.map((item) => (
+          <article class="imic-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+            <small>{item.tag}</small>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-soft">
+    <div class="imic-container imic-split">
+      <div>
+        <span class="imic-eyebrow">Varios microfonos</span>
+        <h2>Tu iPhone puede usar un microfono diferente segun la app</h2>
+        <p>Por eso probamos llamada normal, altavoz, Notas de Voz, camara, WhatsApp, FaceTime, Siri y dictado. Una sola prueba no alcanza para saber que pieza falla.</p>
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="imic-btn imic-btn-primary">Quiero revisar mi iPhone</a>
+      </div>
+      <div class="imic-grid imic-grid-2">
+        {micZones.map((item) => (
+          <article class="imic-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-light">
+    <div class="imic-container imic-diagnosis-grid">
+      <div>
+        <span class="imic-eyebrow">Diagnostico real</span>
+        <h2>Como confirmamos si falla app, rejilla, microfono, flex o placa</h2>
+        <p>No cambiamos microfono sin probar. Revisamos permisos, apps, grabacion, llamadas, rejillas y, si aplica, flex de carga o humedad interna.</p>
+      </div>
+      <div class="imic-steps">
+        {diagnosis.map(([n, title, text]) => (
+          <article>
+            <span>{n}</span>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-soft">
+    <div class="imic-container imic-split">
+      <div>
+        <img class="imic-photo" src="/assets/images/reparacion-celulares-cancun.jpeg" alt="Tecnico revisando microfono de iPhone en Cancun" loading="lazy" />
+      </div>
+      <div>
+        <span class="imic-eyebrow">Causas comunes</span>
+        <h2>Por que deja de funcionar el microfono de un iPhone</h2>
+        <p>La falla puede venir de suciedad, humedad, flex de carga, app sin permiso, golpe, reparacion previa o placa. El diagnostico evita comprar una pieza innecesaria.</p>
+        <div class="imic-cause-list">
+          {causes.map((item) => (
+            <article>
+              <i class={`fa-solid ${item.icon}`}></i>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-light">
+    <div class="imic-container">
+      <div class="imic-head">
+        <span class="imic-eyebrow">Proceso tecnico</span>
+        <h2>Proceso para reparar microfono iPhone en Cancun</h2>
+        <p>Seguimos una ruta de pruebas por app, inspeccion externa, diagnostico interno y validacion final.</p>
+      </div>
+      <div class="imic-process">
+        {process.map((item) => (
+          <article>
+            <span>{item.step}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-soft">
+    <div class="imic-container imic-split">
+      <div>
+        <span class="imic-eyebrow">Humedad y flex de carga</span>
+        <h2>Si fallo despues de agua o tambien falla la carga, revisamos ambos sistemas</h2>
+        <p>En varios modelos el microfono inferior puede relacionarse con el flex de carga. Si hubo humedad, cargar el equipo puede empeorar corrosion o falso contacto.</p>
+        <a href="/servicios/telefono/reparacion-carga-iphone" class="imic-btn imic-btn-secondary">Ver reparacion de carga</a>
+      </div>
+      <div>
+        <img class="imic-photo" src="/assets/images/reparacion-sulfatacion-cancun.jpeg" alt="Revision de humedad y flex de microfono iPhone" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-light">
+    <div class="imic-container">
+      <div class="imic-head">
+        <span class="imic-eyebrow">Pruebas finales</span>
+        <h2>Que probamos antes de entregarte el iPhone</h2>
+        <p>Despues de limpiar, ajustar o reparar, probamos las funciones donde realmente se usa el microfono.</p>
+      </div>
+      <div class="imic-grid">
+        {tests.map((item) => (
+          <article class="imic-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-soft">
+    <div class="imic-container">
+      <div class="imic-head">
+        <span class="imic-eyebrow">Modelos compatibles</span>
+        <h2>Reparacion de microfono para iPhone 11, 12, 13, 14, 15 y 16</h2>
+        <p>Tambien revisamos modelos anteriores. Confirmamos disponibilidad de pieza y tipo de flex por modelo exacto.</p>
+      </div>
+      <div class="imic-models">
+        {models.map((model) => <span><i class="fa-brands fa-apple"></i>{model}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-section imic-light">
+    <div class="imic-container">
+      <div class="imic-head">
+        <span class="imic-eyebrow">Cuidados despues del servicio</span>
+        <h2>Como evitar que vuelva a fallar el microfono</h2>
+        <p>Las rejillas de microfono son pequeñas y faciles de bloquear con polvo, humedad, funda o residuos. Estos cuidados ayudan a conservar claridad.</p>
+      </div>
+      <div class="imic-grid">
+        {care.map((item) => (
+          <article class="imic-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="imic-related-shell">
+    <RelatedServicesSection
+      items={relatedItems}
+      title="Servicios relacionados con microfono iPhone"
+      eyebrow="Servicios relacionados"
+      compact={true}
+    />
+  </section>
+
+  <FaqSection
+    id="faq-microfono-iphone"
+    title="Preguntas frecuentes sobre reparacion de microfono iPhone en Cancun"
+    description="Dudas sobre llamadas sin voz, WhatsApp, notas de voz, video sin audio, Siri, flex de carga, humedad, precio y garantia."
+    items={faqItems}
+    backgroundColor="#07111f"
+    titleColor="#f8fafc"
+    descriptionColor="#cfe7f6"
+    questionColor="#f8fafc"
+    faqAccent="#22d3ee"
+    sectionClass="imic-faq"
+  />
+
+  <section class="imic-comments">
+    <CommentsSection
+      title="Opiniones de clientes que repararon su iPhone en Pixon PC"
+      description="Clientes en Cancun con fallas de microfono, audio, carga, humedad, camara y diagnostico iPhone."
+      dark={true}
+      viewMoreHref="/comentarios"
+      viewMoreLabel="Ver todas las reseñas"
+      id="comentarios"
+    />
+  </section>
+
+  <section class="imic-contact-intro">
+    <div class="imic-container">
+      <span class="imic-eyebrow">Taller local en Cancun</span>
+      <h2>Agenda reparacion de microfono iPhone</h2>
+      <p>Envia modelo y dinos si falla en llamadas, WhatsApp, video, Siri, notas de voz o despues de humedad. Te orientamos antes de traerlo.</p>
+      <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="imic-btn imic-btn-primary"><i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp</a>
+    </div>
+  </section>
+
+  <section class="imic-contact-shell">
+    <ContactSection id="ubicacion" />
+  </section>
+</div>
+
+<Footer />
+
+<style is:global>
+  .imic-page {
+    --imic-ink: #0f2a4a;
+    --imic-muted: #334155;
+    --imic-blue: #1d4ed8;
+    --imic-cyan: #22d3ee;
+    --imic-soft: #eef7ff;
+    --imic-light: #f8fafc;
+    --imic-border: #dbe7f3;
+    --imic-dark: #07111f;
+    background: var(--imic-light);
+    color: var(--imic-ink);
+    overflow-x: hidden;
+  }
+  .imic-container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  .imic-hero { padding: 86px 0 74px; background: radial-gradient(circle at 84% 12%, rgba(34,211,238,.18), transparent 30%), linear-gradient(180deg, #f8fafc, #eef7ff); }
+  .imic-hero-grid, .imic-split, .imic-diagnosis-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(320px, .72fr); gap: 40px; align-items: center; }
+  .imic-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--imic-blue); font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px; }
+  .imic-hero h1, .imic-hero h2, .imic-head h2, .imic-split h2, .imic-diagnosis-grid h2, .imic-contact-intro h2 { font-family: 'Kanit', sans-serif; line-height: 1.08; letter-spacing: 0; margin: 0 0 12px; color: var(--imic-ink); }
+  .imic-hero h1 { font-size: clamp(2.45rem, 5vw, 4.35rem); max-width: 860px; }
+  .imic-hero h2 { color: var(--imic-blue); font-size: clamp(1.05rem, 2vw, 1.45rem); max-width: 820px; }
+  .imic-hero p, .imic-head p, .imic-split p, .imic-diagnosis-grid p, .imic-card p, .imic-contact-intro p { color: var(--imic-muted); line-height: 1.7; margin: 0 0 14px; }
+  .imic-lead { color: var(--imic-ink) !important; font-size: 1.04rem; font-weight: 680; }
+  .imic-keywords, .imic-actions, .imic-models { display: flex; flex-wrap: wrap; gap: 10px; }
+  .imic-keywords { margin: 24px 0; }
+  .imic-keywords span, .imic-models span { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--imic-ink); border: 1px solid var(--imic-border); border-radius: 999px; padding: 8px 12px; font-weight: 850; font-size: .84rem; }
+  .imic-models i { color: var(--imic-blue); }
+  .imic-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-radius: 11px; padding: 13px 18px; font-weight: 900; text-decoration: none; transition: transform .2s ease, background .2s ease, border-color .2s ease; }
+  .imic-btn:hover { transform: translateY(-2px); }
+  .imic-btn-primary { background: var(--imic-cyan); border: 1px solid var(--imic-cyan); color: #02131d !important; }
+  .imic-btn-secondary { background: #fff; border: 1px solid var(--imic-border); color: var(--imic-ink) !important; }
+  .imic-hero-card { background: #06111f; border: 1px solid rgba(147,197,253,.18); border-radius: 22px; overflow: hidden; box-shadow: 0 28px 70px rgba(15,42,74,.18); color: #f8fafc; }
+  .imic-phone-visual { min-height: 310px; display: grid; place-items: center; background: radial-gradient(circle at center, rgba(34,211,238,.2), transparent 48%), linear-gradient(135deg, #0f172a, #020617); }
+  .imic-phone { width: 178px; aspect-ratio: 9 / 16; border-radius: 32px; background: linear-gradient(160deg, #1e293b, #020617); border: 1px solid rgba(226,232,240,.26); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 26px 60px rgba(0,0,0,.4); display: grid; place-items: center; position: relative; transform: rotate(-5deg); }
+  .imic-phone > i { color: rgba(226,232,240,.22); font-size: 2.2rem; }
+  .imic-notch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 70px; height: 18px; border-radius: 999px; background: #020617; }
+  .imic-mic { position: absolute; width: 18px; height: 18px; border-radius: 999px; background: #22d3ee; box-shadow: 0 0 18px rgba(34,211,238,.7); }
+  .imic-mic-top { top: 42px; right: 34px; }
+  .imic-mic-bottom { bottom: 28px; left: 50%; transform: translateX(-50%); }
+  .imic-wave { position: absolute; border: 2px solid rgba(34,211,238,.5); border-left: 0; border-bottom: 0; border-radius: 0 999px 0 0; transform: rotate(45deg); }
+  .imic-wave-a { right: -30px; top: 104px; width: 42px; height: 42px; }
+  .imic-wave-b { right: -48px; top: 88px; width: 72px; height: 72px; opacity: .55; }
+  .imic-card-body { padding: 24px; }
+  .imic-card-body h3 { color: #f8fafc; font-family: 'Kanit', sans-serif; margin: 0 0 14px; font-size: 1.35rem; }
+  .imic-card-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .imic-card-body li { color: #dbeafe; display: flex; align-items: center; gap: 9px; font-weight: 750; }
+  .imic-card-body li i { color: #67e8f9; }
+  .imic-section { padding: 76px 0; }
+  .imic-light { background: var(--imic-light); }
+  .imic-soft { background: var(--imic-soft); }
+  .imic-head { max-width: 900px; margin: 0 auto 34px; text-align: center; }
+  .imic-head h2, .imic-split h2, .imic-diagnosis-grid h2, .imic-contact-intro h2 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); }
+  .imic-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .imic-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .imic-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .imic-card { background: #fff; border: 1px solid var(--imic-border); border-radius: 16px; padding: 22px; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .imic-card i { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; color: var(--imic-blue); background: #eaf3ff; margin-bottom: 14px; }
+  .imic-card h3, .imic-steps h3, .imic-process h3, .imic-cause-list h3 { color: var(--imic-ink); font-family: 'Kanit', sans-serif; font-size: 1.1rem; line-height: 1.25; margin: 0 0 8px; }
+  .imic-card small { display: inline-flex; margin-top: 14px; color: var(--imic-blue); background: #eaf3ff; border-radius: 999px; padding: 6px 10px; font-weight: 850; font-size: .74rem; }
+  .imic-steps { display: grid; gap: 12px; }
+  .imic-steps article { display: grid; grid-template-columns: 52px 1fr; gap: 14px; padding: 18px; border-radius: 16px; border: 1px solid var(--imic-border); background: #fff; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .imic-steps span, .imic-process span { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: #eaf3ff; color: var(--imic-blue); font-weight: 950; }
+  .imic-photo { width: 100%; height: 390px; object-fit: cover; display: block; border-radius: 18px; border: 1px solid var(--imic-border); box-shadow: 0 18px 46px rgba(15,42,74,.1); }
+  .imic-cause-list { display: grid; gap: 12px; }
+  .imic-cause-list article { display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: start; background: #fff; border: 1px solid var(--imic-border); border-radius: 16px; padding: 16px; }
+  .imic-cause-list i { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; color: var(--imic-blue); background: #eaf3ff; }
+  .imic-process { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .imic-process article { background: #fff; border: 1px solid var(--imic-border); border-radius: 16px; padding: 22px; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .imic-process span { margin-bottom: 14px; }
+  .imic-models { justify-content: center; }
+  .imic-related-shell .svc-related { background: var(--imic-light) !important; padding: 76px 0; }
+  .imic-related-shell .svc-related .ux-eyebrow { color: var(--imic-blue) !important; }
+  .imic-related-shell .svc-related .ux-h2, .imic-related-shell .related-card h4 { color: var(--imic-ink) !important; }
+  .imic-related-shell .related-card { background: #fff !important; border-color: var(--imic-border) !important; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .imic-related-shell .related-card p { color: var(--imic-muted) !important; }
+  .imic-related-shell .related-card span, .imic-related-shell .related-card i { color: var(--imic-blue) !important; }
+  .imic-faq .faq-item, .imic-faq .faq-item--open { background: rgba(248,250,252,.045) !important; border-color: rgba(147,197,253,.18) !important; box-shadow: none !important; }
+  .imic-faq .faq-question, .imic-faq .faq-question:hover, .imic-faq .faq-question:focus { background: transparent !important; color: #f8fafc !important; }
+  .imic-faq .faq-answer-inner { color: #cfe7f6 !important; }
+  .imic-comments { background: var(--imic-dark); }
+  .imic-contact-intro { background: var(--imic-light); padding: 70px 0 30px; text-align: center; }
+  .imic-contact-intro p { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .imic-contact-shell, .imic-contact-shell #ubicacion.contact { background: var(--imic-light) !important; }
+  .imic-contact-shell #ubicacion.contact h2, .imic-contact-shell #ubicacion.contact h3, .imic-contact-shell #ubicacion.contact strong { color: var(--imic-ink) !important; }
+  .imic-contact-shell #ubicacion.contact p, .imic-contact-shell #ubicacion.contact li, .imic-contact-shell #ubicacion.contact span { color: var(--imic-muted) !important; }
+  .imic-contact-shell #ubicacion.contact .glass-card, .imic-contact-shell #ubicacion.contact .coverage-area, .imic-contact-shell #ubicacion.contact .contact-form { background: #fff !important; border-color: var(--imic-border) !important; box-shadow: 0 14px 34px rgba(15,42,74,.08) !important; }
+  @media (max-width: 1100px) {
+    .imic-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 900px) {
+    .imic-hero-grid, .imic-split, .imic-diagnosis-grid { grid-template-columns: 1fr; }
+    .imic-grid, .imic-process { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .imic-hero { padding: 54px 0 46px; }
+    .imic-section { padding: 52px 0; }
+    .imic-hero h1 { font-size: clamp(2rem, 11vw, 3rem); }
+    .imic-grid, .imic-grid-2, .imic-grid-4, .imic-process { grid-template-columns: 1fr; }
+    .imic-actions, .imic-btn { width: 100%; }
+    .imic-photo { height: 230px; }
+    .imic-phone-visual { min-height: 250px; }
+    .imic-phone { width: 148px; }
+  }
+</style>

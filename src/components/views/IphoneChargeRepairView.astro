@@ -1,0 +1,470 @@
+---
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const waMsg = encodeURIComponent('Hola, quiero cotizar reparación de carga iPhone en Cancún. Mi iPhone no carga, carga lento o solo carga en cierta posición.');
+
+const badges = [
+  'Diagnóstico antes de cambiar pieza',
+  'Lightning y USB-C',
+  'Garantía por escrito',
+  'Servicio local en Cancún',
+  'Revisión de humedad',
+  '5.0 en Google Maps',
+];
+
+const symptoms = [
+  { icon: 'fa-battery-empty', title: 'iPhone no carga', text: 'Si conectas el cable y no aparece el icono de carga, revisamos puerto, cable, adaptador, batería y flex de carga.' },
+  { icon: 'fa-arrows-left-right', title: 'Carga solo en cierta posición', text: 'Cuando tienes que mover el cable para que cargue, puede haber suciedad, pines dañados o conector flojo.' },
+  { icon: 'fa-gauge-simple-low', title: 'Carga lento', text: 'Puede deberse a cable de baja calidad, adaptador incorrecto, puerto sucio, batería degradada o falla en el sistema de carga.' },
+  { icon: 'fa-plug-circle-xmark', title: 'No reconoce el cargador', text: 'Validamos si el problema está en el puerto, accesorio, suciedad, humedad o compatibilidad del cable.' },
+  { icon: 'fa-droplet', title: 'Marca líquido detectado', text: 'Si aparece advertencia de líquido en el puerto, no recomendamos cargarlo hasta revisar humedad o corrosión.' },
+  { icon: 'fa-link-slash', title: 'Se desconecta y conecta solo', text: 'Puede ser falso contacto, flex dañado, puerto desgastado o residuos dentro del conector.' },
+];
+
+const compare = [
+  {
+    title: 'Puede ser puerto de carga si:',
+    icon: 'fa-plug',
+    bullets: ['El cable queda flojo', 'Solo carga en cierta posición', 'Hay suciedad o corrosión visible', 'No reconoce varios cables', 'El puerto está dañado o desgastado'],
+  },
+  {
+    title: 'Puede ser batería si:',
+    icon: 'fa-battery-three-quarters',
+    bullets: ['Se descarga muy rápido', 'Se apaga con porcentaje alto', 'Se calienta demasiado', 'La salud de batería está baja', 'Carga pero no retiene energía'],
+  },
+  {
+    title: 'Puede ser cable o adaptador si:',
+    icon: 'fa-charging-station',
+    bullets: ['Falla solo con un cargador', 'El cable está roto o falso', 'El adaptador no entrega suficiente potencia', 'Otro cargador sí funciona bien'],
+  },
+];
+
+const portTypes = [
+  { icon: 'fa-bolt', title: 'Puerto Lightning', text: 'Revisión para iPhone 11, 12, 13, 14 y modelos anteriores con falla de carga, falso contacto o puerto desgastado.' },
+  { icon: 'fa-plug-circle-bolt', title: 'Puerto USB-C', text: 'Revisión para modelos recientes de iPhone con USB-C, falla de carga, humedad, suciedad o desconexión intermitente.' },
+  { icon: 'fa-microchip', title: 'Flex de carga', text: 'En algunos modelos el puerto forma parte de un flex interno que puede afectar micrófono, carga o conexión.' },
+  { icon: 'fa-water', title: 'Conector con humedad', text: 'Si hubo contacto con agua, lluvia, sudor, alberca o mar, revisamos corrosión antes de conectar corriente.' },
+];
+
+const humidity = [
+  { icon: 'fa-triangle-exclamation', title: 'Advertencia de líquido', text: 'Si el iPhone muestra alerta de líquido detectado, lo ideal es no forzar la carga ni usar cables dañados.' },
+  { icon: 'fa-biohazard', title: 'Corrosión en el conector', text: 'El salitre, sudor, lluvia o humedad de Cancún puede oxidar pines y afectar la carga.' },
+  { icon: 'fa-broom', title: 'Puerto sucio o con residuos', text: 'Polvo, pelusa o residuos compactados pueden impedir que el cable entre correctamente.' },
+  { icon: 'fa-magnifying-glass', title: 'Revisión antes de cargar', text: 'Si hubo agua o humedad, revisamos el puerto antes de conectar corriente para evitar más daño.' },
+];
+
+const process = [
+  { step: '01', title: 'Recepción y prueba inicial', text: 'Confirmamos modelo, síntoma, cargador usado, tiempo de falla y si hubo humedad o golpe.' },
+  { step: '02', title: 'Prueba con cable y adaptador', text: 'Descartamos accesorios dañados antes de abrir el iPhone.' },
+  { step: '03', title: 'Inspección del puerto', text: 'Revisamos suciedad, pines, desgaste, corrosión o falso contacto.' },
+  { step: '04', title: 'Diagnóstico interno', text: 'Si aplica, revisamos flex, batería, consumo y señales de humedad.' },
+  { step: '05', title: 'Reparación o reemplazo', text: 'Realizamos limpieza, ajuste o cambio de puerto/flex según diagnóstico.' },
+  { step: '06', title: 'Pruebas finales', text: 'Validamos carga estable, conexión, batería, encendido, micrófono y reconocimiento del cable.' },
+];
+
+const models = ['iPhone 16 Pro Max', 'iPhone 16 Pro', 'iPhone 16 Plus', 'iPhone 16', 'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15', 'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14', 'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13', 'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12', 'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11'];
+
+const tests = [
+  { icon: 'fa-plug-circle-check', title: 'Carga estable', text: 'Confirmamos que el iPhone detecte corriente y mantenga carga sin desconectarse.' },
+  { icon: 'fa-plug-circle-check', title: 'Reconocimiento de cable', text: 'Probamos conexión con cable compatible para revisar falso contacto.' },
+  { icon: 'fa-temperature-half', title: 'Batería y temperatura', text: 'Verificamos que no se caliente de forma anormal durante la carga.' },
+  { icon: 'fa-microphone', title: 'Micrófono y funciones relacionadas', text: 'En modelos donde el flex de carga integra micrófono u otras funciones, también se prueban.' },
+  { icon: 'fa-power-off', title: 'Encendido y consumo', text: 'Validamos que el equipo encienda correctamente y no tenga consumo extraño.' },
+  { icon: 'fa-eye', title: 'Revisión visual final', text: 'Confirmamos que el puerto quede limpio, alineado y funcional.' },
+];
+
+const care = [
+  { icon: 'fa-shield-halved', title: 'Usa cables en buen estado', text: 'Evita cables pelados, falsos contactos o cargadores de mala calidad.' },
+  { icon: 'fa-hand', title: 'No fuerces el conector', text: 'Si el cable no entra bien, no lo presiones. Puede haber pelusa o daño interno.' },
+  { icon: 'fa-droplet-slash', title: 'Evita cargar con humedad', text: 'Si el iPhone se mojó o estuvo en ambiente húmedo, espera y revisa antes de conectarlo.' },
+  { icon: 'fa-screwdriver', title: 'No limpies con objetos metálicos', text: 'Usar alfileres o clips puede dañar pines internos del puerto.' },
+  { icon: 'fa-gauge-high', title: 'Revisa si carga lento', text: 'La carga lenta puede indicar accesorio incorrecto, batería degradada o falla en el puerto.' },
+  { icon: 'fa-clock', title: 'Atiende falsos contactos a tiempo', text: 'Si solo carga en cierta posición, conviene revisarlo antes de que deje de cargar por completo.' },
+];
+
+const relatedItems = [
+  { href: '/servicios/telefono/cambio-bateria-iphone', icon: 'fa-battery-three-quarters', label: 'Cambio de batería iPhone', desc: 'Útil cuando el iPhone carga, pero se descarga rápido, se apaga o no retiene energía.' },
+  { href: '/servicios/telefono/reparacion-pantalla-iphone', icon: 'fa-mobile-screen', label: 'Reparación de pantalla iPhone', desc: 'Una caída puede dañar pantalla y puerto de carga; revisamos ambas fallas si ocurrieron juntas.' },
+  { href: '/servicios/telefono/reparacion-humedad-iphone', icon: 'fa-droplet', label: 'Reparación por humedad iPhone', desc: 'Si el puerto marca líquido, hubo lluvia, alberca o salitre, conviene revisar humedad antes de cargar.' },
+  { href: '/servicios/telefono/reparacion-face-id-iphone', icon: 'fa-face-smile', label: 'Reparación de Face ID', desc: 'La humedad o golpes pueden afectar otros módulos del iPhone además del sistema de carga.' },
+  { href: '/servicios/telefono/diagnostico-iphone', icon: 'fa-stethoscope', label: 'Diagnóstico iPhone', desc: 'Para confirmar si la falla viene del puerto, batería, flex, placa, cable o humedad.' },
+  { href: '/servicios/telefono/reparacion-iphone', icon: 'fa-screwdriver-wrench', label: 'Servicio técnico iPhone', desc: 'Revisión general para fallas de carga, pantalla, batería, audio, cámaras, humedad y placa.' },
+];
+
+const faqItems = [
+  { question: '¿Cuánto cuesta reparar la carga de un iPhone en Cancún?', answer: 'El costo depende del modelo y de si la falla viene del puerto, flex de carga, humedad, batería o sistema interno. Primero diagnosticamos para confirmar la causa y darte una cotización clara.' },
+  { question: '¿Por qué mi iPhone solo carga en cierta posición?', answer: 'Puede deberse a suciedad compactada, pines desgastados, puerto flojo o flex dañado. No conviene forzar el cable porque puede empeorar el daño.' },
+  { question: '¿Qué hago si mi iPhone marca líquido detectado?', answer: 'No lo cargues. Lo correcto es revisar humedad, corrosión o residuos dentro del puerto antes de conectar corriente, especialmente si hubo lluvia, alberca, sudor o agua de mar.' },
+  { question: '¿Cambian puerto Lightning y USB-C?', answer: 'Sí. Revisamos modelos con puerto Lightning y modelos recientes con USB-C. La reparación depende del modelo exacto y disponibilidad de refacción.' },
+  { question: '¿La falla puede ser la batería y no el puerto?', answer: 'Sí. A veces el iPhone carga, pero la batería ya no retiene energía o se descarga muy rápido. Por eso revisamos batería, puerto, cable y adaptador antes de cotizar.' },
+  { question: '¿Dan garantía por la reparación?', answer: 'Sí, entregamos garantía por escrito sobre la reparación realizada, siempre que no exista daño posterior por humedad, golpe, manipulación externa o uso de accesorios dañados.' },
+];
+---
+
+<div class="charge-page">
+  <section class="charge-hero">
+    <div class="charge-container charge-hero-grid">
+      <div class="charge-hero-copy">
+        <span class="charge-eyebrow"><i class="fa-solid fa-mobile-screen-button"></i> Servicio técnico de iPhone en Cancún</span>
+        <h1>Reparación de carga iPhone en Cancún</h1>
+        <h2>Revisión de puerto Lightning, USB-C, batería, humedad y sistema de carga</h2>
+        <p class="charge-lead">¿Tu iPhone no carga, carga lento, solo carga en cierta posición o no reconoce el cable? Revisamos puerto de carga, flex, batería, humedad, cable, adaptador y sistema de alimentación antes de cotizar.</p>
+        <p>Atendemos reparación de centro de carga de iPhone en Cancún para modelos con Lightning y USB-C. Diagnosticamos si el problema viene del puerto, suciedad, corrosión, batería, flex de carga o daño interno.</p>
+        <div class="charge-badges">
+          {badges.map((badge) => <span><i class="fa-solid fa-circle-check"></i> {badge}</span>)}
+        </div>
+        <div class="charge-actions">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="charge-btn charge-btn-primary"><i class="fa-brands fa-whatsapp"></i> Cotizar reparación de carga</a>
+          <a href="#diagnostico-carga" class="charge-btn charge-btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Ver diagnóstico</a>
+        </div>
+      </div>
+      <aside class="charge-hero-card" aria-label="Revisión de carga iPhone">
+        <img src="/assets/images/servicio-celulares-cancun.jpeg" alt="Reparación de carga iPhone en Cancún" loading="eager" />
+        <div class="charge-card-body">
+          <h3>Revisión de carga iPhone</h3>
+          <ul>
+            {['Puerto Lightning o USB-C', 'Cable y adaptador', 'Flex de carga', 'Batería y consumo', 'Humedad o corrosión', 'Prueba de carga estable'].map((item) => (
+              <li><i class="fa-solid fa-check"></i> {item}</li>
+            ))}
+          </ul>
+          <p>El precio final depende del modelo, tipo de puerto, daño por humedad y disponibilidad de refacción.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    defaultDevice="iPhone"
+    defaultService="Reparación de carga iPhone"
+    sourcePage="/servicios/telefono/reparacion-carga-iphone"
+    title="Crear ticket de reparación de carga iPhone"
+    subtitle="Cuéntanos si tu iPhone no carga, carga lento, marca líquido o solo carga en cierta posición."
+  />
+
+  <section class="charge-section charge-light" id="diagnostico-carga">
+    <div class="charge-container">
+      <div class="charge-head">
+        <span class="charge-eyebrow">Diagnóstico frecuente</span>
+        <h2>Señales de que tu iPhone necesita reparación de carga</h2>
+        <p>No todos los problemas de carga se resuelven cambiando el puerto. Primero revisamos si la falla viene de suciedad, cable, adaptador, humedad, batería, flex o sistema interno de carga.</p>
+      </div>
+      <div class="charge-grid">
+        {symptoms.map((item) => (
+          <article class="charge-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="charge-section charge-soft">
+    <div class="charge-container charge-split">
+      <div>
+        <span class="charge-eyebrow">Diagnóstico claro</span>
+        <h2>¿La falla es el puerto de carga, la batería o el cargador?</h2>
+        <p>Antes de cambiar el centro de carga, hacemos pruebas básicas para evitar gastos innecesarios. A veces el problema viene del cable, adaptador, batería o suciedad dentro del puerto.</p>
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="charge-btn charge-btn-primary">Quiero saber qué falla tiene mi iPhone</a>
+      </div>
+      <div class="charge-compare-grid">
+        {compare.map((item) => (
+          <article class="charge-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <ul>
+              {item.bullets.map((bullet) => <li>{bullet}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="charge-section charge-dark">
+    <div class="charge-container">
+      <div class="charge-head">
+        <span class="charge-eyebrow">Compatibilidad</span>
+        <h2>Reparación de puerto Lightning y USB-C para iPhone en Cancún</h2>
+        <p>Atendemos iPhone con puerto Lightning y modelos recientes con USB-C. Cada conector requiere diagnóstico distinto, herramienta adecuada y refacción compatible.</p>
+      </div>
+      <div class="charge-grid charge-grid-4">
+        {portTypes.map((item) => (
+          <article class="charge-dark-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="charge-section charge-light">
+    <div class="charge-container charge-split">
+      <div>
+        <span class="charge-eyebrow">Daño por humedad</span>
+        <h2>iPhone con líquido en el puerto de carga: no lo conectes todavía</h2>
+        <p>Cuando el puerto tiene humedad, cargar el iPhone puede provocar corrosión, falso contacto o daño interno. Primero revisamos si hay líquido, sulfato o residuos antes de recomendar cambio de pieza.</p>
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="charge-btn charge-btn-primary">Revisar puerto con humedad</a>
+      </div>
+      <div>
+        <img class="charge-photo" src="/assets/images/reparacion-sulfatacion-cancun.jpeg" alt="Revisión de humedad en puerto de carga iPhone" loading="lazy" />
+      </div>
+      <div class="charge-grid charge-grid-full">
+        {humidity.map((item) => (
+          <article class="charge-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="charge-section charge-soft">
+    <div class="charge-container">
+      <div class="charge-head">
+        <span class="charge-eyebrow">Proceso técnico</span>
+        <h2>Así revisamos y reparamos la carga de tu iPhone</h2>
+        <p>No cambiamos piezas a ciegas. Primero confirmamos el síntoma, probamos accesorios, revisamos humedad y validamos si realmente requiere cambio de puerto o flex.</p>
+      </div>
+      <img class="charge-wide-photo" src="/assets/images/reparacion-celulares-cancun.jpeg" alt="Técnico reparando centro de carga de iPhone en Cancún" loading="lazy" />
+      <div class="charge-process">
+        {process.map((item) => (
+          <article>
+            <span>{item.step}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+      <div class="charge-proof">
+        <i class="fa-solid fa-circle-check"></i>
+        <div>
+          <h3>No entregamos sin probar</h3>
+          <p>Probamos la carga con cable compatible, revisamos estabilidad y confirmamos que el iPhone reconozca corriente correctamente.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="charge-section charge-light">
+    <div class="charge-container">
+      <div class="charge-head">
+        <span class="charge-eyebrow">Modelos compatibles</span>
+        <h2>Reparación de carga para iPhone 11 al iPhone 16 en Cancún</h2>
+        <p>Revisamos modelos con Lightning y USB-C. Si tienes un modelo anterior, también puedes escribirnos para confirmar disponibilidad de refacción.</p>
+      </div>
+      <div class="charge-models">
+        {models.map((model) => <span><i class="fa-brands fa-apple"></i> {model}</span>)}
+      </div>
+      <p class="charge-note">¿No ves tu modelo? Escríbenos por WhatsApp y revisamos disponibilidad.</p>
+    </div>
+  </section>
+
+  <section class="charge-section charge-dark">
+    <div class="charge-container">
+      <div class="charge-head">
+        <span class="charge-eyebrow">Pruebas finales</span>
+        <h2>Qué probamos antes de entregarte el iPhone</h2>
+        <p>Después de reparar el puerto o sistema de carga, hacemos pruebas para confirmar que el equipo cargue de forma estable y no presente fallas relacionadas.</p>
+      </div>
+      <div class="charge-grid">
+        {tests.map((item) => (
+          <article class="charge-dark-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="charge-section charge-light">
+    <div class="charge-container">
+      <div class="charge-head">
+        <span class="charge-eyebrow">Cuidados después del servicio</span>
+        <h2>Cómo evitar que vuelva a fallar el puerto de carga</h2>
+        <p>Muchos daños de carga se pueden prevenir con buenos hábitos. Un cable dañado, humedad o limpiar el puerto con objetos metálicos puede provocar fallas mayores.</p>
+      </div>
+      <div class="charge-grid">
+        {care.map((item) => (
+          <article class="charge-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <div class="charge-related-shell">
+    <RelatedServicesSection
+      items={relatedItems}
+      title="Servicios relacionados con problemas de carga iPhone"
+      eyebrow="Servicios relacionados"
+      compact={true}
+    />
+  </div>
+
+  <FaqSection
+    id="faq-carga-iphone"
+    title="Preguntas frecuentes sobre reparación de carga iPhone en Cancún"
+    description="Resolvemos dudas sobre precio, puerto Lightning, USB-C, líquido detectado, batería, falso contacto y garantía."
+    items={faqItems}
+    backgroundColor="#050d1f"
+    titleColor="#f8fafc"
+    descriptionColor="#cfe7f6"
+    questionColor="#f8fafc"
+    faqAccent="#06b6d4"
+    sectionClass="charge-faq"
+  />
+
+  <section class="charge-comments">
+    <CommentsSection
+      title="Opiniones de clientes que repararon su iPhone en Pixon PC"
+      description="Experiencias reales de clientes en Cancún con reparaciones de iPhone, carga, pantalla, batería y humedad."
+      dark={true}
+      viewMoreHref="/comentarios"
+      viewMoreLabel="Ver todas las reseñas"
+      id="comentarios"
+    />
+  </section>
+
+  <section class="charge-contact-intro">
+    <div class="charge-container">
+      <span class="charge-eyebrow">Taller local en Cancún</span>
+      <h2>Servicio técnico de iPhone en Cancún</h2>
+      <p>Agenda tu revisión por WhatsApp o crea un ticket para traer tu iPhone al taller. Te confirmamos diagnóstico, disponibilidad y tiempo estimado antes de reparar.</p>
+      <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="charge-btn charge-btn-primary">Cotizar por WhatsApp</a>
+    </div>
+  </section>
+  <div class="charge-contact-shell">
+    <ContactSection id="ubicacion" />
+  </div>
+</div>
+
+<Footer />
+
+<style is:global>
+  .charge-page {
+    --charge-dark: #0f2a4a;
+    --charge-ink: #10233d;
+    --charge-muted: #334155;
+    --charge-soft: #f1f7ff;
+    --charge-light: #f8fafc;
+    --charge-panel: #ffffff;
+    --charge-border: #dbe4ef;
+    --charge-cyan: #06b6d4;
+    --charge-blue: #1d4ed8;
+    font-family: 'Inter', 'Kanit', sans-serif;
+    background: var(--charge-light);
+    color: var(--charge-dark);
+  }
+  .charge-container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  .charge-hero { padding: 90px 0 74px; background: radial-gradient(circle at 88% 12%, rgba(6,182,212,0.12), transparent 30%), var(--charge-light); }
+  .charge-hero-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.62fr); gap: 42px; align-items: center; }
+  .charge-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--charge-blue); font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; margin-bottom: 12px; }
+  .charge-hero h1, .charge-head h2, .charge-split h2, .charge-contact-intro h2 { color: var(--charge-dark); font-family: 'Kanit', sans-serif; line-height: 1.08; margin: 0 0 12px; }
+  .charge-hero h1 { font-size: clamp(2.45rem, 5vw, 4.25rem); }
+  .charge-hero h2 { color: var(--charge-blue); font-family: 'Kanit', sans-serif; font-size: clamp(1.08rem, 2vw, 1.45rem); line-height: 1.25; margin: 0 0 18px; }
+  .charge-hero p, .charge-head p, .charge-split p, .charge-contact-intro p { color: var(--charge-muted); line-height: 1.7; margin: 0 0 14px; }
+  .charge-lead { color: var(--charge-ink) !important; font-size: 1.04rem; font-weight: 650; }
+  .charge-badges { display: flex; flex-wrap: wrap; gap: 9px; margin: 24px 0; }
+  .charge-badges span { display: inline-flex; align-items: center; gap: 7px; color: var(--charge-dark); background: #fff; border: 1px solid var(--charge-border); border-radius: 999px; padding: 8px 11px; font-weight: 800; font-size: 0.84rem; }
+  .charge-badges i { color: var(--charge-cyan); }
+  .charge-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .charge-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-radius: 10px; padding: 13px 18px; font-weight: 900; text-decoration: none; transition: transform .2s ease, background .2s ease, border-color .2s ease; }
+  .charge-btn:hover { transform: translateY(-2px); }
+  .charge-btn-primary { background: var(--charge-cyan); color: #02131d !important; border: 1px solid var(--charge-cyan); }
+  .charge-btn-secondary { background: #fff; color: var(--charge-dark) !important; border: 1px solid var(--charge-border); }
+  .charge-hero-card { background: #06111f; border: 1px solid rgba(147,197,253,.18); border-radius: 22px; overflow: hidden; box-shadow: 0 28px 70px rgba(15,42,74,.18); color: #f8fafc; }
+  .charge-hero-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+  .charge-card-body { padding: 24px; }
+  .charge-card-body h3 { color: #f8fafc; font-family: 'Kanit', sans-serif; margin: 0 0 14px; font-size: 1.35rem; }
+  .charge-card-body ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .charge-card-body li { color: #dbeafe; display: flex; gap: 9px; font-weight: 750; }
+  .charge-card-body li i { color: #22d3ee; margin-top: 3px; }
+  .charge-card-body p { color: #cfe7f6; line-height: 1.55; margin: 18px 0 0; font-size: .9rem; }
+  .charge-section { padding: 78px 0; }
+  .charge-page .charge-light { background: var(--charge-light) !important; background-color: var(--charge-light) !important; }
+  .charge-page .charge-soft { background: var(--charge-soft) !important; background-color: var(--charge-soft) !important; }
+  .charge-page .charge-dark { background: #07111f !important; background-color: #07111f !important; color: #f8fafc !important; }
+  .charge-head { max-width: 820px; margin: 0 auto 34px; text-align: center; }
+  .charge-head h2, .charge-split h2, .charge-contact-intro h2 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); }
+  .charge-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .charge-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .charge-card, .charge-dark-card { border-radius: 16px; padding: 22px; border: 1px solid var(--charge-border); background: #fff; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .charge-card i, .charge-dark-card i { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 14px; color: var(--charge-blue); background: #eaf2ff; }
+  .charge-card h3, .charge-dark-card h3 { color: var(--charge-dark); font-family: 'Kanit', sans-serif; font-size: 1.12rem; line-height: 1.25; margin: 0 0 8px; }
+  .charge-card p, .charge-dark-card p { color: var(--charge-muted); line-height: 1.62; margin: 0; font-size: .92rem; }
+  .charge-card ul { margin: 0; padding-left: 18px; color: var(--charge-muted); line-height: 1.7; }
+  .charge-split { display: grid; grid-template-columns: .86fr 1.14fr; gap: 34px; align-items: center; }
+  .charge-compare-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .charge-dark .charge-eyebrow { color: #67e8f9; }
+  .charge-dark .charge-head h2, .charge-dark-card h3 { color: #f8fafc; }
+  .charge-dark .charge-head p, .charge-dark-card p { color: #cfe7f6; }
+  .charge-dark-card { background: rgba(255,255,255,.055); border-color: rgba(147,197,253,.16); box-shadow: none; }
+  .charge-dark-card i { color: #67e8f9; background: rgba(103,232,249,.12); }
+  .charge-photo, .charge-wide-photo { width: 100%; display: block; object-fit: cover; border-radius: 18px; border: 1px solid var(--charge-border); box-shadow: 0 18px 46px rgba(15,42,74,.1); }
+  .charge-photo { height: 320px; }
+  .charge-wide-photo { height: 280px; margin-bottom: 22px; }
+  .charge-grid-full { grid-column: 1 / -1; margin-top: 18px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .charge-process { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .charge-process article { background: #fff; border: 1px solid var(--charge-border); border-radius: 16px; padding: 22px; }
+  .charge-process span { color: var(--charge-blue); font-family: 'Kanit', sans-serif; font-size: 1.7rem; font-weight: 950; }
+  .charge-process h3, .charge-proof h3 { color: var(--charge-dark); font-family: 'Kanit', sans-serif; margin: 7px 0 8px; }
+  .charge-process p, .charge-proof p { color: var(--charge-muted); line-height: 1.62; margin: 0; }
+  .charge-proof { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; background: #fff; border: 1px solid var(--charge-border); border-radius: 16px; padding: 22px; margin-top: 18px; }
+  .charge-proof > i { color: #16a34a; font-size: 1.55rem; }
+  .charge-models { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .charge-models span { display: inline-flex; align-items: center; gap: 7px; background: #fff; color: var(--charge-dark); border: 1px solid var(--charge-border); border-radius: 999px; padding: 10px 13px; font-weight: 850; }
+  .charge-models i { color: var(--charge-blue); }
+  .charge-note { color: var(--charge-muted); text-align: center; margin: 22px 0 0; font-weight: 750; }
+  .charge-page .charge-related-shell .svc-related { background: var(--charge-light) !important; background-color: var(--charge-light) !important; padding: 78px 0; }
+  .charge-page .charge-related-shell .svc-related .ux-eyebrow { color: var(--charge-blue) !important; }
+  .charge-page .charge-related-shell .svc-related .ux-h2,
+  .charge-page .charge-related-shell .related-card h4 { color: var(--charge-dark) !important; }
+  .charge-page .charge-related-shell .related-card { background: #fff !important; border-color: var(--charge-border) !important; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .charge-page .charge-related-shell .related-card:hover { background: #fff !important; border-color: rgba(29,78,216,.35) !important; }
+  .charge-page .charge-related-shell .related-card p { color: var(--charge-muted) !important; }
+  .charge-page .charge-related-shell .related-card span,
+  .charge-page .charge-related-shell .related-card i { color: var(--charge-blue) !important; }
+  .charge-faq .faq-item, .charge-faq .faq-item--open { background: rgba(248,250,252,.045) !important; border-color: rgba(147,197,253,.18) !important; }
+  .charge-faq .faq-item:hover { background: rgba(6,182,212,.08) !important; border-color: rgba(34,211,238,.42) !important; }
+  .charge-faq .faq-question, .charge-faq .faq-question:hover, .charge-faq .faq-question:focus { color: #f8fafc !important; background: transparent !important; }
+  .charge-faq .faq-answer, .charge-faq .faq-answer p, .charge-faq .faq-answer-inner { color: #cfe7f6 !important; }
+  .charge-comments { background: #07111f; }
+  .charge-contact-intro { background: var(--charge-light); padding: 70px 0 28px; text-align: center; }
+  .charge-contact-intro p { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .charge-contact-shell { background: var(--charge-light); }
+  .charge-contact-shell #ubicacion.contact { background: var(--charge-light) !important; }
+  .charge-contact-shell #ubicacion.contact h2,
+  .charge-contact-shell #ubicacion.contact h3,
+  .charge-contact-shell #ubicacion.contact strong { color: var(--charge-dark) !important; }
+  .charge-contact-shell #ubicacion.contact p,
+  .charge-contact-shell #ubicacion.contact li { color: var(--charge-muted) !important; }
+  .charge-contact-shell #ubicacion.contact .contact-details--uniform a { color: var(--charge-blue) !important; }
+  @media (max-width: 980px) {
+    .charge-hero-grid, .charge-split { grid-template-columns: 1fr; }
+    .charge-grid, .charge-grid-4, .charge-grid-full, .charge-process, .charge-compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .charge-hero { padding: 58px 0 48px; }
+    .charge-section { padding: 54px 0; }
+    .charge-grid, .charge-grid-4, .charge-grid-full, .charge-process, .charge-compare-grid { grid-template-columns: 1fr; }
+    .charge-actions, .charge-btn { width: 100%; }
+    .charge-photo, .charge-wide-photo { height: 220px; }
+    .charge-proof { grid-template-columns: 1fr; text-align: center; }
+  }
+</style>

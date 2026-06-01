@@ -1,0 +1,1514 @@
+---
+// IphoneHumidityRepairView.astro — Reparación de iPhone Mojado / por Humedad en Cancún
+// SEO local | Pixon PC
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const waMsg = encodeURIComponent('Hola, mi iPhone se mojó y quiero cotizar el servicio de diagnóstico y limpieza por humedad en Cancún. Puedo enviar modelo y detalles del caso.');
+
+// ── DATOS ──────────────────────────────────────────────────────────────────
+
+const primerAuxilio = [
+  { do: false, icon: 'fa-ban', title: 'NO lo pongas en arroz', desc: 'El arroz no limpia la placa y puede dejar polvo dentro de puertos, bocinas o bandeja SIM. La humedad interna requiere apertura y diagnóstico.' },
+  { do: false, icon: 'fa-plug-circle-xmark', title: 'NO lo cargues', desc: 'Introducir corriente eléctrica a un circuito húmedo puede causar cortocircuitos en placa lógica, puerto de carga, batería o sensores internos.' },
+  { do: false, icon: 'fa-power-off', title: 'NO intentes encenderlo', desc: 'Si el equipo se apagó solo, déjalo así. Intentar encenderlo fuerza el paso de corriente por áreas mojadas, quemando componentes.' },
+  { do: false, icon: 'fa-wind', title: 'NO uses secadora o calor extremo', desc: 'El aire a presión empuja el agua más adentro del iPhone, y el calor excesivo deforma los adhesivos de sellado y daña la batería.' },
+  { do: true, icon: 'fa-droplet-slash', title: 'Séquelo superficialmente', desc: 'Usa una toalla de microfibra o absorbente para remover todo el líquido visible en el exterior, ranuras y bandejas.' },
+  { do: true, icon: 'fa-sim-card', title: 'Retira la bandeja SIM', desc: 'Saca el porta-SIM de inmediato. Esto abre un canal de ventilación mínimo y te permite ver si el indicador de humedad (LCI) está activado en rojo.' },
+  { do: true, icon: 'fa-clock', title: 'Tráelo lo antes posible', desc: 'El tiempo es el peor enemigo. Cada hora cuenta: la corrosión por sulfatación comienza en menos de 24 horas y degrada la placa progresivamente.' },
+];
+
+const stats = [
+  { num: 'Urgente', label: 'Revisión por humedad', icon: 'fa-heart-circle-check', color: '#06b6d4' },
+  { num: '+100', label: 'iPhones atendidos', icon: 'fa-mobile-screen', color: '#3b82f6' },
+  { num: '2–4h', label: 'Diagnóstico inicial', icon: 'fa-clock', color: '#22c55e' },
+  { num: 'Tina', label: 'Limpieza ultrasónica', icon: 'fa-water', color: '#8b5cf6' },
+];
+
+const sintomas = [
+  { icon: 'fa-power-off', title: 'El iPhone no enciende', desc: 'El teléfono se apagó después de mojarse y no da señales de vida ni responde al botón.', urgent: true },
+  { icon: 'fa-battery-half', title: 'Se calienta demasiado', desc: 'Sientes calor anormal en la parte trasera del iPhone, señal de un cortocircuito activo drenando la batería.', urgent: true },
+  { icon: 'fa-mobile-retro', title: 'Pantalla con líneas o parpadeo', desc: 'La pantalla muestra imagen distorsionada, líneas de colores, manchas oscuras o se queda totalmente verde/blanca.', urgent: false },
+  { icon: 'fa-hand-pointer', title: 'Touch loco o fantasma', desc: 'La pantalla táctil no responde, tiene zonas muertas o pulsa botones sola sin que la toques.', urgent: false },
+  { icon: 'fa-camera', title: 'Cámaras empañadas', desc: 'Ves gotas de condensación, agua o humedad visible en los lentes de la cámara trasera o frontal.', urgent: false },
+  { icon: 'fa-volume-xmark', title: 'Audio ahogado o sin sonido', desc: 'Las bocinas distorsionan mucho el sonido, el volumen es extremadamente bajo o el micrófono no capta tu voz.', urgent: false },
+  { icon: 'fa-triangle-exclamation', title: 'Fallo de Face ID', desc: 'Aparece un mensaje indicando problemas en la cámara TrueDepth o Face ID ha dejado de registrar tu rostro.', urgent: false },
+  { icon: 'fa-plug', title: 'Error de líquido en el puerto', desc: 'El iPhone muestra la advertencia de detección de líquido en el puerto Lightning o USB-C e impide cargarlo.', urgent: false },
+];
+
+const proceso = [
+  { step: '01', icon: 'fa-stethoscope', title: 'Recepción y apertura inmediata', desc: 'Registramos el tipo de líquido (dulce, salado, cloro) y abrimos el iPhone de inmediato para desconectar la batería y detener el daño.' },
+  { step: '02', icon: 'fa-magnifying-glass', title: 'Desarmado completo de componentes', desc: 'Desmontamos pantalla, cámaras, bocinas y blindajes metálicos de la placa para que ningún residuo de agua quede atrapado debajo.' },
+  { step: '03', icon: 'fa-shower', title: 'Limpieza ultrasónica de placa', desc: 'Cuando aplica, limpiamos la placa con tina ultrasónica y alcohol isopropílico para remover depósitos de sal, cloro y minerales.' },
+  { step: '04', icon: 'fa-wind', title: 'Secado controlado', desc: 'Secamos placa y periféricos con temperatura controlada para reducir humedad atrapada sin deformar adhesivos ni dañar batería.' },
+  { step: '05', icon: 'fa-microchip', title: 'Diagnóstico en microscopio de placa', desc: 'Inspeccionamos la placa a nivel micro, buscando soldaduras frías, conectores quemados, capacitores en corto y pistas oxidadas.' },
+  { step: '06', icon: 'fa-screwdriver-wrench', title: 'Microsoldadura si es requerida', desc: 'Si hay pistas o componentes dañados, evaluamos reconstrucción de líneas y cambio de circuitos afectados por corrosión.' },
+  { step: '07', icon: 'fa-shield-halved', title: 'Reensamble, pruebas e impermeabilización', desc: 'Reensamblamos aplicando un nuevo sello adhesivo contra humedad y polvo, realizando pruebas completas de consumo y funciones.' },
+];
+
+const advertencias = [
+  { icon: 'fa-triangle-exclamation', color: '#ef4444', title: 'El agua salada acelera la corrosión', desc: 'El salitre del mar es conductor y puede avanzar rápido dentro del iPhone. Si cayó al mar en Cancún, apágalo, no lo cargues y tráelo al taller lo antes posible.' },
+  { icon: 'fa-bolt', color: '#f59e0b', title: 'No basta con dejarlo secar al sol', desc: 'El agua puede evaporarse de zonas visibles, pero la humedad queda atrapada bajo blindajes, conectores y cámaras. Ahí puede iniciar corrosión aunque el iPhone parezca funcionar.' },
+  { icon: 'fa-circle-info', color: '#ef4444', title: 'La resistencia al agua no es permanente', desc: 'Los sellos internos se degradan con golpes, calor y años de uso. Aunque el iPhone tenga certificación IP, el daño por líquido puede afectar pantalla, batería, cámaras, Face ID o placa lógica.' },
+  { icon: 'fa-clock', color: '#22c55e', title: 'El tiempo cambia el diagnóstico', desc: 'Una revisión temprana puede limitar corrosión y sulfatación. Esperar días o semanas aumenta la probabilidad de microsoldadura, cambio de componentes o daño permanente en placa.' },
+];
+
+const modelos = [
+  'iPhone 16 Pro Max', 'iPhone 16 Pro', 'iPhone 16 Plus', 'iPhone 16',
+  'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
+  'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
+  'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13 Mini', 'iPhone 13',
+  'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12 Mini', 'iPhone 12',
+  'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11',
+  'iPhone XS Max', 'iPhone XS', 'iPhone XR', 'iPhone X',
+  'iPhone 8 Plus', 'iPhone 8', 'iPhone SE (2da/3ra gen)',
+];
+
+const porqueElegirnos = [
+  { icon: 'fa-water', title: 'Tina ultrasónica para placa', desc: 'Usamos limpieza ultrasónica y alcohol isopropílico para remover residuos, sales y corrosión en zonas donde un cepillo no llega.' },
+  { icon: 'fa-microchip', title: 'Microsoldadura cuando aplica', desc: 'Si la humedad dañó conectores, líneas o componentes, evaluamos reparación a nivel placa antes de sugerir cambios innecesarios.' },
+  { icon: 'fa-heart-circle-check', title: 'Diagnóstico claro', desc: 'Si el equipo no tiene reparación viable o el costo no conviene, te lo explicamos antes de avanzar con cualquier intervención.' },
+  { icon: 'fa-droplet-slash', title: 'Revisión del sello adhesivo', desc: 'Al cerrar el iPhone revisamos y reemplazamos el empaque cuando aplica para mejorar el cierre contra polvo y humedad ambiental.' },
+  { icon: 'fa-comments', title: 'Reporte con Fotos y Evidencia', desc: 'Te enviamos imágenes microscópicas de la placa mojada y el resultado de la limpieza para que veas el trabajo real.' },
+  { icon: 'fa-shield-halved', title: 'Garantía sobre el Trabajo', desc: 'Nuestra limpieza y reparaciones de placa cuentan con garantía por escrito detallada en tu ticket físico o digital.' },
+];
+
+const garantia = [
+  { icon: 'fa-file-signature', title: 'Garantía por escrito', desc: 'Recibes un ticket digital o impreso que especifica las partes reparadas, la fecha y los plazos de cobertura clara.' },
+  { icon: 'fa-hand-shake', title: 'Términos transparentes', desc: 'Nuestra garantía cubre las piezas instaladas y la mano de obra relacionada con la reparación de la humedad.' },
+  { icon: 'fa-triangle-exclamation', title: 'Limitaciones normales', desc: 'La garantía no aplica si el equipo se vuelve a mojar, se golpea o es abierto por técnicos fuera de nuestro taller.' },
+  { icon: 'fa-heart', title: 'Respaldo técnico continuo', desc: 'Aunque un equipo mojado sea crítico, te damos asesoría para cuidar la vida útil de tu batería y periféricos post-reparación.' },
+];
+
+const comparacion = [
+  { aspecto: 'Desconexión inmediata de batería', pixon: true, otro: false },
+  { aspecto: 'Limpieza ultrasónica de placa', pixon: true, otro: false },
+  { aspecto: 'Inspección con microscopio binocular', pixon: true, otro: false },
+  { aspecto: 'Microsoldadura a nivel componente', pixon: true, otro: false },
+  { aspecto: 'Prueba de consumo eléctrico en placa', pixon: true, otro: false },
+  { aspecto: 'Restauración del sello adhesivo', pixon: true, otro: false },
+  { aspecto: 'Tratamiento exprés para agua salada', pixon: true, otro: false },
+];
+
+const checkList = [
+  'Consumo eléctrico en reposo normal (sin calentamiento)',
+  'Pantalla táctil responde fluida en toda el área',
+  'Cámaras frontal y trasera enfocan y capturan sin humedad',
+  'Face ID / Touch ID funciona de forma segura',
+  'Sensores de proximidad y luz ambiental calibrados',
+  'Carga normal y comunicación USB estables',
+  'Micrófonos y bocinas con audio limpio y sin distorsión',
+  'Conexión de red celular, WiFi y Bluetooth estables',
+];
+
+const related = [
+  { href: '/servicios/telefono/reparacion-pantalla-iphone', icon: 'fa-display', label: 'Reparación de pantalla iPhone', desc: 'Si la humedad manchó de agua, quemó el backlight o rompió el display.' },
+  { href: '/servicios/telefono/cambio-bateria-iphone', icon: 'fa-battery-half', label: 'Cambio de batería iPhone', desc: 'Si la batería se cortocircuitó, se infló o drena energía rápidamente.' },
+  { href: '/servicios/telefono/reparacion-face-id-iphone', icon: 'fa-face-smile', label: 'Reparación de Face ID iPhone', desc: 'Servicio para recuperar el desbloqueo facial si el módulo TrueDepth se mojó.' },
+  { href: '/servicios/telefono/reparacion-carga-iphone', icon: 'fa-plug', label: 'Reparación de carga iPhone', desc: 'Si el puerto de carga se sulfató, está oxidado o marca error de líquido.' },
+  { href: '/servicios/telefono/diagnostico-iphone', icon: 'fa-stethoscope', label: 'Diagnóstico general', desc: 'Para evaluar fallas confusas o verificar si vale la pena reparar tu equipo.' },
+  { href: '/servicios/telefono/reparacion-iphone', icon: 'fa-mobile-screen', label: 'Servicio Técnico Completo', desc: 'Accede a todo nuestro catálogo de reparaciones y mantenimiento de iPhone.' },
+];
+
+const faqItems = [
+  { question: '¿Qué probabilidad hay de recuperar un iPhone mojado?', answer: 'Depende del líquido, el tiempo transcurrido y si intentaste cargarlo o encenderlo. Cuando el equipo llega apagado y rápido al taller, hay más margen para limpiar placa, desconectar batería y revisar corrosión antes de que avance. Si hubo agua salada o semanas de espera, hacemos diagnóstico en microscopio antes de prometer resultados.' },
+  { question: '¿Por qué no recomiendan el arroz para un iPhone mojado?', answer: 'El arroz no limpia la placa lógica ni remueve sales, minerales o azúcar. Puede absorber humedad superficial, pero no llega debajo de blindajes, conectores ni componentes. Lo correcto es apagar el equipo, no cargarlo y hacer diagnóstico por humedad con apertura, limpieza y secado controlado.' },
+  { question: '¿Cuánto cuesta reparar un iPhone por humedad en Cancún?', answer: 'El costo depende del modelo, el tipo de líquido, el tiempo que pasó y si hay daño en pantalla, batería, puerto de carga, Face ID o placa lógica. Primero revisamos en Pixon PC Cancún y te damos una cotización clara antes de instalar piezas o hacer microsoldadura.' },
+  { question: '¿Cuánto tarda el diagnóstico de humedad?', answer: 'El diagnóstico inicial suele tomar de 2 a 4 horas porque implica abrir, desconectar batería, revisar indicadores de líquido, limpiar zonas críticas y medir consumo. Si encontramos cortos o corrosión bajo componentes, la reparación de placa puede tomar más tiempo y se cotiza por separado.' },
+  { question: '¿El agua salada del mar daña más rápido el iPhone?', answer: 'Sí. El agua de mar acelera corrosión y sulfatación, especialmente si el iPhone sigue encendido o se conecta al cargador. Si tu iPhone cayó al mar en Cancún, apágalo, no lo seques al sol y tráelo lo antes posible para limpieza y diagnóstico.' },
+  { question: '¿Perderé mis fotos y archivos?', answer: 'No borramos información como parte del diagnóstico por humedad. Si la placa y memoria siguen operativas, tus fotos y archivos normalmente permanecen en el equipo. Si el daño está en placa lógica, te explicamos primero si conviene reparar para recuperar funcionamiento o priorizar datos.' },
+  { question: '¿Tienen garantía los equipos reparados por humedad?', answer: 'Sí entregamos garantía por escrito sobre la intervención realizada y las piezas instaladas cuando aplica. Como el daño por líquido puede dejar secuelas internas, aclaramos condiciones, límites y plazo de cobertura en el ticket antes de entregar el iPhone.' },
+];
+---
+
+<div class="hum-wrapper">
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 1 · HERO
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-hero">
+    <div class="hum-hero-glow" aria-hidden="true"></div>
+    <div class="hum-hero-grid-bg" aria-hidden="true"></div>
+    <div class="container hum-hero-inner">
+
+      <div class="hum-hero-copy">
+        <span class="hum-badge">
+          <i class="fa-solid fa-triangle-exclamation"></i> Emergencia por líquidos · Cancún
+        </span>
+        <h1 class="hum-h1">
+          Reparación de iPhone mojado en Cancún
+        </h1>
+        <p class="hum-sub">Desconexión rápida de batería · Limpieza ultrasónica y diagnóstico de placa</p>
+        <p class="hum-copy">
+          ¿Tu iPhone se cayó al agua, al mar, alberca o se mojó con lluvia? El tiempo es crítico. En nuestro taller local en Cancún abrimos el equipo, desconectamos batería, revisamos corrosión y aplicamos limpieza ultrasónica cuando el diagnóstico lo permite.
+        </p>
+        <p class="hum-copy hum-copy--secondary">
+          Atendemos iPhone X al 16 Pro Max mojados, con diagnóstico por humedad, revisión de placa lógica, puerto de carga, pantalla, batería, cámaras y Face ID afectado por líquido.
+        </p>
+
+        <div class="hum-chips">
+          <div class="hum-chip hum-chip--cyan"><i class="fa-solid fa-water"></i> Tina Ultrasónica</div>
+          <div class="hum-chip"><i class="fa-solid fa-microchip"></i> Expertos en Placa</div>
+          <div class="hum-chip hum-chip--green"><i class="fa-solid fa-shield-halved"></i> Garantía por escrito</div>
+          <div class="hum-chip"><i class="fa-solid fa-bolt"></i> Apertura inmediata</div>
+          <div class="hum-chip"><i class="fa-solid fa-stethoscope"></i> Evidencia con fotos</div>
+          <div class="hum-chip"><i class="fa-solid fa-location-dot"></i> Centro físico en Cancún</div>
+        </div>
+
+        <div class="hum-trust-bar">
+          <span><i class="fa-solid fa-star"></i> 5.0 en Google</span>
+          <span><i class="fa-solid fa-heart-pulse"></i> 85% de éxito al traerlo rápido</span>
+          <span><i class="fa-solid fa-comments"></i> WhatsApp activo</span>
+        </div>
+
+        <div class="hum-cta-group">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="hum-btn-wa">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar iPhone mojado
+          </a>
+          <a href="#primeros-auxilios" class="hum-btn-outline">
+            Ver primeros auxilios <i class="fa-solid fa-arrow-down"></i>
+          </a>
+        </div>
+        <p class="hum-micro">Mantén el iPhone apagado y no intentes cargarlo bajo ninguna circunstancia.</p>
+      </div>
+
+      <!-- Tarjeta visual de rescate -->
+      <div class="hum-hero-card-wrap">
+        <div class="hum-hero-card">
+          <div class="hum-card-header">
+            <i class="fa-solid fa-kit-medical"></i>
+            <span>Protocolo por humedad Pixon PC</span>
+          </div>
+
+          <!-- Animación visual del agua -->
+          <div class="hum-water-visual" aria-hidden="true">
+            <div class="hum-water-container">
+              <div class="hum-wave"></div>
+              <div class="hum-wave hum-wave--back"></div>
+              <div class="hum-phone-icon"><i class="fa-solid fa-mobile-button"></i></div>
+              <div class="hum-bubbles">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="hum-status-label">
+              <i class="fa-solid fa-triangle-exclamation"></i> Detén la electrólisis
+            </div>
+          </div>
+
+          <ul class="hum-card-checks">
+            <li><i class="fa-solid fa-circle-check"></i> Desconexión de batería en 5 min</li>
+            <li><i class="fa-solid fa-circle-check"></i> Lavado químico ultrasónico</li>
+            <li><i class="fa-solid fa-circle-check"></i> Diagnóstico de corto en placa</li>
+            <li><i class="fa-solid fa-circle-check"></i> Remoción de sal y minerales</li>
+            <li><i class="fa-solid fa-circle-check"></i> Reemplazo de empaque de agua</li>
+            <li><i class="fa-solid fa-circle-check"></i> Evidencias bajo microscopio</li>
+          </ul>
+
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="hum-card-cta">
+            <i class="fa-brands fa-whatsapp"></i> Agendar auxilio exprés
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 2 · STATS / POR QUÉ CADA HORA CUENTA
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-stats">
+    <div class="container">
+      <div class="hum-section-head hum-section-head--compact text-center">
+        <span class="hum-eyebrow"><i class="fa-solid fa-clock"></i> Diagnóstico en Cancún</span>
+        <h2 class="hum-h2">Por qué cada hora cuenta cuando un iPhone se moja</h2>
+      </div>
+      <div class="hum-stats-grid">
+        {stats.map((s) => (
+          <div class="hum-stat-card">
+            <div class="hum-stat-icon" style={`background: ${s.color}18; color: ${s.color};`}>
+              <i class={`fa-solid ${s.icon}`}></i>
+            </div>
+            <div>
+              <strong class="hum-stat-num">{s.num}</strong>
+              <span class="hum-stat-label">{s.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 3 · GUÍA DE PRIMEROS AUXILIOS (Crucial)
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-auxilios" id="primeros-auxilios">
+    <div class="container">
+      <div class="hum-section-head text-center">
+        <span class="hum-eyebrow hum-eyebrow--amber"><i class="fa-solid fa-kit-medical"></i> Primeros Auxilios</span>
+        <h2 class="hum-h2">¿Tu iPhone se acaba de mojar? Qué hacer y qué NO hacer</h2>
+        <p class="hum-desc hum-desc--center">Lo que hagas durante las primeras horas puede reducir corrosión, sulfatación y daño en placa lógica. Mantén el iPhone apagado y evita conectarlo al cargador.</p>
+      </div>
+
+      <div class="hum-auxilios-split">
+        <!-- Columna de Errores Críticos -->
+        <div class="hum-aux-col hum-aux-col--donot">
+          <h3 class="hum-aux-title"><i class="fa-solid fa-ban"></i> Lo que NUNCA debes hacer</h3>
+          <div class="hum-aux-cards">
+            {primerAuxilio.filter(a => !a.do).map((item) => (
+              <div class="hum-aux-card hum-aux-card--danger">
+                <div class="hum-aux-icon"><i class={`fa-solid ${item.icon}`}></i></div>
+                <div class="hum-aux-body">
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Columna de Buenas Prácticas -->
+        <div class="hum-aux-col hum-aux-col--do">
+          <h3 class="hum-aux-title"><i class="fa-solid fa-circle-check"></i> Lo que debes hacer ya</h3>
+          <div class="hum-aux-cards">
+            {primerAuxilio.filter(a => a.do).map((item) => (
+              <div class="hum-aux-card hum-aux-card--success">
+                <div class="hum-aux-icon"><i class={`fa-solid ${item.icon}`}></i></div>
+                <div class="hum-aux-body">
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="hum-emergency-box">
+        <div class="hum-em-icon"><i class="fa-solid fa-truck-ramp-box"></i></div>
+        <div class="hum-em-body">
+          <h3>¿Agua salada del mar de Cancún? Revisión prioritaria</h3>
+          <p>El agua salada acelera la corrosión y puede afectar puerto de carga, pantalla, cámaras, batería y placa lógica. Apágalo, no lo cargues y evita secarlo al sol. Escríbenos por WhatsApp para indicarte cómo moverlo de forma segura al taller.</p>
+        </div>
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="hum-em-btn">
+          <i class="fa-brands fa-whatsapp"></i> Pedir orientación
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 4 · SÍNTOMAS DE DAÑO
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-sintomas">
+    <div class="container">
+      <div class="hum-section-head">
+        <span class="hum-eyebrow"><i class="fa-solid fa-stethoscope"></i> Identifica la falla</span>
+        <h2 class="hum-h2">Síntomas comunes de daño por humedad en iPhone</h2>
+        <p class="hum-desc">La humedad no siempre mata al iPhone al instante. A veces penetra lentamente, alterando funciones específicas de forma progresiva. Reconocer el síntoma ayuda a detener daños colaterales.</p>
+      </div>
+
+      <div class="hum-sintomas-grid">
+        {sintomas.map((s, i) => (
+          <article class={`hum-sintoma-card${s.urgent ? ' hum-sintoma-card--urgent' : ''}`}>
+            <div class="hum-sintoma-num">{String(i + 1).padStart(2, '0')}</div>
+            <div class="hum-sintoma-icon">
+              <i class={`fa-solid ${s.icon}`}></i>
+            </div>
+            <div class="hum-sintoma-body">
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+              {s.urgent && <span class="hum-sintoma-urgent-tag"><i class="fa-solid fa-circle-exclamation"></i> Riesgo de corto o daño en placa</span>}
+            </div>
+          </article>
+        ))}
+
+        <div class="hum-sintoma-cta-card">
+          <i class="fa-brands fa-apple"></i>
+          <strong>¿Tu iPhone se mojó y tiene fallas?</strong>
+          <p>La corrosión puede seguir avanzando bajo conectores y blindajes. Una revisión temprana ayuda a limitar el daño.</p>
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-whatsapp"></i> Detener la corrosión ya
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 5 · LA CIENCIA DETRÁS DE LA CORROSIÓN
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-ciencia">
+    <div class="container">
+      <div class="hum-ciencia-grid">
+        <div class="hum-ciencia-content">
+          <span class="hum-eyebrow"><i class="fa-solid fa-vial"></i> Electrólisis y Sulfato</span>
+          <h2 class="hum-h2">¿Qué pasa dentro de tu iPhone mojado cada minuto?</h2>
+          <p class="hum-desc">Cuando el agua entra en contacto con los circuitos electrónicos del iPhone y la batería sigue conectada, se produce un fenómeno destructivo llamado <strong>electrólisis</strong>.</p>
+          <p class="hum-copy">
+            La corriente eléctrica provista por la batería fluye a través del agua (que contiene sales y minerales conductores), transportando átomos de cobre de una pista a otra de la placa base. Esto disuelve literalmente los caminos de cobre y deposita un residuo verdoso de óxido metálico (sulfatación).
+          </p>
+          <p class="hum-copy">
+            El sulfato actúa como un puente conductor no deseado que conecta líneas de alto voltaje directamente a microchips sensibles de procesamiento. Esto provoca cortocircuitos severos que queman componentes de forma irreparable si el teléfono se enciende o se conecta al cargador.
+          </p>
+
+          <div class="hum-timeline-ciencia">
+            <div class="hum-time-item">
+              <strong>Primeros minutos:</strong> El líquido puede entrar por bocinas, SIM, pantalla o puerto de carga. Si el iPhone sigue encendido, aumenta el riesgo de corto.
+            </div>
+            <div class="hum-time-item">
+              <strong>Primeras horas:</strong> Sales, cloro o minerales empiezan a dejar residuos sobre conectores y líneas de placa.
+            </div>
+            <div class="hum-time-item">
+              <strong>Día 01:</strong> La sulfatación puede aparecer en conectores de pantalla, cámaras, batería, Face ID y carga.
+            </div>
+            <div class="hum-time-item">
+              <strong>Días después:</strong> La corrosión puede avanzar bajo blindajes y componentes, elevando el costo o limitando la reparación.
+            </div>
+          </div>
+        </div>
+
+        <div class="hum-ciencia-visual">
+          <div class="hum-microscope-box">
+            <div class="hum-mic-header">
+              <span>Vista Microscópica de Placa Base</span>
+              <span class="hum-rec-badge">Corrosión activa</span>
+            </div>
+            <div class="hum-mic-viewport">
+              <div class="hum-pista-cobre">
+                <div class="hum-sulfato-deposit"></div>
+                <div class="hum-spark-effect"></div>
+              </div>
+              <div class="hum-grid-overlay"></div>
+            </div>
+            <div class="hum-mic-footer">
+              <p><i class="fa-solid fa-microchip"></i> Pistas de cobre disueltas por sulfatación galvánica extrema.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 6 · ADVERTENCIAS CRÍTICAS
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-advertencias">
+    <div class="container">
+      <div class="hum-section-head text-center">
+        <span class="hum-eyebrow hum-eyebrow--amber"><i class="fa-solid fa-triangle-exclamation"></i> Verdades técnicas</span>
+        <h2 class="hum-h2 hum-h2--light">Mitos y riesgos cuando un iPhone se moja</h2>
+        <p class="hum-desc hum-desc--light hum-desc--center">Evita prácticas que pueden empeorar la corrosión, dañar la placa lógica o complicar la recuperación de datos.</p>
+      </div>
+      <div class="hum-advertencias-grid">
+        {advertencias.map((a) => (
+          <div class="hum-advertencia-card" style={`--adv-color: ${a.color}`}>
+            <div class="hum-adv-icon"><i class={`fa-solid ${a.icon}`}></i></div>
+            <div>
+              <h3>{a.title}</h3>
+              <p>{a.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 7 · PROCESO TÉCNICO COMPLETO (Tina ultrasónica)
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-proceso">
+    <div class="container">
+      <div class="hum-proceso-head">
+        <div class="hum-proceso-copy">
+          <span class="hum-eyebrow"><i class="fa-solid fa-water"></i> Laboratorio Pixon PC</span>
+          <h2 class="hum-h2">Proceso de reparación de iPhone mojado en Cancún</h2>
+          <p class="hum-desc">Trabajamos con apertura, desconexión de batería, limpieza ultrasónica, secado controlado y diagnóstico de placa para decidir si basta limpieza o si requiere microsoldadura.</p>
+        </div>
+        <div class="hum-proceso-tags">
+          <span><i class="fa-solid fa-microchip"></i> Microscopio estereo</span>
+          <span><i class="fa-solid fa-water"></i> Lavado químico</span>
+          <span><i class="fa-solid fa-temperature-arrow-down"></i> Deshidratación térmica</span>
+          <span><i class="fa-solid fa-screwdriver-wrench"></i> Microsoldadura</span>
+        </div>
+      </div>
+
+      <div class="hum-proceso-steps">
+        {proceso.map((p) => (
+          <article class="hum-step">
+            <div class="hum-step-num">{p.step}</div>
+            <div class="hum-step-body">
+              <div class="hum-step-icon"><i class={`fa-solid ${p.icon}`}></i></div>
+              <h3>{p.title}</h3>
+              <p>{p.desc}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="hum-proceso-proof">
+        <div class="hum-proof-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M9.4 16.6 4.8 12l1.4-1.4 3.2 3.2 8.4-8.4 1.4 1.4z"></path></svg>
+        </div>
+        <div>
+          <h3>Limpieza ultrasónica con alcohol isopropílico</h3>
+          <p>La limpieza ultrasónica ayuda a remover residuos minerales, salitre y corrosión en zonas difíciles de alcanzar. Después medimos consumo y probamos funciones antes de cotizar piezas adicionales.</p>
+        </div>
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="hum-proof-cta">
+          <i class="fa-brands fa-whatsapp"></i> Solicitar lavado ultrasónico
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 8 · MICROSOLDADURA (Servicio Avanzado)
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-microsoldadura">
+    <div class="container">
+      <div class="hum-micro-split">
+        <div class="hum-micro-image-box">
+          <div class="hum-micro-tag"><i class="fa-solid fa-microchip"></i> Nivel Componente</div>
+          <div class="hum-micro-overlay"></div>
+        </div>
+
+        <div class="hum-micro-copy">
+          <span class="hum-eyebrow"><i class="fa-solid fa-microchip"></i> Electrónica Avanzada</span>
+          <h2 class="hum-h2">Microsoldadura SMD: Cuando la humedad quema la placa</h2>
+          <p class="hum-desc">
+            A menudo, la humedad provoca cortocircuitos que queman líneas críticas de poder (como VDD_MAIN) o funden capacitores y diodos de protección en la placa del iPhone.
+          </p>
+          <p class="hum-copy">
+            Si la limpieza no basta, revisamos si la placa lógica puede repararse a nivel componente. Te explicamos si el daño está en conector, línea, IC de carga, imagen, táctil u otra zona afectada por líquido.
+          </p>
+
+          <ul class="hum-micro-list">
+            <li><i class="fa-solid fa-circle-check"></i> Reconstrucción de pistas de cobre dañadas por sulfatación.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Reemplazo de conectores FPC corroídos (pantalla, cámaras, batería).</li>
+            <li><i class="fa-solid fa-circle-check"></i> Detección de cortos con cámara térmica flir de alta resolución.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Cambio de ICs (Circuitos Integrados) de carga, imagen o táctil quemados.</li>
+          </ul>
+
+          <div class="hum-micro-cta-group">
+            <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="hum-btn-wa">
+              <i class="fa-brands fa-whatsapp"></i> Cotizar reparación de placa
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 9 · TICKET DE SERVICIO
+  ═══════════════════════════════════════════════ -->
+  <ServiceTicketSection
+    defaultDevice="iPhone"
+    defaultService="Reparación por humedad"
+    title="Crear ticket de diagnóstico por humedad"
+    subtitle="Ingresa el modelo de tu iPhone, tipo de líquido (mar, dulce, cloro) y cuántas horas han pasado. Priorizamos tu caso de inmediato."
+  />
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 10 · COMPARACIÓN PIXON vs OTROS
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-comparacion">
+    <div class="container">
+      <div class="hum-section-head text-center">
+        <span class="hum-eyebrow"><i class="fa-solid fa-scale-balanced"></i> Método de trabajo</span>
+        <h2 class="hum-h2">¿Por qué confiar tu iPhone mojado a Pixon PC?</h2>
+        <p class="hum-desc hum-desc--center">La reparación por humedad requiere diagnóstico, limpieza y pruebas. No basta con secar el equipo o cambiar piezas sin revisar placa.</p>
+      </div>
+      <div class="hum-comp-table-wrap">
+        <table class="hum-comp-table" aria-label="Comparación de tratamiento de humedad Pixon PC vs. otros talleres">
+          <thead>
+            <tr>
+              <th>Método Técnico</th>
+              <th class="hum-col-pixon"><i class="fa-brands fa-apple"></i> Pixon PC</th>
+              <th class="hum-col-otros">Otros talleres</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comparacion.map((row) => (
+              <tr>
+                <td>{row.aspecto}</td>
+                <td class="hum-col-pixon">
+                  {row.pixon
+                    ? <span class="hum-comp-yes"><i class="fa-solid fa-check"></i> Sí</span>
+                    : <span class="hum-comp-no"><i class="fa-solid fa-xmark"></i> No</span>}
+                </td>
+                <td class="hum-col-otros">
+                  {row.otro
+                    ? <span class="hum-comp-warn"><i class="fa-solid fa-triangle-exclamation"></i> A veces</span>
+                    : <span class="hum-comp-no"><i class="fa-solid fa-xmark"></i> No siempre</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 11 · MODELOS COMPATIBLES
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-modelos">
+    <div class="container">
+      <div class="hum-section-head">
+        <span class="hum-eyebrow"><i class="fa-brands fa-apple"></i> Compatibilidad</span>
+        <h2 class="hum-h2">Modelos de iPhone que revisamos por humedad en Cancún</h2>
+        <p class="hum-desc">Desde el iPhone X hasta el último 16 Pro Max. Cada modelo cuenta con empaques y blindajes de placa específicos que desarmamos de forma controlada.</p>
+      </div>
+      <div class="hum-modelos-grid">
+        {modelos.map((m) => (
+          <div class="hum-modelo-tag">
+            <i class="fa-brands fa-apple"></i> {m}
+          </div>
+        ))}
+      </div>
+      <p class="hum-modelos-note">
+        <i class="fa-solid fa-mobile-screen"></i>
+        ¿Tu iPhone es anterior? También lo revisamos. Contamos con refacciones e historial de placa para cualquier generación.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 12 · CHECKLIST DE CALIDAD EXTREMA
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-checklist">
+    <div class="container">
+      <div class="hum-check-layout">
+        <div class="hum-check-copy">
+          <span class="hum-eyebrow"><i class="fa-solid fa-clipboard-check"></i> Pruebas post-rescate</span>
+          <h2 class="hum-h2 hum-h2--light">Nuestros 8 puntos de control antes de entregarte el iPhone</h2>
+          <p class="hum-desc hum-desc--light">Un iPhone mojado puede volver a encender y aun así tener consumo, audio bajo, cámara empañada o carga inestable. Probamos funciones clave antes de entregar.</p>
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="hum-btn-wa hum-btn-wa--sm">
+            <i class="fa-brands fa-whatsapp"></i> Agendar diagnóstico por humedad
+          </a>
+        </div>
+        <div class="hum-check-list">
+          {checkList.map((item) => (
+            <div class="hum-check-item">
+              <div class="hum-check-mark"><i class="fa-solid fa-check"></i></div>
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 13 · POR QUÉ ELEGIRNOS
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-porque">
+    <div class="container">
+      <div class="hum-section-head text-center">
+        <span class="hum-eyebrow"><i class="fa-solid fa-award"></i> Diferencial</span>
+        <h2 class="hum-h2">¿Por qué reparar un iPhone mojado con Pixon PC Cancún?</h2>
+        <p class="hum-desc hum-desc--center">El daño por humedad requiere diagnóstico real, limpieza adecuada y explicación clara de riesgos, costos y límites de la reparación.</p>
+      </div>
+      <div class="hum-porque-grid">
+        {porqueElegirnos.map((p) => (
+          <div class="hum-porque-card">
+            <div class="hum-porque-icon"><i class={`fa-solid ${p.icon}`}></i></div>
+            <h3>{p.title}</h3>
+            <p>{p.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 14 · GARANTÍA Y COMPROMISO
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-garantia">
+    <div class="container">
+      <div class="hum-section-head text-center">
+        <span class="hum-eyebrow hum-eyebrow--green"><i class="fa-solid fa-shield-halved"></i> Garantía</span>
+        <h2 class="hum-h2">Términos de nuestra garantía por reparaciones de humedad</h2>
+        <p class="hum-desc hum-desc--center">Te explicamos con total claridad cómo respaldamos nuestro trabajo técnico. Sin letra pequeña y con honestidad total.</p>
+      </div>
+      <div class="hum-garantia-grid">
+        {garantia.map((g) => (
+          <div class="hum-garantia-card">
+            <div class="hum-garantia-icon"><i class={`fa-solid ${g.icon}`}></i></div>
+            <h3>{g.title}</h3>
+            <p>{g.desc}</p>
+          </div>
+        ))}
+      </div>
+      <div class="hum-garantia-cta">
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="hum-btn-wa">
+          <i class="fa-brands fa-whatsapp"></i> Consultar sobre mi iPhone
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 15 · SERVICIOS RELACIONADOS
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-related">
+    <div class="container">
+      <div class="hum-section-head text-center">
+        <span class="hum-eyebrow"><i class="fa-solid fa-link"></i> Servicios relacionados</span>
+        <h2 class="hum-h2">Servicios relacionados con iPhone mojado</h2>
+        <p class="hum-desc hum-desc--center">La humedad puede afectar pantalla, batería, carga, Face ID, cámaras, bocinas y placa lógica. Estos servicios se conectan directamente con el diagnóstico por líquido.</p>
+      </div>
+      <div class="hum-related-grid">
+        {related.map((r) => (
+          <a href={r.href} class="hum-related-card">
+            <div class="hum-related-icon"><i class={`fa-solid ${r.icon}`}></i></div>
+            <div class="hum-related-body">
+              <h3>{r.label}</h3>
+              <p>{r.desc}</p>
+            </div>
+            <i class="fa-solid fa-arrow-right hum-related-arrow"></i>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 16 · FAQ
+  ═══════════════════════════════════════════════ -->
+  <FaqSection
+    id="faq-humedad-iphone"
+    title="Preguntas frecuentes sobre reparación de iPhone mojado en Cancún"
+    description="Respondemos dudas sobre arroz, agua salada, costos, diagnóstico por humedad, limpieza ultrasónica, placa lógica, datos y garantía."
+    items={faqItems}
+    backgroundColor="#050d1f"
+    questionColor="#f8fafc"
+    titleColor="#f8fafc"
+    descriptionColor="#cfe7f6"
+    faqAccent="#06b6d4"
+    sectionClass="hum-faq-dark"
+  />
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 17 · COMENTARIOS
+  ═══════════════════════════════════════════════ -->
+  <section class="hum-comments">
+    <CommentsSection
+      title="Opiniones de clientes sobre reparación de iPhone en Cancún"
+      description="Clientes en Cancún que trajeron su iPhone por humedad, pantalla, batería, carga o Face ID y recibieron diagnóstico claro, pruebas y garantía por escrito."
+      dark={true}
+    />
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SECCIÓN 18 · UBICACIÓN Y CONTACTO
+  ═══════════════════════════════════════════════ -->
+  <div class="hum-contact-shell">
+    <ContactSection id="ubicacion" />
+  </div>
+
+</div>
+
+<Footer />
+
+<style is:global>
+/* ══════════════════════════════════════════════════
+   ESTILOS PREMIUM · Reparación por Humedad iPhone
+══════════════════════════════════════════════════ */
+.hum-wrapper {
+  --hum-bg:  #020813;
+  --hum-bg2: #050d1f;
+  --hum-bg3: #0B1120;
+  --hum-bg4: #1e293b;
+  --hum-light-bg:    #f8fafc;
+  --hum-light-panel: #f1f5f9;
+  --hum-dark-text:   #0f2a4a;
+  --hum-soft-text:   #334155;
+  --hum-primary:       #06b6d4;
+  --hum-primary-light: #22d3ee;
+  --hum-accent:  #3b82f6;
+  --hum-green:   #22c55e;
+  --hum-amber:   #f59e0b;
+  --hum-red:     #ef4444;
+  --hum-text:    #f8fafc;
+  --hum-muted:   #b6c4d6;
+  --hum-border:  rgba(255,255,255,0.08);
+  font-family: 'Inter', 'Kanit', sans-serif;
+  background: var(--hum-bg2);
+  color: var(--hum-text);
+}
+
+/* ── UTILITIES ── */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+.hum-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--hum-primary-light); margin-bottom: 12px;
+}
+.hum-eyebrow i { color: var(--hum-primary-light); }
+.hum-eyebrow--amber { color: #fbbf24; }
+.hum-eyebrow--amber i { color: #fbbf24; }
+.hum-eyebrow--green { color: #4ade80; }
+.hum-eyebrow--green i { color: #4ade80; }
+
+.hum-h2 {
+  font-size: clamp(1.45rem, 3vw, 2rem); font-weight: 800;
+  color: var(--hum-text); line-height: 1.2; margin-bottom: 12px;
+  font-family: 'Kanit', sans-serif;
+}
+.hum-h2--light { color: var(--hum-dark-text); }
+
+.hum-desc { color: var(--hum-muted); font-size: 0.97rem; line-height: 1.7; max-width: 680px; }
+.hum-desc--center { margin: 0 auto; text-align: center; }
+.hum-desc--light { color: var(--hum-soft-text); }
+
+.hum-section-head { margin-bottom: 40px; }
+.hum-section-head--compact { margin-bottom: 24px; }
+.hum-section-head.text-center { text-align: center; }
+
+/* ── HERO SECTION ── */
+.hum-hero {
+  position: relative; padding: 120px 0 80px; overflow: hidden;
+  background: radial-gradient(circle at 70% 30%, rgba(6, 182, 212, 0.12) 0%, rgba(2, 8, 19, 0) 60%), var(--hum-bg);
+  border-bottom: 1px solid var(--hum-border);
+}
+.hum-hero-glow {
+  position: absolute; width: 400px; height: 400px; right: 10%; top: 15%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0) 70%);
+  filter: blur(40px); pointer-events: none; z-index: 1;
+}
+.hum-hero-grid-bg {
+  position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 24px 24px; pointer-events: none; opacity: 0.8;
+}
+.hum-hero-inner {
+  position: relative; z-index: 2; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center;
+}
+
+.hum-badge {
+  display: inline-flex; align-items: center; gap: 8px; background: rgba(6, 182, 212, 0.1);
+  color: var(--hum-primary-light); font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 50px; border: 1px solid rgba(6, 182, 212, 0.25); margin-bottom: 20px;
+}
+.hum-h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 900; line-height: 1.1; margin-bottom: 16px;
+  font-family: 'Kanit', sans-serif;
+  background: linear-gradient(135deg, #ffffff 30%, var(--hum-primary-light) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hum-sub { font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--hum-primary-light); font-weight: 600; margin-bottom: 20px; }
+.hum-copy { font-size: 1.05rem; line-height: 1.6; color: #e2e8f0; margin-bottom: 12px; }
+.hum-copy--secondary { font-size: 0.94rem; color: var(--hum-muted); margin-bottom: 30px; }
+
+.hum-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
+.hum-chip {
+  display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 6px;
+  font-size: 0.82rem; color: #cbd5e1; font-weight: 500;
+}
+.hum-chip i { color: var(--hum-muted); }
+.hum-chip--cyan { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.2); }
+.hum-chip--cyan i { color: var(--hum-primary-light); }
+.hum-chip--green { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.2); }
+.hum-chip--green i { color: #4ade80; }
+
+.hum-trust-bar {
+  display: flex; gap: 20px; border-top: 1px solid var(--hum-border); padding-top: 20px; margin-bottom: 30px;
+}
+.hum-trust-bar span { display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; color: var(--hum-muted); }
+.hum-trust-bar span i { color: var(--hum-primary-light); }
+
+.hum-cta-group { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 12px; }
+.hum-btn-wa {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--hum-primary); color: #020813; font-weight: 700; font-size: 1rem;
+  padding: 14px 28px; border-radius: 8px; text-decoration: none; border: none;
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3); transition: all 0.2s ease; cursor: pointer;
+}
+.hum-btn-wa:hover {
+  background: var(--hum-primary-light); transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(6, 182, 212, 0.45);
+}
+.hum-btn-outline {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: transparent; color: var(--hum-text); font-weight: 600; font-size: 0.95rem;
+  padding: 13px 24px; border-radius: 8px; text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s ease;
+}
+.hum-btn-outline:hover {
+  background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+}
+.hum-micro { font-size: 0.78rem; color: var(--hum-muted); }
+
+/* Hero card visual */
+.hum-hero-card-wrap { display: flex; justify-content: center; width: 100%; }
+.hum-hero-card {
+  background: rgba(11, 17, 32, 0.7); border: 1px solid var(--hum-border);
+  padding: 30px; border-radius: 16px; width: 100%; max-width: 360px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+}
+.hum-card-header {
+  display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--hum-primary-light);
+  border-bottom: 1px solid var(--hum-border); padding-bottom: 15px; margin-bottom: 20px;
+}
+.hum-card-header i { color: var(--hum-primary-light); }
+
+/* Water animation */
+.hum-water-visual {
+  position: relative; height: 160px; background: rgba(2, 8, 19, 0.6);
+  border: 1px solid rgba(6, 182, 212, 0.15); border-radius: 12px; overflow: hidden;
+  margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.hum-water-container {
+  position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden;
+}
+.hum-wave {
+  position: absolute; bottom: 0; left: 0; width: 200%; height: 60%;
+  background: rgba(6, 182, 212, 0.2); border-radius: 40%;
+  animation: hum-wave-move 8s infinite linear; transform: translate3d(0, 0, 0);
+}
+.hum-wave--back {
+  height: 65%; background: rgba(6, 182, 212, 0.1); border-radius: 38%;
+  animation: hum-wave-move 6s infinite linear;
+}
+@keyframes hum-wave-move {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-25%, 5px, 0) rotate(180deg); }
+  100% { transform: translate3d(-50%, 0, 0) rotate(360deg); }
+}
+.hum-phone-icon {
+  position: relative; z-index: 3; font-size: 3rem; color: rgba(255,255,255,0.9);
+  animation: hum-phone-float 3s ease-in-out infinite; text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+@keyframes hum-phone-float {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+.hum-bubbles span {
+  position: absolute; bottom: 0; background: rgba(6, 182, 212, 0.4);
+  border-radius: 50%; pointer-events: none; animation: hum-bubble-rise 4s infinite ease-in;
+}
+.hum-bubbles span:nth-child(1) { left: 10%; width: 8px; height: 8px; animation-delay: 0.5s; animation-duration: 3s; }
+.hum-bubbles span:nth-child(2) { left: 30%; width: 12px; height: 12px; animation-delay: 1.2s; animation-duration: 4.2s; }
+.hum-bubbles span:nth-child(3) { left: 55%; width: 6px; height: 6px; animation-delay: 0.2s; animation-duration: 2.8s; }
+.hum-bubbles span:nth-child(4) { left: 75%; width: 10px; height: 10px; animation-delay: 1.8s; animation-duration: 3.6s; }
+.hum-bubbles span:nth-child(5) { left: 85%; width: 7px; height: 7px; animation-delay: 0.9s; animation-duration: 3.2s; }
+@keyframes hum-bubble-rise {
+  0% { bottom: -10px; transform: translateX(0); opacity: 0; }
+  20% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { bottom: 90%; transform: translateX(10px); opacity: 0; }
+}
+.hum-status-label {
+  position: relative; z-index: 4; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; color: #fbbf24; background: rgba(0,0,0,0.7);
+  padding: 4px 10px; border-radius: 50px; border: 1px solid rgba(251, 191, 36, 0.3);
+  margin-top: 10px;
+}
+
+.hum-card-checks { list-style: none; padding: 0; margin: 0 0 25px; }
+.hum-card-checks li {
+  display: flex; align-items: center; gap: 10px; font-size: 0.86rem; color: #cbd5e1;
+  margin-bottom: 12px;
+}
+.hum-card-checks li i { color: var(--hum-primary-light); font-size: 0.95rem; }
+
+.hum-card-cta {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  color: var(--hum-text); text-decoration: none; padding: 12px; border-radius: 8px;
+  font-weight: 700; font-size: 0.88rem; transition: all 0.2s ease;
+}
+.hum-card-cta:hover {
+  background: var(--hum-primary); color: #020813; border-color: var(--hum-primary);
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+}
+
+/* ── STATS SECTION ── */
+.hum-stats { background: var(--hum-bg3); border-bottom: 1px solid var(--hum-border); padding: 48px 0; }
+.hum-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.hum-stat-card {
+  display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02);
+  border: 1px solid var(--hum-border); padding: 20px; border-radius: 12px;
+}
+.hum-stat-icon {
+  width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; font-size: 1.35rem; flex-shrink: 0;
+}
+.hum-stat-num { font-size: 1.6rem; font-weight: 800; color: var(--hum-text); font-family: 'Kanit', sans-serif; display: block; }
+.hum-stat-label { font-size: 0.82rem; color: var(--hum-muted); font-weight: 500; display: block; }
+
+/* ── AUXILIOS SECTION ── */
+.hum-auxilios { padding: 80px 0; background: var(--hum-bg2); border-bottom: 1px solid var(--hum-border); }
+.hum-auxilios-split { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
+.hum-aux-col {
+  background: rgba(255,255,255,0.01); border: 1px solid var(--hum-border);
+  padding: 30px; border-radius: 16px;
+}
+.hum-aux-col--donot { border-color: rgba(239, 68, 68, 0.15); background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.03) 0%, transparent 60%); }
+.hum-aux-col--do { border-color: rgba(34, 197, 94, 0.15); background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.03) 0%, transparent 60%); }
+
+.hum-aux-title {
+  font-size: 1.25rem; font-weight: 700; font-family: 'Kanit', sans-serif; margin-bottom: 25px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hum-aux-col--donot .hum-aux-title { color: #fca5a5; }
+.hum-aux-col--do .hum-aux-title { color: #86efac; }
+
+.hum-aux-cards { display: flex; flex-direction: column; gap: 20px; }
+.hum-aux-card { display: flex; gap: 15px; align-items: flex-start; }
+.hum-aux-icon {
+  width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 1.05rem; flex-shrink: 0; margin-top: 2px;
+}
+.hum-aux-card--danger .hum-aux-icon { background: rgba(239,68,68,0.1); color: #fca5a5; }
+.hum-aux-card--success .hum-aux-icon { background: rgba(34,197,94,0.1); color: #86efac; }
+
+.hum-aux-body h3 { font-size: 0.95rem; font-weight: 700; color: var(--hum-text); margin: 0 0 4px; }
+.hum-aux-body p { font-size: 0.85rem; color: var(--hum-muted); line-height: 1.5; margin: 0; }
+
+.hum-emergency-box {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 25px; align-items: center;
+  background: linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(59,130,246,0.1) 100%);
+  border: 1px solid rgba(6,182,212,0.2); padding: 30px; border-radius: 16px;
+}
+.hum-em-icon { font-size: 2.2rem; color: var(--hum-primary-light); }
+.hum-em-body h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; color: var(--hum-text); font-family: 'Kanit', sans-serif; }
+.hum-em-body p { font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; margin: 0; }
+.hum-em-btn {
+  display: inline-flex; align-items: center; gap: 8px; background: #fbbf24;
+  color: #020813; font-weight: 700; font-size: 0.9rem; padding: 12px 20px;
+  border-radius: 6px; text-decoration: none; white-space: nowrap; transition: all 0.2s ease;
+}
+.hum-em-btn:hover { background: #fca5a5; transform: translateY(-2px); }
+
+/* ── SÍNTOMAS SECTION ── */
+.hum-sintomas { padding: 80px 0; background: var(--hum-bg3); border-bottom: 1px solid var(--hum-border); }
+.hum-sintomas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.hum-sintoma-card {
+  position: relative; background: rgba(255,255,255,0.02); border: 1px solid var(--hum-border);
+  padding: 30px 25px 25px; border-radius: 12px; display: flex; gap: 15px; align-items: flex-start;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.hum-sintoma-card:hover { transform: translateY(-3px); border-color: rgba(6, 182, 212, 0.2); }
+.hum-sintoma-card--urgent { border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.01); }
+
+.hum-sintoma-num {
+  position: absolute; right: 20px; top: 15px; font-size: 0.8rem; font-weight: 800;
+  color: rgba(255,255,255,0.04); font-family: 'Kanit', sans-serif;
+}
+.hum-sintoma-icon {
+  width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.03);
+  display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+  color: var(--hum-primary-light); flex-shrink: 0;
+}
+.hum-sintoma-card--urgent .hum-sintoma-icon { background: rgba(239,68,68,0.1); color: #fca5a5; }
+
+.hum-sintoma-body h3 { font-size: 1rem; font-weight: 700; color: var(--hum-text); margin: 0 0 6px; font-family: 'Kanit', sans-serif; }
+.hum-sintoma-body p { font-size: 0.86rem; color: var(--hum-muted); line-height: 1.6; margin: 0; }
+.hum-sintoma-urgent-tag {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700;
+  color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 4px;
+  margin-top: 10px; border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.hum-sintoma-cta-card {
+  background: radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.15) 0%, transparent 80%), rgba(255,255,255,0.01);
+  border: 1px dashed rgba(6, 182, 212, 0.3); padding: 30px; border-radius: 12px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center;
+}
+.hum-sintoma-cta-card i { font-size: 2.2rem; color: var(--hum-primary-light); margin-bottom: 12px; }
+.hum-sintoma-cta-card strong { font-size: 1.05rem; font-weight: 700; color: var(--hum-text); margin-bottom: 8px; }
+.hum-sintoma-cta-card p { font-size: 0.85rem; color: var(--hum-muted); margin: 0 0 16px; line-height: 1.5; }
+.hum-sintoma-cta-card a {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--hum-primary);
+  color: #020813; text-decoration: none; padding: 10px 20px; border-radius: 6px;
+  font-weight: 700; font-size: 0.86rem; transition: all 0.2s ease;
+}
+.hum-sintoma-cta-card a:hover { background: var(--hum-primary-light); transform: translateY(-2px); }
+
+/* ── CIENCIA SECTION ── */
+.hum-ciencia { padding: 80px 0; background: var(--hum-bg2); border-bottom: 1px solid var(--hum-border); }
+.hum-ciencia-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; }
+
+.hum-timeline-ciencia { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+.hum-time-item {
+  position: relative; padding-left: 20px; font-size: 0.9rem; line-height: 1.6; color: #cbd5e1;
+}
+.hum-time-item::before {
+  content: ''; position: absolute; left: 0; top: 6px; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--hum-primary-light);
+  box-shadow: 0 0 8px var(--hum-primary-light);
+}
+.hum-time-item strong { color: var(--hum-primary-light); font-weight: 700; }
+
+/* Micro visual block */
+.hum-microscope-box {
+  background: #020813; border: 1px solid var(--hum-border); border-radius: 16px;
+  overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
+.hum-mic-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(255,255,255,0.02); padding: 12px 20px; border-bottom: 1px solid var(--hum-border);
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--hum-muted);
+}
+.hum-rec-badge {
+  display: inline-flex; align-items: center; gap: 6px; color: var(--hum-red);
+  font-size: 0.72rem; font-weight: 800;
+}
+.hum-rec-badge::before {
+  content: ''; width: 6px; height: 6px; background: var(--hum-red); border-radius: 50%;
+  animation: hum-ping 1.5s infinite;
+}
+@keyframes hum-ping {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(2); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.hum-mic-viewport {
+  position: relative; height: 260px; background: radial-gradient(circle, #0B1120 0%, #020813 90%);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.hum-pista-cobre {
+  position: relative; width: 140px; height: 24px; background: #ea580c; border-radius: 12px;
+  box-shadow: 0 0 15px rgba(234, 88, 12, 0.4);
+}
+.hum-sulfato-deposit {
+  position: absolute; inset: 0; width: 60%; height: 100%; left: 20%;
+  background: radial-gradient(circle, #10b981 0%, #047857 70%);
+  border-radius: 12px; filter: blur(2px); opacity: 0.85;
+  animation: hum-sulf-spread 4s infinite alternate ease-in-out;
+}
+@keyframes hum-sulf-spread {
+  0% { width: 30%; left: 35%; }
+  100% { width: 80%; left: 10%; }
+}
+.hum-spark-effect {
+  position: absolute; right: 30%; top: -10px; width: 2px; height: 20px;
+  background: var(--hum-primary-light); opacity: 0.8; filter: blur(1px);
+  animation: hum-spark 0.3s infinite steps(2);
+}
+@keyframes hum-spark {
+  0% { opacity: 0; transform: scaleY(0); }
+  50% { opacity: 1; transform: scaleY(1) rotate(20deg); }
+  100% { opacity: 0; transform: scaleY(0); }
+}
+
+.hum-grid-overlay {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.hum-mic-footer {
+  padding: 12px 20px; background: rgba(255,255,255,0.01); border-top: 1px solid var(--hum-border);
+  font-size: 0.8rem; color: var(--hum-muted); line-height: 1.4;
+}
+
+/* ── ADVERTENCIAS SECTION ── */
+.hum-advertencias { padding: 80px 0; background: var(--hum-light-bg); border-bottom: 1px solid #e2e8f0; color: var(--hum-dark-text); }
+.hum-advertencias .hum-eyebrow,
+.hum-advertencias .hum-eyebrow i { color: #1D4ED8; }
+.hum-advertencias .hum-h2,
+.hum-advertencias h3 { color: var(--hum-dark-text); }
+.hum-advertencias .hum-desc,
+.hum-advertencias p { color: var(--hum-soft-text); }
+.hum-advertencias-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.hum-advertencia-card {
+  background: #ffffff; border: 1px solid #dbe4ef; padding: 25px; border-radius: 12px;
+  display: flex; gap: 15px; align-items: flex-start; border-left: 4px solid var(--adv-color);
+}
+.hum-adv-icon { font-size: 1.35rem; color: var(--adv-color); flex-shrink: 0; margin-top: 2px; }
+.hum-advertencia-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--hum-dark-text); margin: 0 0 6px; font-family: 'Kanit', sans-serif; }
+.hum-advertencia-card p { font-size: 0.86rem; color: var(--hum-soft-text); line-height: 1.6; margin: 0; }
+
+/* ── PROCESO SECTION ── */
+.hum-proceso { padding: 80px 0; background: var(--hum-bg2); border-bottom: 1px solid var(--hum-border); }
+.hum-proceso-head { display: flex; flex-direction: column; gap: 20px; margin-bottom: 50px; }
+.hum-proceso-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+.hum-proceso-tags span {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600;
+  color: var(--hum-primary-light); background: rgba(6,182,212,0.06); padding: 5px 12px;
+  border-radius: 6px; border: 1px solid rgba(6,182,212,0.15);
+}
+
+.hum-proceso-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+.hum-step {
+  background: rgba(255,255,255,0.02); border: 1px solid var(--hum-border);
+  padding: 30px; border-radius: 12px; position: relative;
+  transition: border-color 0.2s ease;
+}
+.hum-step:hover { border-color: rgba(6, 182, 212, 0.25); }
+.hum-step-num {
+  position: absolute; right: 20px; top: 15px; font-size: 1.8rem; font-weight: 900;
+  color: rgba(6,182,212,0.08); font-family: 'Kanit', sans-serif;
+}
+.hum-step-icon {
+  width: 46px; height: 46px; border-radius: 8px; background: rgba(6,182,212,0.08);
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+  color: var(--hum-primary-light); margin-bottom: 15px;
+}
+.hum-step-body h3 { font-size: 1.05rem; font-weight: 700; color: var(--hum-text); margin: 0 0 8px; font-family: 'Kanit', sans-serif; }
+.hum-step-body p { font-size: 0.86rem; color: var(--hum-muted); line-height: 1.6; margin: 0; }
+
+.hum-proceso-proof {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center;
+  background: rgba(255,255,255,0.01); border: 1px solid var(--hum-border);
+  padding: 25px; border-radius: 12px;
+}
+.hum-proof-icon {
+  width: 44px; height: 44px; border-radius: 50%; background: rgba(34,197,94,0.1);
+  color: var(--hum-green); display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+}
+.hum-proof-icon svg { width: 22px; height: 22px; fill: currentColor; }
+.hum-proceso-proof h3 { font-size: 1.05rem; font-weight: 700; color: var(--hum-text); margin: 0 0 4px; font-family: 'Kanit', sans-serif; }
+.hum-proceso-proof p { font-size: 0.85rem; color: var(--hum-muted); line-height: 1.5; margin: 0; }
+.hum-proof-cta {
+  display: inline-flex; align-items: center; gap: 8px; background: var(--hum-primary);
+  color: #020813; font-weight: 700; font-size: 0.86rem; padding: 10px 18px;
+  border-radius: 6px; text-decoration: none; white-space: nowrap; transition: all 0.2s ease;
+}
+.hum-proof-cta:hover { background: var(--hum-primary-light); transform: translateY(-2px); }
+
+/* ── MICROSOLDADURA SECTION ── */
+.hum-microsoldadura { padding: 80px 0; background: var(--hum-bg3); border-bottom: 1px solid var(--hum-border); }
+.hum-micro-split { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 40px; align-items: center; }
+
+.hum-micro-image-box {
+  position: relative; height: 380px;
+  background: url('https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&q=80') center/cover no-repeat;
+  border-radius: 16px; border: 1px solid var(--hum-border); overflow: hidden;
+}
+.hum-micro-tag {
+  position: absolute; top: 20px; left: 20px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 6px; background: rgba(2, 8, 19, 0.7);
+  border: 1px solid var(--hum-primary); border-radius: 6px; padding: 5px 12px;
+  font-size: 0.78rem; font-weight: 700; color: var(--hum-primary-light);
+}
+.hum-micro-overlay {
+  position: absolute; inset: 0; background: linear-gradient(to top, rgba(2,8,19,0.85) 0%, rgba(2,8,19,0.2) 100%);
+}
+
+.hum-micro-list { list-style: none; padding: 0; margin: 0 0 25px; display: flex; flex-direction: column; gap: 12px; }
+.hum-micro-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.94rem; color: #cbd5e1; }
+.hum-micro-list li i { color: var(--hum-primary-light); font-size: 1.05rem; margin-top: 3px; }
+
+/* ── COMPARACION SECTION ── */
+.hum-comparacion { padding: 80px 0; background: var(--hum-bg2); border-bottom: 1px solid var(--hum-border); }
+.hum-comp-table-wrap { overflow-x: auto; background: rgba(255,255,255,0.01); border: 1px solid var(--hum-border); border-radius: 12px; }
+.hum-comp-table { width: 100%; border-collapse: collapse; text-align: left; }
+.hum-comp-table th, .hum-comp-table td { padding: 18px 24px; border-bottom: 1px solid var(--hum-border); font-size: 0.94rem; }
+.hum-comp-table th { font-weight: 700; color: var(--hum-text); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; background: rgba(255,255,255,0.02); }
+.hum-comp-table tr:last-child td { border-bottom: none; }
+
+.hum-col-pixon { width: 30%; font-weight: 700; color: var(--hum-primary-light); background: rgba(6,182,212,0.01); }
+.hum-col-otros { width: 30%; color: var(--hum-muted); }
+
+.hum-comp-yes { display: inline-flex; align-items: center; gap: 6px; color: #4ade80; font-weight: 700; }
+.hum-comp-no { display: inline-flex; align-items: center; gap: 6px; color: #f87171; }
+.hum-comp-warn { display: inline-flex; align-items: center; gap: 6px; color: #fbbf24; }
+
+/* ── MODELOS SECTION ── */
+.hum-modelos { padding: 80px 0; background: var(--hum-bg3); border-bottom: 1px solid var(--hum-border); }
+.hum-modelos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin-bottom: 25px; }
+.hum-modelo-tag {
+  background: rgba(255,255,255,0.02); border: 1px solid var(--hum-border);
+  padding: 12px; border-radius: 8px; text-align: center; font-size: 0.86rem; font-weight: 600;
+  color: #cbd5e1; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: border-color 0.2s ease;
+}
+.hum-modelo-tag:hover { border-color: rgba(6, 182, 212, 0.25); }
+.hum-modelo-tag i { color: var(--hum-muted); }
+.hum-modelos-note {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--hum-muted);
+}
+.hum-modelos-note i { color: var(--hum-primary-light); }
+
+/* ── CHECKLIST SECTION ── */
+.hum-checklist { padding: 80px 0; background: var(--hum-light-bg); border-bottom: 1px solid #e2e8f0; color: var(--hum-dark-text); }
+.hum-checklist .hum-eyebrow,
+.hum-checklist .hum-eyebrow i { color: #1D4ED8; }
+.hum-checklist .hum-h2,
+.hum-checklist h3,
+.hum-checklist span { color: var(--hum-dark-text); }
+.hum-checklist .hum-desc,
+.hum-checklist p { color: var(--hum-soft-text); }
+.hum-check-layout { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 40px; align-items: center; }
+
+.hum-check-copy h2 { color: var(--hum-dark-text); }
+.hum-check-copy p { color: var(--hum-soft-text); margin-bottom: 25px; }
+
+.hum-check-list { display: flex; flex-direction: column; gap: 14px; }
+.hum-check-item { display: flex; align-items: center; gap: 12px; font-size: 0.94rem; font-weight: 600; color: var(--hum-dark-text); }
+.hum-check-mark {
+  width: 24px; height: 24px; border-radius: 50%; background: rgba(34,197,94,0.1);
+  color: var(--hum-green); display: flex; align-items: center; justify-content: center; font-size: 0.82rem; flex-shrink: 0;
+}
+
+/* ── POR QUE ELEGIRNOS ── */
+.hum-porque { padding: 80px 0; background: var(--hum-bg2); border-bottom: 1px solid var(--hum-border); }
+.hum-porque-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.hum-porque-card {
+  background: rgba(255,255,255,0.02); border: 1px solid var(--hum-border);
+  padding: 30px; border-radius: 12px; transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.hum-porque-card:hover { transform: translateY(-3px); border-color: rgba(6, 182, 212, 0.25); }
+.hum-porque-icon {
+  width: 48px; height: 48px; border-radius: 8px; background: rgba(6,182,212,0.08);
+  display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+  color: var(--hum-primary-light); margin-bottom: 20px;
+}
+.hum-porque-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--hum-text); margin: 0 0 8px; font-family: 'Kanit', sans-serif; }
+.hum-porque-card p { font-size: 0.88rem; color: var(--hum-muted); line-height: 1.6; margin: 0; }
+
+/* ── GARANTIA SECTION ── */
+.hum-garantia { padding: 80px 0; background: var(--hum-bg3); border-bottom: 1px solid var(--hum-border); }
+.hum-garantia-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; margin-bottom: 40px; }
+.hum-garantia-card {
+  background: rgba(255,255,255,0.01); border: 1px solid var(--hum-border);
+  padding: 25px; border-radius: 12px;
+}
+.hum-garantia-icon {
+  width: 44px; height: 44px; border-radius: 50%; background: rgba(34,197,94,0.08);
+  display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+  color: #4ade80; margin-bottom: 16px;
+}
+.hum-garantia-card h3 { font-size: 1rem; font-weight: 700; color: var(--hum-text); margin: 0 0 6px; font-family: 'Kanit', sans-serif; }
+.hum-garantia-card p { font-size: 0.85rem; color: var(--hum-muted); line-height: 1.6; margin: 0; }
+.hum-garantia-cta { text-align: center; }
+
+/* ── RELATED SECTION ── */
+.hum-related { padding: 80px 0; background: var(--hum-bg2); border-bottom: 1px solid var(--hum-border); }
+.hum-related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+.hum-related-card {
+  display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.01);
+  border: 1px solid var(--hum-border); padding: 20px; border-radius: 12px;
+  text-decoration: none; transition: all 0.2s ease; position: relative;
+}
+.hum-related-card:hover { border-color: rgba(6, 182, 212, 0.25); background: rgba(255,255,255,0.02); }
+.hum-related-icon {
+  width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.03);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  color: var(--hum-muted); transition: color 0.2s ease; flex-shrink: 0;
+}
+.hum-related-card:hover .hum-related-icon { color: var(--hum-primary-light); }
+.hum-related-body { flex-grow: 1; padding-right: 15px; }
+.hum-related-body h3 { font-size: 0.95rem; font-weight: 700; color: var(--hum-text); margin: 0 0 4px; font-family: 'Kanit', sans-serif; }
+.hum-related-body p { font-size: 0.8rem; color: var(--hum-muted); line-height: 1.4; margin: 0; }
+.hum-related-arrow { font-size: 0.85rem; color: var(--hum-muted); opacity: 0; transition: transform 0.2s ease, opacity 0.2s ease; }
+.hum-related-card:hover .hum-related-arrow { opacity: 1; transform: translateX(3px); }
+
+/* ── FAQ OVERRIDES ── */
+.hum-faq-dark { border-bottom: 1px solid var(--hum-border) !important; }
+.hum-faq-dark .container { max-width: 900px; }
+.hum-faq-dark .faq-item,
+.hum-faq-dark .faq-item--open {
+  background: rgba(248,250,252,0.045) !important;
+  border-color: rgba(147,197,253,0.18) !important;
+  box-shadow: none !important;
+}
+.hum-faq-dark .faq-item:hover {
+  background: rgba(6,182,212,0.08) !important;
+  border-color: rgba(34,211,238,0.42) !important;
+}
+.hum-faq-dark .faq-question,
+.hum-faq-dark .faq-question:hover,
+.hum-faq-dark .faq-question:focus,
+.hum-faq-dark .faq-page-content .faq-item--open .faq-question {
+  background: transparent !important;
+  color: #f8fafc !important;
+}
+.hum-faq-dark .faq-answer-inner { color: #cfe7f6 !important; }
+.hum-faq-dark .faq-answer,
+.hum-faq-dark .faq-answer p,
+.hum-faq-dark .faq-answer li { color: #cfe7f6 !important; }
+.hum-faq-dark .faq-chevron { color: #22d3ee !important; }
+
+/* ── COMMENTS SHELL ── */
+.hum-comments { background: var(--hum-bg2); border-bottom: 1px solid var(--hum-border); padding: 40px 0; }
+
+/* ── CONTACT SHELL ── */
+.hum-contact-shell { background: var(--hum-light-bg); }
+.hum-contact-shell #ubicacion.contact { background: var(--hum-light-bg) !important; }
+.hum-contact-shell #ubicacion.contact h2,
+.hum-contact-shell #ubicacion.contact h3,
+.hum-contact-shell #ubicacion.contact strong { color: var(--hum-dark-text) !important; }
+.hum-contact-shell #ubicacion.contact p,
+.hum-contact-shell #ubicacion.contact li { color: var(--hum-soft-text) !important; }
+.hum-contact-shell #ubicacion.contact .contact-details--uniform a { color: #1D4ED8 !important; }
+.hum-contact-shell #ubicacion.contact .coverage-title { color: var(--hum-dark-text) !important; }
+.hum-contact-shell #ubicacion.contact .coverage-subtitle { color: var(--hum-soft-text) !important; }
+
+/* Contraste local: estas secciones se presentan sobre fondo claro en esta vista. */
+.hum-hero,
+.hum-stats,
+.hum-auxilios,
+.hum-sintomas,
+.hum-ciencia,
+.hum-proceso,
+.hum-microsoldadura,
+.hum-comparacion,
+.hum-modelos,
+.hum-porque,
+.hum-garantia,
+.hum-related {
+  background: var(--hum-light-bg) !important;
+  color: var(--hum-dark-text) !important;
+  border-bottom-color: #dbe4ef !important;
+}
+
+.hum-hero .hum-badge,
+.hum-hero .hum-sub,
+.hum-hero .hum-trust-bar span i,
+.hum-stats .hum-eyebrow,
+.hum-auxilios .hum-eyebrow,
+.hum-sintomas .hum-eyebrow,
+.hum-ciencia .hum-eyebrow,
+.hum-proceso .hum-eyebrow,
+.hum-microsoldadura .hum-eyebrow,
+.hum-comparacion .hum-eyebrow,
+.hum-modelos .hum-eyebrow,
+.hum-porque .hum-eyebrow,
+.hum-garantia .hum-eyebrow,
+.hum-related .hum-eyebrow {
+  color: #1D4ED8 !important;
+}
+
+.hum-hero .hum-h1 {
+  background: none !important;
+  color: var(--hum-dark-text) !important;
+  -webkit-text-fill-color: var(--hum-dark-text) !important;
+}
+
+.hum-hero .hum-copy,
+.hum-hero .hum-copy--secondary,
+.hum-hero .hum-chip,
+.hum-hero .hum-trust-bar span,
+.hum-stats .hum-desc,
+.hum-stats .hum-stat-label,
+.hum-auxilios .hum-desc,
+.hum-auxilios p,
+.hum-sintomas .hum-desc,
+.hum-sintomas p,
+.hum-ciencia .hum-desc,
+.hum-ciencia p,
+.hum-ciencia .hum-time-item,
+.hum-proceso .hum-desc,
+.hum-proceso p,
+.hum-microsoldadura .hum-desc,
+.hum-microsoldadura .hum-copy,
+.hum-micro-list li,
+.hum-comparacion .hum-desc,
+.hum-modelos .hum-desc,
+.hum-modelos-note,
+.hum-porque .hum-desc,
+.hum-porque p,
+.hum-garantia .hum-desc,
+.hum-garantia p,
+.hum-related .hum-desc,
+.hum-related p {
+  color: var(--hum-soft-text) !important;
+}
+
+.hum-stats .hum-h2,
+.hum-stats .hum-stat-num,
+.hum-auxilios .hum-h2,
+.hum-auxilios h3,
+.hum-sintomas .hum-h2,
+.hum-sintomas h3,
+.hum-ciencia .hum-h2,
+.hum-ciencia strong,
+.hum-proceso .hum-h2,
+.hum-proceso h3,
+.hum-microsoldadura .hum-h2,
+.hum-comparacion .hum-h2,
+.hum-comp-table th,
+.hum-comp-table td,
+.hum-modelos .hum-h2,
+.hum-modelo-tag,
+.hum-porque .hum-h2,
+.hum-porque h3,
+.hum-garantia .hum-h2,
+.hum-garantia h3,
+.hum-related .hum-h2,
+.hum-related h3 {
+  color: var(--hum-dark-text) !important;
+}
+
+.hum-stat-card,
+.hum-aux-col,
+.hum-sintoma-card,
+.hum-sintoma-cta-card,
+.hum-step,
+.hum-proceso-proof,
+.hum-comp-table-wrap,
+.hum-modelo-tag,
+.hum-porque-card,
+.hum-garantia-card,
+.hum-related-card {
+  background: #ffffff !important;
+  border-color: #dbe4ef !important;
+}
+
+.hum-stat-card:hover,
+.hum-sintoma-card:hover,
+.hum-step:hover,
+.hum-porque-card:hover,
+.hum-related-card:hover {
+  background: #ffffff !important;
+  border-color: rgba(29, 78, 216, 0.35) !important;
+}
+
+.hum-hero-card,
+.hum-water-visual,
+.hum-microscope-box,
+.hum-mic-viewport {
+  background-color: #020813 !important;
+  color: var(--hum-text) !important;
+}
+
+.hum-hero-card .hum-card-checks li,
+.hum-hero-card .hum-card-cta,
+.hum-microscope-box p,
+.hum-microscope-box .hum-mic-header,
+.hum-microscope-box .hum-mic-footer {
+  color: #cfe7f6 !important;
+}
+
+.hum-hero-card .hum-card-header,
+.hum-hero-card .hum-card-header i,
+.hum-hero-card .hum-card-checks li i,
+.hum-microscope-box strong {
+  color: var(--hum-primary-light) !important;
+}
+
+/* ── RESPONSIVE ADAPTABILITY ── */
+@media (max-width: 900px) {
+  .hum-hero-inner { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+  .hum-chips { justify-content: center; }
+  .hum-trust-bar { justify-content: center; }
+  .hum-cta-group { justify-content: center; }
+  .hum-check-layout { grid-template-columns: 1fr; gap: 30px; }
+  .hum-micro-split { grid-template-columns: 1fr; gap: 30px; }
+  .hum-micro-image-box { height: 260px; }
+  .hum-ciencia-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+@media (max-width: 768px) {
+  .hum-auxilios-split { grid-template-columns: 1fr; }
+  .hum-emergency-box { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  .hum-proceso-proof { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+}
+</style>

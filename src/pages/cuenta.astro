@@ -1,0 +1,1264 @@
+---
+import Base from '../layouts/Base.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Mi cuenta | Pixon PC',
+    url: 'https://pixon.com.mx/cuenta',
+    description: 'Panel de cuenta para clientes de Pixon PC: perfil, tickets de reparacion y seguimiento de servicios.',
+  },
+];
+---
+
+<Base
+  title="Mi cuenta | Seguimiento de reparaciones Pixon PC"
+  description="Accede a tu cuenta de Pixon PC para consultar tickets de reparacion, actualizar tu telefono y dar seguimiento a tus servicios."
+  canonical="https://pixon.com.mx/cuenta"
+  image="/LOGOCIRCULAR.png"
+  schema={schema}
+  robots="noindex, follow"
+>
+  <Navbar />
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Mi cuenta' }]} />
+
+  <main class="account-page" data-account-app>
+    <section class="account-hero">
+      <div class="container account-hero__grid">
+        <div class="account-hero__copy">
+          <span class="account-eyebrow"><i class="fa-solid fa-circle-user"></i> Portal de cliente</span>
+          <h1>Cuenta y tickets</h1>
+          <p>Seguimiento claro de tus reparaciones, datos de contacto actualizados y acceso rapido para solicitar otro servicio.</p>
+        </div>
+
+        <aside class="account-session" id="account-session-card" aria-live="polite">
+          <div class="account-loading">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span>Revisando sesion...</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="account-body">
+      <div class="container">
+        <div class="account-alert" id="account-status" hidden></div>
+
+        <section class="account-login" id="account-login-panel" hidden>
+          <article class="account-login__card">
+            <span class="account-login__icon"><i class="fa-brands fa-google"></i></span>
+            <h2>Inicia sesion para ver tu cuenta</h2>
+            <p>Usa Google para consultar tickets creados desde la web, guardar tu celular y agilizar el seguimiento de tus reparaciones.</p>
+            <a id="account-login-link" href="/auth/google?returnTo=%2Fcuenta" class="account-btn account-btn--primary">
+              <i class="fa-brands fa-google"></i> Continuar con Google
+            </a>
+          </article>
+
+          <div class="account-login__grid">
+            <article><i class="fa-solid fa-ticket"></i><h3>Folios guardados</h3><p>Consulta tus tickets sin buscar conversaciones antiguas.</p></article>
+            <article><i class="fa-solid fa-mobile-screen"></i><h3>Contacto listo</h3><p>Guarda tu celular para que el taller pueda avisarte rapido.</p></article>
+            <article><i class="fa-solid fa-shield-halved"></i><h3>Acceso seguro</h3><p>La sesion se maneja con Google y cookies protegidas.</p></article>
+            <article><i class="fa-solid fa-screwdriver-wrench"></i><h3>Nuevo servicio</h3><p>Entra, elige un servicio y crea un ticket con tus datos.</p></article>
+          </div>
+        </section>
+
+        <section class="account-dashboard" id="account-private" hidden>
+          <nav class="account-tabs" aria-label="Secciones de cuenta">
+            <a href="#resumen"><i class="fa-solid fa-chart-simple"></i> Resumen</a>
+            <a href="#tickets"><i class="fa-solid fa-ticket"></i> Tickets</a>
+            <a href="#perfil"><i class="fa-solid fa-id-card"></i> Perfil</a>
+            <a href="#ayuda"><i class="fa-solid fa-headset"></i> Ayuda</a>
+          </nav>
+
+          <section class="account-kpis" id="resumen" aria-label="Resumen de tickets">
+            <article class="account-kpi">
+              <span><i class="fa-solid fa-ticket"></i></span>
+              <div><strong id="stat-total">0</strong><p>Tickets totales</p></div>
+            </article>
+            <article class="account-kpi">
+              <span><i class="fa-solid fa-screwdriver-wrench"></i></span>
+              <div><strong id="stat-active">0</strong><p>En proceso</p></div>
+            </article>
+            <article class="account-kpi">
+              <span><i class="fa-solid fa-circle-check"></i></span>
+              <div><strong id="stat-ready">0</strong><p>Listos</p></div>
+            </article>
+            <article class="account-kpi">
+              <span><i class="fa-solid fa-calendar-check"></i></span>
+              <div><strong id="stat-scheduled">0</strong><p>Con cita</p></div>
+            </article>
+          </section>
+
+          <div class="account-layout">
+            <section class="account-card account-card--tickets" id="tickets">
+              <div class="account-card__head">
+                <div>
+                  <span class="account-kicker">Seguimiento</span>
+                  <h2>Mis tickets de reparacion</h2>
+                </div>
+                <div class="account-card__actions">
+                  <button class="account-icon-btn" type="button" id="account-refresh" aria-label="Actualizar tickets" title="Actualizar tickets">
+                    <i class="fa-solid fa-rotate-right"></i>
+                  </button>
+                  <a href="/servicios" class="account-small-btn"><i class="fa-solid fa-plus"></i> Nuevo ticket</a>
+                </div>
+              </div>
+
+              <div class="account-tools" role="search">
+                <label class="account-search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="search" id="ticket-search" placeholder="Buscar por folio, equipo, servicio o problema">
+                </label>
+                <select id="ticket-status-filter" aria-label="Filtrar tickets por estado">
+                  <option value="all">Todos</option>
+                  <option value="active">En proceso</option>
+                  <option value="ready">Listos</option>
+                  <option value="closed">Cerrados</option>
+                </select>
+                <select id="ticket-sort" aria-label="Ordenar tickets">
+                  <option value="newest">Mas recientes</option>
+                  <option value="oldest">Mas antiguos</option>
+                  <option value="status">Por estado</option>
+                </select>
+              </div>
+
+              <div class="account-ticket-list" id="account-ticket-list"></div>
+            </section>
+
+            <aside class="account-side">
+              <section class="account-card account-card--profile" id="perfil">
+                <div class="account-card__head account-card__head--compact">
+                  <div>
+                    <span class="account-kicker">Perfil</span>
+                    <h2>Contacto</h2>
+                  </div>
+                  <i class="fa-solid fa-address-card"></i>
+                </div>
+
+                <form id="account-profile-form" class="account-form">
+                  <label>
+                    Nombre
+                    <input type="text" id="account-name" readonly>
+                  </label>
+                  <label>
+                    Correo
+                    <input type="email" id="account-email" readonly>
+                  </label>
+                  <label>
+                    Celular para avisos
+                    <input type="tel" id="account-phone" placeholder="998 123 4567" inputmode="tel" autocomplete="tel">
+                  </label>
+                  <button type="submit" class="account-btn account-btn--primary" id="account-save-phone">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar celular
+                  </button>
+                </form>
+              </section>
+
+              <section class="account-card account-card--quick" id="ayuda">
+                <div class="account-card__head account-card__head--compact">
+                  <div>
+                    <span class="account-kicker">Acciones</span>
+                    <h2>Atencion rapida</h2>
+                  </div>
+                  <i class="fa-solid fa-bolt"></i>
+                </div>
+
+                <div class="account-quick-list">
+                  <a href="https://wa.me/529986690777?text=Hola%2C%20quiero%20consultar%20el%20estado%20de%20mi%20ticket%20de%20Pixon%20PC" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-whatsapp"></i><span>Consultar por WhatsApp</span>
+                  </a>
+                  <a href="/servicios">
+                    <i class="fa-solid fa-screwdriver-wrench"></i><span>Solicitar otro servicio</span>
+                  </a>
+                  <a href="/garantia">
+                    <i class="fa-solid fa-shield-halved"></i><span>Ver politica de garantia</span>
+                  </a>
+                  <a href="/auth/logout">
+                    <i class="fa-solid fa-right-from-bracket"></i><span>Cerrar sesion</span>
+                  </a>
+                </div>
+              </section>
+
+              <section class="account-card account-card--guide">
+                <span class="account-kicker">Estados</span>
+                <h2>Como leer tu seguimiento</h2>
+                <ol class="account-status-guide">
+                  <li><span>1</span><div><strong>Recibido</strong><p>El taller ya tiene tu solicitud o equipo registrado.</p></div></li>
+                  <li><span>2</span><div><strong>Diagnostico</strong><p>Se revisa la falla antes de cotizar o reparar.</p></div></li>
+                  <li><span>3</span><div><strong>En reparacion</strong><p>El servicio fue aprobado y esta en proceso tecnico.</p></div></li>
+                  <li><span>4</span><div><strong>Listo</strong><p>Tu equipo esta preparado para entrega o recoleccion.</p></div></li>
+                </ol>
+              </section>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    .account-page {
+      --account-blue: #1d4ed8;
+      --account-blue-2: #2563eb;
+      --account-ink: #0f172a;
+      --account-muted: #64748b;
+      --account-line: #e2e8f0;
+      --account-soft: #f8fafc;
+      background: #f8fafc;
+      color: var(--account-ink);
+      min-height: 100vh;
+    }
+
+    .account-page [hidden] {
+      display: none !important;
+    }
+
+    .account-hero {
+      padding: 102px 0 30px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 8% 16%, rgba(96, 165, 250, .30), transparent 28%),
+        radial-gradient(circle at 92% 12%, rgba(20, 184, 166, .20), transparent 24%),
+        linear-gradient(135deg, #06142b 0%, #123a72 52%, #083344 100%);
+      overflow: hidden;
+    }
+
+    .account-hero__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
+      gap: 22px;
+      align-items: center;
+    }
+
+    .account-eyebrow,
+    .account-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .76rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .account-eyebrow {
+      color: #bfdbfe;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+    }
+
+    .account-hero h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2.15rem, 4.6vw, 3.8rem);
+      line-height: 1;
+      margin: 0 0 10px;
+      letter-spacing: 0;
+    }
+
+    .account-hero p {
+      color: #dbeafe;
+      max-width: 580px;
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .account-session,
+    .account-card,
+    .account-login__card,
+    .account-login__grid article,
+    .account-kpi {
+      background: #fff;
+      border: 1px solid var(--account-line);
+      border-radius: 8px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, .08);
+    }
+
+    .account-session {
+      color: var(--account-ink);
+      min-height: 172px;
+      padding: 16px;
+    }
+
+    .account-loading {
+      min-height: 138px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 10px;
+      color: var(--account-muted);
+      font-weight: 900;
+    }
+
+    .account-user {
+      display: grid;
+      gap: 12px;
+    }
+
+    .account-user__main {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .account-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #dbeafe;
+      background: #eff6ff;
+      flex: 0 0 56px;
+    }
+
+    .account-avatar--icon {
+      display: grid;
+      place-items: center;
+      color: var(--account-blue-2);
+      font-size: 1.35rem;
+    }
+
+    .account-user h2 {
+      margin: 0 0 3px;
+      font-family: var(--font-heading);
+      font-size: 1.12rem;
+      line-height: 1.1;
+    }
+
+    .account-user p {
+      margin: 0;
+      color: var(--account-muted);
+      overflow-wrap: anywhere;
+      font-size: .92rem;
+    }
+
+    .account-user__actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .account-body {
+      padding: 26px 0 74px;
+    }
+
+    .account-alert {
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      font-weight: 800;
+    }
+
+    .account-alert.is-error {
+      color: #991b1b;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .account-tabs {
+      position: sticky;
+      top: 66px;
+      z-index: 4;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-bottom: 18px;
+      padding: 8px;
+      border: 1px solid var(--account-line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+    }
+
+    .account-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .account-tabs a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #334155;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .account-tabs a:hover {
+      color: var(--account-blue);
+      background: #eff6ff;
+    }
+
+    .account-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .account-kpi {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .account-kpi > span,
+    .account-card__head > i,
+    .account-login__icon,
+    .account-login__grid i {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--account-blue-2);
+      background: #eff6ff;
+      flex: 0 0 42px;
+    }
+
+    .account-kpi strong {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .account-kpi p {
+      margin: 2px 0 0;
+      color: var(--account-muted);
+      font-size: .86rem;
+      font-weight: 900;
+    }
+
+    .account-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .account-side {
+      display: grid;
+      gap: 18px;
+    }
+
+    .account-card {
+      padding: 22px;
+    }
+
+    .account-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .account-card__head--compact {
+      align-items: center;
+    }
+
+    .account-card__head h2 {
+      margin: 3px 0 0;
+      font-family: var(--font-heading);
+      font-size: 1.45rem;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .account-card__actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .account-kicker {
+      color: var(--account-blue-2);
+    }
+
+    .account-btn,
+    .account-small-btn,
+    .account-icon-btn {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      border: 1px solid transparent;
+      font: inherit;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+
+    .account-btn:hover,
+    .account-small-btn:hover,
+    .account-icon-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .account-btn--primary {
+      color: #fff;
+      background: var(--account-blue-2);
+      box-shadow: 0 12px 24px rgba(37, 99, 235, .22);
+    }
+
+    .account-btn--outline,
+    .account-small-btn,
+    .account-icon-btn {
+      color: var(--account-blue);
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .account-icon-btn {
+      width: 42px;
+      padding: 0;
+    }
+
+    .account-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 160px 160px;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .account-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      color: #94a3b8;
+      background: #fff;
+    }
+
+    .account-search input,
+    .account-tools select,
+    .account-form input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 10px 12px;
+      color: var(--account-ink);
+      background: #fff;
+      font: inherit;
+    }
+
+    .account-search input {
+      min-height: 42px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+    }
+
+    .account-search:focus-within,
+    .account-tools select:focus,
+    .account-form input:focus {
+      outline: 3px solid #bfdbfe;
+      border-color: var(--account-blue-2);
+    }
+
+    .account-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .account-form label {
+      display: grid;
+      gap: 7px;
+      color: #334155;
+      font-size: .9rem;
+      font-weight: 900;
+    }
+
+    .account-form input[readonly] {
+      color: var(--account-muted);
+      background: #f8fafc;
+    }
+
+    .account-ticket-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .account-ticket {
+      border: 1px solid var(--account-line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .account-ticket__summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .account-ticket h3 {
+      margin: 0 0 6px;
+      font-family: var(--font-heading);
+      font-size: 1.12rem;
+      line-height: 1.15;
+    }
+
+    .account-ticket p {
+      margin: 0;
+      color: var(--account-muted);
+      font-size: .94rem;
+    }
+
+    .account-ticket__code {
+      font-family: var(--font-heading);
+      color: var(--account-blue);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .account-ticket__meta,
+    .account-ticket__actions,
+    .account-ticket__details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .account-ticket__meta {
+      margin-top: 12px;
+    }
+
+    .account-ticket__actions {
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+
+    .account-ticket__details {
+      border-top: 1px solid var(--account-line);
+      padding: 12px 16px 16px;
+      background: #f8fafc;
+    }
+
+    .account-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .account-chip--ready { background: #dcfce7; color: #166534; }
+    .account-chip--active { background: #dbeafe; color: #1d4ed8; }
+    .account-chip--hold { background: #fef3c7; color: #92400e; }
+    .account-chip--closed { background: #f1f5f9; color: #475569; }
+
+    .account-empty {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      text-align: center;
+      padding: 34px 20px;
+      color: #1e3a8a;
+      background: #eff6ff;
+      border: 1px dashed #93c5fd;
+      border-radius: 8px;
+      font-weight: 900;
+    }
+
+    .account-empty i {
+      font-size: 2rem;
+      color: var(--account-blue-2);
+    }
+
+    .account-quick-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .account-quick-list a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #0f172a;
+      background: #f8fafc;
+      border: 1px solid var(--account-line);
+      text-decoration: none;
+      font-weight: 900;
+    }
+
+    .account-quick-list a:hover {
+      color: var(--account-blue);
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+
+    .account-quick-list i {
+      color: var(--account-blue-2);
+      width: 20px;
+      text-align: center;
+    }
+
+    .account-card--guide h2 {
+      margin: 4px 0 16px;
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+    }
+
+    .account-status-guide {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .account-status-guide li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .account-status-guide li > span {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--account-blue-2);
+      font-weight: 900;
+    }
+
+    .account-status-guide strong {
+      display: block;
+      color: var(--account-ink);
+      line-height: 1.15;
+    }
+
+    .account-status-guide p {
+      margin: 3px 0 0;
+      color: var(--account-muted);
+      font-size: .9rem;
+    }
+
+    .account-login {
+      display: grid;
+      grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .account-login__card {
+      padding: 28px;
+      display: grid;
+      align-content: center;
+      justify-items: start;
+    }
+
+    .account-login__card h2 {
+      margin: 0 0 10px;
+      font-family: var(--font-heading);
+      font-size: 1.9rem;
+      line-height: 1.05;
+    }
+
+    .account-login__card p {
+      margin: 0 0 20px;
+      color: var(--account-muted);
+    }
+
+    .account-login__icon {
+      margin-bottom: 16px;
+      font-size: 1.25rem;
+    }
+
+    .account-login__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .account-login__grid article {
+      padding: 20px;
+    }
+
+    .account-login__grid h3 {
+      margin: 12px 0 6px;
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+    }
+
+    .account-login__grid p {
+      margin: 0;
+      color: var(--account-muted);
+      font-size: .92rem;
+    }
+
+    @media (max-width: 1020px) {
+      .account-layout,
+      .account-login {
+        grid-template-columns: 1fr;
+      }
+
+      .account-side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .account-card--guide {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .account-hero__grid,
+      .account-kpis,
+      .account-tools,
+      .account-side,
+      .account-login__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .account-hero {
+        padding-top: 94px;
+      }
+
+      .account-ticket__summary {
+        grid-template-columns: 1fr;
+      }
+
+      .account-ticket__actions {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .account-body {
+        padding-top: 18px;
+      }
+
+      .account-card,
+      .account-login__card {
+        padding: 18px;
+      }
+
+      .account-user__actions,
+      .account-card__actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .account-small-btn,
+      .account-icon-btn {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      var root = document.querySelector('[data-account-app]');
+      if (!root) return;
+
+      var allTickets = [];
+      var els = {
+        sessionCard: document.getElementById('account-session-card'),
+        privateArea: document.getElementById('account-private'),
+        loginPanel: document.getElementById('account-login-panel'),
+        ticketList: document.getElementById('account-ticket-list'),
+        status: document.getElementById('account-status'),
+        loginLink: document.getElementById('account-login-link'),
+        name: document.getElementById('account-name'),
+        email: document.getElementById('account-email'),
+        phone: document.getElementById('account-phone'),
+        form: document.getElementById('account-profile-form'),
+        savePhone: document.getElementById('account-save-phone'),
+        statTotal: document.getElementById('stat-total'),
+        statActive: document.getElementById('stat-active'),
+        statReady: document.getElementById('stat-ready'),
+        statScheduled: document.getElementById('stat-scheduled'),
+        search: document.getElementById('ticket-search'),
+        filter: document.getElementById('ticket-status-filter'),
+        sort: document.getElementById('ticket-sort'),
+        refresh: document.getElementById('account-refresh')
+      };
+
+      var STATUS_LABELS = {
+        new: 'Nuevo',
+        received: 'Recibido',
+        diagnosing: 'En diagnostico',
+        contacted: 'Contactado',
+        quoted: 'Cotizado',
+        approved: 'Aprobado',
+        in_progress: 'En reparacion',
+        waiting_parts: 'Esperando pieza',
+        ready: 'Listo',
+        delivered: 'Entregado',
+        cancelled: 'Cancelado',
+        eliminado: 'Eliminado'
+      };
+
+      var STATUS_ORDER = {
+        new: 1,
+        received: 2,
+        diagnosing: 3,
+        contacted: 4,
+        quoted: 5,
+        approved: 6,
+        in_progress: 7,
+        waiting_parts: 8,
+        ready: 9,
+        delivered: 10,
+        cancelled: 11,
+        eliminado: 12
+      };
+
+      function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, function (char) {
+          return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char];
+        });
+      }
+
+      function normalize(value) {
+        return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
+
+      function formatDate(value) {
+        if (!value) return 'Sin fecha';
+        var date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Sin fecha';
+        return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: '2-digit' });
+      }
+
+      function formatTime(value) {
+        return value ? String(value).slice(0, 5) : '';
+      }
+
+      function cleanIssueText(value) {
+        return String(value || '')
+          .replace(/Servicio solicitado:\s*[^\n\r]+/i, '')
+          .replace(/Urgencia:\s*[^\n\r]+/i, '')
+          .trim();
+      }
+
+      function getServiceTitle(item) {
+        var match = String(item.reported_issue || '').match(/Servicio solicitado:\s*([^\n\r]+)/i);
+        if (match && match[1]) return match[1].trim();
+        return [item.device_brand, item.device_model].filter(Boolean).join(' ') || item.device_type || 'Servicio tecnico';
+      }
+
+      function isClosed(status) {
+        return ['delivered', 'cancelled', 'eliminado'].includes(String(status || ''));
+      }
+
+      function isReady(status) {
+        return String(status || '') === 'ready';
+      }
+
+      function isActive(status) {
+        return !isClosed(status) && !isReady(status);
+      }
+
+      function statusClass(status) {
+        if (isReady(status)) return 'account-chip--ready';
+        if (isClosed(status)) return 'account-chip--closed';
+        if (['waiting_parts', 'quoted'].includes(String(status || ''))) return 'account-chip--hold';
+        return 'account-chip--active';
+      }
+
+      function showStatus(message, isError) {
+        if (!els.status) return;
+        els.status.hidden = false;
+        els.status.classList.toggle('is-error', Boolean(isError));
+        els.status.textContent = message;
+      }
+
+      function hideStatus() {
+        if (!els.status) return;
+        els.status.hidden = true;
+        els.status.textContent = '';
+      }
+
+      function renderGuest() {
+        var returnTo = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+        if (els.loginLink) els.loginLink.href = '/auth/google?returnTo=' + returnTo;
+        if (els.privateArea) els.privateArea.hidden = true;
+        if (els.loginPanel) els.loginPanel.hidden = false;
+        if (els.sessionCard) {
+          els.sessionCard.innerHTML = [
+            '<div class="account-user">',
+            '<div class="account-user__main">',
+            '<div class="account-avatar account-avatar--icon"><i class="fa-solid fa-user-lock"></i></div>',
+            '<div><h2>Sesion requerida</h2><p>Entra con Google para ver tus tickets.</p></div>',
+            '</div>',
+            '<div class="account-user__actions">',
+            '<a href="/auth/google?returnTo=' + returnTo + '" class="account-btn account-btn--primary"><i class="fa-brands fa-google"></i> Iniciar</a>',
+            '<a href="/servicios" class="account-btn account-btn--outline"><i class="fa-solid fa-plus"></i> Servicio</a>',
+            '</div>',
+            '</div>'
+          ].join('');
+        }
+      }
+
+      function renderUser(user) {
+        var avatar = user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name || 'Cliente') + '&background=2563eb&color=fff';
+        if (els.privateArea) els.privateArea.hidden = false;
+        if (els.loginPanel) els.loginPanel.hidden = true;
+        if (els.name) els.name.value = user.name || '';
+        if (els.email) els.email.value = user.email || '';
+        if (els.phone) els.phone.value = user.phone || '';
+        if (els.sessionCard) {
+          els.sessionCard.innerHTML = [
+            '<div class="account-user">',
+            '<div class="account-user__main">',
+            '<img class="account-avatar" src="' + escapeHtml(avatar) + '" alt="' + escapeHtml(user.name || 'Cliente') + '">',
+            '<div><h2>' + escapeHtml(user.name || 'Cliente Pixon PC') + '</h2><p>' + escapeHtml(user.email || 'Sin correo visible') + '</p></div>',
+            '</div>',
+            '<div class="account-user__actions">',
+            '<a href="/servicios" class="account-btn account-btn--primary"><i class="fa-solid fa-plus"></i> Nuevo</a>',
+            '<a href="/auth/logout" class="account-btn account-btn--outline"><i class="fa-solid fa-right-from-bracket"></i> Salir</a>',
+            '</div>',
+            '</div>'
+          ].join('');
+        }
+      }
+
+      function updateStats(items) {
+        var list = Array.isArray(items) ? items : [];
+        var active = list.filter(function (item) { return isActive(item.status); }).length;
+        var ready = list.filter(function (item) { return isReady(item.status); }).length;
+        var scheduled = list.filter(function (item) { return Boolean(item.appointment_date); }).length;
+
+        if (els.statTotal) els.statTotal.textContent = String(list.length);
+        if (els.statActive) els.statActive.textContent = String(active);
+        if (els.statReady) els.statReady.textContent = String(ready);
+        if (els.statScheduled) els.statScheduled.textContent = String(scheduled);
+      }
+
+      function getFilteredTickets() {
+        var query = normalize(els.search && els.search.value);
+        var filter = els.filter ? els.filter.value : 'all';
+        var sort = els.sort ? els.sort.value : 'newest';
+
+        var list = allTickets.filter(function (item) {
+          var status = String(item.status || 'received');
+          if (filter === 'active' && !isActive(status)) return false;
+          if (filter === 'ready' && !isReady(status)) return false;
+          if (filter === 'closed' && !isClosed(status)) return false;
+          if (!query) return true;
+
+          var haystack = normalize([
+            item.ticket_code,
+            item.device_type,
+            item.device_brand,
+            item.device_model,
+            item.reported_issue,
+            item.contact_phone,
+            item.contact_email,
+            getServiceTitle(item),
+            STATUS_LABELS[status] || status
+          ].join(' '));
+          return haystack.includes(query);
+        });
+
+        list.sort(function (a, b) {
+          if (sort === 'oldest') return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+          if (sort === 'status') return (STATUS_ORDER[a.status] || 99) - (STATUS_ORDER[b.status] || 99);
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        });
+
+        return list;
+      }
+
+      function renderTickets() {
+        var items = getFilteredTickets();
+        updateStats(allTickets);
+
+        if (!els.ticketList) return;
+        if (!allTickets.length) {
+          els.ticketList.innerHTML = [
+            '<div class="account-empty">',
+            '<i class="fa-solid fa-ticket"></i>',
+            '<span>Todavia no tienes tickets registrados con esta cuenta.</span>',
+            '<a href="/servicios" class="account-small-btn"><i class="fa-solid fa-plus"></i> Crear primer ticket</a>',
+            '</div>'
+          ].join('');
+          return;
+        }
+
+        if (!items.length) {
+          els.ticketList.innerHTML = [
+            '<div class="account-empty">',
+            '<i class="fa-solid fa-filter-circle-xmark"></i>',
+            '<span>No hay tickets que coincidan con ese filtro.</span>',
+            '</div>'
+          ].join('');
+          return;
+        }
+
+        els.ticketList.innerHTML = items.map(function (item) {
+          var status = String(item.status || 'received');
+          var title = getServiceTitle(item);
+          var issue = cleanIssueText(item.reported_issue) || 'Servicio registrado en el taller.';
+          var device = [item.device_type, item.device_brand, item.device_model].filter(Boolean).join(' ');
+          var code = item.ticket_code || item.id || '';
+          var phone = item.contact_phone ? '<span class="account-chip"><i class="fa-solid fa-phone"></i> ' + escapeHtml(item.contact_phone) + '</span>' : '';
+          var appointment = item.appointment_date ? '<span class="account-chip"><i class="fa-solid fa-calendar-check"></i> ' + escapeHtml(formatDate(item.appointment_date)) + (item.appointment_time ? ' ' + escapeHtml(formatTime(item.appointment_time)) : '') + '</span>' : '';
+          var model = device ? '<span class="account-chip"><i class="fa-solid fa-mobile-screen"></i> ' + escapeHtml(device) + '</span>' : '';
+          var waText = encodeURIComponent('Hola, quiero consultar mi ticket #' + code + ' de Pixon PC.');
+
+          return [
+            '<article class="account-ticket">',
+            '<div class="account-ticket__summary">',
+            '<div>',
+            '<h3>' + escapeHtml(title) + '</h3>',
+            '<p>' + escapeHtml(issue) + '</p>',
+            '<div class="account-ticket__meta">',
+            '<span class="account-chip ' + statusClass(status) + '"><i class="fa-solid fa-circle"></i> ' + escapeHtml(STATUS_LABELS[status] || status) + '</span>',
+            '<span class="account-chip"><i class="fa-solid fa-clock"></i> ' + escapeHtml(formatDate(item.created_at)) + '</span>',
+            model,
+            phone,
+            appointment,
+            '</div>',
+            '</div>',
+            '<div class="account-ticket__actions">',
+            '<span class="account-ticket__code">#' + escapeHtml(code) + '</span>',
+            '<a class="account-small-btn" href="https://wa.me/529986690777?text=' + waText + '" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> Consultar</a>',
+            '</div>',
+            '</div>',
+            '<div class="account-ticket__details">',
+            '<span class="account-chip"><i class="fa-solid fa-envelope"></i> ' + escapeHtml(item.contact_email || item.user_email || 'Correo no registrado') + '</span>',
+            '<span class="account-chip"><i class="fa-solid fa-layer-group"></i> Prioridad: ' + escapeHtml(item.priority || 'normal') + '</span>',
+            '<span class="account-chip"><i class="fa-solid fa-truck-ramp-box"></i> Entrega: ' + escapeHtml(item.appointment_delivery_method || 'por confirmar') + '</span>',
+            '</div>',
+            '</article>'
+          ].join('');
+        }).join('');
+      }
+
+      async function loadTickets() {
+        if (els.refresh) {
+          els.refresh.disabled = true;
+          els.refresh.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+        }
+
+        try {
+          var res = await fetch('/api/mis-tickets', { credentials: 'include' });
+          if (!res.ok) throw new Error('No se pudieron cargar tus tickets.');
+          var data = await res.json();
+          allTickets = Array.isArray(data.repairs) ? data.repairs : [];
+          renderTickets();
+        } catch (err) {
+          allTickets = [];
+          renderTickets();
+          showStatus(err.message || 'No se pudieron cargar tus tickets.', true);
+        } finally {
+          if (els.refresh) {
+            els.refresh.disabled = false;
+            els.refresh.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
+          }
+        }
+      }
+
+      async function init() {
+        try {
+          var res = await fetch('/api/me', { credentials: 'include' });
+          var data = await res.json();
+          if (!data.user) {
+            renderGuest();
+            return;
+          }
+          renderUser(data.user);
+          await loadTickets();
+        } catch (err) {
+          renderGuest();
+          showStatus('No pudimos revisar tu sesion en este momento. Intenta recargar la pagina.', true);
+        }
+      }
+
+      [els.search, els.filter, els.sort].forEach(function (input) {
+        if (!input) return;
+        input.addEventListener('input', renderTickets);
+        input.addEventListener('change', renderTickets);
+      });
+
+      if (els.refresh) {
+        els.refresh.addEventListener('click', function () {
+          hideStatus();
+          loadTickets();
+        });
+      }
+
+      if (els.form) {
+        els.form.addEventListener('submit', async function (event) {
+          event.preventDefault();
+          hideStatus();
+          var phone = (els.phone && els.phone.value ? els.phone.value : '').trim();
+          if (phone.replace(/\D/g, '').length < 10) {
+            showStatus('Ingresa un celular valido de al menos 10 digitos.', true);
+            return;
+          }
+
+          if (els.savePhone) {
+            els.savePhone.disabled = true;
+            els.savePhone.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...';
+          }
+
+          try {
+            var res = await fetch('/api/me/profile', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+              body: JSON.stringify({ phone: phone })
+            });
+            var data = await res.json().catch(function () { return {}; });
+            if (!res.ok) throw new Error(data.error || 'No se pudo guardar el celular.');
+            showStatus('Celular guardado correctamente.');
+          } catch (err) {
+            showStatus(err.message || 'No se pudo guardar el celular.', true);
+          } finally {
+            if (els.savePhone) {
+              els.savePhone.disabled = false;
+              els.savePhone.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar celular';
+            }
+          }
+        });
+      }
+
+      init();
+    })();
+  </script>
+
+  <Footer />
+</Base>

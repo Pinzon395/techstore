@@ -1,0 +1,490 @@
+---
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waMsg = encodeURIComponent('Hola, quiero cotizar reparacion de bocina iPhone en Cancun. Mi iPhone tiene audio bajo, distorsionado o no se escucha.');
+
+const badges = [
+  'Bocina principal y auricular',
+  'Volumen bajo o distorsionado',
+  'Revision de rejillas',
+  'Diagnostico por humedad',
+  'Prueba de llamadas',
+  'Garantia por escrito',
+];
+
+const symptoms = [
+  { icon: 'fa-volume-xmark', title: 'No se escucha multimedia', text: 'Videos, musica, juegos o timbre no suenan aunque el volumen este alto.' },
+  { icon: 'fa-phone-volume', title: 'No escuchas llamadas', text: 'La llamada entra, pero el auricular superior se escucha muy bajo, sucio o no responde.' },
+  { icon: 'fa-volume-low', title: 'Volumen muy bajo', text: 'Puede ser rejilla tapada, humedad, polvo compactado, bocina desgastada o flex afectado.' },
+  { icon: 'fa-wave-square', title: 'Audio distorsionado', text: 'Cuando truena, vibra o se oye saturado, revisamos bocina, malla, tornilleria y sellos.' },
+  { icon: 'fa-droplet', title: 'Fallo despues de mojarse', text: 'Si hubo lluvia, alberca, vapor o salitre, primero revisamos corrosion antes de instalar piezas.' },
+  { icon: 'fa-headphones', title: 'Modo audifonos atorado', text: 'Si el iPhone cree que tiene audifonos conectados, revisamos software, puerto y sensores de audio.' },
+];
+
+const audioZones = [
+  { icon: 'fa-volume-high', title: 'Bocina inferior', text: 'Reproduce timbre, videos, musica, altavoz y notificaciones. Puede fallar por polvo, golpe, liquido o desgaste.' },
+  { icon: 'fa-ear-listen', title: 'Auricular superior', text: 'Se usa en llamadas normales. La falla suele sentirse como audio bajo, intermitente o completamente mudo.' },
+  { icon: 'fa-microphone', title: 'Microfonos asociados', text: 'Al revisar audio tambien probamos microfonos, notas de voz y video para separar fallas de entrada y salida.' },
+  { icon: 'fa-mobile-screen-button', title: 'Rejillas y mallas', text: 'Suciedad, maquillaje, polvo o humedad pueden bloquear el sonido aunque la bocina este funcional.' },
+];
+
+const diagnosis = [
+  ['01', 'Prueba de llamada', 'Confirmamos si falla el auricular superior, altavoz, microfono o una app especifica.'],
+  ['02', 'Prueba de multimedia', 'Revisamos video, musica, timbre, volumen maximo, vibracion y distorsion.'],
+  ['03', 'Inspeccion de rejillas', 'Buscamos polvo, pelusa, suciedad compactada, humedad o malla bloqueada antes de abrir.'],
+  ['04', 'Revision interna si aplica', 'Si el sintoma lo requiere, revisamos bocina, flex, conectores, humedad y reparaciones previas.'],
+];
+
+const causes = [
+  { icon: 'fa-broom', title: 'Rejilla obstruida', text: 'En muchos iPhone el audio bajo viene de malla tapada, no necesariamente de una bocina quemada.' },
+  { icon: 'fa-droplet-slash', title: 'Humedad o corrosion', text: 'El clima de Cancun, salitre o liquidos pueden oxidar conectores y provocar fallas intermitentes.' },
+  { icon: 'fa-mobile-screen', title: 'Golpe o presion', text: 'Una caida puede mover la bocina, dañar flex, presionar el frame o afectar sensores cercanos.' },
+  { icon: 'fa-screwdriver-wrench', title: 'Reparacion previa', text: 'Si el audio fallo despues de pantalla, bateria o carga, revisamos conectores y ensamble.' },
+];
+
+const process = [
+  { step: '01', title: 'Recepcion y sintomas', text: 'Anotamos modelo, si falla llamada, altavoz, timbre, videos o todos los sonidos.' },
+  { step: '02', title: 'Pruebas externas', text: 'Probamos volumen, modo silencio, Bluetooth, audifonos, llamada, video y notas de voz.' },
+  { step: '03', title: 'Limpieza o diagnostico', text: 'Si la rejilla esta bloqueada, intentamos limpieza tecnica. Si no mejora, pasamos a revision interna.' },
+  { step: '04', title: 'Cotizacion clara', text: 'Te decimos si conviene limpieza, cambio de bocina, auricular, flex o diagnostico por humedad.' },
+  { step: '05', title: 'Reparacion controlada', text: 'Trabajamos con herramienta adecuada, cuidando sellos, conectores, pantalla y bateria.' },
+  { step: '06', title: 'Prueba final de audio', text: 'Antes de entregar probamos llamada, altavoz, timbre, video, volumen y estabilidad.' },
+];
+
+const models = [
+  'iPhone 16 Pro Max', 'iPhone 16 Pro', 'iPhone 16 Plus', 'iPhone 16',
+  'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
+  'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
+  'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13 Mini', 'iPhone 13',
+  'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12 Mini', 'iPhone 12',
+  'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11', 'iPhone XR', 'iPhone XS',
+];
+
+const finalTests = [
+  { icon: 'fa-phone', title: 'Llamada normal', text: 'Validamos auricular superior y claridad de voz en llamada.' },
+  { icon: 'fa-volume-high', title: 'Altavoz', text: 'Probamos volumen maximo, timbre, videos y musica sin distorsion.' },
+  { icon: 'fa-microphone-lines', title: 'Microfonos', text: 'Revisamos grabacion y llamada cuando el flex o sistema de audio lo requiere.' },
+  { icon: 'fa-bell', title: 'Timbre y alertas', text: 'Confirmamos que notificaciones y tono suenen de forma estable.' },
+  { icon: 'fa-bluetooth', title: 'Bluetooth y salida', text: 'Descartamos que el audio se este enviando a otro dispositivo.' },
+  { icon: 'fa-circle-check', title: 'Revision visual', text: 'Confirmamos ensamble, rejillas limpias y funcionamiento antes de avisarte.' },
+];
+
+const care = [
+  { icon: 'fa-droplet-slash', title: 'Evita cargarlo o usarlo mojado', text: 'La humedad puede avanzar hacia bocina, auricular, carga y placa.' },
+  { icon: 'fa-hand-sparkles', title: 'No rasques la rejilla', text: 'Agujas, clips o cepillos duros pueden romper la malla o empujar suciedad hacia adentro.' },
+  { icon: 'fa-volume-low', title: 'Atiende el audio bajo a tiempo', text: 'Si solo se escucha con volumen al maximo, puede haber obstruccion o desgaste inicial.' },
+  { icon: 'fa-shield-halved', title: 'Usa funda sin tapar salidas', text: 'Algunas fundas cubren rejillas inferiores y hacen parecer que la bocina falla.' },
+  { icon: 'fa-rotate', title: 'Reinicia antes de traerlo', text: 'Si comenzo despues de una actualizacion o app, un reinicio ayuda a separar software de hardware.' },
+  { icon: 'fa-comment-dots', title: 'Describe el sintoma exacto', text: 'Nos ayuda saber si falla en llamadas, WhatsApp, videos, altavoz, timbre o todo el sistema.' },
+];
+
+const relatedItems = [
+  { href: '/servicios/telefono/reparacion-microfono-iphone', icon: 'fa-microphone', label: 'Reparacion de microfono iPhone', desc: 'Si tu escuchas bien, pero la otra persona no te escucha o las notas de voz salen bajas.' },
+  { href: '/servicios/telefono/reparacion-carga-iphone', icon: 'fa-plug', label: 'Reparacion de carga iPhone', desc: 'En algunos modelos el flex de carga puede relacionarse con microfono, audio o humedad.' },
+  { href: '/servicios/telefono/reparacion-humedad-iphone', icon: 'fa-droplet', label: 'Reparacion por humedad iPhone', desc: 'Si el audio fallo despues de lluvia, alberca, vapor, sudor o salitre.' },
+  { href: '/servicios/telefono/reparacion-pantalla-iphone', icon: 'fa-mobile-screen', label: 'Reparacion de pantalla iPhone', desc: 'Una caida puede afectar pantalla, auricular, sensores superiores y audio.' },
+  { href: '/servicios/telefono/diagnostico-iphone', icon: 'fa-stethoscope', label: 'Diagnostico iPhone', desc: 'Para saber si la falla viene de bocina, auricular, flex, placa, software o humedad.' },
+  { href: '/servicios/telefono/reparacion-iphone', icon: 'fa-screwdriver-wrench', label: 'Servicio tecnico iPhone', desc: 'Revision general para iPhone con fallas de pantalla, bateria, carga, audio, camara o humedad.' },
+];
+
+const faqItems = [
+  { question: 'Cuanto cuesta reparar la bocina de un iPhone en Cancun?', answer: 'El precio depende del modelo y de si la falla viene de bocina inferior, auricular superior, rejilla tapada, flex, humedad o placa. Primero hacemos pruebas para darte una cotizacion clara.' },
+  { question: 'Como se si falla la bocina o el auricular del iPhone?', answer: 'Si no suenan videos, musica o timbre, normalmente revisamos la bocina inferior. Si no escuchas llamadas pegando el telefono al oido, revisamos el auricular superior.' },
+  { question: 'Se puede limpiar la bocina sin cambiar pieza?', answer: 'Si. Cuando el problema es polvo, suciedad o malla bloqueada, una limpieza tecnica puede recuperar volumen. Si la bocina esta dañada o distorsiona, puede requerir reemplazo.' },
+  { question: 'Que pasa si mi iPhone se mojo y dejo de escucharse?', answer: 'No conviene cambiar bocina sin revisar humedad. El liquido puede afectar conectores, flex, carga, microfonos o placa. Primero revisamos corrosion y alcance del daño.' },
+  { question: 'La reparacion borra mis datos?', answer: 'No. Una reparacion de bocina o auricular normalmente no requiere borrar informacion. Si detectamos riesgo por software o humedad, te lo avisamos antes de avanzar.' },
+  { question: 'Dan garantia por reparacion de bocina iPhone?', answer: 'Si, entregamos garantia por escrito sobre la reparacion realizada, excepto daños posteriores por golpe, humedad, manipulacion externa o uso fuera de condiciones normales.' },
+];
+---
+
+<div class="isp-page">
+  <section class="isp-hero">
+    <div class="isp-container isp-hero-grid">
+      <div class="isp-hero-copy">
+        <span class="isp-eyebrow"><i class="fa-brands fa-apple"></i> Servicio tecnico iPhone en Cancun</span>
+        <h1>Reparacion de bocina iPhone en Cancun</h1>
+        <h2>Diagnosticamos audio bajo, bocina distorsionada, auricular sin sonido y fallas por humedad</h2>
+        <p class="isp-lead">Si tu iPhone no se escucha, suena bajo, truena, vibra la bocina o no escuchas llamadas, revisamos bocina inferior, auricular superior, rejillas, flex, humedad y configuracion antes de cambiar piezas.</p>
+        <p>La reparacion correcta depende de donde falla el audio: multimedia, llamadas, altavoz, timbre, WhatsApp, notas de voz o todo el sistema. Por eso hacemos pruebas reales antes de cotizar.</p>
+        <div class="isp-badges">
+          {badges.map((badge) => <span><i class="fa-solid fa-circle-check"></i>{badge}</span>)}
+        </div>
+        <div class="isp-actions">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="isp-btn isp-btn-primary"><i class="fa-brands fa-whatsapp"></i> Cotizar audio iPhone</a>
+          <a href="#diagnostico-audio" class="isp-btn isp-btn-secondary"><i class="fa-solid fa-arrow-down"></i> Ver diagnostico</a>
+        </div>
+      </div>
+      <aside class="isp-hero-card" aria-label="Diagnostico de bocina iPhone">
+        <div class="isp-audio-visual" aria-hidden="true">
+          <div class="isp-phone">
+            <span class="isp-notch"></span>
+            <i class="fa-brands fa-apple"></i>
+            <span class="isp-speaker isp-speaker-top"></span>
+            <span class="isp-speaker isp-speaker-bottom"></span>
+            <span class="isp-wave isp-wave-a"></span>
+            <span class="isp-wave isp-wave-b"></span>
+            <span class="isp-wave isp-wave-c"></span>
+          </div>
+        </div>
+        <div class="isp-card-body">
+          <h3>Prueba de audio completa</h3>
+          <ul>
+            {['Bocina inferior', 'Auricular de llamada', 'Timbre y altavoz', 'Bluetooth y salida de audio', 'Rejillas y mallas', 'Humedad o corrosion'].map((item) => (
+              <li><i class="fa-solid fa-check"></i>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    defaultDevice="iPhone"
+    defaultService="Reparacion de bocina iPhone"
+    sourcePage="/servicios/telefono/reparacion-bocina-iphone"
+    title="Crear ticket de reparacion de bocina iPhone"
+    subtitle="Cuentanos si falla en llamadas, altavoz, videos, timbre, WhatsApp o despues de humedad."
+  />
+
+  <section class="isp-section isp-light" id="diagnostico-audio">
+    <div class="isp-container">
+      <div class="isp-head">
+        <span class="isp-eyebrow">Sintomas frecuentes</span>
+        <h2>Fallas de audio iPhone que revisamos antes de cotizar</h2>
+        <p>Una falla de audio puede venir de bocina, auricular, microfono, rejilla, humedad, Bluetooth, software o reparacion previa. La prueba inicial evita cambiar piezas innecesarias.</p>
+      </div>
+      <div class="isp-grid">
+        {symptoms.map((item) => (
+          <article class="isp-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-soft">
+    <div class="isp-container isp-split">
+      <div>
+        <span class="isp-eyebrow">No todo es la misma pieza</span>
+        <h2>Bocina, auricular o microfono: primero ubicamos donde esta la falla</h2>
+        <p>El iPhone tiene varias zonas de audio. Si una falla se diagnostica como si fuera otra, puedes pagar una pieza que no resuelve el problema. Por eso probamos llamada, altavoz, grabacion y multimedia.</p>
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="isp-btn isp-btn-primary">Quiero revisar mi audio</a>
+      </div>
+      <div class="isp-grid isp-grid-2">
+        {audioZones.map((item) => (
+          <article class="isp-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-dark">
+    <div class="isp-container isp-diagnosis-grid">
+      <div>
+        <span class="isp-eyebrow">Diagnostico real</span>
+        <h2>Como confirmamos si tu iPhone necesita limpieza, bocina o auricular</h2>
+        <p>No abrimos ni cambiamos piezas sin pruebas. Primero validamos configuracion, salida de audio, llamadas y obstrucciones visibles.</p>
+      </div>
+      <div class="isp-steps">
+        {diagnosis.map(([n, title, text]) => (
+          <article>
+            <span>{n}</span>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-light">
+    <div class="isp-container isp-split">
+      <div>
+        <img class="isp-photo" src="/assets/images/reparacion-celulares-cancun.jpeg" alt="Tecnico revisando audio de iPhone en Cancun" loading="lazy" />
+      </div>
+      <div>
+        <span class="isp-eyebrow">Causas comunes</span>
+        <h2>Por que deja de escucharse un iPhone</h2>
+        <p>El audio bajo o distorsionado no siempre significa bocina quemada. En Cancun vemos muchas fallas por polvo fino, humedad, salitre, golpes y ensambles previos.</p>
+        <div class="isp-cause-list">
+          {causes.map((item) => (
+            <article>
+              <i class={`fa-solid ${item.icon}`}></i>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-soft">
+    <div class="isp-container">
+      <div class="isp-head">
+        <span class="isp-eyebrow">Proceso tecnico</span>
+        <h2>Proceso para reparar bocina de iPhone en Cancun</h2>
+        <p>Seguimos un flujo claro: pruebas, limpieza si aplica, diagnostico interno, cotizacion y validacion final de audio.</p>
+      </div>
+      <div class="isp-process">
+        {process.map((item) => (
+          <article>
+            <span>{item.step}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-dark">
+    <div class="isp-container">
+      <div class="isp-head">
+        <span class="isp-eyebrow">Humedad y salitre</span>
+        <h2>Si el audio fallo despues de mojarse, no conviene cambiar bocina a ciegas</h2>
+        <p>El agua puede dañar bocina, auricular, conectores, flex, carga y placa. Primero revisamos humedad para evitar que la falla regrese aunque se instale una pieza nueva.</p>
+      </div>
+      <div class="isp-humidity-panel">
+        <img src="/assets/images/reparacion-sulfatacion-cancun.jpeg" alt="Revision de humedad en iPhone con falla de audio" loading="lazy" />
+        <div>
+          <h3>Revision antes de energizar o instalar piezas</h3>
+          <p>Si hubo alberca, lluvia, vapor, sudor o agua de mar, revisamos corrosion visible y conectores afectados. El salitre puede dejar residuos conductivos y generar fallas intermitentes.</p>
+          <a href="/servicios/telefono/reparacion-humedad-iphone" class="isp-btn isp-btn-secondary">Ver reparacion por humedad</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-light">
+    <div class="isp-container">
+      <div class="isp-head">
+        <span class="isp-eyebrow">Modelos compatibles</span>
+        <h2>Reparacion de bocina para iPhone 11 al iPhone 16</h2>
+        <p>Atendemos modelos recientes y revisamos disponibilidad de refaccion por modelo exacto. Si tienes un iPhone anterior, tambien podemos confirmarlo por WhatsApp.</p>
+      </div>
+      <div class="isp-models">
+        {models.map((model) => <span><i class="fa-brands fa-apple"></i>{model}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-dark">
+    <div class="isp-container">
+      <div class="isp-head">
+        <span class="isp-eyebrow">Pruebas de entrega</span>
+        <h2>Que probamos antes de entregarte el iPhone</h2>
+        <p>Despues de limpiar o reparar, revisamos funciones reales de audio para confirmar que la falla no siga en llamadas, apps o multimedia.</p>
+      </div>
+      <div class="isp-grid">
+        {finalTests.map((item) => (
+          <article class="isp-dark-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-section isp-light">
+    <div class="isp-container">
+      <div class="isp-head">
+        <span class="isp-eyebrow">Cuidados despues del servicio</span>
+        <h2>Como evitar que vuelva a fallar el audio del iPhone</h2>
+        <p>La bocina y auricular estan expuestos a polvo, humedad y residuos. Estos cuidados ayudan a conservar volumen y claridad despues de la reparacion.</p>
+      </div>
+      <div class="isp-grid">
+        {care.map((item) => (
+          <article class="isp-card">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="isp-related-shell">
+    <RelatedServicesSection
+      items={relatedItems}
+      title="Servicios relacionados con audio iPhone"
+      eyebrow="Servicios relacionados"
+      compact={true}
+    />
+  </section>
+
+  <FaqSection
+    id="faq-bocina-iphone"
+    title="Preguntas frecuentes sobre reparacion de bocina iPhone en Cancun"
+    description="Dudas sobre audio bajo, bocina distorsionada, auricular, humedad, limpieza de rejilla, precio y garantia."
+    items={faqItems}
+    backgroundColor="#07111f"
+    titleColor="#f8fafc"
+    descriptionColor="#cfe7f6"
+    questionColor="#f8fafc"
+    faqAccent="#22d3ee"
+    sectionClass="isp-faq"
+  />
+
+  <section class="isp-comments">
+    <CommentsSection
+      title="Opiniones de clientes que repararon su iPhone en Pixon PC"
+      description="Experiencias de clientes en Cancun con reparaciones de iPhone, audio, carga, pantalla, camara y humedad."
+      dark={true}
+      viewMoreHref="/comentarios"
+      viewMoreLabel="Ver todas las reseñas"
+      id="comentarios"
+    />
+  </section>
+
+  <section class="isp-contact-intro">
+    <div class="isp-container">
+      <span class="isp-eyebrow">Taller local en Cancun</span>
+      <h2>Agenda revision de bocina iPhone</h2>
+      <p>Envia modelo y sintoma por WhatsApp o crea un ticket. Te confirmamos si conviene limpieza, diagnostico interno o cambio de pieza.</p>
+      <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="isp-btn isp-btn-primary"><i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp</a>
+    </div>
+  </section>
+
+  <section class="isp-contact-shell">
+    <ContactSection id="ubicacion" />
+  </section>
+</div>
+
+<Footer />
+
+<style is:global>
+  .isp-page {
+    --isp-dark: #07111f;
+    --isp-ink: #0f2a4a;
+    --isp-muted: #0f2a4a;
+    --isp-soft: #eef7ff;
+    --isp-light: #f8fafc;
+    --isp-border: #dbe7f3;
+    --isp-blue: #1d4ed8;
+    --isp-cyan: #22d3ee;
+    background: var(--isp-light);
+    color: var(--isp-ink);
+    overflow-x: hidden;
+  }
+  .isp-container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  .isp-hero { padding: 86px 0 74px; background: radial-gradient(circle at 86% 12%, rgba(34,211,238,.18), transparent 30%), linear-gradient(180deg, #f8fafc, #eef7ff); }
+  .isp-hero-grid, .isp-split, .isp-diagnosis-grid { display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(320px, .72fr); gap: 40px; align-items: center; }
+  .isp-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--isp-blue); font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px; }
+  .isp-hero h1, .isp-hero h2, .isp-head h2, .isp-split h2, .isp-diagnosis-grid h2, .isp-contact-intro h2 { font-family: 'Kanit', sans-serif; line-height: 1.08; margin: 0 0 12px; letter-spacing: 0; }
+  .isp-hero h1 { color: var(--isp-ink); font-size: clamp(2.45rem, 5vw, 4.25rem); max-width: 820px; }
+  .isp-hero h2 { color: var(--isp-blue); font-size: clamp(1.05rem, 2vw, 1.45rem); max-width: 780px; }
+  .isp-hero p, .isp-head p, .isp-split p, .isp-diagnosis-grid p, .isp-contact-intro p { color: var(--isp-muted); line-height: 1.7; margin: 0 0 14px; }
+  .isp-lead { color: #10233d !important; font-weight: 650; font-size: 1.04rem; }
+  .isp-badges, .isp-actions, .isp-models { display: flex; flex-wrap: wrap; gap: 10px; }
+  .isp-badges { margin: 24px 0; }
+  .isp-badges span, .isp-models span { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--isp-border); background: #fff; color: var(--isp-ink); border-radius: 999px; padding: 8px 12px; font-weight: 850; font-size: .84rem; }
+  .isp-badges i, .isp-models i { color: var(--isp-blue); }
+  .isp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-radius: 11px; padding: 13px 18px; font-weight: 900; text-decoration: none; transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+  .isp-btn:hover { transform: translateY(-2px); }
+  .isp-btn-primary { background: var(--isp-cyan); border: 1px solid var(--isp-cyan); color: #02131d !important; }
+  .isp-btn-secondary { background: #fff; border: 1px solid var(--isp-border); color: var(--isp-ink) !important; }
+  .isp-hero-card { background: #06111f; border: 1px solid rgba(147,197,253,.18); border-radius: 22px; overflow: hidden; color: #f8fafc; box-shadow: 0 28px 70px rgba(15,42,74,.18); }
+  .isp-audio-visual { min-height: 300px; display: grid; place-items: center; background: radial-gradient(circle at center, rgba(34,211,238,.18), transparent 48%), linear-gradient(135deg, #0f172a, #020617); }
+  .isp-phone { position: relative; width: 176px; aspect-ratio: 9 / 16; border-radius: 32px; background: linear-gradient(160deg, #1e293b, #020617); border: 1px solid rgba(226,232,240,.26); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 26px 60px rgba(0,0,0,.4); display: grid; place-items: center; transform: rotate(-5deg); }
+  .isp-phone > i { color: rgba(226,232,240,.22); font-size: 2.2rem; }
+  .isp-notch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 70px; height: 18px; border-radius: 999px; background: #020617; }
+  .isp-speaker { position: absolute; left: 50%; transform: translateX(-50%); width: 74px; height: 7px; border-radius: 999px; background: #22d3ee; box-shadow: 0 0 18px rgba(34,211,238,.6); }
+  .isp-speaker-top { top: 38px; }
+  .isp-speaker-bottom { bottom: 28px; }
+  .isp-wave { position: absolute; border: 2px solid rgba(34,211,238,.52); border-left: 0; border-bottom: 0; border-radius: 0 999px 0 0; transform: rotate(45deg); }
+  .isp-wave-a { right: -30px; top: 96px; width: 34px; height: 34px; }
+  .isp-wave-b { right: -44px; top: 82px; width: 58px; height: 58px; opacity: .7; }
+  .isp-wave-c { right: -58px; top: 68px; width: 84px; height: 84px; opacity: .42; }
+  .isp-card-body { padding: 24px; }
+  .isp-card-body h3 { color: #f8fafc; font-family: 'Kanit', sans-serif; font-size: 1.35rem; margin: 0 0 14px; }
+  .isp-card-body ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .isp-card-body li { display: flex; align-items: center; gap: 9px; color: #dbeafe; font-weight: 750; }
+  .isp-card-body li i { color: #67e8f9; }
+  .isp-section { padding: 76px 0; }
+  .isp-light { background: var(--isp-light); }
+  .isp-soft { background: var(--isp-soft); }
+  .isp-dark { background: var(--isp-soft); color: var(--isp-ink); }
+  .isp-head { max-width: 860px; margin: 0 auto 34px; text-align: center; }
+  .isp-head h2, .isp-split h2, .isp-diagnosis-grid h2, .isp-contact-intro h2 { color: var(--isp-ink); font-size: clamp(1.8rem, 3.4vw, 2.75rem); }
+  .isp-dark .isp-head h2, .isp-dark .isp-diagnosis-grid h2, .isp-dark-card h3 { color: var(--isp-ink); }
+  .isp-dark .isp-head p, .isp-dark .isp-diagnosis-grid p, .isp-dark-card p { color: var(--isp-ink); }
+  .isp-dark .isp-eyebrow { color: var(--isp-blue); }
+  .isp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .isp-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .isp-card, .isp-dark-card { background: #fff; border: 1px solid var(--isp-border); border-radius: 16px; padding: 22px; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .isp-card i, .isp-dark-card i { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; color: var(--isp-blue); background: #eaf3ff; margin-bottom: 14px; }
+  .isp-card h3, .isp-dark-card h3, .isp-cause-list h3, .isp-steps h3, .isp-process h3, .isp-humidity-panel h3 { color: var(--isp-ink); font-family: 'Kanit', sans-serif; font-size: 1.1rem; line-height: 1.25; margin: 0 0 8px; }
+  .isp-card p, .isp-dark-card p, .isp-cause-list p, .isp-steps p, .isp-process p, .isp-humidity-panel p { color: var(--isp-muted); line-height: 1.62; margin: 0; font-size: .92rem; }
+  .isp-dark-card { background: #fff; border-color: var(--isp-border); box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .isp-dark-card i { color: var(--isp-blue); background: #eaf3ff; }
+  .isp-photo { width: 100%; height: 420px; object-fit: cover; display: block; border-radius: 18px; border: 1px solid var(--isp-border); box-shadow: 0 18px 46px rgba(15,42,74,.1); }
+  .isp-cause-list { display: grid; gap: 12px; }
+  .isp-cause-list article { display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: start; background: #fff; border: 1px solid var(--isp-border); border-radius: 16px; padding: 16px; }
+  .isp-cause-list i { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; color: var(--isp-blue); background: #eaf3ff; }
+  .isp-steps { display: grid; gap: 12px; }
+  .isp-steps article { display: grid; grid-template-columns: 52px 1fr; gap: 14px; padding: 18px; border-radius: 16px; border: 1px solid var(--isp-border); background: #fff; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .isp-steps span, .isp-process span { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: #eaf3ff; color: var(--isp-blue); font-weight: 950; }
+  .isp-steps h3 { color: var(--isp-ink); }
+  .isp-steps p { color: var(--isp-ink); }
+  .isp-process { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .isp-process article { background: #fff; border: 1px solid var(--isp-border); border-radius: 16px; padding: 22px; }
+  .isp-process span { color: var(--isp-blue); background: #eaf3ff; margin-bottom: 14px; }
+  .isp-humidity-panel { display: grid; grid-template-columns: .9fr 1.1fr; gap: 28px; align-items: center; background: #fff; border: 1px solid var(--isp-border); border-radius: 20px; padding: 22px; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .isp-humidity-panel img { width: 100%; height: 300px; object-fit: cover; border-radius: 16px; display: block; }
+  .isp-humidity-panel h3 { color: var(--isp-ink); font-size: 1.5rem; }
+  .isp-humidity-panel p { color: var(--isp-ink); margin-bottom: 18px; }
+  .isp-models { justify-content: center; }
+  .isp-related-shell .svc-related { background: var(--isp-light) !important; padding: 76px 0; }
+  .isp-related-shell .svc-related .ux-eyebrow { color: var(--isp-blue) !important; }
+  .isp-related-shell .svc-related .ux-h2, .isp-related-shell .related-card h4 { color: var(--isp-ink) !important; }
+  .isp-related-shell .related-card { background: #fff !important; border-color: var(--isp-border) !important; box-shadow: 0 16px 40px rgba(15,42,74,.07); }
+  .isp-related-shell .related-card p { color: var(--isp-muted) !important; }
+  .isp-related-shell .related-card span, .isp-related-shell .related-card i { color: var(--isp-blue) !important; }
+  .isp-faq .faq-item, .isp-faq .faq-item--open { background: rgba(248,250,252,.045) !important; border-color: rgba(147,197,253,.18) !important; box-shadow: none !important; }
+  .isp-faq .faq-question, .isp-faq .faq-question:hover, .isp-faq .faq-question:focus { background: transparent !important; color: #f8fafc !important; }
+  .isp-faq .faq-answer-inner { color: #cfe7f6 !important; }
+  .isp-comments { background: var(--isp-dark); }
+  .isp-contact-intro { background: var(--isp-light); padding: 70px 0 30px; text-align: center; }
+  .isp-contact-intro p { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .isp-contact-shell, .isp-contact-shell #ubicacion.contact { background: var(--isp-light) !important; }
+  .isp-contact-shell #ubicacion.contact h2, .isp-contact-shell #ubicacion.contact h3, .isp-contact-shell #ubicacion.contact strong { color: var(--isp-ink) !important; }
+  .isp-contact-shell #ubicacion.contact p, .isp-contact-shell #ubicacion.contact li, .isp-contact-shell #ubicacion.contact span { color: var(--isp-muted) !important; }
+  .isp-contact-shell #ubicacion.contact .glass-card, .isp-contact-shell #ubicacion.contact .coverage-area, .isp-contact-shell #ubicacion.contact .contact-form { background: #fff !important; border-color: var(--isp-border) !important; box-shadow: 0 14px 34px rgba(15,42,74,.08) !important; }
+  @media (max-width: 980px) {
+    .isp-hero-grid, .isp-split, .isp-diagnosis-grid, .isp-humidity-panel { grid-template-columns: 1fr; }
+    .isp-grid, .isp-grid-2, .isp-process { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .isp-hero-card { max-width: 560px; }
+  }
+  @media (max-width: 640px) {
+    .isp-hero { padding: 54px 0 46px; }
+    .isp-section { padding: 52px 0; }
+    .isp-hero h1 { font-size: clamp(2rem, 11vw, 3rem); }
+    .isp-grid, .isp-grid-2, .isp-process { grid-template-columns: 1fr; }
+    .isp-actions, .isp-btn { width: 100%; }
+    .isp-photo, .isp-humidity-panel img { height: 230px; }
+    .isp-audio-visual { min-height: 250px; }
+    .isp-phone { width: 148px; }
+  }
+</style>
