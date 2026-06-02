@@ -1,5 +1,85 @@
 import type { ServiceCategory } from './types';
 
+const laptopBrandFaqs = (brand: string) => [
+  { question: `¿Reparan laptops ${brand} en Cancún?`, answer: `Sí. Revisamos laptops ${brand} por modelo, síntoma y disponibilidad de piezas antes de cotizar pantalla, batería, teclado, carga, placa, SSD, RAM o mantenimiento.` },
+  { question: `¿Cuánto cuesta reparar una laptop ${brand}?`, answer: 'Depende de la falla real, refacción y tiempo de diagnóstico. Primero confirmamos si conviene reparar, actualizar o detener la inversión.' },
+  { question: '¿Mis archivos están seguros?', answer: 'En reparaciones físicas normales no borramos datos. Si el disco está en riesgo, priorizamos respaldo o recuperación antes de formatear.' },
+  { question: '¿Atienden a domicilio en Cancún?', answer: 'Podemos coordinar recolección o visita según zona y tipo de falla. Para placa, pantalla, carga o humedad recomendamos taller.' },
+  { question: '¿Dan garantía?', answer: 'Sí, por escrito sobre la reparación o pieza instalada, según condiciones del equipo y tipo de servicio.' },
+];
+
+const laptopBrandService = (slug: string, brand: string, models: string[]) => ({
+  slug,
+  label: `Reparación laptop ${brand}`,
+  seoKeyword: `Reparación laptop ${brand} en Cancún`,
+  hook: `Diagnóstico y reparación de laptops ${brand} que no encienden, se calientan, van lentas, no cargan, tienen pantalla rota, teclado fallando o daño por líquido.`,
+  intro: `Servicio técnico ${brand} en Cancún con revisión por modelo para pantalla, batería, teclado, centro de carga, placa, SSD, RAM, ventilación y software.`,
+  bullets: ['Diagnóstico por modelo exacto', 'Revisión de pantalla, carga, batería, teclado y placa', 'SSD/RAM y mantenimiento térmico si conviene', 'Garantía por escrito'],
+  fromPrice: '$550 MXN',
+  eta: '24-72 h',
+  warranty: 'Garantía por escrito según reparación',
+  whyUs: [
+    { icon: 'fa-laptop-medical', title: 'Modelo exacto', desc: `Confirmamos serie, generación y compatibilidad de ${brand} antes de pedir piezas.` },
+    { icon: 'fa-stethoscope', title: 'Diagnóstico real', desc: 'Separamos falla de cargador, batería, placa, pantalla, flex, Windows o almacenamiento.' },
+    { icon: 'fa-microchip', title: 'Hardware y software', desc: 'Podemos resolver fallas físicas, Windows, drivers, rendimiento, SSD, RAM y temperatura.' },
+    { icon: 'fa-location-dot', title: 'Servicio local Cancún', desc: 'Atendemos Centro, Zona Hotelera, Huayacán, Cumbres, Bonampak, Puerto Cancún y alrededores.' },
+  ],
+  process: [
+    { title: 'Recepción y síntomas', desc: 'Registramos modelo, falla, cargador, golpes, líquidos, temperatura, ruido y reparaciones previas.' },
+    { title: 'Pruebas por módulo', desc: 'Revisamos energía, carga, batería, pantalla, teclado, RAM, SSD/HDD, ventilador, Windows y placa.' },
+    { title: 'Cotización clara', desc: 'Te explicamos causa probable, pieza, tiempo, garantía y si conviene reparar o actualizar.' },
+    { title: 'Reparación y pruebas', desc: 'Validamos encendido, carga, rendimiento, temperatura, pantalla, teclado y estabilidad antes de entregar.' },
+  ],
+  commonProblems: [
+    { problem: `${brand} no enciende o no carga`, solution: 'Probamos cargador, jack USB-C/DC, batería, consumo, placa y botón antes de cambiar piezas.' },
+    { problem: 'Pantalla rota, negra o con líneas', solution: 'Revisamos panel, flex, bisagras y salida externa para cotizar la pieza correcta.' },
+    { problem: 'Va lenta o se congela', solution: 'Evaluamos SSD, RAM, Windows, virus, temperatura y disco antes de recomendar upgrade.' },
+    { problem: 'Se calienta o suena fuerte', solution: 'Revisamos ventilador, disipador, pasta térmica, polvo y temperatura bajo carga.' },
+  ],
+  compatibleBrands: models,
+  faqs: laptopBrandFaqs(brand),
+  relatedSlugs: ['diagnostico', 'cambio-pantalla', 'cambio-bateria', 'pasta-termica', 'upgrade'],
+});
+
+const laptopDataRecoveryService = {
+  slug: 'recuperacion-datos',
+  label: 'Recuperación de datos laptop',
+  seoKeyword: 'Recuperación de datos de laptop en Cancún',
+  hook: 'Rescatamos archivos de laptops que no prenden, Windows no inicia, disco duro hace ruido, SSD falla o hubo daño por líquido.',
+  intro: 'Recuperación de documentos, fotos, trabajo y respaldos desde HDD, SSD, NVMe y laptops dañadas, priorizando no empeorar el medio.',
+  bullets: ['Diagnóstico de HDD, SSD y NVMe', 'Respaldo antes de formatear', 'Extracción desde laptop que no enciende', 'Ruta clara según riesgo del disco'],
+  fromPrice: '$650 MXN',
+  eta: '24 h a 7 días',
+  warranty: 'Reporte por escrito',
+  whyUs: [
+    { icon: 'fa-hard-drive', title: 'Datos primero', desc: 'No formateamos ni reinstalamos antes de revisar el estado del disco y tus archivos importantes.' },
+    { icon: 'fa-triangle-exclamation', title: 'Riesgo controlado', desc: 'Si el disco hace ruido, se calienta o se desconecta, evitamos pruebas que lo deterioren.' },
+    { icon: 'fa-file-shield', title: 'Respaldo ordenado', desc: 'Priorizamos documentos, escritorio, descargas, fotos, contabilidad, escuela y trabajo.' },
+    { icon: 'fa-location-dot', title: 'Cancún local', desc: 'Atendemos equipos de oficina, estudiantes, hoteles, negocios y particulares en Cancún.' },
+  ],
+  process: [
+    { title: 'Evaluación del medio', desc: 'Revisamos si es HDD, SSD SATA, NVMe, daño lógico, físico, líquido o falla de Windows.' },
+    { title: 'Lectura segura', desc: 'Intentamos acceso controlado sin escribir sobre el disco ni forzar arranques innecesarios.' },
+    { title: 'Respaldo prioritario', desc: 'Extraemos primero carpetas críticas y luego el resto según estado del medio.' },
+    { title: 'Entrega y recomendación', desc: 'Entregamos archivos en medio externo y te explicamos si conviene cambiar disco, clonar o reinstalar.' },
+  ],
+  commonProblems: [
+    { problem: 'Windows no inicia y necesito mis archivos', solution: 'Extraemos el disco o arrancamos entorno seguro para respaldar si el medio lo permite.' },
+    { problem: 'Disco hace clic o ruido', solution: 'No conviene seguir encendiendo. Evaluamos riesgo y posibilidades antes de manipular.' },
+    { problem: 'Laptop se mojó', solution: 'Primero estabilizamos placa y disco antes de energizar para proteger datos.' },
+    { problem: 'Borré archivos importantes', solution: 'Evita guardar más datos. Revisamos posibilidades de recuperación lógica.' },
+  ],
+  compatibleBrands: ['HDD', 'SSD SATA', 'SSD NVMe', 'HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MacBook'],
+  faqs: [
+    { question: '¿Se pueden recuperar archivos si la laptop no prende?', answer: 'Sí, muchas veces los datos están intactos aunque la laptop no encienda. Extraemos o revisamos el medio de almacenamiento antes de reparar.' },
+    { question: '¿Qué hago si el disco hace ruido?', answer: 'Apaga la laptop y no insistas. Cada encendido puede empeorar el daño físico del disco.' },
+    { question: '¿Recuperar datos borra información?', answer: 'No debería. El proceso busca leer y copiar, no escribir sobre el medio original.' },
+    { question: '¿Cuánto tarda?', answer: 'Puede tomar desde 24 horas hasta varios días según daño, capacidad y estabilidad del disco.' },
+    { question: '¿También cambian el disco después?', answer: 'Sí. Si el disco está fallando, podemos instalar SSD nuevo, clonar si es viable o reinstalar Windows.' },
+  ],
+  relatedSlugs: ['diagnostico', 'upgrade', 'limpieza-liquido', 'instalacion-windows'],
+};
+
 export const laptopCategory: ServiceCategory = {
     id: 'laptop',
     slug: 'laptop',
@@ -367,6 +447,11 @@ export const laptopCategory: ServiceCategory = {
           { label: 'Mantenimiento preventivo', href: '/paquetes',             icon: 'fa-box',                desc: 'Si está sano pero quieres prevenir, paquete preventivo.' },
         ],
       },
+      laptopBrandService('reparacion-hp', 'HP', ['HP Pavilion', 'HP Envy', 'HP Omen', 'HP Victus', 'HP EliteBook', 'HP ProBook']),
+      laptopBrandService('reparacion-dell', 'Dell', ['Dell Inspiron', 'Dell Latitude', 'Dell XPS', 'Dell Vostro', 'Alienware', 'Dell Precision']),
+      laptopBrandService('reparacion-lenovo', 'Lenovo', ['Lenovo IdeaPad', 'Lenovo ThinkPad', 'Lenovo Legion', 'Lenovo Yoga', 'Lenovo LOQ']),
+      laptopBrandService('reparacion-macbook', 'MacBook', ['MacBook Air Intel', 'MacBook Pro Intel', 'MacBook Air M1/M2/M3', 'MacBook Pro M1/M2/M3', 'iMac']),
+      laptopDataRecoveryService,
       { slug: 'optimizacion',         label: 'Optimización del Sistema',customUrl: '/optimizacion' },
       { slug: 'instalacion-windows',  label: 'Instalación de Windows',  customUrl: '/instalacion-windows' },
       { slug: 'mantenimiento-mac',    label: 'Mantenimiento Mac',       customUrl: '/mantenimiento-mac' },

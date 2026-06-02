@@ -45,9 +45,60 @@ const ticketTitle = service.ticketTitle || `Crear ticket de ${service.label}`;
 const ticketSubtitle = service.ticketSubtitle || `Cuentanos modelo, sintomas y si hubo golpe, humedad, reinicios o reparacion previa. Te contactaremos para confirmar diagnostico y cotizacion.`;
 const relatedTitle = service.relatedTitle || `Servicios relacionados con ${service.label}`;
 const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', 'Puerto Cancun', 'Cumbres', 'Huayacan', 'Bonfil', 'Aeropuerto', 'Parque Industrial'];
+const localZoneCopy = `Atendemos clientes de ${localZones.slice(0, 5).join(', ')}, ${localZones.slice(5).join(', ')} y otras zonas de Quintana Roo.`;
+
+const imageByCategory: Record<string, string> = {
+  pc: '/assets/images/mantenimiento-pc-escritorio.webp',
+  laptop: '/assets/images/laptop-feliz-limpia.webp',
+  telefono: '/assets/images/lavado-tarjeta-celular.webp',
+  consola: '/assets/images/ps5_xbox.webp',
+  impresora: '/assets/images/reparacion-impresoras-cancun.webp',
+  b2b: '/assets/images/mac-mini.webp',
+  tablet: '/assets/images/iphone-desarmado-2.webp',
+  monitor: '/assets/images/mantenimiento-pc-escritorio.webp',
+  redes: '/assets/images/mac-mini.webp',
+};
+
+const imageRules: Array<{ match: RegExp; image: string }> = [
+  { match: /(pantalla-iphone|pantalla-samsung|pantalla|display)/, image: '/assets/images/pantalla-rota-iphone.webp' },
+  { match: /(iphone|face-id|camara|lente|tapa|senal|wifi|bluetooth|software)/, image: '/assets/images/iphone-desarmado-2.webp' },
+  { match: /(humedad|mojado|placa|microfono|bocina|carga|flex)/, image: '/assets/images/microscopio-flexor.webp' },
+  { match: /(ssd|upgrade|lentitud|instalacion-componentes)/, image: '/assets/images/cambio-ssd.webp' },
+  { match: /(gamer|gpu|refrigeracion|limpieza|fuente|no-enciende|pantalla-azul)/, image: '/assets/images/mantenimiento-pc-escritorio.webp' },
+  { match: /(laptop|teclado|bateria|thermal|pasta|bisagra)/, image: '/assets/images/laptop-gamer-rogstrix.webp' },
+  { match: /(ps5|xbox|switch|consola|hdmi|drift)/, image: '/assets/images/ps5_xbox.webp' },
+  { match: /(impresora|toner|tinta|rodillo)/, image: '/assets/images/reparacion-impresoras-cancun.webp' },
+  { match: /(ipad|tablet|tab)/, image: '/assets/images/iphone-desarmado-2.webp' },
+  { match: /(monitor|display|hdmi-monitor)/, image: '/assets/images/mantenimiento-pc-escritorio.webp' },
+  { match: /(wifi|red|router|mesh|cableado)/, image: '/assets/images/mac-mini.webp' },
+];
+
+function getServiceImage() {
+  if (service.featuredImage) return service.featuredImage;
+
+  const key = `${category.slug}-${service.slug}`;
+
+  if (category.slug === 'laptop') {
+    if (/(pantalla|display)/.test(service.slug)) return '/assets/images/cambio-pantalla-laptop.webp';
+    if (/(pasta|thermal|limpieza|mantenimiento)/.test(service.slug)) return '/assets/images/mantenimiento-pastaternima-thermalpads.webp';
+    if (/(upgrade|ssd)/.test(service.slug)) return '/assets/images/cambio-ssd.webp';
+    return imageByCategory.laptop;
+  }
+
+  if (category.slug === 'pc') {
+    if (/(upgrade|ssd|lentitud|instalacion-componentes)/.test(service.slug)) return '/assets/images/cambio-ssd.webp';
+    if (/(gamer|gpu)/.test(service.slug)) return '/assets/images/laptop-gamer-rogstrix.webp';
+    return imageByCategory.pc;
+  }
+
+  return imageRules.find((rule) => rule.match.test(key))?.image || imageByCategory[category.slug] || '/assets/images/reparacion-mac-cancun.webp';
+}
+
+const serviceImage = getServiceImage();
+const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
 ---
 
-<div class="sdv">
+<div class={`sdv sdv-category-${category.slug}`}>
   <section class="sdv-hero">
     <div class="container sdv-hero-grid">
       <div class="sdv-hero-copy">
@@ -60,12 +111,17 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
         </div>
       </div>
       <aside class="sdv-hero-card">
-        <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
-        <span>Precio desde</span>
-        <div class="sdv-mini-list">
-          <p><i class="fa-solid fa-clock"></i> {service.eta || 'Tiempo segun diagnostico'}</p>
-          <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || 'Garantia por escrito'}</p>
-          <p><i class="fa-solid fa-location-dot"></i> Servicio local en Cancun</p>
+        <div class="sdv-hero-media">
+          <img src={serviceImage} alt={serviceImageAlt} loading="eager" decoding="async" fetchpriority="high" />
+        </div>
+        <div class="sdv-hero-card-body">
+          <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
+          <span>Precio desde</span>
+          <div class="sdv-mini-list">
+            <p><i class="fa-solid fa-clock"></i> {service.eta || 'Tiempo segun diagnostico'}</p>
+            <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || 'Garantia por escrito'}</p>
+            <p><i class="fa-solid fa-location-dot"></i> Servicio local en Cancun</p>
+          </div>
         </div>
       </aside>
     </div>
@@ -184,11 +240,24 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
       <div>
         <span class="sdv-eyebrow-dark">Garantia y cobertura</span>
         <h2>Servicio local con explicacion clara</h2>
-        <p>Atendemos en Cancun y coordinamos segun disponibilidad en zonas como {localZones.slice(0, 6).join(', ')} y alrededores.</p>
+        <p>{localZoneCopy}</p>
       </div>
       <ul class="sdv-check-list">
         {warranties.map((item: string) => <li><i class="fa-solid fa-circle-check"></i>{item}</li>)}
       </ul>
+    </div>
+  </section>
+
+  <section class="sdv-section sdv-local" id="zonas">
+    <div class="container sdv-split">
+      <div>
+        <span class="sdv-eyebrow-dark">Cancun y alrededores</span>
+        <h2>Reparacion pensada para el uso real en Cancun</h2>
+        <p>El calor, la humedad, el polvo, el salitre, los apagones y el uso intensivo cambian la forma correcta de diagnosticar un equipo. Por eso revisamos sintomas, historial, zona de uso y urgencia antes de recomendar refacciones.</p>
+      </div>
+      <div class="sdv-zone-grid" aria-label="Zonas de servicio en Cancun">
+        {localZones.map((zone: string) => <span><i class="fa-solid fa-location-dot"></i>{zone}</span>)}
+      </div>
     </div>
   </section>
 
@@ -229,13 +298,83 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
 
 <style>
   .sdv {
+    --sdv-accent: #38BDF8;
+    --sdv-accent-strong: #1D4ED8;
+    --sdv-hero-start: #071425;
+    --sdv-hero-mid: #0B2B54;
+    --sdv-hero-end: #0F3B5F;
     background: #F8FAFC;
     color: #0F2A4A;
+    padding-bottom: 0;
+  }
+  .sdv-category-pc {
+    --sdv-accent: #22D3EE;
+    --sdv-accent-strong: #0E7490;
+    --sdv-hero-start: #07111F;
+    --sdv-hero-mid: #123A5A;
+    --sdv-hero-end: #0F766E;
+  }
+  .sdv-category-laptop {
+    --sdv-accent: #60A5FA;
+    --sdv-accent-strong: #2563EB;
+    --sdv-hero-start: #08111F;
+    --sdv-hero-mid: #123060;
+    --sdv-hero-end: #075985;
+  }
+  .sdv-category-telefono {
+    --sdv-accent: #2DD4BF;
+    --sdv-accent-strong: #0F766E;
+    --sdv-hero-start: #071425;
+    --sdv-hero-mid: #0F2A4A;
+    --sdv-hero-end: #155E75;
+  }
+  .sdv-category-consola {
+    --sdv-accent: #A3E635;
+    --sdv-accent-strong: #4D7C0F;
+    --sdv-hero-start: #101018;
+    --sdv-hero-mid: #1F2937;
+    --sdv-hero-end: #365314;
+  }
+  .sdv-category-impresora {
+    --sdv-accent: #F59E0B;
+    --sdv-accent-strong: #B45309;
+    --sdv-hero-start: #111827;
+    --sdv-hero-mid: #1E3A5F;
+    --sdv-hero-end: #92400E;
+  }
+  .sdv-category-b2b {
+    --sdv-accent: #93C5FD;
+    --sdv-accent-strong: #1D4ED8;
+    --sdv-hero-start: #0F172A;
+    --sdv-hero-mid: #1E293B;
+    --sdv-hero-end: #164E63;
+  }
+  .sdv-category-tablet {
+    --sdv-accent: #5EEAD4;
+    --sdv-accent-strong: #0F766E;
+    --sdv-hero-start: #061620;
+    --sdv-hero-mid: #0F3440;
+    --sdv-hero-end: #0E7490;
+  }
+  .sdv-category-monitor {
+    --sdv-accent: #60A5FA;
+    --sdv-accent-strong: #2563EB;
+    --sdv-hero-start: #0B1120;
+    --sdv-hero-mid: #172554;
+    --sdv-hero-end: #1E40AF;
+  }
+  .sdv-category-redes {
+    --sdv-accent: #22D3EE;
+    --sdv-accent-strong: #0891B2;
+    --sdv-hero-start: #082F49;
+    --sdv-hero-mid: #155E75;
+    --sdv-hero-end: #0E7490;
   }
   .sdv-hero {
     padding: 110px 0 58px;
-    background: radial-gradient(circle at 12% 18%, rgba(59,130,246,.26), transparent 30%), linear-gradient(135deg, #071425 0%, #0B2B54 54%, #0F3B5F 100%);
+    background: radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--sdv-accent) 28%, transparent), transparent 30%), linear-gradient(135deg, var(--sdv-hero-start) 0%, var(--sdv-hero-mid) 54%, var(--sdv-hero-end) 100%);
     color: #F8FAFC;
+    overflow: hidden;
   }
   .sdv-hero-grid,
   .sdv-split {
@@ -276,10 +415,10 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
     margin-bottom: 12px;
   }
   .sdv-eyebrow {
-    color: #BAE6FD;
+    color: color-mix(in srgb, var(--sdv-accent) 72%, #FFFFFF);
   }
   .sdv-eyebrow-dark {
-    color: #1D4ED8;
+    color: var(--sdv-accent-strong);
   }
   .sdv-hero-actions {
     display: flex;
@@ -299,7 +438,7 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
     text-decoration: none;
   }
   .sdv-btn-primary {
-    background: #38BDF8;
+    background: var(--sdv-accent);
     color: #082F49;
   }
   .sdv-btn-secondary {
@@ -317,8 +456,31 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
     box-shadow: 0 18px 42px rgba(15,42,74,.08);
   }
   .sdv-hero-card {
-    padding: 24px;
+    padding: 0;
+    overflow: hidden;
     color: #0F2A4A;
+  }
+  .sdv-hero-media {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    background: #D6E0EC;
+    overflow: hidden;
+  }
+  .sdv-hero-media::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 36%;
+    background: linear-gradient(180deg, transparent, rgba(15,42,74,.42));
+  }
+  .sdv-hero-media img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .sdv-hero-card-body {
+    padding: 22px;
   }
   .sdv-hero-card strong {
     display: block;
@@ -365,7 +527,7 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
   }
   .sdv-anchor-nav a:hover {
     background: #EAF2FF;
-    color: #1D4ED8;
+    color: var(--sdv-accent-strong);
   }
   .sdv-section {
     padding: 72px 0;
@@ -392,7 +554,7 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
   .sdv-card p,
   .sdv-process p,
   .sdv-proof-grid p {
-    color: #475569;
+    color: #334155;
   }
   .sdv-section-head-dark h2 {
     color: #F8FAFC;
@@ -409,7 +571,7 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
   }
   .sdv-card i,
   .sdv-proof-grid i {
-    color: #2563EB;
+    color: var(--sdv-accent-strong);
     font-size: 1.45rem;
     margin-bottom: 14px;
   }
@@ -435,7 +597,7 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
     color: #F8FAFC;
   }
   .sdv-card-dark p {
-    color: #CBD5E1;
+    color: #E2E8F0;
   }
   .sdv-process {
     display: grid;
@@ -453,7 +615,7 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
     justify-content: center;
     border-radius: 8px;
     background: #EAF2FF;
-    color: #1D4ED8;
+    color: var(--sdv-accent-strong);
     font-weight: 900;
     margin-bottom: 14px;
   }
@@ -492,6 +654,30 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
     color: #16A34A;
     margin-top: 3px;
   }
+  .sdv-local {
+    background: #EAF2FF;
+  }
+  .sdv-zone-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .sdv-zone-grid span {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 44px;
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: #FFFFFF;
+    border: 1px solid #C7D8F2;
+    color: #0F2A4A;
+    font-weight: 900;
+    box-shadow: 0 10px 24px rgba(15,42,74,.06);
+  }
+  .sdv-zone-grid i {
+    color: var(--sdv-accent-strong);
+  }
   .sdv-mobile-cta {
     display: none;
   }
@@ -506,8 +692,23 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
     .sdv-section {
       padding: 54px 0;
     }
+    .sdv-zone-grid {
+      grid-template-columns: 1fr;
+    }
   }
   @media (max-width: 680px) {
+    .sdv {
+      padding-bottom: calc(78px + env(safe-area-inset-bottom));
+    }
+    .sdv-hero {
+      padding-bottom: 34px;
+    }
+    .sdv-hero h1 {
+      font-size: clamp(2rem, 11vw, 3rem);
+    }
+    .sdv-hero p {
+      font-size: 1rem;
+    }
     .sdv-hero-actions {
       display: grid;
     }
@@ -515,12 +716,18 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
       position: fixed;
       left: 12px;
       right: 12px;
-      bottom: 12px;
+      bottom: calc(10px + env(safe-area-inset-bottom));
       z-index: 1000;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       pointer-events: none;
+      padding: 8px;
+      border: 1px solid rgba(214,224,236,.9);
+      border-radius: 12px;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 18px 34px rgba(15,23,42,.20);
+      backdrop-filter: blur(14px);
     }
     .sdv-mobile-cta a {
       pointer-events: auto;
@@ -528,7 +735,7 @@ const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', '
       align-items: center;
       justify-content: center;
       gap: 8px;
-      min-height: 46px;
+      min-height: 44px;
       border-radius: 8px;
       text-decoration: none;
       color: #FFFFFF;

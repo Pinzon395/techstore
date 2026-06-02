@@ -141,7 +141,7 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
       { problem: 'Funciona pero fallan cámara o audio', solution: 'El líquido puede afectar módulos aislados; se prueba cada función antes de cambiar piezas.' },
       { problem: 'Quiero recuperar fotos', solution: 'Priorizamos estabilizar el equipo o extraer datos si la reparación completa no conviene.' },
     ],
-    relatedSlugs: ['diagnostico', 'centro-carga-celular', 'celular-no-prende', 'reparacion-bocina', 'reparacion-iphone'],
+    relatedSlugs: ['centro-carga-celular', 'celular-no-prende', 'reparacion-bocina', 'diagnostico', 'reparacion-humedad-iphone'],
   }),
   phoneIssueService({
     slug: 'centro-carga-celular',

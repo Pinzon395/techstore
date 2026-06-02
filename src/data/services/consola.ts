@@ -162,7 +162,7 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Ventilador suena fuerte', solution: 'Revisamos polvo, disipador y ventilador.' },
       { problem: 'Está en mueble cerrado', solution: 'El flujo de aire puede causar apagados por acumulación de calor.' },
     ],
-    relatedSlugs: ['limpieza-metal-liquido-ps5', 'fuente', 'sobrecalentamiento', 'reparacion-ps5'],
+    relatedSlugs: ['limpieza-metal-liquido-ps5', 'fuente', 'limpieza-interna', 'diagnostico'],
   }),
   consoleClusterService({
     slug: 'lector-disco',

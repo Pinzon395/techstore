@@ -132,7 +132,7 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Error después de actualizar', solution: 'Revisamos controlador, update, restauración y estabilidad.' },
       { problem: 'Reinicios sin mensaje', solution: 'Probamos RAM, fuente, temperatura y visor de eventos.' },
     ],
-    relatedSlugs: ['diagnostico', 'virus-malware', 'recuperacion-datos', 'formateo'],
+    relatedSlugs: ['diagnostico', 'upgrade', 'virus-malware', 'recuperacion-datos'],
   }),
   pcClusterService({
     slug: 'recuperacion-datos',

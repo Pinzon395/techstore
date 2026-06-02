@@ -529,7 +529,9 @@ const visibleFaqs = isPcFormat
   ? phoneSoftwareFaqs
   : isPhoneFlexButtons
   ? phoneFlexFaqs
-  : service.faqs || [];
+  : service.faqs?.length
+  ? service.faqs
+  : faqItems;
 
 const pageSchema = [
   buildServiceSchema({ service, category, url: canonical, description }),
@@ -603,7 +605,7 @@ const pageSchema = [
     <IphoneButtonsRepairView service={service} category={category} />
   ) : isIphoneMicrophoneRepair ? (
     <IphoneMicrophoneRepairView service={service} category={category} />
-  ) : service.slug === 'cambio-bateria' ? (
+  ) : category.slug === 'laptop' && service.slug === 'cambio-bateria' ? (
     <CambioBateriaView service={service} category={category} />
   ) : useServiceDetailView ? (
     <ServiceDetailView service={service} category={category} description={description} />

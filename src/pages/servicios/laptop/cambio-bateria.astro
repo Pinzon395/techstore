@@ -3,7 +3,9 @@
 import Base from '../../../layouts/Base.astro';
 import Navbar from '../../../components/Navbar.astro';
 import Footer from '../../../components/Footer.astro';
+import ContactSection from '../../../components/ContactSection.astro';
 import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
+import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
 
 // Get the service data manually
 import { SERVICE_CATEGORIES } from '../../../data/services';
@@ -18,15 +20,34 @@ if (!service || !category) {
 
 const seoTitle = `Cambio de batería de laptop en Cancún | Pixon PC`;
 const description = `Recupera la autonomía completa de tu laptop con baterías certificadas en Cancún. Diagnóstico gratis, garantía 6 meses.`;
+const canonical = 'https://pixon.com.mx/servicios/laptop/cambio-bateria';
+const faqs = service.faqs?.length ? service.faqs : [
+  { question: '¿Cuánto cuesta cambiar la batería de una laptop en Cancún?', answer: 'Depende del modelo, disponibilidad y tipo de batería. Primero confirmamos compatibilidad y te damos cotización clara antes de instalar.' },
+  { question: '¿Cambiar la batería borra mis archivos?', answer: 'No. Es una reparación física y normalmente no toca información. Si detectamos otro riesgo en el equipo, te avisamos antes.' },
+  { question: '¿Qué marcas de laptop atienden?', answer: 'Revisamos HP, Dell, Lenovo, Asus, Acer, MacBook y otras marcas según modelo y disponibilidad de refacción.' },
+  { question: '¿Dan garantía por la batería?', answer: 'Sí, entregamos garantía por escrito según la pieza instalada y las condiciones del equipo.' },
+];
+const schema = [
+  buildServiceSchema({ service, category, url: canonical, description, image: '/assets/images/laptop-feliz-limpia.webp' }),
+  buildBreadcrumbSchema([
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: 'Laptop', href: '/servicios/laptop' },
+    { label: service.label, href: '/servicios/laptop/cambio-bateria' },
+  ]),
+  buildFAQSchema(faqs),
+];
 ---
 
 <Base
   title={seoTitle}
   description={description}
-  canonical={`https://pixon.com.mx/servicios/laptop/cambio-bateria`}
-  image="/assets/images/responsive/reparacion-mac-cancun.webp"
+  canonical={canonical}
+  image="/assets/images/laptop-feliz-limpia.webp"
+  schema={schema}
 >
   <Navbar />
   <CambioBateriaView service={service} category={category} />
+  <ContactSection id="ubicacion" />
   <Footer />
 </Base>

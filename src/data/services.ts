@@ -10,6 +10,10 @@ import { pcCategory } from './services/pc';
 import { consolaCategory } from './services/consola';
 import { telefonoCategory } from './services/telefono';
 import { impresoraCategory } from './services/impresora';
+import { b2bCategory } from './services/b2b';
+import { tabletCategory } from './services/tablet';
+import { monitorCategory } from './services/monitor';
+import { redesCategory } from './services/redes';
 
 export type { ServiceItem, ServiceCategory } from './services/types';
 
@@ -19,6 +23,10 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   consolaCategory,
   telefonoCategory,
   impresoraCategory,
+  b2bCategory,
+  tabletCategory,
+  monitorCategory,
+  redesCategory,
 ];
 
 /** Helper para obtener una categoria por slug */

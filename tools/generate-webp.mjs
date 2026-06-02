@@ -4,9 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const sourceImages = path.join(__dirname, '..', 'public', 'assets', 'images');
 const distAssets = path.join(__dirname, '..', 'dist', 'assets');
 
 async function generateWebp(dir) {
+  if (!fs.existsSync(dir)) return 0;
+
   let count = 0;
   const files = fs.readdirSync(dir);
 
@@ -20,30 +23,33 @@ async function generateWebp(dir) {
     const ext = path.extname(file).toLowerCase();
     if (!['.jpg', '.jpeg', '.png'].includes(ext)) continue;
 
-    const webpPath = fullPath.replace(ext, '.webp');
+    const webpPath = fullPath.slice(0, -ext.length) + '.webp';
     if (fs.existsSync(webpPath)) continue;
 
     try {
       const img = sharp(fullPath);
       const meta = await img.metadata();
 
-      // Brillo/arreglo, no ampliar
       await img
         .resize(meta.width, meta.height, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 75, effort: 4 })
+        .webp({ quality: 78, effort: 5 })
         .toFile(webpPath);
 
       const origSize = fs.statSync(fullPath).size;
       const webpSize = fs.statSync(webpPath).size;
       const saved = ((1 - webpSize / origSize) * 100).toFixed(0);
-      console.log(`  WebP: ${path.basename(file)} → ${path.basename(webpPath)} (${saved}% ahorro)`);
+      console.log(`  WebP: ${path.basename(file)} -> ${path.basename(webpPath)} (${saved}% ahorro)`);
       count++;
     } catch (err) {
-      console.warn(`  ⚠️  ${file}: ${err.message}`);
+      console.warn(`  warning ${file}: ${err.message}`);
     }
   }
+
   return count;
 }
 
-const total = await generateWebp(distAssets);
-console.log(`\n✅ ${total} WebP generados en dist/assets/`);
+const sourceTotal = await generateWebp(sourceImages);
+const distTotal = await generateWebp(distAssets);
+
+console.log(`\nOK ${sourceTotal} WebP generados en public/assets/images/`);
+console.log(`OK ${distTotal} WebP generados en dist/assets/`);
