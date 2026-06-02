@@ -1,0 +1,375 @@
+import type { ServiceCategory } from './types';
+
+export const laptopCategory: ServiceCategory = {
+    id: 'laptop',
+    slug: 'laptop',
+    title: 'Laptop',
+    icon: 'fa-laptop',
+    blurb: 'Windows / MacBook',
+    heroBg: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+    services: [
+      { slug: 'reparacion-general',   label: 'Reparación General',      customUrl: '/reparaciones' },
+
+      // --- Cambio de pantalla (extendida 12 secciones) -------------------
+      {
+        slug: 'cambio-pantalla',
+        label: 'Cambio de pantalla',
+        seoKeyword: 'Cambio de pantalla de laptop en Cancún',
+        hook: '¿Pantalla rota, con líneas, manchas, parpadeo o sin imagen? Diagnosticamos si la falla es panel, flex o video antes de cotizar.',
+        intro: 'Reemplazo de display LCD, LED, FHD, táctil u OLED para laptops Windows y MacBook con piezas originales o equivalentes certificadas.',
+        bullets: ['Diagnóstico previo gratis en Cancún', 'Panel original o equivalente certificado', 'Validación de flex, bisagras y tarjeta de video', 'Calibración de brillo, color y pixeles', 'Garantía 6 meses por escrito'],
+        fromPrice: '$1,800 MXN', eta: '2-5 días', warranty: '6 meses por escrito',
+        whyUs: [
+          { icon: 'fa-shield-halved',     title: 'Pantalla certificada',   desc: 'Instalamos panel original o equivalente certificado; si es refurbished, te lo avisamos antes.' },
+          { icon: 'fa-magnifying-glass',  title: 'Diagnóstico real',  desc: 'Confirmamos si el daño está en pantalla, flex de video, bisagra o tarjeta de video.' },
+          { icon: 'fa-clock',             title: 'Entrega ágil',  desc: 'Modelos comunes de HP, Dell, Lenovo, Asus y Acer pueden resolverse en 24 a 48 horas si hay stock.' },
+          { icon: 'fa-truck',             title: 'Servicio local en Cancún',  desc: 'Podemos coordinar recolección y entrega en zonas de Cancún según disponibilidad.' },
+        ],
+        process: [
+          { title: 'Diagnóstico de pantalla',     desc: 'Revisamos panel, flex de video, bisagras, retroiluminación y salida a monitor externo para confirmar la falla real.' },
+          { title: 'Cotización por modelo',      desc: 'Te enviamos por WhatsApp el costo exacto del panel compatible y la mano de obra antes de comprar la pieza.' },
+          { title: 'Reemplazo controlado',       desc: 'Desarmamos el marco, retiramos el display dañado e instalamos el nuevo panel con adhesivo, conectores y tornillería correctos.' },
+          { title: 'Prueba de imagen',     desc: 'Validamos brillo, color, pixeles muertos, parpadeos, apertura de tapa y video continuo antes de entregar.' },
+          { title: 'Entrega con garantía',         desc: 'Te avisamos por WhatsApp y entregamos tu laptop con garantía por escrito sobre la pantalla instalada.' },
+        ],
+        educationalBlocks: [
+          {
+            eyebrow: 'Cuidado y Limpieza',
+            title: '¿Cómo cuidar tu nueva pantalla?',
+            intro: 'Evita volver a dañarla siguiendo estas recomendaciones sencillas para limpieza y transporte.',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
+            imgAlt: 'Limpieza de pantalla de laptop',
+            reverse: false,
+            points: [
+              { icon: 'fa-spray-can', title: 'Cero químicos fuertes', text: 'Nunca uses Windex, alcohol o amoníaco. Destruyen la capa anti-reflejante del display.' },
+              { icon: 'fa-hand-holding-water', title: 'Paño de microfibra', text: 'Limpia solo con paño de microfibra seco o ligeramente humedecido con agua destilada.' },
+              { icon: 'fa-briefcase', title: 'Cuidado al cerrar', text: 'Revisa que no haya plumas, clips o audífonos sobre el teclado antes de cerrar la tapa.' }
+            ]
+          }
+        ],
+        commonProblems: [
+          { problem: 'Pantalla rota o estrellada por golpe',  solution: 'Reemplazo del panel completo. Recuperas tu laptop sin comprar otra.' },
+          { problem: 'Líneas verticales o de colores',         solution: 'Puede ser flex de video o panel. El diagnóstico define cuál pieza se cambia.' },
+          { problem: 'Pantalla negra pero la laptop enciende', solution: 'Probamos monitor externo y retroiluminación para separar falla de pantalla, flex o video.' },
+          { problem: 'Manchas, halos o píxeles muertos',       solution: 'Si son más de 5 pixeles muertos o manchas, se justifica el cambio.' },
+        ],
+        compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Toshiba', 'MSI', 'Samsung', 'MacBook Pro', 'MacBook Air', 'Huawei', 'Xiaomi'],
+        faqs: [
+          { question: `¿Cuánto cuesta el cambio de pantalla de laptop en Cancún?`, answer: `El precio depende del modelo, tamaño, resolución, tipo de panel y disponibilidad. Un cambio estándar suele iniciar desde <strong>$1,800 MXN</strong>, pero primero confirmamos número de parte, conector, acabado y compatibilidad para evitar pedir una pantalla incorrecta.` },
+          { question: `¿Cómo sé si necesito pantalla nueva o solo flex de video?`, answer: `Hacemos prueba con monitor externo, revisión de flex, bisagras, retroiluminación y comportamiento al mover la tapa. Si la imagen externa funciona bien, puede ser panel o flex; si también falla afuera, revisamos video o placa antes de cotizar pantalla.` },
+          { question: `¿Cuánto tarda cambiar una pantalla de laptop?`, answer: `Si el panel está disponible para modelos comunes HP, Dell, Lenovo, Asus o Acer, normalmente toma <strong>24 a 48 horas</strong>. Modelos táctiles, MacBook, OLED o importados pueden tomar de <strong>3 a 7 días</strong>, según disponibilidad.` },
+          { question: `¿La pantalla queda igual que la original?`, answer: `Buscamos el panel compatible correcto por resolución, conector, tamaño, acabado y tipo de montaje. Cuando existe opción original o equivalente certificada, te explicamos diferencia de precio y calidad antes de comprar la pieza.` },
+          { question: `¿Qué garantía tiene la pantalla instalada?`, answer: `Entregamos <strong>6 meses de garantía por escrito</strong> sobre defecto del panel instalado y mano de obra. No aplica por golpes, presión en la tapa, humedad, derrames o manipulación externa después de entregar el equipo.` },
+          { question: `¿Tienen recolección y entrega en Cancún?`, answer: `Sí, podemos coordinar recolección y entrega según zona y disponibilidad. La instalación se realiza en taller porque requiere cuidado con marco, flex, adhesivos, bisagras y pruebas de imagen antes de cerrar el equipo.` },
+        ],
+        relatedSlugs: ['cambio-bateria', 'cambio-teclado', 'pasta-termica', 'diagnostico'],
+        relatedExternal: [
+          { label: 'Limpieza por líquido derramado', href: '/limpieza-laptop-liquido', icon: 'fa-droplet', desc: 'Si tu laptop sufrió derrame, atender ambas cosas a la vez.' },
+          { label: 'Paquetes de mantenimiento',     href: '/paquetes',                 icon: 'fa-box',     desc: 'Aprovecha el desarmado para limpieza completa.' },
+        ],
+        // --- NUEVAS SECCIONES para cambio-pantalla ------------------------
+        trustStats: [
+          { icon: 'fa-stethoscope', value: '100%', label: 'Diagnóstico de pantalla, flex y video' },
+          { icon: 'fa-shield-halved', value: '6 meses', label: 'Garantía por escrito' },
+          { icon: 'fa-truck', value: 'Local', label: 'Recolección en Cancún por zona' },
+          { icon: 'fa-clock', value: '4 días', label: 'Entrega hábil si la pieza está en Cancún' },
+        ],
+        specialistTitle: 'Especialistas en cambio de pantalla de laptop en Cancún',
+        specialistDesc: 'En Pixon PC verificamos modelo exacto, tamaño, resolución, tipo de conector, acabado del panel y compatibilidad antes de cotizar. Trabajamos con pantallas de calidad verificada para laptops Windows y MacBook, con garantía clara y pruebas de imagen antes de entregar.',
+        specialistImage: '/assets/images/responsive/reparacion-mac-cancun.webp',
+        screenTypes: [
+          { label: 'HD (1366x768)', desc: 'Panel estándar para laptops de entrada y oficina' },
+          { label: 'FHD (1920x1080)', desc: 'La resolución más común para laptop de trabajo, escuela y gaming' },
+          { label: '4K UHD', desc: 'Paneles para laptops premium, diseño, edición y workstation' },
+          { label: 'Táctil', desc: 'Pantallas con digitizer capacitivo y conector específico' },
+          { label: 'OLED', desc: 'Paneles premium con alto contraste y colores intensos' },
+        ],
+        beforeAfter: {
+          before: ['Pantalla rota o con fracturas', 'Manchas oscuras y halos de luz', 'Líneas verticales o píxeles muertos', 'Pantalla negra sin imagen'],
+          after: ['Display nuevo con colores exactos de fábrica', 'Brillo y contraste calibrado al 100%', 'Sin líneas, sin pixeles y sin manchas', 'Tu laptop funcionando como nueva'],
+        },
+      },
+
+      // --- Cambio de teclado (extendida) ----------------------------------
+      {
+        slug: 'cambio-teclado',
+        label: 'Cambio de teclado',
+        seoKeyword: 'Cambio de teclado de laptop en Cancún',
+        hook: '¿Tu teclado no responde, escribe doble, tiene teclas pegadas o se mojó? Revisamos teclado, flex, conector y posible daño por líquido antes de cotizar.',
+        intro: 'Servicio local de cambio y reparación de teclado de laptop en Cancún para HP, Dell, Lenovo, Asus, Acer, MSI y MacBook. Instalamos teclado español latino, US o retroiluminado según modelo, con prueba tecla por tecla y garantía por escrito.',
+        bullets: ['Diagnóstico de teclado, flex, conector y placa', 'Teclado LA-ESP con Ñ, US o backlit según modelo', 'Prueba tecla por tecla antes de entregar', 'Garantía 3 meses por escrito', 'Cotización clara por WhatsApp'],
+          fromPrice: '$1,550 MXN', eta: '24-72 h', warranty: '3 meses por escrito',
+        whyUs: [
+          { icon: 'fa-keyboard',     title: 'Distribución correcta', desc: 'Confirmamos si tu laptop usa teclado español latino con Ñ, US, retroiluminado o molde especial antes de pedir la pieza.' },
+          { icon: 'fa-lightbulb',    title: 'Backlit respetado',     desc: 'Si tu equipo trae iluminación, buscamos teclado backlit compatible con su flex para conservar esa función.' },
+          { icon: 'fa-shield-halved',title: 'Pieza compatible',      desc: 'Validamos número de parte, molde, idioma, conector, tornillería y palmrest para evitar adaptaciones improvisadas.' },
+          { icon: 'fa-clock',        title: 'Entrega clara',         desc: 'Te decimos si hay stock en Cancún o si la pieza debe pedirse fuera. Sin prometer tiempos falsos.' },
+          { icon: 'fa-file-shield',   title: 'Garantía por escrito',  desc: 'La garantía se entrega por escrito sobre la pieza instalada y la mano de obra correspondiente.' },
+          { icon: 'fa-comment-dots', title: 'Comunicación por WhatsApp', desc: 'Te explicamos costo, tiempo y compatibilidad antes de autorizar la compra de refacción.' },
+        ],
+        process: [
+          { title: '1. Diagnóstico',  desc: 'Probamos teclas, flex, conector, BIOS y señales de líquido para saber si conviene cambiar teclado o corregir otra falla.' },
+          { title: '2. Cotización',   desc: 'Te mandamos por WhatsApp costo de pieza, mano de obra, distribución disponible y tiempo estimado antes de pedir refacción.' },
+          { title: '3. Reemplazo',    desc: 'Desarmamos el equipo, retiramos teclado o palmrest según modelo e instalamos la pieza compatible sin forzar conectores.' },
+          { title: '4. Prueba final', desc: 'Validamos tecla por tecla, atajos, retroiluminación, touchpad y encendido antes de entregarte la laptop.' },
+        ],
+        commonProblems: [
+          { problem: 'Teclas que no responden o escriben doble',          solution: 'Revisamos matriz, flex y conector. Si el daño es del teclado, cotizamos pieza compatible; si es contacto o configuración, te lo decimos.' },
+          { problem: 'Teclas pegadas por líquido o humedad',       solution: 'No basta con cambiar teclado. Revisamos corrosión en flex, conector y placa para evitar que el teclado nuevo vuelva a fallar.' },
+          { problem: 'Letras borradas o distribución incorrecta',     solution: 'Instalamos teclado español latino con Ñ, US o el molde correcto según modelo. Validamos idioma antes de pedir la pieza.' },
+          { problem: 'Backlit, flex o falla intermitente',   solution: 'Probamos retroiluminación, flex y conector. Si tu laptop usa teclado backlit, buscamos refacción compatible con esa función.' },
+          { problem: 'Teclado escribe caracteres incorrectos', solution: 'Revisamos configuración, idioma del sistema, BIOS y teclado físico para confirmar si es falla de software o hardware.' },
+          { problem: 'Algunas teclas funcionan y otras no', solution: 'Cuando solo falla una zona del teclado, puede tratarse de matriz dañada, humedad, flex flojo o desgaste interno.' },
+        ],
+        compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Toshiba', 'MSI', 'MacBook Pro', 'MacBook Air'],
+        faqs: [
+          { question: `¿Cuánto cuesta cambiar el teclado de una laptop en Cancún?`, answer: `El cambio inicia desde <strong>$1,550 MXN</strong>, pero el precio final depende del modelo, distribución, retroiluminación, si viene integrado al palmrest y disponibilidad. Antes de cotizar revisamos número de parte, flex, conector y señales de líquido.` },
+          { question: `¿Cuánto tarda el cambio de teclado de laptop?`, answer: `Si el teclado está disponible, normalmente toma de <strong>24 a 72 horas</strong>. En modelos especiales, MacBook o equipos con palmrest integrado, el tiempo puede cambiar porque primero confirmamos pieza, compatibilidad y forma de instalación.` },
+          { question: `¿Se puede cambiar solo una tecla?`, answer: `Depende del modelo y del daño. A veces se puede revisar mecanismo o tecla suelta, pero si la matriz está dañada, hay líquido o varias teclas fallan, suele convenir reemplazar el teclado completo para que no regrese la falla.` },
+          { question: `¿Tienen teclado español latino con Ñ o teclado US?`, answer: `Sí. Validamos si tu laptop requiere español latino con Ñ, distribución US, backlit o molde especial. También revisamos número de parte y flex para evitar instalar un teclado que no coincida con símbolos, tamaño o retroiluminación.` },
+          { question: `¿Mi laptop necesita teclado nuevo o puede ser flex?`, answer: `Lo confirmamos con diagnóstico. Algunas fallas vienen de flex, conector flojo, humedad, BIOS, idioma del sistema o placa. Primero probamos zonas del teclado y conexión interna; si no requiere pieza nueva, te lo decimos.` },
+          { question: `¿Cambian teclado de MacBook?`, answer: `Sí, revisamos MacBook Pro y MacBook Air según generación, distribución, top case y compatibilidad. En algunos modelos no se cambia solo el teclado; puede requerir top case completo o desmontaje más delicado, por eso confirmamos modelo exacto antes.` },
+        ],
+        relatedSlugs: ['cambio-pantalla', 'diagnostico', 'pasta-termica', 'cambio-bateria'],
+        relatedExternal: [
+          { label: 'Limpieza por líquido derramado', href: '/limpieza-laptop-liquido', icon: 'fa-droplet', desc: 'Si cayó agua, café o refresco, revisamos placa, flex y corrosión antes de instalar teclado nuevo.' },
+          { label: 'Paquetes de mantenimiento',      href: '/paquetes',                icon: 'fa-box',     desc: 'Aprovecha que la laptop se abre para limpieza interna, ventilador y revisión térmica.' },
+        ],
+        trustStats: [
+          { icon: 'fa-stethoscope', value: '100%', label: 'Revisión de teclado, flex y placa' },
+          { icon: 'fa-keyboard', value: 'LA/US', label: 'Teclado según modelo' },
+          { icon: 'fa-shield-halved', value: '3 meses', label: 'Garantía por escrito' },
+          { icon: 'fa-clock', value: '24-72 h', label: 'Si la pieza está disponible' },
+        ],
+      },
+
+      // --- Cambio de batería (extendida) ----------------------------------
+      {
+        slug: 'cambio-bateria',
+        label: 'Cambio de batería',
+        // PRECAUCION customUrl REQUERIDO: la página dedicada está en
+        //   src/pages/servicios/laptop/cambio-bateria.astro
+        //   (importa CambioBateriaView con diseño premium).
+        //   Sin este customUrl, [servicio].astro genera un conflicto de ruta
+        //   y la página dinámica gana con un título incorrecto.
+        customUrl: '/servicios/laptop/cambio-bateria',
+        seoKeyword: 'Cambio de batería de laptop en Cancún',
+        hook: '¿Tu laptop dura 30 minutos desconectada o ya no carga? Recupera 4-8 horas de autonomía con batería nueva certificada.',
+        intro: 'Reemplazo de batería interna por una nueva. Recuperas autonomía completa y ciclos de carga frescos.',
+        bullets: ['Batería con celdas nuevas', 'Calibración de carga después del cambio', 'Reciclaje de batería vieja sin costo', 'Garantía 6 meses', 'Capacidad mayor o igual al original'],
+        fromPrice: '$950 MXN', eta: '24-48 h', warranty: '6 meses por escrito',
+        whyUs: [
+          { icon: 'fa-battery-half', title: 'Capacidad real',      desc: 'mAh igual o superior al original. Sin trampas de "compatible barata".' },
+          { icon: 'fa-recycle',      title: 'Reciclaje gratis',    desc: 'Tu batería vieja se desecha de forma segura, sin costo.' },
+          { icon: 'fa-bolt',         title: 'Calibración incluida',desc: 'Calibramos los ciclos de carga del SO para máxima vida útil.' },
+          { icon: 'fa-shield-halved',title: '6 meses garantía',    desc: 'Si baja la capacidad anormalmente, la cambiamos sin costo.' },
+        ],
+        process: [
+          { title: '1. Test de batería', desc: 'Medimos ciclos, capacidad real y desgaste antes de recomendar.' },
+          { title: '2. Cotización',      desc: 'Te ofrecemos opciones: pieza original (más caro) o equivalente certificada (mejor relación precio/calidad).' },
+          { title: '3. Reemplazo',       desc: 'Desarmado, intercambio de batería, conexión segura del flex y reensamble.' },
+          { title: '4. Calibración',     desc: 'Carga al 100%, descarga al 0% y recarga completa para calibrar el SO.' },
+          { title: '5. Entrega',         desc: 'Reporte de ciclos nuevos + tip de uso para alargar vida útil.' },
+        ],
+        educationalBlocks: [
+          {
+            eyebrow: 'Cuidado y Rendimiento',
+            title: '¿Cómo alargar la vida útil de tu nueva batería?',
+            intro: 'Una vez instalada tu nueva batería, seguir estas recomendaciones de nuestros ingenieros garantizará que te dure años con excelente rendimiento.',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
+            imgAlt: 'Mantenimiento de baterías',
+            reverse: false,
+            points: [
+              { icon: 'fa-plug-circle-check', title: 'Regla del 20-80', text: 'Intenta mantener la carga entre el 20% y el 80%. Evita descargas completas constantes.' },
+              { icon: 'fa-temperature-low', title: 'Evita el calor extremo', text: 'No dejes tu laptop bajo el sol. El calor degrada la química interna permanentemente.' },
+              { icon: 'fa-calendar-check', title: 'Ciclos de calibración', text: 'Una vez al mes, cárgala al 100%, úsala hasta que se apague y recárgala al máximo.' }
+            ]
+          }
+        ],
+        commonProblems: [
+          { problem: 'Laptop dura menos de 1 hora',           solution: 'Batería con desgaste >30%. Cambio recupera autonomía original.' },
+          { problem: 'No carga aunque conectada',             solution: 'Puede ser batería, cargador o flex de carga. Diagnóstico gratis lo define.' },
+          { problem: 'Batería inflamada o hinchada',          solution: 'PELIGROSO. Apaga la laptop y tráela de inmediato  -  riesgo de daño a placa.' },
+          { problem: 'Windows reporta "considere reemplazar"',solution: 'El sistema detectó desgaste >50%. Es buen momento para cambiar.' },
+        ],
+        compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro', 'MacBook Air', 'Toshiba', 'Samsung'],
+        faqs: [
+          { question: `¿Cuánto cuesta cambiar la batería de mi laptop?`, answer: `Normalmente queda entre <strong>$950 y $2,800 MXN</strong>, dependiendo del modelo, capacidad, disponibilidad y si es una laptop premium o MacBook. Antes revisamos ciclos, desgaste, si está inflada y compatibilidad para no instalar una batería incorrecta.` },
+          { question: `¿Cuánto dura una batería nueva?`, answer: `Una batería nueva suele durar <strong>3 a 5 años</strong> con uso normal. El calor de Cancún, descargas al 0% y temperaturas altas reducen su vida útil, por eso también revisamos ventilación interna si la laptop se calienta mucho.` },
+          { question: `¿La batería nueva es original?`, answer: `Te explicamos si existe opción original del fabricante o equivalente certificada. Revisamos voltaje, conector, forma física y protección interna antes de instalar, porque una batería incorrecta puede dañar placa, carcasa o sistema de carga.` },
+          { question: `¿Puedo seguir usando mi laptop conectada mientras espero?`, answer: `Puedes usarla conectada si solo dura poco, pero no si está inflada, se calienta demasiado o levanta touchpad/carcasa. En esos casos conviene apagarla y traerla al taller para evitar daño en placa, flex o teclado.` },
+          { question: `?Reciclan mi batería vieja?`, answer: `Sí, retiramos la batería vieja y la manejamos como residuo especial sin costo adicional. No conviene tirarla a la basura común porque puede contaminar, calentarse o inflarse más con el tiempo.` },
+        ],
+        relatedSlugs: ['cambio-pantalla', 'cambio-teclado', 'pasta-termica', 'diagnostico'],
+        relatedExternal: [
+          { label: 'Optimización del Sistema', href: '/optimizacion', icon: 'fa-bolt',    desc: 'Una laptop optimizada gasta menos batería.' },
+          { label: 'Mantenimiento Mac',         href: '/mantenimiento-mac', icon: 'fa-apple',  desc: 'Para MacBook hacemos servicio especializado.' },
+        ],
+      },
+
+      { slug: 'reparacion-bisagras',  label: 'Reparación Bisagras',     customUrl: '/reparacion-bisagras', intro: 'Sustitución de bisagras flojas o rotas y refuerzo de carcasa agrietada.', bullets: ['Bisagras nuevas + tornillería', 'Reforzado de chasis', 'Prueba 100 ciclos apertura/cierre', 'Garantía 6 meses'], fromPrice: '$650 MXN', eta: '2-5 días' },
+      { slug: 'mantenimiento-interno',label: 'Mantenimiento Preventivo',customUrl: '/paquetes' },
+
+      // --- Cambio de pasta térmica (extendida) ----------------------------
+      {
+        slug: 'pasta-termica',
+        label: 'Cambio de pasta térmica',
+        seoKeyword: 'Cambio de pasta térmica para laptop en Cancún',
+        hook: '¿Tu laptop quema, hace ruido o se apaga sola? La pasta térmica seca es la causa #1. La cambiamos y bajan las temperaturas hasta 25°C.',
+        intro: 'Reemplazo de pasta térmica del CPU/GPU con compuesto premium. Bajan las temperaturas hasta 25°C y desaparece el ruido del ventilador.',
+        bullets: ['Pasta Arctic MX-4 o equivalente premium', 'Limpieza de disipadores y ventiladores', 'Stress test post-reemplazo con datos antes/después', 'Garantía 3 meses'],
+        fromPrice: '$550 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        whyUs: [
+          { icon: 'fa-temperature-arrow-down', title: 'Bajan temperaturas',  desc: 'En promedio 15-25°C menos en CPU bajo carga. Tu laptop deja de quemarse.' },
+          { icon: 'fa-volume-low',             title: 'Adiós al ruido',     desc: 'El ventilador deja de girar al máximo todo el tiempo.' },
+          { icon: 'fa-flask',                  title: 'Pasta premium',      desc: 'Arctic MX-4 o equivalente, no la pasta gris barata que dura 3 meses.' },
+          { icon: 'fa-chart-line',             title: 'Reporte antes/después',desc: 'Te enviamos screenshots de temperaturas antes y después.' },
+        ],
+        process: [
+          { title: '1. Test térmico',  desc: 'Medimos temperaturas iniciales con HWMonitor. Capturamos lectura de CPU/GPU en idle y carga.' },
+          { title: '2. Desarmado',     desc: 'Desarmamos hasta acceder al disipador. Limpiamos pasta vieja con alcohol isopropílico.' },
+          { title: '3. Limpieza',      desc: 'Aire comprimido en ventiladores y disipadores. Limpieza completa del sistema de refrigeración.' },
+          { title: '4. Aplicación',    desc: 'Aplicamos pasta nueva con técnica de "pea size" o "spread" según diseño del disipador.' },
+          { title: '5. Stress test',   desc: 'Cinebench R23 + FurMark 15 min. Te enviamos comparativa antes/después.' },
+        ],
+        educationalBlocks: [
+          {
+            eyebrow: 'Mantenimiento Óptimo',
+            title: 'Mantén tu laptop fresca',
+            intro: 'La pasta térmica nueva hace maravillas, pero el entorno y tus hábitos son clave para que la temperatura no vuelva a subir.',
+            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
+            imgAlt: 'Pasta térmica en laptop',
+            reverse: true,
+            points: [
+              { icon: 'fa-bed', title: 'No uses la cama', text: 'Usar la laptop sobre sábanas o almohadas bloquea la ventilación y la ahoga térmicamente.' },
+              { icon: 'fa-wind', title: 'Superficie dura', text: 'Úsala siempre sobre un escritorio, mesa o base enfriadora para garantizar flujo de aire.' },
+              { icon: 'fa-calendar', title: 'Limpieza periódica', text: 'La pasta seca en 18 meses. Prográmate para hacerle limpieza antes de que el ventilador empiece a sonar.' }
+            ]
+          }
+        ],
+        commonProblems: [
+          { problem: 'Laptop quema y se siente caliente al tacto', solution: 'Pasta seca + polvo. Cambio bajará 15-25°C inmediatamente.' },
+          { problem: 'Ventilador a máxima velocidad siempre',      solution: 'Sistema térmico saturado. Limpieza + pasta nueva soluciona.' },
+          { problem: 'Apagados aleatorios al jugar o renderizar',  solution: 'Throttling térmico. Pasta nueva evita apagados por temperatura.' },
+          { problem: 'Rendimiento bajo aunque hardware es bueno',  solution: 'CPU bajando frecuencia por calor. Solucionando temp, recuperas FPS.' },
+        ],
+        compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro', 'MacBook Air', 'Razer', 'Alienware', 'Gigabyte'],
+        faqs: [
+          { question: `¿Cada cuánto debo cambiar la pasta térmica?`, answer: `En Cancún recomendamos cada <strong>18 a 24 meses</strong> por calor, humedad y polvo. Si usas la laptop para gaming, edición o render, puede convenir cada 12 a 18 meses. También revisamos ventilador y disipador.` },
+          { question: `¿Qué pasta usan?`, answer: `Usamos pasta térmica premium tipo Arctic MX-4 o equivalente confiable según disponibilidad y equipo. Si el modelo requiere metal líquido o compuesto especial, lo cotizamos aparte porque exige aislamiento y aplicación precisa para no poner en riesgo la placa.` },
+          { question: `¿Cuánto bajan las temperaturas?`, answer: `Depende del estado inicial, polvo y diseño del disipador. En equipos saturados es común ver mejoras de <strong>15 a 25°C</strong> bajo carga, pero lo validamos con prueba térmica antes y después. Si el problema es ventilador, te lo indicamos.` },
+          { question: `¿Es seguro abrir mi laptop para esto?`, answer: `Sí, siempre que se use herramienta correcta y cuidado antiestático. Revisamos tornillería, flex, disipador y conectores para evitar daños. Si la carcasa está frágil o hay bisagras dañadas, te avisamos antes de forzar el desarmado.` },
+          { question: `¿Vale la pena en una laptop vieja?`, answer: `Sí puede valer la pena si aún cumple tus necesidades. Bajar temperatura ayuda a evitar apagados, ruido y pérdida de rendimiento. También te decimos si conviene combinarlo con SSD, RAM o si el costo ya no justifica la inversión.` },
+        ],
+        relatedSlugs: ['cambio-bateria', 'upgrade', 'diagnostico'],
+        relatedExternal: [
+          { label: 'Mantenimiento Mac',         href: '/mantenimiento-mac',         icon: 'fa-apple',   desc: 'Servicio especializado para MacBook con metal líquido opcional.' },
+          { label: 'Limpieza por líquido',     href: '/limpieza-laptop-liquido',   icon: 'fa-droplet', desc: 'Si tu laptop calienta tras un derrame, hay que atender ambas cosas.' },
+          { label: 'Paquetes de mantenimiento', href: '/paquetes',                  icon: 'fa-box',     desc: 'Servicio recurrente con descuentos.' },
+        ],
+      },
+
+      // --- Upgrade SSD / RAM (extendida) ----------------------------------
+      {
+        slug: 'upgrade',
+        label: 'Upgrade SSD / RAM',
+        // PRECAUCION customUrl REQUERIDO: la página dedicada está en
+        //   src/pages/servicios/laptop/upgrade.astro
+        //   (diseño premium con planes de upgrade y galeria).
+        //   Sin este customUrl, [servicio].astro genera un conflicto de ruta.
+        customUrl: '/servicios/laptop/upgrade',
+        seoKeyword: 'Upgrade de SSD y RAM para laptop en Cancún',
+        hook: 'Tu laptop puede ser hasta 5x más rápida. Migración a SSD NVMe + ampliación de RAM con clonado de tu Windows actual  -  sin perder NADA.',
+        intro: 'Migración a SSD NVMe/SATA y/o ampliación de memoria RAM. Tu equipo arranca en segundos y multiplica su rendimiento.',
+        bullets: ['Clonado de Windows sin reinstalar nada', 'SSD desde 240 GB hasta 2 TB', 'Hasta 64 GB RAM según modelo', 'Backup completo antes de tocar nada', 'Asesoría: te decimos qué upgrade vale más la pena'],
+        fromPrice: '$800 MXN + pieza', eta: '24-48 h', warranty: 'SSD: 3 años fabricante | RAM: 5 años fabricante',
+        featuredImage: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&q=80',
+        sectionImages: {
+          whyUs:    'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=600&q=80',
+          process:  'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80',
+        },
+        whyUs: [
+          { icon: 'fa-rocket',     title: 'Hasta 5x más rápida',   desc: 'Boot de 3 min a 15 segundos. Apps abren al instante.' },
+          { icon: 'fa-clone',      title: 'Sin reinstalar nada',  desc: 'Clonamos tu sistema actual. Conservas TODO: programas, archivos, configuraciones.' },
+          { icon: 'fa-shield-halved',title: 'Backup previo',      desc: 'Imagen completa de tu disco antes de iniciar. Cero riesgo de pérdida.' },
+          { icon: 'fa-microchip',  title: 'Asesoría experta',     desc: 'Te decimos si conviene SSD, RAM o ambos según tu uso real.' },
+        ],
+        process: [
+          { title: '1. Diagnóstico',     desc: 'Identificamos cuello de botella: ¿es disco lento, poca RAM o ambos? Recomendación basada en datos.' },
+          { title: '2. Cotización piezas',desc: 'Cotización transparente: precio de pieza por separado + mano de obra. Tú apruebas el modelo exacto.' },
+          { title: '3. Backup completo', desc: 'Imagen del disco actual antes de cualquier cambio. Si algo sale mal (no pasa), restauramos en 30 min.' },
+          { title: '4. Instalación',     desc: 'Físicamente instalamos SSD/RAM. Clonado del SO actual al SSD nuevo (sin reinstalar Windows).' },
+          { title: '5. Optimización',    desc: 'Ajustes del SO para aprovechar SSD (TRIM, alineación). Benchmarks finales para confirmar mejora.' },
+          { title: '6. Entrega',         desc: 'Reporte con benchmarks antes/después + el disco viejo regresa contigo (no lo desechamos).' },
+        ],
+        commonProblems: [
+          { problem: 'Windows tarda 3+ minutos en arrancar',     solution: 'SSD reduce a 10-20 segundos. Mejora más notoria del upgrade.' },
+          { problem: 'Apps tardan en abrir / RAM siempre llena', solution: 'Más RAM (16/32 GB) elimina swap a disco. Mejor multitasking.' },
+          { problem: 'Disco mecánico haciendo ruido',            solution: 'HDD a punto de fallar. Migrar a SSD ANTES de que muera.' },
+          { problem: 'Sin espacio para fotos/videos',            solution: 'SSD de 1 TB o 2 TB resuelve por años.' },
+        ],
+        compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro (Intel)', 'Toshiba', 'Samsung'],
+        faqs: [
+          { question: `¿SSD o más RAM, qué da más mejora?`, answer: `Si el equipo usa disco duro mecánico, el SSD suele dar la mejora más visible: arranque, programas y respuesta general. Si ya tiene SSD pero se satura con varias pestañas o programas, la RAM puede ser el siguiente cuello de botella.` },
+          { question: `¿Qué SSD recomiendan?`, answer: `Recomendamos SSD según compatibilidad y uso: SATA para equipos limitados, NVMe para modelos compatibles y opciones de mayor rendimiento para gaming o trabajo pesado. Validamos formato, generación, capacidad, temperatura y presupuesto antes de comprar.` },
+          { question: `¿Pierdo mis programas y archivos?`, answer: `No, si el disco actual está sano podemos clonar Windows, programas, archivos y configuración al SSD nuevo. Antes hacemos respaldo y revisamos estado SMART del disco; si está dañado, puede convenir instalación limpia o recuperación.` },
+          { question: `¿Cuánta RAM máxima soporta mi laptop?`, answer: `Depende del modelo, chipset, procesador y ranuras disponibles. Revisamos ficha técnica, módulos instalados y límite real de la placa. También confirmamos tipo de RAM y frecuencia para evitar inestabilidad o memoria no reconocida.` },
+          { question: `¿Pueden migrar mi MacBook a SSD?`, answer: `Sí en MacBook Intel compatibles donde el SSD no está soldado. En Apple Silicon M1, M2 o M3 el almacenamiento viene integrado a placa y no se amplía de forma convencional. Te confirmamos por modelo antes de prometer upgrade.` },
+          { question: `¿Cuánto cuesta el upgrade completo?`, answer: `La mano de obra inicia desde $800 MXN y las piezas se cotizan por separado según capacidad, marca y compatibilidad. Te damos opciones claras de SSD, RAM o ambos, explicando qué mejora notarás en tu uso real.` },
+        ],
+        relatedSlugs: ['cambio-bateria', 'pasta-termica', 'diagnostico'],
+        relatedExternal: [
+          { label: 'Optimización del Sistema',  href: '/optimizacion',          icon: 'fa-bolt',     desc: 'Tras el upgrade, optimización exprime aún más el equipo.' },
+          { label: 'Instalación de Windows',     href: '/instalacion-windows',   icon: 'fa-windows',  desc: 'Si prefieres reinstalación limpia en lugar de clonado.' },
+          { label: 'Ensambles PC Gamer',         href: '/ensambles',             icon: 'fa-microchip',desc: 'Si tu laptop ya no da para más, te armamos PC desde cero.' },
+        ],
+      },
+
+      // --- Diagnóstico (extendida) ----------------------------------------
+      {
+        slug: 'diagnostico',
+        label: 'Diagnóstico',
+        seoKeyword: 'Diagnóstico gratis de laptop en Cancún',
+        hook: '¿Tu laptop tiene una falla que no entiendes? Diagnóstico profesional con reporte por escrito. GRATIS si autorizas la reparación.',
+        intro: 'Revisión profesional para identificar la falla y darte presupuesto sin compromiso. Te explicamos qué tiene y qué cuesta arreglarlo.',
+        bullets: ['Test eléctrico, software y hardware', 'Revisión de placa, RAM, disco, ventilación', 'Reporte por escrito con fotos', 'GRATIS si autorizas la reparación', 'Sin compromiso de continuar'],
+        fromPrice: 'GRATIS', eta: '1-2 h', warranty: 'Reporte por escrito',
+        whyUs: [
+          { icon: 'fa-magnifying-glass', title: 'Diagnóstico completo', desc: 'Eléctrico, mecánico y de software. No te decimos "es la placa" sin pruebas.' },
+          { icon: 'fa-file-contract',    title: 'Reporte por escrito',  desc: 'Lo recibes por WhatsApp con fotos y explicación clara, no jerga técnica.' },
+          { icon: 'fa-handshake',        title: 'Sin compromiso',       desc: 'Te decimos qué tiene; tú decides si arreglas con nosotros o no.' },
+          { icon: 'fa-piggy-bank',       title: 'GRATIS al reparar',    desc: 'Si autorizas la reparación, el diagnóstico no se cobra.' },
+        ],
+        process: [
+          { title: '1. Recepción',      desc: 'Tomamos nota de la falla reportada y datos de contacto.' },
+          { title: '2. Test eléctrico', desc: 'Verificamos cargador, batería, encendido y voltajes con multímetro.' },
+          { title: '3. Test software',  desc: 'Boot a Windows/Linux, lectura de logs, SMART del disco, memtest si aplica.' },
+          { title: '4. Test mecánico',  desc: 'Pantalla, teclado, touchpad, puertos, ventilación, bisagras.' },
+          { title: '5. Reporte',        desc: 'Por WhatsApp: qué tiene, qué cuesta arreglarlo, qué tan urgente es.' },
+        ],
+        commonProblems: [
+          { problem: '"No sé qué tiene mi laptop"',           solution: 'Para eso es el diagnóstico. Te decimos exactamente qué falla.' },
+          { problem: 'Otro técnico me dijo X  -  quiero 2da opinión', solution: 'Te damos diagnóstico independiente sin presión de venta.' },
+          { problem: 'Antes de comprar laptop usada quiero saber estado', solution: 'Inspección de equipo previo a compra: $200 MXN, te ahorra meterte en problemas.' },
+          { problem: 'Quiero saber si vale la pena arreglar o comprar nueva', solution: 'Diagnóstico + recomendación honesta. Si la reparación supera 50% del valor, te decimos.' },
+        ],
+        compatibleBrands: ['Cualquier marca', 'Cualquier modelo', 'Cualquier antigüedad'],
+        faqs: [
+          { question: `¿Qué tan rápido me dan el diagnóstico?`, answer: `Normalmente entregamos diagnóstico en <strong>1 a 2 horas</strong> si la falla es evidente y hay disponibilidad. Cuando requiere pruebas de disco, memoria, temperatura, pantalla o placa puede tomar hasta 24 horas. Te avisamos por WhatsApp con hallazgos, costo y recomendación antes de reparar.` },
+          { question: `¿El diagnóstico realmente es gratis?`, answer: `El diagnóstico se bonifica si autorizas la reparación con nosotros. Si decides no reparar o retirar el equipo, cobramos una cuota razonable por el tiempo técnico invertido. Así podemos hacer pruebas reales y darte una causa clara, no solo una opinión rápida.` },
+          { question: `¿Qué incluye el reporte técnico?`, answer: `Incluye fallas detectadas, causa probable, evidencia cuando aplica, costo estimado, tiempo de reparación y recomendación honesta. Si el equipo no conviene repararlo por costo, antigüedad o riesgo, también te lo decimos antes de que inviertas de más.` },
+          { question: `¿Qué pasa si descubren más fallas durante la revisión?`, answer: `Si aparece una falla adicional, detenemos el trabajo y te avisamos antes de cambiar piezas o aumentar costo. Tú decides qué se repara y qué se deja pendiente. No cerramos el equipo ni cobramos extras sin autorización previa.` },
+          { question: `¿Hacen diagnóstico a domicilio en Cancún?`, answer: `Podemos hacer revisión a domicilio con costo de visita, pero los diagnósticos profundos conviene hacerlos en taller. Ahí tenemos multímetro, piezas de prueba, herramientas antiestáticas y condiciones para abrir el equipo sin riesgo.` },
+        ],
+        relatedSlugs: ['cambio-pantalla', 'cambio-teclado', 'cambio-bateria', 'pasta-termica', 'upgrade'],
+        relatedExternal: [
+          { label: 'Reparación general',       href: '/reparaciones',         icon: 'fa-screwdriver-wrench', desc: 'Si ya sabes qué tiene, ve directo a reparar.' },
+          { label: 'Mantenimiento preventivo', href: '/paquetes',             icon: 'fa-box',                desc: 'Si está sano pero quieres prevenir, paquete preventivo.' },
+        ],
+      },
+      { slug: 'optimizacion',         label: 'Optimización del Sistema',customUrl: '/optimizacion' },
+      { slug: 'instalacion-windows',  label: 'Instalación de Windows',  customUrl: '/instalacion-windows' },
+      { slug: 'mantenimiento-mac',    label: 'Mantenimiento Mac',       customUrl: '/mantenimiento-mac' },
+      { slug: 'limpieza-liquido',     label: 'Limpieza por Líquido',    customUrl: '/limpieza-laptop-liquido' },
+    ],
+  };

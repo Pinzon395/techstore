@@ -270,20 +270,20 @@ const allSchema = cleanSchemaList(schema)
 
     const params = new URLSearchParams(window.location.search);
     const sectionId = params.get('section');
+    const fixedHeader = document.querySelector('#navbar');
+    const offset = fixedHeader ? (fixedHeader as HTMLElement).offsetHeight + 20 : 80;
     if (sectionId) {
-      setTimeout(() => {
-        const fixedHeader = document.querySelector('#navbar');
-        const offset = fixedHeader ? (fixedHeader as HTMLElement).offsetHeight + 20 : 80;
+      requestAnimationFrame(() => {
         scrollToSection(sectionId, offset);
         if (window.history.replaceState) {
           window.history.replaceState({}, document.title, window.location.pathname);
         }
-      }, 400);
+      });
     }
     if (window.location.hash) {
-      setTimeout(() => {
-        scrollToSection(window.location.hash.slice(1), 80);
-      }, 400);
+      requestAnimationFrame(() => {
+        scrollToSection(window.location.hash.slice(1), offset);
+      });
     }
   </script>
   <script defer src="/scripts/user-menu.js"></script>

@@ -1,0 +1,543 @@
+---
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category, description = '' } = Astro.props;
+
+const servicePath = `/servicios/${category.slug}/${service.slug}`;
+const keyword = service.seoKeyword || service.label;
+const title = service.h1 || keyword;
+const hook = service.hook || service.intro || `Servicio tecnico de ${service.label} para ${category.title} en Cancun.`;
+const bullets = Array.isArray(service.bullets) ? service.bullets : [];
+const symptoms = service.symptoms || service.commonSymptoms || bullets.map((item: string) => ({
+  icon: 'fa-circle-exclamation',
+  title: item,
+  text: `Revisamos esta condicion con diagnostico tecnico antes de cotizar piezas o mano de obra.`,
+}));
+const whyUs = service.whyUs || [
+  { icon: 'fa-magnifying-glass', title: 'Diagnostico real', desc: 'Probamos la falla antes de recomendar cambios de piezas.' },
+  { icon: 'fa-file-shield', title: 'Cotizacion clara', desc: 'Te explicamos costo, alcance y tiempo antes de iniciar.' },
+  { icon: 'fa-shield-halved', title: 'Garantia por escrito', desc: 'Entregamos garantia sobre el trabajo realizado cuando aplica.' },
+];
+const process = service.process || [
+  { title: 'Recepcion', desc: 'Registramos equipo, sintomas, accesorios y datos de contacto.' },
+  { title: 'Diagnostico', desc: 'Revisamos hardware, software, conectores, humedad, desgaste o fallas visibles segun el caso.' },
+  { title: 'Cotizacion', desc: 'Te indicamos opciones, disponibilidad de refaccion y tiempo estimado.' },
+  { title: 'Pruebas y entrega', desc: 'Validamos funcionamiento antes de cerrar el ticket y entregar.' },
+];
+const compatible = service.compatibleBrands || category.brands || ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Xiaomi', 'Motorola', 'PlayStation', 'Xbox', 'Nintendo'];
+const risks = service.risks || [
+  { icon: 'fa-triangle-exclamation', title: 'Evita seguir usandolo si falla', text: 'Un equipo con corto, humedad, temperatura alta o reinicios puede empeorar si se fuerza.' },
+  { icon: 'fa-plug-circle-xmark', title: 'No conectes cargadores dudosos', text: 'Cargadores, cables o extensiones dañadas pueden provocar fallas electricas.' },
+  { icon: 'fa-screwdriver-wrench', title: 'No lo abras sin herramienta', text: 'Forzar clips, flex o conectores suele convertir una falla simple en una reparacion mas cara.' },
+];
+const warranties = service.warrantyPoints || [
+  'Garantia por escrito sobre la intervencion realizada.',
+  'Pruebas de funcionamiento antes de entregar.',
+  'Diagnostico claro si la falla viene de placa, humedad o piezas externas.',
+];
+const faqs = service.faqs || [];
+const ticketTitle = service.ticketTitle || `Crear ticket de ${service.label}`;
+const ticketSubtitle = service.ticketSubtitle || `Cuentanos modelo, sintomas y si hubo golpe, humedad, reinicios o reparacion previa. Te contactaremos para confirmar diagnostico y cotizacion.`;
+const relatedTitle = service.relatedTitle || `Servicios relacionados con ${service.label}`;
+const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', 'Puerto Cancun', 'Cumbres', 'Huayacan', 'Bonfil', 'Aeropuerto', 'Parque Industrial'];
+---
+
+<div class="sdv">
+  <section class="sdv-hero">
+    <div class="container sdv-hero-grid">
+      <div class="sdv-hero-copy">
+        <span class="sdv-eyebrow"><i class={`fa-solid ${category.icon}`}></i> {category.title} en Cancun</span>
+        <h1>{title}</h1>
+        <p>{hook}</p>
+        <div class="sdv-hero-actions">
+          <a href="#ticket" class="sdv-btn sdv-btn-primary"><i class="fa-solid fa-clipboard-list"></i> Crear ticket</a>
+          <a href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola, quiero cotizar ${service.label} en Cancun.`)}`} target="_blank" rel="noopener noreferrer" class="sdv-btn sdv-btn-secondary"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+        </div>
+      </div>
+      <aside class="sdv-hero-card">
+        <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
+        <span>Precio desde</span>
+        <div class="sdv-mini-list">
+          <p><i class="fa-solid fa-clock"></i> {service.eta || 'Tiempo segun diagnostico'}</p>
+          <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || 'Garantia por escrito'}</p>
+          <p><i class="fa-solid fa-location-dot"></i> Servicio local en Cancun</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <nav class="sdv-anchor-nav" aria-label="Navegacion de la pagina">
+    <div class="container">
+      <a href="#sintomas">Sintomas</a>
+      <a href="#diagnostico">Diagnostico</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#modelos">Modelos</a>
+      <a href="#garantia">Garantia</a>
+      {faqs.length > 0 && <a href="#faq">FAQ</a>}
+      <a href="#ubicacion">Contacto</a>
+    </div>
+  </nav>
+
+  <section class="sdv-section sdv-light" id="sintomas">
+    <div class="container">
+      <div class="sdv-section-head">
+        <span class="sdv-eyebrow-dark">Senales comunes</span>
+        <h2>Sintomas que revisamos antes de cotizar</h2>
+        <p>{description || `Si buscas ${keyword}, lo mas importante es confirmar la causa real antes de cambiar piezas.`}</p>
+      </div>
+      <div class="sdv-card-grid">
+        {symptoms.slice(0, 8).map((item: any) => (
+          <article class="sdv-card">
+            <i class={`fa-solid ${item.icon || 'fa-circle-exclamation'}`}></i>
+            <h3>{item.title || item}</h3>
+            <p>{item.text || 'Revisamos esta falla con pruebas reales y te explicamos el siguiente paso.'}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sdv-section sdv-dark" id="diagnostico">
+    <div class="container sdv-split">
+      <div>
+        <span class="sdv-eyebrow">Diagnostico tecnico</span>
+        <h2>No cambiamos piezas sin confirmar la falla</h2>
+        <p>Revisamos el equipo con pruebas funcionales, inspeccion fisica y contexto de uso. Si hay golpe, humedad, sobrecalentamiento, fallas previas o refacciones no compatibles, te lo explicamos antes de avanzar.</p>
+      </div>
+      <div class="sdv-proof-grid">
+        {whyUs.map((item: any) => (
+          <article>
+            <i class={`fa-solid ${item.icon || 'fa-check-circle'}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sdv-section sdv-light" id="proceso">
+    <div class="container">
+      <div class="sdv-section-head">
+        <span class="sdv-eyebrow-dark">Proceso</span>
+        <h2>Ruta de trabajo clara de inicio a entrega</h2>
+      </div>
+      <div class="sdv-process">
+        {process.map((item: any, index: number) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice={category.title}
+    defaultService={service.label}
+    sourcePage={servicePath}
+    title={ticketTitle}
+    subtitle={ticketSubtitle}
+  />
+
+  <section class="sdv-section sdv-light" id="modelos">
+    <div class="container sdv-split sdv-split-reverse">
+      <div>
+        <span class="sdv-eyebrow-dark">Compatibilidad</span>
+        <h2>Marcas y modelos que podemos revisar</h2>
+        <p>La disponibilidad de piezas depende del modelo exacto. Si no aparece tu marca, escribenos por WhatsApp y revisamos compatibilidad antes de mover tu equipo.</p>
+      </div>
+      <div class="sdv-tags">
+        {compatible.map((item: string) => <span>{item}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="sdv-section sdv-dark" id="riesgos">
+    <div class="container">
+      <div class="sdv-section-head sdv-section-head-dark">
+        <span class="sdv-eyebrow">Riesgos</span>
+        <h2>Cuando conviene revisar antes de seguir usando el equipo</h2>
+      </div>
+      <div class="sdv-card-grid">
+        {risks.map((item: any) => (
+          <article class="sdv-card sdv-card-dark">
+            <i class={`fa-solid ${item.icon || 'fa-triangle-exclamation'}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sdv-section sdv-light" id="garantia">
+    <div class="container sdv-split">
+      <div>
+        <span class="sdv-eyebrow-dark">Garantia y cobertura</span>
+        <h2>Servicio local con explicacion clara</h2>
+        <p>Atendemos en Cancun y coordinamos segun disponibilidad en zonas como {localZones.slice(0, 6).join(', ')} y alrededores.</p>
+      </div>
+      <ul class="sdv-check-list">
+        {warranties.map((item: string) => <li><i class="fa-solid fa-circle-check"></i>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title={relatedTitle}
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  {faqs.length > 0 && (
+    <FaqSection
+      id="faq"
+      title={`Preguntas frecuentes sobre ${service.label} en Cancun`}
+      description="Dudas comunes antes de diagnosticar, cotizar o reparar."
+      items={faqs}
+      viewMoreHref="/preguntas-frecuentes"
+      viewMoreLabel="Ver mas preguntas frecuentes"
+      backgroundColor="#F8FAFC"
+      questionColor="#0F2A4A"
+      titleColor="#0F2A4A"
+      descriptionColor="#475569"
+      itemGap="8px"
+      questionPadding="16px 18px"
+    />
+  )}
+
+  <CommentsSection viewMoreHref="/comentarios" viewMoreLabel="Ver todas las resenas" id="comentarios" />
+  <ContactSection id="ubicacion" />
+  <Footer />
+
+  <div class="sdv-mobile-cta" aria-label="Acciones rapidas">
+    <a href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola, quiero cotizar ${service.label} en Cancun.`)}`} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+    <a href="#ticket"><i class="fa-solid fa-clipboard-list"></i> Ticket</a>
+  </div>
+</div>
+
+<style>
+  .sdv {
+    background: #F8FAFC;
+    color: #0F2A4A;
+  }
+  .sdv-hero {
+    padding: 110px 0 58px;
+    background: radial-gradient(circle at 12% 18%, rgba(59,130,246,.26), transparent 30%), linear-gradient(135deg, #071425 0%, #0B2B54 54%, #0F3B5F 100%);
+    color: #F8FAFC;
+  }
+  .sdv-hero-grid,
+  .sdv-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+    gap: 28px;
+    align-items: center;
+  }
+  .sdv-hero h1,
+  .sdv-section h2 {
+    font-family: 'Kanit', sans-serif;
+    letter-spacing: 0;
+    margin: 0;
+  }
+  .sdv-hero h1 {
+    font-size: clamp(2.2rem, 5vw, 4.6rem);
+    line-height: .98;
+    max-width: 780px;
+  }
+  .sdv-hero p,
+  .sdv-dark p {
+    color: #DCEBFA;
+  }
+  .sdv-hero p {
+    max-width: 680px;
+    font-size: 1.08rem;
+    margin: 16px 0 0;
+  }
+  .sdv-eyebrow,
+  .sdv-eyebrow-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .sdv-eyebrow {
+    color: #BAE6FD;
+  }
+  .sdv-eyebrow-dark {
+    color: #1D4ED8;
+  }
+  .sdv-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .sdv-btn {
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+  .sdv-btn-primary {
+    background: #38BDF8;
+    color: #082F49;
+  }
+  .sdv-btn-secondary {
+    background: rgba(255,255,255,.08);
+    color: #F8FAFC;
+    border: 1px solid rgba(255,255,255,.22);
+  }
+  .sdv-hero-card,
+  .sdv-card,
+  .sdv-process article,
+  .sdv-proof-grid article {
+    border-radius: 8px;
+    border: 1px solid #D6E0EC;
+    background: #FFFFFF;
+    box-shadow: 0 18px 42px rgba(15,42,74,.08);
+  }
+  .sdv-hero-card {
+    padding: 24px;
+    color: #0F2A4A;
+  }
+  .sdv-hero-card strong {
+    display: block;
+    font-family: 'Kanit', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+  }
+  .sdv-hero-card span {
+    color: #64748B;
+    font-weight: 800;
+  }
+  .sdv-mini-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .sdv-mini-list p {
+    margin: 0;
+    color: #334155;
+    font-weight: 800;
+  }
+  .sdv-anchor-nav {
+    position: sticky;
+    top: 64px;
+    z-index: 20;
+    background: rgba(255,255,255,.92);
+    border-bottom: 1px solid #D6E0EC;
+    backdrop-filter: blur(10px);
+  }
+  .sdv-anchor-nav .container {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .sdv-anchor-nav a {
+    color: #0F2A4A;
+    text-decoration: none;
+    font-weight: 900;
+    border-radius: 8px;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+  .sdv-anchor-nav a:hover {
+    background: #EAF2FF;
+    color: #1D4ED8;
+  }
+  .sdv-section {
+    padding: 72px 0;
+  }
+  .sdv-light {
+    background: #F8FAFC;
+  }
+  .sdv-dark {
+    background: #0B1120;
+    color: #F8FAFC;
+  }
+  .sdv-section-head {
+    max-width: 780px;
+    margin-bottom: 30px;
+  }
+  .sdv-section-head h2,
+  .sdv-split h2 {
+    color: #0F2A4A;
+    font-size: clamp(1.8rem, 3vw, 2.55rem);
+    line-height: 1.05;
+  }
+  .sdv-section-head p,
+  .sdv-split p,
+  .sdv-card p,
+  .sdv-process p,
+  .sdv-proof-grid p {
+    color: #475569;
+  }
+  .sdv-section-head-dark h2 {
+    color: #F8FAFC;
+  }
+  .sdv-card-grid,
+  .sdv-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+  }
+  .sdv-card,
+  .sdv-proof-grid article {
+    padding: 22px;
+  }
+  .sdv-card i,
+  .sdv-proof-grid i {
+    color: #2563EB;
+    font-size: 1.45rem;
+    margin-bottom: 14px;
+  }
+  .sdv-card h3,
+  .sdv-process h3,
+  .sdv-proof-grid h3 {
+    color: #0F2A4A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.1rem;
+    margin: 0 0 8px;
+  }
+  .sdv-card p,
+  .sdv-process p,
+  .sdv-proof-grid p {
+    margin: 0;
+  }
+  .sdv-card-dark {
+    background: rgba(255,255,255,.04);
+    border-color: rgba(255,255,255,.12);
+    box-shadow: none;
+  }
+  .sdv-card-dark h3 {
+    color: #F8FAFC;
+  }
+  .sdv-card-dark p {
+    color: #CBD5E1;
+  }
+  .sdv-process {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .sdv-process article {
+    padding: 22px;
+  }
+  .sdv-process span {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #EAF2FF;
+    color: #1D4ED8;
+    font-weight: 900;
+    margin-bottom: 14px;
+  }
+  .sdv-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .sdv-tags span {
+    background: #FFFFFF;
+    border: 1px solid #D6E0EC;
+    border-radius: 999px;
+    color: #0F2A4A;
+    font-weight: 900;
+    padding: 9px 12px;
+  }
+  .sdv-check-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .sdv-check-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #FFFFFF;
+    border: 1px solid #D6E0EC;
+    border-radius: 8px;
+    padding: 14px;
+    color: #0F2A4A;
+    font-weight: 800;
+  }
+  .sdv-check-list i {
+    color: #16A34A;
+    margin-top: 3px;
+  }
+  .sdv-mobile-cta {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .sdv-hero-grid,
+    .sdv-split {
+      grid-template-columns: 1fr;
+    }
+    .sdv-hero {
+      padding-top: 96px;
+    }
+    .sdv-section {
+      padding: 54px 0;
+    }
+  }
+  @media (max-width: 680px) {
+    .sdv-hero-actions {
+      display: grid;
+    }
+    .sdv-mobile-cta {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .sdv-mobile-cta a {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #FFFFFF;
+      background: #1D4ED8;
+      font-weight: 900;
+      box-shadow: 0 14px 28px rgba(15,23,42,.24);
+    }
+    .sdv-mobile-cta a:first-child {
+      background: #16A34A;
+    }
+  }
+</style>

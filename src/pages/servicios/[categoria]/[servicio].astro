@@ -22,6 +22,7 @@ import IphoneSpeakerRepairView from '../../../components/views/IphoneSpeakerRepa
 import IphoneDiagnosticView from '../../../components/views/IphoneDiagnosticView.astro';
 import IphoneButtonsRepairView from '../../../components/views/IphoneButtonsRepairView.astro';
 import IphoneMicrophoneRepairView from '../../../components/views/IphoneMicrophoneRepairView.astro';
+import ServiceDetailView from '../../../components/views/ServiceDetailView.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
 import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
@@ -78,6 +79,20 @@ const isIphoneDiagnostic = category.slug === 'telefono' && service.slug === 'dia
 const isIphoneButtonsRepair = category.slug === 'telefono' && service.slug === 'reparacion-botones-iphone';
 const isIphoneMicrophoneRepair = category.slug === 'telefono' && service.slug === 'reparacion-microfono-iphone';
 const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
+const usesLegacyInlineServiceView =
+  isLaptopScreenReplacement ||
+  isLaptopKeyboardReplacement ||
+  isPcFormat ||
+  isPcUpgrade ||
+  isPrinterService ||
+  isConsoleCleaning ||
+  isConsoleHdmi ||
+  isPhoneSpeakerRepair ||
+  isPhoneScreenReplacement ||
+  isPhoneSoftwareUnlock ||
+  isPhoneFlexButtons ||
+  isPhoneDiagnostic;
+const useServiceDetailView = !usesLegacyInlineServiceView;
 // SEO LOCAL H1 / TITLE
 const seoKeyword = service.seoKeyword || service.label;
 const seoTitle = isPcFormat
@@ -405,8 +420,8 @@ const pcFormatFaqs = [
   { question: `¿Cuánto tarda el formateo de una PC?`, answer: `Normalmente toma de <strong>2 a 4 horas</strong>, dependiendo del estado del disco, velocidad del equipo, cantidad de archivos a respaldar y actualizaciones necesarias. Si el disco es mecánico o tiene errores, puede tardar más.` },
   { question: `¿Pierdo mis archivos al formatear?`, answer: `No necesariamente. Antes de borrar el sistema revisamos contigo qué archivos necesitas conservar y hacemos respaldo de la información importante. Si el disco está dañado o Windows no permite acceso normal, primero te avisamos.` },
   { question: `¿Instalan Windows 10 o Windows 11?`, answer: `Sí. Instalamos Windows 10 o Windows 11 según compatibilidad, requisitos del equipo y uso que le darás. No forzamos una versión que pueda dejar la PC lenta o inestable; te explicamos cuál conviene.` },
-  { question: `?Incluye drivers?`, answer: `Sí. Instalamos drivers esenciales como red, audio, video, chipset, touchpad y otros controladores necesarios. La idea es que el equipo quede usable desde el primer arranque, sin depender de drivers gen?ricos cuando requiere uno espec?fico.` },
-  { question: `?Incluye Office?`, answer: `Podemos instalar Office si cuentas con licencia o una alternativa como LibreOffice si necesitas paquetería básica. También podemos dejar navegador, lector PDF, compresor y herramientas esenciales para trabajo o escuela.` },
+  { question: `¿Incluye drivers?`, answer: `Sí. Instalamos drivers esenciales como red, audio, video, chipset, touchpad y otros controladores necesarios. La idea es que el equipo quede usable desde el primer arranque, sin depender de drivers genéricos cuando requiere uno específico.` },
+  { question: `¿Incluye Office?`, answer: `Podemos instalar Office si cuentas con licencia o una alternativa como LibreOffice si necesitas paquetería básica. También podemos dejar navegador, lector PDF, compresor y herramientas esenciales para trabajo o escuela.` },
   { question: `¿El formateo quita virus?`, answer: `Sí, una instalación limpia elimina la mayoría de virus, programas dañinos y configuraciones alteradas. Antes revisamos si la lentitud viene solo de software o si hay disco dañado, poca RAM o temperatura alta.` },
   { question: `¿Pueden formatear una laptop también?`, answer: `Sí. También realizamos formateo de laptop en Cancún con respaldo, Windows, drivers y optimización inicial. En laptops revisamos batería, temperatura y estado del disco cuando el síntoma principal es lentitud o apagados.` },
   { question: `¿Qué pasa si mi disco está dañado?`, answer: `Si detectamos fallas en el disco, te avisamos antes de instalar Windows. En algunos casos conviene cambiar a SSD, clonar si todavía se puede o hacer recuperaci?n de información primero para evitar perder archivos.` },
@@ -590,6 +605,8 @@ const pageSchema = [
     <IphoneMicrophoneRepairView service={service} category={category} />
   ) : service.slug === 'cambio-bateria' ? (
     <CambioBateriaView service={service} category={category} />
+  ) : useServiceDetailView ? (
+    <ServiceDetailView service={service} category={category} description={description} />
   ) : (
     <div class={`theme-premium-dark ${isPrinterService ? 'printer-service-shell' : ''} ${isPcFormat ? 'pc-format-shell' : ''}`}>
       <!-- 1. HERO SECTION (Dark Premium) -->
@@ -2827,7 +2844,7 @@ const pageSchema = [
                 ['Windows 10', 'Recomendado para equipos que necesitan estabilidad, compatibilidad y buen rendimiento.'],
                 ['Windows 11', 'Ideal para equipos compatibles que cumplen los requisitos de seguridad y rendimiento.'],
                 ['Drivers correctos', 'No dejamos el equipo con controladores genéricos si requiere drivers específicos del fabricante.'],
-                ['Activación y licencia', 'Si ya cuentas con licencia digital, la configuramos. Si no, te orientamos para usar una licencia vávalida.'],
+                ['Activación y licencia', 'Si ya cuentas con licencia digital, la configuramos. Si no, te orientamos para usar una licencia válida.'],
               ].map(([title, text]) => <article><h3>{title}</h3><p>{text}</p></article>)}
             </div>
           </div>
