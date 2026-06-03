@@ -42,6 +42,9 @@ const {
   itemGap = '16px',
   questionPadding = '24px',
 } = Astro.props;
+
+const isNetworkFaq = sectionClass.split(' ').includes('sdv-network-faq');
+const networkFaqTextStyle = isNetworkFaq ? 'color:#0F2A4A;' : undefined;
 ---
 
 <section class={`section-padding faq-page-content ${sectionClass}`} id={id} aria-label={ariaLabel} style={`background:${backgroundColor}; --faq-question-color:${questionColor}; --faq-item-gap:${itemGap}; --faq-question-padding:${questionPadding}; padding: 60px 0;`}>
@@ -54,15 +57,15 @@ const {
     <div class={`faq-page-grid ${gridClass}`}>
       {items.map((item, index) => (
         <div class="faq-item" id={`faq-${id || 'section'}-${index}`}>
-          <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-            <span>
+          <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)" style={networkFaqTextStyle}>
+            <span style={networkFaqTextStyle}>
               {item.icon && <i class={`${item.icon} faq-q-icon`}></i>}
               {item.question}
             </span>
-            <i class="fa-solid fa-chevron-down faq-chevron"></i>
+            <i class="fa-solid fa-chevron-down faq-chevron" style={networkFaqTextStyle}></i>
           </button>
           <div class="faq-answer" aria-hidden="true">
-            <div class="faq-answer-inner" set:html={item.answer}></div>
+            <div class="faq-answer-inner" style={networkFaqTextStyle} set:html={item.answer}></div>
           </div>
         </div>
       ))}
@@ -172,6 +175,15 @@ const {
   }
   .faq-item--open .faq-chevron {
     transform: rotate(180deg);
+  }
+  .sdv-network-faq .faq-item {
+    border: 1px solid rgba(15, 42, 74, 0.22);
+    box-shadow: 0 4px 14px rgba(15, 42, 74, 0.08);
+  }
+  .sdv-network-faq .faq-item:hover,
+  .sdv-network-faq .faq-item--open {
+    border-color: rgba(15, 42, 74, 0.32);
+    box-shadow: 0 6px 18px rgba(15, 42, 74, 0.1);
   }
   .faq-answer {
     max-height: 0;

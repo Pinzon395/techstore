@@ -9,15 +9,97 @@ import Footer from '../Footer.astro';
 const { service, category, description = '' } = Astro.props;
 
 const servicePath = `/servicios/${category.slug}/${service.slug}`;
+const isMacBookRepair = category.slug === 'mac' && service.slug === 'reparacion-macbook';
+const isMacDiagnostic = category.slug === 'mac' && service.slug === 'diagnostico-mac';
+const isMacPremiumView = isMacBookRepair || isMacDiagnostic;
+const isNetworkService = category.slug === 'redes';
+const isWifiSlowService = category.slug === 'redes' && service.slug === 'wifi-lento';
+const wifiSlowExtraSections = [
+  {
+    id: 'wifi-medicion',
+    eyebrow: 'Medicion real',
+    title: 'No adivinamos: medimos velocidad WiFi por zona',
+    copy: 'Revisamos descarga, subida, latencia, estabilidad y diferencia entre velocidad por cable y velocidad por WiFi. Asi sabemos si el problema viene del proveedor, del router, de la cobertura o de equipos saturando la red.',
+    icon: 'fa-gauge-high',
+    points: ['Prueba por cable y por WiFi', 'Latencia y cortes intermitentes', 'Zonas lentas dentro de casa u oficina'],
+  },
+  {
+    id: 'wifi-router',
+    eyebrow: 'Router y modem',
+    title: 'Router saturado, mal ubicado o con canales incorrectos',
+    copy: 'Muchos casos de WiFi lento en Cancun se resuelven revisando el modem, el router, la potencia, los canales, el DHCP, la ubicacion y la cantidad de dispositivos conectados.',
+    icon: 'fa-server',
+    points: ['Canal 2.4 GHz y 5 GHz', 'Capacidad real del router', 'Ubicacion y ventilacion del equipo'],
+  },
+  {
+    id: 'wifi-cobertura',
+    eyebrow: 'Cobertura',
+    title: 'Detectamos puntos muertos y zonas con senal debil',
+    copy: 'Mapeamos habitaciones, oficinas, terrazas, recepciones, pasillos y areas donde se cae la conexion. No recomendamos repetidores hasta saber donde se pierde la senal.',
+    icon: 'fa-wifi',
+    points: ['Muros, distancia y pisos', 'Zonas sin senal estable', 'Ubicacion ideal de puntos de acceso'],
+  },
+  {
+    id: 'wifi-interferencia',
+    eyebrow: 'Interferencia',
+    title: 'Identificamos saturacion por vecinos, equipos y ruido',
+    copy: 'En zonas con muchos departamentos, oficinas o locales, las redes cercanas pueden saturar canales. Revisamos interferencia, dispositivos Bluetooth, camaras, microondas y equipos que afectan la senal.',
+    icon: 'fa-tower-broadcast',
+    points: ['Canales congestionados', 'Redes cercanas compitiendo', 'Ruido e interferencia local'],
+  },
+  {
+    id: 'wifi-mesh',
+    eyebrow: 'Mesh y repetidores',
+    title: 'Repetidor mal puesto puede empeorar tu internet',
+    copy: 'Si necesitas mas alcance, definimos si conviene Mesh, repetidor, punto de acceso cableado o reubicacion del router. El objetivo es estabilidad, no solo ver mas rayitas de senal.',
+    icon: 'fa-signal',
+    points: ['Mesh para casas grandes', 'Repetidores bien ubicados', 'Backhaul cableado cuando conviene'],
+  },
+  {
+    id: 'wifi-cableado',
+    eyebrow: 'Cableado',
+    title: 'Probamos Ethernet, switches y puntos de red',
+    copy: 'Cuando el WiFi esta lento pero el internet por cable tambien falla, revisamos conectores, patch cords, switches, puertos y rutas de cableado antes de culpar al router.',
+    icon: 'fa-network-wired',
+    points: ['Prueba por tramo', 'Switches y puertos', 'PCs, impresoras y equipos fijos'],
+  },
+  {
+    id: 'wifi-seguridad',
+    eyebrow: 'Seguridad basica',
+    title: 'Ordenamos claves, invitados y equipos conectados',
+    copy: 'Una red abierta, compartida sin control o con demasiados equipos puede volverse lenta e insegura. Podemos separar invitados, cambiar claves y revisar accesos basicos.',
+    icon: 'fa-shield-halved',
+    points: ['Red de invitados', 'Claves bajo control', 'Equipos desconocidos conectados'],
+  },
+  {
+    id: 'wifi-cancun',
+    eyebrow: 'Servicio local',
+    title: 'WiFi lento en Cancun para casa, oficina y negocio',
+    copy: 'Atendemos Cancun Centro, Zona Hotelera, Huayacan, Cumbres, Bonampak, Puerto Cancun, Aeropuerto y alrededores. Revisamos la red en el lugar donde realmente falla.',
+    icon: 'fa-map-location-dot',
+    points: ['Casas y departamentos', 'Oficinas y consultorios', 'Restaurantes, hoteles pequenos y locales'],
+  },
+];
 const keyword = service.seoKeyword || service.label;
 const title = service.h1 || keyword;
 const hook = service.hook || service.intro || `Servicio tecnico de ${service.label} para ${category.title} en Cancun.`;
 const bullets = Array.isArray(service.bullets) ? service.bullets : [];
-const symptoms = service.symptoms || service.commonSymptoms || bullets.map((item: string) => ({
-  icon: 'fa-circle-exclamation',
-  title: item,
-  text: `Revisamos esta condicion con diagnostico tecnico antes de cotizar piezas o mano de obra.`,
-}));
+const rawSymptoms = service.symptoms || service.commonSymptoms || service.commonProblems || bullets;
+const symptoms = rawSymptoms.map((item: any) => {
+  if (typeof item === 'string') {
+    return {
+      icon: 'fa-circle-exclamation',
+      title: item,
+      text: 'Revisamos esta condicion con diagnostico tecnico antes de cotizar piezas o mano de obra.',
+    };
+  }
+
+  return {
+    icon: item.icon || 'fa-circle-exclamation',
+    title: item.title || item.problem || 'Sintoma a revisar',
+    text: item.text || item.solution || item.desc || 'Revisamos esta falla con pruebas reales y te explicamos el siguiente paso.',
+  };
+});
 const whyUs = service.whyUs || [
   { icon: 'fa-magnifying-glass', title: 'Diagnostico real', desc: 'Probamos la falla antes de recomendar cambios de piezas.' },
   { icon: 'fa-file-shield', title: 'Cotizacion clara', desc: 'Te explicamos costo, alcance y tiempo antes de iniciar.' },
@@ -30,36 +112,91 @@ const process = service.process || [
   { title: 'Pruebas y entrega', desc: 'Validamos funcionamiento antes de cerrar el ticket y entregar.' },
 ];
 const compatible = service.compatibleBrands || category.brands || ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Apple', 'Samsung', 'Xiaomi', 'Motorola', 'PlayStation', 'Xbox', 'Nintendo'];
-const risks = service.risks || [
+const riskPresets: Record<string, { icon: string; title: string; text: string }[]> = {
+  mac: [
+    { icon: 'fa-plug-circle-xmark', title: 'No sigas cargando si hay falla', text: 'Si tu MacBook no carga, se calienta, huele raro o tuvo liquido, conectarla puede agravar placa, bateria o puerto USB-C/MagSafe.' },
+    { icon: 'fa-database', title: 'Cuida tus archivos primero', text: 'Antes de reinstalar macOS o borrar usuario, revisamos si conviene respaldar o recuperar datos importantes.' },
+    { icon: 'fa-screwdriver-wrench', title: 'Evita abrirla sin herramienta', text: 'Los flex, conectores, tornillos y adhesivos de Mac son delicados; forzarlos puede elevar mucho el costo.' },
+  ],
+  redes: [
+    { icon: 'fa-wifi', title: 'No agregues repetidores a ciegas', text: 'Un repetidor mal ubicado puede empeorar velocidad y estabilidad. Primero medimos cobertura, saturacion y distancia.' },
+    { icon: 'fa-lock', title: 'No compartas claves sin control', text: 'Redes sin segmentacion pueden exponer equipos, impresoras y archivos de oficina. Revisamos seguridad basica antes de dejarla operando.' },
+    { icon: 'fa-network-wired', title: 'Evita cableado improvisado', text: 'Cables, switches o conectores defectuosos causan cortes dificiles de detectar si no se prueban por tramo.' },
+  ],
+};
+const risks = service.risks || riskPresets[category.slug] || [
   { icon: 'fa-triangle-exclamation', title: 'Evita seguir usandolo si falla', text: 'Un equipo con corto, humedad, temperatura alta o reinicios puede empeorar si se fuerza.' },
-  { icon: 'fa-plug-circle-xmark', title: 'No conectes cargadores dudosos', text: 'Cargadores, cables o extensiones dañadas pueden provocar fallas electricas.' },
+  { icon: 'fa-plug-circle-xmark', title: 'No conectes cargadores dudosos', text: 'Cargadores, cables o extensiones danadas pueden provocar fallas electricas.' },
   { icon: 'fa-screwdriver-wrench', title: 'No lo abras sin herramienta', text: 'Forzar clips, flex o conectores suele convertir una falla simple en una reparacion mas cara.' },
 ];
-const warranties = service.warrantyPoints || [
+const warrantyPresets: Record<string, string[]> = {
+  mac: [
+    'Garantia por escrito sobre la pieza o intervencion realizada cuando aplica.',
+    'Pruebas de carga, temperatura, pantalla, teclado, puertos y macOS antes de entregar.',
+    'Diagnostico claro si la falla viene de bateria, pantalla, humedad, almacenamiento, sistema o placa.',
+  ],
+  redes: [
+    'Configuracion documentada de router, red WiFi, IP, impresora o equipos conectados cuando aplica.',
+    'Pruebas de cobertura, velocidad, conexion y estabilidad antes de cerrar la visita.',
+    'Recomendaciones claras si conviene mejorar router, mesh, cableado o separar red de invitados.',
+  ],
+};
+const warranties = service.warrantyPoints || warrantyPresets[category.slug] || [
   'Garantia por escrito sobre la intervencion realizada.',
   'Pruebas de funcionamiento antes de entregar.',
   'Diagnostico claro si la falla viene de placa, humedad o piezas externas.',
 ];
 const faqs = service.faqs || [];
 const ticketTitle = service.ticketTitle || `Crear ticket de ${service.label}`;
-const ticketSubtitle = service.ticketSubtitle || `Cuentanos modelo, sintomas y si hubo golpe, humedad, reinicios o reparacion previa. Te contactaremos para confirmar diagnostico y cotizacion.`;
+const ticketSubtitle = service.ticketSubtitle || (
+  category.slug === 'redes'
+    ? 'Cuentanos zona de Cancun, proveedor de internet, modelo de router, cantidad de equipos y donde falla la senal. Te contactaremos para confirmar visita o diagnostico.'
+    : category.slug === 'mac'
+    ? 'Cuentanos modelo de Mac, ano aproximado, sintomas, si hubo liquido, golpe, reinicios o reparacion previa. Te contactaremos para confirmar diagnostico y cotizacion.'
+    : 'Cuentanos modelo, sintomas y si hubo golpe, humedad, reinicios o reparacion previa. Te contactaremos para confirmar diagnostico y cotizacion.'
+);
 const relatedTitle = service.relatedTitle || `Servicios relacionados con ${service.label}`;
 const localZones = ['Zona Hotelera', 'Cancun Centro', 'Av. Tulum', 'Bonampak', 'Puerto Cancun', 'Cumbres', 'Huayacan', 'Bonfil', 'Aeropuerto', 'Parque Industrial'];
 const localZoneCopy = `Atendemos clientes de ${localZones.slice(0, 5).join(', ')}, ${localZones.slice(5).join(', ')} y otras zonas de Quintana Roo.`;
+const diagnosticCopy = category.slug === 'redes'
+  ? 'Revisamos cobertura, velocidad, interferencia, ubicacion del router, cableado, IP, equipos conectados y seguridad basica. Si la falla requiere visita, te explicamos alcance antes de mover configuraciones.'
+  : category.slug === 'mac'
+  ? 'Revisamos el equipo por modelo exacto, energia, bateria, pantalla, teclado, trackpad, puertos USB-C o MagSafe, temperatura, almacenamiento, macOS y antecedentes de liquido o golpes antes de cotizar.'
+  : 'Revisamos el equipo con pruebas funcionales, inspeccion fisica y contexto de uso. Si hay golpe, humedad, sobrecalentamiento, fallas previas o refacciones no compatibles, te lo explicamos antes de avanzar.';
+const compatibilityTitle = category.slug === 'redes'
+  ? 'Equipos, espacios y configuraciones que podemos revisar'
+  : category.slug === 'mac'
+  ? 'Modelos Mac que podemos revisar'
+  : 'Marcas y modelos que podemos revisar';
+const compatibilityCopy = category.slug === 'redes'
+  ? 'La solucion depende del espacio, proveedor, router, muros, cantidad de usuarios y equipos conectados. Revisamos compatibilidad antes de cambiar hardware o mover configuraciones.'
+  : category.slug === 'mac'
+  ? 'La disponibilidad de piezas depende del modelo exacto, ano, chip y numero de parte. Si no aparece tu modelo, escribenos por WhatsApp y confirmamos compatibilidad.'
+  : 'La disponibilidad de piezas depende del modelo exacto. Si no aparece tu marca, escribenos por WhatsApp y revisamos compatibilidad antes de mover tu equipo.';
+const localUseTitle = category.slug === 'redes'
+  ? 'Redes pensadas para casas, oficinas y negocios en Cancun'
+  : category.slug === 'mac'
+  ? 'Servicio Mac pensado para el uso real en Cancun'
+  : 'Reparacion pensada para el uso real en Cancun';
+const localUseCopy = category.slug === 'redes'
+  ? 'Los muros, la distancia, la saturacion, los equipos conectados, las impresoras en red y los proveedores de internet cambian la solucion correcta. Por eso revisamos el sitio antes de recomendar mesh, cableado o configuracion.'
+  : category.slug === 'mac'
+  ? 'El calor, la humedad, el polvo, el salitre, los apagones y el uso intensivo afectan bateria, temperatura, puertos, teclado, almacenamiento y placa. Por eso revisamos sintomas, historial y urgencia antes de recomendar piezas.'
+  : 'El calor, la humedad, el polvo, el salitre, los apagones y el uso intensivo cambian la forma correcta de diagnosticar un equipo. Por eso revisamos sintomas, historial, zona de uso y urgencia antes de recomendar refacciones.';
 
 const imageByCategory: Record<string, string> = {
   pc: '/assets/images/mantenimiento-pc-escritorio.webp',
   laptop: '/assets/images/laptop-feliz-limpia.webp',
   telefono: '/assets/images/lavado-tarjeta-celular.webp',
+  mac: '/assets/images/mac-mini.webp',
   consola: '/assets/images/ps5_xbox.webp',
   impresora: '/assets/images/reparacion-impresoras-cancun.webp',
   b2b: '/assets/images/mac-mini.webp',
-  tablet: '/assets/images/iphone-desarmado-2.webp',
-  monitor: '/assets/images/mantenimiento-pc-escritorio.webp',
-  redes: '/assets/images/mac-mini.webp',
+  redes: '/assets/images/mantenimiento-pc-escritorio.webp',
 };
 
 const imageRules: Array<{ match: RegExp; image: string }> = [
+  { match: /(mac|macbook|imac|mac-mini|macos)/, image: '/assets/images/mac-mini.webp' },
   { match: /(pantalla-iphone|pantalla-samsung|pantalla|display)/, image: '/assets/images/pantalla-rota-iphone.webp' },
   { match: /(iphone|face-id|camara|lente|tapa|senal|wifi|bluetooth|software)/, image: '/assets/images/iphone-desarmado-2.webp' },
   { match: /(humedad|mojado|placa|microfono|bocina|carga|flex)/, image: '/assets/images/microscopio-flexor.webp' },
@@ -68,8 +205,6 @@ const imageRules: Array<{ match: RegExp; image: string }> = [
   { match: /(laptop|teclado|bateria|thermal|pasta|bisagra)/, image: '/assets/images/laptop-gamer-rogstrix.webp' },
   { match: /(ps5|xbox|switch|consola|hdmi|drift)/, image: '/assets/images/ps5_xbox.webp' },
   { match: /(impresora|toner|tinta|rodillo)/, image: '/assets/images/reparacion-impresoras-cancun.webp' },
-  { match: /(ipad|tablet|tab)/, image: '/assets/images/iphone-desarmado-2.webp' },
-  { match: /(monitor|display|hdmi-monitor)/, image: '/assets/images/mantenimiento-pc-escritorio.webp' },
   { match: /(wifi|red|router|mesh|cableado)/, image: '/assets/images/mac-mini.webp' },
 ];
 
@@ -91,6 +226,15 @@ function getServiceImage() {
     return imageByCategory.pc;
   }
 
+  if (category.slug === 'mac') {
+    if (/(mantenimiento|teclado|pantalla|bateria|liquido|macbook)/.test(service.slug)) return '/assets/images/mantenimiento-macbook-cancun.webp';
+    return imageByCategory.mac;
+  }
+
+  if (category.slug === 'redes') {
+    return imageByCategory.redes;
+  }
+
   return imageRules.find((rule) => rule.match.test(key))?.image || imageByCategory[category.slug] || '/assets/images/reparacion-mac-cancun.webp';
 }
 
@@ -98,13 +242,49 @@ const serviceImage = getServiceImage();
 const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
 ---
 
-<div class={`sdv sdv-category-${category.slug}`}>
+<div class={`sdv sdv-category-${category.slug} ${isMacBookRepair ? 'sdv-macbook-repair' : ''} ${isMacDiagnostic ? 'sdv-mac-diagnostic' : ''} ${isNetworkService ? 'sdv-network-service' : ''}`}>
   <section class="sdv-hero">
     <div class="container sdv-hero-grid">
       <div class="sdv-hero-copy">
         <span class="sdv-eyebrow"><i class={`fa-solid ${category.icon}`}></i> {category.title} en Cancun</span>
         <h1>{title}</h1>
         <p>{hook}</p>
+        {(isMacPremiumView || isNetworkService) && (
+          <>
+            <div class="sdv-macbook-tags" aria-label={isNetworkService ? 'Servicios frecuentes de redes' : 'Fallas frecuentes de MacBook'}>
+              {isMacDiagnostic ? (
+                <>
+                  <span><i class="fa-solid fa-circle-check"></i>Gratis</span>
+                  <span><i class="fa-solid fa-power-off"></i>No prende</span>
+                  <span><i class="fa-solid fa-gauge-high"></i>Lenta</span>
+                  <span><i class="fa-solid fa-display"></i>Pantalla</span>
+                  <span><i class="fa-solid fa-database"></i>Datos</span>
+                </>
+              ) : isNetworkService ? (
+                <>
+                  <span><i class="fa-solid fa-wifi"></i>WiFi lento</span>
+                  <span><i class="fa-solid fa-server"></i>Router</span>
+                  <span><i class="fa-solid fa-network-wired"></i>Ethernet</span>
+                  <span><i class="fa-solid fa-print"></i>Impresoras</span>
+                  <span><i class="fa-solid fa-signal"></i>Mesh</span>
+                </>
+              ) : (
+                <>
+                  <span><i class="fa-solid fa-power-off"></i>No prende</span>
+                  <span><i class="fa-solid fa-plug-circle-xmark"></i>No carga</span>
+                  <span><i class="fa-solid fa-keyboard"></i>Teclado</span>
+                  <span><i class="fa-solid fa-display"></i>Pantalla</span>
+                  <span><i class="fa-solid fa-droplet"></i>Humedad</span>
+                </>
+              )}
+            </div>
+            <div class="sdv-macbook-stats" aria-label="Resumen del servicio">
+              <span><strong>{service.fromPrice || (isMacDiagnostic ? 'Gratis' : '$650 MXN')}</strong>{isNetworkService ? 'Visita desde' : isMacDiagnostic ? 'Diagnostico inicial' : 'Diagnostico desde'}</span>
+              <span><strong>{service.eta || (isMacDiagnostic ? '24-48 h' : '24-72 h')}</strong>{isNetworkService ? 'Segun sitio' : isMacDiagnostic ? 'Revision comun' : 'Tiempo comun'}</span>
+              <span><strong>{isNetworkService ? 'Casa / negocio' : isMacDiagnostic ? 'Mac completa' : 'Air / Pro'}</strong>{isNetworkService ? 'Router, WiFi, cableado' : isMacDiagnostic ? 'Hardware, macOS y datos' : 'Intel, M1, M2, M3'}</span>
+            </div>
+          </>
+        )}
         <div class="sdv-hero-actions">
           <a href="#ticket" class="sdv-btn sdv-btn-primary"><i class="fa-solid fa-clipboard-list"></i> Crear ticket</a>
           <a href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola, quiero cotizar ${service.label} en Cancun.`)}`} target="_blank" rel="noopener noreferrer" class="sdv-btn sdv-btn-secondary"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
@@ -112,7 +292,31 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       </div>
       <aside class="sdv-hero-card">
         <div class="sdv-hero-media">
-          <img src={serviceImage} alt={serviceImageAlt} loading="eager" decoding="async" fetchpriority="high" />
+          {isNetworkService ? (
+            <div class="sdv-network-visual" role="img" aria-label={serviceImageAlt}>
+              <div class="sdv-network-rings">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="sdv-network-router">
+                <i class="fa-solid fa-wifi"></i>
+                <strong>{service.slug === 'wifi-lento' ? 'WiFi' : service.slug === 'cableado-red' ? 'LAN' : service.slug === 'impresora-red' ? 'PRINT' : 'NET'}</strong>
+              </div>
+              <div class="sdv-network-node node-a"><i class="fa-solid fa-laptop"></i></div>
+              <div class="sdv-network-node node-b"><i class="fa-solid fa-mobile-screen-button"></i></div>
+              <div class="sdv-network-node node-c"><i class="fa-solid fa-print"></i></div>
+              <div class="sdv-network-node node-d"><i class="fa-solid fa-network-wired"></i></div>
+            </div>
+          ) : (
+            <img src={serviceImage} alt={serviceImageAlt} loading="eager" decoding="async" fetchpriority="high" />
+          )}
+          {(isMacPremiumView || isNetworkService) && (
+            <div class="sdv-macbook-media-badge">
+              <i class={`fa-solid ${isNetworkService ? 'fa-wifi' : isMacDiagnostic ? 'fa-circle-check' : 'fa-screwdriver-wrench'}`}></i>
+              {isNetworkService ? 'Medicion de cobertura' : isMacDiagnostic ? 'Diagnostico gratis' : 'Diagnostico por modulo'}
+            </div>
+          )}
         </div>
         <div class="sdv-hero-card-body">
           <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
@@ -125,6 +329,32 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
         </div>
       </aside>
     </div>
+    {(isMacPremiumView || isNetworkService) && (
+      <div class="container sdv-macbook-rail" aria-label={isNetworkService ? 'Puntos de revision de red' : 'Puntos de revision MacBook'}>
+        {isMacDiagnostic ? (
+          <>
+            <span><i class="fa-solid fa-bolt"></i>Energia, USB-C y MagSafe</span>
+            <span><i class="fa-solid fa-laptop-code"></i>macOS, arranque y sistema</span>
+            <span><i class="fa-solid fa-temperature-arrow-up"></i>Temperatura y rendimiento</span>
+            <span><i class="fa-solid fa-database"></i>Datos, SSD y respaldo</span>
+          </>
+        ) : isNetworkService ? (
+          <>
+            <span><i class="fa-solid fa-gauge-high"></i>Velocidad real por zona</span>
+            <span><i class="fa-solid fa-server"></i>Router, modem y canales</span>
+            <span><i class="fa-solid fa-signal"></i>Repetidores, Mesh y cobertura</span>
+            <span><i class="fa-solid fa-network-wired"></i>Cableado, switches e IP</span>
+          </>
+        ) : (
+          <>
+            <span><i class="fa-solid fa-bolt"></i>Energia, USB-C y MagSafe</span>
+            <span><i class="fa-solid fa-keyboard"></i>Teclado, trackpad y top case</span>
+            <span><i class="fa-solid fa-battery-quarter"></i>Bateria, ciclos y consumo</span>
+            <span><i class="fa-solid fa-microchip"></i>Placa, humedad y temperatura</span>
+          </>
+        )}
+      </div>
+    )}
   </section>
 
   <nav class="sdv-anchor-nav" aria-label="Navegacion de la pagina">
@@ -163,7 +393,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       <div>
         <span class="sdv-eyebrow">Diagnostico tecnico</span>
         <h2>No cambiamos piezas sin confirmar la falla</h2>
-        <p>Revisamos el equipo con pruebas funcionales, inspeccion fisica y contexto de uso. Si hay golpe, humedad, sobrecalentamiento, fallas previas o refacciones no compatibles, te lo explicamos antes de avanzar.</p>
+        <p>{diagnosticCopy}</p>
       </div>
       <div class="sdv-proof-grid">
         {whyUs.map((item: any) => (
@@ -208,8 +438,8 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     <div class="container sdv-split sdv-split-reverse">
       <div>
         <span class="sdv-eyebrow-dark">Compatibilidad</span>
-        <h2>Marcas y modelos que podemos revisar</h2>
-        <p>La disponibilidad de piezas depende del modelo exacto. Si no aparece tu marca, escribenos por WhatsApp y revisamos compatibilidad antes de mover tu equipo.</p>
+        <h2>{compatibilityTitle}</h2>
+        <p>{compatibilityCopy}</p>
       </div>
       <div class="sdv-tags">
         {compatible.map((item: string) => <span>{item}</span>)}
@@ -252,14 +482,49 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     <div class="container sdv-split">
       <div>
         <span class="sdv-eyebrow-dark">Cancun y alrededores</span>
-        <h2>Reparacion pensada para el uso real en Cancun</h2>
-        <p>El calor, la humedad, el polvo, el salitre, los apagones y el uso intensivo cambian la forma correcta de diagnosticar un equipo. Por eso revisamos sintomas, historial, zona de uso y urgencia antes de recomendar refacciones.</p>
+        <h2>{localUseTitle}</h2>
+        <p>{localUseCopy}</p>
       </div>
       <div class="sdv-zone-grid" aria-label="Zonas de servicio en Cancun">
         {localZones.map((zone: string) => <span><i class="fa-solid fa-location-dot"></i>{zone}</span>)}
       </div>
     </div>
   </section>
+
+  {isWifiSlowService && (
+    <section class="wifi-slow-extra" id="wifi-lento-cancun">
+      <div class="container">
+        <div class="wifi-slow-extra-head">
+          <span>Diagnostico WiFi profesional en Cancun</span>
+          <h2>Ocho revisiones clave para corregir WiFi lento de verdad</h2>
+          <p>
+            Antes de comprar repetidores, cambiar de compania o mover configuraciones a ciegas,
+            revisamos la red completa: velocidad real, cobertura, interferencia, router, cableado,
+            equipos conectados, seguridad y zonas criticas.
+          </p>
+        </div>
+        <div class="wifi-slow-extra-grid" aria-label="Secciones especializadas de WiFi lento">
+          {wifiSlowExtraSections.map((item) => (
+            <section class="wifi-slow-extra-card" id={item.id}>
+              <div class="wifi-slow-extra-icon">
+                <i class={`fa-solid ${item.icon}`}></i>
+              </div>
+              <div>
+                <span>{item.eyebrow}</span>
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+                <ul>
+                  {item.points.map((point) => (
+                    <li><i class="fa-solid fa-check"></i>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 
   <RelatedServicesSection
     category={category}
@@ -277,10 +542,11 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       items={faqs}
       viewMoreHref="/preguntas-frecuentes"
       viewMoreLabel="Ver mas preguntas frecuentes"
+      sectionClass={category.slug === 'redes' ? 'sdv-network-faq' : ''}
       backgroundColor="#F8FAFC"
       questionColor="#0F2A4A"
       titleColor="#0F2A4A"
-      descriptionColor="#475569"
+      descriptionColor={category.slug === 'redes' ? '#0F2A4A' : '#475569'}
       itemGap="8px"
       questionPadding="16px 18px"
     />
@@ -328,6 +594,13 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     --sdv-hero-mid: #0F2A4A;
     --sdv-hero-end: #155E75;
   }
+  .sdv-category-mac {
+    --sdv-accent: #67E8F9;
+    --sdv-accent-strong: #0E7490;
+    --sdv-hero-start: #0A1020;
+    --sdv-hero-mid: #1E3A5F;
+    --sdv-hero-end: #0F766E;
+  }
   .sdv-category-consola {
     --sdv-accent: #A3E635;
     --sdv-accent-strong: #4D7C0F;
@@ -349,25 +622,32 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     --sdv-hero-mid: #1E293B;
     --sdv-hero-end: #164E63;
   }
-  .sdv-category-tablet {
-    --sdv-accent: #5EEAD4;
-    --sdv-accent-strong: #0F766E;
-    --sdv-hero-start: #061620;
-    --sdv-hero-mid: #0F3440;
-    --sdv-hero-end: #0E7490;
-  }
-  .sdv-category-monitor {
-    --sdv-accent: #60A5FA;
-    --sdv-accent-strong: #2563EB;
-    --sdv-hero-start: #0B1120;
-    --sdv-hero-mid: #172554;
-    --sdv-hero-end: #1E40AF;
-  }
   .sdv-category-redes {
     --sdv-accent: #22D3EE;
     --sdv-accent-strong: #0891B2;
     --sdv-hero-start: #082F49;
     --sdv-hero-mid: #155E75;
+    --sdv-hero-end: #0E7490;
+  }
+  .sdv-macbook-repair {
+    --sdv-accent: #5EEAD4;
+    --sdv-accent-strong: #0F766E;
+    --sdv-hero-start: #070B12;
+    --sdv-hero-mid: #10253D;
+    --sdv-hero-end: #123F4A;
+  }
+  .sdv-mac-diagnostic {
+    --sdv-accent: #7DD3FC;
+    --sdv-accent-strong: #0369A1;
+    --sdv-hero-start: #07111F;
+    --sdv-hero-mid: #102A45;
+    --sdv-hero-end: #0F3B5F;
+  }
+  .sdv-network-service {
+    --sdv-accent: #22D3EE;
+    --sdv-accent-strong: #0891B2;
+    --sdv-hero-start: #04111D;
+    --sdv-hero-mid: #083A52;
     --sdv-hero-end: #0E7490;
   }
   .sdv-hero {
@@ -588,16 +868,34 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-proof-grid p {
     margin: 0;
   }
+  .sdv-card:not(.sdv-card-dark) h3,
+  .sdv-process article h3,
+  .sdv-proof-grid article h3,
+  .sdv-check-list li,
+  .sdv-tags span,
+  .sdv-zone-grid span {
+    color: #0F2A4A;
+  }
   .sdv-card-dark {
     background: rgba(255,255,255,.04);
     border-color: rgba(255,255,255,.12);
     box-shadow: none;
   }
   .sdv-card-dark h3 {
-    color: #F8FAFC;
+    color: #F8FAFC !important;
   }
   .sdv-card-dark p {
-    color: #E2E8F0;
+    color: #E2E8F0 !important;
+  }
+  .sdv-dark .sdv-card h3,
+  .sdv-dark .sdv-proof-grid h3,
+  .sdv-dark .sdv-process h3 {
+    color: #F8FAFC;
+  }
+  .sdv-dark .sdv-card p,
+  .sdv-dark .sdv-proof-grid p,
+  .sdv-dark .sdv-process p {
+    color: #DCEBFA;
   }
   .sdv-process {
     display: grid;
@@ -681,6 +979,566 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-mobile-cta {
     display: none;
   }
+  .sdv-macbook-repair .sdv-hero,
+  .sdv-mac-diagnostic .sdv-hero,
+  .sdv-network-service .sdv-hero {
+    padding: 86px 0 24px;
+    background:
+      linear-gradient(90deg, rgba(94, 234, 212, 0.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+      radial-gradient(circle at 12% 15%, rgba(94, 234, 212, 0.24), transparent 28%),
+      radial-gradient(circle at 82% 10%, rgba(96, 165, 250, 0.18), transparent 30%),
+      linear-gradient(135deg, var(--sdv-hero-start) 0%, var(--sdv-hero-mid) 56%, var(--sdv-hero-end) 100%);
+    background-size: 42px 42px, 42px 42px, auto, auto, auto;
+  }
+  .sdv-mac-diagnostic .sdv-hero {
+    background:
+      linear-gradient(90deg, rgba(125, 211, 252, 0.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+      radial-gradient(circle at 12% 15%, rgba(125, 211, 252, 0.26), transparent 30%),
+      radial-gradient(circle at 84% 12%, rgba(34, 197, 94, 0.16), transparent 30%),
+      linear-gradient(135deg, var(--sdv-hero-start) 0%, var(--sdv-hero-mid) 56%, var(--sdv-hero-end) 100%);
+    background-size: 42px 42px, 42px 42px, auto, auto, auto;
+  }
+  .sdv-network-service .sdv-hero {
+    background:
+      linear-gradient(90deg, rgba(34, 211, 238, 0.1) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(125, 211, 252, 0.07) 1px, transparent 1px),
+      radial-gradient(circle at 16% 14%, rgba(34, 211, 238, 0.28), transparent 30%),
+      radial-gradient(circle at 82% 18%, rgba(16, 185, 129, 0.16), transparent 30%),
+      linear-gradient(135deg, var(--sdv-hero-start) 0%, var(--sdv-hero-mid) 56%, var(--sdv-hero-end) 100%);
+    background-size: 36px 36px, 36px 36px, auto, auto, auto;
+  }
+  .sdv-macbook-repair .sdv-hero-grid,
+  .sdv-mac-diagnostic .sdv-hero-grid,
+  .sdv-network-service .sdv-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+    gap: clamp(22px, 3vw, 38px);
+  }
+  .sdv-macbook-repair .sdv-hero h1,
+  .sdv-mac-diagnostic .sdv-hero h1,
+  .sdv-network-service .sdv-hero h1 {
+    font-size: clamp(2.5rem, 5.6vw, 5.25rem);
+    max-width: 860px;
+  }
+  .sdv-macbook-repair .sdv-hero p,
+  .sdv-mac-diagnostic .sdv-hero p,
+  .sdv-network-service .sdv-hero p {
+    max-width: 820px;
+    margin-top: 12px;
+    font-size: clamp(1rem, 1.35vw, 1.16rem);
+    line-height: 1.5;
+  }
+  .sdv-macbook-tags,
+  .sdv-macbook-stats,
+  .sdv-macbook-rail {
+    display: grid;
+    gap: 8px;
+  }
+  .sdv-macbook-tags {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-top: 20px;
+    max-width: 820px;
+  }
+  .sdv-macbook-tags span,
+  .sdv-macbook-rail span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(15, 23, 42, 0.54);
+    color: #E2E8F0;
+    font-size: 0.84rem;
+    font-weight: 900;
+    padding: 9px 11px;
+  }
+  .sdv-macbook-tags i,
+  .sdv-macbook-rail i {
+    color: var(--sdv-accent);
+  }
+  .sdv-macbook-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 760px;
+    margin-top: 12px;
+  }
+  .sdv-macbook-stats span {
+    min-height: 74px;
+    border-radius: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(226, 232, 240, 0.14);
+    color: #CBD5E1;
+    font-size: 0.8rem;
+    font-weight: 850;
+  }
+  .sdv-macbook-stats strong {
+    display: block;
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.15rem, 1.6vw, 1.55rem);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .sdv-macbook-repair .sdv-hero-actions,
+  .sdv-mac-diagnostic .sdv-hero-actions,
+  .sdv-network-service .sdv-hero-actions {
+    margin-top: 16px;
+  }
+  .sdv-macbook-repair .sdv-hero-card,
+  .sdv-mac-diagnostic .sdv-hero-card,
+  .sdv-network-service .sdv-hero-card {
+    background: rgba(248, 250, 252, 0.96);
+    box-shadow: 0 22px 64px rgba(2, 6, 23, 0.34);
+  }
+  .sdv-macbook-repair .sdv-hero-media,
+  .sdv-mac-diagnostic .sdv-hero-media,
+  .sdv-network-service .sdv-hero-media {
+    aspect-ratio: 4 / 3;
+  }
+  .sdv-macbook-repair .sdv-hero-card-body,
+  .sdv-mac-diagnostic .sdv-hero-card-body,
+  .sdv-network-service .sdv-hero-card-body {
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    gap: 14px;
+    align-items: start;
+    padding: 16px;
+  }
+  .sdv-macbook-repair .sdv-hero-card-body > span,
+  .sdv-mac-diagnostic .sdv-hero-card-body > span,
+  .sdv-network-service .sdv-hero-card-body > span {
+    grid-column: 1;
+    margin-top: -10px;
+  }
+  .sdv-macbook-repair .sdv-mini-list,
+  .sdv-mac-diagnostic .sdv-mini-list,
+  .sdv-network-service .sdv-mini-list {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+    gap: 8px;
+  }
+  .sdv-macbook-repair .sdv-mini-list p,
+  .sdv-mac-diagnostic .sdv-mini-list p,
+  .sdv-network-service .sdv-mini-list p {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.86rem;
+    line-height: 1.3;
+  }
+  .sdv-macbook-media-badge {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    padding: 9px 11px;
+    background: rgba(7, 11, 18, 0.78);
+    border: 1px solid rgba(94, 234, 212, 0.28);
+    color: #ECFEFF;
+    font-size: 0.82rem;
+    font-weight: 900;
+    backdrop-filter: blur(12px);
+  }
+  .sdv-macbook-media-badge i {
+    color: var(--sdv-accent);
+  }
+  .sdv-network-visual {
+    position: relative;
+    min-height: 100%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at center, rgba(34, 211, 238, 0.18), transparent 48%),
+      linear-gradient(135deg, #061826, #0F2A4A);
+  }
+  .sdv-network-rings {
+    position: absolute;
+    inset: 12px;
+    display: grid;
+    place-items: center;
+  }
+  .sdv-network-rings span {
+    position: absolute;
+    border: 1px solid rgba(125, 211, 252, 0.24);
+    border-radius: 999px;
+  }
+  .sdv-network-rings span:nth-child(1) {
+    width: 42%;
+    aspect-ratio: 1;
+  }
+  .sdv-network-rings span:nth-child(2) {
+    width: 66%;
+    aspect-ratio: 1;
+  }
+  .sdv-network-rings span:nth-child(3) {
+    width: 90%;
+    aspect-ratio: 1;
+  }
+  .sdv-network-router {
+    position: relative;
+    z-index: 2;
+    width: 138px;
+    height: 104px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    background: #E0F2FE;
+    color: #075985;
+    box-shadow: 0 24px 56px rgba(2, 6, 23, 0.34), inset 0 -16px 0 rgba(8, 145, 178, 0.16);
+  }
+  .sdv-network-router i {
+    font-size: 2.1rem;
+    color: #0891B2;
+  }
+  .sdv-network-router strong {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0;
+  }
+  .sdv-network-node {
+    position: absolute;
+    z-index: 3;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: rgba(240, 249, 255, 0.94);
+    color: #0369A1;
+    border: 1px solid rgba(125, 211, 252, 0.52);
+    box-shadow: 0 12px 28px rgba(2, 6, 23, 0.28);
+  }
+  .node-a { left: 42px; top: 42px; }
+  .node-b { right: 42px; top: 54px; }
+  .node-c { left: 58px; bottom: 44px; }
+  .node-d { right: 58px; bottom: 44px; }
+  .sdv-macbook-rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 22px;
+  }
+  .sdv-macbook-repair .sdv-anchor-nav,
+  .sdv-mac-diagnostic .sdv-anchor-nav,
+  .sdv-network-service .sdv-anchor-nav {
+    top: 60px;
+  }
+  .sdv-macbook-repair .sdv-anchor-nav .container,
+  .sdv-mac-diagnostic .sdv-anchor-nav .container,
+  .sdv-network-service .sdv-anchor-nav .container {
+    justify-content: center;
+  }
+  .sdv-macbook-repair .sdv-section,
+  .sdv-mac-diagnostic .sdv-section,
+  .sdv-network-service .sdv-section {
+    padding: 54px 0;
+  }
+  .sdv-macbook-repair .sdv-section-head,
+  .sdv-mac-diagnostic .sdv-section-head,
+  .sdv-network-service .sdv-section-head {
+    max-width: 980px;
+    margin-bottom: 20px;
+  }
+  .sdv-macbook-repair .sdv-card-grid,
+  .sdv-mac-diagnostic .sdv-card-grid,
+  .sdv-network-service .sdv-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .sdv-macbook-repair .sdv-card,
+  .sdv-macbook-repair .sdv-proof-grid article,
+  .sdv-macbook-repair .sdv-process article,
+  .sdv-mac-diagnostic .sdv-card,
+  .sdv-mac-diagnostic .sdv-proof-grid article,
+  .sdv-mac-diagnostic .sdv-process article,
+  .sdv-network-service .sdv-card,
+  .sdv-network-service .sdv-proof-grid article,
+  .sdv-network-service .sdv-process article {
+    padding: 16px;
+  }
+  .sdv-macbook-repair .sdv-card i,
+  .sdv-macbook-repair .sdv-proof-grid i,
+  .sdv-mac-diagnostic .sdv-card i,
+  .sdv-mac-diagnostic .sdv-proof-grid i,
+  .sdv-network-service .sdv-card i,
+  .sdv-network-service .sdv-proof-grid i {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #CCFBF1;
+    margin-bottom: 10px;
+  }
+  .sdv-macbook-repair .sdv-card h3,
+  .sdv-macbook-repair .sdv-process h3,
+  .sdv-macbook-repair .sdv-proof-grid h3,
+  .sdv-mac-diagnostic .sdv-card h3,
+  .sdv-mac-diagnostic .sdv-process h3,
+  .sdv-mac-diagnostic .sdv-proof-grid h3,
+  .sdv-network-service .sdv-card h3,
+  .sdv-network-service .sdv-process h3,
+  .sdv-network-service .sdv-proof-grid h3 {
+    font-size: 1rem;
+    line-height: 1.16;
+  }
+  .sdv-macbook-repair .sdv-card p,
+  .sdv-macbook-repair .sdv-process p,
+  .sdv-macbook-repair .sdv-proof-grid p,
+  .sdv-mac-diagnostic .sdv-card p,
+  .sdv-mac-diagnostic .sdv-process p,
+  .sdv-mac-diagnostic .sdv-proof-grid p,
+  .sdv-network-service .sdv-card p,
+  .sdv-network-service .sdv-process p,
+  .sdv-network-service .sdv-proof-grid p {
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+  .sdv-macbook-repair .sdv-proof-grid,
+  .sdv-mac-diagnostic .sdv-proof-grid,
+  .sdv-network-service .sdv-proof-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .sdv-network-service .sdv-proof-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .sdv-macbook-repair .sdv-process,
+  .sdv-mac-diagnostic .sdv-process,
+  .sdv-network-service .sdv-process {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .sdv-network-service .sdv-process {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .sdv-network-service .sdv-split {
+    grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  }
+  .sdv-network-service #modelos .sdv-split,
+  .sdv-network-service #garantia .sdv-split,
+  .sdv-network-service #zonas .sdv-split {
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  }
+  .sdv-network-service .sdv-tags {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .sdv-network-service .sdv-tags span,
+  .sdv-network-service .sdv-zone-grid span,
+  .sdv-network-service .sdv-check-list li {
+    min-height: 46px;
+    align-items: center;
+  }
+  .sdv-network-service .sdv-zone-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sdv-network-service #riesgos {
+    background:
+      radial-gradient(circle at 12% 18%, rgba(34, 211, 238, 0.18), transparent 28%),
+      radial-gradient(circle at 86% 16%, rgba(59, 130, 246, 0.16), transparent 30%),
+      linear-gradient(135deg, #071A2D 0%, #0F2A4A 56%, #0B4A63 100%);
+  }
+  .sdv-network-service #riesgos .sdv-card-dark {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(125, 211, 252, 0.22);
+  }
+  .sdv-network-service #riesgos .sdv-card-dark i {
+    background: rgba(125, 211, 252, 0.16);
+    color: #7DD3FC;
+  }
+  .sdv-network-service #diagnostico {
+    background: linear-gradient(180deg, #F8FAFC 0%, #EEF6FF 100%) !important;
+  }
+  .sdv-network-service #diagnostico .sdv-eyebrow,
+  .sdv-network-service #diagnostico h2,
+  .sdv-network-service #diagnostico h3,
+  .sdv-network-service #diagnostico p {
+    color: #0F2A4A !important;
+  }
+  .sdv-network-service #diagnostico .sdv-card,
+  .sdv-network-service #diagnostico .sdv-proof-grid article {
+    background: #FFFFFF;
+    border-color: rgba(15, 42, 74, 0.14);
+    box-shadow: 0 12px 30px rgba(15, 42, 74, 0.1);
+  }
+  .sdv-network-service #diagnostico .sdv-card i,
+  .sdv-network-service #diagnostico .sdv-proof-grid i {
+    color: #0B6B8A !important;
+    background: #E0F2FE;
+  }
+  .wifi-slow-extra {
+    background:
+      radial-gradient(circle at 14% 8%, rgba(14, 165, 233, 0.12), transparent 30%),
+      linear-gradient(180deg, #F8FAFC 0%, #EAF2FF 100%);
+    padding: 64px 0;
+  }
+  .wifi-slow-extra-head {
+    max-width: 940px;
+    margin: 0 auto 26px;
+    text-align: center;
+  }
+  .wifi-slow-extra-head span,
+  .wifi-slow-extra-card > div:last-child > span {
+    color: #0B6B8A;
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .wifi-slow-extra-head h2 {
+    color: #0F2A4A;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    line-height: 1.04;
+    margin: 8px 0 12px;
+  }
+  .wifi-slow-extra-head p {
+    color: #1E3A5F;
+    line-height: 1.68;
+    font-weight: 650;
+    margin: 0;
+  }
+  .wifi-slow-extra-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .wifi-slow-extra-card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
+    min-height: 100%;
+    background: #FFFFFF;
+    border: 1px solid rgba(15, 42, 74, 0.16);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: 0 10px 28px rgba(15, 42, 74, 0.1);
+  }
+  .wifi-slow-extra-icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: #0F2A4A;
+    background: linear-gradient(135deg, #BAE6FD, #E0F2FE);
+    box-shadow: inset 0 0 0 1px rgba(14, 116, 144, 0.12);
+  }
+  .wifi-slow-extra-icon i {
+    font-size: 1.25rem;
+  }
+  .wifi-slow-extra-card h3 {
+    color: #0F2A4A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.08rem;
+    line-height: 1.2;
+    margin: 6px 0 8px;
+  }
+  .wifi-slow-extra-card p {
+    color: #334E68;
+    line-height: 1.58;
+    margin: 0 0 12px;
+    font-size: 0.93rem;
+  }
+  .wifi-slow-extra-card ul {
+    display: grid;
+    gap: 7px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .wifi-slow-extra-card li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #0F2A4A;
+    font-size: 0.86rem;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+  .wifi-slow-extra-card li i {
+    color: #0B6B8A;
+    margin-top: 2px;
+  }
+  @media (max-width: 1100px) {
+    .wifi-slow-extra-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .wifi-slow-extra {
+      padding: 46px 0;
+    }
+    .wifi-slow-extra-head {
+      text-align: left;
+    }
+    .wifi-slow-extra-grid {
+      grid-template-columns: 1fr;
+    }
+    .wifi-slow-extra-card {
+      padding: 16px;
+    }
+  }
+  :global(.sdv-network-faq .section-title h2),
+  :global(.sdv-network-faq .section-title p),
+  :global(.sdv-network-faq .faq-question),
+  :global(.sdv-network-faq .faq-question span),
+  :global(.sdv-network-faq .faq-question:hover),
+  :global(.sdv-network-faq .faq-question:focus),
+  :global(.sdv-network-faq .faq-page-content .faq-item--open .faq-question),
+  :global(.sdv-network-faq .faq-item--open .faq-question),
+  :global(.sdv-network-faq .faq-answer-inner),
+  :global(.sdv-network-faq .faq-chevron) {
+    color: #0F2A4A !important;
+  }
+  .sdv-macbook-repair .sdv-tags,
+  .sdv-mac-diagnostic .sdv-tags,
+  .sdv-network-service .sdv-tags {
+    gap: 8px;
+  }
+  .sdv-macbook-repair .sdv-tags span,
+  .sdv-mac-diagnostic .sdv-tags span,
+  .sdv-network-service .sdv-tags span {
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.84rem;
+  }
+  .sdv-macbook-repair .sdv-zone-grid,
+  .sdv-mac-diagnostic .sdv-zone-grid,
+  .sdv-network-service .sdv-zone-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: 1180px) {
+    .sdv-macbook-repair .sdv-card-grid,
+    .sdv-macbook-repair .sdv-proof-grid,
+    .sdv-mac-diagnostic .sdv-card-grid,
+    .sdv-mac-diagnostic .sdv-proof-grid,
+    .sdv-network-service .sdv-card-grid,
+    .sdv-network-service .sdv-proof-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sdv-macbook-repair .sdv-process,
+    .sdv-mac-diagnostic .sdv-process,
+    .sdv-network-service .sdv-process {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .sdv-network-service .sdv-proof-grid,
+    .sdv-network-service .sdv-tags {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sdv-macbook-tags {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
   @media (max-width: 860px) {
     .sdv-hero-grid,
     .sdv-split {
@@ -694,6 +1552,28 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-zone-grid {
       grid-template-columns: 1fr;
+    }
+    .sdv-macbook-repair .sdv-hero,
+    .sdv-mac-diagnostic .sdv-hero,
+    .sdv-network-service .sdv-hero {
+      padding-top: 82px;
+    }
+    .sdv-macbook-repair .sdv-hero-grid,
+    .sdv-macbook-repair .sdv-split,
+    .sdv-mac-diagnostic .sdv-hero-grid,
+    .sdv-mac-diagnostic .sdv-split,
+    .sdv-network-service .sdv-hero-grid,
+    .sdv-network-service .sdv-split {
+      grid-template-columns: 1fr;
+    }
+    .sdv-macbook-repair .sdv-hero-card,
+    .sdv-mac-diagnostic .sdv-hero-card,
+    .sdv-network-service .sdv-hero-card {
+      max-width: 560px;
+    }
+    .sdv-macbook-rail,
+    .sdv-macbook-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   @media (max-width: 680px) {
@@ -711,6 +1591,48 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-hero-actions {
       display: grid;
+    }
+    .sdv-macbook-repair .sdv-hero,
+    .sdv-mac-diagnostic .sdv-hero,
+    .sdv-network-service .sdv-hero {
+      padding-bottom: 22px;
+    }
+    .sdv-macbook-tags,
+    .sdv-macbook-stats,
+    .sdv-macbook-rail,
+    .sdv-macbook-repair .sdv-card-grid,
+    .sdv-macbook-repair .sdv-proof-grid,
+    .sdv-macbook-repair .sdv-process,
+    .sdv-macbook-repair .sdv-zone-grid,
+    .sdv-mac-diagnostic .sdv-card-grid,
+    .sdv-mac-diagnostic .sdv-proof-grid,
+    .sdv-mac-diagnostic .sdv-process,
+    .sdv-mac-diagnostic .sdv-zone-grid,
+    .sdv-network-service .sdv-card-grid,
+    .sdv-network-service .sdv-proof-grid,
+    .sdv-network-service .sdv-process,
+    .sdv-network-service .sdv-zone-grid {
+      grid-template-columns: 1fr;
+    }
+    .sdv-macbook-repair .sdv-hero-card-body,
+    .sdv-mac-diagnostic .sdv-hero-card-body,
+    .sdv-network-service .sdv-hero-card-body {
+      grid-template-columns: 1fr;
+    }
+    .sdv-macbook-repair .sdv-mini-list,
+    .sdv-macbook-repair .sdv-hero-card-body > span,
+    .sdv-mac-diagnostic .sdv-mini-list,
+    .sdv-mac-diagnostic .sdv-hero-card-body > span,
+    .sdv-network-service .sdv-mini-list,
+    .sdv-network-service .sdv-hero-card-body > span {
+      grid-column: auto;
+      grid-row: auto;
+      margin-top: 0;
+    }
+    .sdv-macbook-repair .sdv-section,
+    .sdv-mac-diagnostic .sdv-section,
+    .sdv-network-service .sdv-section {
+      padding: 42px 0;
     }
     .sdv-mobile-cta {
       position: fixed;

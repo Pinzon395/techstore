@@ -13,8 +13,8 @@ const routes = [
   '/servicios/impresora/diagnostico',
   '/servicios/impresora/no-imprime',
   '/servicios/b2b/soporte-hoteles',
-  '/servicios/tablet/reparacion-ipad',
-  '/servicios/monitor/monitor-no-da-imagen',
+  '/servicios/mac/diagnostico-mac',
+  '/servicios/mac/mantenimiento-macbook',
   '/servicios/redes/wifi-lento',
 ];
 

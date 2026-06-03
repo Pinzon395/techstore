@@ -215,6 +215,8 @@ const description = isPcFormat
   : service.intro
   ? `${service.intro} Cotización gratis, diagnóstico claro y reparación profesional en Cancún.`
   : `Servicio especializado de ${service.label} para ${category.title} en Cancún. Diagnóstico profundo y garantía por escrito.`;
+const finalSeoTitle = service.metaTitle || seoTitle;
+const finalDescription = service.metaDescription || description;
 const faqServiceContext = category.slug === 'telefono'
   ? 'celular'
   : category.slug === 'pc'
@@ -534,7 +536,7 @@ const visibleFaqs = isPcFormat
   : faqItems;
 
 const pageSchema = [
-  buildServiceSchema({ service, category, url: canonical, description }),
+  buildServiceSchema({ service, category, url: canonical, description: finalDescription }),
   buildBreadcrumbSchema([
     { label: 'Inicio', href: '/' },
     { label: 'Servicios', href: '/servicios' },
@@ -546,12 +548,12 @@ const pageSchema = [
 ---
 
 <Base
-  title={seoTitle}
-  description={description}
+  title={finalSeoTitle}
+  description={finalDescription}
   canonical={canonical}
   schema={pageSchema}
-  ogTitle={isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún | Pixon PC' : seoTitle}
-  ogDescription={isIphoneMicrophoneRepair ? 'Servicio técnico de iPhone en Cancún para micrófono, llamadas sin voz, WhatsApp, notas de voz, video sin audio, Siri, humedad y flex de carga.' : isIphoneButtonsRepair ? 'Servicio técnico de iPhone en Cancún para botón power, volumen, silencio, Home, botones hundidos, flex, golpes, humedad y falsos contactos.' : isIphoneDiagnostic ? 'Diagnóstico iPhone en Cancún para no prende, no carga, pantalla negra, logo Apple, batería, Face ID, cámara, audio, humedad, software y placa.' : isIphoneSpeakerRepair ? 'Servicio técnico de iPhone en Cancún para audio bajo, bocina distorsionada, auricular sin sonido, rejilla tapada o fallas por humedad.' : isIphoneChargeRepair ? 'Servicio técnico de iPhone en Cancún para equipos que no cargan, cargan lento, marcan líquido o tienen falso contacto.' : isLaptopKeyboardReplacement ? 'Reparamos teclados de laptop en Cancún con revisión de flex, líquido, conector, backlit y garantía por escrito.' : description}
+  ogTitle={isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún | Pixon PC' : finalSeoTitle}
+  ogDescription={isIphoneMicrophoneRepair ? 'Servicio técnico de iPhone en Cancún para micrófono, llamadas sin voz, WhatsApp, notas de voz, video sin audio, Siri, humedad y flex de carga.' : isIphoneButtonsRepair ? 'Servicio técnico de iPhone en Cancún para botón power, volumen, silencio, Home, botones hundidos, flex, golpes, humedad y falsos contactos.' : isIphoneDiagnostic ? 'Diagnóstico iPhone en Cancún para no prende, no carga, pantalla negra, logo Apple, batería, Face ID, cámara, audio, humedad, software y placa.' : isIphoneSpeakerRepair ? 'Servicio técnico de iPhone en Cancún para audio bajo, bocina distorsionada, auricular sin sonido, rejilla tapada o fallas por humedad.' : isIphoneChargeRepair ? 'Servicio técnico de iPhone en Cancún para equipos que no cargan, cargan lento, marcan líquido o tienen falso contacto.' : isLaptopKeyboardReplacement ? 'Reparamos teclados de laptop en Cancún con revisión de flex, líquido, conector, backlit y garantía por escrito.' : finalDescription}
 >
   <!-- CRITICAL: Forzar fondo oscuro antes que cualquier CSS global -->
   <style is:global>
@@ -608,7 +610,7 @@ const pageSchema = [
   ) : category.slug === 'laptop' && service.slug === 'cambio-bateria' ? (
     <CambioBateriaView service={service} category={category} />
   ) : useServiceDetailView ? (
-    <ServiceDetailView service={service} category={category} description={description} />
+    <ServiceDetailView service={service} category={category} description={finalDescription} />
   ) : (
     <div class={`theme-premium-dark ${isPrinterService ? 'printer-service-shell' : ''} ${isPcFormat ? 'pc-format-shell' : ''}`}>
       <!-- 1. HERO SECTION (Dark Premium) -->
@@ -12982,4 +12984,3 @@ const pageSchema = [
     }
   }
 </style>
-

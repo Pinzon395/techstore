@@ -11,9 +11,8 @@ import { consolaCategory } from './services/consola';
 import { telefonoCategory } from './services/telefono';
 import { impresoraCategory } from './services/impresora';
 import { b2bCategory } from './services/b2b';
-import { tabletCategory } from './services/tablet';
-import { monitorCategory } from './services/monitor';
 import { redesCategory } from './services/redes';
+import { macCategory } from './services/mac';
 
 export type { ServiceItem, ServiceCategory } from './services/types';
 
@@ -22,10 +21,9 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   pcCategory,
   consolaCategory,
   telefonoCategory,
+  macCategory,
   impresoraCategory,
   b2bCategory,
-  tabletCategory,
-  monitorCategory,
   redesCategory,
 ];
 
