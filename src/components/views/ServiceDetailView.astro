@@ -14,6 +14,201 @@ const isMacDiagnostic = category.slug === 'mac' && service.slug === 'diagnostico
 const isMacPremiumView = isMacBookRepair || isMacDiagnostic;
 const isNetworkService = category.slug === 'redes';
 const isWifiSlowService = category.slug === 'redes' && service.slug === 'wifi-lento';
+const isB2bMaintenancePolicy = category.slug === 'b2b' && service.slug === 'polizas-mantenimiento';
+const b2bMaintenanceSections = [
+  {
+    eyebrow: 'SEO local',
+    icon: 'fa-map-location-dot',
+    title: 'Mantenimiento preventivo TI en Cancun para empresas',
+    copy: 'Una poliza local evita que computadoras, laptops, impresoras, red y WiFi se atiendan hasta que ya detuvieron la operacion. Planeamos visitas, prioridades y reportes para negocios en Cancun.',
+    points: ['Cancun Centro, Zona Hotelera y Puerto Cancun', 'Oficinas, hoteles, restaurantes y agencias', 'Soporte tecnico con seguimiento real'],
+  },
+  {
+    eyebrow: 'Inventario',
+    icon: 'fa-clipboard-list',
+    title: 'Inventario de equipos TI con estado y prioridad',
+    copy: 'Registramos cantidad de equipos, usuario, area, estado, riesgos, garantia, observaciones y prioridad operativa. Asi administracion sabe que se atendio y que requiere seguimiento.',
+    points: ['PCs y laptops por area', 'Impresoras, red y perifericos', 'Historial para decisiones de compra'],
+  },
+  {
+    eyebrow: 'Calendario',
+    icon: 'fa-calendar-check',
+    title: 'Visitas programadas de mantenimiento preventivo',
+    copy: 'Definimos frecuencia mensual, bimestral, trimestral o por temporada para limpiar, revisar, actualizar y prevenir fallas antes de cierres, temporadas altas o picos de venta.',
+    points: ['Agenda por horarios de baja operacion', 'Mantenimiento por lote', 'Menos urgencias improvisadas'],
+  },
+  {
+    eyebrow: 'Tickets',
+    icon: 'fa-ticket',
+    title: 'Soporte TI por ticket para controlar fallas',
+    copy: 'Cada solicitud puede documentarse con folio, prioridad, equipo, diagnostico, accion tomada y cierre. Esto reduce conversaciones perdidas y da trazabilidad a gerencia.',
+    points: ['Prioridad por impacto operativo', 'Seguimiento de pendientes', 'Cierre con evidencia'],
+  },
+  {
+    eyebrow: 'Hoteles',
+    icon: 'fa-hotel',
+    title: 'Polizas TI para hoteles en Zona Hotelera Cancun',
+    copy: 'Atendemos necesidades de recepcion, administracion, reservas, laptops, PCs, impresoras y red. Priorizamos equipos que afectan check-in, facturacion, reportes o atencion al huesped.',
+    points: ['Recepcion y back office', 'Impresoras y equipos administrativos', 'Planeacion antes de ocupacion alta'],
+  },
+  {
+    eyebrow: 'Oficinas',
+    icon: 'fa-building',
+    title: 'Mantenimiento TI para oficinas en Cancun Centro y Bonampak',
+    copy: 'Una oficina estable necesita Windows sano, equipos limpios, impresoras configuradas, respaldos basicos y red confiable. La poliza ordena revisiones recurrentes sin esperar a que todo falle.',
+    points: ['Despachos, administracion y contabilidad', 'PC lenta, impresora y red', 'Recomendaciones por equipo'],
+  },
+  {
+    eyebrow: 'Restaurantes',
+    icon: 'fa-utensils',
+    title: 'Soporte preventivo TI para restaurantes y cajas',
+    copy: 'En restaurantes revisamos equipos administrativos, impresoras, red y PCs expuestas a calor, polvo o grasa. El objetivo es reducir paros en horarios de venta y cierre.',
+    points: ['Cajas y equipos administrativos', 'Impresoras de tickets o reportes', 'Red operativa e invitados'],
+  },
+  {
+    eyebrow: 'Seguridad',
+    icon: 'fa-shield-halved',
+    title: 'Revision de respaldos, antivirus y riesgos de datos',
+    copy: 'El mantenimiento preventivo TI tambien revisa riesgos: discos con alerta, usuarios sin respaldo, equipos desactualizados, malware, cuentas compartidas o practicas que pueden causar perdida de informacion.',
+    points: ['Chequeo de discos y respaldos', 'Actualizaciones y limpieza de software', 'Alertas antes de perdida de datos'],
+  },
+  {
+    eyebrow: 'Red',
+    icon: 'fa-wifi',
+    title: 'Mantenimiento de red WiFi e impresoras empresariales',
+    copy: 'Cuando la red falla, falla todo: impresoras, equipos compartidos, ventas, reservas y administracion. Revisamos router, WiFi, IP, switches, drivers e impresoras de red.',
+    points: ['WiFi lento o intermitente', 'Impresoras compartidas', 'Router, switches y cableado basico'],
+  },
+  {
+    eyebrow: 'Reportes',
+    icon: 'fa-file-invoice',
+    title: 'Reportes tecnicos, CFDI y evidencia para administracion',
+    copy: 'La poliza debe ser medible. Entregamos resumen de trabajos, recomendaciones, equipos atendidos y CFDI cuando aplica para que administracion pueda justificar gasto y planear compras.',
+    points: ['Reporte por visita o periodo', 'Hallazgos y recomendaciones', 'Facturacion CFDI'],
+  },
+  {
+    eyebrow: 'ROI',
+    icon: 'fa-chart-line',
+    title: 'Menos paros, menos compras urgentes y mejor presupuesto TI',
+    copy: 'El valor de una poliza no es solo reparar mas rapido; es detectar equipos en riesgo, evitar fallas repetidas, planear reemplazos y reducir gastos de emergencia.',
+    points: ['Prioridad por criticidad', 'Planeacion de reemplazos', 'Control de costos recurrentes'],
+  },
+  {
+    eyebrow: 'Cobertura',
+    icon: 'fa-route',
+    title: 'Cobertura local en Cancun, Huayacan, Cumbres y Aeropuerto',
+    copy: 'Atendemos empresas en Cancun Centro, Zona Hotelera, Bonampak, Puerto Cancun, Cumbres, Huayacan, Bonfil, Aeropuerto y Parque Industrial segun agenda, alcance y cantidad de equipos.',
+    points: ['Servicio local y programado', 'Visitas por zona y disponibilidad', 'Cotizacion segun flotilla'],
+  },
+];
+const b2bImageSections = [
+  {
+    image: '/assets/images/soporte-hoteles-hero.webp',
+    alt: 'Soporte TI para hoteles y empresas en Cancun',
+    eyebrow: 'Operacion hotelera',
+    title: 'Mantenimiento preventivo TI para recepcion, reservas y administracion',
+    copy: 'En hoteles y negocios de atencion continua, una PC lenta, impresora fuera de red o WiFi inestable afecta ventas, check-in, reportes y facturacion. La poliza ordena revisiones por area para bajar urgencias.',
+    points: ['Recepcion y back office', 'Equipos que no pueden parar', 'Soporte local con prioridad'],
+  },
+  {
+    image: '/assets/images/mantenimiento-pc-escritorio.webp',
+    alt: 'Mantenimiento preventivo de PC de escritorio para empresa en Cancun',
+    eyebrow: 'PCs de oficina',
+    title: 'Limpieza, temperatura y estabilidad para computadoras de oficina',
+    copy: 'Revisamos polvo, ventiladores, almacenamiento, Windows, arranque, rendimiento y sintomas de temperatura. Esto ayuda a detectar equipos que conviene mantener, optimizar o reemplazar antes de que fallen.',
+    points: ['Limpieza interna', 'Revision termica', 'Diagnostico por prioridad'],
+  },
+  {
+    image: '/assets/images/laptop-feliz-limpia.webp',
+    alt: 'Mantenimiento preventivo de laptops empresariales en Cancun',
+    eyebrow: 'Laptops empresariales',
+    title: 'Mantenimiento para laptops de ventas, gerencia y administracion',
+    copy: 'Las laptops se mueven, se calientan, trabajan con cargadores distintos y suelen tener informacion critica. La poliza permite revisar bateria, cargador, disco, respaldo, teclado, temperatura y rendimiento.',
+    points: ['Laptops de trabajo diario', 'Revision de bateria y disco', 'Recomendaciones antes de falla'],
+  },
+  {
+    image: '/assets/images/reparacion-impresoras-cancun.webp',
+    alt: 'Revision de impresoras empresariales en Cancun',
+    eyebrow: 'Impresion estable',
+    title: 'Revision preventiva de impresoras, tickets y equipos compartidos',
+    copy: 'Una impresora mal configurada puede detener facturas, reportes, comandas o documentos internos. Revisamos drivers, red, cola de impresion, rodillos, consumibles y mantenimiento recurrente.',
+    points: ['Impresoras WiFi o red', 'Equipos compartidos', 'Menos atascos y errores'],
+  },
+  {
+    image: '/assets/images/cambio-ssd.webp',
+    alt: 'Actualizacion SSD para equipos empresariales lentos',
+    eyebrow: 'Rendimiento',
+    title: 'Plan de mejora para equipos lentos: SSD, RAM y optimizacion',
+    copy: 'No todos los equipos lentos deben reemplazarse. Revisamos si conviene SSD, RAM, limpieza de sistema, formateo, actualizacion o retiro de software que esta afectando productividad.',
+    points: ['PCs lentas', 'Mejoras con presupuesto', 'Decisiones por evidencia'],
+  },
+  {
+    image: '/assets/images/optimizacion-pc-cancun.webp',
+    alt: 'Optimizacion de computadoras empresariales en Cancun',
+    eyebrow: 'Productividad',
+    title: 'Optimizacion de Windows para equipos que trabajan todos los dias',
+    copy: 'Una poliza permite revisar inicio de Windows, programas innecesarios, virus, actualizaciones, almacenamiento lleno y errores repetidos. La meta es que el usuario trabaje sin esperar al tecnico de emergencia.',
+    points: ['Windows mas estable', 'Menos reinicios y errores', 'Revision por usuario o area'],
+  },
+  {
+    image: '/assets/images/mac-mini.webp',
+    alt: 'Soporte TI mixto para Mac y PC en empresas de Cancun',
+    eyebrow: 'Entornos mixtos',
+    title: 'Soporte para empresas con Windows, Mac, impresoras y red',
+    copy: 'Muchas oficinas mezclan PC, Mac, impresoras, celulares y red. Documentamos compatibilidad y puntos de falla para que la solucion no dependa de adivinar entre sistemas.',
+    points: ['Windows y macOS', 'Perifericos y red', 'Soporte por ticket'],
+  },
+  {
+    image: '/assets/images/actualizacion-windows-cancun.webp',
+    alt: 'Actualizacion de Windows para empresas en Cancun',
+    eyebrow: 'Actualizaciones',
+    title: 'Actualizaciones controladas sin romper la operacion',
+    copy: 'Actualizamos con criterio: primero equipos menos criticos, despues areas sensibles. Revisamos drivers, impresoras, compatibilidad y respaldos para evitar que una actualizacion deje sin trabajar a un area completa.',
+    points: ['Windows 10 y 11', 'Drivers e impresoras', 'Pruebas antes de cerrar'],
+  },
+];
+const b2bSeoBands = [
+  {
+    icon: 'fa-sitemap',
+    title: 'Mapa de infraestructura TI para empresas en Cancun',
+    copy: 'Documentamos equipos, red, impresoras, usuarios criticos, areas y dependencias para entender que falla afecta ventas, atencion o administracion.',
+  },
+  {
+    icon: 'fa-user-shield',
+    title: 'Control de usuarios, accesos y practicas de seguridad',
+    copy: 'Revisamos cuentas compartidas, contrasenas expuestas, equipos sin bloqueo, navegadores saturados y riesgos basicos que pueden causar perdida de informacion.',
+  },
+  {
+    icon: 'fa-hard-drive',
+    title: 'Alertas de discos, respaldos y recuperacion preventiva',
+    copy: 'Antes de que un disco falle por completo, podemos detectar lentitud, errores, ruidos, sectores danados o falta de respaldo en equipos clave.',
+  },
+  {
+    icon: 'fa-print',
+    title: 'Soporte para impresoras de oficina, tickets y multifuncionales',
+    copy: 'Revisamos impresoras por red, USB, WiFi, drivers, cola de impresion, rodillos, atascos y uso de insumos para reducir fallas repetidas.',
+  },
+  {
+    icon: 'fa-network-wired',
+    title: 'Revision de red cableada, WiFi, router y switches',
+    copy: 'Una red estable sostiene ventas, reservas, facturacion, impresoras y usuarios. Revisamos cobertura, saturacion, IP, cableado basico y puntos criticos.',
+  },
+  {
+    icon: 'fa-file-contract',
+    title: 'Contrato de mantenimiento TI con alcance claro',
+    copy: 'Definimos equipos incluidos, horarios, frecuencia, tiempos de respuesta, reportes, condiciones, visitas y forma de atender urgencias fuera de agenda.',
+  },
+  {
+    icon: 'fa-money-check-dollar',
+    title: 'Presupuesto mensual para soporte tecnico empresarial',
+    copy: 'La poliza ayuda a convertir gastos impredecibles en un plan operativo: mantenimiento, diagnosticos, prioridades y recomendaciones antes de compras urgentes.',
+  },
+  {
+    icon: 'fa-people-group',
+    title: 'Atencion por areas: ventas, administracion, recepcion y gerencia',
+    copy: 'No todos los usuarios tienen la misma prioridad. Clasificamos areas por impacto para atender primero lo que detiene operacion o ingresos.',
+  },
+];
 const wifiSlowExtraSections = [
   {
     id: 'wifi-medicion',
@@ -105,6 +300,9 @@ const whyUs = service.whyUs || [
   { icon: 'fa-file-shield', title: 'Cotizacion clara', desc: 'Te explicamos costo, alcance y tiempo antes de iniciar.' },
   { icon: 'fa-shield-halved', title: 'Garantia por escrito', desc: 'Entregamos garantia sobre el trabajo realizado cuando aplica.' },
 ];
+const trustStats = service.trustStats || [];
+const educationalBlocks = service.educationalBlocks || [];
+const beforeAfter = service.beforeAfter || null;
 const process = service.process || [
   { title: 'Recepcion', desc: 'Registramos equipo, sintomas, accesorios y datos de contacto.' },
   { title: 'Diagnostico', desc: 'Revisamos hardware, software, conectores, humedad, desgaste o fallas visibles segun el caso.' },
@@ -242,13 +440,29 @@ const serviceImage = getServiceImage();
 const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
 ---
 
-<div class={`sdv sdv-category-${category.slug} ${isMacBookRepair ? 'sdv-macbook-repair' : ''} ${isMacDiagnostic ? 'sdv-mac-diagnostic' : ''} ${isNetworkService ? 'sdv-network-service' : ''}`}>
+<div class={`sdv sdv-category-${category.slug} ${isMacBookRepair ? 'sdv-macbook-repair' : ''} ${isMacDiagnostic ? 'sdv-mac-diagnostic' : ''} ${isNetworkService ? 'sdv-network-service' : ''} ${isB2bMaintenancePolicy ? 'sdv-b2b-policy' : ''}`}>
   <section class="sdv-hero">
     <div class="container sdv-hero-grid">
       <div class="sdv-hero-copy">
         <span class="sdv-eyebrow"><i class={`fa-solid ${category.icon}`}></i> {category.title} en Cancun</span>
         <h1>{title}</h1>
         <p>{hook}</p>
+        {isB2bMaintenancePolicy && (
+          <>
+            <div class="b2b-hero-tags" aria-label="Servicios incluidos en poliza de mantenimiento TI">
+              <span><i class="fa-solid fa-calendar-check"></i>Visitas programadas</span>
+              <span><i class="fa-solid fa-ticket"></i>Tickets y folios</span>
+              <span><i class="fa-solid fa-file-invoice"></i>CFDI y reportes</span>
+              <span><i class="fa-solid fa-wifi"></i>Red e impresoras</span>
+              <span><i class="fa-solid fa-building-shield"></i>Hoteles y oficinas</span>
+            </div>
+            <div class="b2b-hero-metrics" aria-label="Resumen de poliza TI">
+              <span><strong>12+</strong>bloques SEO locales</span>
+              <span><strong>Zona Hotelera</strong>Cancun Centro, Huayacan y Cumbres</span>
+              <span><strong>PC / laptop / red</strong>mantenimiento preventivo integral</span>
+            </div>
+          </>
+        )}
         {(isMacPremiumView || isNetworkService) && (
           <>
             <div class="sdv-macbook-tags" aria-label={isNetworkService ? 'Servicios frecuentes de redes' : 'Fallas frecuentes de MacBook'}>
@@ -292,7 +506,18 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       </div>
       <aside class="sdv-hero-card">
         <div class="sdv-hero-media">
-          {isNetworkService ? (
+          {isB2bMaintenancePolicy ? (
+            <div class="b2b-hero-collage" role="img" aria-label="Mantenimiento preventivo TI para empresas en Cancun">
+              <img src="/assets/images/soporte-hoteles-hero.webp" alt="Soporte TI para hoteles en Cancun" loading="eager" decoding="async" fetchpriority="high" />
+              <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento preventivo de computadoras para empresas" loading="eager" decoding="async" fetchpriority="high" />
+              <img src="/assets/images/reparacion-impresoras-cancun.webp" alt="Soporte de impresoras empresariales en Cancun" loading="eager" decoding="async" fetchpriority="high" />
+              <div class="b2b-hero-collage-badge">
+                <i class="fa-solid fa-chart-line"></i>
+                <strong>TI preventivo</strong>
+                <span>menos paros, mas control</span>
+              </div>
+            </div>
+          ) : isNetworkService ? (
             <div class="sdv-network-visual" role="img" aria-label={serviceImageAlt}>
               <div class="sdv-network-rings">
                 <span></span>
@@ -311,10 +536,10 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
           ) : (
             <img src={serviceImage} alt={serviceImageAlt} loading="eager" decoding="async" fetchpriority="high" />
           )}
-          {(isMacPremiumView || isNetworkService) && (
+          {(isMacPremiumView || isNetworkService || isB2bMaintenancePolicy) && (
             <div class="sdv-macbook-media-badge">
-              <i class={`fa-solid ${isNetworkService ? 'fa-wifi' : isMacDiagnostic ? 'fa-circle-check' : 'fa-screwdriver-wrench'}`}></i>
-              {isNetworkService ? 'Medicion de cobertura' : isMacDiagnostic ? 'Diagnostico gratis' : 'Diagnostico por modulo'}
+              <i class={`fa-solid ${isB2bMaintenancePolicy ? 'fa-building-shield' : isNetworkService ? 'fa-wifi' : isMacDiagnostic ? 'fa-circle-check' : 'fa-screwdriver-wrench'}`}></i>
+              {isB2bMaintenancePolicy ? 'Poliza con reportes' : isNetworkService ? 'Medicion de cobertura' : isMacDiagnostic ? 'Diagnostico gratis' : 'Diagnostico por modulo'}
             </div>
           )}
         </div>
@@ -355,19 +580,43 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
         )}
       </div>
     )}
+    {isB2bMaintenancePolicy && (
+      <div class="container sdv-macbook-rail b2b-hero-rail" aria-label="Puntos fuertes de la poliza TI">
+        <span><i class="fa-solid fa-clipboard-check"></i>Inventario y seguimiento</span>
+        <span><i class="fa-solid fa-screwdriver-wrench"></i>Mantenimiento preventivo</span>
+        <span><i class="fa-solid fa-file-lines"></i>Reporte para gerencia</span>
+        <span><i class="fa-solid fa-route"></i>Cobertura local Cancun</span>
+      </div>
+    )}
   </section>
 
   <nav class="sdv-anchor-nav" aria-label="Navegacion de la pagina">
     <div class="container">
       <a href="#sintomas">Sintomas</a>
       <a href="#diagnostico">Diagnostico</a>
+      {educationalBlocks.length > 0 && <a href="#incluye">Que incluye</a>}
       <a href="#proceso">Proceso</a>
+      {isB2bMaintenancePolicy && <a href="#mantenimiento-preventivo-ti-cancun">Poliza TI</a>}
       <a href="#modelos">Modelos</a>
       <a href="#garantia">Garantia</a>
       {faqs.length > 0 && <a href="#faq">FAQ</a>}
       <a href="#ubicacion">Contacto</a>
     </div>
   </nav>
+
+  {trustStats.length > 0 && (
+    <section class="sdv-trust-strip" aria-label="Resumen del servicio">
+      <div class="container sdv-trust-grid">
+        {trustStats.map((item: any) => (
+          <article>
+            <i class={`fa-solid ${item.icon || 'fa-circle-check'}`}></i>
+            <strong>{item.value}</strong>
+            <span>{item.label}</span>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
 
   <section class="sdv-section sdv-light" id="sintomas">
     <div class="container">
@@ -424,6 +673,157 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       </div>
     </div>
   </section>
+
+  {isB2bMaintenancePolicy && (
+    <section class="b2b-maintenance-seo" id="mantenimiento-preventivo-ti-cancun">
+      <div class="container">
+        <div class="b2b-maintenance-head">
+          <span>Mantenimiento preventivo TI Cancun</span>
+          <h2>Poliza completa para que tu empresa no dependa de apagar incendios</h2>
+          <p>
+            Esta vista concentra las busquedas locales mas importantes para empresas que necesitan soporte TI
+            recurrente en Cancun: prevencion, visitas, tickets, reportes, CFDI, red, impresoras, hoteles,
+            oficinas, restaurantes y cobertura por zona.
+          </p>
+        </div>
+        <div class="b2b-maintenance-grid">
+          {b2bMaintenanceSections.map((item) => (
+            <article class="b2b-maintenance-card">
+              <div class="b2b-maintenance-card-top">
+                <i class={`fa-solid ${item.icon}`}></i>
+                <span>{item.eyebrow}</span>
+              </div>
+              <h2>{item.title}</h2>
+              <p>{item.copy}</p>
+              <ul>
+                {item.points.map((point) => (
+                  <li><i class="fa-solid fa-circle-check"></i>{point}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {isB2bMaintenancePolicy && (
+    <section class="b2b-visual-depth" id="poliza-ti-con-imagenes">
+      <div class="container">
+        <div class="b2b-visual-head">
+          <span>Mas cobertura SEO local</span>
+          <h2>Areas reales que cubre una poliza de mantenimiento preventivo TI</h2>
+          <p>
+            Agregamos mas contenido visual y operativo para que la pagina responda mejor a empresas que comparan
+            soporte tecnico, mantenimiento de computadoras, red, impresoras y polizas TI en Cancun.
+          </p>
+        </div>
+        <div class="b2b-visual-list">
+          {b2bImageSections.map((item, index) => (
+            <article class={`b2b-visual-row ${index % 2 === 1 ? 'b2b-visual-row-reverse' : ''}`}>
+              <div class="b2b-visual-media">
+                <img src={item.image} alt={item.alt} loading="lazy" decoding="async" />
+              </div>
+              <div class="b2b-visual-copy">
+                <span>{item.eyebrow}</span>
+                <h2>{item.title}</h2>
+                <p>{item.copy}</p>
+                <ul>
+                  {item.points.map((point) => (
+                    <li><i class="fa-solid fa-circle-check"></i>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {isB2bMaintenancePolicy && (
+    <section class="b2b-seo-bands" id="soporte-ti-empresarial-cancun">
+      <div class="container">
+        <div class="b2b-visual-head">
+          <span>Intencion de busqueda empresarial</span>
+          <h2>Mas razones para contratar mantenimiento preventivo TI en Cancun</h2>
+          <p>
+            Estas secciones atacan busquedas de administradores, gerentes y duenos que necesitan control,
+            evidencia, continuidad y presupuesto tecnico claro.
+          </p>
+        </div>
+        <div class="b2b-band-grid">
+          {b2bSeoBands.map((item) => (
+            <article>
+              <i class={`fa-solid ${item.icon}`}></i>
+              <h2>{item.title}</h2>
+              <p>{item.copy}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {educationalBlocks.length > 0 && (
+    <section class="sdv-section sdv-education" id="incluye">
+      <div class="container">
+        <div class="sdv-section-head">
+          <span class="sdv-eyebrow-dark">Servicio completo</span>
+          <h2>Que incluye el mantenimiento preventivo en Cancun</h2>
+          <p>Estas revisiones ayudan a separar una limpieza normal de una falla real de ventilador, bateria, disco, pasta termica o placa.</p>
+        </div>
+        <div class="sdv-education-list">
+          {educationalBlocks.map((block: any) => (
+            <article class={`sdv-education-block ${block.reverse ? 'sdv-education-block-reverse' : ''}`}>
+              <div class="sdv-education-media">
+                <img src={block.imgSrc} alt={block.imgAlt} loading="lazy" decoding="async" />
+              </div>
+              <div class="sdv-education-copy">
+                <span class="sdv-eyebrow-dark">{block.eyebrow}</span>
+                <h3>{block.title}</h3>
+                <p>{block.intro}</p>
+                <div class="sdv-education-points">
+                  {block.points.map((point: any) => (
+                    <div>
+                      <i class={`fa-solid ${point.icon || 'fa-circle-check'}`}></i>
+                      <strong>{point.title}</strong>
+                      <span>{point.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {beforeAfter && (
+    <section class="sdv-section sdv-light" id="resultado">
+      <div class="container">
+        <div class="sdv-section-head">
+          <span class="sdv-eyebrow-dark">Resultado esperado</span>
+          <h2>Antes y despues de un mantenimiento preventivo bien hecho</h2>
+        </div>
+        <div class="sdv-before-after">
+          <article>
+            <h3>Antes del servicio</h3>
+            <ul>
+              {beforeAfter.before.map((item: string) => <li><i class="fa-solid fa-circle-exclamation"></i>{item}</li>)}
+            </ul>
+          </article>
+          <article>
+            <h3>Despues del servicio</h3>
+            <ul>
+              {beforeAfter.after.map((item: string) => <li><i class="fa-solid fa-circle-check"></i>{item}</li>)}
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+  )}
 
   <ServiceTicketSection
     id="ticket"
@@ -833,8 +1233,20 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-split p,
   .sdv-card p,
   .sdv-process p,
-  .sdv-proof-grid p {
+  .sdv-proof-grid p,
+  .sdv-light p,
+  .sdv-education p,
+  .sdv-education span,
+  .sdv-before-after li {
     color: #334155;
+  }
+  .sdv-light h2,
+  .sdv-light h3,
+  .sdv-education h2,
+  .sdv-education h3,
+  .sdv-education strong,
+  .sdv-before-after h3 {
+    color: #0F2A4A;
   }
   .sdv-section-head-dark h2 {
     color: #F8FAFC;
@@ -897,6 +1309,38 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-dark .sdv-process p {
     color: #DCEBFA;
   }
+  #riesgos {
+    background: #F8FAFC !important;
+    color: #0F2A4A !important;
+  }
+  #riesgos .sdv-eyebrow,
+  #riesgos .sdv-section-head-dark h2,
+  #riesgos .sdv-card-dark h3,
+  #riesgos .sdv-card-dark p {
+    color: #0F2A4A !important;
+  }
+  #riesgos .sdv-card-dark {
+    background: #FFFFFF !important;
+    border-color: rgba(15, 42, 74, 0.14) !important;
+    box-shadow: 0 14px 34px rgba(15, 42, 67, 0.08) !important;
+  }
+  #riesgos .sdv-card-dark i {
+    background: #E0F2FE !important;
+    color: #0F766E !important;
+  }
+  #diagnostico .sdv-proof-grid article {
+    background: #FFFFFF !important;
+    border-color: rgba(15, 42, 74, 0.14) !important;
+    box-shadow: 0 14px 34px rgba(15, 42, 67, 0.08) !important;
+  }
+  #diagnostico .sdv-proof-grid h3,
+  #diagnostico .sdv-proof-grid p {
+    color: #0F2A4A !important;
+  }
+  #diagnostico .sdv-proof-grid i {
+    background: #E0F2FE !important;
+    color: #0F766E !important;
+  }
   .sdv-process {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -916,6 +1360,148 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     color: var(--sdv-accent-strong);
     font-weight: 900;
     margin-bottom: 14px;
+  }
+  .sdv-trust-strip {
+    background: #FFFFFF;
+    border-bottom: 1px solid #D6E0EC;
+  }
+  .sdv-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .sdv-trust-grid article {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 4px 12px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid #D6E0EC;
+    border-radius: 8px;
+    background: #F8FAFC;
+  }
+  .sdv-trust-grid i {
+    grid-row: span 2;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #EAF2FF;
+    color: var(--sdv-accent-strong);
+  }
+  .sdv-trust-grid strong {
+    color: #0F2A4A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .sdv-trust-grid span {
+    color: #334155;
+    font-weight: 800;
+    font-size: .9rem;
+    line-height: 1.25;
+  }
+  .sdv-education {
+    background: #FFFFFF;
+  }
+  .sdv-education-list {
+    display: grid;
+    gap: 22px;
+  }
+  .sdv-education-block {
+    display: grid;
+    grid-template-columns: .9fr 1.1fr;
+    gap: 26px;
+    align-items: center;
+    border: 1px solid #D6E0EC;
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 18px 42px rgba(15,42,74,.08);
+    padding: clamp(16px, 2vw, 24px);
+  }
+  .sdv-education-block-reverse .sdv-education-media {
+    order: 2;
+  }
+  .sdv-education-media {
+    aspect-ratio: 16 / 10;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #EAF2FF;
+  }
+  .sdv-education-media img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .sdv-education-copy h3 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.45rem, 2.3vw, 2.15rem);
+    line-height: 1.08;
+    margin: 0 0 12px;
+  }
+  .sdv-education-copy p {
+    margin: 0 0 18px;
+    line-height: 1.62;
+  }
+  .sdv-education-points {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .sdv-education-points div {
+    padding: 14px;
+    border-radius: 8px;
+    background: #F8FAFC;
+    border: 1px solid #D6E0EC;
+  }
+  .sdv-education-points i {
+    color: var(--sdv-accent-strong);
+    margin-bottom: 10px;
+  }
+  .sdv-education-points strong,
+  .sdv-education-points span {
+    display: block;
+  }
+  .sdv-education-points strong {
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .sdv-before-after {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .sdv-before-after article {
+    padding: 22px;
+    border-radius: 8px;
+    background: #FFFFFF;
+    border: 1px solid #D6E0EC;
+    box-shadow: 0 18px 42px rgba(15,42,74,.08);
+  }
+  .sdv-before-after h3 {
+    font-family: 'Kanit', sans-serif;
+    margin: 0 0 14px;
+  }
+  .sdv-before-after ul {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+  }
+  .sdv-before-after li {
+    display: flex;
+    gap: 10px;
+    font-weight: 800;
+  }
+  .sdv-before-after i {
+    color: var(--sdv-accent-strong);
+    margin-top: 3px;
   }
   .sdv-tags {
     display: flex;
@@ -1319,6 +1905,140 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-network-service .sdv-process {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
+  .sdv-b2b-policy .sdv-hero {
+    padding: 92px 0 24px;
+    background:
+      linear-gradient(90deg, rgba(20, 184, 166, 0.1) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(125, 211, 252, 0.07) 1px, transparent 1px),
+      radial-gradient(circle at 18% 18%, rgba(45, 212, 191, 0.24), transparent 30%),
+      radial-gradient(circle at 78% 10%, rgba(59, 130, 246, 0.18), transparent 28%),
+      linear-gradient(135deg, #06111F 0%, #102A43 55%, #0F766E 100%);
+    background-size: 38px 38px, 38px 38px, auto, auto, auto;
+  }
+  .sdv-b2b-policy .sdv-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 0.86fr);
+    gap: clamp(24px, 4vw, 48px);
+    align-items: center;
+  }
+  .sdv-b2b-policy .sdv-hero h1 {
+    max-width: 900px;
+    font-size: clamp(2.8rem, 6.4vw, 6.1rem);
+    line-height: 0.92;
+  }
+  .sdv-b2b-policy .sdv-hero p {
+    max-width: 790px;
+    font-size: clamp(1.02rem, 1.35vw, 1.18rem);
+    line-height: 1.55;
+  }
+  .b2b-hero-tags,
+  .b2b-hero-metrics {
+    display: grid;
+    gap: 8px;
+    max-width: 900px;
+  }
+  .b2b-hero-tags {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-top: 20px;
+  }
+  .b2b-hero-tags span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 9px 10px;
+    border: 1px solid rgba(204, 251, 241, 0.2);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.48);
+    color: #E6FFFB;
+    font-size: 0.82rem;
+    font-weight: 900;
+  }
+  .b2b-hero-tags i,
+  .b2b-hero-metrics strong {
+    color: #5EEAD4;
+  }
+  .b2b-hero-metrics {
+    grid-template-columns: 0.78fr 1.06fr 1fr;
+    margin-top: 12px;
+  }
+  .b2b-hero-metrics span {
+    min-height: 76px;
+    padding: 13px;
+    border: 1px solid rgba(226, 232, 240, 0.14);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #DCEBFA;
+    font-size: 0.82rem;
+    font-weight: 850;
+    line-height: 1.25;
+  }
+  .b2b-hero-metrics strong {
+    display: block;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.15rem, 1.6vw, 1.55rem);
+    line-height: 1;
+    margin-bottom: 7px;
+  }
+  .sdv-b2b-policy .sdv-hero-card {
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 28px 72px rgba(2, 6, 23, 0.38);
+  }
+  .sdv-b2b-policy .sdv-hero-media {
+    aspect-ratio: 5 / 4;
+  }
+  .b2b-hero-collage {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 0.82fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    height: 100%;
+    padding: 8px;
+    background: #06111F;
+  }
+  .b2b-hero-collage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    min-width: 0;
+  }
+  .b2b-hero-collage img:first-child {
+    grid-row: span 2;
+  }
+  .b2b-hero-collage-badge {
+    position: absolute;
+    left: 18px;
+    bottom: 18px;
+    z-index: 2;
+    display: grid;
+    gap: 2px;
+    min-width: 190px;
+    padding: 12px 14px;
+    border: 1px solid rgba(94, 234, 212, 0.34);
+    border-radius: 8px;
+    background: rgba(6, 17, 31, 0.82);
+    color: #ECFEFF;
+    backdrop-filter: blur(12px);
+  }
+  .b2b-hero-collage-badge i {
+    color: #5EEAD4;
+    margin-bottom: 3px;
+  }
+  .b2b-hero-collage-badge strong {
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+  .b2b-hero-collage-badge span {
+    color: #CFFAFE;
+    font-size: 0.78rem;
+    font-weight: 900;
+  }
+  .b2b-hero-rail {
+    margin-top: 22px;
+  }
   .sdv-network-service .sdv-split {
     grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
   }
@@ -1469,14 +2189,309 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     color: #0B6B8A;
     margin-top: 2px;
   }
+  .b2b-maintenance-seo {
+    padding: 68px 0;
+    background:
+      linear-gradient(180deg, #F8FAFC 0%, #EEF6F8 100%);
+  }
+  .b2b-maintenance-head {
+    max-width: 980px;
+    margin: 0 auto 28px;
+    text-align: center;
+  }
+  .b2b-maintenance-head span,
+  .b2b-maintenance-card-top span {
+    color: #0F766E;
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .b2b-maintenance-head h2 {
+    margin: 8px 0 12px;
+    color: #102A43;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 3.4vw, 3.15rem);
+    line-height: 1.04;
+  }
+  .b2b-maintenance-head p {
+    margin: 0;
+    color: #334E68;
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.68;
+  }
+  .b2b-maintenance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .b2b-maintenance-card {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 10px;
+    min-height: 100%;
+    padding: 18px;
+    border: 1px solid rgba(15, 42, 67, 0.14);
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 12px 30px rgba(15, 42, 67, 0.09);
+  }
+  .b2b-maintenance-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .b2b-maintenance-card-top i {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    color: #0F766E;
+    background: #CCFBF1;
+  }
+  .b2b-maintenance-card h2 {
+    margin: 0;
+    color: #102A43;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.18rem;
+    line-height: 1.18;
+  }
+  .b2b-maintenance-card p {
+    margin: 0;
+    color: #334E68;
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+  .b2b-maintenance-card ul {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .b2b-maintenance-card li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #102A43;
+    font-size: 0.86rem;
+    font-weight: 850;
+    line-height: 1.34;
+  }
+  .b2b-maintenance-card li i {
+    color: #0F766E;
+    margin-top: 2px;
+  }
+  .b2b-visual-depth,
+  .b2b-seo-bands {
+    padding: 68px 0;
+    background: #FFFFFF;
+  }
+  .b2b-seo-bands {
+    background: linear-gradient(180deg, #F8FAFC 0%, #EAF5F5 100%);
+  }
+  .b2b-visual-head {
+    max-width: 980px;
+    margin: 0 auto 28px;
+    text-align: center;
+  }
+  .b2b-visual-head span,
+  .b2b-visual-copy span {
+    color: #0F766E;
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .b2b-visual-head h2 {
+    margin: 8px 0 12px;
+    color: #102A43;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 3.4vw, 3.15rem);
+    line-height: 1.04;
+  }
+  .b2b-visual-head p {
+    margin: 0;
+    color: #334E68;
+    font-weight: 650;
+    line-height: 1.68;
+  }
+  .b2b-visual-list {
+    display: grid;
+    gap: 20px;
+  }
+  .b2b-visual-row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+    gap: 24px;
+    align-items: center;
+    padding: 18px;
+    border: 1px solid rgba(15, 42, 67, 0.14);
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 14px 34px rgba(15, 42, 67, 0.08);
+  }
+  .b2b-visual-row-reverse .b2b-visual-media {
+    order: 2;
+  }
+  .b2b-visual-media {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #D6E0EC;
+  }
+  .b2b-visual-media img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .b2b-visual-copy h2 {
+    margin: 8px 0 12px;
+    color: #102A43;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.55rem, 2.6vw, 2.3rem);
+    line-height: 1.08;
+  }
+  .b2b-visual-copy p {
+    margin: 0 0 16px;
+    color: #334E68;
+    font-weight: 650;
+    line-height: 1.62;
+  }
+  .b2b-visual-copy ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .b2b-visual-copy li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: 44px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    background: #ECFDF5;
+    color: #102A43;
+    font-size: 0.84rem;
+    font-weight: 850;
+    line-height: 1.25;
+  }
+  .b2b-visual-copy li i {
+    color: #0F766E;
+    margin-top: 2px;
+  }
+  .b2b-band-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .b2b-band-grid article {
+    min-height: 100%;
+    padding: 18px;
+    border: 1px solid rgba(15, 42, 67, 0.14);
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 12px 30px rgba(15, 42, 67, 0.08);
+  }
+  .b2b-band-grid i {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #CCFBF1;
+    color: #0F766E;
+    margin-bottom: 12px;
+  }
+  .b2b-band-grid h2 {
+    margin: 0 0 9px;
+    color: #102A43;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.12rem;
+    line-height: 1.18;
+  }
+  .b2b-band-grid p {
+    margin: 0;
+    color: #334E68;
+    font-size: 0.92rem;
+    font-weight: 620;
+    line-height: 1.55;
+  }
   @media (max-width: 1100px) {
     .wifi-slow-extra-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .b2b-maintenance-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .b2b-hero-tags,
+    .b2b-band-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .b2b-hero-metrics {
+      grid-template-columns: 1fr;
+    }
+    .b2b-visual-copy ul {
+      grid-template-columns: 1fr;
     }
   }
   @media (max-width: 640px) {
     .wifi-slow-extra {
       padding: 46px 0;
+    }
+    .b2b-maintenance-seo {
+      padding: 46px 0;
+    }
+    .b2b-maintenance-head {
+      text-align: left;
+    }
+    .b2b-maintenance-grid {
+      grid-template-columns: 1fr;
+    }
+    .b2b-maintenance-card {
+      padding: 16px;
+    }
+    .b2b-visual-depth,
+    .b2b-seo-bands {
+      padding: 46px 0;
+    }
+    .b2b-visual-head {
+      text-align: left;
+    }
+    .b2b-visual-row,
+    .b2b-band-grid,
+    .b2b-hero-tags {
+      grid-template-columns: 1fr;
+    }
+    .b2b-visual-row {
+      padding: 14px;
+      gap: 16px;
+    }
+    .b2b-visual-row-reverse .b2b-visual-media {
+      order: 0;
+    }
+    .b2b-hero-collage {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(3, 120px);
+    }
+    .b2b-hero-collage img:first-child {
+      grid-row: auto;
+    }
+    .b2b-hero-collage-badge {
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      min-width: 0;
     }
     .wifi-slow-extra-head {
       text-align: left;
@@ -1544,6 +2559,14 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     .sdv-split {
       grid-template-columns: 1fr;
     }
+    .sdv-trust-grid,
+    .sdv-education-block,
+    .sdv-before-after {
+      grid-template-columns: 1fr;
+    }
+    .sdv-education-block-reverse .sdv-education-media {
+      order: 0;
+    }
     .sdv-hero {
       padding-top: 96px;
     }
@@ -1591,6 +2614,10 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-hero-actions {
       display: grid;
+    }
+    .sdv-trust-grid,
+    .sdv-education-points {
+      grid-template-columns: 1fr;
     }
     .sdv-macbook-repair .sdv-hero,
     .sdv-mac-diagnostic .sdv-hero,

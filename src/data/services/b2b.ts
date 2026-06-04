@@ -16,6 +16,9 @@ const b2bService = ({
   sectors,
   problems,
   relatedSlugs,
+  h1,
+  metaTitle,
+  metaDescription,
 }: {
   slug: string;
   label: string;
@@ -24,10 +27,16 @@ const b2bService = ({
   sectors: string[];
   problems: { problem: string; solution: string }[];
   relatedSlugs: string[];
+  h1?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }): ServiceItem => ({
   slug,
   label,
   seoKeyword: keyword,
+  h1,
+  metaTitle,
+  metaDescription,
   hook,
   intro: `${label} en Cancún con enfoque operativo: menos paros, mejor control de tickets, evidencia clara y soporte técnico para equipos críticos del negocio.`,
   bullets: ['Atención por ticket', 'Reportes para administración', 'Soporte a PC, laptop, impresora, red y WiFi', 'CFDI y seguimiento'],
@@ -137,6 +146,9 @@ export const b2bCategory: ServiceCategory = {
         { problem: 'Muchos equipos sin seguimiento', solution: 'Usamos tickets y prioridades por área.' },
       ],
       relatedSlugs: ['mantenimiento-flotilla', 'soporte-hoteles', 'soporte-oficinas', 'wifi-empresarial'],
+      h1: 'Mantenimiento preventivo TI en Cancun',
+      metaTitle: 'Mantenimiento preventivo TI en Cancun | Polizas para empresas',
+      metaDescription: 'Mantenimiento preventivo TI en Cancun para empresas, hoteles, oficinas y restaurantes. Polizas con visitas programadas, tickets, inventario, reportes, CFDI y soporte local.',
     }),
     b2bService({
       slug: 'mantenimiento-flotilla',

@@ -220,7 +220,52 @@ export const consolaCategory: ServiceCategory = {
     heroBg: 'linear-gradient(135deg, #6d28d9 0%, #9333ea 100%)',
     services: [
       { slug: 'reparacion-general',label: 'Reparación General',       customUrl: '/reparaciones' },
-      { slug: 'limpieza-consolas', label: 'Limpieza de Consolas',     customUrl: '/paquetes' },
+      {
+        slug: 'mantenimiento-preventivo',
+        label: 'Mantenimiento preventivo',
+        seoKeyword: 'Mantenimiento preventivo de consolas en Cancún',
+        hook: 'Mantenimiento para PS5, Xbox Series X/S, Nintendo Switch y consolas portátiles antes de que el polvo, calor o ventilador saturado provoquen apagados.',
+        intro: 'Servicio preventivo para consolas de videojuegos en Cancún: limpieza interna, revisión térmica, ventilador, puertos, pasta térmica o metal líquido según modelo.',
+        bullets: ['Limpieza interna de ventilador, disipador y rejillas', 'Revisión térmica de PS5, Xbox, Switch y portátiles', 'Pasta térmica o metal líquido según modelo y estado', 'Prueba de ruido, temperatura, video y controles', 'Reporte con recomendaciones antes de cambiar piezas'],
+        fromPrice: '$700 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        featuredImage: '/assets/images/ps5_xbox.webp',
+        sectionImages: {
+          whyUs: '/assets/images/ps5_xbox.webp',
+          process: '/assets/images/mantenimiento-metal-liquido-cancun.webp',
+        },
+        whyUs: [
+          { icon: 'fa-gamepad', title: 'Modelos actuales', desc: 'Revisamos PS5, Xbox Series X/S, Nintendo Switch, Switch OLED, ROG Ally y consolas portátiles similares.' },
+          { icon: 'fa-fan', title: 'Ruido bajo control', desc: 'Limpiamos ventilador y flujo de aire para evitar que trabaje al máximo por polvo.' },
+          { icon: 'fa-temperature-arrow-down', title: 'Servicio térmico correcto', desc: 'No tratamos igual una PS5 con metal líquido que una Switch con pasta térmica tradicional.' },
+          { icon: 'fa-shield-halved', title: 'Trabajo documentado', desc: 'Te explicamos qué se encontró y si conviene limpieza, pasta, ventilador o reparación aparte.' },
+        ],
+        process: [
+          { title: 'Diagnóstico preventivo', desc: 'Revisamos modelo, síntomas, ruido, temperatura, apagados, puertos y estado de ventilación.' },
+          { title: 'Desarmado controlado', desc: 'Abrimos la consola con herramienta adecuada para evitar daños en clips, flex y tornillería.' },
+          { title: 'Limpieza interna', desc: 'Retiramos polvo de ventilador, disipador, rejillas, placa y zonas de acumulación.' },
+          { title: 'Revisión térmica', desc: 'Validamos pasta térmica, pads o metal líquido según el modelo antes de aplicar material nuevo.' },
+          { title: 'Prueba final', desc: 'Probamos encendido, video, ventilación, ruido, temperatura y estabilidad antes de entregar.' },
+        ],
+        commonProblems: [
+          { problem: 'PS5 o Xbox Series X se calienta y hace mucho ruido', solution: 'El mantenimiento revisa polvo, ventilador, disipador y compuesto térmico para prevenir apagados.' },
+          { problem: 'Nintendo Switch o Switch OLED con ventilación tapada', solution: 'Limpiamos entradas, disipador y ventilador; también revisamos temperatura y estado de batería si aplica.' },
+          { problem: 'Consola portátil ROG con temperatura alta', solution: 'Revisamos ventilación, pasta, disipador, polvo y estabilidad bajo carga antes de recomendar piezas.' },
+          { problem: 'Consola usada sin historial de servicio', solution: 'El preventivo ayuda a detectar humedad, polvo, ventilador fatigado, puertos flojos o mantenimiento mal hecho.' },
+        ],
+        compatibleBrands: ['PlayStation 5', 'PS5 Slim', 'PlayStation 4', 'Xbox Series X', 'Xbox Series S', 'Xbox One', 'Nintendo Switch', 'Switch OLED', 'Switch Lite', 'ASUS ROG Ally / ROG Strix portátil', 'Steam Deck'],
+        faqs: [
+          { question: `¿Cada cuánto debo hacer mantenimiento preventivo a una consola?`, answer: `En Cancún recomendamos cada <strong>12 a 18 meses</strong>. Si la consola está en mueble cerrado, cerca del piso, se usa muchas horas o ya suena fuerte, conviene hacerlo antes.` },
+          { question: `¿El mantenimiento de PS5 incluye metal líquido?`, answer: `Revisamos el estado del metal líquido y el aislamiento. Si requiere redistribución o reemplazo, te lo explicamos antes porque debe hacerse con técnica correcta para evitar riesgo en placa.` },
+          { question: `¿También dan servicio a Xbox Series X y Nintendo Switch?`, answer: `Sí. Atendemos Xbox Series X/S, Xbox One, Nintendo Switch, Switch OLED y Switch Lite. El procedimiento cambia según diseño térmico, tamaño y tipo de disipador.` },
+          { question: `¿Reparan consolas portátiles como ROG Ally o Steam Deck?`, answer: `Sí, podemos revisar consolas portátiles como ROG Ally, equipos ROG portátiles similares y Steam Deck. Validamos modelo exacto antes de abrir o prometer refacciones.` },
+          { question: `¿Se borran mis juegos o partidas?`, answer: `No. El mantenimiento preventivo no toca almacenamiento ni cuentas. Aun así, recomendamos tener datos sincronizados en la nube cuando la plataforma lo permita.` },
+        ],
+        relatedSlugs: ['limpieza-interna', 'pasta-termica', 'sobrecalentamiento', 'diagnostico'],
+        relatedExternal: [
+          { label: 'Reparación de controles', href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Drift, botones, gatillos y fallas de control.' },
+          { label: 'Paquetes de mantenimiento', href: '/paquetes', icon: 'fa-box', desc: 'Plan preventivo recurrente si tienes varias consolas o equipos.' },
+        ],
+      },
       { slug: 'reparacion-controles',label: 'Reparación Controles',   customUrl: '/reparacion-controles' },
 
       // --- Limpieza interna consola (extendida) ------------------------
@@ -274,7 +319,7 @@ export const consolaCategory: ServiceCategory = {
           { question: `¿Cuánto tarda la limpieza de consola?`, answer: `El mantenimiento normalmente toma de <strong>24 a 48 horas</strong>. Si encontramos ventilador dañado, pasta térmica degradada, metal líquido mal distribuido o piezas por pedir, puede tomar más. Te avisamos antes.` },
           { question: `¿Es seguro abrir mi PS5 o Xbox?`, answer: `Sí, usamos herramientas adecuadas para cada modelo y cuidamos flex, tornillos, clips y disipador. También revisamos humedad, polvo pegado o señales de sobrecalentamiento. No abrimos a la fuerza ni improvisamos.` },
         ],
-        relatedSlugs: ['pasta-termica', 'sobrecalentamiento', 'fuente', 'diagnostico'],
+        relatedSlugs: ['mantenimiento-preventivo', 'pasta-termica', 'sobrecalentamiento', 'fuente', 'diagnostico'],
         relatedExternal: [
           { label: 'Reparación de Controles',   href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Joystick drift, gatillos, botones  -  lo arreglamos.' },
           { label: 'Paquetes de mantenimiento', href: '/paquetes',             icon: 'fa-box',     desc: 'Servicio recurrente con descuento.' },
@@ -317,7 +362,7 @@ export const consolaCategory: ServiceCategory = {
           { question: `¿Cuánto tarda el cambio de pasta en consola?`, answer: `El servicio normalmente toma de <strong>24 a 48 horas</strong>. Si requiere limpieza profunda adicional, revisión de ventilador, metal líquido o pruebas extendidas por apagados, puede tardar más. Te confirmamos al revisar la consola.` },
           { question: `¿Mi PS5 con sticker de garantía Sony puede abrirse?`, answer: `Si tu PS5 aún conserva garantía oficial vigente, abrirla puede afectarla. Si ya venció, el mantenimiento profesional no debería representar problema. Te explicamos el riesgo antes de abrir para que decidas si conviene hacerlo.` },
         ],
-        relatedSlugs: ['limpieza-interna', 'sobrecalentamiento', 'fuente', 'diagnostico'],
+        relatedSlugs: ['mantenimiento-preventivo', 'limpieza-interna', 'sobrecalentamiento', 'fuente', 'diagnostico'],
         relatedExternal: [
           { label: 'Reparación de Controles',  href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Aprovecha visita para arreglar el control con drift.' },
           { label: 'Paquetes de mantenimiento',href: '/paquetes',             icon: 'fa-box',     desc: 'Plan anual con descuento.' },
@@ -360,7 +405,7 @@ export const consolaCategory: ServiceCategory = {
         relatedSlugs: ['fuente', 'sobrecalentamiento', 'diagnostico', 'limpieza-interna', 'pasta-termica'],
         relatedExternal: [
           { label: 'Reparación de controles', href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Si también tienes drift, botones fallando o problemas de conexión en el control.' },
-          { label: 'Mantenimiento de consola', href: '/paquetes', icon: 'fa-box', desc: 'Limpieza interna, revisión térmica y mantenimiento preventivo para consolas de alto uso.' },
+          { label: 'Mantenimiento de consola', href: '/servicios/consola/mantenimiento-preventivo', icon: 'fa-screwdriver-wrench', desc: 'Limpieza interna, revisión térmica y mantenimiento preventivo para consolas de alto uso.' },
         ],
       },
 
@@ -468,7 +513,7 @@ export const consolaCategory: ServiceCategory = {
           { question: `¿Instalan refacciones genéricas que suenan más fuerte?`, answer: `No instalamos piezas genéricas sin avisarte. Buscamos ventiladores OEM o equivalentes confiables, cuidando flujo de aire, conector, tamaño y nivel de ruido. Una pieza barata puede enfriar mal o provocar apagados.` },
           { question: `¿Tienen ventiladores en stock en Cancún?`, answer: `Tenemos stock frecuente para modelos comunes, pero depende de consola y versión. Si no está disponible en Cancún, te damos tiempo real de pedido antes de abrir o cobrar. También revisamos si el problema es ventilador o solo limpieza.` },
         ],
-        relatedSlugs: ['limpieza-interna', 'pasta-termica', 'fuente', 'reparacion-controles'],
+        relatedSlugs: ['mantenimiento-preventivo', 'limpieza-interna', 'pasta-termica', 'fuente', 'reparacion-controles'],
         relatedExternal: [
           { label: 'Soporte vía WhatsApp', href: 'https://wa.me/message/MZNOMU6W34PBD1', icon: 'fa-whatsapp', desc: 'Envíanos un video o audio con el ruido de tu ventilador para una asesoría rápida.' },
         ],
@@ -509,7 +554,7 @@ export const consolaCategory: ServiceCategory = {
           { question: `¿Qué incluye el reporte?`, answer: `Incluye síntoma confirmado, pruebas realizadas, causa probable, fotos si aplica, costo estimado, tiempo de reparación y recomendación honesta. Si conviene no reparar por costo o riesgo, también te lo decimos antes de que gastes.` },
           { question: `¿Hacen diagnóstico a domicilio?`, answer: `Para consolas casi siempre recomendamos taller porque ahí podemos probar fuente, video, HDMI, temperatura y controles con mejor equipo. Podemos hacer visita en Cancún con costo para revisión inicial, pero abrir y reparar se hace con más seguridad en taller.` },
         ],
-        relatedSlugs: ['limpieza-interna', 'pasta-termica', 'hdmi', 'fuente'],
+        relatedSlugs: ['mantenimiento-preventivo', 'limpieza-interna', 'pasta-termica', 'hdmi', 'fuente'],
         relatedExternal: [
           { label: 'Reparación general',     href: '/reparaciones',         icon: 'fa-screwdriver-wrench', desc: 'Si ya sabes qué tiene tu consola.' },
           { label: 'Reparación de Controles',href: '/reparacion-controles', icon: 'fa-gamepad',             desc: 'Para joystick drift y fallas de control.' },

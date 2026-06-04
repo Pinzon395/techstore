@@ -1,0 +1,1209 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, necesito soporte de macOS en Cancún. Mi Mac tiene un problema de software y quiero cotizar.'
+);
+
+const problems = [
+  {
+    icon: 'fa-gauge-high',
+    title: 'macOS lento en Cancún',
+    h3: '¿Por qué mi Mac va lenta después de actualizar macOS?',
+    desc: 'Revisamos almacenamiento SSD casi lleno, apps con consumo excesivo, procesos de indexación de Spotlight, login items acumulados y temperatura antes de recomendar reinstalación.',
+    tags: ['macOS Ventura', 'macOS Sonoma', 'macOS Sequoia', 'MacBook Air M1/M2'],
+  },
+  {
+    icon: 'fa-power-off',
+    title: 'Mac no termina de iniciar',
+    h3: '¿Qué hacer si mi Mac se queda en la pantalla de carga?',
+    desc: 'Probamos modo seguro, recuperación, diagnóstico de disco con First Aid, revisión de partición de arranque, y evaluamos si el problema es software o almacenamiento antes de formatear.',
+    tags: ['Pantalla barra de progreso', 'Modo Recovery', 'Apple Silicon', 'Intel'],
+  },
+  {
+    icon: 'fa-arrow-up-from-bracket',
+    title: 'Actualización de macOS fallida',
+    h3: 'Cómo actualizar macOS sin perder archivos en Cancún',
+    desc: 'Validamos espacio disponible, salud del SSD, versión de firmware y compatibilidad del modelo. Realizamos respaldo previo y guiamos la actualización para evitar errores de instalación.',
+    tags: ['Sonoma', 'Sequoia', 'M3', 'MacBook Pro'],
+  },
+  {
+    icon: 'fa-window-close',
+    title: 'Apps que no abren o dan error',
+    h3: 'Solución para aplicaciones dañadas o incompatibles en Mac',
+    desc: 'Revisamos permisos de Gatekeeper, archivos de preferencias corruptos, versión de macOS requerida por la app, conflictos de extensiones de kernel y caché del sistema.',
+    tags: ['Gatekeeper', 'Rosetta 2', 'App Store', 'Apps terceros'],
+  },
+  {
+    icon: 'fa-database',
+    title: 'Respaldo y migración de datos Mac',
+    h3: 'Respaldo con Time Machine y migración a nueva Mac en Cancún',
+    desc: 'Configuramos Time Machine en disco externo o NAS, realizamos migración completa con Migration Assistant entre Macs, y validamos integridad de datos antes de formatear.',
+    tags: ['Time Machine', 'Migration Assistant', 'iCloud', 'disco externo'],
+  },
+  {
+    icon: 'fa-rotate',
+    title: 'Reinstalación limpia de macOS',
+    h3: 'Reinstalación de macOS Sonoma y Sequoia sin perder tus datos',
+    desc: 'Realizamos reinstalación sobre el sistema actual o formateo completo con APFS según la falla. Respaldamos datos, reinstalamos macOS desde Recovery y configuramos el usuario desde cero.',
+    tags: ['macOS Sequoia', 'APFS', 'Formateo', 'Recovery Mode'],
+  },
+  {
+    icon: 'fa-shield-virus',
+    title: 'Malware y adware en Mac',
+    h3: 'Eliminación de virus, adware y software no deseado en macOS',
+    desc: 'Analizamos extensiones de navegador sospechosas, procesos en segundo plano no reconocidos, perfiles de configuración instalados y Launch Agents sin autorización.',
+    tags: ['Adware', 'Browser hijack', 'Launch Agents', 'Safari/Chrome'],
+  },
+  {
+    icon: 'fa-wifi',
+    title: 'Problemas de WiFi y Bluetooth en Mac',
+    h3: 'Mac sin WiFi, Bluetooth fallando o sin red en Cancún',
+    desc: 'Resetamos NVRAM, SMC y preferencias de red. Revisamos conflictos de VPN, interfaces duplicadas, permisos de red y descartamos falla de hardware en el módulo inalámbrico.',
+    tags: ['NVRAM reset', 'SMC reset', 'Preferencias de red', 'AirDrop'],
+  },
+];
+
+const steps = [
+  {
+    num: '01',
+    title: 'Diagnóstico remoto o presencial',
+    desc: 'Evalúas por WhatsApp o traes tu Mac. Identificamos si la falla es de software, almacenamiento o hardware para no invertir en lo que no corresponde.',
+    icon: 'fa-magnifying-glass-chart',
+  },
+  {
+    num: '02',
+    title: 'Revisión del estado del sistema',
+    desc: 'Accedemos a Actividad del Sistema, Console.app y herramientas de diagnóstico para mapear procesos con alto consumo, errores de kernel y salud del SSD.',
+    icon: 'fa-terminal',
+  },
+  {
+    num: '03',
+    title: 'Respaldo antes de cualquier cambio',
+    desc: 'Si hay riesgo de pérdida de datos por el proceso, priorizamos Time Machine o copia manual antes de reinstalar macOS, formatear o intervenir el almacenamiento.',
+    icon: 'fa-database',
+  },
+  {
+    num: '04',
+    title: 'Reparación o reinstalación controlada',
+    desc: 'Ejecutamos la solución más conservadora: desde reparar permisos y limpiar caché hasta reinstalación completa de macOS Sequoia o Sonoma según el caso.',
+    icon: 'fa-screwdriver-wrench',
+  },
+  {
+    num: '05',
+    title: 'Configuración, apps y pruebas finales',
+    desc: 'Restauramos usuario, instalamos apps esenciales, validamos rendimiento, temperatura, WiFi, Bluetooth, carga y estabilidad antes de entregar.',
+    icon: 'fa-circle-check',
+  },
+];
+
+const risks = [
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'No formatees sin respaldo',
+    text: 'Si macOS falla o el sistema no inicia, reinstalar sin respaldo previo puede significar pérdida permanente de fotos, documentos y proyectos.',
+  },
+  {
+    icon: 'fa-rotate-right',
+    title: 'No fuerces reinicios repetidos',
+    text: 'Reiniciar a la fuerza una Mac con falla de sistema puede corromper el sistema de archivos APFS y complicar la recuperación de datos.',
+  },
+  {
+    icon: 'fa-hard-drive',
+    title: 'No ignores el almacenamiento lleno',
+    text: 'macOS necesita espacio libre para crear archivos de intercambio de memoria. Sin espacio, el sistema se congela, los procesos fallan y la Mac se vuelve inutilizable.',
+  },
+  {
+    icon: 'fa-download',
+    title: 'No actualices si tienes falla activa',
+    text: 'Actualizar macOS con una falla de disco, arranque inestable o SSD dañado puede interrumpir la instalación y dejar el sistema irrecuperable sin acceso a los datos.',
+  },
+];
+
+const faqs = [
+  {
+    question: '¿Pueden solucionar macOS lento o que no termina de iniciar en Cancún?',
+    answer: 'Sí. Revisamos procesos con alto consumo de CPU y RAM, almacenamiento casi lleno, login items, temperatura, salud del SSD y versión de macOS para encontrar la causa real antes de reinstalar.',
+  },
+  {
+    question: '¿Pierdo mis archivos si reinstalan macOS en mi Mac?',
+    answer: 'No necesariamente. La reinstalación sobre el sistema actual preserva tus datos en la mayoría de los casos. Si hay riesgo de pérdida, primero hacemos respaldo con Time Machine o copia manual antes de proceder.',
+  },
+  {
+    question: '¿Instalan macOS Sequoia o Sonoma en Macs antiguas en Cancún?',
+    answer: 'Sí. Validamos compatibilidad del modelo con la versión de macOS requerida, espacio disponible, firmware y te indicamos si conviene actualizar o mantener la versión actual según el rendimiento del equipo.',
+  },
+  {
+    question: '¿Pueden solucionar problemas de apps que no abren o dan error en Mac?',
+    answer: 'Sí. Revisamos permisos de Gatekeeper, archivos de preferencias corruptos, conflictos de Rosetta 2 en chips M1/M2/M3, extensiones incompatibles y caché del sistema para restaurar el funcionamiento sin reinstalar todo.',
+  },
+  {
+    question: '¿Hacen respaldo con Time Machine y migración de datos entre Macs?',
+    answer: 'Sí. Configuramos Time Machine en disco externo o NAS, y realizamos migraciones con Migration Assistant entre equipos Apple. También copiamos manualmente documentos, fotos, configuraciones y apps según el caso.',
+  },
+  {
+    question: '¿Pueden eliminar malware, adware o programas no deseados de mi Mac?',
+    answer: 'Sí. Revisamos extensiones de navegador, Launch Agents, perfiles de configuración instalados sin permiso, procesos en segundo plano y archivos sospechosos en el sistema para limpiar la Mac sin reinstalar si es posible.',
+  },
+  {
+    question: '¿Solucionan problemas de WiFi y Bluetooth en Mac en Cancún?',
+    answer: 'Sí. Reseteamos NVRAM, SMC y preferencias de red, revisamos conflictos con VPN o interfaces duplicadas, y descartamos falla de hardware en el módulo inalámbrico antes de concluir si necesita reparación física.',
+  },
+  {
+    question: '¿Cuánto tiempo tarda el soporte de software macOS en Cancún?',
+    answer: 'Problemas comunes de sistema, apps o rendimiento pueden resolverse en 24 a 48 horas. Reinstalaciones completas, migraciones de datos o equipos con almacenamiento comprometido pueden requerir hasta 72 horas según el caso.',
+  },
+];
+
+const versions = [
+  { name: 'macOS Sequoia', icon: 'fa-brands fa-apple', note: '15.x — Compatible' },
+  { name: 'macOS Sonoma', icon: 'fa-brands fa-apple', note: '14.x — Compatible' },
+  { name: 'macOS Ventura', icon: 'fa-brands fa-apple', note: '13.x — Compatible' },
+  { name: 'macOS Monterey', icon: 'fa-brands fa-apple', note: '12.x — Compatible' },
+  { name: 'MacBook Air M1/M2/M3', icon: 'fa-laptop', note: 'Apple Silicon' },
+  { name: 'MacBook Pro M1/M2/M3', icon: 'fa-laptop', note: 'Apple Silicon' },
+  { name: 'MacBook Air/Pro Intel', icon: 'fa-laptop', note: 'Intel x86' },
+  { name: 'iMac / Mac mini', icon: 'fa-desktop', note: 'Escritorio Apple' },
+];
+---
+
+<div class="mos-page">
+
+  <!-- ═══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════ -->
+  <section class="mos-hero">
+    <div class="mos-hero-glow mos-glow-1"></div>
+    <div class="mos-hero-glow mos-glow-2"></div>
+    <div class="container mos-hero-grid">
+
+      <div class="mos-hero-copy">
+        <span class="mos-kicker">
+          <i class="fa-brands fa-apple"></i> Soporte macOS en Cancún
+        </span>
+        <h1>Software macOS en Cancún | Reinstalación, Optimización y Soporte Profesional</h1>
+        <p class="mos-hero-sub">
+          ¿Tu Mac va lenta, no inicia, falla una app o necesitas actualizar macOS sin perder tus archivos?
+          Resolvemos problemas de software en MacBook Air, MacBook Pro, iMac y Mac mini con diagnóstico
+          honesto, respaldo previo y solución real en Cancún.
+        </p>
+        <div class="mos-badges">
+          <span><i class="fa-solid fa-rotate"></i> Reinstalación macOS</span>
+          <span><i class="fa-solid fa-gauge-high"></i> Mac lenta — Solución</span>
+          <span><i class="fa-solid fa-database"></i> Respaldo y migración</span>
+          <span><i class="fa-solid fa-shield-virus"></i> Limpieza de malware</span>
+          <span><i class="fa-brands fa-apple"></i> M1 / M2 / M3 / Intel</span>
+        </div>
+        <div class="mos-actions">
+          <a
+            class="mos-btn-primary"
+            href={`https://wa.me/529986690777?text=${waMessage}`}
+            target="_blank"
+            id="mos-hero-wa-btn"
+          >
+            <i class="fa-brands fa-whatsapp"></i> Cotizar soporte macOS
+          </a>
+          <a class="mos-btn-secondary" href="#problemas-macos" id="mos-hero-ver-btn">
+            Ver problemas que resolvemos
+          </a>
+        </div>
+      </div>
+
+      <aside class="mos-hero-panel">
+        <div class="mos-panel-img-wrap">
+          <img
+            src="/assets/images/mantenimiento-macbook-cancun.webp"
+            alt="Soporte y software macOS en Cancún — Pixon PC"
+            class="mos-panel-img"
+          />
+          <div class="mos-panel-img-overlay"></div>
+        </div>
+        <div class="mos-panel-price-row">
+          <div>
+            <span class="mos-price-label">Soporte de software</span>
+            <strong class="mos-price-value">{service.fromPrice || 'Desde $550 MXN'}</strong>
+          </div>
+          <span class="mos-price-eta">
+            <i class="fa-regular fa-clock"></i> 24-72 h
+          </span>
+        </div>
+        <ul class="mos-panel-checks">
+          <li><i class="fa-solid fa-circle-check"></i> Diagnóstico antes de reinstalar</li>
+          <li><i class="fa-solid fa-circle-check"></i> Respaldo previo incluido si aplica</li>
+          <li><i class="fa-solid fa-circle-check"></i> Sin formatear si no es necesario</li>
+          <li><i class="fa-solid fa-circle-check"></i> MacBook Air, Pro, iMac y Mac mini</li>
+          <li><i class="fa-solid fa-circle-check"></i> Intel y Apple Silicon M1/M2/M3</li>
+        </ul>
+      </aside>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       INTRO — qué hacemos y por qué importa
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-light" id="que-hacemos">
+    <div class="container">
+      <div class="mos-two-col">
+        <div>
+          <span class="mos-eyebrow">¿Qué resolvemos?</span>
+          <h2>Soporte de Software y Sistema para Mac en Cancún</h2>
+          <p>
+            El sistema operativo macOS es robusto pero no infalible. En Cancún, la combinación de
+            calor, humedad, actualizaciones automáticas y el uso intensivo de apps puede provocar
+            fallas de arranque, lentitud extrema, pérdida de datos y errores del sistema que
+            parecen hardware pero son completamente de software.
+          </p>
+          <p>
+            Nuestro servicio de <strong>soporte macOS en Cancún</strong> cubre desde optimización
+            del sistema hasta reinstalación limpia de <strong>macOS Sonoma o Sequoia</strong>,
+            siempre priorizando tus datos antes de cualquier cambio invasivo.
+          </p>
+        </div>
+        <div>
+          <span class="mos-eyebrow">¿Por qué no formatear a la primera?</span>
+          <h2>Diagnóstico Real Antes de Reinstalar macOS</h2>
+          <p>
+            Muchos problemas que parecen requerir formateo tienen solución sin borrar nada: caché
+            corrupta, login items que crashean, almacenamiento lleno que paraliza el sistema,
+            o una extensión de kernel incompatible tras una actualización.
+          </p>
+          <p>
+            Primero diagnosticamos. Solo reinstalamos o formateamos cuando es la solución correcta,
+            no la más rápida para el técnico. Y si hay riesgo para tus archivos, primero respaldamos.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PROBLEMAS — grilla de 8 tarjetas
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-dark" id="problemas-macos">
+    <div class="container">
+      <div class="mos-head-center">
+        <span class="mos-eyebrow mos-eyebrow-light">Fallas que atendemos</span>
+        <h2>Problemas de Software macOS que Resolvemos en Cancún</h2>
+        <p class="mos-center-desc">
+          Desde <strong>macOS lento en Cancún</strong> hasta reinstalación completa de Sequoia, aquí
+          detallamos exactamente qué revisamos en cada falla y cómo lo resolvemos.
+        </p>
+      </div>
+
+      <div class="mos-problems-grid">
+        {problems.map((p) => (
+          <article class="mos-problem-card">
+            <div class="mos-problem-icon-wrap">
+              <i class={`fa-solid ${p.icon}`}></i>
+            </div>
+            <div class="mos-problem-body">
+              <h3>{p.h3}</h3>
+              <p class="mos-problem-label">{p.title}</p>
+              <p>{p.desc}</p>
+              <div class="mos-problem-tags">
+                {p.tags.map((t) => <span>{t}</span>)}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SPLIT — mac lenta + reinstalación
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-light">
+    <div class="container">
+      <div class="mos-split-cards">
+
+        <div class="mos-split-card mos-split-card--img">
+          <div class="mos-split-img-wrap">
+            <img
+              src="/assets/images/reparacion-mac-cancun.webp"
+              alt="Mac lenta por macOS corrupto — diagnóstico en Cancún"
+              class="mos-split-img"
+            />
+          </div>
+          <span class="mos-eyebrow">Optimización del sistema</span>
+          <h2>¿Mac Lenta en Cancún? Solución sin Formatear</h2>
+          <p>
+            La mayoría de las Macs que "van lentas" no necesitan formateo. Necesitan que alguien
+            revise correctamente: almacenamiento SSD lleno o con sectores dañados, demasiados
+            programas ejecutándose al inicio, una actualización de macOS incompleta, procesos
+            zombies consumiendo CPU o RAM, o la temperatura alta que activa el thermal throttling.
+          </p>
+          <p>
+            Nuestro servicio de <strong>optimización macOS en Cancún</strong> identifica la causa
+            real en menos de una hora y aplica la solución mínima necesaria. Sin borrar. Sin
+            reiniciar. Sin pérdida de tiempo.
+          </p>
+          <a
+            class="mos-btn-sm"
+            href={`https://wa.me/529986690777?text=${waMessage}`}
+            target="_blank"
+          >
+            <i class="fa-brands fa-whatsapp"></i> Consultar ahora
+          </a>
+        </div>
+
+        <div class="mos-split-card mos-split-card--dark">
+          <span class="mos-eyebrow mos-eyebrow-light">Reinstalación macOS Cancún</span>
+          <h2>Reinstalación de macOS Sonoma y Sequoia sin Perder Datos</h2>
+          <p>
+            Cuando el sistema está tan corrupto que optimizar ya no es viable, realizamos una
+            <strong>reinstalación limpia de macOS en Cancún</strong>. Hay dos rutas: reinstalar
+            sobre el sistema actual (preserva todos tus datos y apps) o formateo completo con
+            instalación desde cero (para fallas graves de partición o APFS).
+          </p>
+          <p>
+            Antes de cualquier ruta, respaldamos con Time Machine o copia manual. Te indicamos
+            exactamente qué perderás y qué no antes de autorizar el proceso. Sin sorpresas.
+          </p>
+          <ul class="mos-checklist">
+            <li><i class="fa-solid fa-check"></i> macOS Sonoma 14.x y Sequoia 15.x</li>
+            <li><i class="fa-solid fa-check"></i> MacBook Air y Pro Intel y Apple Silicon</li>
+            <li><i class="fa-solid fa-check"></i> iMac Intel e iMac Apple Silicon</li>
+            <li><i class="fa-solid fa-check"></i> Mac mini M1, M2 e Intel</li>
+            <li><i class="fa-solid fa-check"></i> Reinstalación desde Recovery Mode</li>
+            <li><i class="fa-solid fa-check"></i> Respaldo previo incluido si aplica</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       VERSIONES COMPATIBLES
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-dark mos-versions-section">
+    <div class="container">
+      <div class="mos-head-center">
+        <span class="mos-eyebrow mos-eyebrow-light">Compatibilidad</span>
+        <h2>Versiones de macOS y Modelos Apple que Atendemos en Cancún</h2>
+        <p class="mos-center-desc">
+          Trabajamos con toda la línea Mac, desde equipos Intel hasta los chips
+          más recientes <strong>Apple M3 Pro y M3 Max</strong>.
+        </p>
+      </div>
+      <div class="mos-versions-grid">
+        {versions.map((v) => (
+          <div class="mos-version-pill">
+            <i class={v.icon}></i>
+            <div>
+              <strong>{v.name}</strong>
+              <small>{v.note}</small>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PROCESO
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-light" id="proceso-macos">
+    <div class="container">
+      <div class="mos-head-center mos-head-dark">
+        <span class="mos-eyebrow">Cómo trabajamos</span>
+        <h2>¿Cómo Es el Proceso de Soporte macOS en Cancún?</h2>
+        <p class="mos-center-desc mos-center-desc--dark">
+          Sin improvisación. Sin formatear a ciegas. Seguimos un proceso ordenado para resolver
+          tu problema de macOS de la forma más conservadora posible.
+        </p>
+      </div>
+      <div class="mos-process-list">
+        {steps.map((s) => (
+          <div class="mos-process-item">
+            <div class="mos-process-num-wrap">
+              <span class="mos-process-num">{s.num}</span>
+              <div class="mos-process-line"></div>
+            </div>
+            <div class="mos-process-content">
+              <div class="mos-process-icon"><i class={`fa-solid ${s.icon}`}></i></div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       ADVERTENCIAS — NO hagas esto
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-dark">
+    <div class="container">
+      <div class="mos-head-center">
+        <span class="mos-eyebrow mos-eyebrow-light">Antes de intentarlo solo</span>
+        <h2>Errores Comunes que Complican la Recuperación de macOS</h2>
+        <p class="mos-center-desc">
+          Hacer esto antes de llevar tu Mac puede convertir un problema simple de software
+          en una pérdida de datos difícil de recuperar.
+        </p>
+      </div>
+      <div class="mos-risks-grid">
+        {risks.map((r) => (
+          <div class="mos-risk-card">
+            <div class="mos-risk-icon"><i class={`fa-solid ${r.icon}`}></i></div>
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       RESPALDO Y MIGRACIÓN — sección especial
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-light mos-migration-section">
+    <div class="container">
+      <div class="mos-migration-grid">
+        <div class="mos-migration-copy">
+          <span class="mos-eyebrow">Time Machine y Migration Assistant</span>
+          <h2>Respaldo, Migración de Datos y Cambio de Mac en Cancún</h2>
+          <p>
+            ¿Compraste una Mac nueva y necesitas mover todo desde la anterior? ¿Quieres configurar
+            Time Machine correctamente para tener respaldo automático? ¿Tu Mac antigua falló y
+            necesitas recuperar datos antes de formatear?
+          </p>
+          <p>
+            Realizamos <strong>migraciones completas entre Macs</strong> usando Migration Assistant,
+            configuramos Time Machine en disco externo USB-C o NAS de red, y si el equipo anterior
+            ya no enciende, evaluamos recuperación de datos desde el SSD según el modelo y chip.
+          </p>
+          <div class="mos-migration-points">
+            <div class="mos-mp">
+              <i class="fa-solid fa-arrow-right-arrow-left"></i>
+              <span>Migración completa Mac a Mac</span>
+            </div>
+            <div class="mos-mp">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>Configuración de Time Machine</span>
+            </div>
+            <div class="mos-mp">
+              <i class="fa-solid fa-cloud"></i>
+              <span>Sincronización y migración iCloud</span>
+            </div>
+            <div class="mos-mp">
+              <i class="fa-solid fa-hard-drive"></i>
+              <span>Recuperación de datos desde SSD Mac</span>
+            </div>
+          </div>
+        </div>
+        <div class="mos-migration-img-wrap">
+          <img
+            src="/assets/images/mac-mini.webp"
+            alt="Migración de datos y respaldo Mac en Cancún — Pixon PC"
+            class="mos-migration-img"
+          />
+          <div class="mos-migration-badge">
+            <i class="fa-solid fa-database"></i>
+            <span>Datos protegidos<br><strong>siempre primero</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       CTA CENTRAL
+  ══════════════════════════════════════════════ -->
+  <section class="mos-section mos-cta-section">
+    <div class="container">
+      <div class="mos-cta-inner">
+        <div class="mos-cta-glow"></div>
+        <span class="mos-eyebrow mos-eyebrow-light">¿Tu Mac tiene falla de software?</span>
+        <h2>Soporte macOS Local en Cancún — Sin Formatear a Ciegas</h2>
+        <p>
+          Descríbenos el problema por WhatsApp o trae tu Mac. Revisamos, cotizamos y te decimos
+          honestamente si se soluciona sin formatear, si necesita reinstalación o si la falla
+          es de hardware antes de cobrar por algo que no corresponde.
+        </p>
+        <div class="mos-cta-actions">
+          <a
+            class="mos-btn-primary mos-btn-lg"
+            href={`https://wa.me/529986690777?text=${waMessage}`}
+            target="_blank"
+            id="mos-cta-wa-btn"
+          >
+            <i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp
+          </a>
+          <a class="mos-btn-ghost" href="/servicios/mac/diagnostico-mac" id="mos-cta-diag-btn">
+            Ver diagnóstico Mac gratuito
+          </a>
+        </div>
+        <div class="mos-cta-pills">
+          <span><i class="fa-solid fa-location-dot"></i> Cancún, Quintana Roo</span>
+          <span><i class="fa-solid fa-clock"></i> Respuesta en minutos</span>
+          <span><i class="fa-solid fa-file-shield"></i> Cotización sin compromiso</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED, FAQ, COMMENTS, CONTACT -->
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Más servicios Mac en Cancún"
+    eyebrow="Servicios relacionados"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  <FaqSection
+    id="faq-macos"
+    title="Preguntas Frecuentes — Soporte macOS en Cancún"
+    description="Resolvemos tus dudas sobre reinstalación, optimización, respaldo, migración y soporte de software para Mac en Cancún."
+    items={faqs}
+    ariaLabel="Preguntas frecuentes sobre soporte macOS en Cancún"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    sectionClass="faq-section"
+    gridClass="faq-grid"
+    backgroundColor="#F8FAFC"
+    questionColor="#0F2A4A"
+    itemGap="8px"
+    questionPadding="16px 18px"
+  />
+
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios-macos" />
+  <ContactSection id="ubicacion-macos" />
+
+</div>
+
+<style is:global>
+/* ════════════════════════════════════════════════
+   ROOT PAGE WRAPPER
+════════════════════════════════════════════════ */
+.mos-page {
+  background: #0b1120;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════ */
+.mos-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 48px 0 60px;
+  background:
+    radial-gradient(ellipse at 5% 0%, rgba(99,102,241,0.18) 0%, transparent 40%),
+    radial-gradient(ellipse at 95% 0%, rgba(6,182,212,0.12) 0%, transparent 35%),
+    linear-gradient(160deg, #060c18 0%, #0b1120 55%, #0d1f3a 100%);
+}
+
+.mos-hero-glow {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+.mos-glow-1 {
+  width: 500px; height: 500px;
+  top: -200px; left: -100px;
+  background: rgba(99,102,241,0.12);
+}
+.mos-glow-2 {
+  width: 400px; height: 400px;
+  bottom: -150px; right: -80px;
+  background: rgba(6,182,212,0.10);
+}
+
+.mos-hero-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr minmax(300px, 400px);
+  gap: 36px;
+  align-items: center;
+}
+
+.mos-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #67e8f9;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.mos-hero-copy h1 {
+  margin: 14px 0 16px;
+  color: #ffffff;
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  line-height: 1.09;
+  font-weight: 700;
+}
+
+.mos-hero-sub {
+  color: #b0bec5;
+  font-size: 1.06rem;
+  line-height: 1.68;
+  margin: 0 0 22px;
+}
+
+.mos-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 26px;
+}
+.mos-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(103,232,249,0.2);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e0f7fa;
+}
+
+.mos-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.mos-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #0891b2;
+  color: #ffffff !important;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 28px rgba(8,145,178,0.35);
+}
+.mos-btn-primary:hover {
+  background: #0e7490;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(8,145,178,0.45);
+}
+.mos-btn-primary.mos-btn-lg {
+  padding: 16px 28px;
+  font-size: 1.05rem;
+  border-radius: 14px;
+}
+
+.mos-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #a5f3fc !important;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.mos-btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(165,243,252,0.35);
+}
+
+.mos-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #a5f3fc !important;
+  border: 1px solid rgba(165,243,252,0.3);
+  background: transparent;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.mos-btn-ghost:hover {
+  background: rgba(165,243,252,0.08);
+}
+
+.mos-btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0891b2;
+  color: #fff !important;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+}
+.mos-btn-sm:hover { background: #0e7490; transform: translateY(-2px); }
+
+/* HERO PANEL */
+.mos-hero-panel {
+  background: rgba(13,20,38,0.9);
+  border: 1px solid rgba(148,163,184,0.14);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+}
+.mos-panel-img-wrap {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 175px;
+  border: 1px solid rgba(103,232,249,0.12);
+}
+.mos-panel-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.mos-hero-panel:hover .mos-panel-img { transform: scale(1.05); }
+.mos-panel-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(13,20,38,0.75) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.mos-panel-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 14px;
+  gap: 8px;
+}
+.mos-price-label { display: block; color: #67e8f9; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.mos-price-value { font-family: 'Kanit', sans-serif; font-size: 1.9rem; color: #a5f3fc; line-height: 1; }
+.mos-price-eta { color: #94a3b8; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+
+.mos-panel-checks {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: grid; gap: 8px;
+}
+.mos-panel-checks li {
+  display: flex; align-items: center; gap: 8px;
+  color: #cbd5e1; font-size: 0.84rem; font-weight: 500;
+}
+.mos-panel-checks li i { color: #10b981; font-size: 0.85rem; }
+
+/* ════════════════════════════════════════════════
+   SECTION BASE
+════════════════════════════════════════════════ */
+.mos-section { padding: 72px 0; }
+
+.mos-light { background: #f8fafc; color: #1e293b; }
+.mos-dark  { background: #0f172a; color: #e2e8f0; }
+
+.mos-eyebrow {
+  display: inline-block;
+  color: #0891b2;
+  font-size: 0.77rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.mos-eyebrow-light { color: #67e8f9 !important; }
+
+.mos-section h2 {
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1.12;
+  margin: 8px 0 16px;
+  font-weight: 700;
+}
+.mos-light h2 { color: #0f172a; }
+.mos-dark h2  { color: #f1f5f9; }
+
+.mos-section p { line-height: 1.68; margin: 0 0 16px; }
+.mos-light p { color: #475569; }
+.mos-dark p  { color: #94a3b8; }
+
+.mos-head-center { max-width: 820px; margin: 0 auto 48px; text-align: center; }
+.mos-head-dark h2 { color: #0f172a !important; }
+.mos-center-desc { font-size: 1.05rem; }
+.mos-center-desc--dark { color: #475569 !important; }
+
+/* ════════════════════════════════════════════════
+   TWO COLUMN INTRO
+════════════════════════════════════════════════ */
+.mos-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ════════════════════════════════════════════════
+   PROBLEMS GRID
+════════════════════════════════════════════════ */
+.mos-problems-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.mos-problem-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 28px;
+  display: flex;
+  gap: 20px;
+  transition: all 0.25s ease;
+}
+.mos-problem-card:hover {
+  border-color: rgba(103,232,249,0.2);
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-3px);
+}
+.mos-problem-icon-wrap {
+  width: 48px; height: 48px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: rgba(8,145,178,0.15);
+  border: 1px solid rgba(8,145,178,0.25);
+}
+.mos-problem-icon-wrap i {
+  font-size: 1.3rem;
+  color: #22d3ee;
+}
+.mos-problem-body { flex: 1; min-width: 0; }
+.mos-problem-body h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.05rem;
+  color: #f1f5f9;
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+.mos-problem-label {
+  font-size: 0.75rem;
+  color: #67e8f9;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 10px !important;
+}
+.mos-problem-body p:not(.mos-problem-label) {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #94a3b8;
+  margin: 0 0 12px !important;
+}
+.mos-problem-tags {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.mos-problem-tags span {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* ════════════════════════════════════════════════
+   SPLIT CARDS
+════════════════════════════════════════════════ */
+.mos-split-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.mos-split-card {
+  border-radius: 24px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+}
+.mos-split-card--img {
+  background: #fff;
+  border: 1px solid rgba(15,23,42,0.08);
+  color: #1e293b;
+}
+.mos-split-card--img h2 { color: #0f172a; }
+.mos-split-card--img p { color: #475569; }
+.mos-split-card--dark {
+  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #e2e8f0;
+}
+.mos-split-card--dark h2 { color: #f1f5f9; }
+.mos-split-card--dark p { color: #94a3b8; }
+
+.mos-split-img-wrap {
+  border-radius: 16px; overflow: hidden;
+  height: 200px; margin-bottom: 20px;
+  border: 1px solid rgba(15,23,42,0.1);
+}
+.mos-split-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.mos-split-card:hover .mos-split-img { transform: scale(1.04); }
+
+.mos-checklist {
+  list-style: none; margin: 16px 0 0; padding: 0;
+  display: grid; gap: 10px;
+}
+.mos-checklist li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.9rem; color: #cbd5e1;
+}
+.mos-checklist li i { color: #10b981; font-size: 0.85rem; flex-shrink: 0; }
+
+/* ════════════════════════════════════════════════
+   VERSIONS
+════════════════════════════════════════════════ */
+.mos-versions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.mos-version-pill {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: all 0.2s ease;
+}
+.mos-version-pill:hover {
+  border-color: rgba(103,232,249,0.2);
+  background: rgba(103,232,249,0.05);
+}
+.mos-version-pill i { font-size: 1.6rem; color: #22d3ee; flex-shrink: 0; }
+.mos-version-pill strong { display: block; font-size: 0.88rem; color: #f1f5f9; font-weight: 700; margin-bottom: 2px; }
+.mos-version-pill small { font-size: 0.72rem; color: #64748b; }
+
+/* ════════════════════════════════════════════════
+   PROCESS
+════════════════════════════════════════════════ */
+.mos-process-list {
+  max-width: 860px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 0;
+}
+.mos-process-item {
+  display: flex; gap: 24px; position: relative;
+}
+.mos-process-item:not(:last-child) .mos-process-line {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(8,145,178,0.4), rgba(8,145,178,0.05));
+  margin: 4px auto 0;
+}
+.mos-process-num-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  width: 40px; flex-shrink: 0;
+}
+.mos-process-num {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: rgba(8,145,178,0.15);
+  border: 1px solid rgba(8,145,178,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.95rem; font-weight: 700;
+  color: #22d3ee; flex-shrink: 0;
+}
+.mos-process-content {
+  padding-bottom: 32px; flex: 1;
+}
+.mos-process-list .mos-process-item:last-child .mos-process-content {
+  padding-bottom: 0;
+}
+.mos-process-icon {
+  width: 38px; height: 38px;
+  background: rgba(8,145,178,0.1);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.mos-process-icon i { color: #22d3ee; font-size: 1rem; }
+.mos-process-content h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.15rem; color: #0f172a;
+  margin: 0 0 8px;
+}
+.mos-process-content p {
+  font-size: 0.92rem; color: #475569;
+  line-height: 1.65; margin: 0;
+}
+
+/* ════════════════════════════════════════════════
+   RISKS
+════════════════════════════════════════════════ */
+.mos-risks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.mos-risk-card {
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.18);
+  border-radius: 18px;
+  padding: 24px;
+  transition: all 0.25s ease;
+}
+.mos-risk-card:hover {
+  border-color: rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.1);
+  transform: translateY(-3px);
+}
+.mos-risk-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: rgba(239,68,68,0.15);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.mos-risk-icon i { color: #f87171; font-size: 1.25rem; }
+.mos-risk-card h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1rem; color: #fecaca;
+  margin: 0 0 8px;
+}
+.mos-risk-card p {
+  font-size: 0.87rem; color: #94a3b8;
+  line-height: 1.6; margin: 0;
+}
+
+/* ════════════════════════════════════════════════
+   MIGRATION SECTION
+════════════════════════════════════════════════ */
+.mos-migration-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 48px;
+  align-items: center;
+}
+.mos-migration-copy h2 { color: #0f172a; }
+.mos-migration-copy p { color: #475569; }
+.mos-migration-points {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+.mos-mp {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(8,145,178,0.07);
+  border: 1px solid rgba(8,145,178,0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.87rem; font-weight: 600; color: #0f172a;
+}
+.mos-mp i { color: #0891b2; font-size: 1rem; flex-shrink: 0; }
+
+.mos-migration-img-wrap {
+  position: relative; border-radius: 24px; overflow: hidden;
+}
+.mos-migration-img {
+  width: 100%; height: 340px;
+  object-fit: cover; display: block;
+  border-radius: 24px;
+  border: 1px solid rgba(15,23,42,0.1);
+  transition: transform 0.5s ease;
+}
+.mos-migration-img-wrap:hover .mos-migration-img { transform: scale(1.03); }
+.mos-migration-badge {
+  position: absolute; bottom: 20px; left: 20px;
+  background: rgba(8,145,178,0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 16px; padding: 12px 18px;
+  display: flex; align-items: center; gap: 12px;
+  color: #fff;
+}
+.mos-migration-badge i { font-size: 1.4rem; }
+.mos-migration-badge span { font-size: 0.85rem; line-height: 1.4; }
+.mos-migration-badge strong { font-weight: 800; }
+
+/* ════════════════════════════════════════════════
+   CTA SECTION
+════════════════════════════════════════════════ */
+.mos-cta-section {
+  background: linear-gradient(135deg, #060c18 0%, #0b1120 50%, #0d1a30 100%) !important;
+}
+.mos-cta-inner {
+  position: relative;
+  text-align: center;
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 60px 0;
+}
+.mos-cta-glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 250px;
+  background: rgba(8,145,178,0.12);
+  border-radius: 999px;
+  filter: blur(50px);
+  pointer-events: none;
+}
+.mos-cta-inner h2 { color: #f1f5f9; }
+.mos-cta-inner p { color: #94a3b8; font-size: 1.05rem; }
+.mos-cta-actions {
+  display: flex; justify-content: center;
+  flex-wrap: wrap; gap: 14px; margin: 28px 0 22px;
+}
+.mos-cta-pills {
+  display: flex; justify-content: center;
+  flex-wrap: wrap; gap: 10px;
+}
+.mos-cta-pills span {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px; padding: 6px 14px;
+  font-size: 0.8rem; font-weight: 600; color: #94a3b8;
+}
+.mos-cta-pills i { color: #22d3ee; }
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .mos-versions-grid { grid-template-columns: repeat(2, 1fr); }
+  .mos-risks-grid     { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .mos-hero-grid        { grid-template-columns: 1fr; }
+  .mos-hero-panel       { max-width: 500px; }
+  .mos-two-col          { grid-template-columns: 1fr; gap: 32px; }
+  .mos-problems-grid    { grid-template-columns: 1fr; }
+  .mos-split-cards      { grid-template-columns: 1fr; }
+  .mos-migration-grid   { grid-template-columns: 1fr; }
+  .mos-migration-img-wrap { display: none; }
+}
+
+@media (max-width: 640px) {
+  .mos-section          { padding: 52px 0; }
+  .mos-versions-grid    { grid-template-columns: 1fr 1fr; }
+  .mos-risks-grid       { grid-template-columns: 1fr; }
+  .mos-migration-points { grid-template-columns: 1fr; }
+  .mos-problem-card     { flex-direction: column; }
+  .mos-cta-inner        { padding: 40px 0; }
+  .mos-process-list     { max-width: 100%; }
+}
+</style>

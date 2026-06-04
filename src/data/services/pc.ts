@@ -221,7 +221,52 @@ export const pcCategory: ServiceCategory = {
     services: [
       { slug: 'reparacion-general',      label: 'Reparación General',      customUrl: '/reparaciones' },
       { slug: 'ensambles',               label: 'Ensambles PC Gamer',      customUrl: '/ensambles' },
-      { slug: 'mantenimiento-preventivo',label: 'Mantenimiento Preventivo',customUrl: '/paquetes' },
+      {
+        slug: 'mantenimiento-preventivo',
+        label: 'Mantenimiento preventivo',
+        seoKeyword: 'Mantenimiento preventivo de PC en Cancún',
+        hook: 'Mantenimiento para PC de escritorio, oficina y gamer antes de que el polvo, la temperatura o una fuente sucia se conviertan en apagados y reparaciones caras.',
+        intro: 'Limpieza interna, revisión térmica, organización básica de cableado y pruebas de fuente, ventiladores, disco, RAM y Windows para PC en Cancún.',
+        bullets: ['Limpieza de gabinete, ventiladores, disipador y filtros', 'Cambio o revisión de pasta térmica según estado', 'Prueba de temperaturas y estabilidad', 'Revisión de fuente, RAM, SSD/HDD y GPU', 'Reporte con recomendaciones de upgrade o corrección'],
+        fromPrice: '$600 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        featuredImage: '/assets/images/mantenimiento-pc-escritorio.webp',
+        sectionImages: {
+          whyUs: '/assets/images/mantenimiento-pc-escritorio.webp',
+          process: '/assets/images/ensamble-pc-gamer-cancun.webp',
+        },
+        whyUs: [
+          { icon: 'fa-wind', title: 'Flujo de aire real', desc: 'Limpiamos filtros, ventiladores y disipadores para que el gabinete respire correctamente.' },
+          { icon: 'fa-temperature-arrow-down', title: 'Menos temperatura', desc: 'Revisamos pasta térmica y medimos temperatura antes y después del servicio.' },
+          { icon: 'fa-plug-circle-bolt', title: 'Fuente y conexiones', desc: 'Inspeccionamos polvo, conectores, consumo básico y señales de riesgo en fuente o cableado.' },
+          { icon: 'fa-chart-line', title: 'Recomendación honesta', desc: 'Si conviene limpiar, formatear, cambiar SSD, mejorar RAM o no invertir de más, te lo decimos.' },
+        ],
+        process: [
+          { title: 'Revisión inicial', desc: 'Registramos síntomas, uso, temperatura, ruido, historial de servicio y componentes principales.' },
+          { title: 'Prueba preventiva', desc: 'Medimos temperatura, estado de disco, RAM, arranque, ventiladores y estabilidad básica.' },
+          { title: 'Limpieza interna', desc: 'Retiramos polvo de gabinete, ventiladores, disipadores, filtros, ranuras y zonas de flujo de aire.' },
+          { title: 'Servicio térmico', desc: 'Revisamos pasta térmica del CPU y la reemplazamos cuando el estado lo justifica.' },
+          { title: 'Prueba final', desc: 'Probamos encendido, temperatura, ruido, estabilidad y dejamos reporte con próximos pasos.' },
+        ],
+        commonProblems: [
+          { problem: 'PC gamer con ventiladores muy ruidosos', solution: 'Puede ser polvo, curvas de ventilador, pasta seca o flujo de aire pobre. Lo revisamos antes de cambiar piezas.' },
+          { problem: 'Apagados bajo carga', solution: 'Una limpieza preventiva puede resolver temperatura, pero también revisamos fuente, GPU y estabilidad.' },
+          { problem: 'Gabinete lleno de polvo', solution: 'El polvo eleva temperatura, afecta ventiladores y puede acelerar fallas de fuente, placa y GPU.' },
+          { problem: 'PC de oficina lenta o sin mantenimiento', solution: 'Revisamos Windows, disco, RAM y temperatura para decidir si basta limpieza o conviene formateo/upgrade.' },
+        ],
+        compatibleBrands: ['PC gamer', 'PC ensamblada', 'PC de oficina', 'Workstation', 'Mini PC', 'HP', 'Dell', 'Lenovo', 'Acer', 'Asus'],
+        faqs: [
+          { question: `¿Cada cuánto necesita mantenimiento preventivo una PC?`, answer: `En Cancún recomendamos cada <strong>12 a 18 meses</strong>. Si es PC gamer, está cerca del piso, tiene mascotas, trabaja muchas horas o está en zona con polvo, puede requerir servicio antes.` },
+          { question: `¿Incluye pasta térmica?`, answer: `Incluye revisión térmica. Si la pasta está seca o el CPU trabaja caliente, la reemplazamos con compuesto adecuado y validamos temperaturas después.` },
+          { question: `¿Abren también la fuente de poder?`, answer: `Revisamos estado externo, polvo, conectores y señales de riesgo. Si la fuente requiere limpieza interna o reparación, te avisamos antes porque depende del modelo y condición.` },
+          { question: `¿Pierdo mis archivos?`, answer: `No. El mantenimiento preventivo no borra información. Si detectamos virus, Windows dañado o disco con alerta, te explicamos opciones antes de tocar datos.` },
+          { question: `¿Cuánto tarda?`, answer: `Normalmente toma de <strong>24 a 48 horas</strong>, según estado del equipo, nivel de polvo, pruebas requeridas y si hay componentes delicados como GPU grande o refrigeración líquida.` },
+        ],
+        relatedSlugs: ['limpieza-profunda', 'mantenimiento-correctivo', 'upgrade', 'diagnostico'],
+        relatedExternal: [
+          { label: 'Paquetes de mantenimiento', href: '/paquetes', icon: 'fa-box', desc: 'Plan recurrente para oficinas, negocios o varios equipos.' },
+          { label: 'Antisulfatación', href: '/antisulfatacion', icon: 'fa-droplet-slash', desc: 'Si el equipo está expuesto a humedad, salitre o corrosión.' },
+        ],
+      },
 
       // --- Mantenimiento correctivo (extendida) -------------------------
       {
@@ -258,7 +303,7 @@ export const pcCategory: ServiceCategory = {
           { question: `¿Cuánto tarda una reparación correctiva?`, answer: `Suele tomar de <strong>24 a 72 horas</strong> si la pieza está disponible. Si hay que pedir componente, probar estabilidad o revisar fallas intermitentes, puede tomar más. Te damos tiempo estimado después del diagnóstico.` },
           { question: `¿Qué cubre la garantía?`, answer: `La garantía cubre la pieza reemplazada y la mano de obra relacionada con esa reparación durante el periodo indicado. No cubre componentes distintos que ya venían dañados, variaciones eléctricas, humedad, golpes o modificaciones externas posteriores.` },
         ],
-        relatedSlugs: ['formateo', 'limpieza-profunda', 'upgrade', 'diagnostico'],
+        relatedSlugs: ['mantenimiento-preventivo', 'formateo', 'limpieza-profunda', 'upgrade', 'diagnostico'],
         relatedExternal: [
           { label: 'Reparación General',         href: '/reparaciones',   icon: 'fa-screwdriver-wrench', desc: 'Si ya tienes problemas con celular, laptop o PC.' },
           { label: 'Ensambles PC Gamer',         href: '/ensambles',      icon: 'fa-microchip',          desc: 'Si tu PC ya no da más, te armamos una nueva.' },
@@ -391,7 +436,7 @@ export const pcCategory: ServiceCategory = {
           { question: `¿Es seguro abrir mi PC?`, answer: `Sí, se hace con pulsera antiestática, herramientas correctas y registro del cableado antes de desmontar. Revisamos conectores, ventiladores y tornillería para no forzar piezas. Si vemos humedad u óxido, te avisamos.` },
           { question: `¿Vale la pena en una PC vieja?`, answer: `Sí vale la pena si el equipo aún cumple su función. Una limpieza puede reducir calor, ruido y apagados, además de alargar la vida de fuente, placa y GPU. Si conviene más un upgrade, te lo diremos.` },
         ],
-        relatedSlugs: ['formateo', 'mantenimiento-correctivo', 'upgrade', 'diagnostico'],
+        relatedSlugs: ['mantenimiento-preventivo', 'formateo', 'mantenimiento-correctivo', 'upgrade', 'diagnostico'],
         relatedExternal: [
           { label: 'Paquetes de mantenimiento', href: '/paquetes',     icon: 'fa-box',     desc: 'Servicio recurrente con descuento.' },
           { label: 'Antisulfatación',           href: '/antisulfatacion', icon: 'fa-droplet-slash', desc: 'Si vives cerca del mar, atender corrosión también.' },
@@ -436,7 +481,7 @@ export const pcCategory: ServiceCategory = {
           { question: `¿Me dicen si conviene reparar o comprar otra PC?`, answer: `Sí. Si la reparación no conviene por costo, antigüedad, disponibilidad de piezas o rendimiento esperado, te lo diremos. También podemos recomendar formateo, upgrade SSD/RAM o mantenimiento si eso resuelve mejor el problema.` },
           { question: `¿Hacen diagnóstico a domicilio?`, answer: `Podemos coordinar visita en Cancún según zona y disponibilidad, pero para diagnóstico profundo recomendamos taller. Ahí podemos medir voltajes, probar piezas, revisar temperatura y abrir el equipo con herramienta adecuada.` },
         ],
-        relatedSlugs: ['mantenimiento-correctivo', 'formateo', 'upgrade', 'limpieza-profunda'],
+        relatedSlugs: ['mantenimiento-preventivo', 'mantenimiento-correctivo', 'formateo', 'upgrade', 'limpieza-profunda'],
         relatedExternal: [
           { label: 'Reparación general',   href: '/reparaciones',  icon: 'fa-screwdriver-wrench', desc: 'Si ya sabes qué tiene, ve directo a reparar.' },
           { label: 'Paquetes de mantenimiento', href: '/paquetes', icon: 'fa-box',                desc: 'Servicio preventivo recurrente.' },

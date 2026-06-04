@@ -1,0 +1,974 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero cotizar mantenimiento preventivo de consola en Cancún. Necesito limpieza interna para mi consola.'
+);
+
+const pmFaqs = [
+  {
+    question: '¿Cuánto cuesta el mantenimiento preventivo de consola en Cancún?',
+    answer: 'El servicio preventivo básico inicia en $700 MXN. Depende del modelo exacto (PS5, Xbox Series X, Nintendo Switch, etc.) y si requiere materiales térmicos especiales como metal líquido o almohadillas térmicas de alto rendimiento.',
+  },
+  {
+    question: '¿La limpieza de consola en Cancún incluye cambio de pasta térmica?',
+    answer: 'Sí. Nuestro mantenimiento preventivo completo incluye desarmado total, soplado e inspección del ventilador, limpieza del disipador de calor y el cambio de la pasta térmica vieja por una premium de alta conductividad.',
+  },
+  {
+    question: '¿Qué pasa si mi Nintendo se calienta en Cancún?',
+    answer: 'El calor y la humedad de Cancún aceleran el secado de la pasta térmica interna de la Nintendo Switch y obstruyen las rejillas del ventilador. Si se calienta, reduce rendimiento o se apaga sola, requiere limpieza inmediata para evitar daños en la placa base.',
+  },
+  {
+    question: '¿En el mantenimiento preventivo de PS5 se cambia el metal líquido?',
+    answer: 'La PS5 utiliza metal líquido en lugar de pasta térmica tradicional. En el mantenimiento preventivo, inspeccionamos visualmente que no haya zonas secas o desplazamientos en el APU. Si es necesario, lo redistribuimos o aplicamos metal líquido nuevo con aislamiento especial para evitar fugas.',
+  },
+  {
+    question: '¿Cuánto tiempo tarda la limpieza de Xbox Series X?',
+    answer: 'Típicamente el servicio de mantenimiento y limpieza interna se realiza en un lapso de 24 a 48 horas. Esto nos permite hacer pruebas de estrés térmico antes y después del servicio para asegurar que las temperaturas y el ruido del ventilador hayan bajado.',
+  },
+  {
+    question: '¿El mantenimiento preventivo de consola tiene garantía?',
+    answer: 'Al tratarse de un servicio de limpieza y cambio de compuestos térmicos (y no una reparación de piezas rotas), garantizamos el correcto funcionamiento del ensamble y la aplicación térmica profesional. Esto ayuda a prevenir fallos graves a futuro, aunque no constituye una garantía de reparación de hardware.',
+  },
+];
+
+const pmSymptoms = [
+  {
+    icon: 'fa-fan',
+    title: 'Ventilador a máxima velocidad',
+    desc: 'Tu consola parece avión a punto de despegar. Es señal de que el disipador está tapado de polvo o el compuesto térmico ya no sirve.',
+  },
+  {
+    icon: 'fa-temperature-arrow-up',
+    title: 'Calor extremo al tacto',
+    desc: 'Si la carcasa se siente sumamente caliente o expulsa aire hirviendo, la consola está operando cerca de su límite de protección térmica.',
+  },
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'Apagados repentinos al jugar',
+    desc: 'La consola se apaga sin previo aviso para salvar al procesador (APU/GPU) de quemarse por completo debido a las altas temperaturas.',
+  },
+  {
+    icon: 'fa-gauge-high',
+    title: 'Bajas de frames (Lag térmico)',
+    desc: 'Los juegos se traban o sufren caídas drásticas de FPS. El sistema disminuye la potencia (thermal throttling) para intentar enfriarse.',
+  },
+];
+
+const processes = [
+  {
+    num: '01',
+    title: 'Pruebas de estrés térmico',
+    desc: 'Encendemos tu consola y la sometemos a carga con un juego exigente para medir la temperatura inicial y las revoluciones (RPM) del ventilador.',
+  },
+  {
+    num: '02',
+    title: 'Desarmado completo profesional',
+    desc: 'Abrimos la consola utilizando herramientas de precisión antiestáticas para evitar daños en los flexores, clips de plástico y componentes de placa.',
+  },
+  {
+    num: '03',
+    title: 'Limpieza interna profunda',
+    desc: 'Retiramos el polvo acumulado, pelusas, humedad y óxido del disipador de cobre, aspas del ventilador, fuente de alimentación y rejillas.',
+  },
+  {
+    num: '04',
+    title: 'Renovación de compuesto térmico',
+    desc: 'Limpiamos los residuos secos y aplicamos pasta térmica premium o redistribuimos/reemplazamos el metal líquido (según sea el caso de PS5 o Xbox).',
+  },
+  {
+    num: '05',
+    title: 'Validación acústica y térmica',
+    desc: 'Volvemos a armar la consola y realizamos pruebas de juego durante 30-45 minutos para garantizar un funcionamiento silencioso y frío.',
+  },
+];
+---
+
+<div class="console-preventive-page">
+  <!-- HERO SECTION -->
+  <section class="cpm-hero">
+    <div class="cpm-hero-glow"></div>
+    <div class="container cpm-hero-grid">
+      <div class="cpm-hero-copy">
+        <span class="cpm-kicker"><i class="fa-solid fa-screwdriver-wrench"></i> Servicio técnico de consolas en Cancún</span>
+        <h1>Mantenimiento preventivo consola</h1>
+        <h2>Prolonga la vida de tu PlayStation, Xbox o Nintendo Switch en zonas de alta humedad y calor.</h2>
+        <p>
+          El polvo, la pelusa y el salitre de Cancún son enemigos silenciosos de tu consola. Nuestro servicio de
+          <strong>mantenimiento preventivo consola</strong> evita sobrecalentamientos, ruidos insoportables de ventilador
+          y costosas fallas en la placa base.
+        </p>
+        <div class="cpm-badges">
+          <span>Limpieza interna</span>
+          <span>Pasta térmica premium</span>
+          <span>Redistribución metal líquido</span>
+          <span>Pruebas térmicas</span>
+          <span>Cuidado profesional</span>
+        </div>
+        <div class="cpm-actions">
+          <a class="cpm-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">
+            <i class="fa-brands fa-whatsapp"></i> Agendar mantenimiento preventivo
+          </a>
+          <a class="cpm-secondary" href="#seo-limpieza-consola">Conocer el servicio</a>
+        </div>
+      </div>
+
+      <aside class="cpm-hero-panel">
+        <div class="cpm-visual-img" aria-hidden="true">
+          <img src="/assets/images/ps5_xbox.webp" alt="Mantenimiento preventivo de consolas Xbox y PlayStation en Cancún" class="cpm-img-hero" />
+          <div class="cpm-img-overlay"></div>
+        </div>
+        <div class="cpm-panel-info">
+          <span>Servicio garantizado</span>
+          <strong>{service.fromPrice || 'Desde $700 MXN'}</strong>
+          <small>Incluye desarmado, limpieza completa de disipador y cambio de compuesto térmico.</small>
+        </div>
+        <ul class="cpm-features-list">
+          <li><i class="fa-solid fa-circle-check"></i> Herramientas antiestáticas de precisión</li>
+          <li><i class="fa-solid fa-circle-check"></i> Pasta térmica Arctic MX-4 / Metal líquido</li>
+          <li><i class="fa-solid fa-circle-check"></i> Reporte con fotos del antes y después</li>
+          <li><i class="fa-solid fa-circle-check"></i> Soporte y asesoría post-mantenimiento</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 1: LIMPIEZA Y SOBRECALENTAMIENTO -->
+  <section class="cpm-section cpm-seo-keywords" id="seo-limpieza-consola">
+    <div class="container">
+      <div class="cpm-split-grid">
+        <div class="cpm-split-text">
+          <span class="cpm-eyebrow">Salud de tu consola</span>
+          <h2>Limpieza profunda de consolas en Cancún: Protege tus componentes</h2>
+          <p class="cpm-large-text">
+            Si estás buscando la mejor **limpieza de consola en Cancún**, estás en el lugar correcto.
+            Las consolas de videojuegos actúan como verdaderas aspiradoras de aire. En climas costeros, el aire que absorben
+            no solo contiene polvo fino, sino también altos niveles de humedad y salitre. Esta combinación crea una capa pegajosa
+            de suciedad que tapona los disipadores, atasca los ventiladores y oxida los componentes internos de la placa.
+          </p>
+          <p>
+            Realizar una limpieza interna a tiempo remueve todas estas partículas antes de que provoquen fallos eléctricos graves.
+            Nuestros técnicos desarman por completo tu equipo, limpian las aspas del extractor de aire, pulen los disipadores de cobre
+            con alcohol isopropílico y aplican aislantes contra la corrosión.
+          </p>
+        </div>
+        <div class="cpm-split-text">
+          <span class="cpm-eyebrow">Diagnóstico térmico</span>
+          <h2>Soluciones efectivas contra el sobrecalentamiento de consolas en Cancún</h2>
+          <p class="cpm-large-text">
+            El **sobrecalentamiento de tu consola en Cancún** es el problema técnico más común que recibimos en el taller.
+            Cuando el flujo de aire está obstruido o la pasta térmica original de fábrica se ha endurecido como piedra, el procesador
+            no puede disipar el calor de forma eficiente. Esto genera lo que se conoce como "estrangulamiento térmico" (bajas de FPS)
+            y, eventualmente, provoca que la consola se apague a los pocos minutos de juego exigente.
+          </p>
+          <p>
+            Ignorar los avisos de temperatura alta puede provocar que el chip procesador se desuelde de la placa base (luz roja en Xbox
+            o luz azul en PS4), requiriendo reparaciones extremadamente caras de reballing. Nuestro mantenimiento preventivo corta
+            de raíz el sobrecalentamiento, manteniendo tu consola fría y estable.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: PS5 Y XBOX -->
+  <section class="cpm-section cpm-dark-bg cpm-seo-consolas">
+    <div class="container">
+      <div class="cpm-split-grid">
+        <div class="cpm-split-card">
+          <div class="card-image-wrapper" aria-hidden="true">
+            <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Mantenimiento preventivo PS5 metal líquido en Cancún" class="card-inline-image" />
+          </div>
+          <div>
+            <span class="cpm-eyebrow">PlayStation 5</span>
+            <h2>Mantenimiento preventivo de PS5: Cuidado avanzado del metal líquido</h2>
+            <p class="cpm-large-text">
+              El **mantenimiento preventivo de tu PS5** requiere de técnicas avanzadas debido a que Sony implementó el uso
+              de metal líquido en lugar de pasta térmica tradicional. El metal líquido tiene una transferencia de calor altísima,
+              pero con el uso vertical prolongado y las vibraciones, tiende a desplazarse del centro del procesador, creando "zonas secas"
+              que causan sobrecalentamiento focalizado y apagones repentinos en juegos pesados de PS5.
+            </p>
+            <p>
+              En Pixon, el servicio de mantenimiento para PS5 incluye la inspección microscópica del APU, la redistribución profesional del
+              metal líquido existente (o reemplazo total si se encuentra oxidado), el mantenimiento del sello de espuma protectora para evitar
+              fugas fatales a la placa base, y la limpieza completa de las dos rejillas internas de ventilación que suelen acumular nidos de polvo.
+            </p>
+          </div>
+        </div>
+        <div class="cpm-split-card">
+          <div class="card-image-wrapper" aria-hidden="true">
+            <img src="/assets/images/xbox.webp" alt="Limpieza interna de Xbox Series X en Cancún" class="card-inline-image" />
+          </div>
+          <div>
+            <span class="cpm-eyebrow">Xbox Series X</span>
+            <h2>Limpieza profunda de Xbox Series X: Adiós al ruido del ventilador</h2>
+            <p class="cpm-large-text">
+              La **limpieza de tu Xbox Series X** es indispensable para mantener el rendimiento silencioso de este potente cubo de Microsoft.
+              Su diseño de chimenea vertical es altamente eficiente, pero propicia la entrada directa de polvo por la rejilla superior. Con el tiempo,
+              el enorme disipador de cámara de vapor se llena de suciedad, forzando al extractor silencioso de 130mm a trabajar a máximas revoluciones,
+              lo que produce ruidos molestos y sobrecalentamiento en la fuente de poder interna.
+            </p>
+            <p>
+              Desarmamos tu Xbox Series X de forma segura, removiendo el blindaje metálico, limpiamos la acumulación de pelusa en la cámara de vapor,
+              limpiamos la fuente de alimentación (que suele acumular polvo estático pesado) y reemplazamos la pasta térmica del procesador por
+              compuestos de alto rendimiento para garantizar que tu consola continúe siendo tan silenciosa como el primer día.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: CONSOLAS PORTÁTILES Y NINTENDO SWITCH -->
+  <section class="cpm-section cpm-seo-portables">
+    <div class="container">
+      <div class="cpm-head-center">
+        <span class="cpm-eyebrow">Consolas Portátiles</span>
+        <h2>Limpieza de consola portátil: Alto rendimiento en espacios compactos</h2>
+        <p class="cpm-center-desc">
+          Las consolas portátiles modernas como la Steam Deck, ASUS ROG Ally, Lenovo Legion Go y Nintendo Switch meten componentes
+          de gran rendimiento en espacios extremadamente reducidos. Por ello, el polvo obstruye los pequeños canales del disipador de cobre
+          con mucha mayor facilidad, causando caídas de rendimiento inmediatas y degradando la batería por el exceso de calor interno.
+        </p>
+      </div>
+
+      <div class="cpm-three-columns">
+        <article class="cpm-col-card">
+          <div class="card-num">01</div>
+          <h3>Mantenimiento y limpieza de consolas portátiles</h3>
+          <p>
+            Realizamos mantenimiento preventivo completo en dispositivos portátiles gamer. Desarmamos el chasis compacto,
+            limpiamos los microventiladores turbina, soplamos el radiador de cobre y reemplazamos la pasta térmica por compuestos Premium
+            como Thermal Grizzly Kryonaut, garantizando una temperatura de funcionamiento mucho más baja en tus sesiones portátiles.
+          </p>
+        </article>
+
+        <article class="cpm-col-card">
+          <div class="card-num">02</div>
+          <h3>Limpieza y mantenimiento de Nintendo Switch para evitar el desgaste térmico</h3>
+          <p>
+            El servicio de **limpieza de tu Nintendo Switch** (versión estándar, OLED o Lite) ayuda a mantener el ventilador girando libre de pelusas.
+            La Switch succiona aire por la parte trasera y lo expulsa por la rejilla superior. Si juegas mucho en modo dock, la consola genera
+            más calor y la pasta térmica original suele secarse en menos de un año, provocando reinicios o el molesto sonido de zumbido del ventilador.
+          </p>
+        </article>
+
+        <article class="cpm-col-card">
+          <div class="card-num">03</div>
+          <h3>¿Tu Nintendo se calienta? Diagnóstico térmico y solución inmediata en Cancún</h3>
+          <p>
+            Si notas que **tu Nintendo Switch se calienta en el clima de Cancún** y la consola te muestra un aviso de temperatura o se apaga sola con pantalla negra,
+            es momento de intervenirla. La Switch es propensa a fallas de ventilación mecánica en climas calurosos. Limpiamos el ventilador interno,
+            reemplazamos la pasta térmica que une el procesador con el blindaje de aluminio y cambiamos la pasta externa que hace contacto con el disipador.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SÍNTOMAS DE ALERTA -->
+  <section class="cpm-section cpm-dark-bg cpm-symptoms">
+    <div class="container">
+      <div class="cpm-head-center">
+        <span class="cpm-eyebrow">¿Cuándo hacer mantenimiento?</span>
+        <h2>Señales de alerta en tu consola</h2>
+        <p class="cpm-center-desc">
+          No esperes a que tu consola deje de encender o se dañe de forma permanente. Si notas cualquiera de los siguientes
+          comportamientos, es momento de realizar una limpieza interna profesional en Cancún.
+        </p>
+      </div>
+
+      <div class="cpm-symptom-grid">
+        {pmSymptoms.map((symptom) => (
+          <article class="cpm-symptom-card">
+            <i class={`fa-solid ${symptom.icon}`}></i>
+            <h3>{symptom.title}</h3>
+            <p>{symptom.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO TÉCNICO -->
+  <section class="cpm-section cpm-process">
+    <div class="container">
+      <div class="cpm-head-center">
+        <span class="cpm-eyebrow">Nuestro Método</span>
+        <h2>¿Cómo realizamos el mantenimiento preventivo de consolas?</h2>
+        <p class="cpm-center-desc">
+          En Pixon no hacemos limpiezas superficiales con aire comprimido desde afuera. Desarmamos cada pieza con cuidado
+          para asegurar que el sistema térmico quede en óptimas condiciones de fábrica.
+        </p>
+      </div>
+
+      <div class="cpm-process-timeline">
+        {processes.map((step) => (
+          <div class="cpm-timeline-item">
+            <span class="cpm-timeline-number">{step.num}</span>
+            <div class="cpm-timeline-content">
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SEO LOCAL CANCÚN -->
+  <section class="cpm-section cpm-light-bg cpm-cancun-climate">
+    <div class="container cpm-cancun-layout">
+      <div class="cpm-cancun-text">
+        <span class="cpm-eyebrow">Clima de Quintana Roo</span>
+        <h2>El factor Cancún: ¿Por qué las consolas fallan más aquí?</h2>
+        <p>
+          Cancún tiene un clima hermoso pero sumamente agresivo con los aparatos electrónicos de alto rendimiento.
+          La humedad relativa promedio supera el 80% y el salitre del mar viaja por el aire. Cuando el polvo entra en contacto
+          con esta humedad salina, se magnetiza y forma un lodo conductor y corrosivo dentro de los circuitos.
+        </p>
+        <p>
+          Si tienes tu consola cerca de una ventana, a nivel del suelo o dentro de un mueble de TV cerrado sin suficiente flujo
+          de aire, la velocidad de degradación térmica se duplica. Realizar un mantenimiento preventivo regular cada 12 meses
+          protege tu inversión de la corrosión y el calor extremo de Cancún.
+        </p>
+      </div>
+      <div class="cpm-cancun-badges-strip">
+        <div class="climate-badge"><i class="fa-solid fa-water"></i> Humedad Salina</div>
+        <div class="climate-badge"><i class="fa-solid fa-temperature-high"></i> Calor Costero</div>
+        <div class="climate-badge"><i class="fa-solid fa-wind"></i> Polvo pegajoso</div>
+        <div class="climate-badge"><i class="fa-solid fa-box"></i> Falta de flujo</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED SERVICES -->
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Servicios relacionados para consolas"
+    eyebrow="Más servicios técnicos"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  <!-- PREGUNTAS FRECUENTES -->
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre mantenimiento preventivo de consolas en Cancún"
+    description="Respuestas honestas sobre limpieza de PS5, Xbox Series X, Nintendo Switch, cambio de pasta térmica, metal líquido y tiempos de entrega en Cancún."
+    items={pmFaqs}
+    ariaLabel="Preguntas frecuentes sobre mantenimiento preventivo de consolas en Cancún"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    sectionClass="faq-section"
+    gridClass="faq-grid"
+    backgroundColor="#F8FAFC"
+    questionColor="#0F2A4A"
+    itemGap="8px"
+    questionPadding="16px 18px"
+  />
+
+  <!-- COMENTARIOS Y CONTACTO -->
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" />
+  <ContactSection id="ubicacion" />
+</div>
+
+<style is:global>
+  .console-preventive-page {
+    background: #0b1120;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .cpm-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 40px 0 50px;
+    background:
+      radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15), transparent 30%),
+      radial-gradient(circle at 90% 20%, rgba(139, 92, 246, 0.12), transparent 30%),
+      linear-gradient(135deg, #070e1b 0%, #0b1120 50%, #0f192b 100%);
+  }
+
+  .cpm-hero-glow {
+    position: absolute;
+    bottom: -150px;
+    right: -100px;
+    width: 450px;
+    height: 450px;
+    border-radius: 999px;
+    background: rgba(139, 92, 246, 0.15);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  .cpm-hero-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    gap: 32px;
+    align-items: center;
+  }
+
+  .cpm-kicker,
+  .cpm-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #818cf8;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .cpm-hero h1 {
+    margin: 12px 0;
+    color: #ffffff;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    line-height: 1.05;
+  }
+
+  .cpm-hero h2 {
+    margin: 0 0 16px;
+    color: #a7f3d0;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+    line-height: 1.25;
+    font-weight: 400;
+  }
+
+  .cpm-hero p {
+    margin: 0 0 20px;
+    color: #cbd5e1;
+    line-height: 1.65;
+    font-weight: 400;
+    font-size: 1.05rem;
+  }
+
+  .cpm-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0;
+  }
+
+  .cpm-badges span {
+    color: #e0e7ff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .cpm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .cpm-primary,
+  .cpm-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .cpm-primary {
+    color: #ffffff !important;
+    background: #4f46e5;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+  }
+
+  .cpm-primary:hover {
+    background: #4338ca;
+    transform: translateY(-2px);
+  }
+
+  .cpm-secondary {
+    color: #c7d2fe !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .cpm-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .cpm-hero-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+  }
+
+  .cpm-visual-img {
+    position: relative;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #0f172a;
+    border: 1px solid rgba(129, 140, 248, 0.15);
+  }
+
+  .cpm-img-hero {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .cpm-hero-panel:hover .cpm-img-hero {
+    transform: scale(1.05);
+  }
+
+  .cpm-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.8) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .cpm-panel-info {
+    display: grid;
+    gap: 4px;
+    margin: 16px 0;
+  }
+
+  .cpm-panel-info span {
+    color: #818cf8;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+
+  .cpm-panel-info strong {
+    color: #a7f3d0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.95rem;
+    line-height: 1;
+  }
+
+  .cpm-panel-info small {
+    color: #94a3b8;
+    line-height: 1.4;
+    font-size: 0.82rem;
+  }
+
+  .cpm-features-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .cpm-features-list li {
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .cpm-features-list li i {
+    color: #10b981;
+  }
+
+  /* SECTION STYLING */
+  .cpm-section {
+    padding: 70px 0;
+    background: #ffffff;
+    color: #1e293b;
+  }
+
+  .cpm-dark-bg {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+  }
+
+  .cpm-light-bg {
+    background: #f8fafc !important;
+  }
+
+  .cpm-split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: stretch;
+  }
+
+  .cpm-section h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    line-height: 1.1;
+    margin: 10px 0 16px;
+    font-weight: 700;
+  }
+
+  .cpm-dark-bg h2 {
+    color: #ffffff;
+  }
+
+  .cpm-section p {
+    line-height: 1.65;
+    margin: 0 0 16px;
+    color: #475569;
+  }
+
+  .cpm-dark-bg p {
+    color: #cbd5e1;
+  }
+
+  .cpm-large-text {
+    font-size: 1.08rem;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+
+  /* COLUMN CARDS FOR PORTABLES */
+  .cpm-head-center {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+
+  .cpm-center-desc {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: #475569;
+  }
+
+  .cpm-dark-bg .cpm-center-desc {
+    color: #cbd5e1;
+  }
+
+  .cpm-three-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .cpm-col-card {
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-num {
+    font-family: 'Kanit', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: rgba(99, 102, 241, 0.12);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .cpm-col-card h3 {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.25rem;
+    color: #0f172a;
+    margin: 0 0 10px;
+  }
+
+  .cpm-col-card p {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* SPLIT CARDS FOR PS5 AND XBOX */
+  .cpm-split-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .cpm-split-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 2;
+  }
+
+  .cpm-split-card:first-child::before {
+    background: #003087; /* PS Blue */
+  }
+
+  .cpm-split-card:last-child::before {
+    background: #107c10; /* Xbox Green */
+  }
+
+  .card-image-wrapper {
+    margin-bottom: 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 180px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .card-inline-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .cpm-split-card:hover .card-inline-image {
+    transform: scale(1.05);
+  }
+
+  /* SYMPTOMS */
+  .cpm-symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .cpm-symptom-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .cpm-symptom-card:hover {
+    border-color: rgba(99, 102, 241, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-3px);
+  }
+
+  .cpm-symptom-card i {
+    font-size: 2rem;
+    color: #f43f5e;
+    margin-bottom: 12px;
+  }
+
+  .cpm-symptom-card h3 {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.1rem;
+    color: #ffffff;
+    margin: 0 0 8px;
+  }
+
+  .cpm-symptom-card p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0;
+    color: #94a3b8;
+  }
+
+  /* PROCESS TIMELINE */
+  .cpm-process-timeline {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+  }
+
+  .cpm-process-timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: rgba(15, 23, 42, 0.08);
+  }
+
+  .cpm-timeline-item {
+    display: flex;
+    gap: 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cpm-timeline-number {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: #4f46e5;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+  }
+
+  .cpm-timeline-content {
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.05);
+    border-radius: 16px;
+    padding: 16px 20px;
+    flex-grow: 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  }
+
+  .cpm-timeline-content h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    color: #0f172a;
+  }
+
+  .cpm-timeline-content p {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0;
+    color: #475569;
+  }
+
+  /* CANCUN CLIMATE LAYOUT */
+  .cpm-cancun-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 40px;
+    align-items: center;
+  }
+
+  .cpm-cancun-text h2 {
+    color: #0f172a;
+  }
+
+  .cpm-cancun-text p {
+    color: #334155;
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .cpm-cancun-badges-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .climate-badge {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .climate-badge i {
+    font-size: 1.5rem;
+    color: #3b82f6;
+  }
+
+  /* SCATEGORY SECTION OVERRIDES */
+  .console-preventive-page .svc-related {
+    background: #0b1120;
+  }
+
+  .console-preventive-page .svc-related .ux-h2,
+  .console-preventive-page .svc-related .related-card h4 {
+    color: #ffffff !important;
+  }
+
+  .console-preventive-page .svc-related .related-card p {
+    color: #94a3b8 !important;
+  }
+
+  /* MEDIA QUERIES */
+  @media (max-width: 980px) {
+    .cpm-hero-grid,
+    .cpm-split-grid,
+    .cpm-cancun-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .cpm-three-columns {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cpm-symptom-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .cpm-hero {
+      padding: 30px 0 40px;
+    }
+
+    .cpm-hero h1 {
+      font-size: clamp(2rem, 9vw, 2.85rem);
+    }
+
+    .cpm-section {
+      padding: 45px 0;
+    }
+
+    .cpm-three-columns,
+    .cpm-symptom-grid,
+    .cpm-cancun-badges-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .cpm-process-timeline::before {
+      left: 15px;
+    }
+
+    .cpm-timeline-item {
+      gap: 12px;
+    }
+
+    .cpm-timeline-number {
+      width: 32px;
+      height: 32px;
+      font-size: 0.9rem;
+    }
+  }
+</style>

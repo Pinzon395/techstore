@@ -10,6 +10,10 @@ import RelatedServicesSection from '../../../components/RelatedServicesSection.a
 import MantenimientoTermicoView from '../../../components/views/MantenimientoTermicoView.astro';
 import ConsoleThermalPasteView from '../../../components/views/ConsoleThermalPasteView.astro';
 import ConsolePowerSupplyView from '../../../components/views/ConsolePowerSupplyView.astro';
+import ConsolePreventiveMaintenanceView from '../../../components/views/ConsolePreventiveMaintenanceView.astro';
+import MacBookPreventiveMaintenanceView from '../../../components/views/MacBookPreventiveMaintenanceView.astro';
+import MacOSSoftwareView from '../../../components/views/MacOSSoftwareView.astro';
+import HotelSupportView from '../../../components/views/HotelSupportView.astro';
 import CambioBateriaView from '../../../components/views/CambioBateriaView.astro';
 import PcDiagnosticView from '../../../components/views/PcDiagnosticView.astro';
 import IphoneScreenRepairView from '../../../components/views/IphoneScreenRepairView.astro';
@@ -62,6 +66,10 @@ const isConsoleThermalPaste = category.slug === 'consola' && service.slug === 'p
 const isConsolePowerSupply = category.slug === 'consola' && service.slug === 'fuente';
 const isConsoleHdmi = category.slug === 'consola' && service.slug === 'hdmi';
 const isConsoleOverheating = category.slug === 'consola' && service.slug === 'sobrecalentamiento';
+const isConsolePreventiveMaintenance = category.slug === 'consola' && service.slug === 'mantenimiento-preventivo';
+const isMacbookPreventiveMaintenance = category.slug === 'mac' && service.slug === 'mantenimiento-macbook';
+const isMacSoftware = category.slug === 'mac' && service.slug === 'software-macos';
+const isHotelSupport = category.slug === 'b2b' && service.slug === 'soporte-hoteles';
 const isPhoneSpeakerRepair = category.slug === 'telefono' && service.slug === 'reparacion-bocina';
 const isPhoneScreenReplacement = category.slug === 'telefono' && service.slug === 'cambio-pantalla';
 const isPhoneSoftwareUnlock = category.slug === 'telefono' && service.slug === 'liberacion-software';
@@ -111,6 +119,14 @@ const seoTitle = isPcFormat
   ? 'Cambio de rodillos de impresora en Cancún | Pixon PC'
   : isPrinterJams
   ? 'Reparación de atascos de impresora en Cancún | Pixon PC'
+  : isConsolePreventiveMaintenance
+  ? 'Mantenimiento preventivo de consolas en Cancún | Pixon'
+  : isHotelSupport
+  ? 'Soporte TI para Hoteles en Cancún | Soporte Técnico 24/7'
+  : isMacSoftware
+  ? 'Software y Soporte macOS en Cancún | Reinstalación, Optimización y Diagnóstico'
+  : isMacbookPreventiveMaintenance
+  ? 'Mantenimiento Preventivo MacBook en Cancún | Limpieza, Optimización y Diagnóstico Profesional'
   : isConsoleCleaning
   ? 'Limpieza de consolas en Cancún | PS5, Xbox, Switch y Steam Deck'
   : isConsoleThermalPaste
@@ -172,6 +188,14 @@ const description = isPcFormat
   ? 'Cambio y reparación de rodillos de impresora en Cancún. Corregimos fallas de alimentación, papel atorado, hojas dobles y bandejas que no jalan.'
   : isPrinterJams
   ? 'Reparación de atascos de impresora en Cancún desde $450 MXN. Revisamos ruta de papel, sensores, rodillos, bandejas y alimentación para evitar fallas repetidas.'
+  : isConsolePreventiveMaintenance
+  ? 'Mantenimiento preventivo y limpieza de consolas en Cancún. Evita sobrecalentamiento en PS5, Xbox Series X, Nintendo Switch y portátiles con pasta térmica nueva y limpieza interna.'
+  : isHotelSupport
+  ? 'Soporte técnico y TI para hoteles en Cancún y Zona Hotelera. Soporte 24/7 para recepción, reservas, PMS Opera/Sabre, impresoras de tickets, redes WiFi Hotspot y mantenimiento preventivo por lote.'
+  : isMacSoftware
+  ? 'Soporte macOS en Cancún para Mac lenta, no inicia, apps con error, reinstalación de macOS Sonoma y Sequoia, respaldo con Time Machine y migración de datos. MacBook Air, Pro, iMac y Mac mini.'
+  : isMacbookPreventiveMaintenance
+  ? 'Mantenimiento preventivo MacBook en Cancún: limpieza interna, cambio de pasta térmica, optimización macOS y diagnóstico profesional para MacBook Air, MacBook Pro e iMac.'
   : isConsoleCleaning
   ? 'Limpieza interna de consolas en Cancún para PS5, Xbox, Nintendo Switch, Steam Deck y ROG Ally. Mantenimiento térmico, polvo, ventilador, pasta y metal líquido con garantía.'
   : isConsoleThermalPaste
@@ -579,7 +603,15 @@ const pageSchema = [
     ]} />
   )}
 
-  {isConsoleOverheating ? (
+  {isHotelSupport ? (
+    <HotelSupportView service={service} category={category} />
+  ) : isMacSoftware ? (
+    <MacOSSoftwareView service={service} category={category} />
+  ) : isMacbookPreventiveMaintenance ? (
+    <MacBookPreventiveMaintenanceView service={service} category={category} />
+  ) : isConsolePreventiveMaintenance ? (
+    <ConsolePreventiveMaintenanceView service={service} category={category} />
+  ) : isConsoleOverheating ? (
     <MantenimientoTermicoView service={service} category={category} />
   ) : isConsoleThermalPaste ? (
     <ConsoleThermalPasteView service={service} category={category} />

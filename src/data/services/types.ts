@@ -17,6 +17,11 @@ export interface ServiceItem {
   // --- Data extendida (opcional, solo en landings premium) ---
   /** Keyword H1 SEO específica si difiere del label */
   seoKeyword?: string;
+  /** H1 final para landings que necesitan una frase SEO mas precisa */
+  h1?: string;
+  /** Meta tags especificos cuando difieren del patron automatico */
+  metaTitle?: string;
+  metaDescription?: string;
   /** Subtítulo grande bajo el H1 (gancho emocional / problema que resuelve) */
   hook?: string;
   /** "Por qué nosotros"  -  4-6 cards */

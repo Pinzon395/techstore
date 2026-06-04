@@ -1,0 +1,1240 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, me interesa el servicio de Soporte TI para hoteles en Cancún. Me gustaría cotizar para nuestro hotel.'
+);
+
+const problems = [
+  {
+    icon: 'fa-hotel',
+    title: 'Terminales de check-in lentas',
+    h3: '¿Por qué la recepción tarda tanto en registrar a los huéspedes?',
+    desc: 'Diagnosticamos cuellos de botella en computadoras de recepción: discos mecánicos lentos, falta de RAM, malware, configuraciones de red erróneas y software PMS desoptimizado.',
+    tags: ['Check-in / Check-out', 'Terminales lentas', 'PMS Opera / Sabre', 'Cancún Z.H.'],
+  },
+  {
+    icon: 'fa-wifi',
+    title: 'WiFi de huéspedes inestable',
+    h3: 'WiFi intermitente o lento en las habitaciones del hotel',
+    desc: 'Mapeamos zonas sin cobertura (puntos muertos), saturación de canales, interferencias físicas del edificio y fallas en Access Points (Ubiquiti, Ruckus, Aruba).',
+    tags: ['Ubiquiti UniFi', 'Portal cautivo', 'Balanceo de carga', 'Aruba Networks'],
+  },
+  {
+    icon: 'fa-print',
+    title: 'Impresoras de tickets bloqueadas',
+    h3: 'Fallas de impresión de reservaciones, facturas o comandas',
+    desc: 'Solucionamos problemas con impresoras térmicas de tickets y multifuncionales en administración. Corregimos colas de impresión, drivers corruptos y rodillos desgastados.',
+    tags: ['Epson / Zebra', 'Impresión de tickets', 'Cola de impresión', 'Limpieza rodillos'],
+  },
+  {
+    icon: 'fa-server',
+    title: 'Pérdida de conexión con el PMS',
+    h3: 'Caídas del sistema de gestión hotelera y bases de datos SQL',
+    desc: 'Revisamos enlaces de red local, cableado estructurado, latencia en switches y fallas en el servidor local de base de datos para restaurar la conexión del PMS.',
+    tags: ['PMS local / cloud', 'Bases de datos SQL', 'Switches administrados', 'Servidor caída'],
+  },
+  {
+    icon: 'fa-shield-halved',
+    title: 'CCTV e infraestructura fuera de línea',
+    h3: 'Cámaras de seguridad o sistemas de acceso caídos',
+    desc: 'Monitoreamos y damos mantenimiento a grabadores NVR, cámaras IP con falso contacto, switches PoE saturados de calor y control de accesos de tarjetas.',
+    tags: ['CCTV IP', 'Grabadores NVR', 'Switches PoE', 'Control de acceso'],
+  },
+  {
+    icon: 'fa-laptop',
+    title: 'Laptops de administración lentas',
+    h3: 'Equipos administrativos con errores de Windows o virus',
+    desc: 'Realizamos mantenimiento preventivo físico interno, optimización del sistema, eliminación de malware, antivirus empresarial y reinstalación limpia de Windows/macOS.',
+    tags: ['Windows / macOS', 'Antivirus corporativo', 'Limpieza física', 'Actualización a SSD'],
+  },
+  {
+    icon: 'fa-network-wired',
+    title: 'Red hotelera lenta o vulnerable',
+    h3: 'Mezcla de red de operación del hotel y WiFi de huéspedes',
+    desc: 'Segmentamos tu red local con VLANs para aislar y proteger los datos administrativos de las reservas y check-in del acceso general de los huéspedes.',
+    tags: ['Segmentación VLAN', 'Firewall / Router', 'Seguridad de red', 'Políticas TI'],
+  },
+  {
+    icon: 'fa-clock-rotate-left',
+    title: 'Falta de respaldo de reservaciones',
+    h3: 'Riesgo de pérdida de historial hotelero por apagones',
+    desc: 'Implementamos respaldos redundantes automáticos en la nube y dispositivos NAS locales para bases de datos PMS, correos de ventas y archivos compartidos.',
+    tags: ['Cloud Backup', 'NAS Synology', 'Respaldo automático', 'Protección contra cortes'],
+  },
+];
+
+const steps = [
+  {
+    num: '01',
+    title: 'Auditoría y levantamiento técnico',
+    desc: 'Realizamos una inspección presencial para inventariar equipos de cómputo, servidores, switches, Access Points y cableado en recepción y oficinas.',
+    icon: 'fa-magnifying-glass',
+  },
+  {
+    num: '02',
+    title: 'Estabilización operativa inmediata',
+    desc: 'Solucionamos de inmediato las fallas críticas que detienen tu check-in o administración: terminales lentas, impresoras sin red o caídas de internet.',
+    icon: 'fa-bolt',
+  },
+  {
+    num: '03',
+    title: 'Implementación de seguridad y respaldos',
+    desc: 'Segmentamos redes con VLANs para aislar tráfico y configuramos respaldos automáticos de bases de datos del PMS y archivos administrativos críticos.',
+    icon: 'fa-shield-halved',
+  },
+  {
+    num: '04',
+    title: 'Mantenimiento preventivo por lotes',
+    desc: 'Programamos limpieza física interna, cambio de compuesto térmico y actualización de software de computadoras administrativas en horarios de baja ocupación.',
+    icon: 'fa-screwdriver-wrench',
+  },
+  {
+    num: '05',
+    title: 'Soporte 24/7 y monitoreo activo',
+    desc: 'Activamos la línea de soporte prioritario para atención remota y presencial urgente en Zona Hotelera, garantizando que recepción nunca detenga su operación.',
+    icon: 'fa-headset',
+  },
+];
+
+const risks = [
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'No ignores terminales inestables',
+    text: 'Una PC que se congela en recepción retrasa el check-in y genera una mala experiencia inicial en el huésped desde el primer minuto.',
+  },
+  {
+    icon: 'fa-circle-nodes',
+    title: 'No compartas la misma red WiFi',
+    text: 'Permitir que los huéspedes accedan a la misma red de tus computadoras de recepción y PMS expone datos confidenciales e incumple normas de seguridad.',
+  },
+  {
+    icon: 'fa-hard-drive',
+    title: 'No postergues respaldos del PMS',
+    text: 'Las fluctuaciones eléctricas de Cancún pueden dañar discos de servidores locales. Sin respaldo automático diario, arriesgas el registro de reservaciones activas.',
+  },
+  {
+    icon: 'fa-wind',
+    title: 'No ignores la acumulación de salitre',
+    text: 'En Cancún y Zona Hotelera, la humedad y el salitre corroen ventiladores y placas rápidamente. El mantenimiento preventivo evita paros de servicio costosos.',
+  },
+];
+
+const faqs = [
+  {
+    question: '¿Qué tiempo de respuesta manejan para incidentes en hoteles de Cancún?',
+    answer: 'Manejamos tiempos de respuesta prioritarios de menos de 2 horas para incidentes críticos presenciales en Zona Hotelera y Cancún Centro, y soporte remoto inmediato en minutos para que recepción no se detenga.',
+  },
+  {
+    question: '¿Dan soporte a sistemas de reservaciones o PMS como Opera, Sabre o similares?',
+    answer: 'Sí. Damos soporte técnico a la infraestructura y terminales donde corren estos sistemas (servidores de base de datos SQL locales, computadoras de recepción, cableado local, red y WiFi). Nos coordinamos con el soporte oficial del software si es una falla interna de su plataforma.',
+  },
+  {
+    question: '¿Pueden facturar con CFDI y emitir reportes de servicio?',
+    answer: 'Sí, emitimos facturas CFDI detalladas por todos nuestros servicios. Para pólizas de soporte o trabajos preventivos por lote, entregamos reportes técnicos detallados con el inventario, estado de equipos, incidencias resueltas y recomendaciones futuras.',
+  },
+  {
+    question: '¿Qué zonas de cobertura atienden para soporte hotelero?',
+    answer: 'Cubrimos toda la Zona Hotelera de Cancún, Cancún Centro, Puerto Cancún, Huayacán, Cumbres, Aeropuerto, Bonfil, y extendemos cobertura a la Riviera Maya (Puerto Morelos, Playa del Carmen) bajo planes de póliza mensual.',
+  },
+  {
+    question: '¿Ofrecen pólizas de soporte mensual para hoteles o solo servicios bajo demanda?',
+    answer: 'Ofrecemos ambas opciones. Podemos intervenir bajo demanda para resolver problemas específicos (diagnóstico de red WiFi, mantenimiento preventivo de flotillas por lote, reinstalación de servidores) o estructurar una póliza mensual de soporte adaptada al tamaño del hotel.',
+  },
+  {
+    question: '¿Cómo resuelven los problemas de WiFi lento para los huéspedes (Hotspot)?',
+    answer: 'Realizamos análisis de espectro inalámbrico para detectar canales saturados, reubicamos o cambiamos Access Points dañados, configuramos portal cautivo para administración de usuarios, y aplicamos políticas de balanceo y límite de ancho de banda por habitación.',
+  },
+  {
+    question: '¿Trabajan en horarios nocturnos para no afectar la operación de check-in?',
+    answer: 'Sí, entendemos que la operación hotelera es 24/7. Las intervenciones de mantenimiento preventivo a gran escala, cableado estructurado o cambios en racks de comunicación se programan en horarios de baja actividad operativa para no interferir con el servicio al huésped.',
+  },
+  {
+    question: '¿Cuentan con servicio de préstamo de equipos en caso de fallas graves?',
+    answer: 'Bajo esquemas de póliza de soporte mensual, contamos con stock de computadoras, laptops e impresoras de tickets de respaldo para instalación inmediata en áreas críticas de check-in o reservas, asegurando la continuidad del negocio mientras reparamos tu equipo.',
+  },
+];
+
+const targetAreas = [
+  { name: 'Recepción y Lobby', icon: 'fa-hotel', note: 'Check-in y terminales' },
+  { name: 'Reservaciones y Ventas', icon: 'fa-clipboard-list', note: 'PCs, laptops y telefonía' },
+  { name: 'Oficinas Administrativas', icon: 'fa-calculator', note: 'Facturación, nómina e impresoras' },
+  { name: 'Red WiFi de Huéspedes', icon: 'fa-wifi', note: 'Portal cautivo y hotspots' },
+  { name: 'Servidores y Rack de Red', icon: 'fa-server', note: 'Bases de datos PMS y VPN' },
+  { name: 'Sistemas de CCTV y NVR', icon: 'fa-video', note: 'Seguridad y monitoreo IP' },
+  { name: 'POS y Comanderas', icon: 'fa-utensils', note: 'Restaurantes y bares del hotel' },
+  { name: 'Control de Accesos', icon: 'fa-key', note: 'Tarjetas magnéticas y chapas' },
+];
+---
+
+<div class="hsv-page">
+
+  <!-- ═══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-hero">
+    <div class="hsv-hero-glow hsv-glow-1"></div>
+    <div class="hsv-hero-glow hsv-glow-2"></div>
+    <div class="container hsv-hero-grid">
+
+      <div class="hsv-hero-copy">
+        <span class="hsv-kicker">
+          <i class="fa-solid fa-building-shield"></i> Soporte TI para Hoteles en Cancún
+        </span>
+        <h1>Soporte TI para Hoteles en Cancún | Soluciones Tecnológicas y Soporte 24/7</h1>
+        <p class="hsv-hero-sub">
+          Evita retrasos en check-in, quejas por WiFi lento y caídas de sistema. 
+          Garantizamos la estabilidad técnica en recepción, reservaciones y administración 
+          con soporte inmediato, mantenimiento preventivo por lote y pólizas adaptadas.
+        </p>
+        <div class="hsv-badges">
+          <span><i class="fa-solid fa-hotel"></i> Recepción y Check-in</span>
+          <span><i class="fa-solid fa-wifi"></i> WiFi Hotspot Huéspedes</span>
+          <span><i class="fa-solid fa-server"></i> Conectividad PMS Opera</span>
+          <span><i class="fa-solid fa-print"></i> Impresoras de Tickets</span>
+          <span><i class="fa-solid fa-headset"></i> Pólizas TI 24/7</span>
+        </div>
+        <div class="hsv-actions">
+          <a
+            class="hsv-btn-primary"
+            href={`https://wa.me/529986690777?text=${waMessage}`}
+            target="_blank"
+            id="hsv-hero-wa-btn"
+          >
+            <i class="fa-brands fa-whatsapp"></i> Cotizar soporte hotelero
+          </a>
+          <a class="hsv-btn-secondary" href="#fallas-hoteleras" id="hsv-hero-ver-btn">
+            Ver problemas que resolvemos
+          </a>
+        </div>
+      </div>
+
+      <aside class="hsv-hero-panel">
+        <div class="hsv-panel-img-wrap">
+          <img
+            src="/assets/images/soporte-hoteles-hero.webp"
+            alt="Soporte técnico y TI para hoteles en Cancún — Pixon PC"
+            class="hsv-panel-img"
+          />
+          <div class="hsv-panel-img-overlay"></div>
+        </div>
+        <div class="hsv-panel-price-row">
+          <div>
+            <span class="hsv-price-label">Soporte técnico y pólizas</span>
+            <strong class="hsv-price-value">Cotización</strong>
+          </div>
+          <span class="hsv-price-eta">
+            <i class="fa-regular fa-clock"></i> Respuesta inmediata
+          </span>
+        </div>
+        <ul class="hsv-panel-checks">
+          <li><i class="fa-solid fa-circle-check"></i> Diagnóstico en sitio sin costo inicial</li>
+          <li><i class="fa-solid fa-circle-check"></i> Cobertura en toda la Zona Hotelera</li>
+          <li><i class="fa-solid fa-circle-check"></i> Guardia nocturna y fines de semana</li>
+          <li><i class="fa-solid fa-circle-check"></i> Soporte a hardware, red, WiFi y PMS</li>
+          <li><i class="fa-solid fa-circle-check"></i> Facturación CFDI y Reportes detallados</li>
+        </ul>
+      </aside>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       INTRO — qué hacemos y por qué importa
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-section hsv-light" id="que-hacemos">
+    <div class="container">
+      <div class="hsv-two-col">
+        <div>
+          <span class="hsv-eyebrow">Operación 24/7</span>
+          <h2>Estabilidad Tecnológica para Recepción, Reservas y Administración</h2>
+          <p>
+            En el sector hotelero de Cancún y la Riviera Maya, la tecnología no puede parar. Una falla en las 
+            computadoras de check-in o una desconexión del PMS (Property Management System) durante horas pico 
+            significa retrasos, huéspedes molestos y pérdidas operativas directas.
+          </p>
+          <p>
+            Nuestro servicio de <strong>soporte TI para hoteles en Cancún</strong> está diseñado con un enfoque 
+            100% operativo: priorizamos las áreas críticas que afectan el servicio al cliente y mantenemos tu 
+            infraestructura de red, servidores y terminales trabajando con máxima estabilidad.
+          </p>
+        </div>
+        <div>
+          <span class="hsv-eyebrow">Prevención primero</span>
+          <h2>¿Qué Incluye Nuestro Servicio de Soporte TI para Hoteles en Cancún y Riviera Maya?</h2>
+          <p>
+            No somos técnicos que solo atienden cuando algo ya falló. Nos enfocamos en el mantenimiento 
+            preventivo y en la reestructuración de tu red para evitar incidentes.
+          </p>
+          <p>
+            Ofrecemos levantamientos técnicos, auditorías de cobertura WiFi, limpieza física de flotillas de cómputo, 
+            configuración de respaldos locales y en la nube de bases de datos críticas, y un canal de comunicación directo 
+            para soporte urgente de mesa de ayuda presencial y remota.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PROBLEMAS — grilla de 8 tarjetas
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-section hsv-dark" id="fallas-hoteleras">
+    <div class="container">
+      <div class="hsv-head-center">
+        <span class="hsv-eyebrow hsv-eyebrow-light">Fallas que resolvemos</span>
+        <h2>Problemas de Soporte Técnico y Redes en Hoteles</h2>
+        <p class="hsv-center-desc">
+          Desde computadoras lentas en la recepción de la Zona Hotelera hasta fallas de conexión con bases de datos PMS, 
+          aquí detallamos cómo resolvemos los problemas más comunes en la infraestructura hotelera.
+        </p>
+      </div>
+
+      <div class="hsv-problems-grid">
+        {problems.map((p) => (
+          <article class="hsv-problem-card">
+            <div class="hsv-problem-icon-wrap">
+              <i class={`fa-solid ${p.icon}`}></i>
+            </div>
+            <div class="hsv-problem-body">
+              <h3>{p.h3}</h3>
+              <p class="hsv-problem-label">{p.title}</p>
+              <p>{p.desc}</p>
+              <div class="hsv-problem-tags">
+                {p.tags.map((t) => <span>{t}</span>)}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SPLIT — wifi hotspot + pms/servidores
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-section hsv-light">
+    <div class="container">
+      <div class="hsv-split-cards">
+
+        <div class="hsv-split-card hsv-split-card--img">
+          <div class="hsv-split-img-wrap">
+            <img
+              src="/assets/images/reparacion-impresoras-cancun.webp"
+              alt="Mantenimiento preventivo de impresoras y PCs en hoteles de Cancún"
+              class="hsv-split-img"
+            />
+          </div>
+          <span class="hsv-eyebrow">Redes WiFi Hotspot</span>
+          <h2>Redes WiFi Hotspot y Conectividad para Huéspedes sin Interrupciones</h2>
+          <p>
+            El WiFi lento en las habitaciones es una de las principales causas de malas calificaciones en plataformas de reservas. 
+            Diagnosticamos la cobertura de tus Access Points en áreas comunes y habitaciones, optimizamos el ancho de banda 
+            para evitar que descargas masivas saturen la red, y configuramos portales cautivos seguros.
+          </p>
+          <p>
+            Nuestros ingenieros aíslan el tráfico de los huéspedes del tráfico operativo del hotel mediante VLANs, 
+            garantizando estabilidad y protegiendo la información bancaria y de reservas en recepción.
+          </p>
+          <a
+            class="hsv-btn-sm"
+            href={`https://wa.me/529986690777?text=${waMessage}`}
+            target="_blank"
+          >
+            <i class="fa-brands fa-whatsapp"></i> Consultar sobre redes WiFi
+          </a>
+        </div>
+
+        <div class="hsv-split-card hsv-split-card--dark">
+          <span class="hsv-eyebrow hsv-eyebrow-light">Infraestructura Crítica</span>
+          <h2>Soporte para PMS (Property Management Systems) y Servidores Locales</h2>
+          <p>
+            Los servidores locales que alojan el PMS (Opera, Sabre, Sihot, etc.) y las bases de datos de cobro 
+            deben contar con redundancia, protección contra cortes eléctricos y sistemas de respaldo diarios automáticos. 
+            Damos soporte técnico preventivo a los servidores, switches, racks de comunicación y cableado estructurado del hotel.
+          </p>
+          <p>
+            En Cancún, los cortes de luz y variaciones de voltaje son frecuentes. Nos aseguramos de instalar y configurar 
+            sistemas UPS y plantas de respaldo para mantener tus servidores en línea sin pérdida de bases de datos.
+          </p>
+          <ul class="hsv-checklist">
+            <li><i class="fa-solid fa-check"></i> Soporte a hardware de servidores locales</li>
+            <li><i class="fa-solid fa-check"></i> Respaldos automáticos en la nube y NAS local</li>
+            <li><i class="fa-solid fa-check"></i> Diagnóstico de cableado estructurado y switches</li>
+            <li><i class="fa-solid fa-check"></i> Limpieza y mantenimiento de racks de red</li>
+            <li><i class="fa-solid fa-check"></i> Configuración de sistemas UPS para servidores</li>
+            <li><i class="fa-solid fa-check"></i> Coordinación técnica con proveedores externos</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       ÁREAS DE ATENCIÓN
+  ═══════════════════════════════════════════ -->
+  <section class="hsv-section hsv-dark hsv-areas-section">
+    <div class="container">
+      <div class="hsv-head-center">
+        <span class="hsv-eyebrow hsv-eyebrow-light">Alcance del soporte</span>
+        <h2>Áreas y Sistemas que Atendemos en Cancún y Riviera Maya</h2>
+        <p class="hsv-center-desc">
+          Cubrimos todos los puntos clave de la infraestructura tecnológica de tu hotel, 
+          garantizando continuidad operativa y seguridad informática.
+        </p>
+      </div>
+      <div class="hsv-areas-grid">
+        {targetAreas.map((a) => (
+          <div class="hsv-area-pill">
+            <i class={`fa-solid ${a.icon}`}></i>
+            <div>
+              <strong>{a.name}</strong>
+              <small>{a.note}</small>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PROCESO
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-section hsv-light" id="proceso-hoteles">
+    <div class="container">
+      <div class="hsv-head-center hsv-head-dark">
+        <span class="hsv-eyebrow">Metodología de trabajo</span>
+        <h2>¿Cómo Es el Proceso de Soporte TI para Hoteles?</h2>
+        <p class="hsv-center-desc hsv-center-desc--dark">
+          Trabajamos de forma ordenada para no afectar tus niveles de ocupación. 
+          Establecemos prioridades de servicio para garantizar la estabilidad técnica.
+        </p>
+      </div>
+      <div class="hsv-process-list">
+        {steps.map((s) => (
+          <div class="hsv-process-item">
+            <div class="hsv-process-num-wrap">
+              <span class="hsv-process-num">{s.num}</span>
+              <div class="hsv-process-line"></div>
+            </div>
+            <div class="hsv-process-content">
+              <div class="hsv-process-icon"><i class={`fa-solid ${s.icon}`}></i></div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       ADVERTENCIAS / RIESGOS
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-section hsv-dark">
+    <div class="container">
+      <div class="hsv-head-center">
+        <span class="hsv-eyebrow hsv-eyebrow-light">Prevención de Incidentes</span>
+        <h2>Riesgos Operativos en la Infraestructura TI Hotelera</h2>
+        <p class="hsv-center-desc">
+          Evita que fallas menores escalen a paros de servicio en recepción o quejas 
+          de huéspedes que afecten la reputación online del hotel.
+        </p>
+      </div>
+      <div class="hsv-risks-grid">
+        {risks.map((r) => (
+          <div class="hsv-risk-card">
+            <div class="hsv-risk-icon"><i class={`fa-solid ${r.icon}`}></i></div>
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       MANTENIMIENTO POR LOTE — sección especial
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-section hsv-light hsv-maintenance-section">
+    <div class="container">
+      <div class="hsv-maintenance-grid">
+        <div class="hsv-maintenance-copy">
+          <span class="hsv-eyebrow">Flotillas de Cómputo</span>
+          <h2>Mantenimiento Preventivo y Limpieza de Flotillas de Cómputo</h2>
+          <p>
+            El clima de Cancún (humedad y salitre) acelera la corrosión y acumulación de polvo dentro de los equipos de oficina. 
+            Las computadoras en administración, ventas y recepción acumulan salitre rápidamente, lo que causa fallas eléctricas en la placa y sobrecalentamiento.
+          </p>
+          <p>
+            Programamos <strong>mantenimientos preventivos físicos por lote</strong>. Realizamos limpieza interna profunda, 
+            cambio de pasta térmica, verificación de voltajes de fuentes de poder, y optimización de software. 
+            Inventariamos y reportamos el estado físico de cada computadora para que puedas planificar renovaciones sin paros de emergencia.
+          </p>
+          <div class="hsv-maintenance-points">
+            <div class="hsv-mp">
+              <i class="fa-solid fa-screwdriver-wrench"></i>
+              <span>Limpieza física interna completa</span>
+            </div>
+            <div class="hsv-mp">
+              <i class="fa-solid fa-temperature-half"></i>
+              <span>Cambio de pasta térmica profesional</span>
+            </div>
+            <div class="hsv-mp">
+              <i class="fa-solid fa-gauge-high"></i>
+              <span>Optimización de velocidad y software</span>
+            </div>
+            <div class="hsv-mp">
+              <i class="fa-solid fa-clipboard-list"></i>
+              <span>Inventario y reporte de estado por equipo</span>
+            </div>
+          </div>
+        </div>
+        <div class="hsv-maintenance-img-wrap">
+          <img
+            src="/assets/images/mantenimiento-pc-escritorio.webp"
+            alt="Mantenimiento preventivo por lotes de computadoras en Cancún"
+            class="hsv-maintenance-img"
+          />
+          <div class="hsv-maintenance-badge">
+            <i class="fa-solid fa-building-shield"></i>
+            <span>Operación continua<br><strong>garantizada</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       CTA CENTRAL
+  ══════════════════════════════════════════════ -->
+  <section class="hsv-section hsv-cta-section">
+    <div class="container">
+      <div class="hsv-cta-inner">
+        <div class="hsv-cta-glow"></div>
+        <span class="hsv-eyebrow hsv-eyebrow-light">¿Necesitas soporte TI confiable para tu hotel?</span>
+        <h2>Asegura la Continuidad de tu Hotel con Soporte Técnico Especializado</h2>
+        <p>
+          Agenda una visita técnica sin costo para levantamiento e inventario. 
+          Evaluamos tus terminales de recepción, red WiFi, cableado estructurado y 
+          te proponemos una solución o póliza de soporte mensual adaptada a tu hotel.
+        </p>
+        <div class="hsv-cta-actions">
+          <a
+            class="hsv-btn-primary hsv-btn-lg"
+            href={`https://wa.me/529986690777?text=${waMessage}`}
+            target="_blank"
+            id="hsv-cta-wa-btn"
+          >
+            <i class="fa-brands fa-whatsapp"></i> Contactar por WhatsApp
+          </a>
+          <a class="hsv-btn-ghost" href="#proceso-hoteles" id="hsv-cta-proceso-btn">
+            Ver nuestro proceso de soporte
+          </a>
+        </div>
+        <div class="hsv-cta-pills">
+          <span><i class="fa-solid fa-location-dot"></i> Zona Hotelera y Cancún Centro</span>
+          <span><i class="fa-solid fa-clock"></i> Guardia y soporte técnico 24/7</span>
+          <span><i class="fa-solid fa-file-shield"></i> Reporte técnico y facturación CFDI</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED, FAQ, COMMENTS, CONTACT -->
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Más servicios B2B en Cancún"
+    eyebrow="Soluciones empresariales"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  <FaqSection
+    id="faq-hoteles"
+    title="Preguntas Frecuentes — Soporte TI para Hoteles en Cancún"
+    description="Respuestas a tus dudas sobre cobertura, tiempos de respuesta, soporte de PMS, WiFi y pólizas mensuales en la Zona Hotelera de Cancún."
+    items={faqs}
+    ariaLabel="Preguntas frecuentes sobre soporte de TI para hoteles"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    sectionClass="faq-section"
+    gridClass="faq-grid"
+    backgroundColor="#F8FAFC"
+    questionColor="#0F2A4A"
+    itemGap="8px"
+    questionPadding="16px 18px"
+  />
+
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios-hoteles" />
+  <ContactSection id="ubicacion-hoteles" />
+
+</div>
+
+<style is:global>
+/* ════════════════════════════════════════════════
+   ROOT PAGE WRAPPER
+   Usa una paleta hotelera premium: azul profundo, oro/bronce e índigo
+════════════════════════════════════════════════ */
+.hsv-page {
+  background: #0f172a;
+  color: #f1f5f9;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════ */
+.hsv-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 48px 0 60px;
+  background:
+    radial-gradient(ellipse at 5% 0%, rgba(29,78,216,0.2) 0%, transparent 40%),
+    radial-gradient(ellipse at 95% 0%, rgba(217,119,6,0.1) 0%, transparent 35%),
+    linear-gradient(160deg, #090d16 0%, #0f172a 55%, #0f2d5c 100%);
+}
+
+.hsv-hero-glow {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+.hsv-glow-1 {
+  width: 500px; height: 500px;
+  top: -200px; left: -100px;
+  background: rgba(37,99,235,0.15);
+}
+.hsv-glow-2 {
+  width: 400px; height: 400px;
+  bottom: -150px; right: -80px;
+  background: rgba(217,119,6,0.08);
+}
+
+.hsv-hero-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr minmax(300px, 400px);
+  gap: 36px;
+  align-items: center;
+}
+
+.hsv-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #93c5fd;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.hsv-hero-copy h1 {
+  margin: 14px 0 16px;
+  color: #ffffff;
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  line-height: 1.09;
+  font-weight: 700;
+}
+
+.hsv-hero-sub {
+  color: #cbd5e1;
+  font-size: 1.06rem;
+  line-height: 1.68;
+  margin: 0 0 22px;
+}
+
+.hsv-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 26px;
+}
+.hsv-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(147,197,253,0.25);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #dbeafe;
+}
+
+.hsv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.hsv-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #1d4ed8;
+  color: #ffffff !important;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 28px rgba(29,78,216,0.35);
+}
+.hsv-btn-primary:hover {
+  background: #1e40af;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(29,78,216,0.45);
+}
+.hsv-btn-primary.hsv-btn-lg {
+  padding: 16px 28px;
+  font-size: 1.05rem;
+  border-radius: 14px;
+}
+
+.hsv-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.hsv-btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(191,219,254,0.35);
+}
+
+.hsv-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(191,219,254,0.3);
+  background: transparent;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.hsv-btn-ghost:hover {
+  background: rgba(191,219,254,0.08);
+}
+
+.hsv-btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1d4ed8;
+  color: #fff !important;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+}
+.hsv-btn-sm:hover { background: #1e40af; transform: translateY(-2px); }
+
+/* HERO PANEL */
+.hsv-hero-panel {
+  background: rgba(15,23,42,0.9);
+  border: 1px solid rgba(148,163,184,0.14);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+}
+.hsv-panel-img-wrap {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 175px;
+  border: 1px solid rgba(147,197,253,0.15);
+}
+.hsv-panel-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.hsv-hero-panel:hover .hsv-panel-img { transform: scale(1.05); }
+.hsv-panel-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(15,23,42,0.75) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.hsv-panel-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 14px;
+  gap: 8px;
+}
+.hsv-price-label { display: block; color: #93c5fd; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.hsv-price-value { font-family: 'Kanit', sans-serif; font-size: 1.9rem; color: #bfdbfe; line-height: 1; }
+.hsv-price-eta { color: #94a3b8; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+
+.hsv-panel-checks {
+  list-style: none;
+  margin: 0; padding: 0;
+}
+.hsv-panel-checks li {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.hsv-panel-checks li i { color: #34d399; font-size: 0.95rem; margin-top: 2px; }
+
+/* ════════════════════════════════════════════════
+   SECTIONS GENERALS
+════════════════════════════════════════════════ */
+.hsv-section {
+  padding: 80px 0;
+  position: relative;
+}
+.hsv-light { background: #f8fafc; color: #0f172a; }
+.hsv-dark { background: #0b0f19; color: #f8fafc; }
+
+.hsv-eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #1d4ed8;
+  margin-bottom: 12px;
+}
+.hsv-eyebrow-light { color: #93c5fd; }
+
+.hsv-section h2 {
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 20px;
+}
+.hsv-light h2 { color: #0f172a; }
+.hsv-dark h2 { color: #ffffff; }
+
+.hsv-section p {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: #475569;
+  margin: 0 0 16px;
+}
+.hsv-dark p { color: #94a3b8; }
+
+.hsv-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+.hsv-head-center {
+  max-width: 760px;
+  margin: 0 auto 52px;
+  text-align: center;
+}
+.hsv-center-desc { font-size: 1.15rem !important; line-height: 1.6; }
+.hsv-center-desc--dark { color: #475569 !important; }
+
+/* ════════════════════════════════════════════════
+   PROBLEMS GRID (8 cards)
+════════════════════════════════════════════════ */
+.hsv-problems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+.hsv-problem-card {
+  background: #111827;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hsv-problem-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(29,78,216,0.35);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+.hsv-problem-icon-wrap {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: rgba(29,78,216,0.15);
+  border: 1px solid rgba(29,78,216,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hsv-problem-icon-wrap i { color: #60a5fa; font-size: 1.3rem; }
+
+.hsv-problem-body h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+.hsv-problem-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #93c5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 10px;
+}
+.hsv-problem-card p { font-size: 0.88rem; line-height: 1.5; color: #94a3b8; margin: 0 0 16px; }
+
+.hsv-problem-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+.hsv-problem-tags span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 3px 8px;
+  color: #94a3b8;
+}
+
+/* ════════════════════════════════════════════════
+   SPLIT CARDS
+════════════════════════════════════════════════ */
+.hsv-split-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.hsv-split-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 36px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+.hsv-split-card--dark {
+  background: #0f172a;
+  border-color: rgba(255,255,255,0.05);
+  color: #f1f5f9;
+}
+.hsv-split-card--dark h2 { color: #ffffff; }
+.hsv-split-card--dark p { color: #94a3b8; }
+
+.hsv-split-img-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  height: 200px;
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+}
+.hsv-split-img { width: 100%; height: 100%; object-fit: cover; }
+
+.hsv-checklist {
+  list-style: none;
+  padding: 0; margin: 20px 0 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.hsv-checklist li {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.hsv-checklist li i { color: #34d399; margin-top: 3px; font-size: 0.9rem; }
+
+/* ════════════════════════════════════════════════
+   AREAS OF ATTENTION (8 pills grid)
+════════════════════════════════════════════════ */
+.hsv-areas-section {
+  background: linear-gradient(180deg, #0b0f19 0%, #080b13 100%);
+  padding: 70px 0;
+}
+.hsv-areas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.hsv-area-pill {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+.hsv-area-pill:hover {
+  background: rgba(29,78,216,0.1);
+  border-color: rgba(29,78,216,0.3);
+  transform: scale(1.02);
+}
+.hsv-area-pill i { font-size: 1.3rem; color: #93c5fd; width: 24px; text-align: center; }
+.hsv-area-pill strong { font-size: 0.92rem; font-weight: 700; color: #ffffff; display: block; }
+.hsv-area-pill small { font-size: 0.74rem; color: #94a3b8; display: block; margin-top: 1px; }
+
+/* ════════════════════════════════════════════════
+   PROCESS LIST (vertical steps)
+════════════════════════════════════════════════ */
+.hsv-process-list {
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+}
+.hsv-process-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+.hsv-process-item:last-child { padding-bottom: 0; }
+.hsv-process-num-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hsv-process-num {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1d4ed8;
+  background: rgba(29,78,216,0.1);
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #1d4ed8;
+}
+.hsv-process-line {
+  flex-grow: 1;
+  width: 2px;
+  background: #cbd5e1;
+  margin-top: 12px;
+}
+.hsv-process-item:last-child .hsv-process-line { display: none; }
+
+.hsv-process-content {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.02);
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.hsv-process-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: rgba(29,78,216,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hsv-process-icon i { color: #1d4ed8; font-size: 1.15rem; }
+
+.hsv-process-content h3 { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
+.hsv-process-content p { font-size: 0.9rem; line-height: 1.5; color: #475569; margin: 0; }
+
+/* ════════════════════════════════════════════════
+   RISKS (NO hagas esto)
+════════════════════════════════════════════════ */
+.hsv-risks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+.hsv-risk-card {
+  background: #111827;
+  border: 1px solid rgba(239,68,68,0.15);
+  border-radius: 18px;
+  padding: 24px;
+}
+.hsv-risk-card:hover {
+  border-color: rgba(239,68,68,0.35);
+  box-shadow: 0 10px 25px rgba(239,68,68,0.06);
+}
+.hsv-risk-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: rgba(239,68,68,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.hsv-risk-icon i { color: #f87171; font-size: 1.2rem; }
+
+.hsv-risk-card h3 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; color: #ffffff; margin: 0 0 8px; }
+.hsv-risk-card p { font-size: 0.86rem; line-height: 1.5; color: #94a3b8; margin: 0; }
+
+/* ════════════════════════════════════════════════
+   MANTENIMIENTO POR LOTE SECTION
+════════════════════════════════════════════════ */
+.hsv-maintenance-section { background: #f8fafc; border-top: 1px solid #e2e8f0; }
+.hsv-maintenance-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 48px;
+  align-items: center;
+}
+.hsv-maintenance-copy h2 { color: #0f172a; }
+.hsv-maintenance-copy p { color: #475569; }
+
+.hsv-maintenance-points {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+.hsv-mp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hsv-mp i { color: #1d4ed8; font-size: 1rem; flex-shrink: 0; }
+.hsv-mp span { font-size: 0.86rem; font-weight: 600; color: #334155; }
+
+.hsv-maintenance-img-wrap {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+.hsv-maintenance-img { width: 100%; height: 320px; object-fit: cover; }
+.hsv-maintenance-badge {
+  position: absolute;
+  bottom: 20px; left: 20px;
+  background: rgba(15,23,42,0.9);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+}
+.hsv-maintenance-badge i { color: #34d399; font-size: 1.2rem; }
+.hsv-maintenance-badge span { font-size: 0.74rem; line-height: 1.3; }
+
+/* ════════════════════════════════════════════════
+   CTA CENTRAL BAND
+════════════════════════════════════════════════ */
+.hsv-cta-section {
+  padding: 40px 0 80px;
+  background: #0f172a;
+}
+.hsv-cta-inner {
+  position: relative;
+  background: linear-gradient(135deg, #101c36 0%, #0d2f66 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 30px;
+  padding: 56px 40px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+.hsv-cta-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(29,78,216,0.15), transparent 70%);
+  pointer-events: none;
+}
+.hsv-cta-inner h2 {
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.7rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 16px;
+}
+.hsv-cta-inner p {
+  max-width: 680px;
+  margin: 0 auto 32px;
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.hsv-cta-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.hsv-cta-pills {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 24px;
+}
+.hsv-cta-pills span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hsv-cta-pills span i { color: #60a5fa; }
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE MEDIA QUERIES
+════════════════════════════════════════════════ */
+@media (max-width: 991px) {
+  .hsv-hero-grid { grid-template-columns: 1fr; gap: 36px; }
+  .hsv-two-col { grid-template-columns: 1fr; gap: 32px; }
+  .hsv-split-cards { grid-template-columns: 1fr; gap: 24px; }
+  .hsv-maintenance-grid { grid-template-columns: 1fr; gap: 32px; }
+  .hsv-maintenance-img { height: 260px; }
+}
+
+@media (max-width: 767px) {
+  .hsv-section { padding: 56px 0; }
+  .hsv-process-item { grid-template-columns: 60px 1fr; }
+  .hsv-process-num { width: 40px; height: 40px; font-size: 1.15rem; }
+  .hsv-process-content { flex-direction: column; gap: 12px; }
+  .hsv-cta-inner { padding: 40px 24px; }
+  .hsv-maintenance-points { grid-template-columns: 1fr; }
+}
+</style>
