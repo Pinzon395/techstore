@@ -30,10 +30,9 @@ const { title, description, devices, extraLinks } = Astro.props;
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
       {devices.map((device) => (
         <button
-          onclick={`smartWaRedirect('https://wa.me/529986690777?text=${device.waText}')`}
-          style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 25px 10px; border-radius: 16px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px;"
-          onmouseover="this.style.borderColor='{device.color}'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
-          onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"
+          class="device-wa-button"
+          data-wa-url={`https://wa.me/529986690777?text=${device.waText}`}
+          style={`--device-color:${device.color}; background: #f8fafc; border: 1px solid #e2e8f0; padding: 25px 10px; border-radius: 16px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px;`}
         >
           <i class="{device.icon}" style="font-size: 2.5rem; color: {device.color};"></i>
           <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">{device.label}</span>
@@ -56,3 +55,21 @@ const { title, description, devices, extraLinks } = Astro.props;
     )}
   </div>
 </section>
+
+<script>
+  document.querySelectorAll('.device-wa-button').forEach((button) => {
+    if (!(button instanceof HTMLElement) || button.dataset.waBound === 'true') return;
+    button.dataset.waBound = 'true';
+    button.addEventListener('click', () => {
+      const url = button.dataset.waUrl;
+      if (url) window.smartWaRedirect(url);
+    });
+  });
+</script>
+
+<style>
+  .device-wa-button:hover {
+    border-color: var(--device-color) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+</style>

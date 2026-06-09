@@ -1,0 +1,1101 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola, mi PC está muy lenta en Cancún. Quiero diagnóstico para saber si es el disco, RAM, virus, temperatura o Windows.'
+);
+
+const causes = [
+  {
+    icon: 'fa-hard-drive',
+    title: 'HDD Mecánico Antiguo',
+    desc: 'Los discos mecánicos tradicionales limitan el rendimiento a 100-150 MB/s, provocando que Windows se sature al 100% de uso de forma constante.',
+  },
+  {
+    icon: 'fa-memory',
+    title: 'Memoria RAM Insuficiente',
+    desc: 'Tener 4GB u 8GB de RAM hoy en día causa cuello de botella inmediato al abrir navegadores como Chrome, obligando al sistema a usar almacenamiento lento como memoria virtual.',
+  },
+  {
+    icon: 'fa-virus-slash',
+    title: 'Virus, Malware y Bloatware',
+    desc: 'Programas basura que inician con Windows, extensiones maliciosas o procesos ocultos de minería consumen CPU y RAM sin que te des cuenta.',
+  },
+  {
+    icon: 'fa-temperature-half',
+    title: 'Sobrecalentamiento y Pasta Seca',
+    desc: 'Cuando el procesador supera los 80°C debido al polvo o pasta térmica seca, reduce su velocidad (Thermal Throttling) para evitar quemarse.',
+  },
+  {
+    icon: 'fa-windows',
+    title: 'Registro de Windows y Caché Saturados',
+    desc: 'Años de actualizaciones acumuladas, archivos temporales, restos de programas desinstalados y controladores obsoletos dañan la estabilidad del sistema.',
+  },
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'SSD Lleno o sin TRIM activo',
+    desc: 'Un disco de estado sólido al límite de su capacidad pierde velocidad de escritura drásticamente si no tiene espacio para gestionar su ciclo de vida.',
+  },
+];
+
+const diagnostics = [
+  ['01', 'Análisis de cuello de botella', 'Monitoreamos el comportamiento en tiempo real del CPU, RAM, GPU y discos bajo carga de trabajo para ubicar qué componente frena tu PC.'],
+  ['02', 'Test térmico y ventilación', 'Medimos la temperatura máxima en pruebas de estrés. Detectamos si hay thermal throttling o si los ventiladores están fallando.'],
+  ['03', 'Salud del almacenamiento (S.M.A.R.T.)', 'Evaluamos el estado físico de tu disco HDD o SSD. Si tiene sectores dañados o fallas mecánicas, la prioridad es salvar tus archivos.'],
+  ['04', 'Auditoría de software y arranque', 'Rastreamos virus, malware, programas basura en segundo plano, adware y servicios innecesarios que saturan el arranque del equipo.'],
+  ['05', 'Recomendación y cotización clara', 'Te explicamos los resultados de forma comprensible y te ofrecemos opciones: optimización lógica, limpieza profunda, upgrade físico o formateo.'],
+];
+
+const solutions = [
+  {
+    title: 'Paquete de Limpieza Profunda',
+    badge: 'Mantenimiento Físico',
+    desc: 'Eliminación completa de polvo acumulado de años, lubricación de ventiladores y cambio de pasta térmica premium para bajar hasta 20°C la temperatura de tu procesador.',
+    icon: 'fa-spray-can-sparkles',
+    link: '/paquetes',
+    btnText: 'Ver Paquetes de Limpieza',
+    highlight: false,
+  },
+  {
+    title: 'Paquete de Optimización Avanzada',
+    badge: 'Máximo Rendimiento Lógico',
+    desc: 'Limpieza profunda de Windows, desactivación de telemetría y servicios innecesarios, depuración de inicio y afinación del sistema para exprimir al máximo tu hardware actual.',
+    icon: 'fa-bolt',
+    link: '/optimizacion',
+    btnText: 'Ver Optimización Avanzada',
+    highlight: true,
+  },
+  {
+    title: 'Upgrade de RAM y SSD',
+    badge: 'El Cambio Más Impactante',
+    desc: 'Reemplazamos tu HDD viejo por un SSD ultra rápido de última generación (clonando tu sistema para que no pierdas nada) y ampliamos la RAM para multitarea fluida.',
+    icon: 'fa-microchip',
+    link: '/servicios/pc/upgrade',
+    btnText: 'Ver Opciones de Upgrade',
+    highlight: false,
+  },
+  {
+    title: 'Formateo y Windows Limpio',
+    badge: 'Reinicio Total de Cero',
+    desc: 'Respaldo seguro de todos tus archivos, formateo completo de bajo nivel, instalación limpia de Windows (10 u 11), controladores oficiales y paquetería básica optimizada.',
+    icon: 'fa-arrows-rotate',
+    link: '/servicios/pc/formateo',
+    btnText: 'Ver Detalles de Formateo',
+    highlight: false,
+  },
+];
+
+const seoBlocks = [
+  {
+    icon: 'fa-location-dot',
+    title: 'Solución a PC lenta en Cancún Centro y alrededores',
+    text: 'Atendemos equipos lentos en Cancún, incluyendo Zona Hotelera, Huayacán, Cumbres, Bonfil y todas las regiones. Trae tu equipo para un diagnóstico gratis y profesional.',
+  },
+  {
+    icon: 'fa-gauge-high',
+    title: 'Diagnóstico de cuello de botella sin adivinar',
+    text: 'Medimos el rendimiento real de tu PC de escritorio, computadora de oficina o PC gamer. Te decimos con exactitud qué componente causa la lentitud.',
+  },
+  {
+    icon: 'fa-shield-halved',
+    title: 'Seguridad para tus archivos en cada solución',
+    text: 'Antes de realizar cualquier optimización, clonación de disco o formateo, priorizamos el respaldo de tus fotos, documentos y trabajos.',
+  },
+];
+
+const faqItems = [
+  {
+    question: '¿Por qué mi PC está tan lenta si antes funcionaba rápido?',
+    answer: 'La lentitud suele deberse a la acumulación de archivos basura, virus en segundo plano, sobrecalentamiento por pasta térmica seca, o el desgaste natural de un disco duro mecánico. Un diagnóstico preciso nos permite saber cuál de estas causas está afectando a tu equipo.',
+  },
+  {
+    question: '¿Conviene cambiar de disco duro mecánico a un SSD?',
+    answer: 'Sí, absolutamente. Cambiar el disco HDD mecánico por un disco de estado sólido (SSD) es el cambio más notable que puedes hacer. Tu PC pasará de encender en 3 minutos a hacerlo en menos de 20 segundos, y la apertura de programas será inmediata.',
+  },
+  {
+    question: '¿Voy a perder mis archivos o programas al acelerar la PC?',
+    answer: 'No. En la mayoría de los casos optimizamos el software o realizamos una clonación exacta de tu disco actual a uno nuevo de estado sólido (SSD), lo que conserva intactos todos tus programas, configuraciones y archivos personales.',
+  },
+  {
+    question: '¿Qué incluye la optimización de Windows?',
+    answer: 'Incluye la desactivación de programas innecesarios que inician con el sistema, depuración del registro de Windows, eliminación de archivos temporales y caché saturada, actualización de controladores obsoletos y desactivación de servicios pesados de telemetría de Microsoft.',
+  },
+  {
+    question: '¿La PC lenta puede deberse a sobrecalentamiento?',
+    answer: 'Sí. Los procesadores modernos reducen su velocidad de forma automática cuando alcanzan temperaturas elevadas (generalmente arriba de 80°C) para protegerse de daños físicos. Esto se conoce como Thermal Throttling y hace que el equipo vaya sumamente lento.',
+  },
+  {
+    question: '¿Cuánto cuesta y cuánto tarda el diagnóstico de lentitud?',
+    answer: 'El diagnóstico inicial es gratis en nuestra sucursal de Cancún. Normalmente toma entre 2 y 6 horas realizar todas las pruebas de salud del disco, análisis de RAM, monitoreo de temperaturas y escaneo de virus.',
+  },
+];
+---
+
+<div class="pclen-page">
+  <!-- Hero Section -->
+  <section class="pclen-hero">
+    <div class="pclen-shell pclen-hero-grid">
+      <div class="pclen-copy">
+        <span class="pclen-kicker"><i class="fa-solid fa-gauge-high"></i> Aceleración de Computadoras</span>
+        <h1>¿Tu PC está desesperadamente lenta en Cancún?</h1>
+        <h2>Hacemos diagnóstico gratuito para identificar la causa real: disco mecánico, falta de RAM, virus, calor o Windows dañado.</h2>
+        <p class="pclen-lead">
+          No compres una computadora nueva sin antes revisarla. El 90% de las PC lentas vuelven a volar con un cambio a SSD, optimización lógica de sistema o mantenimiento de temperatura.
+        </p>
+        
+        <div class="pclen-actions">
+          <a href={`https://wa.me/529986690777?text=${whatsappText}`} class="pclen-btn pclen-btn-primary">
+            <i class="fa-brands fa-whatsapp"></i> Acelerar mi PC por WhatsApp
+          </a>
+          <a href="#soluciones-lentitud" class="pclen-btn pclen-btn-soft">
+            <i class="fa-solid fa-bolt"></i> Ver Soluciones y Precios
+          </a>
+        </div>
+
+        <div class="pclen-trust">
+          <span><strong>Gratis</strong> Diagnóstico inicial</span>
+          <span><strong>Cero Pérdida</strong> de datos</span>
+          <span><strong>Garantía</strong> por escrito</span>
+        </div>
+      </div>
+
+      <!-- Interactive Widget: Performance Metrics visualizer -->
+      <div class="pclen-visual" aria-label="Visualizador de cuellos de botella de PC">
+        <div class="pclen-panel">
+          <div class="pclen-panel-header">
+            <span class="pclen-dot pclen-dot-red"></span>
+            <span class="pclen-dot pclen-dot-yellow"></span>
+            <span class="pclen-dot pclen-dot-green"></span>
+            <span class="pclen-panel-title">Administrador de Rendimiento</span>
+          </div>
+          
+          <div class="pclen-metrics-list">
+            <!-- Metric 1: Temp -->
+            <div class="pclen-metric-item pclen-alert-high">
+              <div class="pclen-metric-meta">
+                <span><i class="fa-solid fa-temperature-high"></i> Temperatura CPU</span>
+                <strong class="pclen-text-danger">87°C (Throttling)</strong>
+              </div>
+              <div class="pclen-progress-bar"><span style="width: 87%; background-color: #ef4444;"></span></div>
+            </div>
+
+            <!-- Metric 2: Disk -->
+            <div class="pclen-metric-item pclen-alert-high">
+              <div class="pclen-metric-meta">
+                <span><i class="fa-solid fa-hard-drive"></i> Uso de Disco HDD</span>
+                <strong class="pclen-text-danger">100% Constante</strong>
+              </div>
+              <div class="pclen-progress-bar"><span style="width: 100%; background-color: #ef4444;"></span></div>
+            </div>
+
+            <!-- Metric 3: RAM -->
+            <div class="pclen-metric-item pclen-alert-mid">
+              <div class="pclen-metric-meta">
+                <span><i class="fa-solid fa-memory"></i> Memoria RAM (8GB)</span>
+                <strong class="pclen-text-warning">91% Saturada</strong>
+              </div>
+              <div class="pclen-progress-bar"><span style="width: 91%; background-color: #f59e0b;"></span></div>
+            </div>
+
+            <!-- Metric 4: Malware -->
+            <div class="pclen-metric-item pclen-alert-mid">
+              <div class="pclen-metric-meta">
+                <span><i class="fa-solid fa-bug"></i> Hilos en 2do Plano</span>
+                <strong class="pclen-text-warning">142 Apps Basura</strong>
+              </div>
+              <div class="pclen-progress-bar"><span style="width: 75%; background-color: #f59e0b;"></span></div>
+            </div>
+
+            <!-- Metric 5: Windows boot -->
+            <div class="pclen-metric-item pclen-alert-high">
+              <div class="pclen-metric-meta">
+                <span><i class="fa-solid fa-hourglass-start"></i> Tiempo de Arranque</span>
+                <strong class="pclen-text-danger">3m 45s</strong>
+              </div>
+              <div class="pclen-progress-bar"><span style="width: 95%; background-color: #ef4444;"></span></div>
+            </div>
+          </div>
+          
+          <div class="pclen-panel-footer">
+            <span class="pclen-status-indicator"><i class="fa-solid fa-circle-exclamation"></i> Rendimiento Crítico</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEO Local highlights -->
+  <section class="pclen-section pclen-local-seo">
+    <div class="pclen-shell">
+      <div class="pclen-local-grid">
+        {seoBlocks.map((block) => (
+          <article class="pclen-seo-card">
+            <div class="pclen-seo-icon">
+              <i class={`fa-solid ${block.icon}`}></i>
+            </div>
+            <h3>{block.title}</h3>
+            <p>{block.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Causas de Lentitud Section -->
+  <section class="pclen-section pclen-bg-dark">
+    <div class="pclen-shell">
+      <div class="pclen-head pclen-text-white">
+        <span>Diagnóstico Lógico y Físico</span>
+        <h2>¿Por qué va lenta tu computadora?</h2>
+        <p>Estas son las 6 razones más comunes por las que una PC de escritorio, gamer o de oficina pierde su velocidad original con el tiempo.</p>
+      </div>
+
+      <div class="pclen-causes-grid">
+        {causes.map((cause) => (
+          <div class="pclen-cause-card">
+            <div class="pclen-cause-header">
+              <i class={`fa-solid ${cause.icon}`}></i>
+              <h3>{cause.title}</h3>
+            </div>
+            <p>{cause.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Diagnóstico Técnico Section -->
+  <section class="pclen-section">
+    <div class="pclen-shell pclen-split-layout">
+      <div class="pclen-split-info">
+        <span class="pclen-eyebrow">Nuestro Método Técnico</span>
+        <h2>El diagnóstico que le devuelve la vida a tu PC</h2>
+        <p>
+          No cambiamos piezas por adivinar. Medimos el rendimiento de cada componente bajo carga física real y analizamos la configuración lógica de Windows para encontrar exactamente el problema.
+        </p>
+        <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Diagnóstico técnico de PC lenta en Cancún" class="pclen-split-img" loading="lazy" decoding="async" />
+      </div>
+
+      <div class="pclen-timeline">
+        {diagnostics.map(([step, title, desc]) => (
+          <div class="pclen-timeline-item">
+            <span class="pclen-timeline-num">{step}</span>
+            <div class="pclen-timeline-content">
+              <h3>{title}</h3>
+              <p>{desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Soluciones y Redirecciones Dedicadas Section -->
+  <section class="pclen-section pclen-solutions" id="soluciones-lentitud">
+    <div class="pclen-shell">
+      <div class="pclen-head">
+        <span>Soluciones Garantizadas</span>
+        <h2>¿Cómo vamos a acelerar tu computadora?</h2>
+        <p>Elige el servicio recomendado según tus necesidades o contáctanos para asesorarte sin costo.</p>
+      </div>
+
+      <div class="pclen-solutions-grid">
+        {solutions.map((sol) => (
+          <div class={`pclen-sol-card ${sol.highlight ? 'pclen-sol-highlight' : ''}`}>
+            <span class="pclen-sol-badge">{sol.badge}</span>
+            <div class="pclen-sol-icon">
+              <i class={`fa-solid ${sol.icon}`}></i>
+            </div>
+            <h3>{sol.title}</h3>
+            <p>{sol.desc}</p>
+            <div class="pclen-sol-action">
+              <a href={sol.link} class="pclen-sol-btn">
+                {sol.btnText} <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Imagenes Comparativas y Evidencia -->
+  <section class="pclen-section pclen-bg-light">
+    <div class="pclen-shell pclen-band-grid">
+      <article class="pclen-band-card">
+        <img src="/assets/images/cambio-ssd.webp" alt="Instalación de SSD rápido en Cancún" loading="lazy" decoding="async" />
+        <div class="pclen-band-content">
+          <span>Actualización de Hardware</span>
+          <h2>Cambio de Disco Duro a SSD</h2>
+          <p>Un SSD es hasta 10 veces más rápido que un HDD mecánico. Iniciamos Windows, abrimos Excel, navegadores y carpetas al instante, devolviéndole la juventud a cualquier PC de hace años.</p>
+          <a href="/servicios/pc/upgrade" class="pclen-text-link">Ver opciones de SSD y RAM <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </article>
+
+      <article class="pclen-band-card">
+        <img src="/assets/images/optimizacion-pc-cancun.webp" alt="Optimización lógica de Windows en Cancún" loading="lazy" decoding="async" />
+        <div class="pclen-band-content">
+          <span>Optimización de Sistema</span>
+          <h2>Afinación y Windows Limpio</h2>
+          <p>Depuramos registros, quitamos telemetría pesada de Windows, configuramos el inicio y corregimos controladores lentos. Si la PC está muy infectada, hacemos respaldo y reinstalación de cero.</p>
+          <a href="/optimizacion" class="pclen-text-link">Ver plan de optimización <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Agenda Ticket Section -->
+  <ServiceTicketSection
+    id="ticket-pc-lenta"
+    defaultDevice="PC Windows"
+    defaultService="PC muy lenta"
+    title="Agenda diagnóstico de lentitud"
+    subtitle="Cuéntanos qué hace tu PC, si tarda en prender, se calienta o se traba al abrir programas para prepararte opciones."
+  />
+
+  <!-- Related Services Section -->
+  <RelatedServicesSection
+    service={service}
+    category={category}
+    initialLimit={6}
+    title="Servicios adicionales para optimizar tu PC"
+  />
+
+  <!-- FAQ Section -->
+  <FaqSection
+    id="faq-pc-lenta"
+    title="Preguntas frecuentes sobre computadoras lentas en Cancún"
+    description="Dudas comunes sobre velocidad de arranque, cambio a disco de estado sólido (SSD), ampliación de RAM, calentamiento y virus."
+    items={faqItems}
+    backgroundColor="#050d1e"
+    titleColor="#ffffff"
+    descriptionColor="#bfdbfe"
+    questionColor="#0c192f"
+    faqAccent="#d97706"
+  />
+
+  <!-- Regular feedback containers -->
+  <CommentsSection />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style>
+  /* Base & Theme Variable styling */
+  .pclen-page {
+    background: #f8fafc;
+    color: #0f2a4a;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  
+  .pclen-shell {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .pclen-bg-dark {
+    background: #050d1e !important;
+  }
+
+  .pclen-bg-light {
+    background: #f1f5f9 !important;
+  }
+
+  .pclen-text-white h2,
+  .pclen-text-white p {
+    color: #ffffff !important;
+  }
+
+  .pclen-text-white span {
+    color: #f59e0b !important;
+  }
+
+  .pclen-text-danger {
+    color: #ef4444;
+  }
+
+  .pclen-text-warning {
+    color: #f59e0b;
+  }
+
+  /* Hero Section */
+  .pclen-hero {
+    position: relative;
+    padding: 60px 0 45px;
+    background:
+      radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.16), transparent 30%),
+      radial-gradient(circle at 80% 80%, rgba(217, 119, 6, 0.12), transparent 35%),
+      linear-gradient(135deg, #030712 0%, #050d1e 50%, #0c1a30 100%);
+    border-bottom: 1px solid rgba(245, 158, 11, 0.1);
+  }
+
+  .pclen-hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(20px, 5vw, 55px);
+    align-items: center;
+  }
+
+  .pclen-kicker,
+  .pclen-eyebrow,
+  .pclen-head span,
+  .pclen-band-content span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #d97706;
+    font-size: 0.82rem;
+    font-weight: 950;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .pclen-kicker {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    margin-bottom: 12px;
+  }
+
+  .pclen-copy h1 {
+    margin: 8px 0 16px;
+    color: #ffffff;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+    line-height: 1.05;
+  }
+
+  .pclen-copy h2 {
+    margin: 0 0 16px;
+    color: #cbd5e1;
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .pclen-lead {
+    max-width: 680px;
+    margin: 0;
+    color: #94a3b8;
+    font-size: 1.05rem;
+    line-height: 1.65;
+  }
+
+  .pclen-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .pclen-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 14px 22px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 800;
+    transition: all 0.25s ease;
+  }
+
+  .pclen-btn-primary {
+    color: #ffffff;
+    background: #16a34a;
+    box-shadow: 0 12px 24px rgba(22, 163, 74, 0.25);
+  }
+
+  .pclen-btn-primary:hover {
+    background: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(22, 163, 74, 0.35);
+  }
+
+  .pclen-btn-soft {
+    color: #f1f5f9;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.08);
+  }
+
+  .pclen-btn-soft:hover {
+    background: rgba(245, 158, 11, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .pclen-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .pclen-trust span {
+    padding: 6px 12px;
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    border-radius: 999px;
+    color: #cbd5e1;
+    background: rgba(3, 7, 18, 0.4);
+    font-size: 0.85rem;
+  }
+
+  .pclen-trust strong {
+    color: #f59e0b;
+  }
+
+  /* Interactive Widget Visual */
+  .pclen-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .pclen-panel {
+    width: 100%;
+    max-width: 440px;
+    background: #0b1329;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+  }
+
+  .pclen-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: #080e1e;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .pclen-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+  }
+  .pclen-dot-red { background: #ef4444; }
+  .pclen-dot-yellow { background: #f59e0b; }
+  .pclen-dot-green { background: #22c55e; }
+
+  .pclen-panel-title {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pclen-metrics-list {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pclen-metric-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pclen-metric-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+
+  .pclen-metric-meta span {
+    color: #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pclen-metric-meta span i {
+    color: #f59e0b;
+  }
+
+  .pclen-progress-bar {
+    height: 7px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .pclen-progress-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 1s ease-in-out;
+  }
+
+  .pclen-panel-footer {
+    padding: 10px 18px;
+    background: #080e1e;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.78rem;
+  }
+
+  .pclen-status-indicator {
+    color: #ef4444;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Section Base styles */
+  .pclen-section {
+    padding: 70px 0;
+    background: #ffffff;
+  }
+
+  .pclen-head {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+
+  .pclen-head h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    color: #0f2a4a;
+    margin: 8px 0 12px;
+    line-height: 1.1;
+  }
+
+  .pclen-head p {
+    color: #475569;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  /* SEO highlights */
+  .pclen-local-seo {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pclen-local-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .pclen-seo-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(15, 42, 74, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .pclen-seo-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(15, 42, 74, 0.06);
+  }
+
+  .pclen-seo-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+  }
+
+  .pclen-seo-card h3 {
+    margin: 0 0 10px;
+    font-family: 'Kanit', sans-serif;
+    color: #0f2a4a;
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  .pclen-seo-card p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  /* Causes of Slowness */
+  .pclen-causes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .pclen-cause-card {
+    background: #0d1933;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .pclen-cause-card:hover {
+    border-color: rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .pclen-cause-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .pclen-cause-header i {
+    font-size: 1.4rem;
+    color: #f59e0b;
+  }
+
+  .pclen-cause-header h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: 1.2rem;
+  }
+
+  .pclen-cause-card p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  /* Timeline & Split */
+  .pclen-split-layout {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(30px, 6vw, 60px);
+    align-items: center;
+  }
+
+  .pclen-eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .pclen-split-info h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    color: #0f2a4a;
+    margin: 0 0 14px;
+    line-height: 1.1;
+  }
+
+  .pclen-split-info p {
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .pclen-split-img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(15, 42, 74, 0.12);
+  }
+
+  .pclen-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .pclen-timeline-item {
+    display: flex;
+    gap: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  }
+
+  .pclen-timeline-num {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pclen-timeline-content h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.1rem;
+    color: #0f2a4a;
+  }
+
+  .pclen-timeline-content p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  /* Solutions Grid and Cards */
+  .pclen-solutions {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pclen-solutions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .pclen-sol-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 36px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(15, 42, 74, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .pclen-sol-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 45px rgba(15, 42, 74, 0.08);
+  }
+
+  .pclen-sol-highlight {
+    border: 2px solid #f59e0b;
+    background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+  }
+
+  .pclen-sol-badge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+
+  .pclen-sol-highlight .pclen-sol-badge {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  .pclen-sol-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+
+  .pclen-sol-highlight .pclen-sol-icon {
+    background: #f59e0b;
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.2);
+  }
+
+  .pclen-sol-card h3 {
+    margin: 0 0 12px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.45rem;
+    color: #0f2a4a;
+  }
+
+  .pclen-sol-card p {
+    margin: 0 0 24px;
+    color: #475569;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    flex-grow: 1;
+  }
+
+  .pclen-sol-action {
+    margin-top: auto;
+  }
+
+  .pclen-sol-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    color: #ffffff;
+    background: #0f2a4a;
+    padding: 12px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .pclen-sol-btn:hover {
+    background: #1e40af;
+    padding-left: 28px;
+  }
+
+  .pclen-sol-highlight .pclen-sol-btn {
+    background: #d97706;
+  }
+
+  .pclen-sol-highlight .pclen-sol-btn:hover {
+    background: #b45309;
+  }
+
+  /* Band layout for updates */
+  .pclen-band-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .pclen-band-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 42, 74, 0.05);
+  }
+
+  .pclen-band-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pclen-band-content {
+    padding: 30px;
+  }
+
+  .pclen-band-content h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.5rem;
+    color: #0f2a4a;
+    margin: 6px 0 12px;
+  }
+
+  .pclen-band-content p {
+    color: #475569;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin: 0 0 20px;
+  }
+
+  .pclen-text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #d97706;
+    font-weight: 800;
+    text-decoration: none;
+    transition: gap 0.2s ease;
+  }
+
+  .pclen-text-link:hover {
+    gap: 10px;
+  }
+
+  /* Responsive Design Media Queries */
+  @media (max-width: 980px) {
+    .pclen-hero-grid,
+    .pclen-split-layout,
+    .pclen-solutions-grid,
+    .pclen-band-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pclen-causes-grid,
+    .pclen-local-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pclen-visual {
+      margin-top: 30px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pclen-hero {
+      padding: 40px 0 30px;
+    }
+
+    .pclen-causes-grid,
+    .pclen-local-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pclen-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .pclen-trust {
+      display: grid;
+      gap: 8px;
+    }
+
+    .pclen-section {
+      padding: 50px 0;
+    }
+
+    .pclen-sol-card {
+      padding: 24px;
+    }
+
+    .pclen-sol-badge {
+      position: static;
+      display: inline-block;
+      align-self: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .pclen-band-card img {
+      height: 180px;
+    }
+
+    .pclen-band-content {
+      padding: 20px;
+    }
+  }
+</style>

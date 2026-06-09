@@ -57,7 +57,7 @@ const networkFaqTextStyle = isNetworkFaq ? 'color:#0F2A4A;' : undefined;
     <div class={`faq-page-grid ${gridClass}`}>
       {items.map((item, index) => (
         <div class="faq-item" id={`faq-${id || 'section'}-${index}`}>
-          <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)" style={networkFaqTextStyle}>
+          <button class="faq-question" aria-expanded="false" style={networkFaqTextStyle}>
             <span style={networkFaqTextStyle}>
               {item.icon && <i class={`${item.icon} faq-q-icon`}></i>}
               {item.question}
@@ -94,7 +94,7 @@ const networkFaqTextStyle = isNetworkFaq ? 'color:#0F2A4A;' : undefined;
       });
     };
 
-    window.toggleFaq = function(button) {
+    const toggleFaq = function(button) {
       const item = button.closest('.faq-item');
       const answer = item?.querySelector('.faq-answer');
       const isExpanded = button.getAttribute('aria-expanded') === 'true';
@@ -110,6 +110,12 @@ const networkFaqTextStyle = isNetworkFaq ? 'color:#0F2A4A;' : undefined;
         }
       }
     };
+
+    document.querySelectorAll('.faq-page-content .faq-question').forEach((button) => {
+      if (button.dataset.faqBound === 'true') return;
+      button.dataset.faqBound = 'true';
+      button.addEventListener('click', () => toggleFaq(button));
+    });
 
     if (!window.__pixonFaqAutoClose) {
       window.__pixonFaqAutoClose = true;
@@ -165,6 +171,17 @@ const networkFaqTextStyle = isNetworkFaq ? 'color:#0F2A4A;' : undefined;
     font-weight: 700;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
+  }
+  .faq-question:hover,
+  .faq-question:hover span,
+  .faq-question:hover .faq-chevron,
+  .faq-question:focus,
+  .faq-question:focus span,
+  .faq-question:focus .faq-chevron {
+    color: var(--faq-question-color, #0F2A4A);
+  }
+  .faq-question span {
+    color: inherit;
   }
   .faq-page-content .faq-item--open .faq-question {
     color: var(--faq-question-color, #fff);

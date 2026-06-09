@@ -1,0 +1,360 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola, quiero diagnostico para una laptop Lenovo en Cancun. Es ThinkPad, IdeaPad, Legion, LOQ, Yoga, ThinkBook u otro modelo.'
+);
+
+const lenovoLines = [
+  ['fa-briefcase', 'Lenovo ThinkPad para oficina y empresa', 'Revisamos ThinkPad T, X, E, L y P Series: carga USB-C, teclado, pantalla, bateria, SSD, RAM, Windows, docking y fallas de trabajo diario.'],
+  ['fa-house-laptop', 'Lenovo IdeaPad para casa, escuela y oficina', 'Atendemos IdeaPad 1, 3, 5, Slim y modelos de estudiante con pantalla rota, lentitud, bisagras, teclado, bateria o cargador.'],
+  ['fa-gamepad', 'Lenovo Legion gamer', 'Diagnostico para Legion 5, Legion 7, Slim, Pro y variantes gamer con calentamiento, apagados, bajo FPS, GPU, ventiladores y mantenimiento termico.'],
+  ['fa-microchip', 'Lenovo LOQ gaming de entrada', 'Servicio para Lenovo LOQ con RTX, Ryzen o Intel: limpieza, pasta termica, drivers, SSD, RAM, pantalla, teclado y fuente de carga.'],
+  ['fa-pen-nib', 'Lenovo Yoga convertible y tactil', 'Revisamos Yoga 2 en 1, bisagras, pantalla tactil, lapiz, flex, bateria, teclado, carga USB-C y problemas de giro o display.'],
+  ['fa-building', 'Lenovo ThinkBook para negocio', 'Soporte para ThinkBook de oficina: rendimiento, seguridad, camara, WiFi, teclado, pantalla, almacenamiento y mantenimiento preventivo.'],
+];
+
+const problems = [
+  ['fa-plug-circle-bolt', 'Lenovo no carga o no enciende', 'Probamos cargador, puerto USB-C o punta rectangular, bateria, consumo, boton power y placa antes de cotizar.'],
+  ['fa-display', 'Pantalla Lenovo rota, negra o con lineas', 'Confirmamos panel, flex, bisagras, salida externa y compatibilidad exacta por modelo.'],
+  ['fa-temperature-arrow-up', 'Legion o LOQ se calienta y baja FPS', 'Revisamos polvo, ventiladores, pasta termica, pads, GPU, CPU, fuente y perfiles de energia.'],
+  ['fa-keyboard', 'Teclado ThinkPad, IdeaPad o Yoga fallando', 'Validamos idioma, backlight, flex, palmrest, liquido, teclas pegadas y conector.'],
+  ['fa-hard-drive', 'Lenovo lenta o Windows no inicia', 'Revisamos SSD, HDD, RAM, virus, drivers, actualizaciones y posible upgrade sin perder datos.'],
+  ['fa-droplet', 'Dano por liquido o humedad', 'Desenergizamos, inspeccionamos placa, teclado, bateria, carga y disco antes de encender de nuevo.'],
+];
+
+const process = [
+  ['01', 'Identificacion exacta del modelo', 'Revisamos etiqueta, serie, Machine Type, generacion, cargador y configuracion para no pedir piezas incorrectas.'],
+  ['02', 'Diagnostico por modulo', 'Probamos energia, pantalla, teclado, bateria, RAM, SSD, ventilacion, Windows, BIOS y placa.'],
+  ['03', 'Cotizacion con ruta clara', 'Te decimos si conviene reparar, cambiar pieza, actualizar SSD/RAM, limpiar o detener la inversion.'],
+  ['04', 'Reparacion Lenovo controlada', 'Trabajamos con herramienta adecuada, cuidado de flex, tornilleria, bisagras, disipador y conectores.'],
+  ['05', 'Pruebas antes de entregar', 'Validamos carga, pantalla, teclado, WiFi, camara, temperatura, Windows, bateria y estabilidad.'],
+];
+
+const seoZones = [
+  'Reparacion Lenovo en Cancun Centro',
+  'Servicio ThinkPad en Cancun',
+  'Reparacion Lenovo Legion gamer Cancun',
+  'Lenovo IdeaPad lenta o no enciende',
+  'Cambio de pantalla Lenovo Cancun',
+  'Mantenimiento Lenovo LOQ y Legion',
+  'Reparacion Lenovo Yoga tactil',
+  'Soporte Lenovo para oficinas en Cancun',
+];
+
+const faqItems = [
+  {
+    question: 'Reparan Lenovo ThinkPad, IdeaPad, Legion, LOQ, Yoga y ThinkBook?',
+    answer: 'Si. Revisamos todas esas familias por modelo exacto, generacion y falla: pantalla, teclado, carga, bateria, SSD, RAM, Windows, temperatura, bisagras, placa y mantenimiento.',
+  },
+  {
+    question: 'Cuanto cuesta reparar una laptop Lenovo en Cancun?',
+    answer: 'Depende de la falla y pieza. Primero confirmamos si el problema viene de cargador, bateria, pantalla, teclado, SSD, RAM, sistema, temperatura o placa. Cotizamos antes de reparar.',
+  },
+  {
+    question: 'Mi Lenovo Legion se calienta o baja FPS, se puede arreglar?',
+    answer: 'Si. Revisamos limpieza interna, ventiladores, pasta termica, thermal pads, perfiles de energia, drivers de GPU, BIOS y estabilidad bajo carga antes de recomendar piezas.',
+  },
+  {
+    question: 'Pueden cambiar pantalla de Lenovo Yoga tactil?',
+    answer: 'Si, pero se confirma por numero de parte porque los modelos Yoga pueden usar pantalla tactil, digitizer, flex y bisagras especificas. No se pide pieza sin validar compatibilidad.',
+  },
+  {
+    question: 'Mi Lenovo no carga por USB-C, es placa?',
+    answer: 'No siempre. Puede ser cargador, cable, puerto, bateria, circuito de carga, BIOS o placa. Se prueba consumo y voltaje antes de concluir que es motherboard.',
+  },
+  {
+    question: 'Pueden mejorar una Lenovo lenta con SSD o RAM?',
+    answer: 'Si. Validamos si el modelo permite SSD SATA, NVMe o ampliacion de RAM. En muchos IdeaPad, ThinkPad y ThinkBook un SSD o mas RAM mejora bastante sin cambiar de equipo.',
+  },
+];
+---
+
+<div class="lenovo-page">
+  <section class="lenovo-hero">
+    <div class="lenovo-shell lenovo-hero-grid">
+      <div class="lenovo-copy">
+        <span class="lenovo-kicker"><i class="fa-solid fa-laptop-medical"></i> Servicio Lenovo en Cancún</span>
+        <h1>Reparación de laptop Lenovo en Cancún</h1>
+        <h2>ThinkPad, IdeaPad, Legion, LOQ, Yoga y ThinkBook: diagnóstico por modelo antes de cambiar piezas.</h2>
+        <p>Atendemos laptops Lenovo de oficina, gamer, estudiantes, empresa y convertibles. Revisamos encendido, carga, pantalla, teclado, SSD, RAM, temperatura, Windows, bisagras y placa con ruta clara.</p>
+        <div class="lenovo-actions">
+          <a class="lenovo-btn lenovo-btn-primary" href={`https://wa.me/529986690777?text=${whatsappText}`}><i class="fa-brands fa-whatsapp"></i> Cotizar Lenovo</a>
+          <a class="lenovo-btn lenovo-btn-soft" href="#modelos-lenovo"><i class="fa-solid fa-layer-group"></i> Ver modelos</a>
+        </div>
+      </div>
+      <div class="lenovo-visual">
+        <div class="lenovo-laptop">
+          <div class="lenovo-screen">
+            <span>LENOVO</span>
+            <strong>ThinkPad · Legion · Yoga</strong>
+          </div>
+          <div class="lenovo-base"></div>
+        </div>
+        <div class="lenovo-chip chip-a">ThinkPad</div>
+        <div class="lenovo-chip chip-b">Legion</div>
+        <div class="lenovo-chip chip-c">Yoga</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lenovo-section" id="modelos-lenovo">
+    <div class="lenovo-shell">
+      <div class="lenovo-head">
+        <span>Variantes Lenovo</span>
+        <h2>Reparamos Lenovo gamer, Lenovo de oficina, Lenovo empresarial y Lenovo convertible</h2>
+        <p>La familia importa porque cambian conectores, pantallas, disipadores, cargadores, BIOS, tipo de RAM, SSD y forma de desarmado.</p>
+      </div>
+      <div class="lenovo-model-grid">
+        {lenovoLines.map(([icon, title, text]) => (
+          <article>
+            <i class={`fa-solid ${icon}`}></i>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="lenovo-section lenovo-dark">
+    <div class="lenovo-shell">
+      <div class="lenovo-head lenovo-head-light">
+        <span>Fallas comunes</span>
+        <h2>Problemas frecuentes en laptops Lenovo que resolvemos en Cancún</h2>
+        <p>No todo es placa. Muchas fallas vienen de cargador, SSD, RAM, pantalla, flex, temperatura, BIOS, drivers o mantenimiento pendiente.</p>
+      </div>
+      <div class="lenovo-problem-grid">
+        {problems.map(([icon, title, text]) => (
+          <article>
+            <i class={`fa-solid ${icon}`}></i>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="lenovo-section">
+    <div class="lenovo-shell lenovo-split">
+      <div>
+        <span class="lenovo-eyebrow">Diagnóstico senior</span>
+        <h2>Cómo trabajamos una Lenovo antes de cotizar</h2>
+        <p>Primero se identifica modelo y síntoma. Después se separa falla de software, energía, pantalla, almacenamiento, temperatura o placa para no comprar piezas al azar.</p>
+        <img src="/assets/images/responsive/laptop-feliz-limpia.webp" alt="Reparación de laptop Lenovo en Cancún" loading="lazy" decoding="async" />
+      </div>
+      <div class="lenovo-process">
+        {process.map(([step, title, text]) => (
+          <article>
+            <strong>{step}</strong>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="lenovo-section lenovo-seo">
+    <div class="lenovo-shell lenovo-seo-grid">
+      <div>
+        <span class="lenovo-eyebrow">SEO local Cancún</span>
+        <h2>Servicio técnico Lenovo en Cancún para trabajo, escuela, gaming y empresa</h2>
+        <p>Atendemos Lenovo en Cancún Centro, Huayacán, Cumbres, Bonampak, Puerto Cancún, Zona Hotelera y alrededores según agenda.</p>
+      </div>
+      <div class="lenovo-tags">
+        {seoZones.map((item) => <span><i class="fa-solid fa-check"></i>{item}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="lenovo-section lenovo-images">
+    <div class="lenovo-shell lenovo-image-grid">
+      <article>
+        <img src="/assets/images/cambio-ssd.webp" alt="Upgrade SSD y RAM para laptop Lenovo en Cancún" loading="lazy" decoding="async" />
+        <div>
+          <span>Upgrade Lenovo</span>
+          <h2>SSD, RAM y Windows para Lenovo lenta</h2>
+          <p>En IdeaPad, ThinkPad y ThinkBook revisamos si conviene instalar SSD, ampliar RAM, clonar Windows o reinstalar sin perder archivos.</p>
+        </div>
+      </article>
+      <article>
+        <img src="/assets/images/mantenimiento-pastaternima-thermalpads.webp" alt="Mantenimiento térmico para Lenovo Legion y LOQ" loading="lazy" decoding="async" />
+        <div>
+          <span>Gamer Lenovo</span>
+          <h2>Mantenimiento para Legion y LOQ</h2>
+          <p>La línea gamer requiere limpieza térmica cuidadosa, revisión de ventiladores, pasta, thermal pads, drivers y pruebas bajo carga.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-lenovo"
+    defaultDevice="Laptop Lenovo"
+    defaultService="Reparación laptop Lenovo"
+    title="Agenda diagnóstico para laptop Lenovo"
+    subtitle="Indica si es ThinkPad, IdeaPad, Legion, LOQ, Yoga, ThinkBook u otro modelo y qué falla presenta."
+  />
+
+  <RelatedServicesSection
+    service={service}
+    category={category}
+    initialLimit={6}
+    title="Servicios relacionados para laptop Lenovo"
+  />
+
+  <FaqSection
+    id="faq-lenovo"
+    title="Preguntas frecuentes sobre reparación de laptop Lenovo en Cancún"
+    description="Dudas sobre ThinkPad, IdeaPad, Legion, LOQ, Yoga, ThinkBook, carga USB-C, pantalla, teclado, SSD, RAM, temperatura y Windows."
+    items={faqItems}
+    backgroundColor="#0B1120"
+    titleColor="#ffffff"
+    descriptionColor="#dbeafe"
+    questionColor="#0f2a4a"
+    faqAccent="#2563eb"
+  />
+
+  <CommentsSection />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style>
+  .lenovo-page { background: #f8fafc; color: #0f2a4a; overflow: hidden; }
+  .lenovo-shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  .lenovo-hero {
+    padding: 48px 0 38px;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(239, 68, 68, 0.18), transparent 28%),
+      radial-gradient(circle at 86% 12%, rgba(59, 130, 246, 0.2), transparent 30%),
+      linear-gradient(135deg, #07111f 0%, #102a43 52%, #0b1120 100%);
+  }
+  .lenovo-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.04fr) minmax(340px, 0.96fr);
+    gap: clamp(22px, 4vw, 54px);
+    align-items: center;
+  }
+  .lenovo-kicker, .lenovo-eyebrow, .lenovo-head span, .lenovo-image-grid span {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: #2563eb; font-size: .78rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .lenovo-kicker { color: #93c5fd; }
+  .lenovo-copy h1 {
+    margin: 10px 0;
+    color: #fff;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 4.1vw, 3.55rem);
+    line-height: 1;
+  }
+  .lenovo-copy h2 {
+    margin: 0 0 12px;
+    color: #bfdbfe;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.02rem, 1.8vw, 1.42rem);
+    line-height: 1.2;
+  }
+  .lenovo-copy p { margin: 0; color: #dbeafe; font-weight: 650; line-height: 1.62; }
+  .lenovo-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .lenovo-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    min-height: 46px; padding: 12px 17px; border-radius: 12px; text-decoration: none; font-weight: 950;
+  }
+  .lenovo-btn-primary { color: #fff; background: #16a34a; box-shadow: 0 18px 34px rgba(22, 163, 74, .24); }
+  .lenovo-btn-soft { color: #dbeafe; border: 1px solid rgba(191,219,254,.26); background: rgba(255,255,255,.08); }
+  .lenovo-visual { position: relative; min-height: 310px; display: grid; place-items: center; }
+  .lenovo-laptop { width: min(100%, 480px); }
+  .lenovo-screen {
+    min-height: 220px; padding: 24px; border: 1px solid rgba(147,197,253,.22); border-radius: 24px 24px 12px 12px;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+    background-size: 30px 30px, 30px 30px, auto;
+    box-shadow: 0 24px 70px rgba(0,0,0,.32);
+  }
+  .lenovo-screen span { color: #f87171; font-weight: 950; letter-spacing: .18em; }
+  .lenovo-screen strong { display: block; margin-top: 54px; color: #fff; font-family: 'Kanit', sans-serif; font-size: 1.55rem; }
+  .lenovo-base { height: 24px; margin: 0 34px; border-radius: 0 0 22px 22px; background: #cbd5e1; box-shadow: 0 18px 34px rgba(0,0,0,.26); }
+  .lenovo-chip {
+    position: absolute; padding: 10px 13px; border: 1px solid rgba(191,219,254,.22); border-radius: 999px;
+    color: #dbeafe; background: rgba(15,23,42,.78); font-weight: 950; box-shadow: 0 14px 30px rgba(0,0,0,.22);
+  }
+  .chip-a { left: 0; top: 36px; } .chip-b { right: 6px; top: 80px; } .chip-c { left: 46px; bottom: 32px; }
+  .lenovo-section { padding: 64px 0; background: #f8fafc; }
+  .lenovo-head { max-width: 930px; margin: 0 auto 28px; text-align: center; }
+  .lenovo-head h2, .lenovo-split h2, .lenovo-seo h2, .lenovo-image-grid h2 {
+    margin: 8px 0 12px; color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: clamp(1.85rem, 3.3vw, 3.05rem); line-height: 1.06;
+  }
+  .lenovo-head p, .lenovo-split p, .lenovo-seo p, .lenovo-image-grid p { margin: 0; color: #334e68; font-weight: 650; line-height: 1.66; }
+  .lenovo-model-grid, .lenovo-problem-grid {
+    display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px;
+  }
+  .lenovo-model-grid article, .lenovo-problem-grid article {
+    padding: 20px; border: 1px solid rgba(15,42,74,.14); border-radius: 20px; background: #fff; box-shadow: 0 14px 34px rgba(15,42,74,.08);
+  }
+  .lenovo-model-grid i, .lenovo-problem-grid i {
+    width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px;
+    border-radius: 14px; color: #2563eb; background: #dbeafe;
+  }
+  .lenovo-model-grid h3, .lenovo-problem-grid h3, .lenovo-process h3 {
+    margin: 0 0 8px; color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.1rem; line-height: 1.2;
+  }
+  .lenovo-model-grid p, .lenovo-problem-grid p, .lenovo-process p { margin: 0; color: #334e68; line-height: 1.58; font-weight: 620; }
+  .lenovo-dark {
+    background: radial-gradient(circle at 14% 10%, rgba(37,99,235,.18), transparent 30%), linear-gradient(135deg, #07111f 0%, #0b1f38 100%);
+  }
+  .lenovo-head-light span { color: #93c5fd; }
+  .lenovo-head-light h2 { color: #fff; }
+  .lenovo-head-light p { color: #dbeafe; }
+  .lenovo-problem-grid article { background: rgba(255,255,255,.08); border-color: rgba(147,197,253,.18); box-shadow: none; }
+  .lenovo-problem-grid i { color: #bfdbfe; background: rgba(147,197,253,.16); }
+  .lenovo-problem-grid h3 { color: #fff; }
+  .lenovo-problem-grid p { color: #dbeafe; }
+  .lenovo-split, .lenovo-seo-grid { display: grid; grid-template-columns: .88fr 1.12fr; gap: 32px; align-items: center; }
+  .lenovo-split img { width: 100%; margin-top: 22px; border-radius: 22px; box-shadow: 0 18px 46px rgba(15,42,74,.14); }
+  .lenovo-process { display: grid; gap: 12px; }
+  .lenovo-process article {
+    display: grid; grid-template-columns: 58px minmax(0,1fr); gap: 14px; padding: 18px;
+    border: 1px solid rgba(15,42,74,.14); border-radius: 18px; background: #fff; box-shadow: 0 12px 28px rgba(15,42,74,.07);
+  }
+  .lenovo-process strong { color: #2563eb; font-family: 'Kanit', sans-serif; font-size: 1.2rem; }
+  .lenovo-seo { background: #eef6ff; }
+  .lenovo-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .lenovo-tags span { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 999px; color: #0f2a4a; background: #fff; border: 1px solid rgba(15,42,74,.12); font-weight: 900; }
+  .lenovo-tags i { color: #16a34a; }
+  .lenovo-images { background: #fff; }
+  .lenovo-image-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+  .lenovo-image-grid article { overflow: hidden; border: 1px solid rgba(15,42,74,.14); border-radius: 24px; background: #f8fafc; box-shadow: 0 18px 42px rgba(15,42,74,.1); }
+  .lenovo-image-grid img { width: 100%; height: 260px; display: block; object-fit: cover; }
+  .lenovo-image-grid div { padding: 22px; }
+  .lenovo-image-grid h2 { font-size: clamp(1.45rem, 2.6vw, 2.2rem); }
+  @media (max-width: 980px) {
+    .lenovo-hero-grid, .lenovo-split, .lenovo-seo-grid, .lenovo-image-grid { grid-template-columns: 1fr; }
+    .lenovo-model-grid, .lenovo-problem-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 640px) {
+    .lenovo-hero { padding: 34px 0 30px; }
+    .lenovo-visual { min-height: 260px; }
+    .lenovo-screen { min-height: 190px; padding: 18px; }
+    .lenovo-screen strong { margin-top: 42px; font-size: 1.2rem; }
+    .lenovo-chip { display: none; }
+    .lenovo-section { padding: 46px 0; }
+    .lenovo-model-grid, .lenovo-problem-grid { grid-template-columns: 1fr; }
+    .lenovo-actions { display: grid; }
+    .lenovo-process article { grid-template-columns: 1fr; }
+    .lenovo-image-grid img { height: 220px; }
+  }
+</style>

@@ -66,42 +66,42 @@ const { id = 'contacto' } = Astro.props;
               <button
                 type="button"
                 class="btn btn-outline dev-btn"
-                onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20reparar%20una%20laptop')"
+                data-wa-url="https://wa.me/529986690777?text=Quiero%20reparar%20una%20laptop"
               >
                 <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-laptop"></use></svg> Laptop
               </button>
               <button
                 type="button"
                 class="btn btn-outline dev-btn"
-                onclick="smartWaRedirect('https://wa.me/529986690777?text=Necesito%20soporte%20o%20reparaci%C3%B3n%20para%20PC%20Gamer')"
+                data-wa-url="https://wa.me/529986690777?text=Necesito%20soporte%20o%20reparaci%C3%B3n%20para%20PC%20Gamer"
               >
                 <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-desktop"></use></svg> PC Gamer
               </button>
               <button
                 type="button"
                 class="btn btn-outline dev-btn"
-                onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20reparar%20mi%20celular')"
+                data-wa-url="https://wa.me/529986690777?text=Quiero%20reparar%20mi%20celular"
               >
                 <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-mobile"></use></svg> Celular
               </button>
               <button
                 type="button"
                 class="btn btn-outline dev-btn"
-                onclick="smartWaRedirect('https://wa.me/529986690777?text=Necesito%20reparar%20una%20impresora')"
+                data-wa-url="https://wa.me/529986690777?text=Necesito%20reparar%20una%20impresora"
               >
                 <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-print"></use></svg> Impresora
               </button>
               <button
                 type="button"
                 class="btn btn-outline dev-btn"
-                onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20mantenimiento%20para%20consola')"
+                data-wa-url="https://wa.me/529986690777?text=Quiero%20mantenimiento%20para%20consola"
               >
                 <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gamepad"></use></svg> Consola
               </button>
               <button
                 type="button"
                 class="btn btn-primary dev-btn"
-                onclick="smartWaRedirect('https://wa.me/529986690777?text=Soy%20empresa%20y%20necesito%20soporte%20t%C3%A9cnico%20B2B')"
+                data-wa-url="https://wa.me/529986690777?text=Soy%20empresa%20y%20necesito%20soporte%20t%C3%A9cnico%20B2B"
               >
                 <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-building"></use></svg> B2B
               </button>
@@ -142,7 +142,7 @@ const { id = 'contacto' } = Astro.props;
           </div>
           <button
             type="button"
-            onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20que%20recojan%20mi%20equipo%20a%20domicilio%20en%20Canc%C3%BAn')"
+            data-wa-url="https://wa.me/529986690777?text=Quiero%20que%20recojan%20mi%20equipo%20a%20domicilio%20en%20Canc%C3%BAn"
             class="btn btn-outline coverage-cta-btn"
             id="btn-cobertura-pickup"
           >
@@ -153,6 +153,17 @@ const { id = 'contacto' } = Astro.props;
     </div>
   </div>
 </section>
+
+<script>
+  document.querySelectorAll('.contact [data-wa-url]').forEach((button) => {
+    if (!(button instanceof HTMLElement) || button.dataset.waBound === 'true') return;
+    button.dataset.waBound = 'true';
+    button.addEventListener('click', () => {
+      const url = button.dataset.waUrl;
+      if (url) window.smartWaRedirect(url);
+    });
+  });
+</script>
 
 <style>
   .contact-details--uniform li {

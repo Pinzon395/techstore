@@ -173,21 +173,14 @@ async function bootstrap() {
     â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
 
     // SECURITY-2 (M1+C2) â¬ Helmet con CSP pragmatica.
-    // El sitio tiene 207+ inline event handlers (onclick=...) y multiples
-    // <script> inline. Refactorizar todo a addEventListener es un proyecto
-    // aparte, asi que CSP usa 'unsafe-inline' para script-src y style-src,
-    // pero estricto en TODO lo demas: bloquea scripts/iframes/forms a otros
-    // origenes y cierra defaultSrc a 'self'. Combinado con C1 (sanitizar
-    // FAQ HTML) y CSRF (M8), el riesgo de XSS persistente cae fuerte.
+    // El build convierte scripts y handlers inline en archivos externos.
+    // style-src conserva unsafe-inline hasta migrar los estilos embebidos.
     app.use(helmet({
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc:    ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://static.cloudflareinsights.com", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
-                // Helmet por default pone script-src-attr 'none' que romperia
-                // los 207+ inline onclick=, onmouseover=, etc. del sitio.
-                // Necesario hasta que se refactoren a addEventListener.
-                scriptSrcAttr: ["'unsafe-inline'"],
+                scriptSrc:    ["'self'", "https://cdnjs.cloudflare.com", "https://static.cloudflareinsights.com", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
+                scriptSrcAttr: ["'none'"],
                 styleSrc:   ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
                 fontSrc:    ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
                 imgSrc:     ["'self'", "data:", "https:"],
@@ -211,6 +204,15 @@ async function bootstrap() {
 
     const rootPath = path.join(__dirname, '..');
     const distPath = path.join(__dirname, '../dist');
+
+    // Solo /en esta traducida por completo. Las rutas inglesas heredadas se
+    // mantienen fuera de navegacion y se redirigen hasta tener contenido real.
+    app.use((req, res, next) => {
+        if (req.method === 'GET' && req.path.startsWith('/en/')) {
+            return res.redirect(302, '/en');
+        }
+        next();
+    });
 
     function setUtf8StaticHeaders(res, filePath) {
         if (/\.html?$/i.test(filePath)) {

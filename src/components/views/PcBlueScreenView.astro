@@ -1,0 +1,722 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola, necesito diagnostico por pantalla azul de Windows en Cancun. Mi PC se reinicia, marca BSOD o falla al jugar/trabajar.'
+);
+
+const symptoms = [
+  ['fa-rotate', 'Pantalla azul y reinicio automático', 'Revisamos minidumps, visor de eventos, RAM, disco, fuente y controladores para ubicar la causa real del reinicio.'],
+  ['fa-gamepad', 'BSOD al jugar o renderizar', 'Probamos GPU, temperatura, fuente de poder, drivers de video, memoria RAM y estabilidad bajo carga.'],
+  ['fa-memory', 'Errores MEMORY_MANAGEMENT o IRQL', 'Estos códigos suelen apuntar a RAM, drivers, BIOS o corrupción de sistema. No formateamos sin pruebas.'],
+  ['fa-hard-drive', 'Windows no inicia después del pantallazo', 'Priorizamos respaldo, salud de SSD/HDD, arranque, reparación de sistema y recuperación antes de reinstalar.'],
+  ['fa-microchip', 'Pantalla azul después de cambiar piezas', 'Validamos compatibilidad, BIOS, perfiles XMP/EXPO, drivers chipset, GPU, fuente y montaje.'],
+  ['fa-shield-virus', 'Error después de virus o actualización', 'Revisamos malware, actualizaciones fallidas, drivers dañados, archivos de sistema y puntos de restauración.'],
+];
+
+const diagnostics = [
+  ['01', 'Lectura técnica del error BSOD', 'Analizamos código de detención, archivos minidump, Reliability Monitor, Event Viewer y momento exacto de la falla.'],
+  ['02', 'Prueba de memoria RAM', 'Probamos módulos, ranuras, frecuencia, XMP/EXPO y estabilidad para descartar memoria inestable.'],
+  ['03', 'Revisión de SSD, HDD y datos', 'Validamos SMART, sectores, temperatura, espacio libre y riesgo de pérdida de información antes de reparar Windows.'],
+  ['04', 'Drivers, BIOS y Windows', 'Corregimos drivers de video, chipset, red, audio, firmware, actualizaciones fallidas y archivos del sistema.'],
+  ['05', 'Temperatura, fuente y GPU', 'Cuando el error aparece bajo carga revisamos calor, voltajes, fuente, tarjeta gráfica, ventiladores y pasta térmica.'],
+  ['06', 'Prueba final de estabilidad', 'Entregamos la PC probada con arranque, carga real, navegación, juego o uso de trabajo según el caso.'],
+];
+
+const seoBlocks = [
+  {
+    icon: 'fa-location-dot',
+    title: 'Reparación de pantalla azul Windows en Cancún',
+    text: 'Atendemos PC gamer, computadoras de oficina, equipos ensamblados, HP, Dell, Lenovo, Acer y Asus con pantalla azul frecuente, reinicios o Windows dañado.',
+  },
+  {
+    icon: 'fa-map',
+    title: 'Servicio local en Cancún Centro, Huayacán, Cumbres y Zona Hotelera',
+    text: 'Recibimos equipos de Cancún y alrededores con diagnóstico claro antes de cambiar RAM, SSD, fuente, tarjeta de video o placa madre.',
+  },
+  {
+    icon: 'fa-file-shield',
+    title: 'Diagnóstico BSOD sin borrar tus archivos primero',
+    text: 'Si hay riesgo en disco o Windows no inicia, protegemos documentos, fotos, trabajos y respaldos antes de intentar reparación avanzada.',
+  },
+];
+
+const errorCodes = [
+  'MEMORY_MANAGEMENT',
+  'IRQL_NOT_LESS_OR_EQUAL',
+  'CRITICAL_PROCESS_DIED',
+  'WHEA_UNCORRECTABLE_ERROR',
+  'KERNEL_SECURITY_CHECK_FAILURE',
+  'SYSTEM_SERVICE_EXCEPTION',
+  'PAGE_FAULT_IN_NONPAGED_AREA',
+  'VIDEO_TDR_FAILURE',
+  'DPC_WATCHDOG_VIOLATION',
+  'INACCESSIBLE_BOOT_DEVICE',
+];
+
+const fixes = [
+  ['fa-screwdriver-wrench', 'Corrección sin formatear cuando es viable', 'Reparamos arranque, drivers, archivos dañados, updates y configuración de Windows antes de recomendar instalación limpia.'],
+  ['fa-database', 'Respaldo y recuperación de datos', 'Si el SSD/HDD está fallando, la prioridad es copiar información crítica y evitar que el problema empeore.'],
+  ['fa-temperature-half', 'Solución de temperatura y apagados', 'La pantalla azul también puede aparecer por calor, polvo, pasta térmica seca, ventiladores dañados o fuente inestable.'],
+  ['fa-chart-line', 'Recomendación honesta de piezas', 'Si la causa es RAM, SSD, fuente o GPU, te explicamos por qué y cotizamos antes de reemplazar.'],
+];
+
+const faqItems = [
+  {
+    question: '¿Por qué aparece pantalla azul en Windows?',
+    answer: 'Puede aparecer por RAM inestable, disco con errores, drivers dañados, Windows corrupto, temperatura alta, fuente de poder inestable, GPU, BIOS o actualizaciones fallidas. Por eso hacemos diagnóstico antes de formatear.',
+  },
+  {
+    question: '¿Se puede arreglar una pantalla azul sin formatear?',
+    answer: 'Sí, muchas veces se puede corregir sin borrar archivos: reparación de arranque, drivers, actualizaciones, archivos de sistema, configuración de memoria o restauración. Si el sistema está muy dañado, primero revisamos respaldo.',
+  },
+  {
+    question: '¿Qué hago si mi PC se reinicia sola con pantalla azul?',
+    answer: 'No sigas forzando reinicios si tienes archivos importantes. Toma foto del código de error y trae la PC para revisar RAM, SSD/HDD, fuente, temperatura y eventos del sistema.',
+  },
+  {
+    question: '¿La pantalla azul puede ser por memoria RAM?',
+    answer: 'Sí. Errores como MEMORY_MANAGEMENT, IRQL_NOT_LESS_OR_EQUAL o PAGE_FAULT pueden relacionarse con RAM, ranuras, frecuencia, XMP/EXPO, drivers o placa. Se confirma con pruebas.',
+  },
+  {
+    question: '¿Cuánto tarda el diagnóstico de pantalla azul en Cancún?',
+    answer: 'Depende de si la falla aparece rápido o es intermitente. Un diagnóstico inicial puede avanzar el mismo día, pero pruebas de RAM, disco, temperatura o carga pueden tomar más tiempo para confirmarlo bien.',
+  },
+  {
+    question: '¿Pierdo mis archivos si reparan Windows?',
+    answer: 'No necesariamente. Si hay riesgo de pérdida de datos, primero te avisamos y priorizamos respaldo. No hacemos formateo ni reinstalación limpia sin autorización.',
+  },
+];
+---
+
+<div class="bsod-page">
+  <section class="bsod-hero">
+    <div class="bsod-shell bsod-hero-grid">
+      <div class="bsod-copy">
+        <span class="bsod-kicker"><i class="fa-brands fa-windows"></i> Diagnóstico BSOD en Cancún</span>
+        <h1>Pantalla azul Windows en Cancún: diagnóstico real antes de formatear</h1>
+        <h2>Solucionamos reinicios, códigos BSOD, errores de RAM, SSD, drivers, GPU, temperatura y Windows dañado.</h2>
+        <p>
+          Una pantalla azul no siempre se resuelve reinstalando Windows. En Pixon revisamos el código de error, los registros del sistema, memoria RAM, disco, drivers, fuente, temperatura y hardware para encontrar la causa exacta.
+        </p>
+        <div class="bsod-actions">
+          <a href={`https://wa.me/529986690777?text=${whatsappText}`} class="bsod-btn bsod-btn-primary"><i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp</a>
+          <a href="#diagnostico-bsod" class="bsod-btn bsod-btn-soft"><i class="fa-solid fa-list-check"></i> Ver diagnóstico</a>
+        </div>
+        <div class="bsod-trust">
+          <span><strong>Gratis</strong> revisión inicial</span>
+          <span><strong>Datos primero</strong> antes de reparar</span>
+          <span><strong>Garantía</strong> por escrito</span>
+        </div>
+      </div>
+
+      <div class="bsod-visual" aria-label="Panel visual de diagnóstico de pantalla azul">
+        <div class="bsod-screen">
+          <div class="bsod-screen-top">
+            <span></span><span></span><span></span>
+          </div>
+          <strong>:(</strong>
+          <p>Your PC ran into a problem and needs to restart.</p>
+          <code>STOP CODE: MEMORY_MANAGEMENT</code>
+          <div class="bsod-progress"><span></span></div>
+        </div>
+        <div class="bsod-floating bsod-floating-a"><i class="fa-solid fa-memory"></i><span>RAM</span></div>
+        <div class="bsod-floating bsod-floating-b"><i class="fa-solid fa-hard-drive"></i><span>SSD</span></div>
+        <div class="bsod-floating bsod-floating-c"><i class="fa-solid fa-microchip"></i><span>Drivers</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bsod-section bsod-local">
+    <div class="bsod-shell">
+      <div class="bsod-head">
+        <span>SEO local técnico</span>
+        <h2>Reparación de pantalla azul, PC que se reinicia y Windows dañado en Cancún</h2>
+        <p>Contenido claro para usuarios que buscan solución urgente en Cancún, sin caer en cambios de pieza innecesarios.</p>
+      </div>
+      <div class="bsod-local-grid">
+        {seoBlocks.map((item) => (
+          <article>
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bsod-section bsod-symptoms">
+    <div class="bsod-shell">
+      <div class="bsod-head bsod-head-light">
+        <span>Síntomas comunes</span>
+        <h2>¿Tu PC muestra pantalla azul, se congela o se reinicia sola?</h2>
+        <p>Estos síntomas pueden venir de Windows, drivers, RAM, disco, fuente, GPU o temperatura. La diferencia está en probar cada causa.</p>
+      </div>
+      <div class="bsod-symptom-grid">
+        {symptoms.map(([icon, title, text]) => (
+          <article>
+            <i class={`fa-solid ${icon}`}></i>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bsod-section" id="diagnostico-bsod">
+    <div class="bsod-shell bsod-split">
+      <div>
+        <span class="bsod-eyebrow">Proceso profesional</span>
+        <h2>Cómo diagnosticamos una pantalla azul de Windows en Pixon</h2>
+        <p>El objetivo es separar software de hardware. Si el problema es Windows, lo corregimos; si es pieza física, te mostramos la evidencia antes de cotizar.</p>
+        <img src="/assets/images/responsive/actualizacion-windows-cancun.webp" alt="Diagnóstico de Windows y pantalla azul en Cancún" loading="lazy" decoding="async" />
+      </div>
+      <div class="bsod-process">
+        {diagnostics.map(([step, title, text]) => (
+          <article>
+            <strong>{step}</strong>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bsod-section bsod-codes">
+    <div class="bsod-shell bsod-codes-grid">
+      <div>
+        <span class="bsod-eyebrow">Códigos BSOD</span>
+        <h2>Errores de pantalla azul que revisamos en Cancún</h2>
+        <p>Si puedes, toma foto del código. Ayuda a orientar la revisión, aunque siempre confirmamos con pruebas de sistema y hardware.</p>
+      </div>
+      <div class="bsod-code-list">
+        {errorCodes.map((code) => <span>{code}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="bsod-section bsod-fixes">
+    <div class="bsod-shell">
+      <div class="bsod-head">
+        <span>Soluciones reales</span>
+        <h2>Qué podemos hacer para reparar pantalla azul sin adivinar</h2>
+        <p>La reparación depende de la causa: sistema, datos, temperatura o pieza física. Por eso el diagnóstico manda.</p>
+      </div>
+      <div class="bsod-fix-grid">
+        {fixes.map(([icon, title, text]) => (
+          <article>
+            <i class={`fa-solid ${icon}`}></i>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bsod-section bsod-image-band">
+    <div class="bsod-shell bsod-image-grid">
+      <article>
+        <img src="/assets/images/responsive/formateo-windows-cancun.webp" alt="Reparación de Windows sin perder archivos en Cancún" loading="lazy" decoding="async" />
+        <div>
+          <span>Windows estable</span>
+          <h2>Reparamos sistema, drivers y arranque antes de borrar todo</h2>
+          <p>Cuando el sistema todavía permite reparación, evitamos el formateo. Si hace falta reinstalar, primero protegemos archivos importantes.</p>
+        </div>
+      </article>
+      <article>
+        <img src="/assets/images/responsive/optimizacion-pc-cancun.webp" alt="Optimización de PC después de pantalla azul en Cancún" loading="lazy" decoding="async" />
+        <div>
+          <span>Prueba final</span>
+          <h2>La PC se entrega probada, no solo encendida</h2>
+          <p>Validamos arranque, estabilidad, temperatura, uso de disco, memoria y drivers para reducir que el error regrese al día siguiente.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-pantalla-azul"
+    defaultDevice="PC Windows"
+    defaultService="Pantalla azul Windows"
+    title="Agenda diagnóstico de pantalla azul"
+    subtitle="Describe el código de error, cuándo aparece y si necesitas proteger archivos antes de reparar."
+  />
+
+  <RelatedServicesSection
+    service={service}
+    category={category}
+    initialLimit={6}
+    title="Servicios relacionados para PC con pantalla azul"
+  />
+
+  <FaqSection
+    id="faq-pantalla-azul"
+    title="Preguntas frecuentes sobre pantalla azul Windows en Cancún"
+    description="Dudas comunes sobre BSOD, reinicios, RAM, disco, drivers, Windows dañado y recuperación de archivos."
+    items={faqItems}
+    backgroundColor="#0B1120"
+    titleColor="#ffffff"
+    descriptionColor="#dbeafe"
+    questionColor="#0f2a4a"
+    faqAccent="#2563eb"
+  />
+
+  <CommentsSection />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style>
+  .bsod-page {
+    background: #f8fafc;
+    color: #0f2a4a;
+    overflow: hidden;
+  }
+  .bsod-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+  .bsod-hero {
+    position: relative;
+    padding: 54px 0 42px;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(59, 130, 246, 0.32), transparent 30%),
+      radial-gradient(circle at 86% 12%, rgba(14, 165, 233, 0.22), transparent 28%),
+      linear-gradient(135deg, #07111f 0%, #0f2a4a 48%, #08111f 100%);
+  }
+  .bsod-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+    gap: clamp(22px, 4vw, 52px);
+    align-items: center;
+  }
+  .bsod-kicker,
+  .bsod-eyebrow,
+  .bsod-head span,
+  .bsod-image-grid span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #2563eb;
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .bsod-kicker {
+    color: #93c5fd;
+  }
+  .bsod-copy h1 {
+    margin: 12px 0;
+    color: #ffffff;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 4.2vw, 3.65rem);
+    line-height: 1;
+  }
+  .bsod-copy h2 {
+    margin: 0 0 14px;
+    color: #bfdbfe;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.08rem, 2vw, 1.55rem);
+    line-height: 1.2;
+  }
+  .bsod-copy p {
+    max-width: 760px;
+    margin: 0;
+    color: #dbeafe;
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.65;
+  }
+  .bsod-actions,
+  .bsod-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .bsod-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 13px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 950;
+  }
+  .bsod-btn-primary {
+    color: #ffffff;
+    background: #16a34a;
+    box-shadow: 0 18px 34px rgba(22, 163, 74, 0.28);
+  }
+  .bsod-btn-soft {
+    color: #dbeafe;
+    border: 1px solid rgba(191, 219, 254, 0.28);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .bsod-trust span {
+    padding: 9px 11px;
+    border: 1px solid rgba(147, 197, 253, 0.22);
+    border-radius: 999px;
+    color: #dbeafe;
+    background: rgba(15, 23, 42, 0.52);
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+  .bsod-trust strong {
+    color: #ffffff;
+  }
+  .bsod-visual {
+    position: relative;
+    min-height: 330px;
+    display: grid;
+    place-items: center;
+  }
+  .bsod-screen {
+    width: min(100%, 520px);
+    min-height: 250px;
+    padding: 22px;
+    border: 1px solid rgba(147, 197, 253, 0.24);
+    border-radius: 24px;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(135deg, #075bbb 0%, #0078d7 100%);
+    background-size: 30px 30px, 30px 30px, auto;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
+  }
+  .bsod-screen-top {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 24px;
+  }
+  .bsod-screen-top span {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+  .bsod-screen strong {
+    display: block;
+    color: #ffffff;
+    font-size: 3.8rem;
+    line-height: 1;
+    font-family: 'Kanit', sans-serif;
+  }
+  .bsod-screen p,
+  .bsod-screen code {
+    color: #e0f2fe;
+  }
+  .bsod-screen p {
+    max-width: 360px;
+    margin: 8px 0;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+  .bsod-screen code {
+    display: inline-flex;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.22);
+    font-weight: 900;
+  }
+  .bsod-progress {
+    height: 9px;
+    margin-top: 18px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.24);
+  }
+  .bsod-progress span {
+    display: block;
+    width: 63%;
+    height: 100%;
+    background: #ffffff;
+  }
+  .bsod-floating {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    gap: 4px;
+    min-width: 92px;
+    padding: 12px;
+    border: 1px solid rgba(191, 219, 254, 0.25);
+    border-radius: 18px;
+    color: #dbeafe;
+    background: rgba(15, 23, 42, 0.74);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.24);
+  }
+  .bsod-floating i {
+    color: #93c5fd;
+    font-size: 1.4rem;
+  }
+  .bsod-floating span {
+    font-weight: 950;
+    font-size: 0.82rem;
+  }
+  .bsod-floating-a { left: 0; top: 38px; }
+  .bsod-floating-b { right: 8px; top: 92px; }
+  .bsod-floating-c { left: 48px; bottom: 34px; }
+  .bsod-section {
+    padding: 68px 0;
+    background: #f8fafc;
+  }
+  .bsod-head {
+    max-width: 920px;
+    margin: 0 auto 28px;
+    text-align: center;
+  }
+  .bsod-head h2,
+  .bsod-split h2,
+  .bsod-codes h2,
+  .bsod-image-grid h2 {
+    margin: 8px 0 12px;
+    color: #0f2a4a;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.9rem, 3.4vw, 3.2rem);
+    line-height: 1.05;
+  }
+  .bsod-head p,
+  .bsod-split p,
+  .bsod-codes p,
+  .bsod-image-grid p {
+    margin: 0;
+    color: #334e68;
+    font-weight: 650;
+    line-height: 1.66;
+  }
+  .bsod-local {
+    background: linear-gradient(180deg, #f8fafc 0%, #eef6ff 100%);
+  }
+  .bsod-local-grid,
+  .bsod-symptom-grid,
+  .bsod-fix-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .bsod-local-grid article,
+  .bsod-symptom-grid article,
+  .bsod-fix-grid article {
+    min-height: 100%;
+    padding: 20px;
+    border: 1px solid rgba(15, 42, 74, 0.14);
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 14px 34px rgba(15, 42, 74, 0.08);
+  }
+  .bsod-local-grid i,
+  .bsod-symptom-grid i,
+  .bsod-fix-grid i {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    color: #2563eb;
+    background: #dbeafe;
+  }
+  .bsod-local-grid h3,
+  .bsod-symptom-grid h3,
+  .bsod-fix-grid h3,
+  .bsod-process h3 {
+    margin: 0 0 8px;
+    color: #0f2a4a;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.12rem;
+    line-height: 1.2;
+  }
+  .bsod-local-grid p,
+  .bsod-symptom-grid p,
+  .bsod-fix-grid p,
+  .bsod-process p {
+    margin: 0;
+    color: #334e68;
+    line-height: 1.58;
+    font-weight: 620;
+  }
+  .bsod-symptoms,
+  .bsod-codes {
+    background:
+      radial-gradient(circle at 14% 10%, rgba(37, 99, 235, 0.18), transparent 30%),
+      linear-gradient(135deg, #07111f 0%, #0b1f38 100%);
+  }
+  .bsod-head-light span {
+    color: #93c5fd;
+  }
+  .bsod-head-light h2,
+  .bsod-head-light p,
+  .bsod-codes h2,
+  .bsod-codes p {
+    color: #ffffff;
+  }
+  .bsod-head-light p,
+  .bsod-codes p {
+    color: #dbeafe;
+  }
+  .bsod-symptom-grid article {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(147, 197, 253, 0.18);
+    box-shadow: none;
+  }
+  .bsod-symptom-grid i {
+    color: #bfdbfe;
+    background: rgba(147, 197, 253, 0.16);
+  }
+  .bsod-symptom-grid h3 {
+    color: #ffffff;
+  }
+  .bsod-symptom-grid p {
+    color: #dbeafe;
+  }
+  .bsod-split {
+    display: grid;
+    grid-template-columns: 0.86fr 1.14fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .bsod-split img {
+    width: 100%;
+    margin-top: 22px;
+    border-radius: 22px;
+    box-shadow: 0 18px 46px rgba(15, 42, 74, 0.14);
+  }
+  .bsod-process {
+    display: grid;
+    gap: 12px;
+  }
+  .bsod-process article {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid rgba(15, 42, 74, 0.14);
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 28px rgba(15, 42, 74, 0.07);
+  }
+  .bsod-process strong {
+    color: #2563eb;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.2rem;
+  }
+  .bsod-codes-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 30px;
+    align-items: center;
+  }
+  .bsod-code-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .bsod-code-list span {
+    padding: 10px 12px;
+    border: 1px solid rgba(147, 197, 253, 0.24);
+    border-radius: 999px;
+    color: #e0f2fe;
+    background: rgba(255, 255, 255, 0.08);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.82rem;
+    font-weight: 850;
+  }
+  .bsod-fixes {
+    background: #eef6ff;
+  }
+  .bsod-image-band {
+    background: #ffffff;
+  }
+  .bsod-image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .bsod-image-grid article {
+    overflow: hidden;
+    border: 1px solid rgba(15, 42, 74, 0.14);
+    border-radius: 24px;
+    background: #f8fafc;
+    box-shadow: 0 18px 42px rgba(15, 42, 74, 0.1);
+  }
+  .bsod-image-grid img {
+    width: 100%;
+    height: 260px;
+    display: block;
+    object-fit: cover;
+  }
+  .bsod-image-grid div {
+    padding: 22px;
+  }
+  .bsod-image-grid h2 {
+    font-size: clamp(1.45rem, 2.6vw, 2.2rem);
+  }
+  @media (max-width: 980px) {
+    .bsod-hero-grid,
+    .bsod-split,
+    .bsod-codes-grid,
+    .bsod-image-grid {
+      grid-template-columns: 1fr;
+    }
+    .bsod-local-grid,
+    .bsod-symptom-grid,
+    .bsod-fix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .bsod-hero {
+      padding: 34px 0 30px;
+    }
+    .bsod-visual {
+      min-height: 280px;
+    }
+    .bsod-screen {
+      min-height: 230px;
+      padding: 18px;
+    }
+    .bsod-screen strong {
+      font-size: 4rem;
+    }
+    .bsod-floating {
+      display: none;
+    }
+    .bsod-section {
+      padding: 48px 0;
+    }
+    .bsod-local-grid,
+    .bsod-symptom-grid,
+    .bsod-fix-grid {
+      grid-template-columns: 1fr;
+    }
+    .bsod-actions {
+      display: grid;
+    }
+    .bsod-trust {
+      display: grid;
+    }
+    .bsod-process article {
+      grid-template-columns: 1fr;
+    }
+    .bsod-image-grid img {
+      height: 220px;
+    }
+  }
+</style>

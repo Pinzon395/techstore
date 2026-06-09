@@ -5,7 +5,7 @@ const waUrl = `https://wa.me/529986690777?text=${message}`;
 
 <a
   href={waUrl}
-  onclick={`smartWaRedirect('${waUrl}'); return false;`}
+  data-smart-wa
   class="whatsapp-float"
   id="whatsapp-float"
   title="Contáctanos por WhatsApp"
@@ -20,6 +20,12 @@ const waUrl = `https://wa.me/529986690777?text=${message}`;
 
   floats.slice(0, -1).forEach((node) => node.remove());
   whatsappFloat?.setAttribute('id', 'whatsapp-float');
+
+  whatsappFloat?.addEventListener('click', (event) => {
+    event.preventDefault();
+    const href = whatsappFloat.getAttribute('href');
+    if (href) window.smartWaRedirect(href);
+  });
 
   window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {

@@ -34,7 +34,11 @@ const {
 const siteUrl = 'https://pixon.com.mx';
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
-const effectiveRobots = lang === 'en' && robots === 'index, follow' ? 'noindex, follow' : robots;
+const normalizedPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const isEnglishLanding = lang === 'en' && normalizedPath === '/en';
+const effectiveRobots = lang === 'en' && !isEnglishLanding && robots === 'index, follow'
+  ? 'noindex, follow'
+  : robots;
 
 const defaultSchema = [
   {
@@ -151,6 +155,13 @@ const allSchema = cleanSchemaList([...defaultSchema, ...schema])
   <meta name="description" content={description}>
   <meta name="robots" content={effectiveRobots}>
   <link rel="canonical" href={fullCanonical} />
+  {(normalizedPath === '/' || normalizedPath === '/index' || isEnglishLanding) && (
+    <>
+      <link rel="alternate" hreflang="es-MX" href={`${siteUrl}/`} />
+      <link rel="alternate" hreflang="en" href={`${siteUrl}/en`} />
+      <link rel="alternate" hreflang="x-default" href={`${siteUrl}/`} />
+    </>
+  )}
 
   <link rel="icon" href="/favicon.png" type="image/png" sizes="any">
   <link rel="icon" type="image/png" sizes="192x192" href="/LOGO192.png">
@@ -288,8 +299,8 @@ const allSchema = cleanSchemaList([...defaultSchema, ...schema])
     }
   </script>
   <script defer src="/scripts/user-menu.js"></script>
-  <script defer src="/cache-buster.js?v=rollback-80b34d0-20260527"></script>
+  <script defer src="/cache-buster.js?v=20260607-1"></script>
   <script defer src="/scripts/tracker.js"></script>
-  <script defer src="/scripts/pwa-register.js?v=rollback-80b34d0-20260527"></script>
+  <script defer src="/scripts/pwa-register.js?v=20260607-1"></script>
 </body>
 </html>

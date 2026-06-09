@@ -11,10 +11,38 @@ const { service, category, description = '' } = Astro.props;
 const servicePath = `/servicios/${category.slug}/${service.slug}`;
 const isMacBookRepair = category.slug === 'mac' && service.slug === 'reparacion-macbook';
 const isMacDiagnostic = category.slug === 'mac' && service.slug === 'diagnostico-mac';
-const isMacPremiumView = isMacBookRepair || isMacDiagnostic;
+const isMacNoPower = category.slug === 'mac' && service.slug === 'macbook-no-enciende';
+const isMacPremiumView = isMacBookRepair || isMacDiagnostic || isMacNoPower;
 const isNetworkService = category.slug === 'redes';
 const isWifiSlowService = category.slug === 'redes' && service.slug === 'wifi-lento';
 const isB2bMaintenancePolicy = category.slug === 'b2b' && service.slug === 'polizas-mantenimiento';
+const isB2bFleetMaintenance = category.slug === 'b2b' && service.slug === 'mantenimiento-flotilla';
+const isB2bMaintenancePremium = isB2bMaintenancePolicy || isB2bFleetMaintenance;
+const b2bMaintenanceLabel = isB2bFleetMaintenance ? 'flotilla de equipos' : 'poliza de mantenimiento TI';
+const b2bMaintenanceShort = isB2bFleetMaintenance ? 'Flotilla TI' : 'Poliza TI';
+const b2bMaintenanceHeroAria = isB2bFleetMaintenance
+  ? 'Servicios incluidos en mantenimiento de flotilla'
+  : 'Servicios incluidos en poliza de mantenimiento TI';
+const b2bMaintenanceHeroMetric = isB2bFleetMaintenance ? 'mantenimiento por lote' : 'mantenimiento preventivo integral';
+const b2bMaintenanceCtaId = isB2bFleetMaintenance ? 'mantenimiento-flotilla-cancun' : 'mantenimiento-preventivo-ti-cancun';
+const b2bMaintenanceVisualId = isB2bFleetMaintenance ? 'flotilla-ti-con-imagenes' : 'poliza-ti-con-imagenes';
+const b2bMaintenanceBandsId = isB2bFleetMaintenance ? 'mantenimiento-flotilla-empresarial-cancun' : 'soporte-ti-empresarial-cancun';
+const adaptB2bCopy = (value: string) => isB2bFleetMaintenance
+  ? value
+      .replace(/poliza local/gi, 'mantenimiento por flotilla')
+      .replace(/poliza/gi, 'flotilla')
+      .replace(/Polizas/gi, 'Mantenimiento de flotilla')
+      .replace(/Poliza/gi, 'Flotilla')
+      .replace(/bloques SEO locales/gi, 'secciones SEO locales')
+      .replace(/visitas, prioridades y reportes/gi, 'lotes, prioridades y reportes')
+      .replace(/Una mantenimiento por flotilla/gi, 'Un mantenimiento por flotilla')
+      .replace(/flotillas TI para hoteles/gi, 'Mantenimiento de flotilla TI para hoteles')
+      .replace(/La flotilla ordena/gi, 'El mantenimiento de flotilla ordena')
+      .replace(/Una flotilla permite/gi, 'El mantenimiento de flotilla permite')
+      .replace(/La flotilla permite/gi, 'El mantenimiento de flotilla permite')
+      .replace(/La flotilla debe/gi, 'El mantenimiento de flotilla debe')
+      .replace(/El valor de una flotilla/gi, 'El valor del mantenimiento de flotilla')
+  : value;
 const b2bMaintenanceSections = [
   {
     eyebrow: 'SEO local',
@@ -101,6 +129,12 @@ const b2bMaintenanceSections = [
     points: ['Servicio local y programado', 'Visitas por zona y disponibilidad', 'Cotizacion segun flotilla'],
   },
 ];
+const activeB2bMaintenanceSections = b2bMaintenanceSections.map((item) => ({
+  ...item,
+  title: adaptB2bCopy(item.title),
+  copy: adaptB2bCopy(item.copy),
+  points: item.points.map(adaptB2bCopy),
+}));
 const b2bImageSections = [
   {
     image: '/assets/images/soporte-hoteles-hero.webp',
@@ -167,6 +201,13 @@ const b2bImageSections = [
     points: ['Windows 10 y 11', 'Drivers e impresoras', 'Pruebas antes de cerrar'],
   },
 ];
+const activeB2bImageSections = b2bImageSections.map((item) => ({
+  ...item,
+  alt: adaptB2bCopy(item.alt),
+  title: adaptB2bCopy(item.title),
+  copy: adaptB2bCopy(item.copy),
+  points: item.points.map(adaptB2bCopy),
+}));
 const b2bSeoBands = [
   {
     icon: 'fa-sitemap',
@@ -209,6 +250,11 @@ const b2bSeoBands = [
     copy: 'No todos los usuarios tienen la misma prioridad. Clasificamos areas por impacto para atender primero lo que detiene operacion o ingresos.',
   },
 ];
+const activeB2bSeoBands = b2bSeoBands.map((item) => ({
+  ...item,
+  title: adaptB2bCopy(item.title),
+  copy: adaptB2bCopy(item.copy),
+}));
 const wifiSlowExtraSections = [
   {
     id: 'wifi-medicion',
@@ -302,6 +348,7 @@ const whyUs = service.whyUs || [
 ];
 const trustStats = service.trustStats || [];
 const educationalBlocks = service.educationalBlocks || [];
+const localSeoSections = service.localSeoSections || [];
 const beforeAfter = service.beforeAfter || null;
 const process = service.process || [
   { title: 'Recepcion', desc: 'Registramos equipo, sintomas, accesorios y datos de contacto.' },
@@ -437,29 +484,29 @@ function getServiceImage() {
 }
 
 const serviceImage = getServiceImage();
-const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
+const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'} - servicio tecnico Pixon PC`;
 ---
 
-<div class={`sdv sdv-category-${category.slug} ${isMacBookRepair ? 'sdv-macbook-repair' : ''} ${isMacDiagnostic ? 'sdv-mac-diagnostic' : ''} ${isNetworkService ? 'sdv-network-service' : ''} ${isB2bMaintenancePolicy ? 'sdv-b2b-policy' : ''}`}>
+<div class={`sdv sdv-category-${category.slug} ${isMacBookRepair ? 'sdv-macbook-repair' : ''} ${isMacDiagnostic ? 'sdv-mac-diagnostic' : ''} ${isMacNoPower ? 'sdv-mac-no-power' : ''} ${isNetworkService ? 'sdv-network-service' : ''} ${isB2bMaintenancePremium ? 'sdv-b2b-policy' : ''}`}>
   <section class="sdv-hero">
     <div class="container sdv-hero-grid">
       <div class="sdv-hero-copy">
         <span class="sdv-eyebrow"><i class={`fa-solid ${category.icon}`}></i> {category.title} en Cancun</span>
         <h1>{title}</h1>
         <p>{hook}</p>
-        {isB2bMaintenancePolicy && (
+        {isB2bMaintenancePremium && (
           <>
-            <div class="b2b-hero-tags" aria-label="Servicios incluidos en poliza de mantenimiento TI">
+            <div class="b2b-hero-tags" aria-label={b2bMaintenanceHeroAria}>
               <span><i class="fa-solid fa-calendar-check"></i>Visitas programadas</span>
               <span><i class="fa-solid fa-ticket"></i>Tickets y folios</span>
               <span><i class="fa-solid fa-file-invoice"></i>CFDI y reportes</span>
               <span><i class="fa-solid fa-wifi"></i>Red e impresoras</span>
               <span><i class="fa-solid fa-building-shield"></i>Hoteles y oficinas</span>
             </div>
-            <div class="b2b-hero-metrics" aria-label="Resumen de poliza TI">
-              <span><strong>12+</strong>bloques SEO locales</span>
+            <div class="b2b-hero-metrics" aria-label={`Resumen de ${b2bMaintenanceLabel}`}>
+              <span><strong>12+</strong>secciones SEO locales</span>
               <span><strong>Zona Hotelera</strong>Cancun Centro, Huayacan y Cumbres</span>
-              <span><strong>PC / laptop / red</strong>mantenimiento preventivo integral</span>
+              <span><strong>PC / laptop / red</strong>{b2bMaintenanceHeroMetric}</span>
             </div>
           </>
         )}
@@ -506,14 +553,14 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       </div>
       <aside class="sdv-hero-card">
         <div class="sdv-hero-media">
-          {isB2bMaintenancePolicy ? (
-            <div class="b2b-hero-collage" role="img" aria-label="Mantenimiento preventivo TI para empresas en Cancun">
+          {isB2bMaintenancePremium ? (
+            <div class="b2b-hero-collage" role="img" aria-label={`${title} para empresas en Cancun`}>
               <img src="/assets/images/soporte-hoteles-hero.webp" alt="Soporte TI para hoteles en Cancun" loading="eager" decoding="async" fetchpriority="high" />
               <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento preventivo de computadoras para empresas" loading="eager" decoding="async" fetchpriority="high" />
               <img src="/assets/images/reparacion-impresoras-cancun.webp" alt="Soporte de impresoras empresariales en Cancun" loading="eager" decoding="async" fetchpriority="high" />
               <div class="b2b-hero-collage-badge">
                 <i class="fa-solid fa-chart-line"></i>
-                <strong>TI preventivo</strong>
+                <strong>{isB2bFleetMaintenance ? 'Flotilla TI' : 'TI preventivo'}</strong>
                 <span>menos paros, mas control</span>
               </div>
             </div>
@@ -536,10 +583,10 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
           ) : (
             <img src={serviceImage} alt={serviceImageAlt} loading="eager" decoding="async" fetchpriority="high" />
           )}
-          {(isMacPremiumView || isNetworkService || isB2bMaintenancePolicy) && (
+          {(isMacPremiumView || isNetworkService) && (
             <div class="sdv-macbook-media-badge">
-              <i class={`fa-solid ${isB2bMaintenancePolicy ? 'fa-building-shield' : isNetworkService ? 'fa-wifi' : isMacDiagnostic ? 'fa-circle-check' : 'fa-screwdriver-wrench'}`}></i>
-              {isB2bMaintenancePolicy ? 'Poliza con reportes' : isNetworkService ? 'Medicion de cobertura' : isMacDiagnostic ? 'Diagnostico gratis' : 'Diagnostico por modulo'}
+              <i class={`fa-solid ${isNetworkService ? 'fa-wifi' : isMacDiagnostic ? 'fa-circle-check' : 'fa-screwdriver-wrench'}`}></i>
+              {isNetworkService ? 'Medicion de cobertura' : isMacDiagnostic ? 'Diagnostico gratis' : 'Diagnostico por modulo'}
             </div>
           )}
         </div>
@@ -580,8 +627,8 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
         )}
       </div>
     )}
-    {isB2bMaintenancePolicy && (
-      <div class="container sdv-macbook-rail b2b-hero-rail" aria-label="Puntos fuertes de la poliza TI">
+    {isB2bMaintenancePremium && (
+      <div class="container sdv-macbook-rail b2b-hero-rail" aria-label={`Puntos fuertes de ${b2bMaintenanceLabel}`}>
         <span><i class="fa-solid fa-clipboard-check"></i>Inventario y seguimiento</span>
         <span><i class="fa-solid fa-screwdriver-wrench"></i>Mantenimiento preventivo</span>
         <span><i class="fa-solid fa-file-lines"></i>Reporte para gerencia</span>
@@ -596,7 +643,8 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       <a href="#diagnostico">Diagnostico</a>
       {educationalBlocks.length > 0 && <a href="#incluye">Que incluye</a>}
       <a href="#proceso">Proceso</a>
-      {isB2bMaintenancePolicy && <a href="#mantenimiento-preventivo-ti-cancun">Poliza TI</a>}
+      {localSeoSections.length > 0 && <a href="#seo-local">SEO local</a>}
+      {isB2bMaintenancePremium && <a href={`#${b2bMaintenanceCtaId}`}>{b2bMaintenanceShort}</a>}
       <a href="#modelos">Modelos</a>
       <a href="#garantia">Garantia</a>
       {faqs.length > 0 && <a href="#faq">FAQ</a>}
@@ -674,20 +722,53 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     </div>
   </section>
 
-  {isB2bMaintenancePolicy && (
-    <section class="b2b-maintenance-seo" id="mantenimiento-preventivo-ti-cancun">
+  {localSeoSections.length > 0 && (
+    <section class="sdv-section sdv-local-seo" id="seo-local">
+      <div class="container">
+        <div class="sdv-section-head">
+          <span class="sdv-eyebrow-dark">SEO local Cancun</span>
+          <h2>{service.localSeoTitle || `${service.label} en Cancun: diagnostico completo por causa`}</h2>
+          <p>{service.localSeoIntro || 'Secciones enfocadas en sintomas, causas, zonas de servicio y decisiones antes de reparar.'}</p>
+        </div>
+        <div class="sdv-local-seo-grid">
+          {localSeoSections.map((item: any) => (
+            <section class="sdv-local-seo-card" id={item.id}>
+              <div class="sdv-local-seo-icon">
+                <i class={`fa-solid ${item.icon || 'fa-circle-check'}`}></i>
+              </div>
+              <div>
+                <span>{item.eyebrow}</span>
+                <h2>{item.title}</h2>
+                <p>{item.copy}</p>
+                {Array.isArray(item.points) && item.points.length > 0 && (
+                  <ul>
+                    {item.points.map((point: string) => (
+                      <li><i class="fa-solid fa-check"></i>{point}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {isB2bMaintenancePremium && (
+    <section class="b2b-maintenance-seo" id={b2bMaintenanceCtaId}>
       <div class="container">
         <div class="b2b-maintenance-head">
-          <span>Mantenimiento preventivo TI Cancun</span>
-          <h2>Poliza completa para que tu empresa no dependa de apagar incendios</h2>
+          <span>{isB2bFleetMaintenance ? 'Mantenimiento de flotilla Cancun' : 'Mantenimiento preventivo TI Cancun'}</span>
+          <h2>{isB2bFleetMaintenance ? 'Mantenimiento de flotilla para que tus equipos no se atiendan hasta que fallan' : 'Poliza completa para que tu empresa no dependa de apagar incendios'}</h2>
           <p>
-            Esta vista concentra las busquedas locales mas importantes para empresas que necesitan soporte TI
-            recurrente en Cancun: prevencion, visitas, tickets, reportes, CFDI, red, impresoras, hoteles,
-            oficinas, restaurantes y cobertura por zona.
+            {isB2bFleetMaintenance
+              ? 'Esta vista concentra busquedas locales para empresas que necesitan mantenimiento por lote de computadoras, laptops, impresoras, red y WiFi en Cancun: inventario, prioridad, reportes, CFDI, hoteles, oficinas, restaurantes y cobertura por zona.'
+              : 'Esta vista concentra las busquedas locales mas importantes para empresas que necesitan soporte TI recurrente en Cancun: prevencion, visitas, tickets, reportes, CFDI, red, impresoras, hoteles, oficinas, restaurantes y cobertura por zona.'}
           </p>
         </div>
         <div class="b2b-maintenance-grid">
-          {b2bMaintenanceSections.map((item) => (
+          {activeB2bMaintenanceSections.map((item) => (
             <article class="b2b-maintenance-card">
               <div class="b2b-maintenance-card-top">
                 <i class={`fa-solid ${item.icon}`}></i>
@@ -707,19 +788,20 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     </section>
   )}
 
-  {isB2bMaintenancePolicy && (
-    <section class="b2b-visual-depth" id="poliza-ti-con-imagenes">
+  {isB2bMaintenancePremium && (
+    <section class="b2b-visual-depth" id={b2bMaintenanceVisualId}>
       <div class="container">
         <div class="b2b-visual-head">
           <span>Mas cobertura SEO local</span>
-          <h2>Areas reales que cubre una poliza de mantenimiento preventivo TI</h2>
+          <h2>{isB2bFleetMaintenance ? 'Areas reales que cubre el mantenimiento de flotilla TI' : 'Areas reales que cubre una poliza de mantenimiento preventivo TI'}</h2>
           <p>
-            Agregamos mas contenido visual y operativo para que la pagina responda mejor a empresas que comparan
-            soporte tecnico, mantenimiento de computadoras, red, impresoras y polizas TI en Cancun.
+            {isB2bFleetMaintenance
+              ? 'Agregamos contenido visual y operativo para empresas que comparan mantenimiento de computadoras por lote, flotilla de laptops, red, impresoras y soporte tecnico en Cancun.'
+              : 'Agregamos mas contenido visual y operativo para que la pagina responda mejor a empresas que comparan soporte tecnico, mantenimiento de computadoras, red, impresoras y polizas TI en Cancun.'}
           </p>
         </div>
         <div class="b2b-visual-list">
-          {b2bImageSections.map((item, index) => (
+          {activeB2bImageSections.map((item, index) => (
             <article class={`b2b-visual-row ${index % 2 === 1 ? 'b2b-visual-row-reverse' : ''}`}>
               <div class="b2b-visual-media">
                 <img src={item.image} alt={item.alt} loading="lazy" decoding="async" />
@@ -741,19 +823,20 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     </section>
   )}
 
-  {isB2bMaintenancePolicy && (
-    <section class="b2b-seo-bands" id="soporte-ti-empresarial-cancun">
+  {isB2bMaintenancePremium && (
+    <section class="b2b-seo-bands" id={b2bMaintenanceBandsId}>
       <div class="container">
         <div class="b2b-visual-head">
           <span>Intencion de busqueda empresarial</span>
-          <h2>Mas razones para contratar mantenimiento preventivo TI en Cancun</h2>
+          <h2>{isB2bFleetMaintenance ? 'Mas razones para mantener tu flotilla de computadoras en Cancun' : 'Mas razones para contratar mantenimiento preventivo TI en Cancun'}</h2>
           <p>
-            Estas secciones atacan busquedas de administradores, gerentes y duenos que necesitan control,
-            evidencia, continuidad y presupuesto tecnico claro.
+            {isB2bFleetMaintenance
+              ? 'Estas secciones atacan busquedas de administradores y gerentes que necesitan mantener muchos equipos operando con evidencia, continuidad y presupuesto claro.'
+              : 'Estas secciones atacan busquedas de administradores, gerentes y duenos que necesitan control, evidencia, continuidad y presupuesto tecnico claro.'}
           </p>
         </div>
         <div class="b2b-band-grid">
-          {b2bSeoBands.map((item) => (
+          {activeB2bSeoBands.map((item) => (
             <article>
               <i class={`fa-solid ${item.icon}`}></i>
               <h2>{item.title}</h2>
@@ -1042,6 +1125,13 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     --sdv-hero-start: #07111F;
     --sdv-hero-mid: #102A45;
     --sdv-hero-end: #0F3B5F;
+  }
+  .sdv-mac-no-power {
+    --sdv-accent: #93C5FD;
+    --sdv-accent-strong: #1D4ED8;
+    --sdv-hero-start: #060B14;
+    --sdv-hero-mid: #10233D;
+    --sdv-hero-end: #1E3A5F;
   }
   .sdv-network-service {
     --sdv-accent: #22D3EE;
@@ -1408,6 +1498,75 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-education {
     background: #FFFFFF;
   }
+  .sdv-local-seo {
+    background: #FFFFFF;
+  }
+  .sdv-local-seo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .sdv-local-seo-card {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 20px;
+    border: 1px solid #D6E0EC;
+    border-radius: 8px;
+    background: #F8FAFC;
+    box-shadow: 0 14px 34px rgba(15, 42, 74, .07);
+  }
+  .sdv-local-seo-icon {
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #EAF2FF;
+    color: var(--sdv-accent-strong);
+  }
+  .sdv-local-seo-card span {
+    display: block;
+    color: var(--sdv-accent-strong);
+    font-size: .72rem;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .sdv-local-seo-card h2 {
+    color: #0F2A4A;
+    font-size: 1.18rem;
+    line-height: 1.15;
+    margin: 0 0 10px;
+  }
+  .sdv-local-seo-card p {
+    color: #334155;
+    font-size: .94rem;
+    line-height: 1.58;
+    margin: 0 0 14px;
+  }
+  .sdv-local-seo-card ul {
+    display: grid;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .sdv-local-seo-card li {
+    display: flex;
+    gap: 8px;
+    color: #0F2A4A;
+    font-size: .86rem;
+    font-weight: 850;
+    line-height: 1.35;
+  }
+  .sdv-local-seo-card li i {
+    color: #16A34A;
+    margin-top: 2px;
+  }
   .sdv-education-list {
     display: grid;
     gap: 22px;
@@ -1567,6 +1726,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-hero,
   .sdv-mac-diagnostic .sdv-hero,
+  .sdv-mac-no-power .sdv-hero,
   .sdv-network-service .sdv-hero {
     padding: 86px 0 24px;
     background:
@@ -1586,6 +1746,16 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
       linear-gradient(135deg, var(--sdv-hero-start) 0%, var(--sdv-hero-mid) 56%, var(--sdv-hero-end) 100%);
     background-size: 42px 42px, 42px 42px, auto, auto, auto;
   }
+  .sdv-mac-no-power .sdv-hero {
+    padding: 92px 0 28px;
+    background:
+      linear-gradient(90deg, rgba(147, 197, 253, 0.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(226, 232, 240, 0.06) 1px, transparent 1px),
+      radial-gradient(circle at 16% 18%, rgba(59, 130, 246, 0.28), transparent 28%),
+      radial-gradient(circle at 78% 12%, rgba(20, 184, 166, 0.18), transparent 30%),
+      linear-gradient(135deg, #050A13 0%, #10233D 54%, #1E3A5F 100%);
+    background-size: 38px 38px, 38px 38px, auto, auto, auto;
+  }
   .sdv-network-service .sdv-hero {
     background:
       linear-gradient(90deg, rgba(34, 211, 238, 0.1) 1px, transparent 1px),
@@ -1597,18 +1767,21 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-hero-grid,
   .sdv-mac-diagnostic .sdv-hero-grid,
+  .sdv-mac-no-power .sdv-hero-grid,
   .sdv-network-service .sdv-hero-grid {
     grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
     gap: clamp(22px, 3vw, 38px);
   }
   .sdv-macbook-repair .sdv-hero h1,
   .sdv-mac-diagnostic .sdv-hero h1,
+  .sdv-mac-no-power .sdv-hero h1,
   .sdv-network-service .sdv-hero h1 {
     font-size: clamp(2.5rem, 5.6vw, 5.25rem);
     max-width: 860px;
   }
   .sdv-macbook-repair .sdv-hero p,
   .sdv-mac-diagnostic .sdv-hero p,
+  .sdv-mac-no-power .sdv-hero p,
   .sdv-network-service .sdv-hero p {
     max-width: 820px;
     margin-top: 12px;
@@ -1669,22 +1842,26 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-hero-actions,
   .sdv-mac-diagnostic .sdv-hero-actions,
+  .sdv-mac-no-power .sdv-hero-actions,
   .sdv-network-service .sdv-hero-actions {
     margin-top: 16px;
   }
   .sdv-macbook-repair .sdv-hero-card,
   .sdv-mac-diagnostic .sdv-hero-card,
+  .sdv-mac-no-power .sdv-hero-card,
   .sdv-network-service .sdv-hero-card {
     background: rgba(248, 250, 252, 0.96);
     box-shadow: 0 22px 64px rgba(2, 6, 23, 0.34);
   }
   .sdv-macbook-repair .sdv-hero-media,
   .sdv-mac-diagnostic .sdv-hero-media,
+  .sdv-mac-no-power .sdv-hero-media,
   .sdv-network-service .sdv-hero-media {
     aspect-ratio: 4 / 3;
   }
   .sdv-macbook-repair .sdv-hero-card-body,
   .sdv-mac-diagnostic .sdv-hero-card-body,
+  .sdv-mac-no-power .sdv-hero-card-body,
   .sdv-network-service .sdv-hero-card-body {
     display: grid;
     grid-template-columns: 0.92fr 1.08fr;
@@ -1694,12 +1871,14 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-hero-card-body > span,
   .sdv-mac-diagnostic .sdv-hero-card-body > span,
+  .sdv-mac-no-power .sdv-hero-card-body > span,
   .sdv-network-service .sdv-hero-card-body > span {
     grid-column: 1;
     margin-top: -10px;
   }
   .sdv-macbook-repair .sdv-mini-list,
   .sdv-mac-diagnostic .sdv-mini-list,
+  .sdv-mac-no-power .sdv-mini-list,
   .sdv-network-service .sdv-mini-list {
     grid-column: 2;
     grid-row: 1 / span 2;
@@ -1708,6 +1887,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-mini-list p,
   .sdv-mac-diagnostic .sdv-mini-list p,
+  .sdv-mac-no-power .sdv-mini-list p,
   .sdv-network-service .sdv-mini-list p {
     display: flex;
     align-items: flex-start;
@@ -1734,6 +1914,216 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-media-badge i {
     color: var(--sdv-accent);
+  }
+  .sdv-mac-no-power .sdv-hero-card {
+    border-color: rgba(191, 219, 254, 0.34);
+    box-shadow: 0 28px 78px rgba(2, 6, 23, 0.44);
+  }
+  .sdv-mac-no-power .sdv-hero-media {
+    background: #071425;
+  }
+  .sdv-mac-no-power .sdv-hero-media img {
+    filter: saturate(1.08) contrast(1.05);
+  }
+  .sdv-mac-no-power .sdv-hero-card-body {
+    background: linear-gradient(180deg, #FFFFFF 0%, #EEF6FF 100%);
+  }
+  .sdv-mac-no-power .sdv-btn-primary {
+    background: linear-gradient(135deg, #93C5FD 0%, #2DD4BF 100%);
+    color: #071425;
+    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.28);
+  }
+  .sdv-mac-no-power .sdv-btn-secondary {
+    background: rgba(15, 23, 42, 0.34);
+    border-color: rgba(191, 219, 254, 0.32);
+  }
+  .sdv-mac-no-power .sdv-macbook-tags span,
+  .sdv-mac-no-power .sdv-macbook-rail span {
+    background: rgba(15, 23, 42, 0.64);
+    border-color: rgba(147, 197, 253, 0.28);
+    color: #EFF6FF;
+  }
+  .sdv-mac-no-power .sdv-macbook-stats span {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(191, 219, 254, 0.2);
+  }
+  .sdv-mac-no-power .sdv-anchor-nav {
+    top: 60px;
+    background: rgba(239, 246, 255, 0.94);
+    border-bottom-color: rgba(30, 64, 175, 0.16);
+  }
+  .sdv-mac-no-power .sdv-anchor-nav .container {
+    justify-content: center;
+  }
+  .sdv-mac-no-power .sdv-anchor-nav a:hover {
+    background: #DBEAFE;
+  }
+  .sdv-mac-no-power .sdv-section {
+    padding: 58px 0;
+  }
+  .sdv-mac-no-power .sdv-section-head {
+    max-width: 980px;
+    margin-bottom: 22px;
+  }
+  .sdv-mac-no-power .sdv-section-head h2,
+  .sdv-mac-no-power .sdv-split h2 {
+    font-size: clamp(2rem, 3.3vw, 3rem);
+  }
+  .sdv-mac-no-power .sdv-light {
+    background:
+      linear-gradient(180deg, #F8FAFC 0%, #EEF6FF 100%);
+  }
+  .sdv-mac-no-power #sintomas .sdv-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .sdv-mac-no-power .sdv-card,
+  .sdv-mac-no-power .sdv-proof-grid article,
+  .sdv-mac-no-power .sdv-process article {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(15, 42, 74, 0.12);
+    box-shadow: 0 14px 34px rgba(15, 42, 74, 0.08);
+  }
+  .sdv-mac-no-power .sdv-card::before,
+  .sdv-mac-no-power .sdv-proof-grid article::before,
+  .sdv-mac-no-power .sdv-process article::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, #2563EB, #14B8A6);
+  }
+  .sdv-mac-no-power .sdv-card i,
+  .sdv-mac-no-power .sdv-proof-grid i {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #DBEAFE;
+    color: #1D4ED8;
+    margin-bottom: 12px;
+  }
+  .sdv-mac-no-power #diagnostico {
+    background:
+      radial-gradient(circle at 12% 18%, rgba(147, 197, 253, 0.22), transparent 28%),
+      linear-gradient(180deg, #FFFFFF 0%, #EEF6FF 100%) !important;
+    color: #0F2A4A;
+  }
+  .sdv-mac-no-power #diagnostico .sdv-eyebrow,
+  .sdv-mac-no-power #diagnostico h2,
+  .sdv-mac-no-power #diagnostico h3,
+  .sdv-mac-no-power #diagnostico p {
+    color: #0F2A4A !important;
+  }
+  .sdv-mac-no-power #diagnostico .sdv-proof-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .sdv-mac-no-power .sdv-process {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .sdv-mac-no-power .sdv-process article {
+    padding: 18px;
+    background: #FFFFFF;
+  }
+  .sdv-mac-no-power .sdv-process span {
+    background: #0F2A4A;
+    color: #BFDBFE;
+  }
+  .sdv-mac-no-power .sdv-local-seo {
+    background:
+      linear-gradient(90deg, rgba(29, 78, 216, 0.06) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(14, 116, 144, 0.05) 1px, transparent 1px),
+      radial-gradient(circle at 8% 8%, rgba(147, 197, 253, 0.22), transparent 28%),
+      linear-gradient(180deg, #F8FAFC 0%, #EAF2FF 100%);
+    background-size: 34px 34px, 34px 34px, auto, auto;
+  }
+  .sdv-mac-no-power .sdv-local-seo .sdv-section-head {
+    max-width: 1060px;
+    padding: 24px;
+    border: 1px solid rgba(30, 64, 175, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 18px 42px rgba(15, 42, 74, 0.08);
+  }
+  .sdv-mac-no-power .sdv-local-seo-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .sdv-mac-no-power .sdv-local-seo-card {
+    grid-column: span 2;
+    grid-template-columns: 1fr;
+    min-height: 100%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.94);
+    border-color: rgba(30, 64, 175, 0.14);
+    box-shadow: 0 14px 34px rgba(15, 42, 74, 0.09);
+  }
+  .sdv-mac-no-power .sdv-local-seo-card:nth-child(1),
+  .sdv-mac-no-power .sdv-local-seo-card:nth-child(2) {
+    grid-column: span 3;
+    grid-template-columns: 52px minmax(0, 1fr);
+    padding: 24px;
+    background: linear-gradient(135deg, #FFFFFF 0%, #E0F2FE 100%);
+  }
+  .sdv-mac-no-power .sdv-local-seo-card:nth-child(8),
+  .sdv-mac-no-power .sdv-local-seo-card:nth-child(9),
+  .sdv-mac-no-power .sdv-local-seo-card:nth-child(10),
+  .sdv-mac-no-power .sdv-local-seo-card:nth-child(11) {
+    grid-column: span 3;
+  }
+  .sdv-mac-no-power .sdv-local-seo-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #DBEAFE, #CCFBF1);
+    color: #1D4ED8;
+    box-shadow: inset 0 0 0 1px rgba(30, 64, 175, 0.12);
+  }
+  .sdv-mac-no-power .sdv-local-seo-card h2 {
+    font-size: clamp(1.25rem, 1.7vw, 1.55rem);
+  }
+  .sdv-mac-no-power .sdv-local-seo-card ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .sdv-mac-no-power .sdv-local-seo-card li {
+    min-height: 36px;
+    align-items: flex-start;
+    padding: 8px;
+    border-radius: 8px;
+    background: #F8FAFC;
+    border: 1px solid rgba(15, 42, 74, 0.08);
+  }
+  .sdv-mac-no-power #modelos,
+  .sdv-mac-no-power #garantia {
+    background: #FFFFFF;
+  }
+  .sdv-mac-no-power .sdv-tags {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .sdv-mac-no-power .sdv-tags span,
+  .sdv-mac-no-power .sdv-check-list li,
+  .sdv-mac-no-power .sdv-zone-grid span {
+    border-radius: 8px;
+    border-color: rgba(30, 64, 175, 0.14);
+    box-shadow: 0 10px 24px rgba(15, 42, 74, 0.06);
+  }
+  .sdv-mac-no-power #riesgos {
+    background:
+      radial-gradient(circle at 12% 12%, rgba(248, 113, 113, 0.12), transparent 26%),
+      linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+  }
+  .sdv-mac-no-power #zonas {
+    background: linear-gradient(180deg, #EAF2FF 0%, #DFF7F6 100%);
+  }
+  .sdv-mac-no-power .sdv-zone-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .sdv-network-visual {
     position: relative;
@@ -1812,27 +2202,32 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-anchor-nav,
   .sdv-mac-diagnostic .sdv-anchor-nav,
+  .sdv-mac-no-power .sdv-anchor-nav,
   .sdv-network-service .sdv-anchor-nav {
     top: 60px;
   }
   .sdv-macbook-repair .sdv-anchor-nav .container,
   .sdv-mac-diagnostic .sdv-anchor-nav .container,
+  .sdv-mac-no-power .sdv-anchor-nav .container,
   .sdv-network-service .sdv-anchor-nav .container {
     justify-content: center;
   }
   .sdv-macbook-repair .sdv-section,
   .sdv-mac-diagnostic .sdv-section,
+  .sdv-mac-no-power .sdv-section,
   .sdv-network-service .sdv-section {
     padding: 54px 0;
   }
   .sdv-macbook-repair .sdv-section-head,
   .sdv-mac-diagnostic .sdv-section-head,
+  .sdv-mac-no-power .sdv-section-head,
   .sdv-network-service .sdv-section-head {
     max-width: 980px;
     margin-bottom: 20px;
   }
   .sdv-macbook-repair .sdv-card-grid,
   .sdv-mac-diagnostic .sdv-card-grid,
+  .sdv-mac-no-power .sdv-card-grid,
   .sdv-network-service .sdv-card-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
@@ -1843,6 +2238,9 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-mac-diagnostic .sdv-card,
   .sdv-mac-diagnostic .sdv-proof-grid article,
   .sdv-mac-diagnostic .sdv-process article,
+  .sdv-mac-no-power .sdv-card,
+  .sdv-mac-no-power .sdv-proof-grid article,
+  .sdv-mac-no-power .sdv-process article,
   .sdv-network-service .sdv-card,
   .sdv-network-service .sdv-proof-grid article,
   .sdv-network-service .sdv-process article {
@@ -1852,6 +2250,8 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-macbook-repair .sdv-proof-grid i,
   .sdv-mac-diagnostic .sdv-card i,
   .sdv-mac-diagnostic .sdv-proof-grid i,
+  .sdv-mac-no-power .sdv-card i,
+  .sdv-mac-no-power .sdv-proof-grid i,
   .sdv-network-service .sdv-card i,
   .sdv-network-service .sdv-proof-grid i {
     width: 36px;
@@ -1869,6 +2269,9 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-mac-diagnostic .sdv-card h3,
   .sdv-mac-diagnostic .sdv-process h3,
   .sdv-mac-diagnostic .sdv-proof-grid h3,
+  .sdv-mac-no-power .sdv-card h3,
+  .sdv-mac-no-power .sdv-process h3,
+  .sdv-mac-no-power .sdv-proof-grid h3,
   .sdv-network-service .sdv-card h3,
   .sdv-network-service .sdv-process h3,
   .sdv-network-service .sdv-proof-grid h3 {
@@ -1881,6 +2284,9 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   .sdv-mac-diagnostic .sdv-card p,
   .sdv-mac-diagnostic .sdv-process p,
   .sdv-mac-diagnostic .sdv-proof-grid p,
+  .sdv-mac-no-power .sdv-card p,
+  .sdv-mac-no-power .sdv-process p,
+  .sdv-mac-no-power .sdv-proof-grid p,
   .sdv-network-service .sdv-card p,
   .sdv-network-service .sdv-process p,
   .sdv-network-service .sdv-proof-grid p {
@@ -1889,6 +2295,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-proof-grid,
   .sdv-mac-diagnostic .sdv-proof-grid,
+  .sdv-mac-no-power .sdv-proof-grid,
   .sdv-network-service .sdv-proof-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
@@ -1898,6 +2305,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-process,
   .sdv-mac-diagnostic .sdv-process,
+  .sdv-mac-no-power .sdv-process,
   .sdv-network-service .sdv-process {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 10px;
@@ -2444,6 +2852,9 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     .b2b-visual-copy ul {
       grid-template-columns: 1fr;
     }
+    .sdv-local-seo-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   @media (max-width: 640px) {
     .wifi-slow-extra {
@@ -2471,6 +2882,12 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     .b2b-visual-row,
     .b2b-band-grid,
     .b2b-hero-tags {
+      grid-template-columns: 1fr;
+    }
+    .sdv-local-seo-grid {
+      grid-template-columns: 1fr;
+    }
+    .sdv-local-seo-card {
       grid-template-columns: 1fr;
     }
     .b2b-visual-row {
@@ -2517,11 +2934,13 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-tags,
   .sdv-mac-diagnostic .sdv-tags,
+  .sdv-mac-no-power .sdv-tags,
   .sdv-network-service .sdv-tags {
     gap: 8px;
   }
   .sdv-macbook-repair .sdv-tags span,
   .sdv-mac-diagnostic .sdv-tags span,
+  .sdv-mac-no-power .sdv-tags span,
   .sdv-network-service .sdv-tags span {
     border-radius: 8px;
     padding: 8px 10px;
@@ -2529,6 +2948,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
   }
   .sdv-macbook-repair .sdv-zone-grid,
   .sdv-mac-diagnostic .sdv-zone-grid,
+  .sdv-mac-no-power .sdv-zone-grid,
   .sdv-network-service .sdv-zone-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2537,12 +2957,15 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     .sdv-macbook-repair .sdv-proof-grid,
     .sdv-mac-diagnostic .sdv-card-grid,
     .sdv-mac-diagnostic .sdv-proof-grid,
+    .sdv-mac-no-power .sdv-card-grid,
+    .sdv-mac-no-power .sdv-proof-grid,
     .sdv-network-service .sdv-card-grid,
     .sdv-network-service .sdv-proof-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .sdv-macbook-repair .sdv-process,
     .sdv-mac-diagnostic .sdv-process,
+    .sdv-mac-no-power .sdv-process,
     .sdv-network-service .sdv-process {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -2552,6 +2975,18 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-macbook-tags {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .sdv-mac-no-power .sdv-local-seo-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sdv-mac-no-power .sdv-local-seo-card,
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(1),
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(2),
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(8),
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(9),
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(10),
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(11) {
+      grid-column: auto;
     }
   }
   @media (max-width: 860px) {
@@ -2578,6 +3013,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-macbook-repair .sdv-hero,
     .sdv-mac-diagnostic .sdv-hero,
+    .sdv-mac-no-power .sdv-hero,
     .sdv-network-service .sdv-hero {
       padding-top: 82px;
     }
@@ -2585,17 +3021,24 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     .sdv-macbook-repair .sdv-split,
     .sdv-mac-diagnostic .sdv-hero-grid,
     .sdv-mac-diagnostic .sdv-split,
+    .sdv-mac-no-power .sdv-hero-grid,
+    .sdv-mac-no-power .sdv-split,
     .sdv-network-service .sdv-hero-grid,
     .sdv-network-service .sdv-split {
       grid-template-columns: 1fr;
     }
     .sdv-macbook-repair .sdv-hero-card,
     .sdv-mac-diagnostic .sdv-hero-card,
+    .sdv-mac-no-power .sdv-hero-card,
     .sdv-network-service .sdv-hero-card {
       max-width: 560px;
     }
     .sdv-macbook-rail,
     .sdv-macbook-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sdv-mac-no-power .sdv-tags,
+    .sdv-mac-no-power .sdv-zone-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
@@ -2621,6 +3064,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-macbook-repair .sdv-hero,
     .sdv-mac-diagnostic .sdv-hero,
+    .sdv-mac-no-power .sdv-hero,
     .sdv-network-service .sdv-hero {
       padding-bottom: 22px;
     }
@@ -2635,6 +3079,13 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     .sdv-mac-diagnostic .sdv-proof-grid,
     .sdv-mac-diagnostic .sdv-process,
     .sdv-mac-diagnostic .sdv-zone-grid,
+    .sdv-mac-no-power .sdv-card-grid,
+    .sdv-mac-no-power .sdv-proof-grid,
+    .sdv-mac-no-power .sdv-process,
+    .sdv-mac-no-power .sdv-zone-grid,
+    .sdv-mac-no-power .sdv-tags,
+    .sdv-mac-no-power .sdv-local-seo-grid,
+    .sdv-mac-no-power .sdv-local-seo-card ul,
     .sdv-network-service .sdv-card-grid,
     .sdv-network-service .sdv-proof-grid,
     .sdv-network-service .sdv-process,
@@ -2643,6 +3094,7 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-macbook-repair .sdv-hero-card-body,
     .sdv-mac-diagnostic .sdv-hero-card-body,
+    .sdv-mac-no-power .sdv-hero-card-body,
     .sdv-network-service .sdv-hero-card-body {
       grid-template-columns: 1fr;
     }
@@ -2650,6 +3102,8 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     .sdv-macbook-repair .sdv-hero-card-body > span,
     .sdv-mac-diagnostic .sdv-mini-list,
     .sdv-mac-diagnostic .sdv-hero-card-body > span,
+    .sdv-mac-no-power .sdv-mini-list,
+    .sdv-mac-no-power .sdv-hero-card-body > span,
     .sdv-network-service .sdv-mini-list,
     .sdv-network-service .sdv-hero-card-body > span {
       grid-column: auto;
@@ -2658,8 +3112,16 @@ const serviceImageAlt = `${keyword} en Cancun - servicio tecnico Pixon PC`;
     }
     .sdv-macbook-repair .sdv-section,
     .sdv-mac-diagnostic .sdv-section,
+    .sdv-mac-no-power .sdv-section,
     .sdv-network-service .sdv-section {
       padding: 42px 0;
+    }
+    .sdv-mac-no-power .sdv-local-seo .sdv-section-head,
+    .sdv-mac-no-power .sdv-local-seo-card,
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(1),
+    .sdv-mac-no-power .sdv-local-seo-card:nth-child(2) {
+      grid-template-columns: 1fr;
+      padding: 16px;
     }
     .sdv-mobile-cta {
       position: fixed;

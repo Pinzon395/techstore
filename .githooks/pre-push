@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+
+node scripts/db/snapshot-git.mjs
+
+if [ -n "$(git status --porcelain -- server/db/snapshot/content.json)" ]; then
+  echo "El snapshot de MariaDB cambio y debe incluirse en un commit antes del push." >&2
+  echo "Revisa server/db/snapshot/content.json, haz commit y vuelve a ejecutar git push." >&2
+  exit 1
+fi
+
+node scripts/db/check-snapshot.mjs

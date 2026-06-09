@@ -10,7 +10,6 @@ const DIST_SITEMAP = path.join(DIST_DIR, 'sitemap.xml');
 const BLOCKED_PREFIXES = [
   '/admin',
   '/cuenta',
-  '/en',
 ];
 
 const BLOCKED_PATHS = new Set([
@@ -45,6 +44,7 @@ function toRoute(filePath) {
 
 function isBlockedRoute(route) {
   if (BLOCKED_PATHS.has(route)) return true;
+  if (route.startsWith('/en/')) return true;
   return BLOCKED_PREFIXES.some((prefix) => route === prefix || route.startsWith(`${prefix}/`));
 }
 

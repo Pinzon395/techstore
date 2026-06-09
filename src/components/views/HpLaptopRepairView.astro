@@ -1,0 +1,324 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola, quiero diagnostico para una laptop HP en Cancun. Es Pavilion, Envy, Omen, Victus, EliteBook, ProBook, Spectre u otro modelo.'
+);
+
+const hpLines = [
+  ['fa-house-laptop', 'HP Pavilion para casa, escuela y oficina', 'Reparamos Pavilion 14, 15, x360 y All-in-One portatiles con pantalla rota, teclado, bateria, carga, bisagras, SSD, RAM y Windows lento.'],
+  ['fa-gem', 'HP Envy y Spectre premium', 'Atendemos Envy, Spectre y x360 con chasis delgado, pantalla tactil, bisagras, bateria interna, USB-C, teclado iluminado y fallas de display.'],
+  ['fa-gamepad', 'HP Omen gamer', 'Servicio para Omen con GPU dedicada, alta temperatura, bajo FPS, ventiladores, pasta termica, thermal pads, drivers y limpieza profunda.'],
+  ['fa-bolt', 'HP Victus gamer de entrada', 'Diagnostico para Victus Ryzen o Intel con RTX/GTX, apagados, calentamiento, pantalla, teclado, carga, SSD, RAM y Windows.'],
+  ['fa-briefcase', 'HP EliteBook empresarial', 'Revisamos EliteBook para oficina: carga USB-C, docking, teclado, pantalla, bateria, camara, WiFi, seguridad, SSD y rendimiento.'],
+  ['fa-building', 'HP ProBook para negocio', 'Soporte para ProBook de trabajo diario: bisagras, bateria, Windows, lentitud, pantalla, puertos, teclado, mantenimiento y actualizaciones.'],
+];
+
+const problems = [
+  ['fa-plug-circle-bolt', 'HP no carga o no enciende', 'Probamos cargador, puerto USB-C o punta HP, bateria, consumo, boton power, BIOS y placa antes de cotizar.'],
+  ['fa-display', 'Pantalla HP rota, negra o con manchas', 'Confirmamos panel, flex, bisagras, touch si aplica, salida externa y numero de parte compatible.'],
+  ['fa-temperature-arrow-up', 'Omen o Victus se calienta jugando', 'Revisamos polvo, ventiladores, pasta termica, thermal pads, GPU, CPU, fuente, drivers y perfiles de rendimiento.'],
+  ['fa-keyboard', 'Teclado HP fallando o mojado', 'Validamos idioma, backlight, palmrest, flex, liquido, teclas pegadas y conector antes de cambiar pieza.'],
+  ['fa-hard-drive', 'HP lenta, congelada o Windows dañado', 'Revisamos SSD/HDD, RAM, virus, actualizaciones, drivers HP, arranque y posible upgrade sin perder datos.'],
+  ['fa-droplet', 'Derrame o humedad en laptop HP', 'Apagamos riesgo electrico, revisamos placa, teclado, bateria, carga, pantalla y disco antes de energizar.'],
+];
+
+const process = [
+  ['01', 'Modelo HP exacto', 'Identificamos serie, Product Number, generacion, cargador y variante para confirmar compatibilidad de pantalla, teclado, bateria o cargador.'],
+  ['02', 'Diagnostico por componente', 'Probamos energia, bateria, pantalla, teclado, RAM, SSD/HDD, ventilador, Windows, BIOS, puertos y placa.'],
+  ['03', 'Ruta de reparacion', 'Te explicamos si conviene reparar, cambiar pieza, hacer mantenimiento, instalar SSD/RAM, reinstalar Windows o no invertir de mas.'],
+  ['04', 'Intervencion segura', 'Abrimos con herramienta adecuada, cuidando clips, flex, bisagras, tornilleria, disipador y conectores internos.'],
+  ['05', 'Pruebas finales', 'Validamos carga, bateria, pantalla, teclado, WiFi, camara, audio, temperatura, Windows y estabilidad antes de entregar.'],
+];
+
+const seoTags = [
+  'Reparacion HP Pavilion Cancun',
+  'Servicio HP Envy Cancun',
+  'Reparacion HP Omen gamer Cancun',
+  'Mantenimiento HP Victus Cancun',
+  'Reparacion HP EliteBook oficina',
+  'Soporte HP ProBook empresa',
+  'Cambio de pantalla HP Cancun',
+  'Laptop HP lenta o no enciende',
+];
+
+const faqItems = [
+  {
+    question: 'Reparan HP Pavilion, Envy, Omen, Victus, EliteBook, ProBook y Spectre?',
+    answer: 'Si. Revisamos esas familias por modelo exacto, Product Number y falla: pantalla, teclado, carga, bateria, SSD, RAM, Windows, temperatura, bisagras, placa y mantenimiento.',
+  },
+  {
+    question: 'Cuanto cuesta reparar una laptop HP en Cancun?',
+    answer: 'Depende de la falla real y disponibilidad de pieza. Primero confirmamos si es cargador, bateria, pantalla, teclado, SSD, RAM, Windows, temperatura o placa. Cotizamos antes de reparar.',
+  },
+  {
+    question: 'Mi HP Omen o Victus se calienta jugando, tiene solucion?',
+    answer: 'Si. Revisamos limpieza interna, ventiladores, pasta termica, thermal pads, perfiles de rendimiento, drivers de GPU, BIOS y estabilidad bajo carga.',
+  },
+  {
+    question: 'Pueden cambiar pantalla tactil de HP Envy o Spectre?',
+    answer: 'Si, pero se valida numero de parte, flex, touch, resolucion, tamaño, acabado y bisagras. En modelos x360 no se pide pantalla sin confirmar compatibilidad.',
+  },
+  {
+    question: 'Mi HP no carga por USB-C, es motherboard?',
+    answer: 'No siempre. Puede ser cargador, cable, puerto, bateria, circuito de carga, BIOS o placa. Primero medimos consumo y voltajes.',
+  },
+  {
+    question: 'Pueden hacer mi HP mas rapida con SSD o RAM?',
+    answer: 'Si. Validamos si soporta SSD SATA, NVMe o ampliacion de RAM. Muchas Pavilion, ProBook y EliteBook mejoran mucho con SSD, RAM y limpieza de Windows.',
+  },
+];
+---
+
+<div class="hp-page">
+  <section class="hp-hero">
+    <div class="hp-shell hp-hero-grid">
+      <div class="hp-copy">
+        <span class="hp-kicker"><i class="fa-solid fa-laptop-medical"></i> Servicio HP en Cancún</span>
+        <h1>Reparación de laptop HP en Cancún</h1>
+        <h2>Pavilion, Envy, Omen, Victus, EliteBook, ProBook y Spectre: diagnóstico por modelo antes de cambiar piezas.</h2>
+        <p>Atendemos laptops HP de oficina, escuela, empresa, gaming y gama premium. Revisamos encendido, carga, pantalla, teclado, batería, SSD, RAM, temperatura, Windows, bisagras y placa.</p>
+        <div class="hp-actions">
+          <a class="hp-btn hp-btn-primary" href={`https://wa.me/529986690777?text=${whatsappText}`}><i class="fa-brands fa-whatsapp"></i> Cotizar HP</a>
+          <a class="hp-btn hp-btn-soft" href="#modelos-hp"><i class="fa-solid fa-layer-group"></i> Ver modelos HP</a>
+        </div>
+      </div>
+      <div class="hp-visual">
+        <div class="hp-laptop">
+          <div class="hp-screen">
+            <span>HP</span>
+            <strong>Pavilion · Omen · EliteBook</strong>
+          </div>
+          <div class="hp-base"></div>
+        </div>
+        <div class="hp-chip chip-a">Pavilion</div>
+        <div class="hp-chip chip-b">Omen</div>
+        <div class="hp-chip chip-c">EliteBook</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-section" id="modelos-hp">
+    <div class="hp-shell">
+      <div class="hp-head">
+        <span>Versiones HP</span>
+        <h2>Reparamos HP gamer, HP de oficina, HP empresarial, HP premium y HP escolar</h2>
+        <p>Cada familia HP cambia en pantalla, cargador, disipador, bisagras, batería, BIOS, SSD, RAM y forma de desarmado.</p>
+      </div>
+      <div class="hp-model-grid">
+        {hpLines.map(([icon, title, text]) => (
+          <article>
+            <i class={`fa-solid ${icon}`}></i>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-section hp-dark">
+    <div class="hp-shell">
+      <div class="hp-head hp-head-light">
+        <span>Fallas comunes</span>
+        <h2>Problemas frecuentes en laptops HP que resolvemos en Cancún</h2>
+        <p>Primero se prueba. Muchas fallas vienen de cargador, batería, SSD, RAM, pantalla, flex, temperatura, BIOS, drivers o Windows.</p>
+      </div>
+      <div class="hp-problem-grid">
+        {problems.map(([icon, title, text]) => (
+          <article>
+            <i class={`fa-solid ${icon}`}></i>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-section">
+    <div class="hp-shell hp-split">
+      <div>
+        <span class="hp-eyebrow">Diagnóstico técnico</span>
+        <h2>Cómo trabajamos una laptop HP antes de cotizar</h2>
+        <p>Validamos modelo, Product Number, síntoma y pruebas por módulo. Así evitamos cambiar pantalla, batería, teclado o placa cuando la falla viene de otra causa.</p>
+        <img src="/assets/images/laptop-feliz-limpia.webp" alt="Reparación de laptop HP en Cancún" loading="lazy" decoding="async" />
+      </div>
+      <div class="hp-process">
+        {process.map(([step, title, text]) => (
+          <article>
+            <strong>{step}</strong>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-section hp-seo">
+    <div class="hp-shell hp-seo-grid">
+      <div>
+        <span class="hp-eyebrow">SEO local Cancún</span>
+        <h2>Servicio técnico HP en Cancún para casa, oficina, empresa y gaming</h2>
+        <p>Atendemos HP en Cancún Centro, Huayacán, Cumbres, Bonampak, Puerto Cancún, Zona Hotelera y alrededores según agenda.</p>
+      </div>
+      <div class="hp-tags">
+        {seoTags.map((item) => <span><i class="fa-solid fa-check"></i>{item}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-section hp-images">
+    <div class="hp-shell hp-image-grid">
+      <article>
+        <img src="/assets/images/cambio-pantalla-laptop.webp" alt="Cambio de pantalla para laptop HP en Cancún" loading="lazy" decoding="async" />
+        <div>
+          <span>Pantalla HP</span>
+          <h2>Pantalla, bisagras y flex para Pavilion, Envy y Spectre</h2>
+          <p>Confirmamos panel, touch, flex, bisagras, resolución, tamaño y número de parte antes de pedir una pantalla HP.</p>
+        </div>
+      </article>
+      <article>
+        <img src="/assets/images/mantenimiento-pastaternima-thermalpads.webp" alt="Mantenimiento térmico para HP Omen y Victus" loading="lazy" decoding="async" />
+        <div>
+          <span>Gaming HP</span>
+          <h2>Mantenimiento térmico para Omen y Victus</h2>
+          <p>Revisamos ventiladores, polvo, pasta térmica, thermal pads, GPU, CPU, drivers y estabilidad en carga real.</p>
+        </div>
+      </article>
+      <article>
+        <img src="/assets/images/cambio-ssd.webp" alt="Upgrade SSD y RAM para laptop HP lenta" loading="lazy" decoding="async" />
+        <div>
+          <span>Rendimiento HP</span>
+          <h2>SSD, RAM y Windows para HP lenta</h2>
+          <p>En Pavilion, ProBook y EliteBook revisamos si conviene instalar SSD, ampliar RAM, clonar Windows o reinstalar.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-hp"
+    defaultDevice="Laptop HP"
+    defaultService="Reparación laptop HP"
+    title="Agenda diagnóstico para laptop HP"
+    subtitle="Indica si es Pavilion, Envy, Omen, Victus, EliteBook, ProBook, Spectre u otro modelo y qué falla presenta."
+  />
+
+  <RelatedServicesSection
+    service={service}
+    category={category}
+    initialLimit={6}
+    title="Servicios relacionados para laptop HP"
+  />
+
+  <FaqSection
+    id="faq-hp"
+    title="Preguntas frecuentes sobre reparación de laptop HP en Cancún"
+    description="Dudas sobre Pavilion, Envy, Omen, Victus, EliteBook, ProBook, Spectre, carga, pantalla, teclado, SSD, RAM, temperatura y Windows."
+    items={faqItems}
+    backgroundColor="#0B1120"
+    titleColor="#ffffff"
+    descriptionColor="#dbeafe"
+    questionColor="#0f2a4a"
+    faqAccent="#2563eb"
+  />
+
+  <CommentsSection />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style>
+  .hp-page { background: #f8fafc; color: #0f2a4a; overflow: hidden; }
+  .hp-shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  .hp-hero {
+    padding: 48px 0 38px;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(37, 99, 235, 0.24), transparent 28%),
+      radial-gradient(circle at 86% 12%, rgba(14, 165, 233, 0.18), transparent 30%),
+      linear-gradient(135deg, #07111f 0%, #102a43 52%, #0b1120 100%);
+  }
+  .hp-hero-grid { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(340px, .96fr); gap: clamp(22px, 4vw, 54px); align-items: center; }
+  .hp-kicker, .hp-eyebrow, .hp-head span, .hp-image-grid span {
+    display: inline-flex; align-items: center; gap: 8px; color: #2563eb; font-size: .78rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .hp-kicker { color: #93c5fd; }
+  .hp-copy h1 { margin: 10px 0; color: #fff; font-family: 'Kanit', sans-serif; font-size: clamp(2rem, 4.1vw, 3.55rem); line-height: 1; }
+  .hp-copy h2 { margin: 0 0 12px; color: #bfdbfe; font-family: 'Kanit', sans-serif; font-size: clamp(1.02rem, 1.8vw, 1.42rem); line-height: 1.2; }
+  .hp-copy p { margin: 0; color: #dbeafe; font-weight: 650; line-height: 1.62; }
+  .hp-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .hp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 46px; padding: 12px 17px; border-radius: 12px; text-decoration: none; font-weight: 950; }
+  .hp-btn-primary { color: #fff; background: #16a34a; box-shadow: 0 18px 34px rgba(22, 163, 74, .24); }
+  .hp-btn-soft { color: #dbeafe; border: 1px solid rgba(191,219,254,.26); background: rgba(255,255,255,.08); }
+  .hp-visual { position: relative; min-height: 310px; display: grid; place-items: center; }
+  .hp-laptop { width: min(100%, 480px); }
+  .hp-screen {
+    min-height: 220px; padding: 24px; border: 1px solid rgba(147,197,253,.22); border-radius: 24px 24px 12px 12px;
+    background: linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
+    background-size: 30px 30px, 30px 30px, auto; box-shadow: 0 24px 70px rgba(0,0,0,.32);
+  }
+  .hp-screen span { color: #93c5fd; font-weight: 950; letter-spacing: .18em; }
+  .hp-screen strong { display: block; margin-top: 54px; color: #fff; font-family: 'Kanit', sans-serif; font-size: 1.55rem; }
+  .hp-base { height: 24px; margin: 0 34px; border-radius: 0 0 22px 22px; background: #cbd5e1; box-shadow: 0 18px 34px rgba(0,0,0,.26); }
+  .hp-chip { position: absolute; padding: 10px 13px; border: 1px solid rgba(191,219,254,.22); border-radius: 999px; color: #dbeafe; background: rgba(15,23,42,.78); font-weight: 950; box-shadow: 0 14px 30px rgba(0,0,0,.22); }
+  .chip-a { left: 0; top: 36px; } .chip-b { right: 6px; top: 80px; } .chip-c { left: 46px; bottom: 32px; }
+  .hp-section { padding: 64px 0; background: #f8fafc; }
+  .hp-head { max-width: 930px; margin: 0 auto 28px; text-align: center; }
+  .hp-head h2, .hp-split h2, .hp-seo h2, .hp-image-grid h2 { margin: 8px 0 12px; color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: clamp(1.85rem, 3.3vw, 3.05rem); line-height: 1.06; }
+  .hp-head p, .hp-split p, .hp-seo p, .hp-image-grid p { margin: 0; color: #334e68; font-weight: 650; line-height: 1.66; }
+  .hp-model-grid, .hp-problem-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  .hp-model-grid article, .hp-problem-grid article { padding: 20px; border: 1px solid rgba(15,42,74,.14); border-radius: 20px; background: #fff; box-shadow: 0 14px 34px rgba(15,42,74,.08); }
+  .hp-model-grid i, .hp-problem-grid i { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; border-radius: 14px; color: #2563eb; background: #dbeafe; }
+  .hp-model-grid h3, .hp-problem-grid h3, .hp-process h3 { margin: 0 0 8px; color: #0f2a4a; font-family: 'Kanit', sans-serif; font-size: 1.1rem; line-height: 1.2; }
+  .hp-model-grid p, .hp-problem-grid p, .hp-process p { margin: 0; color: #334e68; line-height: 1.58; font-weight: 620; }
+  .hp-dark { background: radial-gradient(circle at 14% 10%, rgba(37,99,235,.18), transparent 30%), linear-gradient(135deg, #07111f 0%, #0b1f38 100%); }
+  .hp-head-light span { color: #93c5fd; }
+  .hp-head-light h2 { color: #fff; }
+  .hp-head-light p { color: #dbeafe; }
+  .hp-problem-grid article { background: rgba(255,255,255,.08); border-color: rgba(147,197,253,.18); box-shadow: none; }
+  .hp-problem-grid i { color: #bfdbfe; background: rgba(147,197,253,.16); }
+  .hp-problem-grid h3 { color: #fff; }
+  .hp-problem-grid p { color: #dbeafe; }
+  .hp-split, .hp-seo-grid { display: grid; grid-template-columns: .88fr 1.12fr; gap: 32px; align-items: center; }
+  .hp-split img { width: 100%; margin-top: 22px; border-radius: 22px; box-shadow: 0 18px 46px rgba(15,42,74,.14); }
+  .hp-process { display: grid; gap: 12px; }
+  .hp-process article { display: grid; grid-template-columns: 58px minmax(0,1fr); gap: 14px; padding: 18px; border: 1px solid rgba(15,42,74,.14); border-radius: 18px; background: #fff; box-shadow: 0 12px 28px rgba(15,42,74,.07); }
+  .hp-process strong { color: #2563eb; font-family: 'Kanit', sans-serif; font-size: 1.2rem; }
+  .hp-seo { background: #eef6ff; }
+  .hp-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .hp-tags span { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 999px; color: #0f2a4a; background: #fff; border: 1px solid rgba(15,42,74,.12); font-weight: 900; }
+  .hp-tags i { color: #16a34a; }
+  .hp-images { background: #fff; }
+  .hp-image-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; }
+  .hp-image-grid article { overflow: hidden; border: 1px solid rgba(15,42,74,.14); border-radius: 24px; background: #f8fafc; box-shadow: 0 18px 42px rgba(15,42,74,.1); }
+  .hp-image-grid img { width: 100%; height: 230px; display: block; object-fit: cover; }
+  .hp-image-grid div { padding: 22px; }
+  .hp-image-grid h2 { font-size: clamp(1.35rem, 2.2vw, 1.95rem); }
+  @media (max-width: 980px) {
+    .hp-hero-grid, .hp-split, .hp-seo-grid { grid-template-columns: 1fr; }
+    .hp-model-grid, .hp-problem-grid, .hp-image-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 640px) {
+    .hp-hero { padding: 34px 0 30px; }
+    .hp-visual { min-height: 260px; }
+    .hp-screen { min-height: 190px; padding: 18px; }
+    .hp-screen strong { margin-top: 42px; font-size: 1.2rem; }
+    .hp-chip { display: none; }
+    .hp-section { padding: 46px 0; }
+    .hp-model-grid, .hp-problem-grid, .hp-image-grid { grid-template-columns: 1fr; }
+    .hp-actions { display: grid; }
+    .hp-process article { grid-template-columns: 1fr; }
+    .hp-image-grid img { height: 220px; }
+  }
+</style>

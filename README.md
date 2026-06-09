@@ -30,6 +30,16 @@ mysql -u root -p < server\sql\01-schema.sql
 mysql -u root -p pixon_db < server\sql\02-seed.sql
 ```
 
+Restaura tambien el contenido versionado no sensible:
+
+```powershell
+npm run db:restore -- --force
+```
+
+El snapshot vive en `server/db/snapshot/content.json`. Incluye catalogo,
+servicios, builds, FAQs y configuracion, pero excluye usuarios, sesiones,
+tickets, telefonos, correos, IPs, analitica y pagos.
+
 Si vas a usar el usuario recomendado del `.env.example`, crea el usuario de app en MariaDB:
 
 ```sql
@@ -107,6 +117,11 @@ npm run start       # servidor de produccion en PORT o 3000
 npm run dev         # servidor Node con nodemon en puerto 3001
 npm run dev:astro   # Astro dev server en puerto 4321
 npm run setup:local # npm ci + build
+npm run db:snapshot # actualiza datos no sensibles versionados
+npm run db:restore -- --force # fusiona el snapshot en MariaDB
+npm run db:migrate  # aplica migraciones SQL pendientes
+npm run db:backup:encrypted # backup completo cifrado en backups/
+npm run db:backup:restore -- backups/archivo.pixonbak --force # restaura backup cifrado
 ```
 
 ## QA, deploy y monitoreo
@@ -127,7 +142,7 @@ node --check public\scripts\comments.js
 node --check public\scripts\service-ticket.js
 ```
 
-En produccion, `SESSION_SECRET` es obligatorio. Las migraciones runtime deben mantenerse desactivadas salvo ventana controlada con backup usando `ALLOW_RUNTIME_MIGRATIONS=true`.
+En produccion, `SESSION_SECRET` y `DB_BACKUP_KEY` son obligatorios. Ejecuta `npm run db:migrate` durante el deploy antes de iniciar la nueva version; el servidor no modifica el esquema al arrancar.
 
 ## Cloudflare Tunnel
 
@@ -195,3 +210,13 @@ git add .
 git commit -m "Describe el cambio"
 git push
 ```
+
+Activa una vez el hook versionado que comprueba la base antes de cada push:
+
+```powershell
+npm run setup:git-hooks
+```
+
+Si el contenido permitido de MariaDB cambio, el hook actualiza el snapshot y
+bloquea el push para que puedas revisarlo y agregarlo al commit. Los backups
+completos permanecen en `backups/` y nunca se suben a Git.
