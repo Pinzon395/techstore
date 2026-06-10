@@ -1,0 +1,1115 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero cotizar mantenimiento preventivo de PC en Cancún. Necesito limpieza interna y cambio de pasta térmica.'
+);
+
+const pcFaqs = [
+  {
+    question: '¿Cada cuánto tiempo se debe dar mantenimiento preventivo a una PC en Cancún?',
+    answer: 'Debido a la alta humedad, el polvo fino y el salitre del clima de Cancún, recomendamos realizar una limpieza interna completa y cambio de pasta térmica cada **12 a 18 meses**. En equipos dedicados al gaming o edición profesional que operan muchas horas al día, es ideal programarlo cada 12 meses.',
+  },
+  {
+    question: '¿El mantenimiento preventivo borra mis archivos o Windows?',
+    answer: 'No. El servicio es de limpieza física de componentes e inspección de estabilidad térmica. No alteramos, formateamos ni tocamos tu almacenamiento (SSD/HDD) ni tus archivos de Windows. Toda tu información y configuraciones permanecen intactas.',
+  },
+  {
+    question: '¿La pasta térmica está incluida en el servicio?',
+    answer: 'Sí. El servicio incluye la revisión térmica y la aplicación de pasta térmica premium de alta conductividad (como Arctic MX-4 o Kryonaut) tanto en el procesador (CPU) como en la tarjeta gráfica (GPU) de ser necesario, optimizando el contacto con el disipador.',
+  },
+  {
+    question: '¿Atienden computadoras ensambladas y PC Gamer en Cancún?',
+    answer: 'Sí, somos especialistas en PC gamer de gama alta, estaciones de trabajo (workstations), equipos ensamblados por piezas, PC de oficina estándar y Mini PC. Cuidamos cada detalle de ventilación, flujo de aire, organización de cables y ensamble de tarjetas gráficas pesadas.',
+  },
+  {
+    question: '¿Cuánto tiempo tarda el mantenimiento de una computadora?',
+    answer: 'Normalmente el servicio se realiza en un lapso de **24 a 48 horas**. Esto nos permite desmontar con cuidado cada componente, limpiar a fondo y realizar pruebas de estrés de temperatura sostenida antes de entregarte el equipo para certificar la estabilidad térmica.',
+  },
+];
+
+const pcSymptoms = [
+  {
+    icon: 'fa-fan',
+    title: 'Ventiladores muy ruidosos',
+    desc: 'Los ventiladores giran al máximo haciendo un zumbido fuerte y constante, incluso realizando tareas básicas de oficina o navegación.',
+  },
+  {
+    icon: 'fa-temperature-arrow-up',
+    title: 'Altas temperaturas en juegos',
+    desc: 'El procesador (CPU) o la tarjeta de video (GPU) superan rápidamente los 85°C - 90°C al jugar, editar video o renderizar.',
+  },
+  {
+    icon: 'fa-gauge-high',
+    title: 'Tirones de rendimiento (FPS drops)',
+    desc: 'La PC experimenta caídas repentinas de FPS en juegos o congelamientos temporales. El hardware baja su frecuencia para enfriarse.',
+  },
+  {
+    icon: 'fa-power-off',
+    title: 'Apagados de golpe sin aviso',
+    desc: 'El equipo se apaga repentinamente por seguridad térmica (thermal throttling) al alcanzar límites críticos de calor interno.',
+  },
+  {
+    icon: 'fa-box-open',
+    title: 'Polvo visible en filtros y rejillas',
+    desc: 'Capas gruesas de polvo obstruyen los filtros frontales, las rejillas traseras y el disipador del procesador, impidiendo el paso de aire.',
+  },
+  {
+    icon: 'fa-calendar-check',
+    title: 'Más de un año sin mantenimiento',
+    desc: 'La pasta térmica de fábrica ya perdió sus propiedades y se encuentra seca, cortando la transferencia de calor del procesador al metal.',
+  },
+];
+
+const pcSteps = [
+  {
+    num: '01',
+    title: 'Recepción y pruebas de estrés iniciales',
+    desc: 'Medimos temperaturas reales en reposo y bajo carga (HWMonitor/AIDA64), evaluamos el ruido del ventilador y descartamos fallas físicas previas.',
+  },
+  {
+    num: '02',
+    title: 'Desarmado completo de componentes',
+    desc: 'Desmontamos de manera segura tarjeta gráfica (GPU), disipadores, memoria RAM, ventiladores y fuente de poder para limpiarlos de forma independiente.',
+  },
+  {
+    num: '03',
+    title: 'Limpieza profunda antiestática',
+    desc: 'Removemos el polvo acumulado en gabinetes, filtros y aspas utilizando soplador controlado, brochas antiestáticas y alcohol isopropílico.',
+  },
+  {
+    num: '04',
+    title: 'Cambio de pasta térmica premium',
+    desc: 'Limpiamos los residuos secos en el chip del procesador y GPU, y aplicamos pasta térmica premium de alta transferencia conductiva.',
+  },
+  {
+    num: '05',
+    title: 'Optimización de cableado (Cable Management)',
+    desc: 'Reorganizamos la ruta de los cables internos para despejar la vía de ventilación del gabinete, mejorando el flujo de aire entrante y saliente.',
+  },
+  {
+    num: '06',
+    title: 'Prueba de estabilidad y reporte final',
+    desc: 'Armamos el equipo y corremos benchmarks de temperatura para garantizar que la disipación funcione al 100%. Te damos reporte del estado interno.',
+  },
+];
+
+const relatedServices = [
+  {
+    href: '/servicios/pc/refrigeracion',
+    icon: 'fa-fan',
+    label: 'Sobrecalentamiento y Refrigeración PC',
+    desc: 'Solución a problemas severos de calor, ventiladores adicionales y mantenimiento de enfriamientos líquidos AIO.',
+    cta: 'Ver refrigeración →',
+  },
+  {
+    href: '/servicios/pc/mantenimiento-correctivo',
+    icon: 'fa-screwdriver-wrench',
+    label: 'Mantenimiento Correctivo PC',
+    desc: 'Diagnóstico y reparación de fallas de hardware, cortos en placa, fallas de fuente y reemplazo de piezas dañadas.',
+    cta: 'Ver correctivo →',
+  },
+  {
+    href: '/servicios/pc/formateo',
+    icon: 'fa-window-restore',
+    label: 'Formateo y Windows Limpio',
+    desc: 'Respaldo completo de información, borrado seguro y reinstalación limpia del sistema operativo con drivers oficiales.',
+    cta: 'Ver formateo →',
+  },
+  {
+    href: '/servicios/pc/upgrade',
+    icon: 'fa-memory',
+    label: 'Upgrade SSD y Memoria RAM',
+    desc: 'Acelera tu PC al máximo instalando unidades de estado sólido y ampliando memoria para multitarea fluida.',
+    cta: 'Ver upgrades →',
+  },
+  {
+    href: '/servicios/laptop/mantenimiento-preventivo',
+    icon: 'fa-laptop',
+    label: 'Mantenimiento Preventivo Laptop',
+    desc: 'Limpieza interna completa y cambio de pasta térmica especializada para laptops de oficina o portátiles gamer.',
+    cta: 'Ver servicio laptop →',
+  },
+  {
+    href: '/servicios/consola/mantenimiento-preventivo',
+    icon: 'fa-gamepad',
+    label: 'Limpieza y Pasta Térmica Consolas',
+    desc: 'Mantenimiento preventivo para evitar fallas térmicas y apagados en tu PS5, Xbox Series X/S o Nintendo Switch.',
+    cta: 'Ver consolas →',
+  },
+];
+---
+
+<div class="pc-preventive-page">
+  <!-- HERO SECTION -->
+  <section class="ppm-hero">
+    <div class="ppm-hero-glow"></div>
+    <div class="container ppm-hero-grid">
+      <div class="ppm-hero-copy">
+        <span class="ppm-kicker"><i class="fa-solid fa-desktop"></i> Mantenimiento de Computadoras en Cancún</span>
+        <h1>Mantenimiento Preventivo de PC en Cancún | Limpieza y Optimización</h1>
+        <h2>Evita sobrecalentamiento, ruidos molestos y fallas eléctricas caras en tu PC gamer o de oficina.</h2>
+        <p>
+          El clima de Cancún (alta humedad, polvo y salitre) es el enemigo número uno de los componentes electrónicos. 
+          El polvo acumulado actúa como una cobija térmica que ahoga tus ventiladores y seca la pasta térmica. 
+          Nuestro servicio especializado de **mantenimiento preventivo de PC en Cancún** restaura las temperaturas a su estado de fábrica y alarga la vida útil de tu hardware.
+        </p>
+        <div class="ppm-badges">
+          <span>Limpieza de PC gamer Cancún</span>
+          <span>Limpieza de computadora Cancún</span>
+          <span>Cambio de pasta térmica PC</span>
+          <span>Pruebas de estabilidad</span>
+          <span>Garantía por escrito</span>
+        </div>
+        <div class="ppm-actions">
+          <a class="ppm-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar Mantenimiento Preventivo
+          </a>
+          <a class="ppm-secondary" href="#que-incluye">Ver qué incluye el servicio <i class="fa-solid fa-arrow-down"></i></a>
+        </div>
+      </div>
+
+      <aside class="ppm-hero-panel">
+        <div class="ppm-visual-img" aria-hidden="true">
+          <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento preventivo de PC en Cancún" class="ppm-img-hero" />
+          <div class="ppm-img-overlay"></div>
+          <div class="ppm-temp-comparison">
+            <div class="temp-box before">
+              <span>Antes</span>
+              <strong>92°C+</strong>
+              <small>Calor y ruido</small>
+            </div>
+            <i class="fa-solid fa-angles-right"></i>
+            <div class="temp-box after">
+              <span>Después</span>
+              <strong>65°C</strong>
+              <small>Frío y estable</small>
+            </div>
+          </div>
+        </div>
+        <div class="ppm-panel-info">
+          <span>Limpieza interna profunda</span>
+          <strong>{service.fromPrice || 'Desde $600 MXN'}</strong>
+          <small>Un servicio oportuno previene cortocircuitos por polvo conductor o sobrecalentamiento en placa.</small>
+        </div>
+        <ul class="ppm-features-list">
+          <li><i class="fa-solid fa-circle-check"></i> Desarmado seguro componente por componente</li>
+          <li><i class="fa-solid fa-circle-check"></i> Aplicación de pasta térmica premium</li>
+          <li><i class="fa-solid fa-circle-check"></i> Reporte con fotos del estado interno</li>
+          <li><i class="fa-solid fa-circle-check"></i> Pruebas reales de estrés de temperatura</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 1: SEO LOCAL Y CLIMA -->
+  <section class="ppm-section ppm-local-bg">
+    <div class="container ppm-local-grid">
+      <div>
+        <span class="ppm-eyebrow">Protección contra el clima</span>
+        <h2>¿Por qué tu computadora en Cancún necesita mantenimiento constante?</h2>
+        <p class="ppm-large-text">
+          A diferencia de los climas secos, la humedad relativa de Cancún, combinada con el polvo suspendido y el salitre marino, 
+          crea una mezcla abrasiva y conductora dentro del gabinete de tu PC.
+        </p>
+        <p>
+          Si dejas tu PC en el suelo o cerca de ventanas abiertas en zonas como Cancún Centro, Huayacán, Cumbres, Bonfil o Zona Hotelera, 
+          los ventiladores absorben esta humedad, adhiriendo el polvo a la tarjeta madre, fuente de poder y GPU. 
+          Con el tiempo, esto provoca cortocircuitos, oxidación y pérdida de transferencia térmica en disipadores. 
+          Un mantenimiento preventivo profesional a tiempo es la forma más rentable de evitar reparaciones complejas de hardware.
+        </p>
+      </div>
+      <div class="ppm-local-card">
+        <i class="fa-solid fa-cloud-sun-rain"></i>
+        <h3>Humedad + Salitre + Polvo</h3>
+        <p>
+          En Cancún, la acumulación de suciedad no es solo estética. El polvo húmedo retiene carga estática y humedad, 
+          generando micro-sulfatación en los componentes de cobre y soldaduras de tu placa madre.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: SÍNTOMAS COMUNES -->
+  <section class="ppm-section ppm-dark-bg" id="sintomas">
+    <div class="container">
+      <div class="ppm-head-center">
+        <span class="ppm-eyebrow">Señales de alerta</span>
+        <h2>¿Cuándo necesita tu PC mantenimiento preventivo urgente?</h2>
+        <p class="ppm-center-desc">
+          Evita que un problema térmico dañe permanentemente tu procesador o tarjeta gráfica. 
+          Presta atención a los siguientes síntomas en tu computadora de escritorio:
+        </p>
+      </div>
+      <div class="ppm-symptom-grid">
+        {pcSymptoms.map((symptom) => (
+          <article class="ppm-symptom-card">
+            <i class={`fa-solid ${symptom.icon}`}></i>
+            <h3>{symptom.title}</h3>
+            <p>{symptom.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: PROCESO TÉCNICO -->
+  <section class="ppm-section ppm-process-section" id="que-incluye">
+    <div class="container ppm-split-grid">
+      <div class="ppm-split-text">
+        <span class="ppm-eyebrow">Proceso detallado</span>
+        <h2>Qué incluye nuestro servicio de limpieza interna y pasta térmica</h2>
+        <p class="ppm-large-text">
+          No limpiamos soplándolo por encima. Desarmamos tu PC de forma segura utilizando herramientas adecuadas y protocolos antiestáticos.
+        </p>
+        <p>
+          Retiramos tarjeta de video, RAM, disipador y fuente de poder. Limpiamos las aspas de cada ventilador una por una, 
+          removemos la pasta vieja reseca con solventes dieléctricos e instalamos compuesto de alta conductividad. 
+          También optimizamos el enrutamiento de cables para que el flujo de aire corra libremente sin obstrucciones físicas.
+        </p>
+        <div class="ppm-timeline">
+          {pcSteps.map((step) => (
+            <div class="ppm-timeline-item">
+              <span class="ppm-timeline-num">{step.num}</span>
+              <div class="ppm-timeline-content">
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="ppm-split-visual">
+        <div class="ppm-visual-card">
+          <img src="/assets/images/ensamble-pc-gamer-cancun.webp" alt="Limpieza y ensamble de PC gamer en Cancún" />
+          <div class="visual-badge">
+            <i class="fa-solid fa-microchip"></i>
+            <div>
+              <strong>Seguridad antiestática</strong>
+              <span>Protegemos componentes sensibles como GPU, CPU y memoria RAM.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: COMPATIBILIDAD -->
+  <section class="ppm-section ppm-local-bg">
+    <div class="container text-center">
+      <div class="ppm-head-center">
+        <span class="ppm-eyebrow">Equipos soportados</span>
+        <h2>Mantenimiento térmico para todo tipo de computadoras de escritorio</h2>
+        <p class="ppm-center-desc">Atendemos y optimizamos sistemas de cómputo adaptando las técnicas de limpieza a cada formato de hardware.</p>
+      </div>
+      <div class="ppm-compat-strip">
+        <span><i class="fa-solid fa-gamepad"></i> PC Gamer Ensamblada</span>
+        <span><i class="fa-solid fa-briefcase"></i> PC de Oficina / Administrativa</span>
+        <span><i class="fa-solid fa-laptop-code"></i> Workstations de Diseño y Arquitectura</span>
+        <span><i class="fa-solid fa-network-wired"></i> Servidores y Mini PC</span>
+        <span><i class="fa-solid fa-microchip"></i> Enfriamientos Líquidos AIO</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: RUTAS RELACIONADAS (REDISENADAS CON IMAGENES) -->
+  <section class="ppm-section ppm-links-section" id="relacionados">
+    <div class="container">
+      <div class="ppm-head-center">
+        <span class="ppm-eyebrow">Rutas de navegación</span>
+        <h2>Servicios relacionados con calentamiento y rendimiento</h2>
+        <p class="ppm-center-desc">
+          Encuentra soluciones a fallas lógicas, mejoras de velocidad o mantenimiento térmico para otros dispositivos de tu hogar u oficina.
+        </p>
+      </div>
+      <div class="ppm-links-grid">
+        {relatedServices.map((item) => (
+          <a href={item.href} class="ppm-link-card">
+            <div class="card-icon-wrap">
+              <i class={`fa-solid ${item.icon}`}></i>
+            </div>
+            <h3>{item.label}</h3>
+            <p>{item.desc}</p>
+            <span class="card-cta">{item.cta}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULARIO TICKET -->
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice="PC Escritorio"
+    defaultService="Mantenimiento preventivo"
+    title="Agenda el mantenimiento preventivo de tu PC"
+    subtitle="Cuéntanos el modelo de tu computadora, si es gamer o de oficina y cuánto tiempo lleva sin servicio. Te responderemos de inmediato."
+  />
+
+  <!-- RELATED SERVICES GENERIC -->
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Más servicios para tu Computadora"
+    eyebrow="Soporte técnico integral"
+    items={relatedServices}
+    compact={true}
+    initialLimit={6}
+  />
+
+  <!-- FAQS -->
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre mantenimiento preventivo de PC en Cancún"
+    description="Resolvemos tus dudas sobre tiempos de servicio, pasta térmica, seguridad de archivos y la frecuencia ideal del mantenimiento."
+    items={pcFaqs}
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver todas las preguntas frecuentes"
+    ariaLabel="Preguntas frecuentes sobre mantenimiento de computadoras en Cancún"
+    backgroundColor="#0B1120"
+    titleColor="#F8FAFC"
+    descriptionColor="#CBD5E1"
+    questionColor="#0F2A4A"
+  />
+
+  <!-- COMENTARIOS Y CONTACTO -->
+  <CommentsSection serviceId={service.slug} serviceName={service.label} category={category.slug} dark={true} />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style is:global>
+  .pc-preventive-page {
+    background: #070B14;
+    color: #E2E8F0;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .ppm-hero {
+    position: relative;
+    padding: clamp(64px, 8vw, 112px) 0 72px;
+    background:
+      radial-gradient(circle at 10% 10%, rgba(20, 184, 166, 0.22), transparent 35%),
+      radial-gradient(circle at 85% 15%, rgba(37, 99, 235, 0.18), transparent 32%),
+      linear-gradient(135deg, #05080F 0%, #070B14 54%, #0F172A 100%);
+  }
+
+  .ppm-hero-glow {
+    position: absolute;
+    bottom: -150px;
+    right: -100px;
+    width: 450px;
+    height: 450px;
+    border-radius: 999px;
+    background: rgba(20, 184, 166, 0.08);
+    filter: blur(50px);
+    pointer-events: none;
+  }
+
+  .ppm-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .ppm-kicker,
+  .ppm-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #14B8A6;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+  }
+
+  .ppm-hero h1 {
+    margin: 14px 0 14px;
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-size: clamp(2.3rem, 5.5vw, 4.8rem);
+  }
+
+  .ppm-hero h2 {
+    color: #93C5FD;
+    font-size: clamp(1.1rem, 2.3vw, 1.5rem);
+    line-height: 1.35;
+    max-width: 760px;
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+
+  .ppm-hero p {
+    color: #94A3B8;
+    line-height: 1.68;
+    font-size: 1.02rem;
+    margin: 0 0 24px;
+  }
+
+  .ppm-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .ppm-badges span {
+    border: 1px solid rgba(20, 184, 166, 0.22);
+    background: rgba(7, 11, 20, 0.78);
+    color: #E2E8F0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .ppm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .ppm-primary,
+  .ppm-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 950;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .ppm-primary {
+    background: #0d9488;
+    color: #FFFFFF !important;
+    box-shadow: 0 15px 35px rgba(13, 148, 136, 0.28);
+  }
+
+  .ppm-primary:hover {
+    background: #0f766e;
+    transform: translateY(-2px);
+  }
+
+  .ppm-secondary {
+    background: rgba(15, 23, 42, 0.78);
+    color: #FFFFFF !important;
+    border: 1px solid rgba(20, 184, 166, 0.26);
+  }
+
+  .ppm-secondary:hover {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(20, 184, 166, 0.45);
+    transform: translateY(-2px);
+  }
+
+  .ppm-hero-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 30px;
+    padding: 16px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  }
+
+  .ppm-visual-img {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    height: 220px;
+  }
+
+  .ppm-img-hero {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ppm-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(7, 11, 20, 0.9) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .ppm-temp-comparison {
+    position: absolute;
+    inset: auto 16px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(20, 184, 166, 0.25);
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .ppm-temp-comparison span {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+  }
+
+  .ppm-temp-comparison strong {
+    display: block;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.25rem;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .ppm-temp-comparison .before strong { color: #EF4444; }
+  .ppm-temp-comparison .after strong { color: #14B8A6; }
+
+  .ppm-temp-comparison small {
+    display: block;
+    font-size: 0.7rem;
+    color: #64748B;
+  }
+
+  .ppm-temp-comparison i {
+    color: #14B8A6;
+  }
+
+  .ppm-panel-info {
+    padding: 18px 4px 14px;
+    display: grid;
+    gap: 4px;
+  }
+
+  .ppm-panel-info span {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 900;
+    color: #14B8A6;
+    letter-spacing: 0.5px;
+  }
+
+  .ppm-panel-info strong {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.9rem;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+
+  .ppm-panel-info small {
+    font-size: 0.82rem;
+    color: #94A3B8;
+    line-height: 1.4;
+  }
+
+  .ppm-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .ppm-features-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #CBD5E1;
+  }
+
+  .ppm-features-list li i {
+    color: #14B8A6;
+  }
+
+  /* SECTION STANDARD */
+  .ppm-section {
+    padding: clamp(56px, 7vw, 92px) 0;
+    background: #070B14;
+  }
+
+  .ppm-local-bg {
+    background: linear-gradient(180deg, #090F1D 0%, #070B14 100%);
+    border-top: 1px solid rgba(20, 184, 166, 0.08);
+    border-bottom: 1px solid rgba(20, 184, 166, 0.08);
+  }
+
+  .ppm-dark-bg {
+    background: #0B1120 !important;
+  }
+
+  .ppm-split-grid,
+  .ppm-local-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .ppm-eyebrow {
+    color: #14B8A6;
+    font-weight: 900;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+
+  .ppm-section h2 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: clamp(1.8rem, 3.5vw, 3.20rem);
+    margin: 12px 0 16px;
+    line-height: 1.1;
+  }
+
+  .ppm-large-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    font-weight: 600;
+    color: #E2E8F0;
+  }
+
+  .ppm-section p {
+    color: #94A3B8;
+    line-height: 1.68;
+    margin-bottom: 14px;
+  }
+
+  .ppm-local-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(20, 184, 166, 0.18);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  }
+
+  .ppm-local-card i {
+    font-size: 2.2rem;
+    color: #14B8A6;
+    margin-bottom: 14px;
+  }
+
+  .ppm-local-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.25rem;
+    margin: 0 0 10px;
+  }
+
+  .ppm-local-card p {
+    color: #94A3B8;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* SYMPTOMS SECTION */
+  .ppm-head-center {
+    max-width: 800px;
+    margin: 0 auto 42px;
+    text-align: center;
+  }
+
+  .ppm-center-desc {
+    font-size: 1.02rem;
+    color: #94A3B8;
+    line-height: 1.65;
+  }
+
+  .ppm-symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .ppm-symptom-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 24px;
+    padding: 24px;
+    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .ppm-symptom-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(20, 184, 166, 0.4);
+    box-shadow: 0 15px 35px rgba(20, 184, 166, 0.08);
+  }
+
+  .ppm-symptom-card i {
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    background: rgba(20, 184, 166, 0.08);
+    color: #14B8A6;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .ppm-symptom-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.12rem;
+    margin: 0 0 8px;
+  }
+
+  .ppm-symptom-card p {
+    color: #94A3B8;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* TIMELINE PROCESS */
+  .ppm-timeline {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .ppm-timeline-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .ppm-timeline-num {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #14B8A6, #2563EB);
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+  }
+
+  .ppm-timeline-content h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+  }
+
+  .ppm-timeline-content p {
+    color: #94A3B8;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .ppm-split-visual {
+    display: grid;
+    place-items: center;
+  }
+
+  .ppm-visual-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 28px;
+    padding: 16px;
+    width: 100%;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  }
+
+  .ppm-visual-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 18px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ppm-visual-card .visual-badge {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    padding: 18px 4px 4px;
+    align-items: center;
+  }
+
+  .ppm-visual-card .visual-badge i {
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(20, 184, 166, 0.08);
+    color: #14B8A6;
+    font-size: 1.25rem;
+  }
+
+  .ppm-visual-card .visual-badge strong {
+    display: block;
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .ppm-visual-card .visual-badge span {
+    display: block;
+    font-size: 0.82rem;
+    color: #94A3B8;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+
+  /* COMPAT STRIP */
+  .ppm-compat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+
+  .ppm-compat-strip span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(20, 184, 166, 0.18);
+    background: rgba(15, 23, 42, 0.85);
+    color: #FFFFFF;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.88rem;
+  }
+
+  .ppm-compat-strip span i {
+    color: #14B8A6;
+  }
+
+  /* PROCESO TECNICO (LIGHT BACKGROUND WITH DARK BLUE TEXTS) */
+  .ppm-process-section {
+    background: #FFFFFF !important;
+    border-top: 1px solid rgba(20, 184, 166, 0.08);
+    border-bottom: 1px solid rgba(20, 184, 166, 0.08);
+  }
+
+  .ppm-process-section .ppm-eyebrow {
+    color: #2563EB;
+  }
+
+  .ppm-process-section h2 {
+    color: #0F2A4A;
+  }
+
+  .ppm-process-section .ppm-large-text {
+    color: #1E3A8A;
+  }
+
+  .ppm-process-section p {
+    color: #475569;
+  }
+
+  .ppm-process-section .ppm-timeline-item {
+    background: #F8FAFC;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .ppm-process-section .ppm-timeline-content h3 {
+    color: #0F2A4A;
+  }
+
+  .ppm-process-section .ppm-timeline-content p {
+    color: #475569;
+  }
+
+  .ppm-process-section .ppm-visual-card {
+    background: #F8FAFC;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.05);
+  }
+
+  .ppm-process-section .ppm-visual-card .visual-badge strong {
+    color: #0F2A4A;
+  }
+
+  .ppm-process-section .ppm-visual-card .visual-badge span {
+    color: #475569;
+  }
+
+  /* RELATED SERVICES REDISENADAS (LIGHT CONTRAST BACKGROUND) */
+  .ppm-links-section {
+    background: #F8FAFC !important;
+  }
+
+  .ppm-links-section .ppm-eyebrow {
+    color: #2563EB;
+  }
+
+  .ppm-links-section h2 {
+    color: #0F172A;
+  }
+
+  .ppm-links-section .ppm-center-desc {
+    color: #475569;
+  }
+
+  .ppm-links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .ppm-link-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 24px;
+    padding: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.04);
+    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1), border-color 220ms ease, box-shadow 220ms ease;
+  }
+
+  .ppm-link-card:hover {
+    transform: translateY(-5px);
+    border-color: #2563EB;
+    box-shadow: 0 25px 50px rgba(37, 99, 235, 0.08);
+  }
+
+  .ppm-link-card .card-icon-wrap {
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563EB;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+  }
+
+  .ppm-link-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0F172A;
+    font-size: 1.12rem;
+    margin: 0 0 8px;
+    line-height: 1.25;
+  }
+
+  .ppm-link-card p {
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0 0 16px;
+  }
+
+  .ppm-link-card .card-cta {
+    margin-top: auto;
+    color: #2563EB;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pc-preventive-page :global(.svc-related) {
+    background: #070B14 !important;
+  }
+
+  .pc-preventive-page :global(.svc-related .ux-eyebrow) {
+    color: #14B8A6 !important;
+  }
+
+  .pc-preventive-page :global(.svc-related .ux-h2),
+  .pc-preventive-page :global(.svc-related .related-card h4) {
+    color: #FFFFFF !important;
+  }
+
+  .pc-preventive-page :global(.svc-related .related-card) {
+    background: rgba(15, 23, 42, 0.86) !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
+  }
+
+  .pc-preventive-page :global(.svc-related .related-card p) {
+    color: #94A3B8 !important;
+  }
+
+  .pc-preventive-page :global(.svc-related .related-card span),
+  .pc-preventive-page :global(.svc-related .related-card i) {
+    color: #14B8A6 !important;
+  }
+
+  .pc-preventive-page :global(.comments-section-container) {
+    background: #070B14 !important;
+  }
+
+  .pc-preventive-page :global(.contact) {
+    background: #0B1120 !important;
+  }
+
+  /* MEDIA QUERIES RESPONSIVE */
+  @media (max-width: 980px) {
+    .ppm-hero-grid,
+    .ppm-local-grid,
+    .ppm-split-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ppm-symptom-grid,
+    .ppm-links-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .ppm-symptom-grid,
+    .ppm-links-grid,
+    .ppm-compat-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .ppm-compat-strip span {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .ppm-hero h1 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .ppm-temp-comparison {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .ppm-temp-comparison i {
+      transform: rotate(90deg);
+      margin: 4px 0;
+    }
+
+    .ppm-timeline-item {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

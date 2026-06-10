@@ -1,0 +1,1068 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero cotizar mantenimiento correctivo para mi PC en Cancún. Presenta fallas en encendido, pantalla azul o reinicios.'
+);
+
+const pcCorrectiveFaqs = [
+  {
+    question: '¿Cuánto cuesta reparar una computadora en Cancún?',
+    answer: 'Nuestra mano de obra para revisiones e intervenciones correctivas inicia desde **$650 MXN** (más refacciones si se requiere). Primero realizamos un diagnóstico completo para identificar qué componente está fallando y te enviamos un presupuesto exacto para que lo autorices antes de realizar cualquier reparación.',
+  },
+  {
+    question: '¿Qué pasa si mi computadora no conviene repararla?',
+    answer: 'Somos totalmente transparentes. Si por antigüedad, costo de la refacción o desgaste general del equipo no conviene invertir en repararlo, te lo decimos claro y te asesoramos sobre qué componentes puedes rescatar (como discos duros o memoria) o si te conviene más adquirir un equipo nuevo.',
+  },
+  {
+    question: '¿Cuánto tiempo toma la reparación correctiva de una PC?',
+    answer: 'La mayoría de reparaciones toman de **24 a 72 horas** si las refacciones están disponibles de forma local. En fallas intermitentes complejas de placa madre o cuando requerimos solicitar piezas especiales, el tiempo puede extenderse; sin embargo, siempre te mantendremos informado sobre el estatus.',
+  },
+  {
+    question: '¿Se pierden mis archivos y documentos al reparar la PC?',
+    answer: 'No. Antes de realizar cualquier cambio físico de hardware o corrección lógica de sistema, realizamos un clonado o respaldo (backup) de seguridad de tu información siempre que las condiciones físicas del disco lo permitan. Tus fotos, documentos y archivos son nuestra prioridad número uno.',
+  },
+  {
+    question: '¿Qué garantía ofrecen en reparaciones correctivas?',
+    answer: 'Ofrecemos una garantía de **30 días por escrito** sobre la mano de obra del componente reparado o instalado. Las refacciones nuevas de marcas reconocidas que instalamos cuentan con sus respectivas garantías directas del fabricante que van desde 1 hasta 3 años.',
+  },
+];
+
+const pcCorrectiveSymptoms = [
+  {
+    icon: 'fa-power-off',
+    title: 'PC no enciende por completo',
+    desc: 'No prende ningún LED, los ventiladores no giran o el equipo se apaga inmediatamente después de presionar el botón.',
+  },
+  {
+    icon: 'fa-desktop',
+    title: 'Prende pero no da imagen',
+    desc: 'Los ventiladores y las luces del gabinete encienden, pero el monitor se queda en negro con el mensaje "Sin señal".',
+  },
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'Pantallas azules constantes (BSOD)',
+    desc: 'Errores recurrentes de Windows que congelan tu PC y te obligan a reiniciar al jugar, trabajar o abrir ciertos programas.',
+  },
+  {
+    icon: 'fa-rotate-left',
+    title: 'Se reinicia sola al jugar o exigirle',
+    desc: 'Apagados térmicos o caídas eléctricas que ocurren de golpe al abrir videojuegos pesados o software de renderizado.',
+  },
+  {
+    icon: 'fa-volume-high',
+    title: 'Ruidos metálicos o zumbidos raros',
+    desc: 'Ruidos extraños provenientes del disco duro mecánico a punto de fallar o de ventiladores con baleros desgastados.',
+  },
+  {
+    icon: 'fa-keyboard',
+    title: 'Puertos USB o periféricos fallando',
+    desc: 'Los puertos frontales o traseros no reconocen dispositivos, fallas constantes de red por cable o WiFi intermitente.',
+  },
+];
+
+const pcCorrectiveSteps = [
+  {
+    num: '01',
+    title: 'Diagnóstico y pruebas de descarte',
+    desc: 'Sometemos los componentes a test independientes (voltajes de fuente, SMART de disco, Memtest para RAM) para ubicar el componente defectuoso.',
+  },
+  {
+    num: '02',
+    title: 'Respaldo de información preventivo',
+    desc: 'Siempre que el almacenamiento esté accesible, salvamos tus datos en servidores externos de respaldo antes de intervenir el equipo.',
+  },
+  {
+    num: '03',
+    title: 'Presupuesto transparente y cotización',
+    desc: 'Te desglosamos mano de obra y refacciones requeridas por WhatsApp. No cambiamos nada sin tu consentimiento y firma digital de aprobación.',
+  },
+  {
+    num: '04',
+    title: 'Sustitución y ensamble de piezas nuevas',
+    desc: 'Instalamos las piezas de reemplazo bajo estrictos estándares de cableado y energía, garantizando compatibilidad eléctrica y de espacio.',
+  },
+  {
+    num: '05',
+    title: 'Pruebas de estrés y estabilidad 24h',
+    desc: 'Corremos software de estrés sostenido (Cinebench, Prime95) para certificar que el equipo no vuelva a fallar bajo cargas extremas de trabajo.',
+  },
+  {
+    num: '06',
+    title: 'Entrega con garantía por escrito',
+    desc: 'Te devolvemos tu equipo funcionando como nuevo, con reporte técnico físico y tu póliza de garantía correspondiente.',
+  },
+];
+
+const relatedServices = [
+  {
+    href: '/servicios/pc/mantenimiento-preventivo',
+    icon: 'fa-screwdriver-wrench',
+    label: 'Mantenimiento Preventivo PC',
+    desc: 'Limpieza profunda de polvo, cambio de compuesto térmico y pruebas para evitar que tu PC falle o haga ruidos molestos.',
+    cta: 'Ver preventivo →',
+  },
+  {
+    href: '/servicios/pc/formateo',
+    icon: 'fa-window-restore',
+    label: 'Formateo e Instalación de Windows',
+    desc: 'Restauración lógica del sistema operativo desde cero con drivers oficiales, paquetería básica y eliminación de virus.',
+    cta: 'Ver formateo →',
+  },
+  {
+    href: '/servicios/pc/upgrade',
+    icon: 'fa-memory',
+    label: 'Upgrade SSD y Memoria RAM',
+    desc: 'Dale una segunda vida a tu computadora lenta instalando discos de estado sólido y aumentando memoria RAM.',
+    cta: 'Ver upgrades →',
+  },
+  {
+    href: '/servicios/pc/refrigeracion',
+    icon: 'fa-fan',
+    label: 'Sobrecalentamiento y Refrigeración PC',
+    desc: 'Revisión y mantenimiento de disipadores, curvas de ventilación y soluciones térmicas para PC gamer.',
+    cta: 'Ver refrigeración →',
+  },
+  {
+    href: '/servicios/pc/diagnostico',
+    icon: 'fa-stethoscope',
+    label: 'Diagnóstico Profesional de PC',
+    desc: '¿Tu PC falla y no sabes qué tiene? Hacemos pruebas lógicas y físicas de componentes con reporte detallado.',
+    cta: 'Ver diagnóstico →',
+  },
+  {
+    href: '/reparaciones',
+    icon: 'fa-toolbox',
+    label: 'Reparación General de Equipos',
+    desc: 'Soporte multimarca para laptops, computadoras de escritorio, pantallas, periféricos y equipos de oficina.',
+    cta: 'Ver reparaciones →',
+  },
+];
+---
+
+<div class="pc-corrective-page">
+  <!-- HERO SECTION -->
+  <section class="pcm-hero">
+    <div class="pcm-hero-glow"></div>
+    <div class="container pcm-hero-grid">
+      <div class="pcm-hero-copy">
+        <span class="pcm-kicker"><i class="fa-solid fa-desktop"></i> Reparación Física y Lógica de PC en Cancún</span>
+        <h1>Mantenimiento Correctivo de PC en Cancún</h1>
+        <h2>Diagnosticamos fallas complejas, reparamos cortocircuitos y reemplazamos componentes dañados con garantía.</h2>
+        <p>
+          Si tu PC se reinicia sola, no enciende, da pantallas azules de Windows o hace ruidos extraños, no adivines la falla. 
+          En Pixon PC realizamos un **mantenimiento correctivo de computadoras en Cancún** con herramientas de diagnóstico avanzadas. 
+          Reemplazamos fuentes de poder, tarjetas madre, memorias y unidades de almacenamiento, asegurando tus archivos e instalando refacciones con garantía oficial.
+        </p>
+        <div class="pcm-badges">
+          <span>Reparación de computadoras Cancún</span>
+          <span>PC no prende solución</span>
+          <span>Cambio de fuente de poder PC</span>
+          <span>Reparación de tarjeta madre PC</span>
+          <span>Respaldo de información</span>
+        </div>
+        <div class="pcm-actions">
+          <a class="pcm-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i> Agendar Reparación de PC
+          </a>
+          <a class="pcm-secondary" href="#que-incluye">Ver proceso técnico <i class="fa-solid fa-arrow-down"></i></a>
+        </div>
+      </div>
+
+      <aside class="pcm-hero-panel">
+        <div class="pcm-visual-img" aria-hidden="true">
+          <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento correctivo de computadoras en taller local Cancún" class="pcm-img-hero" />
+          <div class="pcm-img-overlay"></div>
+          <div class="pcm-diag-panel">
+            <div class="diag-log">
+              <span class="text-success"><i class="fa-solid fa-circle-check"></i> RAM Check: OK</span>
+              <span class="text-success"><i class="fa-solid fa-circle-check"></i> SSD Health: 98%</span>
+              <span class="text-danger"><i class="fa-solid fa-circle-xmark"></i> PSU Voltage: FAIL (11.2V)</span>
+            </div>
+            <div class="diag-action">
+              <span>Recomendación</span>
+              <strong>Cambiar Fuente</strong>
+            </div>
+          </div>
+        </div>
+        <div class="pcm-panel-info">
+          <span>Soporte Técnico Especializado</span>
+          <strong>{service.fromPrice || 'Desde $650 MXN'}</strong>
+          <small>El costo de la reparación depende del componente dañado. Hacemos cotizaciones claras antes de trabajar.</small>
+        </div>
+        <ul class="pcm-features-list">
+          <li><i class="fa-solid fa-circle-check"></i> Técnicos especialistas en ensamble y hardware</li>
+          <li><i class="fa-solid fa-circle-check"></i> Diagnóstico lógico y pruebas de corriente</li>
+          <li><i class="fa-solid fa-circle-check"></i> Respaldo previo de tu información</li>
+          <li><i class="fa-solid fa-circle-check"></i> Garantía por escrito en cada intervención</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 1: SEO LOCAL Y CLIMA -->
+  <section class="pcm-section pcm-local-bg">
+    <div class="container pcm-local-grid">
+      <div>
+        <span class="pcm-eyebrow">Diagnóstico local Cancún</span>
+        <h2>¿Por qué fallan los componentes de PC en Cancún?</h2>
+        <p class="pcm-large-text">
+          La humedad, el salitre acumulado y los constantes apagones o variaciones de voltaje de Cancún aceleran el desgaste de piezas delicadas.
+        </p>
+        <p>
+          En nuestro taller de **reparación de computadoras en Cancún**, las fallas correctivas más comunes provienen de fuentes de poder dañadas por picos eléctricos, 
+          discos duros mecánicos que fallan por apagones repentinos y cortos en placas madre provocados por polvo húmedo sulfatado. 
+          Atendemos clientes en Cancún Centro, Huayacán, Cumbres, Zona Hotelera, Puerto Cancún y alrededores, brindando soluciones definitivas 
+          y recomendando reguladores o no-breaks adecuados para evitar que la falla vuelva a ocurrir.
+        </p>
+      </div>
+      <div class="pcm-local-card">
+        <i class="fa-solid fa-plug-circle-exclamation"></i>
+        <h3>Fallas por Voltaje en Cancún</h3>
+        <p>
+          Las variaciones en la red eléctrica de Cancún suelen fundir transistores y capacitores en la fuente de poder y tarjeta madre. 
+          Probamos voltajes por tramo antes de dar de baja cualquier pieza.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: SÍNTOMAS COMUNES -->
+  <section class="pcm-section pcm-dark-bg" id="sintomas">
+    <div class="container">
+      <div class="ppm-head-center">
+        <span class="pcm-eyebrow">Fallas Frecuentes</span>
+        <h2>¿Qué síntomas presenta tu computadora cuando está dañada?</h2>
+        <p class="pcm-center-desc">
+          Si tu equipo presenta alguno de los siguientes problemas, requiere una inspección y mantenimiento correctivo para restaurar su funcionamiento:
+        </p>
+      </div>
+      <div class="pcm-symptom-grid">
+        {pcCorrectiveSymptoms.map((symptom) => (
+          <article class="pcm-symptom-card">
+            <i class={`fa-solid ${symptom.icon}`}></i>
+            <h3>{symptom.title}</h3>
+            <p>{symptom.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: PROCESO TÉCNICO (LIGHT BACKGROUND WITH DARK BLUE TEXTS) -->
+  <section class="pcm-section pcm-process-section" id="que-incluye">
+    <div class="container pcm-split-grid">
+      <div class="pcm-split-text">
+        <span class="pcm-eyebrow">Ruta de reparación</span>
+        <h2>Qué incluye nuestro servicio de mantenimiento correctivo de PC</h2>
+        <p class="pcm-large-text">
+          No adivinamos qué pieza falla. Seguimos protocolos técnicos de descarte lógico y eléctrico para entregarte un reporte transparente.
+        </p>
+        <p>
+          Desmontamos tu computadora de escritorio y probamos la fuente con medidor de carga, el almacenamiento con analizador de sectores 
+          y la memoria RAM con test de ciclos. Si algún componente está dañado, cotizamos el reemplazo de la marca de tu elección 
+          y reinstalamos el sistema operativo configurando drivers de forma limpia.
+        </p>
+        <div class="pcm-timeline">
+          {pcCorrectiveSteps.map((step) => (
+            <div class="pcm-timeline-item">
+              <span class="pcm-timeline-num">{step.num}</span>
+              <div class="pcm-timeline-content">
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="pcm-split-visual">
+        <div class="pcm-visual-card">
+          <img src="/assets/images/ensamble-pc-gamer-cancun.webp" alt="Técnico probando componentes de PC en taller Cancún" />
+          <div class="visual-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+              <strong>Respaldo de archivos prioritario</strong>
+              <span>Tu información queda resguardada antes de formatear o intervenir discos duros con fallas lógicas.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: COMPATIBILIDAD -->
+  <section class="pcm-section pcm-local-bg">
+    <div class="container text-center">
+      <div class="ppm-head-center">
+        <span class="pcm-eyebrow">Modelos y Marcas</span>
+        <h2>Reparación técnica y correctiva multimarca en Cancún</h2>
+        <p class="pcm-center-desc">Contamos con refacciones compatibles para marcas líderes del mercado y computadoras ensambladas a la medida.</p>
+      </div>
+      <div class="pcm-compat-strip">
+        <span>PC Gamer (Asus, MSI, Gigabyte)</span>
+        <span>Equipos Ensamblados ATX / Micro ATX</span>
+        <span>PC de Escritorio Dell, HP, Lenovo</span>
+        <span>Estaciones de Trabajo Workstation</span>
+        <span>Mini PC y computadoras de formato compacto</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: RUTAS RELACIONADAS (REDISENADAS CON IMAGENES Y ENLACES) -->
+  <section class="pcm-section pcm-links-section" id="relacionados">
+    <div class="container">
+      <div class="ppm-head-center">
+        <span class="pcm-eyebrow">Servicios relacionados</span>
+        <h2>Rutas de mantenimiento y soporte que te pueden interesar</h2>
+        <p class="pcm-center-desc">
+          Explora soluciones complementarias para acelerar tu PC lenta, corregir calentamiento o limpiar tu hardware.
+        </p>
+      </div>
+      <div class="pcm-links-grid">
+        {relatedServices.map((item) => (
+          <a href={item.href} class="pcm-link-card">
+            <div class="card-icon-wrap">
+              <i class={`fa-solid ${item.icon}`}></i>
+            </div>
+            <h3>{item.label}</h3>
+            <p>{item.desc}</p>
+            <span class="card-cta">{item.cta}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULARIO TICKET -->
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice="PC Escritorio"
+    defaultService="Mantenimiento correctivo"
+    title="Agenda la reparación o correctivo de tu PC"
+    subtitle="Descríbenos qué le ocurre a tu computadora, si no prende, si se apaga sola o si marca pantallas azules. Te atenderemos de inmediato."
+  />
+
+  <!-- RELATED SERVICES GENERIC -->
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Más servicios para PC y Laptop"
+    eyebrow="Taller técnico profesional"
+    items={relatedServices}
+    compact={true}
+    initialLimit={6}
+  />
+
+  <!-- FAQS -->
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre mantenimiento correctivo de PC en Cancún"
+    description="Aclaramos tus dudas sobre diagnósticos, precios de mano de obra, garantías por escrito y tiempo de reparación de tu PC."
+    items={pcCorrectiveFaqs}
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver todas las preguntas frecuentes"
+    ariaLabel="Preguntas frecuentes sobre reparación de computadoras en Cancún"
+    backgroundColor="#0B1120"
+    titleColor="#F8FAFC"
+    descriptionColor="#CBD5E1"
+    questionColor="#0F2A4A"
+  />
+
+  <!-- COMENTARIOS Y CONTACTO -->
+  <CommentsSection serviceId={service.slug} serviceName={service.label} category={category.slug} dark={true} />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style is:global>
+  .pc-corrective-page {
+    background: #080A10;
+    color: #E2E8F0;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .pcm-hero {
+    position: relative;
+    padding: clamp(64px, 8vw, 112px) 0 72px;
+    background:
+      radial-gradient(circle at 10% 10%, rgba(217, 119, 6, 0.22), transparent 35%),
+      radial-gradient(circle at 85% 15%, rgba(239, 68, 68, 0.16), transparent 32%),
+      linear-gradient(135deg, #05060A 0%, #080A10 54%, #111827 100%);
+  }
+
+  .pcm-hero-glow {
+    position: absolute;
+    bottom: -150px;
+    right: -100px;
+    width: 450px;
+    height: 450px;
+    border-radius: 999px;
+    background: rgba(217, 119, 6, 0.08);
+    filter: blur(50px);
+    pointer-events: none;
+  }
+
+  .pcm-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .pcm-kicker,
+  .pcm-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #F59E0B;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+  }
+
+  .pcm-hero h1 {
+    margin: 14px 0 14px;
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-size: clamp(2.3rem, 5.5vw, 4.8rem);
+  }
+
+  .pcm-hero h2 {
+    color: #FCD34D;
+    font-size: clamp(1.1rem, 2.3vw, 1.5rem);
+    line-height: 1.35;
+    max-width: 760px;
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+
+  .pcm-hero p {
+    color: #94A3B8;
+    line-height: 1.68;
+    font-size: 1.02rem;
+    margin: 0 0 24px;
+  }
+
+  .pcm-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .pcm-badges span {
+    border: 1px solid rgba(217, 119, 6, 0.22);
+    background: rgba(8, 10, 16, 0.78);
+    color: #E2E8F0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .pcm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .pcm-primary,
+  .pcm-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 950;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .pcm-primary {
+    background: #D97706;
+    color: #FFFFFF !important;
+    box-shadow: 0 15px 35px rgba(217, 119, 6, 0.28);
+  }
+
+  .pcm-primary:hover {
+    background: #B45309;
+    transform: translateY(-2px);
+  }
+
+  .pcm-secondary {
+    background: rgba(15, 23, 42, 0.78);
+    color: #FFFFFF !important;
+    border: 1px solid rgba(217, 119, 6, 0.26);
+  }
+
+  .pcm-secondary:hover {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(217, 119, 6, 0.45);
+    transform: translateY(-2px);
+  }
+
+  .pcm-hero-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 30px;
+    padding: 16px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  }
+
+  .pcm-visual-img {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    height: 220px;
+  }
+
+  .pcm-img-hero {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pcm-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8, 10, 16, 0.9) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .pcm-diag-panel {
+    position: absolute;
+    inset: auto 16px 16px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 12px;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .pcm-diag-panel .diag-log {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .pcm-diag-panel .diag-log span {
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .pcm-diag-panel .diag-log .text-success { color: #10B981; }
+  .pcm-diag-panel .diag-log .text-danger { color: #EF4444; }
+
+  .pcm-diag-panel .diag-action span {
+    display: block;
+    font-size: 0.7rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .pcm-diag-panel .diag-action strong {
+    display: block;
+    color: #FBBF24;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.1;
+    margin-top: 1px;
+  }
+
+  .pcm-panel-info {
+    padding: 18px 4px 14px;
+    display: grid;
+    gap: 4px;
+  }
+
+  .pcm-panel-info span {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 900;
+    color: #F59E0B;
+    letter-spacing: 0.5px;
+  }
+
+  .pcm-panel-info strong {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.9rem;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+
+  .pcm-panel-info small {
+    font-size: 0.82rem;
+    color: #94A3B8;
+    line-height: 1.4;
+  }
+
+  .pcm-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .pcm-features-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #CBD5E1;
+  }
+
+  .pcm-features-list li i {
+    color: #F59E0B;
+  }
+
+  /* SECTION STANDARD */
+  .pcm-section {
+    padding: clamp(56px, 7vw, 92px) 0;
+    background: #080A10;
+  }
+
+  .pcm-local-bg {
+    background: linear-gradient(180deg, #0A0D18 0%, #080A10 100%);
+    border-top: 1px solid rgba(217, 119, 6, 0.08);
+    border-bottom: 1px solid rgba(217, 119, 6, 0.08);
+  }
+
+  .pcm-dark-bg {
+    background: #0B1120 !important;
+  }
+
+  .pcm-split-grid,
+  .pcm-local-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .pcm-eyebrow {
+    color: #F59E0B;
+    font-weight: 900;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+
+  .pcm-section h2 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: clamp(1.8rem, 3.5vw, 3.20rem);
+    margin: 12px 0 16px;
+    line-height: 1.1;
+  }
+
+  .pcm-large-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    font-weight: 600;
+    color: #E2E8F0;
+  }
+
+  .pcm-section p {
+    color: #94A3B8;
+    line-height: 1.68;
+    margin-bottom: 14px;
+  }
+
+  .pcm-local-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(217, 119, 6, 0.18);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  }
+
+  .pcm-local-card i {
+    font-size: 2.2rem;
+    color: #F59E0B;
+    margin-bottom: 14px;
+  }
+
+  .pcm-local-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.25rem;
+    margin: 0 0 10px;
+  }
+
+  .pcm-local-card p {
+    color: #94A3B8;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* SYMPTOMS GRID */
+  .pcm-symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .pcm-symptom-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 24px;
+    padding: 24px;
+    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .pcm-symptom-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(217, 119, 6, 0.4);
+    box-shadow: 0 15px 35px rgba(217, 119, 6, 0.08);
+  }
+
+  .pcm-symptom-card i {
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    background: rgba(217, 119, 6, 0.08);
+    color: #F59E0B;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .pcm-symptom-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.12rem;
+    margin: 0 0 8px;
+  }
+
+  .pcm-symptom-card p {
+    color: #94A3B8;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* TIMELINE PROCESS (LIGHT THEME) */
+  .pcm-process-section {
+    background: #FFFFFF !important;
+    border-top: 1px solid rgba(217, 119, 6, 0.08);
+    border-bottom: 1px solid rgba(217, 119, 6, 0.08);
+  }
+
+  .pcm-process-section .pcm-eyebrow {
+    color: #D97706;
+  }
+
+  .pcm-process-section h2 {
+    color: #0F2A4A;
+  }
+
+  .pcm-process-section .pcm-large-text {
+    color: #1E3A8A;
+  }
+
+  .pcm-process-section p {
+    color: #475569;
+  }
+
+  .pcm-timeline {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .pcm-timeline-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    background: #F8FAFC;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .pcm-timeline-num {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+  }
+
+  .pcm-timeline-content h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0F2A4A;
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+  }
+
+  .pcm-timeline-content p {
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .pcm-split-visual {
+    display: grid;
+    place-items: center;
+  }
+
+  .pcm-visual-card {
+    background: #F8FAFC;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 28px;
+    padding: 16px;
+    width: 100%;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.05);
+  }
+
+  .pcm-visual-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 18px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pcm-visual-card .visual-badge {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    padding: 18px 4px 4px;
+    align-items: center;
+  }
+
+  .pcm-visual-card .visual-badge i {
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(217, 119, 6, 0.08);
+    color: #D97706;
+    font-size: 1.25rem;
+  }
+
+  .pcm-visual-card .visual-badge strong {
+    display: block;
+    color: #0F2A4A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .pcm-visual-card .visual-badge span {
+    display: block;
+    font-size: 0.82rem;
+    color: #475569;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+
+  /* COMPAT STRIP */
+  .pcm-compat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+
+  .pcm-compat-strip span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(217, 119, 6, 0.18);
+    background: rgba(15, 23, 42, 0.85);
+    color: #FFFFFF;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.88rem;
+  }
+
+  /* RELATED SERVICES REDISENADAS (LIGHT BACKGROUND) */
+  .pcm-links-section {
+    background: #F8FAFC !important;
+  }
+
+  .pcm-links-section .pcm-eyebrow {
+    color: #D97706;
+  }
+
+  .pcm-links-section h2 {
+    color: #0F172A;
+  }
+
+  .pcm-links-section .pcm-center-desc {
+    color: #475569;
+  }
+
+  .pcm-links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .pcm-link-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 24px;
+    padding: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.04);
+    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1), border-color 220ms ease, box-shadow 220ms ease;
+  }
+
+  .pcm-link-card:hover {
+    transform: translateY(-5px);
+    border-color: #D97706;
+    box-shadow: 0 25px 50px rgba(217, 119, 6, 0.08);
+  }
+
+  .pcm-link-card .card-icon-wrap {
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    background: rgba(217, 119, 6, 0.08);
+    color: #D97706;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+  }
+
+  .pcm-link-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0F172A;
+    font-size: 1.12rem;
+    margin: 0 0 8px;
+    line-height: 1.25;
+  }
+
+  .pcm-link-card p {
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0 0 16px;
+  }
+
+  .pcm-link-card .card-cta {
+    margin-top: auto;
+    color: #D97706;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pc-corrective-page :global(.svc-related) {
+    background: #080A10 !important;
+  }
+
+  .pc-corrective-page :global(.svc-related .ux-eyebrow) {
+    color: #F59E0B !important;
+  }
+
+  .pc-corrective-page :global(.svc-related .ux-h2),
+  .pc-corrective-page :global(.svc-related .related-card h4) {
+    color: #FFFFFF !important;
+  }
+
+  .pc-corrective-page :global(.svc-related .related-card) {
+    background: rgba(15, 23, 42, 0.86) !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
+  }
+
+  .pc-corrective-page :global(.svc-related .related-card p) {
+    color: #94A3B8 !important;
+  }
+
+  .pc-corrective-page :global(.svc-related .related-card span),
+  .pc-corrective-page :global(.svc-related .related-card i) {
+    color: #F59E0B !important;
+  }
+
+  .pc-corrective-page :global(.comments-section-container) {
+    background: #080A10 !important;
+  }
+
+  .pc-corrective-page :global(.contact) {
+    background: #0B1120 !important;
+  }
+
+  /* MEDIA QUERIES RESPONSIVE */
+  @media (max-width: 980px) {
+    .pcm-hero-grid,
+    .pcm-local-grid,
+    .pcm-split-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pcm-symptom-grid,
+    .pcm-links-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pcm-symptom-grid,
+    .pcm-links-grid,
+    .pcm-compat-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .pcm-compat-strip span {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .pcm-hero h1 {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .pcm-diag-panel {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .pcm-diag-panel .diag-action {
+      margin-top: 6px;
+    }
+
+    .pcm-timeline-item {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

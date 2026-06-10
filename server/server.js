@@ -43,9 +43,34 @@ const { logError } = require('./utils/logger');
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = String(process.env.SESSION_SECRET || '').trim();
 
-if (isProduction && !sessionSecret) {
-    throw new Error('SESSION_SECRET es obligatorio en produccion.');
+function validateEnv() {
+    const requiredInProduction = [
+        'SESSION_SECRET',
+        'DB_HOST',
+        'DB_USER',
+        'DB_PASSWORD',
+        'DB_NAME'
+    ];
+
+    const missing = requiredInProduction.filter((key) => !String(process.env[key] || '').trim());
+    if (isProduction && missing.length) {
+        throw new Error(`Variables de entorno obligatorias faltantes: ${missing.join(', ')}`);
+    }
+
+    if (!isProduction && missing.length) {
+        console.warn(`[env] Variables no configuradas; se usaran defaults de desarrollo: ${missing.join(', ')}`);
+    }
+
+    const dbPort = process.env.DB_PORT;
+    if (dbPort) {
+        const parsedPort = Number(dbPort);
+        if (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+            throw new Error(`DB_PORT invalido: "${dbPort}". Usa un numero entre 1 y 65535.`);
+        }
+    }
 }
+
+validateEnv();
 
 const {
     initDB,

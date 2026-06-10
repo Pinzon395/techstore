@@ -1,0 +1,1168 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero cotizar limpieza profunda de PC en Cancún. Mi computadora presenta calentamiento, ventiladores ruidosos o nunca ha recibido servicio.'
+);
+
+const deepCleanFaqs = [
+  {
+    question: '¿Cada cuánto necesito una limpieza profunda en Cancún?',
+    answer: 'En Cancún recomendamos cada <strong>12 a 18 meses</strong> por polvo, humedad y salitre del ambiente costero. Si la PC está cerca de ventana, piso, mascotas o jamás se ha abierto, puede necesitarse antes para evitar temperaturas extremas, ruido y daño acumulativo.',
+  },
+  {
+    question: '¿Cuánto cuesta la limpieza profunda de PC en Cancún?',
+    answer: 'La limpieza profunda inicia desde <strong>$600 MXN</strong> (pasta térmica incluida). Puede cambiar si requiere desmontaje complejo, limpieza ultrasónica de placa, tratamiento por sulfatación o pads térmicos adicionales. Antes de hacer extras te mostramos el estado interno y cotizamos.',
+  },
+  {
+    question: '¿Cuánto bajan las temperaturas después de la limpieza?',
+    answer: 'En PCs muy sucias puede bajar de <strong>20 a 30°C</strong>; en casos moderados mejora de 10 a 15°C. El resultado real depende del nivel de polvo, la pasta térmica, el flujo de aire del gabinete y los ventiladores. Por eso comparamos antes y después con reporte térmico.',
+  },
+  {
+    question: '¿Es seguro abrir y limpiar mi computadora?',
+    answer: 'Sí. Usamos pulsera antiestática, herramientas adecuadas y registramos el cableado antes de desmontar. Revisamos conectores, tornillería y ventiladores sin forzar piezas. Si encontramos humedad, óxido o algún componente dañado, te avisamos antes de continuar.',
+  },
+  {
+    question: '¿Vale la pena una limpieza profunda en una PC vieja?',
+    answer: 'Sí vale la pena si el equipo aún cumple su función. Una limpieza puede reducir calor, ruido y apagados, además de alargar la vida de la fuente, la placa madre y la GPU. Si al revisarla vemos que conviene más un upgrade o reparación, te lo decimos con honestidad.',
+  },
+];
+
+const deepCleanSymptoms = [
+  {
+    icon: 'fa-temperature-high',
+    title: 'Temperaturas altísimas en CPU/GPU',
+    desc: 'El procesador o tarjeta gráfica superan los 90°C en reposo o al abrir programas simples, indicando pasta seca y polvo acumulado.',
+  },
+  {
+    icon: 'fa-wind',
+    title: 'Ventiladores que rugen sin parar',
+    desc: 'Los fans corren al máximo todo el tiempo intentando compensar el calor que el polvo no deja disipar por los disipadores tapados.',
+  },
+  {
+    icon: 'fa-power-off',
+    title: 'Apagados aleatorios bajo carga',
+    desc: 'La PC se apaga sola al jugar, renderizar o exigirle. Es un mecanismo de protección térmica que indica temperatura crítica.',
+  },
+  {
+    icon: 'fa-clock',
+    title: 'Años sin abrir ni limpiar',
+    desc: 'Una computadora que nunca ha recibido servicio acumula capas de polvo compactado que bloquean completamente el flujo de aire.',
+  },
+  {
+    icon: 'fa-fire',
+    title: 'Olor a quemado al encender',
+    desc: 'Señal urgente de sobrecalentamiento severo o componente comprometido. Apagarla y traerla de inmediato puede salvar la placa y la fuente.',
+  },
+  {
+    icon: 'fa-gauge-simple-high',
+    title: 'Rendimiento reducido sin razón',
+    desc: 'El throttling térmico hace que el CPU baje su frecuencia para no quemarse, afectando el desempeño en juegos y trabajo.',
+  },
+];
+
+const deepCleanSteps = [
+  {
+    num: '01',
+    title: 'Test térmico inicial documentado',
+    desc: 'Medimos temperaturas en idle y bajo carga con HWMonitor y Cinebench. Esta es la línea base para el reporte comparativo final.',
+  },
+  {
+    num: '02',
+    title: 'Desarmado total con registro fotográfico',
+    desc: 'Cada componente sale del gabinete para limpieza individual. Fotografiamos el cableado antes de desconectar para reensamble exacto.',
+  },
+  {
+    num: '03',
+    title: 'Limpieza con químicos especializados',
+    desc: 'Ventiladores, disipadores, RAM, slots, fuente de poder. Usamos aire comprimido, alcohol isopropílico y solventes dieléctricos seguros para electrónica.',
+  },
+  {
+    num: '04',
+    title: 'Cambio de pasta térmica de CPU y GPU',
+    desc: 'Limpieza completa de la pasta vieja reseca con solventes y aplicación de compuesto térmico nuevo de alta conductividad (Arctic MX-4 o equivalente premium).',
+  },
+  {
+    num: '05',
+    title: 'Reensamble y optimización de cableado',
+    desc: 'Reorganizamos los cables del gabinete para mejorar el flujo de aire libre, sin obstrucciones físicas que retengan calor dentro.',
+  },
+  {
+    num: '06',
+    title: 'Test térmico final con reporte comparativo',
+    desc: 'Repetimos las mismas pruebas del inicio. Te entregamos un reporte con temperatura antes y después para que veas la mejora real.',
+  },
+];
+
+const relatedServices = [
+  {
+    href: '/servicios/pc/mantenimiento-preventivo',
+    icon: 'fa-screwdriver-wrench',
+    label: 'Mantenimiento Preventivo PC',
+    desc: 'Revisión periódica con limpieza, cambio de pasta y ajustes para mantener tu PC en óptimas condiciones todo el año.',
+    cta: 'Ver preventivo →',
+  },
+  {
+    href: '/servicios/pc/mantenimiento-correctivo',
+    icon: 'fa-wrench',
+    label: 'Mantenimiento Correctivo PC',
+    desc: 'Diagnóstico y reparación de componentes dañados: fuente, placa, RAM, disco o tarjeta de video con garantía.',
+    cta: 'Ver correctivo →',
+  },
+  {
+    href: '/servicios/pc/refrigeracion',
+    icon: 'fa-fan',
+    label: 'Refrigeración y Sobrecalentamiento PC',
+    desc: 'Revisión de disipadores, curvas de ventilación y soluciones térmicas definitivas para PC gamer y workstation.',
+    cta: 'Ver refrigeración →',
+  },
+  {
+    href: '/servicios/pc/upgrade',
+    icon: 'fa-memory',
+    label: 'Upgrade SSD y Memoria RAM',
+    desc: 'Acelera tu computadora lenta instalando discos de estado sólido y ampliando la RAM de forma segura.',
+    cta: 'Ver upgrades →',
+  },
+  {
+    href: '/servicios/pc/diagnostico',
+    icon: 'fa-stethoscope',
+    label: 'Diagnóstico Profesional de PC',
+    desc: '¿Tu PC falla y no sabes qué tiene? Pruebas lógicas y físicas de componentes con reporte técnico detallado.',
+    cta: 'Ver diagnóstico →',
+  },
+  {
+    href: '/servicios/pc/formateo',
+    icon: 'fa-window-restore',
+    label: 'Formateo e Instalación de Windows',
+    desc: 'Restauración completa del sistema operativo con drivers oficiales, paquetería básica y eliminación de virus.',
+    cta: 'Ver formateo →',
+  },
+];
+---
+
+<div class="pc-deep-clean-page">
+  <!-- HERO SECTION -->
+  <section class="pdc-hero">
+    <div class="pdc-hero-glow"></div>
+    <div class="container pdc-hero-grid">
+      <div class="pdc-hero-copy">
+        <span class="pdc-kicker"><i class="fa-solid fa-spray-can-sparkles"></i> Limpieza Profunda de PC en Cancún</span>
+        <h1>Limpieza Profunda de PC en Cancún</h1>
+        <h2>Desarmamos todo, limpiamos cada componente y aplicamos pasta térmica nueva. Temperaturas bajan 20–30°C garantizado.</h2>
+        <p>
+          Si tu computadora de escritorio ruge, se calienta, se apaga sola o nunca ha recibido servicio en años,
+          necesita una <strong>limpieza profunda de PC en Cancún</strong> con desarmado total y química especializada.
+          No soplamos por encima: desmontamos cada pieza, limpiamos ventiladores, disipadores, placa y fuente con
+          solventes dieléctricos y reaplicamos pasta térmica premium para devolverte temperaturas de fábrica.
+        </p>
+        <div class="pdc-badges">
+          <span>Limpieza profunda computadora Cancún</span>
+          <span>PC con polvo acumulado solución</span>
+          <span>Cambio de pasta térmica PC</span>
+          <span>PC se apaga por calor</span>
+          <span>Ventilador PC muy ruidoso</span>
+        </div>
+        <div class="pdc-actions">
+          <a class="pdc-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i> Agendar Limpieza Profunda
+          </a>
+          <a class="pdc-secondary" href="#que-incluye">Ver proceso técnico <i class="fa-solid fa-arrow-down"></i></a>
+        </div>
+      </div>
+
+      <aside class="pdc-hero-panel">
+        <div class="pdc-visual-img" aria-hidden="true">
+          <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Limpieza profunda de computadora de escritorio en taller Cancún" class="pdc-img-hero" />
+          <div class="pdc-img-overlay"></div>
+          <div class="pdc-temp-panel">
+            <div class="temp-before">
+              <span class="temp-label">Antes</span>
+              <span class="temp-value danger">94°C</span>
+              <span class="temp-note">CPU bajo carga</span>
+            </div>
+            <div class="temp-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            <div class="temp-after">
+              <span class="temp-label">Después</span>
+              <span class="temp-value success">62°C</span>
+              <span class="temp-note">CPU bajo carga</span>
+            </div>
+          </div>
+        </div>
+        <div class="pdc-panel-info">
+          <span>Servicio Especializado Taller Físico</span>
+          <strong>{service.fromPrice || 'Desde $600 MXN'}</strong>
+          <small>Pasta térmica premium incluida. Entregamos reporte térmico antes y después.</small>
+        </div>
+        <ul class="pdc-features-list">
+          <li><i class="fa-solid fa-circle-check"></i> Desarmado total con registro fotográfico</li>
+          <li><i class="fa-solid fa-circle-check"></i> Limpieza química especializada</li>
+          <li><i class="fa-solid fa-circle-check"></i> Pasta térmica premium incluida</li>
+          <li><i class="fa-solid fa-circle-check"></i> Reporte térmico antes y después</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 1: POR QUÉ EN CANCÚN ES MÁS URGENTE -->
+  <section class="pdc-section pdc-local-bg">
+    <div class="container pdc-local-grid">
+      <div>
+        <span class="pdc-eyebrow">Clima Cancún y tu PC</span>
+        <h2>¿Por qué tu PC acumula más polvo y calor en Cancún?</h2>
+        <p class="pdc-large-text">
+          La humedad del Caribe, el salitre costero y el calor constante de Cancún crean las condiciones perfectas para que el polvo se adhiera como cemento dentro de tu computadora.
+        </p>
+        <p>
+          A diferencia de climas secos donde el polvo se desprende fácilmente, en Cancún la humedad hace que el polvo se compacte en ventiladores y disipadores, bloqueando el flujo de aire casi por completo.
+          Si además tu computadora está en piso, cerca de ventanas abiertas, o en un espacio con mascotas, la acumulación es todavía más rápida.
+          En nuestro taller de <strong>limpieza de computadoras en Cancún</strong> atendemos PCs de Cancún Centro, Huayacán, Cumbres, Supermanzana, Bonfil, Zona Hotelera y alrededores.
+        </p>
+      </div>
+      <div class="pdc-local-card">
+        <i class="fa-solid fa-droplet"></i>
+        <h3>Salitre y Humedad: el enemigo silencioso</h3>
+        <p>
+          La brisa marina deposita partículas salinas dentro del gabinete que, combinadas con polvo y calor,
+          forman una capa conductora que puede provocar cortos en placa madre y GPU si no se limpia a tiempo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: SÍNTOMAS -->
+  <section class="pdc-section pdc-dark-bg" id="sintomas">
+    <div class="container">
+      <div class="pdc-head-center">
+        <span class="pdc-eyebrow">¿Cuándo necesitas limpieza?</span>
+        <h2>Síntomas de que tu PC necesita limpieza profunda urgente</h2>
+        <p class="pdc-center-desc">
+          Estos signos indican que el polvo y la pasta térmica vieja ya están afectando el rendimiento, temperatura y vida útil de tu computadora:
+        </p>
+      </div>
+      <div class="pdc-symptom-grid">
+        {deepCleanSymptoms.map((symptom) => (
+          <article class="pdc-symptom-card">
+            <i class={`fa-solid ${symptom.icon}`}></i>
+            <h3>{symptom.title}</h3>
+            <p>{symptom.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: PROCESO TÉCNICO (FONDO BLANCO, TEXTO AZUL OSCURO) -->
+  <section class="pdc-section pdc-process-section" id="que-incluye">
+    <div class="container pdc-split-grid">
+      <div class="pdc-split-text">
+        <span class="pdc-eyebrow">Proceso técnico</span>
+        <h2>Qué incluye nuestro servicio de limpieza profunda de PC en Cancún</h2>
+        <p class="pdc-large-text">
+          No limpiamos soplándolo por encima. Desarmamos tu PC de forma segura con herramientas adecuadas y protocolos antiestáticos.
+        </p>
+        <p>
+          Retiramos tarjeta de video, RAM, disipador y fuente de poder. Limpiamos las aspas de cada ventilador una por una,
+          removemos la pasta vieja reseca con solventes dieléctricos e instalamos compuesto de alta conductividad.
+          También optimizamos el enrutamiento de cables para que el flujo de aire corra libremente sin obstrucciones físicas.
+        </p>
+        <div class="pdc-timeline">
+          {deepCleanSteps.map((step) => (
+            <div class="pdc-timeline-item">
+              <span class="pdc-timeline-num">{step.num}</span>
+              <div class="pdc-timeline-content">
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="pdc-split-visual">
+        <div class="pdc-visual-card">
+          <img src="/assets/images/ensamble-pc-gamer-cancun.webp" alt="Técnico realizando limpieza profunda de componentes PC en taller Cancún" />
+          <div class="visual-badge">
+            <i class="fa-solid fa-temperature-arrow-down"></i>
+            <div>
+              <strong>Bajan 20–30°C de temperatura</strong>
+              <span>Reporte comparativo antes/después entregado con el equipo para verificar el resultado real.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: DIFERENCIAS LIMPIEZA PROFUNDA VS BÁSICA -->
+  <section class="pdc-section pdc-local-bg">
+    <div class="container">
+      <div class="pdc-head-center">
+        <span class="pdc-eyebrow">¿Por qué limpieza profunda?</span>
+        <h2>Limpieza básica vs Limpieza Profunda: la diferencia que importa</h2>
+        <p class="pdc-center-desc">No todas las limpiezas son iguales. Esto es lo que diferencia un servicio superficial de un trabajo profesional real.</p>
+      </div>
+      <div class="pdc-compare-grid">
+        <div class="pdc-compare-card basic">
+          <div class="compare-header">
+            <i class="fa-solid fa-fan"></i>
+            <h3>Limpieza básica (soplar)</h3>
+          </div>
+          <ul>
+            <li><i class="fa-solid fa-xmark"></i> Solo soplado superficial</li>
+            <li><i class="fa-solid fa-xmark"></i> No cambia pasta térmica</li>
+            <li><i class="fa-solid fa-xmark"></i> No desmonta componentes</li>
+            <li><i class="fa-solid fa-xmark"></i> Polvo vuelve en semanas</li>
+            <li><i class="fa-solid fa-xmark"></i> Sin reporte de temperatura</li>
+            <li><i class="fa-solid fa-xmark"></i> No mejora temperaturas reales</li>
+          </ul>
+        </div>
+        <div class="pdc-compare-card pro">
+          <div class="compare-header">
+            <i class="fa-solid fa-spray-can-sparkles"></i>
+            <h3>Limpieza Profunda Pixon</h3>
+          </div>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Desarmado total y fotografiado</li>
+            <li><i class="fa-solid fa-check"></i> Pasta térmica premium incluida</li>
+            <li><i class="fa-solid fa-check"></i> Cada ventilador limpio aspa por aspa</li>
+            <li><i class="fa-solid fa-check"></i> Solventes dieléctricos especializados</li>
+            <li><i class="fa-solid fa-check"></i> Reporte térmico antes/después</li>
+            <li><i class="fa-solid fa-check"></i> Cableado optimizado para airflow</li>
+          </ul>
+          <div class="pro-badge">Servicio Profesional</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: COMPATIBILIDAD -->
+  <section class="pdc-section pdc-compat-section">
+    <div class="container text-center">
+      <div class="pdc-head-center">
+        <span class="pdc-eyebrow">Equipos que atendemos</span>
+        <h2>Limpieza profunda multimarca en Cancún</h2>
+        <p class="pdc-center-desc">Atendemos todo tipo de computadoras de escritorio, desde PCs ensambladas hasta estaciones de trabajo de alto rendimiento.</p>
+      </div>
+      <div class="pdc-compat-strip">
+        <span>PC Gamer (Asus, MSI, Gigabyte)</span>
+        <span>Equipos Ensamblados ATX / Micro ATX</span>
+        <span>PC Dell, HP, Lenovo de escritorio</span>
+        <span>Estaciones de Trabajo Workstation</span>
+        <span>Mini PC y equipos compactos</span>
+        <span>PCs de Oficina y Empresa</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 6: RUTAS RELACIONADAS -->
+  <section class="pdc-section pdc-links-section" id="relacionados">
+    <div class="container">
+      <div class="pdc-head-center">
+        <span class="pdc-eyebrow">Servicios relacionados</span>
+        <h2>Rutas de mantenimiento y soporte que te pueden interesar</h2>
+        <p class="pdc-center-desc">
+          Explora soluciones complementarias para reparar, actualizar o proteger tu computadora de escritorio en Cancún.
+        </p>
+      </div>
+      <div class="pdc-links-grid">
+        {relatedServices.map((item) => (
+          <a href={item.href} class="pdc-link-card">
+            <div class="card-icon-wrap">
+              <i class={`fa-solid ${item.icon}`}></i>
+            </div>
+            <h3>{item.label}</h3>
+            <p>{item.desc}</p>
+            <span class="card-cta">{item.cta}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULARIO TICKET -->
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice="PC Escritorio"
+    defaultService="Limpieza profunda"
+    title="Agenda la limpieza profunda de tu PC en Cancún"
+    subtitle="Cuéntanos cuándo fue la última vez que le dieron servicio, si se calienta, hace ruido o se apaga sola. Te contactamos en minutos."
+  />
+
+  <!-- RELATED SERVICES GENERIC -->
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Más servicios para PC y Laptop"
+    eyebrow="Taller técnico profesional"
+    items={relatedServices}
+    compact={true}
+    initialLimit={6}
+  />
+
+  <!-- FAQS -->
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre limpieza profunda de PC en Cancún"
+    description="Respondemos tus dudas sobre el proceso, resultados de temperatura, precio y frecuencia de limpieza para computadoras de escritorio."
+    items={deepCleanFaqs}
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver todas las preguntas frecuentes"
+    ariaLabel="Preguntas frecuentes sobre limpieza profunda de computadoras en Cancún"
+    backgroundColor="#0B1120"
+    titleColor="#F8FAFC"
+    descriptionColor="#CBD5E1"
+    questionColor="#0F2A4A"
+  />
+
+  <!-- COMENTARIOS Y CONTACTO -->
+  <CommentsSection serviceId={service.slug} serviceName={service.label} category={category.slug} dark={true} />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style is:global>
+  .pc-deep-clean-page {
+    background: #080A10;
+    color: #E2E8F0;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ──────────────────────────────────────────────
+     HERO
+  ────────────────────────────────────────────── */
+  .pdc-hero {
+    position: relative;
+    padding: clamp(64px, 8vw, 112px) 0 72px;
+    background:
+      radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.20), transparent 35%),
+      radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.14), transparent 32%),
+      linear-gradient(135deg, #05060A 0%, #080A10 54%, #0A1520 100%);
+  }
+
+  .pdc-hero-glow {
+    position: absolute;
+    bottom: -150px;
+    right: -100px;
+    width: 450px;
+    height: 450px;
+    border-radius: 999px;
+    background: rgba(6, 182, 212, 0.07);
+    filter: blur(50px);
+    pointer-events: none;
+  }
+
+  .pdc-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .pdc-kicker,
+  .pdc-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #06B6D4;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+  }
+
+  .pdc-hero h1 {
+    margin: 14px 0 14px;
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-size: clamp(2.3rem, 5.5vw, 4.8rem);
+  }
+
+  .pdc-hero h2 {
+    color: #67E8F9;
+    font-size: clamp(1.1rem, 2.3vw, 1.5rem);
+    line-height: 1.35;
+    max-width: 760px;
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+
+  .pdc-hero p {
+    color: #94A3B8;
+    line-height: 1.68;
+    font-size: 1.02rem;
+    margin: 0 0 24px;
+  }
+
+  .pdc-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .pdc-badges span {
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    background: rgba(8, 10, 16, 0.78);
+    color: #E2E8F0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .pdc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .pdc-primary,
+  .pdc-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 950;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .pdc-primary {
+    background: #0891B2;
+    color: #FFFFFF !important;
+    box-shadow: 0 15px 35px rgba(6, 182, 212, 0.28);
+  }
+
+  .pdc-primary:hover {
+    background: #0E7490;
+    transform: translateY(-2px);
+  }
+
+  .pdc-secondary {
+    background: rgba(15, 23, 42, 0.78);
+    color: #FFFFFF !important;
+    border: 1px solid rgba(6, 182, 212, 0.26);
+  }
+
+  .pdc-secondary:hover {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(6, 182, 212, 0.45);
+    transform: translateY(-2px);
+  }
+
+  /* HERO PANEL */
+  .pdc-hero-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 30px;
+    padding: 16px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  }
+
+  .pdc-visual-img {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    height: 220px;
+  }
+
+  .pdc-img-hero {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pdc-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8, 10, 16, 0.9) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Temperature panel */
+  .pdc-temp-panel {
+    position: absolute;
+    inset: auto 16px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    padding: 12px 16px;
+    border-radius: 16px;
+  }
+
+  .pdc-temp-panel .temp-before,
+  .pdc-temp-panel .temp-after {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .pdc-temp-panel .temp-label {
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94A3B8;
+  }
+
+  .pdc-temp-panel .temp-value {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .pdc-temp-panel .temp-value.danger { color: #EF4444; }
+  .pdc-temp-panel .temp-value.success { color: #10B981; }
+
+  .pdc-temp-panel .temp-note {
+    font-size: 0.65rem;
+    color: #64748B;
+  }
+
+  .pdc-temp-panel .temp-arrow {
+    color: #06B6D4;
+    font-size: 1.2rem;
+  }
+
+  .pdc-panel-info {
+    padding: 18px 4px 14px;
+    display: grid;
+    gap: 4px;
+  }
+
+  .pdc-panel-info span {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 900;
+    color: #06B6D4;
+    letter-spacing: 0.5px;
+  }
+
+  .pdc-panel-info strong {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.9rem;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+
+  .pdc-panel-info small {
+    font-size: 0.82rem;
+    color: #94A3B8;
+    line-height: 1.4;
+  }
+
+  .pdc-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .pdc-features-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #CBD5E1;
+  }
+
+  .pdc-features-list li i {
+    color: #06B6D4;
+  }
+
+  /* ──────────────────────────────────────────────
+     SECTIONS BASE
+  ────────────────────────────────────────────── */
+  .pdc-section {
+    padding: clamp(56px, 7vw, 92px) 0;
+    background: #080A10;
+  }
+
+  .pdc-local-bg {
+    background: linear-gradient(180deg, #0A0D18 0%, #080A10 100%);
+    border-top: 1px solid rgba(6, 182, 212, 0.08);
+    border-bottom: 1px solid rgba(6, 182, 212, 0.08);
+  }
+
+  .pdc-dark-bg {
+    background: #0B1120 !important;
+  }
+
+  .pdc-compat-section {
+    background: linear-gradient(180deg, #080A10 0%, #0A0D18 100%);
+  }
+
+  .pdc-split-grid,
+  .pdc-local-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .pdc-eyebrow {
+    color: #06B6D4;
+    font-weight: 900;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+
+  .pdc-section h2 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: clamp(1.8rem, 3.5vw, 3.20rem);
+    margin: 12px 0 16px;
+    line-height: 1.1;
+  }
+
+  .pdc-large-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    font-weight: 600;
+    color: #E2E8F0;
+  }
+
+  .pdc-section p {
+    color: #94A3B8;
+    line-height: 1.68;
+    margin-bottom: 14px;
+  }
+
+  .pdc-head-center {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 48px;
+  }
+
+  .pdc-center-desc {
+    color: #94A3B8;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .pdc-local-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(6, 182, 212, 0.18);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  }
+
+  .pdc-local-card i {
+    font-size: 2.2rem;
+    color: #06B6D4;
+    margin-bottom: 14px;
+  }
+
+  .pdc-local-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.25rem;
+    margin: 0 0 10px;
+  }
+
+  .pdc-local-card p {
+    color: #94A3B8;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ──────────────────────────────────────────────
+     SYMPTOMS GRID
+  ────────────────────────────────────────────── */
+  .pdc-symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .pdc-symptom-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 24px;
+    padding: 24px;
+    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .pdc-symptom-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(6, 182, 212, 0.4);
+    box-shadow: 0 15px 35px rgba(6, 182, 212, 0.08);
+  }
+
+  .pdc-symptom-card i {
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    background: rgba(6, 182, 212, 0.08);
+    color: #06B6D4;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .pdc-symptom-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.12rem;
+    margin: 0 0 8px;
+  }
+
+  .pdc-symptom-card p {
+    color: #94A3B8;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ──────────────────────────────────────────────
+     PROCESS SECTION (LIGHT BACKGROUND)
+  ────────────────────────────────────────────── */
+  .pdc-process-section {
+    background: #FFFFFF !important;
+    border-top: 1px solid rgba(6, 182, 212, 0.1);
+    border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+  }
+
+  .pdc-process-section .pdc-eyebrow {
+    color: #0891B2;
+  }
+
+  .pdc-process-section h2 {
+    color: #0F2A4A;
+  }
+
+  .pdc-process-section .pdc-large-text {
+    color: #1E3A8A;
+  }
+
+  .pdc-process-section p {
+    color: #475569;
+  }
+
+  .pdc-timeline {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .pdc-timeline-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .pdc-timeline-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0891B2, #06B6D4);
+    color: #FFFFFF;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .pdc-timeline-content h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0F2A4A;
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+  }
+
+  .pdc-timeline-content p {
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* Visual card (light section) */
+  .pdc-visual-card {
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 55px rgba(0,0,0,0.20);
+    position: relative;
+  }
+
+  .pdc-visual-card img {
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pdc-visual-card .visual-badge {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(8, 10, 16, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  .pdc-visual-card .visual-badge i {
+    font-size: 1.5rem;
+    color: #06B6D4;
+    flex-shrink: 0;
+  }
+
+  .pdc-visual-card .visual-badge strong {
+    display: block;
+    color: #FFFFFF;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+
+  .pdc-visual-card .visual-badge span {
+    display: block;
+    color: #94A3B8;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  /* ──────────────────────────────────────────────
+     COMPARE GRID
+  ────────────────────────────────────────────── */
+  .pdc-compare-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .pdc-compare-card {
+    border-radius: 24px;
+    padding: 28px;
+    position: relative;
+  }
+
+  .pdc-compare-card.basic {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+  }
+
+  .pdc-compare-card.pro {
+    background: rgba(8, 145, 178, 0.08);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    box-shadow: 0 20px 50px rgba(6, 182, 212, 0.08);
+  }
+
+  .compare-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .compare-header i {
+    font-size: 1.5rem;
+  }
+
+  .pdc-compare-card.basic .compare-header i { color: #475569; }
+  .pdc-compare-card.pro .compare-header i { color: #06B6D4; }
+
+  .compare-header h3 {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  .pdc-compare-card.basic .compare-header h3 { color: #94A3B8; }
+  .pdc-compare-card.pro .compare-header h3 { color: #FFFFFF; }
+
+  .pdc-compare-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .pdc-compare-card ul li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+  }
+
+  .pdc-compare-card.basic ul li { color: #64748B; }
+  .pdc-compare-card.pro ul li { color: #CBD5E1; font-weight: 600; }
+
+  .pdc-compare-card.basic ul li i { color: #EF4444; }
+  .pdc-compare-card.pro ul li i { color: #10B981; }
+
+  .pro-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #0891B2, #06B6D4);
+    color: #FFFFFF;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* ──────────────────────────────────────────────
+     COMPAT STRIP
+  ────────────────────────────────────────────── */
+  .pdc-compat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .pdc-compat-strip span {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    color: #CBD5E1;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: border-color 180ms ease, background 180ms ease;
+  }
+
+  .pdc-compat-strip span:hover {
+    border-color: rgba(6, 182, 212, 0.5);
+    background: rgba(6, 182, 212, 0.08);
+  }
+
+  /* ──────────────────────────────────────────────
+     LINKS SECTION
+  ────────────────────────────────────────────── */
+  .pdc-links-section {
+    background: #080A10;
+    border-top: 1px solid rgba(6, 182, 212, 0.06);
+  }
+
+  .pdc-links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .pdc-link-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 22px;
+    padding: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .pdc-link-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(6, 182, 212, 0.38);
+    box-shadow: 0 16px 40px rgba(6, 182, 212, 0.08);
+  }
+
+  .pdc-link-card .card-icon-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(6, 182, 212, 0.08);
+    display: inline-grid;
+    place-items: center;
+    color: #06B6D4;
+    font-size: 1.15rem;
+    margin-bottom: 4px;
+  }
+
+  .pdc-link-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #FFFFFF;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .pdc-link-card p {
+    color: #64748B;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+  }
+
+  .pdc-link-card .card-cta {
+    color: #06B6D4;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  /* ──────────────────────────────────────────────
+     RESPONSIVE
+  ────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .pdc-hero-grid,
+    .pdc-split-grid,
+    .pdc-local-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pdc-compare-grid {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .pdc-symptom-grid,
+    .pdc-links-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pdc-hero-panel {
+      display: none;
+    }
+  }
+</style>
