@@ -1,0 +1,1248 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero agendar diagnóstico de laptop en Cancún. Mi laptop falla y quiero saber qué tiene antes de reparar.'
+);
+
+const symptoms = [
+  ['No enciende o no carga', 'Revisamos cargador, jack DC o USB-C, batería, botón de encendido, consumo y placa antes de sugerir cambios.'],
+  ['Pantalla negra, lineas o parpadeo', 'Separamos falla de panel, flex, bisagras, retroiluminacion, memoria, GPU o sistema.'],
+  ['Va lenta o se congela', 'Probamos disco, SSD, RAM, Windows, virus, temperatura y programas de inicio para ubicar el cuello de botella.'],
+  ['Se calienta, suena fuerte o se apaga', 'Medimos ventilación, disipador, pasta térmica, thermal pads, polvo interno y estabilidad bajo carga.'],
+  ['Teclado, touchpad o puertos fallan', 'Revisamos flex, conectores, humedad, desgaste, BIOS, controladores y reparaciones previas.'],
+  ['Tuvo líquido, golpe o corrosión', 'No energizamos a ciegas. Inspeccionamos zona afectada, placa, teclado, batería y almacenamiento.'],
+];
+
+const testBlocks = [
+  {
+    icon: 'fa-bolt',
+    title: 'Energía, carga y batería',
+    text: 'Confirmamos si la laptop recibe voltaje, si la batería responde y si el problema viene de cargador, centro de carga o placa.',
+  },
+  {
+    icon: 'fa-hard-drive',
+    title: 'SSD, disco y datos',
+    text: 'Leemos salud SMART, arranque, sectores, desconexiones y riesgo de pérdida de archivos antes de formatear o clonar.',
+  },
+  {
+    icon: 'fa-memory',
+    title: 'RAM, BIOS y arranque',
+    text: 'Probamos memoria, configuración, arranque, pantalla externa y síntomas que parecen video pero nacen en otro módulo.',
+  },
+  {
+    icon: 'fa-temperature-three-quarters',
+    title: 'Temperatura y ventilacion',
+    text: 'Medimos ruido, temperatura, ventilador, polvo, pasta térmica y estabilidad para no cambiar piezas por intuición.',
+  },
+  {
+    icon: 'fa-window-restore',
+    title: 'Windows, virus y drivers',
+    text: 'Revisamos sistema, eventos, malware, actualizaciones, controladores y posibilidad de respaldo antes de reinstalar.',
+  },
+  {
+    icon: 'fa-screwdriver-wrench',
+    title: 'Carcasa, pantalla y teclado',
+    text: 'Inspeccionamos flex, bisagras, teclado, touchpad, puertos, golpes y humedad visible antes de cerrar cotización.',
+  },
+];
+
+const seoSections = [
+  {
+    title: 'Diagnóstico de laptop que no enciende en Cancún',
+    text: 'Una laptop que no enciende puede fallar por cargador, batería, jack, botón, RAM, corto, humedad o placa. Primero se prueba energía y consumo para evitar una cotización falsa.',
+    points: ['Cargador y voltaje', 'Bateria y centro de carga', 'Consumo y corto'],
+  },
+  {
+    title: 'Diagnóstico de pantalla de laptop negra, rota o con líneas',
+    text: 'No toda pantalla negra necesita display nuevo. Probamos salida externa, flex, retroiluminacion, panel, bisagra y video antes de pedir refaccion.',
+    points: ['Panel y flex', 'Bisagras y tapa', 'Video externo'],
+  },
+  {
+    title: 'Diagnóstico para laptop lenta, congelada o con Windows dañado',
+    text: 'Identificamos si la lentitud viene de disco duro, SSD degradado, falta de RAM, virus, temperatura, Windows dañado o programas cargando al inicio.',
+    points: ['SMART de disco', 'RAM y procesos', 'Sistema y malware'],
+  },
+  {
+    title: 'Diagnóstico de laptop mojada o con humedad',
+    text: 'Cuando hubo líquido, conviene revisar antes de encender. La humedad puede afectar teclado, placa, batería, puertos y almacenamiento aunque el equipo prenda al principio.',
+    points: ['Corrosion visible', 'Teclado y placa', 'Datos primero'],
+  },
+  {
+    title: 'Diagnóstico antes de cambiar batería, teclado o centro de carga',
+    text: 'Muchas fallas parecen una pieza especifica, pero pueden venir de flex, conectores, placa o configuracion. Confirmamos causa antes de comprar refacciones.',
+    points: ['Bateria inflada o agotada', 'Teclado y flex', 'USB-C o jack DC'],
+  },
+  {
+    title: 'Diagnóstico de laptop gamer con calor, ruido o apagados',
+    text: 'En equipos gamer revisamos CPU, GPU, ventiladores, pasta térmica, pads, flujo de aire y comportamiento bajo carga real antes de recomendar mantenimiento.',
+    points: ['CPU y GPU', 'Ventiladores', 'Prueba bajo carga'],
+  },
+];
+
+const process = [
+  ['01', 'Síntomas y contexto', 'Registramos modelo, cargador, falla, líquidos, golpes, urgencia, datos importantes y reparaciones previas.'],
+  ['02', 'Pruebas sin riesgo', 'Iniciamos por energía, almacenamiento, pantalla externa o inspección visual según el síntoma para no empeorar el equipo.'],
+  ['03', 'Revisión por módulo', 'Separamos hardware, software, temperatura, pantalla, teclado, batería, placa y almacenamiento.'],
+  ['04', 'Reporte y cotización', 'Te explicamos causa probable, costo, tiempo, riesgos, garantía y si conviene reparar o detener la inversión.'],
+  ['05', 'Reparación autorizada', 'Solo avanzamos con piezas, formateo, limpieza o cambio de componentes cuando apruebas el siguiente paso.'],
+];
+
+const brands = ['HP Pavilion, Envy, Victus y Omen', 'Dell Inspiron, Latitude, XPS y Alienware', 'Lenovo IdeaPad, ThinkPad, Legion y Yoga', 'Asus VivoBook, ZenBook, TUF y ROG', 'Acer Aspire, Nitro y Predator', 'MSI, Huawei, Samsung y otras marcas'];
+const areas = ['Cancún Centro', 'Zona Hotelera', 'Huayacán', 'Cumbres', 'Bonfil', 'Polígono Sur', 'Puerto Cancún', 'Av. Tulum', 'Bonampak', 'Puerto Juárez', 'Supermanzanas', 'Haciendas'];
+
+const diagnosticRoutes = [
+  ['Falla confirmada', 'Cotización de pieza y mano de obra antes de intervenir.'],
+  ['Datos en riesgo', 'Priorizamos respaldo, clonación o recuperación antes de reparar.'],
+  ['Reparación no conveniente', 'Te explicamos por qué conviene detener la inversión o reemplazar el equipo.'],
+  ['Falla intermitente', 'Documentamos pruebas y condiciones para reproducirla sin adivinar.'],
+];
+
+const dataProtection = [
+  {
+    icon: 'fa-hard-drive',
+    title: 'No formateamos como primera prueba',
+    text: 'El diagnóstico de hardware no necesita borrar archivos. Si Windows requiere reinstalación, lo autorizas por separado.',
+  },
+  {
+    icon: 'fa-copy',
+    title: 'Respaldamos antes de una intervención de riesgo',
+    text: 'Cuando el disco presenta errores, priorizamos copiar información estable antes de insistir con arranques o pruebas largas.',
+  },
+  {
+    icon: 'fa-lock',
+    title: 'Acceso limitado a lo necesario',
+    text: 'Solo revisamos la información indispensable para validar arranque, sistema o recuperación y mantenemos confidencialidad técnica.',
+  },
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'Te avisamos si el almacenamiento está fallando',
+    text: 'Un HDD con ruido, un SSD que se desconecta o errores SMART cambian el orden del servicio: primero datos, después reparación.',
+  },
+];
+
+const stopUsingSignals = [
+  ['Olor a quemado o calentamiento localizado', 'Apaga, desconecta el cargador y evita nuevos intentos de encendido.'],
+  ['Batería inflada o carcasa levantada', 'No presiones el touchpad ni sigas cargando; la batería requiere manejo seguro.'],
+  ['Líquido reciente', 'No uses arroz, secadora ni cargador. La energía puede acelerar corrosión y cortos.'],
+  ['Disco con clics o archivos que desaparecen', 'Cada intento puede reducir la posibilidad de recuperar información.'],
+  ['Chispas, falso contacto o puerto flojo', 'Forzar el conector puede dañar el jack, USB-C, cargador o placa.'],
+];
+
+const visitChecklist = [
+  ['Laptop y cargador', 'El cargador ayuda a separar una falla de alimentación de un problema interno.'],
+  ['Contraseña temporal, si aplica', 'Solo cuando necesitamos validar Windows, drivers, teclado, cámara o estabilidad.'],
+  ['Síntoma y momento exacto', 'Indica qué estabas haciendo, desde cuándo ocurre y si la falla es constante o intermitente.'],
+  ['Antecedentes importantes', 'Golpes, líquido, sobrecalentamiento, reparaciones previas y piezas cambiadas orientan las pruebas.'],
+  ['Prioridad de archivos', 'Señala qué información no puede perderse para cambiar el orden del diagnóstico.'],
+];
+
+const secondOpinionCases = [
+  {
+    title: 'Antes de comprar una laptop usada',
+    text: 'Revisamos batería, almacenamiento, pantalla, teclado, puertos, temperatura y señales de reparaciones previas.',
+  },
+  {
+    title: 'Cuando otro diagnóstico no fue claro',
+    text: 'Podemos revisar el equipo desde cero y separar evidencia, causa probable y piezas realmente necesarias.',
+  },
+  {
+    title: 'Antes de invertir en una reparación costosa',
+    text: 'Comparamos costo, antigüedad, rendimiento, disponibilidad de refacciones y valor actual del equipo.',
+  },
+];
+
+const faqs = [
+  {
+    question: '¿Cuánto cuesta el diagnóstico de laptop en Cancún?',
+    answer: 'El diagnóstico puede bonificarse si autorizas la reparación. Si decides retirar el equipo sin reparar, se confirma una cuota por el tiempo técnico invertido antes de avanzar con pruebas profundas.',
+  },
+  {
+    question: '¿Cuánto tarda diagnosticar una laptop?',
+    answer: 'Una falla evidente puede revisarse rápido, pero problemas intermitentes, humedad, temperatura, disco, placa o arranque pueden requerir varias horas o hasta 24 horas para reproducir la falla con seguridad.',
+  },
+  {
+    question: '¿El diagnóstico borra mis archivos?',
+    answer: 'No formateamos para diagnosticar hardware. Si el problema exige reinstalar Windows, clonar, respaldar o hacer recuperacion de datos, te avisamos antes para que autorices.',
+  },
+  {
+    question: '¿Me dicen si conviene reparar o comprar otra laptop?',
+    answer: 'Sí. La recomendación considera costo de pieza, edad del equipo, estado del disco, uso real, disponibilidad de refacciones y riesgo de fallas adicionales.',
+  },
+  {
+    question: '¿Atienden diagnóstico a domicilio?',
+    answer: 'Podemos orientar por WhatsApp y coordinar recoleccion o visita segun zona, pero las pruebas profundas convienen en taller por herramienta, piezas de prueba y manejo seguro del equipo.',
+  },
+  {
+    question: '¿Puedo llevar una laptop usada antes de comprarla?',
+    answer: 'Sí. Podemos hacer revisión de estado, batería, disco, pantalla, teclado, puertos, temperatura y señales de reparación previa para ayudarte a decidir.',
+  },
+];
+---
+
+<div class="laptop-diagnostic-page">
+  <section class="ld-hero">
+    <div class="ld-shell ld-hero-grid">
+      <div class="ld-hero-copy">
+        <span class="ld-kicker"><i class="fa-solid fa-stethoscope"></i> Diagnóstico técnico en Cancún</span>
+        <h1>Diagnóstico de laptop en Cancún</h1>
+        <p>Identificamos la causa antes de cambiar piezas: energía, pantalla, almacenamiento, temperatura, Windows, humedad o placa.</p>
+        <div class="ld-hero-actions">
+          <a class="ld-btn ld-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> Agendar por WhatsApp</a>
+          <a class="ld-btn ld-btn-secondary" href="#ticket-laptop-diagnostico"><i class="fa-solid fa-clipboard-list"></i> Crear ticket</a>
+        </div>
+      </div>
+      <aside class="ld-hero-panel" aria-label="Resumen del diagnóstico de laptop">
+        <div class="ld-hero-media">
+          <img src="/assets/images/laptop-gamer-rogstrix.webp" alt="Laptop Asus abierta para diagnóstico técnico en el taller de Pixon PC Cancún" loading="eager" decoding="async" fetchpriority="high" />
+          <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Taller local en Cancún</span>
+        </div>
+        <div class="ld-hero-panel-body">
+          <div class="ld-hero-price">
+            <span>Diagnóstico desde</span>
+            <strong>{service.fromPrice || 'Revisión inicial'}</strong>
+          </div>
+          <ul>
+            <li><i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i> Pruebas según el síntoma</li>
+            <li><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Hallazgos y cotización clara</li>
+            <li><i class="fa-solid fa-hand" aria-hidden="true"></i> Sin reparar sin autorización</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+    <div class="ld-shell ld-hero-trust" aria-label="Compromisos del diagnóstico">
+      <span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Datos primero</span>
+      <span><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Pruebas antes de piezas</span>
+      <span><i class="fa-solid fa-comment-dots" aria-hidden="true"></i> Explicación sin jerga</span>
+    </div>
+  </section>
+
+  <main>
+    <section class="ld-section ld-intro" id="que-revisamos">
+      <div class="ld-shell ld-split">
+        <div>
+          <span class="ld-label">Diagnostico antes de gastar</span>
+          <h2>La falla de una laptop casi nunca se confirma por un solo sintoma</h2>
+          <p>Una laptop que no prende puede tener cargador, bateria, centro de carga, RAM o placa dañada. Una laptop lenta puede tener disco, virus, temperatura o Windows dañado. Por eso revisamos por modulo y te damos una ruta clara antes de comprar piezas.</p>
+        </div>
+        <div class="ld-proof-grid">
+          <article><strong>Reporte</strong><span>con hallazgos y recomendacion</span></article>
+          <article><strong>Cotizacion</strong><span>antes de reparar</span></article>
+          <article><strong>Datos</strong><span>se priorizan si hay riesgo</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section">
+      <div class="ld-shell">
+        <header class="ld-head">
+          <span class="ld-label">Sintomas comunes</span>
+          <h2>Fallas de laptop que diagnosticamos en Pixon PC</h2>
+          <p>Estas señales ayudan a orientar la revision, pero la causa final se confirma con pruebas. Atendemos laptops de casa, escuela, oficina, gamer y equipos de trabajo en Cancun.</p>
+        </header>
+        <div class="ld-symptom-grid">
+          {symptoms.map(([title, text], index) => (
+            <article>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section ld-tests">
+      <div class="ld-shell">
+        <header class="ld-head">
+          <span class="ld-label">Pruebas por modulo</span>
+          <h2>Que incluye un diagnostico tecnico de laptop</h2>
+          <p>No usamos una lista generica para todos los equipos. La revision cambia segun el sintoma, modelo, riesgo de datos, historial de golpes, liquidos y estado del equipo.</p>
+        </header>
+        <div class="ld-test-grid">
+          {testBlocks.map((item) => (
+            <article>
+              <i class={`fa-solid ${item.icon}`} aria-hidden="true"></i>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section ld-seo-depth">
+      <div class="ld-shell">
+        <header class="ld-head">
+          <span class="ld-label">SEO local por problema</span>
+          <h2>Diagnostico de laptop por causa: encendido, pantalla, Windows, humedad y temperatura</h2>
+          <p>Estas secciones responden busquedas reales de clientes en Cancun que necesitan entender si la laptop requiere reparacion, mantenimiento, respaldo, formateo o cambio de pieza.</p>
+        </header>
+        <div class="ld-seo-grid">
+          {seoSections.map((item) => (
+            <article>
+              <h2>{item.title}</h2>
+              <p>{item.text}</p>
+              <ul>
+                {item.points.map((point) => <li><i class="fa-solid fa-check" aria-hidden="true"></i>{point}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section">
+      <div class="ld-shell ld-process-layout">
+        <header>
+          <span class="ld-label">Proceso claro</span>
+          <h2>Como trabajamos el diagnostico sin prometer de mas</h2>
+          <p>El objetivo es que entiendas que tiene tu laptop, cuanto cuesta resolverlo, que riesgos hay y si realmente conviene invertir.</p>
+        </header>
+        <ol class="ld-process">
+          {process.map(([number, title, text]) => (
+            <li><strong>{number}</strong><div><h3>{title}</h3><p>{text}</p></div></li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="ld-section ld-image-band">
+      <div class="ld-shell ld-image-grid">
+        <img src="/assets/images/laptop-feliz-limpia.webp" alt="Laptop revisada y lista para entrega en Pixon PC Cancun" loading="lazy" decoding="async" />
+        <div>
+          <span class="ld-label">Decision honesta</span>
+          <h2>Te decimos si conviene reparar, hacer upgrade, formatear o detener la inversion</h2>
+          <p>Cuando el costo se acerca al valor del equipo, cuando no hay refaccion confiable o cuando el disco ya esta en riesgo, la recomendacion puede ser no reparar. Es mejor saberlo despues de pruebas que gastar a ciegas.</p>
+          <a class="ld-inline-cta" href="#ticket-laptop-diagnostico">Solicitar revision <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section">
+      <div class="ld-shell ld-brand-layout">
+        <div>
+          <span class="ld-label">Modelos y marcas</span>
+          <h2>Diagnosticamos HP, Dell, Lenovo, Asus, Acer, MSI y mas marcas</h2>
+          <p>El procedimiento cambia por arquitectura interna, tipo de pantalla, bateria, centro de carga, teclado, ventilacion y disponibilidad de piezas. Confirmamos modelo antes de cotizar.</p>
+        </div>
+        <div class="ld-brand-list">
+          {brands.map((brand) => <span><i class="fa-solid fa-laptop" aria-hidden="true"></i>{brand}</span>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section ld-local">
+      <div class="ld-shell ld-local-grid">
+        <div>
+          <span class="ld-label">Servicio local en Cancun</span>
+          <h2>Atendemos diagnostico de laptop en Cancun Centro, Zona Hotelera, Huayacan y Cumbres</h2>
+          <p>Pixon PC / Rentalap atiende equipos de hogares, estudiantes, oficinas, negocios y hoteles. Podemos orientarte por WhatsApp antes de mover la laptop, sobre todo si hubo liquido, golpe o datos importantes.</p>
+          <div class="ld-areas">{areas.map((area) => <span>{area}</span>)}</div>
+        </div>
+        <aside>
+          <strong>Pixon PC / Rentalap</strong>
+          <span>Cto. Hacienda Chimay, 77539 Cancun, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="ld-section ld-decision">
+      <div class="ld-shell ld-decision-layout">
+        <div>
+          <span class="ld-label">Diagnóstico no es adivinanza</span>
+          <h2>La revisión termina con una ruta concreta, no solo con el nombre de una falla</h2>
+          <p>El resultado debe ayudarte a decidir. Por eso conectamos cada hallazgo con costo, riesgo, prioridad de datos, disponibilidad de refacción y conveniencia real.</p>
+          <a class="ld-inline-cta" href="#ticket-laptop-diagnostico">Solicitar diagnóstico <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+        <div class="ld-route-list">
+          {diagnosticRoutes.map(([title, text]) => (
+            <article>
+              <i class="fa-solid fa-arrow-turn-down" aria-hidden="true"></i>
+              <div><h3>{title}</h3><p>{text}</p></div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section ld-data">
+      <div class="ld-shell">
+        <header class="ld-head">
+          <span class="ld-label">Protección de información</span>
+          <h2>Cómo cuidamos tus archivos durante el diagnóstico de laptop</h2>
+          <p>Documentos, fotos, trabajo y respaldos pueden valer más que el equipo. Si detectamos señales de almacenamiento inestable, cambiamos la prioridad del servicio.</p>
+        </header>
+        <div class="ld-data-grid">
+          {dataProtection.map((item) => (
+            <article>
+              <i class={`fa-solid ${item.icon}`} aria-hidden="true"></i>
+              <div><h3>{item.title}</h3><p>{item.text}</p></div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section ld-warning">
+      <div class="ld-shell ld-warning-layout">
+        <div class="ld-warning-copy">
+          <span class="ld-label">Evita agravar la falla</span>
+          <h2>Cuándo conviene apagar la laptop y dejar de probarla</h2>
+          <p>Hay síntomas donde seguir encendiendo, cargando o moviendo el equipo puede aumentar el daño o complicar una recuperación de datos.</p>
+          <a class="ld-btn ld-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> Consultar antes de encender</a>
+        </div>
+        <div class="ld-warning-list">
+          {stopUsingSignals.map(([title, text]) => (
+            <article><i class="fa-solid fa-power-off" aria-hidden="true"></i><div><h3>{title}</h3><p>{text}</p></div></article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-section ld-prepare">
+      <div class="ld-shell ld-prepare-layout">
+        <div>
+          <span class="ld-label">Antes de llevarla</span>
+          <h2>Qué traer y qué información ayuda a diagnosticar más rápido</h2>
+          <p>No necesitas conocer términos técnicos. Una descripción precisa y los accesorios correctos reducen pruebas innecesarias y ayudan a reproducir la falla.</p>
+        </div>
+        <ol class="ld-checklist">
+          {visitChecklist.map(([title, text], index) => (
+            <li><strong>{index + 1}</strong><div><h3>{title}</h3><p>{text}</p></div></li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="ld-section ld-second-opinion">
+      <div class="ld-shell">
+        <header class="ld-head">
+          <span class="ld-label">Revisión independiente</span>
+          <h2>Segunda opinión técnica y diagnóstico antes de comprar una laptop usada</h2>
+          <p>También revisamos equipos que todavía funcionan, pero necesitan una decisión informada antes de comprar, vender o autorizar una reparación importante.</p>
+        </header>
+        <div class="ld-opinion-grid">
+          {secondOpinionCases.map((item) => (
+            <article><h3>{item.title}</h3><p>{item.text}</p></article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="ld-mid-cta">
+      <div class="ld-shell">
+        <div>
+          <span class="ld-label">CTA</span>
+          <h2>Describe el sintoma y recibe una ruta de diagnostico</h2>
+          <p>Incluye marca, modelo, si enciende, si se mojo, si hay datos importantes y desde cuando falla.</p>
+        </div>
+        <a class="ld-btn ld-btn-primary" href="#ticket-laptop-diagnostico"><i class="fa-solid fa-clipboard-list"></i> Crear ticket de revision</a>
+      </div>
+    </section>
+
+    <ServiceTicketSection
+      id="ticket-laptop-diagnostico"
+      defaultDevice="Laptop"
+      defaultService="Diagnostico de laptop"
+      sourcePage="/servicios/laptop/diagnostico"
+      title="Crear ticket de diagnostico de laptop"
+      subtitle="Cuentanos marca, modelo, sintomas, si enciende, si hubo liquido y si tienes archivos importantes."
+    />
+
+    <RelatedServicesSection
+      category={category}
+      service={service}
+      title="Servicios relacionados con diagnostico de laptop"
+      eyebrow="Siguientes pasos posibles"
+      includeCategoryServices={true}
+      initialLimit={8}
+      light={true}
+    />
+
+    <FaqSection
+      id="faq-diagnostico-laptop"
+      title="Preguntas frecuentes sobre diagnostico de laptop en Cancun"
+      description="Dudas frecuentes sobre costos, tiempos, datos, diagnostico a domicilio y reparacion de laptops HP, Dell, Lenovo, Asus, Acer y MSI."
+      items={faqs}
+      ariaLabel="Preguntas frecuentes sobre diagnostico de laptop en Cancun"
+      viewMoreHref="/preguntas-frecuentes"
+      viewMoreLabel="Ver mas preguntas frecuentes"
+      backgroundColor="#F8FAFC"
+      titleColor="#071F3A"
+      descriptionColor="#294963"
+      questionColor="#071F3A"
+    />
+
+    <section class="ld-final-cta">
+      <div class="ld-shell ld-final-cta-layout">
+        <div>
+          <h2>¿Tu laptop falla y todavía no sabes qué reparar?</h2>
+          <p>Cuéntanos el modelo, el síntoma y si tienes archivos importantes. Confirmamos recepción, prioridad y siguiente paso antes de intervenir.</p>
+        </div>
+        <div class="ld-final-actions">
+          <a class="ld-btn ld-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> Hablar con Pixon PC</a>
+          <a class="ld-btn ld-btn-light" href="#ticket-laptop-diagnostico"><i class="fa-solid fa-clipboard-list"></i> Crear ticket</a>
+        </div>
+      </div>
+    </section>
+
+    <CommentsSection serviceId={service.slug} serviceName="Diagnostico de laptop" category={category.slug} />
+    <ContactSection id="ubicacion" />
+  </main>
+</div>
+
+<style>
+  .laptop-diagnostic-page {
+    --azul-oscuro: #071F3A;
+    --accent: #1479D4;
+    --line: #D6E3EE;
+    background: #F8FAFC;
+    color: var(--azul-oscuro);
+    font-family: var(--font-main);
+    overflow: hidden;
+  }
+  .laptop-diagnostic-page :global(*) {
+    box-sizing: border-box;
+  }
+  .laptop-diagnostic-page :global(h1),
+  .laptop-diagnostic-page :global(h2),
+  .laptop-diagnostic-page :global(h3),
+  .laptop-diagnostic-page :global(h4) {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 800;
+  }
+  .laptop-diagnostic-page :global(p),
+  .laptop-diagnostic-page :global(li),
+  .laptop-diagnostic-page :global(a),
+  .laptop-diagnostic-page :global(button),
+  .laptop-diagnostic-page :global(input),
+  .laptop-diagnostic-page :global(select),
+  .laptop-diagnostic-page :global(textarea),
+  .laptop-diagnostic-page :global(label),
+  .laptop-diagnostic-page :global(span) {
+    font-family: var(--font-main);
+  }
+  .ld-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+  .ld-hero {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(34px, 5vw, 64px) 0 0;
+    overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(20,121,212,.13) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(255,255,255,.07) 1px, transparent 1px),
+      radial-gradient(circle at 10% 18%, rgba(56,189,248,.2), transparent 30%),
+      linear-gradient(135deg, #06111F 0%, #092039 58%, #0D3558 100%);
+    background-size: 42px 42px, 42px 42px, auto, auto;
+  }
+  .ld-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+    gap: clamp(24px, 4vw, 48px);
+    align-items: start;
+  }
+  .ld-kicker,
+  .ld-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .ld-hero .ld-kicker {
+    color: #93D7FF;
+  }
+  .ld-hero h1 {
+    max-width: 760px;
+    margin: 12px 0 14px;
+    color: #FFFFFF;
+    font-family: var(--font-heading);
+    font-size: clamp(2.65rem, 5.4vw, 4.9rem);
+    font-style: italic;
+    font-weight: 800;
+    line-height: .98;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+  .ld-hero p {
+    max-width: 650px;
+    margin: 0;
+    color: #E4F3FF;
+    font-size: clamp(1rem, 1.35vw, 1.14rem);
+    line-height: 1.62;
+    font-weight: 500;
+  }
+  .ld-hero-actions,
+  .ld-mid-cta .ld-shell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .ld-hero-actions {
+    margin-top: 24px;
+  }
+  .ld-btn,
+  .ld-inline-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 180ms cubic-bezier(.23, 1, .32, 1), background-color 180ms cubic-bezier(.23, 1, .32, 1);
+  }
+  .ld-btn:active,
+  .ld-inline-cta:active {
+    transform: scale(.97);
+  }
+  .ld-btn-primary {
+    color: #FFFFFF !important;
+    background: var(--accent);
+  }
+  .ld-btn-secondary {
+    color: #EAF6FF !important;
+    border: 1px solid rgba(255,255,255,.24);
+    background: rgba(255,255,255,.08);
+  }
+  .ld-hero-panel {
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 12px;
+    background: #FFFFFF;
+    box-shadow: 0 8px 0 rgba(0,0,0,.16);
+  }
+  .ld-hero-media {
+    position: relative;
+  }
+  .ld-hero-media img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+  .ld-hero-media > span {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 8px 11px;
+    border-radius: 8px;
+    color: #FFFFFF;
+    background: rgba(6, 17, 31, .88);
+    font-size: .82rem;
+    font-weight: 700;
+  }
+  .ld-hero-panel-body {
+    display: grid;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+    gap: 20px;
+    padding: 20px;
+    align-items: center;
+  }
+  .ld-hero-panel-body strong,
+  .ld-hero-panel-body span,
+  .ld-hero-panel-body li {
+    color: var(--azul-oscuro);
+  }
+  .ld-hero-price {
+    display: grid;
+    gap: 5px;
+  }
+  .ld-hero-panel-body strong {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 800;
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+  .ld-hero-price span {
+    font-weight: 700;
+  }
+  .ld-hero-panel-body ul {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ld-hero-panel-body li {
+    display: flex;
+    gap: 8px;
+    font-size: .86rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .ld-hero-panel-body li i {
+    color: var(--accent);
+    margin-top: 2px;
+  }
+  .ld-hero-trust {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: clamp(30px, 5vw, 54px);
+    border-top: 1px solid rgba(255,255,255,.14);
+  }
+  .ld-hero-trust span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 58px;
+    color: #DDF2FF;
+    font-weight: 600;
+  }
+  .ld-hero-trust span + span {
+    border-left: 1px solid rgba(255,255,255,.14);
+  }
+  .ld-hero-trust i {
+    color: #7DD3FC;
+  }
+  .ld-section {
+    padding: clamp(58px, 8vw, 96px) 0;
+    background: #F8FAFC;
+  }
+  .ld-section,
+  .ld-section :where(h2, h3, p, span, strong, li, a),
+  .ld-mid-cta,
+  .ld-mid-cta :where(h2, p, span) {
+    color: var(--azul-oscuro);
+  }
+  .ld-split,
+  .ld-image-grid,
+  .ld-brand-layout,
+  .ld-local-grid,
+  .ld-process-layout,
+  .ld-decision-layout,
+  .ld-warning-layout,
+  .ld-prepare-layout {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: clamp(26px, 5vw, 64px);
+    align-items: center;
+  }
+  .ld-head {
+    max-width: 850px;
+    margin-bottom: 30px;
+  }
+  .ld-head h2,
+  .ld-split h2,
+  .ld-image-grid h2,
+  .ld-brand-layout h2,
+  .ld-local-grid h2,
+  .ld-process-layout h2,
+  .ld-decision-layout h2,
+  .ld-warning-layout h2,
+  .ld-prepare-layout h2,
+  .ld-mid-cta h2 {
+    margin: 10px 0 14px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-style: italic;
+    font-size: clamp(1.9rem, 3.3vw, 3.15rem);
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+  .ld-head p,
+  .ld-split p,
+  .ld-image-grid p,
+  .ld-brand-layout p,
+  .ld-local-grid p,
+  .ld-process-layout p,
+  .ld-decision-layout p,
+  .ld-warning-layout p,
+  .ld-prepare-layout p,
+  .ld-mid-cta p {
+    margin: 0;
+    color: #294963;
+    font-weight: 500;
+    line-height: 1.72;
+  }
+  .ld-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .ld-proof-grid article,
+  .ld-symptom-grid article,
+  .ld-test-grid article,
+  .ld-seo-grid article {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #FFFFFF;
+  }
+  .ld-proof-grid article {
+    display: grid;
+    gap: 6px;
+    padding: 18px;
+  }
+  .ld-proof-grid strong {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-style: italic;
+    font-size: 1.25rem;
+  }
+  .ld-proof-grid span {
+    color: #46627A;
+    font-weight: 500;
+  }
+  .ld-symptom-grid,
+  .ld-test-grid,
+  .ld-seo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .ld-symptom-grid article,
+  .ld-test-grid article,
+  .ld-seo-grid article {
+    padding: 20px;
+  }
+  .ld-symptom-grid article > span {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: .82rem;
+  }
+  .ld-symptom-grid h3,
+  .ld-test-grid h3,
+  .ld-seo-grid h2,
+  .ld-process h3 {
+    margin: 10px 0 8px;
+    font-size: 1.08rem;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 1.24;
+  }
+  .ld-symptom-grid p,
+  .ld-test-grid p,
+  .ld-seo-grid p {
+    margin: 0;
+    color: #294963;
+    line-height: 1.6;
+  }
+  .ld-tests,
+  .ld-local {
+    background: #EEF6FC;
+  }
+  .ld-test-grid i {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #E2F2FF;
+    color: var(--accent);
+  }
+  .ld-seo-depth {
+    background: #FFFFFF;
+  }
+  .ld-seo-grid article {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+  }
+  .ld-seo-grid h2 {
+    font-family: var(--font-heading);
+  }
+  .ld-seo-grid ul,
+  .ld-process,
+  .ld-brand-list {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    margin: 14px 0 0;
+    list-style: none;
+  }
+  .ld-seo-grid li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .ld-seo-grid li i {
+    color: var(--accent);
+    margin-top: 3px;
+  }
+  .ld-process {
+    margin-top: 0;
+    border-top: 1px solid var(--line);
+  }
+  .ld-process li {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ld-process strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .ld-process h3 {
+    margin-top: 0;
+  }
+  .ld-image-band {
+    background: #F8FAFC;
+  }
+  .ld-image-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .92fr);
+  }
+  .ld-image-grid img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  .ld-inline-cta {
+    margin-top: 20px;
+    color: #FFFFFF !important;
+    background: var(--accent);
+  }
+  .ld-brand-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0;
+  }
+  .ld-brand-list span,
+  .ld-areas span {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #FFFFFF;
+    font-weight: 600;
+  }
+  .ld-brand-list i {
+    color: var(--accent);
+  }
+  .ld-areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .ld-local-grid aside {
+    display: grid;
+    gap: 10px;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    background: #FFFFFF;
+  }
+  .ld-local-grid aside a {
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .ld-mid-cta {
+    padding: 44px 0;
+    background: #FFFFFF;
+  }
+  .ld-mid-cta .ld-shell {
+    justify-content: space-between;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #F8FAFC;
+  }
+  .ld-mid-cta h2 {
+    font-size: clamp(1.6rem, 2.6vw, 2.35rem);
+  }
+  .ld-decision {
+    background: #FFFFFF;
+  }
+  .ld-decision-layout {
+    align-items: start;
+  }
+  .ld-route-list,
+  .ld-data-grid,
+  .ld-warning-list,
+  .ld-opinion-grid {
+    display: grid;
+  }
+  .ld-route-list {
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .ld-route-list article {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 12px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ld-route-list i {
+    color: var(--accent);
+  }
+  .ld-route-list h3,
+  .ld-data-grid h3,
+  .ld-warning-list h3,
+  .ld-checklist h3,
+  .ld-opinion-grid h3 {
+    margin: 0 0 6px;
+    color: var(--azul-oscuro);
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+  .ld-route-list p,
+  .ld-data-grid p,
+  .ld-warning-list p,
+  .ld-checklist p,
+  .ld-opinion-grid p {
+    margin: 0;
+    color: #294963;
+    line-height: 1.58;
+  }
+  .ld-data {
+    background: #EEF6FC;
+  }
+  .ld-data-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 28px;
+  }
+  .ld-data-grid article {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 14px;
+    padding: 20px 0;
+    border-top: 1px solid #C8DDEB;
+  }
+  .ld-data-grid > article:nth-child(-n + 2) {
+    border-top: 0;
+  }
+  .ld-data-grid > article > i {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 8px;
+    color: var(--accent);
+    background: #FFFFFF;
+  }
+  .ld-warning {
+    background: #F8FAFC;
+  }
+  .ld-warning-layout {
+    align-items: start;
+  }
+  .ld-warning-copy {
+    position: sticky;
+    top: 96px;
+  }
+  .ld-warning-list {
+    gap: 10px;
+  }
+  .ld-warning-list article {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 13px;
+    padding: 17px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #FFFFFF;
+  }
+  .ld-warning-list > article > i {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border-radius: 8px;
+    color: #B42318;
+    background: #FEECEB;
+  }
+  .ld-warning-copy .ld-btn {
+    margin-top: 20px;
+  }
+  .ld-prepare {
+    background: #FFFFFF;
+  }
+  .ld-prepare-layout {
+    align-items: start;
+  }
+  .ld-checklist {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .ld-checklist li {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 14px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ld-checklist strong {
+    color: var(--accent);
+    font-size: 1.1rem;
+  }
+  .ld-second-opinion {
+    background: #EEF6FC;
+  }
+  .ld-opinion-grid {
+    grid-template-columns: 1.15fr .85fr 1fr;
+    gap: 12px;
+  }
+  .ld-opinion-grid article {
+    padding: 22px;
+    border-top: 3px solid var(--accent);
+    background: #FFFFFF;
+  }
+  .ld-final-cta {
+    padding: clamp(48px, 7vw, 76px) 0;
+    background: #DDEFFA;
+  }
+  .ld-final-cta-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) auto;
+    gap: 28px;
+    align-items: center;
+  }
+  .ld-final-cta h2 {
+    margin: 0 0 10px;
+    color: var(--azul-oscuro);
+    font-family: var(--font-heading);
+    font-size: clamp(1.9rem, 3.4vw, 3.1rem);
+    font-style: italic;
+    font-weight: 800;
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+  .ld-final-cta p {
+    max-width: 720px;
+    margin: 0;
+    color: var(--azul-oscuro);
+    line-height: 1.65;
+  }
+  .ld-final-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .ld-btn-light {
+    color: var(--azul-oscuro) !important;
+    background: #FFFFFF;
+  }
+  .laptop-diagnostic-page :global(.service-ticket-section),
+  .laptop-diagnostic-page :global(.service-ticket-section *),
+  .laptop-diagnostic-page :global(.svc-related--light),
+  .laptop-diagnostic-page :global(.svc-related--light *),
+  .laptop-diagnostic-page :global(.faq-section),
+  .laptop-diagnostic-page :global(.faq-section *) {
+    color: var(--azul-oscuro) !important;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .ld-btn:hover,
+    .ld-inline-cta:hover {
+      transform: translateY(-2px);
+    }
+  }
+  @media (max-width: 980px) {
+    .ld-hero-grid,
+    .ld-split,
+    .ld-image-grid,
+    .ld-brand-layout,
+    .ld-local-grid,
+    .ld-process-layout,
+    .ld-decision-layout,
+    .ld-warning-layout,
+    .ld-prepare-layout,
+    .ld-final-cta-layout {
+      grid-template-columns: 1fr;
+    }
+    .ld-symptom-grid,
+    .ld-test-grid,
+    .ld-seo-grid,
+    .ld-proof-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ld-warning-copy {
+      position: static;
+    }
+    .ld-final-actions {
+      justify-content: flex-start;
+    }
+  }
+  @media (max-width: 640px) {
+    .ld-hero {
+      padding-top: 28px;
+    }
+    .ld-hero h1 {
+      font-size: clamp(2.15rem, 12vw, 3.25rem);
+    }
+    .ld-btn,
+    .ld-inline-cta {
+      width: 100%;
+    }
+    .ld-symptom-grid,
+    .ld-test-grid,
+    .ld-seo-grid,
+    .ld-proof-grid,
+    .ld-brand-list,
+    .ld-data-grid,
+    .ld-opinion-grid {
+      grid-template-columns: 1fr;
+    }
+    .ld-hero-panel-body {
+      grid-template-columns: 1fr;
+    }
+    .ld-hero-trust {
+      grid-template-columns: 1fr;
+    }
+    .ld-hero-trust span {
+      justify-content: flex-start;
+    }
+    .ld-hero-trust span + span {
+      border-left: 0;
+      border-top: 1px solid rgba(255,255,255,.14);
+    }
+    .ld-data-grid > article:nth-child(2) {
+      border-top: 1px solid #C8DDEB;
+    }
+    .ld-section {
+      padding: 48px 0;
+    }
+    .ld-mid-cta .ld-shell {
+      align-items: stretch;
+    }
+    .ld-local-grid aside {
+      border-top: 3px solid var(--accent);
+    }
+    .ld-final-actions .ld-btn {
+      width: 100%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ld-btn,
+    .ld-inline-cta {
+      transition: none;
+    }
+  }
+</style>

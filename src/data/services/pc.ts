@@ -26,6 +26,9 @@ const pcClusterService = ({
   bullets,
   problems,
   relatedSlugs,
+  metaTitle,
+  metaDescription,
+  faqs,
 }: {
   slug: string;
   label: string;
@@ -35,6 +38,9 @@ const pcClusterService = ({
   bullets: string[];
   problems: { problem: string; solution: string }[];
   relatedSlugs: string[];
+  metaTitle?: string;
+  metaDescription?: string;
+  faqs?: { question: string; answer: string }[];
 }): ServiceItem => ({
   slug,
   label,
@@ -42,6 +48,8 @@ const pcClusterService = ({
   hook,
   intro,
   bullets,
+  metaTitle,
+  metaDescription,
   fromPrice: '$650 MXN',
   eta: '24-72 h',
   warranty: 'Garantía por escrito según reparación',
@@ -54,7 +62,7 @@ const pcClusterService = ({
   process: pcProcess,
   commonProblems: problems,
   compatibleBrands: ['PC gamer', 'PC de oficina', 'PC ensamblada', 'Workstation', 'HP', 'Dell', 'Lenovo', 'Acer', 'Asus', 'Mini PC'],
-  faqs: pcFaqs(label.toLowerCase()),
+  faqs: faqs || pcFaqs(label.toLowerCase()),
   relatedSlugs,
 });
 
@@ -63,6 +71,8 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     slug: 'no-enciende',
     label: 'PC no enciende',
     keyword: 'PC no enciende Cancún',
+    metaTitle: 'PC no enciende en Cancún | Diagnóstico y reparación | Pixon PC',
+    metaDescription: '¿Tu PC no enciende, prende ventiladores sin imagen o se apaga al instante? Diagnóstico técnico en Cancún para fuente, tarjeta madre, RAM, GPU y cortos. Atención con cita previa.',
     hook: 'Diagnóstico para PC que no prende, no da luces, prende ventiladores sin imagen, se apaga al instante o no responde al botón.',
     intro: 'Revisamos fuente de poder, placa madre, botón, RAM, GPU, almacenamiento, cableado y posibles cortos antes de cambiar piezas.',
     bullets: ['Prueba de fuente y voltajes', 'Revisión de placa, RAM y GPU', 'Diagnóstico de corto o consumo', 'Cotización antes de reparar'],
@@ -73,11 +83,25 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Olor a quemado', solution: 'Se detiene uso y se revisa fuente, placa y conectores para evitar daño mayor.' },
     ],
     relatedSlugs: ['fuente-poder', 'tarjeta-madre', 'diagnostico', 'recuperacion-datos'],
+    faqs: [
+      { question: '¿Cuánto cuesta revisar una PC que no enciende en Cancún?', answer: 'El diagnóstico inicial en nuestro taller es gratis. Si decides realizar la reparación con nosotros, te presentaremos un presupuesto claro que incluye la pieza y la mano de obra a partir de $650 MXN.' },
+      { question: '¿El diagnóstico es gratis?', answer: 'Sí, el diagnóstico básico en nuestro taller es completamente gratis y sin compromiso. Para fallas complejas que requieren pruebas de laboratorio de varias horas, te informaremos antes de realizar cualquier procedimiento avanzado.' },
+      { question: '¿Qué pasa si mi PC prende ventiladores pero no da imagen?', answer: 'Este síntoma suele deberse a un problema con la memoria RAM, la tarjeta de video (GPU), una BIOS corrupta o fallas en las fases de alimentación de la tarjeta madre. Realizamos pruebas cruzadas para aislar el componente defectuoso.' },
+      { question: '¿Puede ser la fuente de poder?', answer: 'Sí, es muy común. Si la fuente de poder sufrió una descarga por apagones en Cancún, puede entregar voltajes incorrectos: suficientes para encender ventiladores o LEDs, pero no para iniciar el procesador.' },
+      { question: '¿Puede ser la tarjeta madre?', answer: 'Sí, la tarjeta madre coordina todo. Fallas por humedad, salitre local o cortocircuitos en los transistores VRM pueden impedir el arranque. En Pixon PC diagnosticamos si la placa tiene reparación a nivel componente o si requiere reemplazo.' },
+      { question: '¿Puedo llevar una PC gamer ensamblada?', answer: 'Por supuesto. Somos especialistas en hardware de alto rendimiento. Revisamos PC gamer ensambladas por piezas, workstations, equipos de oficina y Mini PCs de cualquier marca.' },
+      { question: '¿Pierdo mis archivos?', answer: 'No. Al revisar fallas de encendido no tocamos tus discos de almacenamiento. Tus datos están completamente seguros. Si detectamos que el almacenamiento está en riesgo, te avisamos para realizar un respaldo inmediato.' },
+      { question: '¿Me dicen si conviene reparar o comprar otra PC?', answer: 'Sí, siempre actuamos con honestidad. Evaluamos el costo de las refacciones, la antigüedad de tu PC y tus necesidades. Si el costo de reparación se acerca al valor del equipo, te recomendaremos no invertir más.' },
+      { question: '¿Dan garantía?', answer: 'Sí, entregamos garantía por escrito sobre la reparación realizada (mano de obra y refacciones instaladas). La garantía no cubre descargas eléctricas posteriores, humedad o problemas ajenos a la intervención.' },
+      { question: '¿Atienden con cita previa?', answer: 'Sí, atendemos de Lunes a Domingo exclusivamente con cita previa para garantizarte una atención personalizada y sin esperas. Puedes agendar tu espacio por WhatsApp o a través de nuestro formulario de tickets.' },
+    ],
   }),
   pcClusterService({
     slug: 'fuente-poder',
     label: 'Fuente de poder PC',
     keyword: 'Fuente de poder PC dañada Cancún',
+    metaTitle: 'Fuente de poder PC en Cancún | Instalación y Reparación | Pixon PC',
+    metaDescription: '¿Tu computadora se apaga sola, huele a quemado o no prende tras un apagón? Cambio, diagnóstico e instalación de fuentes de poder en Cancún con garantía.',
     hook: 'Revisión de fuente de poder para PC que se apaga, no prende, reinicia al jugar, huele a quemado o no soporta la GPU.',
     intro: 'Diagnóstico de PSU ATX, SFX y fuentes de PC gamer/oficina con prueba de voltajes, carga y compatibilidad.',
     bullets: ['Prueba de voltajes y carga', 'Compatibilidad con GPU y placa', 'Revisión de conectores', 'Instalación de fuente nueva'],
@@ -88,6 +112,18 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Quiero poner GPU nueva', solution: 'Validamos watts, conectores, eficiencia y espacio antes de instalar.' },
     ],
     relatedSlugs: ['no-enciende', 'tarjeta-video-gpu', 'instalacion-componentes', 'diagnostico'],
+    faqs: [
+      { question: '¿Cuánto cuesta cambiar la fuente de poder de una PC en Cancún?', answer: 'El servicio de diagnóstico de la fuente es gratis. Si requiere reemplazo, la mano de obra de instalación y acomodo de cableado es de $650 MXN. El costo de la refacción varía según los Watts y la certificación (desde $750 MXN).' },
+      { question: '¿El diagnóstico de la fuente de poder es gratis?', answer: 'Sí, el diagnóstico en nuestro taller físico en Cancún es gratis. Probamos tu fuente con testeadores de voltaje bajo carga y multímetros sin costo alguno.' },
+      { question: '¿Por qué mi computadora se apaga sola mientras juego o trabajo?', answer: 'Suele deberse a sobrecalentamiento o a una fuente de poder degradada que ya no soporta la demanda eléctrica de la tarjeta de video (GPU). También puede ser un corto en la tarjeta madre.' },
+      { question: '¿Qué es la certificación 80 Plus (Bronze, Gold, etc.)?', answer: 'Es un estándar de eficiencia energética. Una fuente 80 Plus Gold desperdicia menos electricidad en forma de calor, lo cual es vital en el clima cálido de Cancún, y protege mejor los componentes.' },
+      { question: '¿Cómo sé cuántos Watts necesita mi PC gamer?', answer: 'Depende principalmente de tu procesador (CPU) y tarjeta gráfica (GPU). Para una GPU gama media sugerimos mínimo 650W, mientras que gamas altas requieren 750W o 850W con certificación Gold.' },
+      { question: '¿Los apagones de CFE en Cancún pueden quemar la fuente?', answer: 'Sí, los apagones y picos de voltaje son la causa número uno de fuentes quemadas en Cancún. El pico eléctrico daña los capacitores primarios de la fuente, impidiendo el paso de energía.' },
+      { question: '¿Tienen fuentes de poder en stock para entrega inmediata?', answer: 'Sí, manejamos stock constante de fuentes de poder certificadas de 500W a 850W de marcas líderes como Corsair, EVGA, XPG y Gigabyte, ideales para PC gamer u oficina.' },
+      { question: '¿Qué pasa si mi PC huele a quemado o dio un chispazo?', answer: 'Desconéctala inmediatamente. La fuente de poder tiene fusibles y protecciones internas, pero si se puentean, el corto puede pasar directamente a la tarjeta madre, RAM y procesador.' },
+      { question: '¿Qué garantía tienen las fuentes de poder que instalan?', answer: 'Ofrecemos garantía por escrito en nuestra mano de obra de instalación. Las refacciones cuentan con garantía directa de fabricante que va desde 1 hasta 5 o 10 años, según la marca y modelo.' },
+      { question: '¿Reparan fuentes de poder o solo las cambian?', answer: 'Evaluamos la viabilidad. Para fuentes genéricas o de bajo costo, no conviene repararlas por seguridad. En fuentes gamer premium de gama alta, diagnosticamos si la falla es menor (fusible, capacitor de entrada) o si lo más seguro es reemplazarla.' },
+    ],
   }),
   pcClusterService({
     slug: 'tarjeta-madre',
@@ -107,17 +143,31 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
   pcClusterService({
     slug: 'tarjeta-video-gpu',
     label: 'Tarjeta de video GPU',
-    keyword: 'Reparación PC gamer Cancún',
-    hook: 'Diagnóstico de GPU para PC gamer sin imagen, artefactos, pantallazos, crashes, ventiladores al máximo o bajo rendimiento.',
-    intro: 'Revisamos tarjeta de video, drivers, fuente, temperatura, ranura PCIe, cables, monitor y estabilidad bajo carga.',
-    bullets: ['Prueba de GPU y drivers', 'Revisión de temperatura y fuente', 'Benchmark y stress test', 'Instalación o cambio de GPU'],
+    keyword: 'Reparación de tarjeta de video GPU en Cancún',
+    metaTitle: 'Reparación de tarjeta de video GPU en Cancún | Pixon PC',
+    metaDescription: 'Diagnóstico y reparación de GPU en Cancún para PC sin imagen, artefactos, temperatura alta, crashes, mantenimiento térmico e instalación de tarjeta de video.',
+    hook: 'Diagnóstico de GPU para PC gamer sin imagen, artefactos, pantallazos, crashes, ventiladores al máximo o bajo rendimiento en Cancún.',
+    intro: 'Revisamos tarjeta de video, drivers, fuente de poder, temperatura, ranura PCIe, cables, monitor y estabilidad bajo carga con benchmark profesional.',
+    bullets: ['Prueba de stress y benchmark GPU', 'Revisión de temperatura y fuente de poder', 'Limpieza y pasta térmica de GPU', 'Instalación o cambio de GPU NVIDIA/AMD'],
     problems: [
-      { problem: 'Artefactos o cuadros en pantalla', solution: 'Puede ser GPU, VRAM, temperatura o driver; se prueba bajo carga.' },
-      { problem: 'Juegos se cierran o reinician', solution: 'Revisamos fuente, temperatura, drivers, RAM y GPU.' },
-      { problem: 'No da imagen por HDMI/DP', solution: 'Probamos cable, monitor, salida, ranura, BIOS y GPU.' },
-      { problem: 'Quiero actualizar GPU', solution: 'Validamos fuente, gabinete, CPU, ventilación y cuello de botella.' },
+      { problem: 'Artefactos o cuadros en pantalla', solution: 'Puede ser GPU, VRAM, temperatura o driver; se prueba bajo carga real con FurMark.' },
+      { problem: 'Juegos se cierran o reinician', solution: 'Revisamos fuente de poder, temperatura, drivers, RAM y GPU bajo estrés.' },
+      { problem: 'No da imagen por HDMI/DP', solution: 'Probamos cable, monitor, salida, ranura PCIe, BIOS y GPU por separado.' },
+      { problem: 'Quiero actualizar GPU', solution: 'Validamos fuente, gabinete, CPU, ventilación y cuello de botella antes de comprar.' },
     ],
     relatedSlugs: ['fuente-poder', 'refrigeracion', 'instalacion-componentes', 'diagnostico'],
+    faqs: [
+      { question: '¿Cuánto cuesta revisar una tarjeta de video en Cancún?', answer: 'La revisión inicia desde $650 MXN cuando requiere pruebas técnicas, mantenimiento o intervención. Antes de reparar se confirma la falla y se envía cotización clara.' },
+      { question: '¿Cómo sé si mi GPU está fallando?', answer: 'Los síntomas más comunes son artefactos, pantalla negra, cierres de juegos, temperatura alta, ventiladores al máximo, errores de drivers o PC sin imagen.' },
+      { question: '¿Qué pasa si mi PC prende pero no da imagen?', answer: 'No siempre es la tarjeta de video. Revisamos monitor, cable, RAM, fuente, ranura PCIe, BIOS y GPU antes de recomendar reparación o cambio.' },
+      { question: '¿Puede ser la fuente de poder y no la GPU?', answer: 'Sí. Una fuente degradada o insuficiente puede causar pantalla negra, reinicios y cierres al jugar. Por eso medimos voltajes y consumo bajo carga.' },
+      { question: '¿Reparan tarjetas NVIDIA y AMD?', answer: 'Diagnosticamos tarjetas NVIDIA GeForce, RTX, GTX y AMD Radeon. Si la reparación no conviene, te lo decimos antes de invertir.' },
+      { question: '¿Hacen cambio de pasta térmica y thermal pads?', answer: 'Sí. Se realiza cuando la temperatura, ruido o mantenimiento pendiente lo justifican. No se prometen milagros: la mejora depende del estado de la tarjeta.' },
+      { question: '¿Pueden instalar una GPU nueva?', answer: 'Sí. Revisamos fuente, espacio del gabinete, conectores, drivers, temperatura y estabilidad final para instalarla correctamente.' },
+      { question: '¿El calor de Cancún afecta la GPU?', answer: 'Sí. El calor, humedad, polvo y salitre pueden acelerar problemas térmicos, corrosión en conectores y fallas de estabilidad en PC gamer.' },
+      { question: '¿Dan garantía?', answer: 'Sí, la garantía se entrega por escrito según la reparación o instalación realizada. No cubre humedad posterior, descargas eléctricas o piezas no intervenidas.' },
+      { question: '¿Conviene reparar o cambiar la tarjeta de video?', answer: 'Depende del daño, costo de pieza, antigüedad y uso. Después del diagnóstico recomendamos reparar, dar mantenimiento, cambiar o no invertir.' },
+    ],
   }),
   pcClusterService({
     slug: 'pantalla-azul',
@@ -138,6 +188,9 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     slug: 'recuperacion-datos',
     label: 'Recuperación de datos PC',
     keyword: 'Recuperación de datos PC Cancún',
+    metaTitle: 'Recuperación de datos en Cancún | PC, SSD, HDD y archivos borrados',
+    metaDescription: 'Recuperación de datos para PC en Cancún con diagnóstico de SSD, HDD, archivos borrados, Windows dañado, particiones y respaldo seguro antes de reparar.',
+    heroImage: '/assets/images/cambio-ssd.webp',
     hook: 'Recuperamos archivos de PC con Windows dañado, disco lento, SSD que falla, carpetas borradas o equipo que no arranca.',
     intro: 'Servicio de recuperación de información en Cancún para discos duros, SSD, Windows dañado, particiones y respaldo antes de reparar.',
     bullets: ['Prioridad a documentos, fotos y trabajo', 'Diagnóstico de disco y SMART', 'Respaldo antes de formatear', 'Ruta según riesgo del medio'],
@@ -153,6 +206,9 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     slug: 'virus-malware',
     label: 'Virus y malware PC',
     keyword: 'Eliminar virus malware PC Cancún',
+    metaTitle: 'Eliminación de virus y malware en Cancún | PC lenta y anuncios',
+    metaDescription: 'Servicio de limpieza de virus en PC en Cancún. Quitamos malware, anuncios, extensiones sospechosas y software basura; revisamos si conviene limpiar o formatear.',
+    heroImage: '/assets/images/optimizacion-pc-cancun.webp',
     hook: 'Limpieza de PC con virus, anuncios, lentitud, ventanas raras, robo de navegador, programas no deseados o sospecha de infección.',
     intro: 'Eliminación de malware en Cancún con revisión de sistema, navegador, programas de inicio, archivos sospechosos y respaldo.',
     bullets: ['Limpieza de malware y adware', 'Revisión de navegador e inicio', 'Backup antes de cambios críticos', 'Recomendación de protección'],
@@ -163,6 +219,14 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Sospecha de robo de cuentas', solution: 'Te orientamos para cambiar contraseñas y asegurar sesiones después de limpiar.' },
     ],
     relatedSlugs: ['formateo', 'lentitud', 'recuperacion-datos', 'diagnostico'],
+    faqs: [
+      { question: '¿Cómo sé si mi PC tiene virus o malware?', answer: 'Las señales más comunes son anuncios extraños, lentitud repentina, redirecciones en el navegador, programas que aparecen solos, ventanas emergentes y procesos que no reconoces. Si varios de estos síntomas ocurren juntos, conviene revisar el sistema.' },
+      { question: '¿Pueden limpiar la PC sin formatear?', answer: 'Sí, cuando el daño es leve o el sistema sigue estable, se puede limpiar malware, adware y programas sospechosos sin borrar todo. Si Windows quedó muy comprometido, la reinstalación puede ser la mejor opción.' },
+      { question: '¿También revisan el navegador?', answer: 'Sí. Revisamos extensiones, inicio del navegador, cambios de buscador, páginas de inicio y cualquier modificación sospechosa que esté causando anuncios o redirecciones.' },
+      { question: '¿La PC lenta siempre significa virus?', answer: 'No. También puede ser disco duro mecánico, poco espacio, temperatura alta, poca RAM o Windows dañado. Por eso primero diagnosticamos antes de recomendar limpieza o formateo.' },
+      { question: '¿Cuánto tarda eliminar virus de una PC?', answer: 'Depende del nivel de infección. Casos simples pueden resolverse el mismo día; si hay mucha basura en inicio, extensiones infectadas o revisión de archivos, el tiempo puede aumentar.' },
+      { question: '¿Qué pasa si ya robaron mis cuentas?', answer: 'Después de limpiar el equipo recomendamos cambiar contraseñas, cerrar sesiones y activar medidas de seguridad. Si detectamos señales de riesgo, te lo explicamos antes de entregar.' },
+    ],
   }),
   pcClusterService({
     slug: 'lentitud',
@@ -194,6 +258,17 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['limpieza-profunda', 'tarjeta-video-gpu', 'fuente-poder', 'diagnostico'],
   }),
+  {
+    slug: 'sobrecalentamiento-pasta-termica',
+    label: 'Sobrecalentamiento y pasta térmica',
+    customUrl: '/servicios/laptop/pasta-termica',
+    seoKeyword: 'Sobrecalentamiento de PC y cambio de pasta térmica en Cancún',
+    hook: 'Diagnóstico de temperatura, ventiladores, disipador, airflow, thermal pads y compuesto térmico para PC.',
+    intro: 'Servicio térmico compartido para PC y laptop con una sola ruta canónica.',
+    bullets: ['Diagnóstico térmico', 'Limpieza interna', 'Cambio de pasta si aplica', 'Prueba de estabilidad'],
+    fromPrice: '$550 MXN',
+    eta: '24-48 h',
+  },
   pcClusterService({
     slug: 'instalacion-componentes',
     label: 'Instalación de componentes',
@@ -201,6 +276,8 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     hook: 'Instalamos SSD, RAM, GPU, fuente, ventiladores, gabinete, tarjeta WiFi, capturadora o componentes nuevos sin dañar tu PC.',
     intro: 'Servicio de instalación de componentes PC en Cancún con revisión de compatibilidad, cableado, BIOS, drivers y pruebas.',
     bullets: ['Compatibilidad antes de instalar', 'Cableado limpio y seguro', 'Drivers/BIOS si aplica', 'Pruebas de estabilidad'],
+    metaTitle: 'Instalación de componentes PC en Cancún | SSD, RAM, GPU y fuente',
+    metaDescription: 'Instalación de componentes PC en Cancún para SSD, RAM, GPU, fuente, ventiladores, WiFi y capturadoras. Revisión de compatibilidad, BIOS, cableado y pruebas.',
     problems: [
       { problem: 'Compré una GPU y no sé si entra', solution: 'Validamos gabinete, fuente, conectores, PCIe y cuello de botella.' },
       { problem: 'Quiero poner SSD sin perder datos', solution: 'Podemos clonar sistema si el disco actual está sano.' },
@@ -208,6 +285,13 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Necesito ordenar cables', solution: 'Mejoramos cableado para flujo de aire y mantenimiento futuro.' },
     ],
     relatedSlugs: ['upgrade', 'fuente-poder', 'tarjeta-video-gpu', 'refrigeracion'],
+    faqs: [
+      { question: '¿Instalan SSD, RAM y tarjeta gráfica en Cancún?', answer: 'Sí. Instalamos SSD SATA y NVMe, módulos de RAM, GPU, fuentes de poder y otros componentes de PC con revisión previa de compatibilidad.' },
+      { question: '¿Pueden clonar mi sistema al poner un SSD?', answer: 'Sí, si el disco original está sano. Cuando el medio ya tiene errores, primero te decimos si conviene respaldo, clonación o instalación limpia.' },
+      { question: '¿También revisan BIOS y drivers?', answer: 'Sí. Si el componente lo requiere, revisamos BIOS, perfiles de memoria, detección de hardware y drivers básicos para que arranque estable.' },
+      { question: '¿Instalan componentes en PC gamer y de oficina?', answer: 'Sí. Atendemos PC gamer, equipos de oficina, workstations y torres ensambladas por piezas.' },
+      { question: '¿Cuánto tarda la instalación?', answer: 'Depende del componente y de si requiere migración o pruebas. En casos simples puede resolverse el mismo día; si hay clonado o validación de compatibilidad, el tiempo aumenta.' },
+    ],
   }),
 ];
 
@@ -349,12 +433,14 @@ export const pcCategory: ServiceCategory = {
         ],
         relatedSlugs: ['mantenimiento-correctivo', 'limpieza-profunda', 'upgrade', 'diagnostico'],
         relatedExternal: [
-          { label: 'Instalación de Windows',  href: '/instalacion-windows', icon: 'fa-windows', desc: 'Página dedicada con más opciones de licencia y versiones.' },
-          { label: 'Optimización del Sistema',href: '/optimizacion',         icon: 'fa-bolt',    desc: 'Ya con Windows limpio, optimización avanzada exprime más.' },
+          { label: 'Formateo y Windows', href: '/servicios/laptop/formateo-windows-virus-cancun', icon: 'fa-windows', desc: 'Respaldo, reinstalación limpia, drivers, eliminación de virus y optimización.' },
+          { label: 'Instalación de Windows', href: '/instalacion-windows', icon: 'fa-windows', desc: 'Página dedicada con más opciones de licencia y versiones.' },
+          { label: 'Optimización del Sistema', href: '/optimizacion', icon: 'fa-bolt', desc: 'Ya con Windows limpio, optimización avanzada exprime más.' },
         ],
       },
 
-      { slug: 'instalacion-sistema',     label: 'Instalación de Windows',  customUrl: '/instalacion-windows' },
+      { slug: 'formateo-windows-virus-cancun', label: 'Formateo y Windows', customUrl: '/servicios/laptop/formateo-windows-virus-cancun' },
+      { slug: 'instalacion-sistema', label: 'Instalación de Windows', customUrl: '/instalacion-windows' },
 
       // --- Upgrade RAM/SSD PC (extendida) ------------------------------
       {

@@ -1,0 +1,308 @@
+---
+import Base from '../../layouts/Base.astro';
+import Navbar from '../Navbar.astro';
+import Breadcrumb from '../Breadcrumb.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import DarkTechnicalSection from '../DarkTechnicalSection.astro';
+import Footer from '../Footer.astro';
+
+const pageTitle = 'Soporte TI para empresas en Cancún | Equipos, red y continuidad';
+const pageDescription = 'Soporte TI empresarial en Cancún para oficinas, hoteles y negocios: mantenimiento, red, seguridad, respaldos, inventario, altas de personal y continuidad operativa.';
+const canonicalUrl = 'https://pixon.com.mx/empresas';
+
+const faqs = [
+  { question: '¿Atienden oficinas, hoteles y negocios en Cancún?', answer: 'Sí. Organizamos soporte por prioridad, equipo, lote o visita programada para oficinas, hoteles, restaurantes, agencias y negocios.' },
+  { question: '¿Pueden administrar altas y bajas de usuarios?', answer: 'Sí. Preparamos o retiramos equipos, cuentas, accesos, correo, impresoras y respaldos según el alcance autorizado por la empresa.' },
+  { question: '¿También revisan laptops mojadas o con corrosión?', answer: 'Sí. Diagnosticamos humedad, oxidación, corto y daño por líquido antes de recomendar limpieza, reparación o reemplazo.' },
+  { question: '¿Manejan inventario y reportes?', answer: 'Podemos registrar equipos, condición, usuario asignado, mantenimientos, incidencias y recomendaciones para administración o compras.' },
+  { question: '¿Instalan impresoras, WiFi y equipos para videollamadas?', answer: 'Sí. Configuramos impresoras compartidas, red, WiFi, cámaras, audio y salas de reunión según infraestructura disponible.' },
+  { question: '¿Manejan factura y seguimiento por ticket?', answer: 'Sí. Podemos facturar, registrar tickets y documentar lo revisado con comunicación clara para administración o compras.' },
+];
+
+const zones = ['Cancún Centro', 'Zona Hotelera', 'Av. Tulum', 'Bonampak', 'Huayacán', 'Cumbres', 'Bonfil', 'Puerto Cancún', 'Puerto Juárez', 'Polígono Sur'];
+const relatedItems = [
+  { href: '/servicios/b2b/soporte-oficinas', icon: 'fa-building', label: 'Soporte TI para oficinas', desc: 'PCs, impresoras, Windows y atención administrativa.', cta: 'Ver servicio →' },
+  { href: '/servicios/b2b/soporte-hoteles', icon: 'fa-hotel', label: 'Soporte TI para hoteles', desc: 'Recepción, reservas, red e impresión operativa.', cta: 'Ver servicio →' },
+  { href: '/servicios/b2b/soporte-restaurantes', icon: 'fa-utensils', label: 'Soporte TI para restaurantes', desc: 'Caja, comandas, red y equipos de alto movimiento.', cta: 'Ver servicio →' },
+  { href: '/servicios/b2b/wifi-empresarial', icon: 'fa-wifi', label: 'WiFi empresarial', desc: 'Cobertura, routers, switches y estabilidad.', cta: 'Ver servicio →' },
+  { href: '/servicios/b2b/polizas-mantenimiento', icon: 'fa-file-contract', label: 'Pólizas de mantenimiento TI', desc: 'Visitas, tickets, inventario y seguimiento.', cta: 'Ver servicio →' },
+];
+
+const supportMap = [
+  ['fa-laptop', 'Equipos', 'Laptops, PC, Mac, estaciones de trabajo y equipos que no encienden.'],
+  ['fa-temperature-high', 'Condición física', 'Sobrecalentamiento, polvo, humedad, corrosión y daño por líquido.'],
+  ['fa-windows', 'Sistemas', 'Windows, drivers, rendimiento, usuarios y programas de trabajo.'],
+  ['fa-print', 'Periféricos', 'Impresoras, escáneres, puntos de venta y dispositivos compartidos.'],
+  ['fa-wifi', 'Conectividad', 'WiFi, red local, switches, routers y acceso de dispositivos.'],
+  ['fa-database', 'Información', 'Respaldos, recuperación, migración y almacenamiento empresarial.'],
+];
+
+const incidentSteps = [
+  { title: 'Clasificamos el impacto', description: 'Separamos una molestia individual de una falla que detiene recepción, ventas, caja o administración.' },
+  { title: 'Aislamos el riesgo', description: 'Protegemos archivos, desconectamos equipos dañados y evitamos que la falla se extienda.' },
+  { title: 'Restauramos la operación', description: 'Aplicamos la solución aprobada o una ruta temporal para que el área vuelva a trabajar.' },
+  { title: 'Documentamos el cierre', description: 'Registramos causa, trabajo realizado, pendientes y recomendación preventiva.' },
+];
+
+const schemas = [
+  { '@context': 'https://schema.org', '@type': 'Service', name: 'Soporte TI empresarial en Cancún', serviceType: 'Soporte TI empresarial', url: canonicalUrl, description: pageDescription, areaServed: { '@type': 'City', name: 'Cancún' }, provider: { '@type': 'LocalBusiness', name: 'Pixon PC / Rentalap', telephone: '+52 998 669 0777', email: 'pixonpc@gmail.com', address: { '@type': 'PostalAddress', streetAddress: 'Cto. Hacienda Chimay', addressLocality: 'Cancún', addressRegion: 'Q.R.', postalCode: '77539', addressCountry: 'MX' } } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((item) => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })) },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' }, { '@type': 'ListItem', position: 2, name: 'Soporte TI para empresas', item: canonicalUrl }] },
+];
+---
+
+<Base title={pageTitle} description={pageDescription} canonical={canonicalUrl} image="/assets/images/soporte-hoteles-hero.webp" schema={schemas}>
+  <Navbar />
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Soporte TI para empresas' }]} />
+
+  <div class="business-page">
+    <section class="business-hero section-dark">
+      <div class="business-shell business-hero__layout">
+        <div class="business-hero__copy">
+          <span>Operación tecnológica local en Cancún</span>
+          <h1>Soporte TI para empresas que no pueden detenerse</h1>
+          <p>Resolvemos equipos, red, impresoras, usuarios y datos con prioridades claras. También ayudamos a ordenar inventario, altas de personal, respaldos, compras y mantenimiento preventivo.</p>
+          <div class="business-actions"><a href="#ticket-enterprise">Crear ticket empresarial</a><a href="https://wa.me/529986690777?text=Soy%20empresa%20y%20necesito%20soporte%20TI%20en%20Canc%C3%BAn" target="_blank" rel="noopener">Hablar por WhatsApp</a></div>
+          <div class="business-hero__proof"><span>Atención por prioridad</span><span>Reporte por equipo o lote</span><span>Factura CFDI</span></div>
+        </div>
+        <div class="business-hero__visual">
+          <img src="/assets/images/soporte-hoteles-hero.webp" alt="Soporte TI para empresas, oficinas y hoteles en Cancún" width="1200" height="900" loading="eager" fetchpriority="high" decoding="async" />
+          <div class="business-hero__status"><i></i><span>Operación supervisada</span><strong>Equipos · Red · Usuarios</strong></div>
+          <div class="business-hero__priority"><span>Prioridad</span><strong>Lo que detiene el negocio</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="business-map">
+      <div class="business-shell">
+        <header class="business-heading"><span>Mapa de soporte</span><h2>Una sola mesa técnica para los sistemas que sostienen tu operación</h2><p>Concentramos las fallas actuales de hardware, software, temperatura, humedad, impresión, red y archivos en una vista operativa comprensible.</p></header>
+        <div class="business-map__grid">
+          {supportMap.map(([icon, title, description], index) => <article><span>{String(index + 1).padStart(2, '0')}</span><i class={`fa-solid ${icon}`}></i><h3>{title}</h3><p>{description}</p></article>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="business-priority">
+      <div class="business-priority__image" role="img" aria-label="Soporte operativo para equipos empresariales en Cancún"></div>
+      <div class="business-shell business-priority__content">
+        <span>Continuidad operativa</span><h2>No todos los tickets tienen el mismo impacto</h2><p>Una computadora lenta puede esperar; una caja sin red, recepción sin impresora o el equipo de facturación detenido no. Priorizamos según el área afectada y el riesgo para la operación.</p>
+        <div><strong>Crítico</strong><span>Ventas, recepción, caja, facturación y servidores locales.</span><strong>Operativo</strong><span>Usuarios con bloqueo parcial o periféricos compartidos.</span><strong>Programable</strong><span>Mantenimiento, upgrades, inventario y prevención.</span></div>
+      </div>
+    </section>
+
+    <section class="business-lifecycle">
+      <div class="business-shell">
+        <header class="business-heading"><span>Ciclo de vida del equipo</span><h2>Desde que llega un colaborador hasta que se retira su computadora</h2><p>La operación mejora cuando cada equipo tiene responsable, configuración, historial y una ruta clara de reemplazo.</p></header>
+        <ol>
+          <li><strong>01</strong><h3>Alta</h3><p>Preparación de equipo, usuario, correo, impresoras, accesos y programas autorizados.</p></li>
+          <li><strong>02</strong><h3>Operación</h3><p>Soporte diario, actualizaciones, rendimiento, red y atención de incidencias.</p></li>
+          <li><strong>03</strong><h3>Mantenimiento</h3><p>Limpieza, temperatura, salud de disco, batería y prevención por calendario.</p></li>
+          <li><strong>04</strong><h3>Reasignación</h3><p>Respaldo, limpieza de perfiles, validación y preparación para otro usuario.</p></li>
+          <li><strong>05</strong><h3>Baja</h3><p>Retiro de accesos, resguardo de información y recomendación de reemplazo o disposición.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <DarkTechnicalSection id="respuesta-incidentes" eyebrow="Respuesta a incidentes" title="Primero recuperamos la operación; después evitamos que se repita" description="Un equipo mojado, una PC que no enciende, Windows dañado o una red caída requieren orden. Actuamos por impacto y documentamos el cierre." steps={incidentSteps} topFadeColor="#ffffff" bottomFadeColor="#f4f8fb" />
+
+    <section class="business-control">
+      <div class="business-shell business-control__layout">
+        <header><span>Control administrativo</span><h2>Inventario, historial y decisiones de compra con contexto</h2><p>Ayudamos a saber qué equipos existen, quién los usa, qué fallas repiten y cuáles ya cuestan más de lo que aportan.</p></header>
+        <div class="business-register">
+          <div class="business-register__top"><strong>Inventario operativo</strong><span>Vista de ejemplo</span></div>
+          <div class="business-register__row"><b>LT-ADM-04</b><span>Administración</span><i>Preventivo</i><strong>Operativo</strong></div>
+          <div class="business-register__row"><b>PC-REC-02</b><span>Recepción</span><i>SSD por revisar</i><strong>Prioridad</strong></div>
+          <div class="business-register__row"><b>IMP-CAJA-01</b><span>Caja</span><i>Red estable</i><strong>Operativo</strong></div>
+          <div class="business-register__summary"><span>Condición</span><span>Usuario</span><span>Historial</span><span>Próxima acción</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="business-new-topics">
+      <div class="business-shell">
+        <header class="business-heading"><span>Más allá de reparar</span><h2>Temas empresariales que también necesitan una ruta técnica</h2><p>Son tareas menos visibles que una reparación, pero determinan seguridad, continuidad y tiempo perdido por el personal.</p></header>
+        <div class="business-topics-grid">
+          <article><i class="fa-solid fa-user-plus"></i><h3>Altas y bajas de personal</h3><p>Equipos, perfiles, accesos, correos, impresoras y retiro ordenado de información.</p></article>
+          <article><i class="fa-solid fa-shield-halved"></i><h3>Seguridad básica</h3><p>Contraseñas, actualizaciones, antivirus, cuentas y reducción de accesos innecesarios.</p></article>
+          <article><i class="fa-solid fa-cloud-arrow-up"></i><h3>Política de respaldos</h3><p>Qué se respalda, dónde, con qué frecuencia y cómo se valida una restauración.</p></article>
+          <article><i class="fa-solid fa-video"></i><h3>Salas de juntas</h3><p>Cámara, audio, pantalla, WiFi y pruebas antes de una reunión importante.</p></article>
+          <article><i class="fa-solid fa-house-laptop"></i><h3>Trabajo híbrido</h3><p>Laptops, conectividad, periféricos y condiciones mínimas para trabajar fuera de oficina.</p></article>
+          <article><i class="fa-solid fa-cart-shopping"></i><h3>Compras y renovación</h3><p>Compatibilidad, uso real, garantía y costo total antes de adquirir equipos o componentes.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="business-maintenance">
+      <div class="business-shell">
+        <header><span>Prevención por lote</span><h2>Mantenimiento para laptops, PC e impresoras sin interrumpir toda el área</h2><p>Organizamos el trabajo por grupos, horarios y prioridad. Revisamos lentitud, Windows, discos, RAM, temperatura, pasta térmica, ventiladores, humedad, corrosión e impresión.</p></header>
+        <div class="business-maintenance__flow"><div><strong>Detectar</strong><span>Salud y condición</span></div><i class="fa-solid fa-arrow-right"></i><div><strong>Programar</strong><span>Por lote y horario</span></div><i class="fa-solid fa-arrow-right"></i><div><strong>Intervenir</strong><span>Con autorización</span></div><i class="fa-solid fa-arrow-right"></i><div><strong>Reportar</strong><span>Resultado y pendientes</span></div></div>
+      </div>
+    </section>
+
+    <section class="business-data">
+      <div class="business-shell business-data__layout">
+        <div><span>Datos y recuperación</span><h2>Antes de formatear, cambiar un disco o retirar un equipo, protegemos la información</h2><p>Revisamos documentos, bases, reportes, perfiles y carpetas críticas. Si el almacenamiento está dañado, la prioridad cambia de mantenimiento a recuperación.</p></div>
+        <dl><div><dt>Respaldo operativo</dt><dd>Archivos de trabajo antes de intervenir.</dd></div><div><dt>Migración</dt><dd>Cambio de equipo o SSD con validación.</dd></div><div><dt>Recuperación</dt><dd>Diagnóstico cuando el disco ya falla.</dd></div><div><dt>Baja segura</dt><dd>Resguardo y retiro de información autorizado.</dd></div></dl>
+      </div>
+    </section>
+
+    <section class="business-sectors">
+      <div class="business-shell">
+        <header class="business-heading"><span>Contexto por sector</span><h2>La prioridad cambia según cómo trabaja cada negocio</h2><p>No aplicamos el mismo flujo a una oficina administrativa, un hotel o un restaurante.</p></header>
+        <div class="business-sector-list">
+          <a href="/servicios/b2b/soporte-oficinas"><span>01</span><i class="fa-solid fa-building" aria-hidden="true"></i><strong>Oficinas</strong><p>Usuarios, impresión, archivos y productividad.</p><b>Operación administrativa</b><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          <a href="/servicios/b2b/soporte-hoteles"><span>02</span><i class="fa-solid fa-hotel" aria-hidden="true"></i><strong>Hoteles</strong><p>Recepción, reservas, huéspedes y operación continua.</p><b>Servicio 24/7</b><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          <a href="/servicios/b2b/soporte-restaurantes"><span>03</span><i class="fa-solid fa-utensils" aria-hidden="true"></i><strong>Restaurantes</strong><p>Caja, comandas, impresión y horarios críticos.</p><b>Ventas y piso</b><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          <a href="/servicios/b2b/soporte-agencias"><span>04</span><i class="fa-solid fa-pen-ruler" aria-hidden="true"></i><strong>Agencias</strong><p>Archivos pesados, colaboración y equipos móviles.</p><b>Producción creativa</b><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="business-zones">
+      <div class="business-shell business-zones__layout"><div><span>Cobertura local</span><h2>Soporte empresarial en Cancún según urgencia y volumen</h2><p>Coordinamos atención en taller o visita según falla, cantidad de equipos y herramientas necesarias.</p></div><div class="business-zone-cloud">{zones.map((zone) => <span>{zone}</span>)}</div></div>
+    </section>
+
+    <section class="business-cta"><div class="business-shell"><div><span>Levanta el caso</span><h2>Indica qué área está detenida y cuántos equipos están afectados</h2><p>Con esa información definimos prioridad, alcance y siguiente paso.</p></div><a href="#ticket-enterprise">Crear ticket empresarial <i class="fa-solid fa-arrow-right"></i></a></div></section>
+
+    <ServiceTicketSection id="ticket-enterprise" sourcePage={Astro.url.pathname} defaultDevice="Equipo empresarial / B2B" defaultService="Soporte TI empresarial" title="Crear ticket de soporte empresarial" subtitle="Cuéntanos cuántos equipos tienes, qué falla y qué área se está deteniendo." />
+    <RelatedServicesSection items={relatedItems} light={true} title="Servicios relacionados para empresas" eyebrow="Más soluciones B2B" />
+    <FaqSection id="faq-enterprise-support" title="Preguntas frecuentes sobre soporte TI empresarial" description="Respuestas para oficinas, hoteles y negocios que necesitan continuidad operativa." items={faqs} sectionClass="enterprise-faq" titleColor="#071F3A" descriptionColor="#071F3A" questionColor="#071F3A" />
+    <CommentsSection id="comentarios-enterprise" title="Comentarios de clientes" description="Comparte tu experiencia con el soporte para empresas." dark={false} />
+    <ContactSection id="contacto-enterprise" />
+    <Footer />
+  </div>
+</Base>
+
+<style>
+  .business-page { --navy:#071f3a; --blue:#1683e5; color:var(--navy); background:#fff; overflow:hidden; }
+  .business-page :global(*) { box-sizing:border-box; }
+  .business-shell { width:min(1180px,calc(100% - 32px)); margin:0 auto; }
+  .business-page :where(h2,h3,p,li,span,strong,small,a,dt,dd) { color:var(--navy); }
+  .business-hero { padding:clamp(52px,7vw,86px) 0 60px; background:linear-gradient(135deg,#06172b 0%,#082f53 58%,#0b497b 100%); }
+  .business-hero__layout { display:grid; grid-template-columns:minmax(0,.92fr) minmax(430px,1.08fr); gap:clamp(48px,7vw,90px); align-items:end; }
+  .business-hero__copy>span,.business-heading>span,.business-priority__content>span,.business-control header>span,.business-maintenance header>span,.business-data__layout>div>span,.business-zones__layout>div>span,.business-cta span { color:#bfe2ff!important; font-size:.78rem; font-weight:850; letter-spacing:.04em; text-transform:uppercase; }
+  .business-hero h1 { max-width:15ch; margin:10px 0 18px; color:#fff!important; font-family:'Kanit',sans-serif; font-size:clamp(2.4rem,4.6vw,4.7rem); line-height:.97; letter-spacing:0; text-wrap:balance; }
+  .business-hero__copy p { max-width:62ch; margin:0; color:rgb(255 255 255 / 84%)!important; font-size:1.06rem; line-height:1.7; }
+  .business-actions { display:flex; flex-wrap:wrap; gap:11px; margin-top:26px; }
+  .business-actions a,.business-cta a { display:inline-flex; min-height:48px; align-items:center; justify-content:center; gap:9px; padding:0 20px; border:1px solid rgb(255 255 255 / 30%); border-radius:7px; color:#fff!important; font-weight:800; text-decoration:none; }
+  .business-actions a:first-child,.business-cta a { border-color:var(--blue); background:var(--blue); }
+  .business-hero__proof { display:flex; flex-wrap:wrap; gap:12px 20px; margin-top:26px; }
+  .business-hero__proof span { color:rgb(255 255 255 / 80%)!important; font-size:.82rem; font-weight:750; }
+  .business-hero__visual { position:relative; min-height:520px; }
+  .business-hero__visual img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:8px; box-shadow:0 28px 70px rgb(0 0 0 / 26%); }
+  .business-hero__status,.business-hero__priority { position:absolute; z-index:2; display:grid; padding:13px 15px; border-radius:7px; backdrop-filter:blur(10px); }
+  .business-hero__status { top:18px; left:18px; grid-template-columns:12px 1fr; background:rgb(5 26 47 / 88%); }
+  .business-hero__status i { grid-row:1/3; width:7px; height:7px; margin-top:5px; border-radius:50%; background:#5cc690; }
+  .business-hero__status :where(span,strong),.business-hero__priority :where(span,strong) { color:#fff!important; }
+  .business-hero__status span,.business-hero__priority span { font-size:.72rem; opacity:.75; }
+  .business-hero__priority { right:18px; bottom:18px; background:#fff; }
+  .business-hero__priority :where(span,strong) { color:var(--navy)!important; }
+  .business-heading { max-width:780px; margin-bottom:42px; }
+  .business-heading>span,.business-control header>span,.business-maintenance header>span,.business-data__layout>div>span,.business-zones__layout>div>span,.business-cta span { color:#1672ca!important; }
+  .business-heading h2,.business-priority h2,.business-control h2,.business-maintenance h2,.business-data h2,.business-zones h2,.business-cta h2 { margin:10px 0 16px; color:var(--navy); font-family:'Kanit',sans-serif; font-size:clamp(2rem,3.5vw,3.2rem); line-height:1.06; letter-spacing:0; text-wrap:balance; }
+  .business-heading p,.business-priority p,.business-control p,.business-maintenance p,.business-data p,.business-zones p,.business-cta p { margin:0; color:#294963; line-height:1.72; }
+  .business-map,.business-lifecycle,.business-control,.business-new-topics,.business-maintenance,.business-data,.business-sectors,.business-zones { padding:clamp(60px,7vw,88px) 0; }
+  .business-map { background:#f4f8fb; }
+  .business-map__grid { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid #cad9e5; border-left:1px solid #cad9e5; background:#fff; }
+  .business-map article { min-height:190px; padding:22px; border-right:1px solid #cad9e5; border-bottom:1px solid #cad9e5; }
+  .business-map article>span { color:#6a8297; font-size:.72rem; font-weight:900; }
+  .business-map article i { display:block; margin:22px 0 15px; color:var(--blue); font-size:1.25rem; }
+  .business-map h3,.business-topics-grid h3,.business-sectors strong { margin:0 0 8px; color:var(--navy); font-size:1.06rem; }
+  .business-map article p,.business-topics-grid p { margin:0; color:#31506c; font-size:.9rem; line-height:1.6; }
+  .business-priority { position:relative; min-height:680px; display:grid; align-items:end; color:#fff; isolation:isolate; }
+  .business-priority__image { position:absolute; inset:0; z-index:-2; background:url('/assets/images/mantenimiento-pc-escritorio.webp') center/cover no-repeat; }
+  .business-priority::after { content:''; position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgb(3 18 33 / 94%) 0%,rgb(3 18 33 / 78%) 48%,rgb(3 18 33 / 20%) 100%); }
+  .business-priority__content { padding-bottom:64px; }
+  .business-priority__content>* { max-width:690px; }
+  .business-priority h2,.business-priority__content>span { color:#fff!important; }
+  .business-priority p { color:rgb(255 255 255 / 82%); }
+  .business-priority__content>div { display:grid; grid-template-columns:120px 1fr; gap:1px; margin-top:28px; background:rgb(255 255 255 / 20%); }
+  .business-priority__content>div>* { padding:13px 15px; color:#fff!important; background:rgb(5 27 48 / 78%); }
+  .business-lifecycle ol { display:grid; grid-template-columns:repeat(5,1fr); margin:0; padding:0; border-top:1px solid #cbd9e4; list-style:none; }
+  .business-lifecycle li { position:relative; padding:26px 20px 0 0; }
+  .business-lifecycle li::before { content:''; position:absolute; top:-5px; width:9px; height:9px; border-radius:50%; background:var(--blue); box-shadow:0 0 0 5px #eaf4fd; }
+  .business-lifecycle li>strong { display:block; margin-bottom:34px; color:#6a8297; font-size:.72rem; }
+  .business-lifecycle h3 { margin:0 0 7px; }
+  .business-lifecycle li p { margin:0; color:#31506c; font-size:.88rem; line-height:1.58; }
+  .business-control { background:#f4f8fb; }
+  .business-control__layout,.business-data__layout,.business-zones__layout { display:grid; grid-template-columns:.78fr 1.22fr; gap:clamp(44px,8vw,100px); align-items:start; }
+  .business-register { border:1px solid #cbd9e4; border-radius:8px; background:#fff; box-shadow:0 20px 55px rgb(18 62 98 / 9%); overflow:hidden; }
+  .business-register__top,.business-register__row,.business-register__summary { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; padding:16px 18px; border-bottom:1px solid #d7e2eb; }
+  .business-register__top { grid-template-columns:1fr auto; }
+  .business-register__top span,.business-register__row,.business-register__summary { color:#31506c; font-size:.78rem; }
+  .business-register__row strong { color:#0871c8; }
+  .business-register__summary { border:0; background:#eaf4fd; font-weight:800; }
+  .business-new-topics { background:#fff; }
+  .business-topics-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:#cad9e5; border:1px solid #cad9e5; }
+  .business-topics-grid article { min-height:185px; padding:23px; background:#f8fbfd; }
+  .business-topics-grid i { margin-bottom:24px; color:var(--blue); font-size:1.25rem; }
+  .business-maintenance { background:#f4f8fb; }
+  .business-maintenance header { max-width:780px; }
+  .business-maintenance__flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr; gap:18px; align-items:center; margin-top:44px; }
+  .business-maintenance__flow div { display:grid; gap:5px; padding:22px 0; border-top:2px solid var(--blue); }
+  .business-maintenance__flow span { color:#31506c; font-size:.82rem; }
+  .business-maintenance__flow i { color:#8ba0b1; }
+  .business-data { background:#fff; }
+  .business-data dl { margin:0; border-top:1px solid #cbd9e4; }
+  .business-data dl div { display:grid; grid-template-columns:180px 1fr; gap:24px; padding:21px 0; border-bottom:1px solid #cbd9e4; }
+  .business-data dt { font-weight:850; }
+  .business-data dd { margin:0; color:#31506c; }
+  .business-sectors { background:#eef4f8; }
+  .business-sectors .business-heading { margin-bottom:30px; }
+  .business-sectors .business-heading :where(span,h2,p) { color:var(--navy)!important; }
+  .business-sectors .business-heading>span { color:#1672ca!important; }
+  .business-sector-list { border-top:1px solid #bfcfdb; }
+  .business-sector-list a { display:grid; grid-template-columns:34px 34px 150px minmax(220px,1fr) 170px 24px; gap:16px; align-items:center; min-height:78px; padding:12px 4px; border-bottom:1px solid #bfcfdb; color:var(--navy)!important; text-decoration:none; transition:transform 180ms ease-out,background-color 180ms ease-out; }
+  .business-sector-list a>span { color:#668096; font-size:.72rem; font-weight:900; }
+  .business-sector-list a>i:first-of-type { display:grid; width:30px; height:30px; place-items:center; border-radius:6px; background:#fff; color:#1672ca; box-shadow:0 5px 15px rgb(13 66 105 / 8%); }
+  .business-sector-list strong { margin:0; color:var(--navy); font-size:1rem; }
+  .business-sector-list p { margin:0; color:#31506c; font-size:.88rem; line-height:1.5; }
+  .business-sector-list b { color:#587187; font-size:.74rem; font-weight:800; text-transform:uppercase; }
+  .business-sector-list a>i:last-child { color:#1672ca; transition:transform 180ms ease-out; }
+  @media (hover:hover) and (pointer:fine) {
+    .business-sector-list a:hover { transform:translateX(5px); background:#fff; }
+    .business-sector-list a:hover>i:last-child { transform:translateX(3px); }
+  }
+  .business-zones { background:#f4f8fb; }
+  .business-zone-cloud { display:flex; flex-wrap:wrap; gap:9px; }
+  .business-zone-cloud span { padding:9px 12px; border:1px solid #bfd1df; border-radius:5px; background:#fff; font-size:.82rem; font-weight:750; }
+  .business-cta { padding:42px 0; }
+  .business-cta>.business-shell { display:flex; align-items:center; justify-content:space-between; gap:36px; padding:34px 38px; border-radius:8px; background:#071f3a; }
+  .business-cta h2 { max-width:760px; color:#fff; font-size:clamp(1.7rem,2.8vw,2.45rem); }
+  .business-cta p,.business-cta span { color:rgb(255 255 255 / 78%)!important; }
+  .business-page :global(.comments-section-container),.business-page :global(.contact) { color:#071f3a; }
+  @media (max-width:900px) {
+    .business-hero__layout,.business-control__layout,.business-data__layout,.business-zones__layout { grid-template-columns:1fr; }
+    .business-hero__visual { min-height:480px; }
+    .business-map__grid,.business-topics-grid { grid-template-columns:repeat(2,1fr); }
+    .business-lifecycle ol { grid-template-columns:repeat(2,1fr); gap:34px 0; border:0; }
+    .business-lifecycle li { border-top:1px solid #cbd9e4; }
+    .business-maintenance__flow { grid-template-columns:1fr; gap:0; }
+    .business-maintenance__flow i { transform:rotate(90deg); justify-self:center; }
+    .business-sector-list a { grid-template-columns:30px 32px 130px 1fr 24px; }
+    .business-sector-list b { display:none; }
+  }
+  @media (max-width:640px) {
+    .business-hero h1 { max-width:100%; font-size:clamp(2rem,10vw,3rem); overflow-wrap:break-word; }
+    .business-actions,.business-actions a { width:100%; }
+    .business-hero__visual { min-height:390px; }
+    .business-map__grid,.business-topics-grid,.business-lifecycle ol { grid-template-columns:1fr; }
+    .business-map__grid,.business-topics-grid { border-left:0; }
+    .business-map article,.business-topics-grid article { min-height:0; border-right:0; }
+    .business-priority { min-height:760px; }
+    .business-priority::after { background:linear-gradient(0deg,rgb(3 18 33 / 96%) 0%,rgb(3 18 33 / 75%) 65%,rgb(3 18 33 / 28%) 100%); }
+    .business-priority__content>div { grid-template-columns:1fr; }
+    .business-register__row { grid-template-columns:1fr 1fr; }
+    .business-register__summary { grid-template-columns:1fr 1fr; }
+    .business-data dl div { grid-template-columns:1fr; gap:7px; }
+    .business-sector-list a { grid-template-columns:26px 30px 1fr 20px; gap:10px; min-height:88px; padding:13px 0; }
+    .business-sector-list strong { align-self:end; }
+    .business-sector-list p { grid-column:3; }
+    .business-sector-list a>i:last-child { grid-column:4; grid-row:1/3; }
+    .business-cta>.business-shell { align-items:stretch; flex-direction:column; padding:28px 22px; }
+  }
+</style>

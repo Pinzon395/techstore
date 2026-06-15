@@ -16,6 +16,7 @@ const b2bService = ({
   sectors,
   problems,
   relatedSlugs,
+  faqSector,
   h1,
   metaTitle,
   metaDescription,
@@ -27,6 +28,7 @@ const b2bService = ({
   sectors: string[];
   problems: { problem: string; solution: string }[];
   relatedSlugs: string[];
+  faqSector?: string;
   h1?: string;
   metaTitle?: string;
   metaDescription?: string;
@@ -57,7 +59,7 @@ const b2bService = ({
   ],
   commonProblems: problems,
   compatibleBrands: sectors,
-  faqs: b2bFaqs(label.toLowerCase()),
+  faqs: b2bFaqs(faqSector || label.toLowerCase()),
   relatedSlugs,
 });
 
@@ -76,6 +78,14 @@ export const b2bCategory: ServiceCategory = {
       seoKeyword: 'Soporte TI para empresas en Cancún',
       intro: 'Mesa de ayuda, mantenimiento preventivo, reportes y soporte para oficinas, hoteles y negocios en Cancún.',
       bullets: ['Atención por ticket', 'Reportes para administración', 'Soporte a equipos, red e impresoras'],
+    },
+    {
+      slug: 'mantenimiento-preventivo-pc-empresas',
+      label: 'Mantenimiento preventivo para empresas',
+      customUrl: '/servicios/mantenimiento-preventivo-pc-empresas',
+      seoKeyword: 'Mantenimiento preventivo de PC para empresas en Cancún',
+      intro: 'Limpieza, diagnóstico, rendimiento, respaldos y revisión por lote para computadoras empresariales.',
+      bullets: ['Atención por equipo o lote', 'Diagnóstico de hardware y Windows', 'Reporte y prioridades de operación'],
     },
     b2bService({
       slug: 'soporte-hoteles',
@@ -104,6 +114,9 @@ export const b2bCategory: ServiceCategory = {
         { problem: 'Falta seguimiento', solution: 'Usamos tickets y reportes para que administración vea estado y costos.' },
       ],
       relatedSlugs: ['polizas-mantenimiento', 'mantenimiento-flotilla', 'wifi-empresarial', 'soporte-restaurantes'],
+      faqSector: 'oficinas',
+      metaTitle: 'Soporte TI para oficinas en Cancún | Red, impresoras y Windows',
+      metaDescription: 'Soporte TI para oficinas en Cancún con diagnóstico de PCs, laptops, impresoras, red, Windows y respaldos. Atención local para administración y operación.',
     }),
     b2bService({
       slug: 'soporte-restaurantes',
@@ -177,6 +190,9 @@ export const b2bCategory: ServiceCategory = {
         { problem: 'Cableado o switches fallan', solution: 'Diagnosticamos puntos, switches, puertos, energía y equipos conectados.' },
       ],
       relatedSlugs: ['soporte-oficinas', 'soporte-restaurantes', 'soporte-hoteles', 'polizas-mantenimiento'],
+      faqSector: 'empresarial',
+      metaTitle: 'WiFi empresarial en Cancún | Red, impresoras y cobertura',
+      metaDescription: 'WiFi empresarial en Cancún para oficinas y negocios. Revisamos red, cobertura, impresoras, routers, switches y equipos conectados con diagnóstico local.',
     }),
   ],
 };

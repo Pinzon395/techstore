@@ -1,0 +1,250 @@
+---
+import Base from '../../layouts/Base.astro';
+import Navbar from '../../components/Navbar.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ServiceTicketSection from '../../components/ServiceTicketSection.astro';
+import FaqSection from '../../components/FaqSection.astro';
+import CommentsSection from '../../components/CommentsSection.astro';
+import ContactSection from '../../components/ContactSection.astro';
+import Footer from '../../components/Footer.astro';
+import Icon from '../../components/LocalSpriteIcon.astro';
+
+const canonical = '/blogs/pasta-termica-vs-metal-liquido/';
+const whatsappText = encodeURIComponent('Hola, quiero agendar un diagnóstico térmico para saber si mi equipo necesita pasta térmica, limpieza o metal líquido.');
+
+const faqs = [
+  { question: '¿Qué es mejor, pasta térmica o metal líquido?', answer: 'No existe una respuesta universal. La pasta térmica es compatible con la mayoría de PC, laptops y consolas, tiene bajo riesgo eléctrico y facilita el mantenimiento. El metal líquido puede transferir más calor, pero solo conviene cuando el diseño del equipo, los materiales del disipador y el aislamiento permiten aplicarlo con seguridad.' },
+  { question: '¿El metal líquido puede dañar mi laptop?', answer: 'Sí, si se derrama sobre componentes, se aplica sobre aluminio, se usa demasiado o no se aísla la zona. También puede reaccionar con ciertos materiales. Por eso revisamos el modelo, el disipador y el sistema de contención antes de recomendar metal líquido para una laptop en Cancún.' },
+  { question: '¿Cuándo conviene cambiar la pasta térmica?', answer: 'Cuando las pruebas muestran temperatura elevada, pérdida de frecuencia, ventiladores constantes o compuesto seco y mal distribuido. Cambiarla por calendario sin revisar ventiladores, polvo, pads y presión del disipador puede no resolver el problema.' },
+  { question: '¿El metal líquido aumenta los FPS?', answer: 'No directamente. Si el procesador o la gráfica reducen frecuencia por thermal throttling, mejorar la transferencia térmica puede ayudar a sostener el rendimiento. Si el límite es GPU, CPU, RAM, configuración o el propio juego, aplicar metal líquido no aumentará los FPS.' },
+  { question: '¿Pueden aplicar metal líquido en consolas?', answer: 'Revisamos consolas que utilizan metal líquido de fábrica y sistemas con pasta térmica. No convertimos automáticamente cualquier consola a metal líquido; primero confirmamos arquitectura, sellos, estado del disipador y causa real de la temperatura.' },
+  { question: '¿Cuánto dura una pasta térmica de buena calidad?', answer: 'Depende de temperatura, ciclos de uso, presión, diseño del disipador y calidad del compuesto. En lugar de prometer un número fijo de años, recomendamos revisar cuando cambian ruido, temperatura o rendimiento.' },
+  { question: '¿Atienden laptops gamer en Cancún?', answer: 'Sí. Atendemos laptops gamer, PC ensambladas, workstations y equipos de oficina. Medimos CPU, GPU, hotspot cuando está disponible, ventiladores, heatpipes, pads y comportamiento bajo carga.' },
+  { question: '¿Pixon PC atiende empresas?', answer: 'Sí. Programamos mantenimiento térmico preventivo por lote para oficinas, escuelas, hoteles, agencias y negocios de Cancún, procurando reducir el tiempo fuera de operación y documentando incidencias por equipo.' },
+];
+
+const comparison = [
+  ['Seguridad', 'Alta cuando se aplica correctamente', 'Riesgo eléctrico alto si se derrama'],
+  ['Transferencia térmica', 'Buena para uso general y alto rendimiento', 'Excelente en escenarios compatibles'],
+  ['Compatibilidad', 'Amplia en cobre, níquel y aluminio', 'Limitada; no debe tocar aluminio'],
+  ['Mantenimiento', 'Accesible y fácil de renovar', 'Delicado, requiere inspección y aislamiento'],
+  ['Uso recomendado', 'PC, laptop, GPU y consolas en general', 'Equipos extremos o diseñados para utilizarlo'],
+];
+
+const serviceLinks = [
+  ['/servicios/laptop/pasta-termica', 'fa-temperature-half', 'Cambio de pasta térmica en Cancún', 'Limpieza, revisión de ventilación y aplicación según el equipo.'],
+  ['/servicios/pc/limpieza-profunda', 'fa-fan', 'Limpieza interna de laptop y PC', 'Retiro de polvo en disipadores, ventiladores, filtros y gabinete.'],
+  ['/servicios/pc/tarjeta-video-gpu', 'fa-microchip', 'Pasta y pads térmicos de GPU', 'Revisión de chip, hotspot, memorias, VRM y espesores compatibles.'],
+  ['/servicios/laptop/mantenimiento-preventivo', 'fa-laptop', 'Mantenimiento de laptop gamer', 'Servicio térmico para equipos con CPU y GPU dedicados.'],
+  ['/servicios/pc/refrigeracion', 'fa-wind', 'Revisión de ventiladores', 'Diagnóstico de ruido, RPM, bombas, airflow y montaje.'],
+  ['/optimizacion', 'fa-chart-line', 'Temperatura y rendimiento', 'Pruebas para distinguir calor, software y límites del hardware.'],
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org', '@type': 'Service',
+    name: 'Pasta térmica vs metal líquido en Cancún',
+    serviceType: 'Diagnóstico y mantenimiento térmico para PC, laptop y consolas',
+    url: `https://pixon.com.mx${canonical}`,
+    description: 'Comparativa, diagnóstico térmico, limpieza interna, cambio de pasta térmica y aplicación controlada de metal líquido en Cancún.',
+    provider: { '@id': 'https://pixon.com.mx/#business' },
+    areaServed: [{ '@type': 'City', name: 'Cancún' }, { '@type': 'State', name: 'Quintana Roo' }],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({ '@type': 'Question', name: faq.question, acceptedAnswer: { '@type': 'Answer', text: faq.answer } })),
+  },
+];
+---
+
+<Base
+  title="Pasta térmica vs metal líquido en Cancún | Pixon PC"
+  description="Compara pasta térmica vs metal líquido en Cancún. Diagnóstico térmico, mantenimiento y aplicación segura para PC, laptop y consolas."
+  canonical={canonical}
+  image="/assets/images/mantenimiento-pastaternima-thermalpads.webp"
+  schema={schema}
+  bodyClass="service-page thermal-compare-page"
+>
+  <Navbar />
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Blogs', href: '/blogs' }, { label: 'Pasta térmica vs metal líquido' }]} />
+
+  <header class="tc-hero">
+    <img src="/assets/images/mantenimiento-pastaternima-thermalpads.webp" alt="Comparativa de pasta térmica vs metal líquido para mantenimiento de computadoras en Cancún Quintana Roo" width="1600" height="900" loading="eager" />
+    <div class="tc-hero__shade"></div>
+    <div class="tc-shell tc-hero__content">
+      <span class="tc-kicker">Diagnóstico térmico en Cancún</span>
+      <h1>Pasta térmica vs metal líquido en Cancún: cuál conviene para tu PC, laptop o consola</h1>
+      <p>No elegimos el compuesto por moda. Medimos temperatura, frecuencia, ventilación y compatibilidad para recomendar una intervención segura.</p>
+      <div class="tc-actions">
+        <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Enviar WhatsApp</a>
+        <a class="tc-btn tc-btn--ghost" href="#ticket-termico"><Icon name="clipboard-list" /> Crear ticket</a>
+      </div>
+      <dl class="tc-hero__facts">
+        <div><dt>Equipos</dt><dd>PC, laptop y consolas</dd></div>
+        <div><dt>Criterio</dt><dd>Medición antes de aplicar</dd></div>
+        <div><dt>Ubicación</dt><dd>Cancún, Quintana Roo</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <main class="tc-main">
+    <section class="tc-section tc-intro">
+      <div class="tc-shell tc-split">
+        <div class="tc-copy">
+          <span class="tc-icon"><Icon name="temperature-half" /></span>
+          <h2>Pasta térmica vs metal líquido: no todos los equipos necesitan lo mismo</h2>
+          <h3>Diagnóstico térmico antes de aplicar cualquier material</h3>
+          <p>La interfaz térmica une el chip con el disipador y rellena imperfecciones microscópicas. Sin embargo, una temperatura alta también puede venir de polvo, un ventilador desgastado, un heatpipe dañado, presión irregular, pads equivocados o una configuración que mantiene el procesador al máximo.</p>
+          <h3>Servicio para PC, laptop, consolas y equipos corporativos en Cancún</h3>
+          <p>En Pixon PC revisamos equipos domésticos, gamer y empresariales. La comparación de pasta térmica vs metal líquido en Cancún comienza identificando el diseño original, los materiales y la carga real del equipo.</p>
+        </div>
+        <figure class="tc-media"><img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Técnico de Pixon PC aplicando pasta térmica en laptop gamer en Cancún" /><figcaption>La aplicación correcta depende del área, presión y compuesto.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="tc-section tc-difference">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="scale-balanced" /><div><h2>¿Qué diferencia hay entre pasta térmica y metal líquido?</h2><p>Ambos transfieren calor entre el chip y el disipador, pero su conductividad eléctrica, compatibilidad y forma de mantenimiento son muy diferentes.</p></div></header>
+        <div class="tc-dual">
+          <article><span class="tc-material tc-material--paste"><Icon name="droplet" /></span><h3>Ambos transfieren calor, pero no tienen el mismo riesgo</h3><p>La pasta térmica tradicional no suele ser conductora de electricidad y tolera pequeñas variaciones de montaje. Es la opción lógica para la mayoría de mantenimientos.</p></article>
+          <article><span class="tc-material tc-material--metal"><Icon name="bolt" /></span><h3>La pasta térmica es segura; el metal líquido requiere experiencia</h3><p>El metal líquido conduce electricidad, puede migrar y reacciona con aluminio. Su ventaja térmica solo importa cuando el sistema completo puede aprovecharla sin aumentar el riesgo.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-metal">
+      <div class="tc-shell tc-metal__grid">
+        <div class="tc-copy"><span class="tc-icon tc-icon--dark"><Icon name="flask" /></span><h2>Cuándo sí tiene sentido usar metal líquido</h2><h3>Equipos de alto rendimiento con thermal throttling real</h3><p>Puede considerarse cuando las mediciones confirman que el contacto térmico limita frecuencias, el disipador es compatible y el fabricante utiliza o admite este material. No se recomienda solo porque una aplicación muestra una temperatura alta.</p><h3>Laptops gamer, delid y configuraciones extremas</h3><p>En equipos compactos o modificados, cada grado puede ayudar, pero el riesgo también crece. Confirmamos cobre o níquel, aislamos componentes y dejamos una cantidad controlada. Un servicio de metal líquido para laptop en Cancún debe incluir prueba de estabilidad, no solo aplicación.</p></div>
+        <figure class="tc-media tc-media--dark"><img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Aplicación controlada de metal líquido en laptop gamer en Cancún Quintana Roo" /></figure>
+      </div>
+    </section>
+
+    <section class="tc-section tc-paste">
+      <div class="tc-shell tc-split tc-split--reverse">
+        <figure class="tc-media"><img src="/assets/images/laptop-feliz-limpia.webp" alt="Cambio de pasta térmica en laptop con sobrecalentamiento en Cancún" /></figure>
+        <div class="tc-copy"><span class="tc-icon"><Icon name="shield-halved" /></span><h2>Cuándo conviene usar pasta térmica en tu equipo</h2><h3>Ideal para laptops, PC de oficina, PC gamer y consolas</h3><p>Una pasta de calidad, bien distribuida y acompañada de limpieza suele ser suficiente para recuperar una transferencia estable en equipos de uso general y alto rendimiento. También facilita futuras intervenciones sin exponer la placa a un material conductor.</p><h3>Buena opción para mantenimiento preventivo en Cancún</h3><p>El polvo fino, humedad ambiental y uso continuo pueden saturar la refrigeración. Para muchos equipos, limpiar conductos, corregir presión y renovar pasta es más sensato que cambiar a metal líquido.</p></div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-risks">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="triangle-exclamation" /><div><h2>Riesgos del metal líquido si se aplica mal</h2><p>Una mejora potencial no justifica intervenir sin revisar compatibilidad, aislamiento y contención.</p></div></header>
+        <div class="tc-risk-grid">
+          <article><Icon name="bolt" /><h3>Puede causar corto eléctrico si toca componentes</h3><p>Una gota fuera del chip puede unir contactos y dañar placa, procesador o alimentación.</p></article>
+          <article><Icon name="ban" /><h3>No debe usarse sobre disipadores de aluminio</h3><p>El galio puede deteriorar el aluminio y comprometer la superficie de contacto.</p></article>
+          <article><Icon name="arrow-down-long" /><h3>Puede escurrirse si no se aísla correctamente</h3><p>Movimientos, exceso de material o barreras deficientes elevan el riesgo en equipos portátiles.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-comparison" id="comparativa">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="table-columns" /><div><h2>Comparativa: pasta térmica vs metal líquido</h2><h3>Seguridad, temperatura, durabilidad y compatibilidad</h3><p>Esta tabla resume la decisión inicial. El diagnóstico del modelo sigue siendo necesario antes de elegir.</p></div></header>
+        <div class="tc-table-wrap"><table><thead><tr><th>Punto clave</th><th><Icon name="droplet" /> Pasta térmica</th><th><Icon name="bolt" /> Metal líquido</th></tr></thead><tbody>{comparison.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody></table></div>
+        <p class="tc-note"><strong>Cuál elegir según tu equipo:</strong> la pasta térmica cubre la mayoría de casos. El metal líquido se reserva para diseños compatibles, exigencia térmica comprobada y usuarios que aceptan un mantenimiento más delicado.</p>
+      </div>
+    </section>
+
+    <section class="tc-section tc-gaming">
+      <div class="tc-shell tc-feature-grid">
+        <div class="tc-copy"><span class="tc-icon"><Icon name="gamepad" /></span><h2>Pasta térmica vs metal líquido en laptops gamer</h2><h3>Por qué algunas laptops bajan FPS por temperatura</h3><p>Cuando CPU o GPU alcanzan límites térmicos pueden reducir frecuencia, elevar frametime y provocar bajones de FPS. También revisamos potencia compartida, modo de ventilación, BIOS, drivers y temperatura ambiental.</p><h3>Cuándo basta con pasta premium y limpieza profunda</h3><p>Si el diseño es correcto y el problema es pasta seca, polvo o rejillas bloqueadas, un mantenimiento completo puede recuperar estabilidad sin introducir metal conductor.</p><h3>Cuándo considerar metal líquido con aislamiento</h3><p>Solo cuando el modelo, disipador y mediciones justifican el riesgo. La búsqueda “metal líquido laptop Cancún” no debe terminar en una aplicación automática.</p></div>
+        <figure class="tc-media tc-media--tall"><img src="/assets/images/laptop-gamer-rogstrix.webp" alt="Laptop gamer con sobrecalentamiento revisada por Pixon PC en Cancún" /></figure>
+      </div>
+    </section>
+
+    <section class="tc-section tc-desktop">
+      <div class="tc-shell tc-split tc-split--reverse">
+        <figure class="tc-media"><img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento de PC gamer con cambio de pasta térmica en Cancún" /></figure>
+        <div class="tc-copy"><span class="tc-icon"><Icon name="computer" /></span><h2>Pasta térmica vs metal líquido en PC de escritorio</h2><h3>Revisión de cooler, presión, gabinete y flujo de aire</h3><p>En una PC revisamos montaje del disipador, bomba si existe refrigeración líquida, orientación de ventiladores, filtros, curvas y temperatura dentro del gabinete. Un buen compuesto no compensa un cooler insuficiente o mal instalado.</p><h3>No todo problema de temperatura se arregla cambiando pasta</h3><p>Un procesador con voltaje elevado, una bomba degradada o aire caliente recirculando requiere otra solución. El mantenimiento térmico de PC en Cancún debe incluir medición antes y después.</p></div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-gpu">
+      <div class="tc-shell tc-gpu__layout">
+        <header><span class="tc-icon tc-icon--dark"><Icon name="microchip" /></span><h2>Cambio de pasta térmica en tarjetas gráficas</h2><p>Abrir una GPU implica conservar presión uniforme y espesores exactos. No sustituimos pads sin confirmar medidas.</p></header>
+        <div class="tc-gpu__points"><article><h3>Temperatura del chip, hotspot, memorias y VRM</h3><p>La diferencia entre temperatura promedio y hotspot puede señalar contacto irregular, pasta degradada o presión deficiente.</p></article><article><h3>Pads térmicos: el detalle que muchos talleres ignoran</h3><p>Un pad demasiado grueso levanta el disipador del chip; uno delgado no alcanza memorias o VRM. Medimos y respetamos la arquitectura.</p></article></div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-consoles">
+      <div class="tc-shell tc-feature-grid">
+        <div class="tc-copy"><span class="tc-icon"><Icon name="headset" /></span><h2>Pasta térmica vs metal líquido en consolas PlayStation, Xbox y Nintendo</h2><h3>Ruido excesivo, apagones y calentamiento en consolas</h3><p>Revisamos polvo, ventilador, fuente, disipador y compuesto original. Apagarse puede indicar protección térmica, pero también una falla de alimentación que requiere diagnóstico diferente.</p><h3>Por qué no siempre conviene aplicar metal líquido en consolas</h3><p>Algunas generaciones lo usan de fábrica y requieren inspección de sellos y distribución. Otras fueron diseñadas para pasta térmica. Respetar el sistema original suele ser más seguro que modificarlo sin necesidad.</p></div>
+        <figure class="tc-media"><img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Mantenimiento térmico de consola con pasta térmica en Cancún Quintana Roo" /></figure>
+      </div>
+    </section>
+
+    <section class="tc-section tc-mac">
+      <div class="tc-shell tc-split tc-split--reverse">
+        <figure class="tc-media"><img src="/assets/images/mantenimiento-macbook-cancun.webp" alt="Mantenimiento térmico de MacBook con pasta térmica en Cancún" /></figure>
+        <div class="tc-copy"><span class="tc-icon"><Icon name="apple" /></span><h2>Mantenimiento térmico en MacBook y laptops delgadas</h2><h3>Equipos compactos con poco margen de enfriamiento</h3><p>En chasis delgados, la temperatura puede subir rápido por rejillas pequeñas, ventiladores compactos y perfiles silenciosos. Revisamos comportamiento sostenido, no un pico aislado.</p><h3>Aplicación segura sin arriesgar la placa</h3><p>Protegemos flex, conectores y componentes cercanos. No aplicamos metal líquido si el sistema no cuenta con compatibilidad y contención adecuadas.</p></div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-signals">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="wave-square" /><div><h2>Señales de que tu equipo necesita cambio de pasta térmica</h2><p>Una señal aislada no confirma la causa, pero varias juntas justifican una revisión térmica.</p></div></header>
+        <div class="tc-signal-list"><article><Icon name="power-off" /><div><h3>Se apaga solo o baja rendimiento después de unos minutos</h3><p>La pérdida progresiva bajo carga puede corresponder a protección térmica o alimentación.</p></div></article><article><Icon name="fan" /><div><h3>Ventiladores al máximo aunque no estés jugando</h3><p>Puede existir polvo, una tarea de fondo, sensor incorrecto o contacto térmico degradado.</p></div></article><article><Icon name="temperature-arrow-up" /><div><h3>Temperaturas altas en CPU o GPU</h3><p>Las comparamos con frecuencia, consumo y especificación del equipo.</p></div></article><article><Icon name="chart-line" /><div><h3>Bajones de FPS, stuttering o thermal throttling</h3><p>Medimos clocks y frametime para confirmar si la temperatura limita el rendimiento.</p></div></article></div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-diagnostic">
+      <div class="tc-shell tc-diagnostic__grid">
+        <div class="tc-copy"><span class="tc-icon tc-icon--dark"><Icon name="stethoscope" /></span><h2>Diagnóstico antes de cambiar pasta térmica o aplicar metal líquido</h2><h3>Medimos temperatura, frecuencia y consumo real</h3><p>Registramos reposo y carga, frecuencia sostenida, potencia y ruido. El objetivo es identificar thermal throttling en Cancún con evidencia, no con una captura aislada.</p><h3>Revisamos ventiladores, disipador, polvo y pads térmicos</h3><p>La ruta térmica completa importa: entrada de aire, contacto, heatpipes, salida, firmware y ambiente.</p><h3>Te decimos si el problema es hardware, suciedad o mala configuración</h3><p>Si la pasta no es la causa, proponemos ventilador, cooler, ajuste, reparación o ninguna intervención.</p></div>
+        <div class="tc-gauges" aria-label="Puntos del diagnóstico térmico"><span><Icon name="temperature-half" /><strong>Temperatura</strong></span><span><Icon name="gauge-high" /><strong>Frecuencia</strong></span><span><Icon name="bolt" /><strong>Consumo</strong></span><span><Icon name="fan" /><strong>Ventilación</strong></span></div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-process">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="screwdriver-wrench" /><div><h2>Cómo trabajamos el mantenimiento térmico en Pixon PC</h2><p>El proceso de pasta térmica vs metal líquido Pixon PC documenta la causa antes de intervenir y valida el resultado al terminar.</p></div></header>
+        <ol class="tc-process__list"><li><strong>01</strong><div><h3>Recepción del equipo y síntomas</h3><p>Modelo, uso, ruido, apagados y trabajos previos.</p></div></li><li><strong>02</strong><div><h3>Prueba de temperatura y rendimiento</h3><p>Medición controlada según el tipo de equipo.</p></div></li><li><strong>03</strong><div><h3>Limpieza interna y revisión física</h3><p>Ventiladores, disipador, pads, presión y materiales.</p></div></li><li><strong>04</strong><div><h3>Cotización clara antes de aplicar</h3><p>Explicamos opción recomendada, alcance y riesgos.</p></div></li><li><strong>05</strong><div><h3>Cambio de pasta o aplicación controlada</h3><p>Solo el material compatible y la cantidad necesaria.</p></div></li><li><strong>06</strong><div><h3>Prueba final y recomendaciones de uso</h3><p>Comparamos estabilidad y señalamos límites restantes.</p></div></li></ol>
+      </div>
+    </section>
+
+    <section class="tc-section tc-related">
+      <div class="tc-shell"><header class="tc-heading"><Icon name="toolbox" /><div><h2>Servicios relacionados con pasta térmica y enfriamiento</h2><p>La intervención correcta puede combinar limpieza, ventilación, pads, diagnóstico y optimización.</p></div></header><div class="tc-related__grid">{serviceLinks.map(([href, icon, title, text]) => <a href={href}><Icon name={icon.replace('fa-', '')} /><div><h3>{title}</h3><p>{text}</p><span>Ver servicio <Icon name="arrow-right" /></span></div></a>)}</div></div>
+    </section>
+
+    <section class="tc-section tc-b2b">
+      <div class="tc-shell tc-b2b__grid"><div><span class="tc-icon tc-icon--dark"><Icon name="building" /></span><h2>Mantenimiento térmico para empresas en Cancún</h2><h3>Evita apagones, lentitud y fallas por temperatura</h3><p>Los equipos administrativos suelen acumular polvo durante años y trabajar en escritorios con poca ventilación. Programamos revisiones para detectar ruido, temperatura y almacenamiento antes de una falla operativa.</p><h3>Servicio para oficinas, negocios, escuelas y equipos administrativos</h3><p>Atendemos Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.</p><h3>Mantenimiento preventivo por lote de laptops o PCs</h3><p>Organizamos recepción, inventario básico, hallazgos y entregas escalonadas según el número de equipos.</p></div><aside><strong>Pixon PC / Rentalap</strong><span>Cto. Hacienda Chimay<br />77539 Cancún, Q.R.</span><a href="tel:+529986690777">+52 998 669 0777</a><a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></aside></div>
+    </section>
+
+    <section class="tc-section tc-errors">
+      <div class="tc-shell"><header class="tc-heading"><Icon name="circle-xmark" /><div><h2>Errores comunes al cambiar pasta térmica o usar metal líquido</h2><p>La calidad depende más del diagnóstico y montaje que de escoger el compuesto con la cifra más alta.</p></div></header><div class="tc-errors__grid"><article><b>01</b><h3>Poner demasiada pasta térmica</h3><p>El exceso puede dificultar el montaje, ensuciar alrededor y no mejora automáticamente la transferencia.</p></article><article><b>02</b><h3>Usar pasta barata en equipos de alto consumo</h3><p>Un compuesto inestable puede secarse o desplazarse antes en ciclos térmicos exigentes.</p></article><article><b>03</b><h3>Aplicar metal líquido sin aislar componentes</h3><p>Es el error de mayor riesgo porque el material conduce electricidad.</p></article><article><b>04</b><h3>No revisar pads ni presión del disipador</h3><p>Una altura incorrecta puede impedir que el disipador toque bien CPU o GPU.</p></article></div></div>
+    </section>
+
+    <ServiceTicketSection id="ticket-termico" defaultDevice="Laptop / PC / Consola" defaultService="Diagnóstico térmico, pasta térmica o metal líquido" title="Crear ticket de mantenimiento térmico" subtitle="Indica modelo, temperaturas, ruido, apagados, FPS y si el equipo fue intervenido anteriormente." />
+
+    <FaqSection id="faq-pasta-metal" title="Preguntas frecuentes sobre pasta térmica vs metal líquido en Cancún" description="Respuestas directas sobre seguridad, compatibilidad, rendimiento, consolas, laptops gamer y mantenimiento térmico." items={faqs} viewMoreHref="/preguntas-frecuentes" viewMoreLabel="Ver más preguntas" ariaLabel="Preguntas frecuentes sobre pasta térmica y metal líquido en Cancún" backgroundColor="#f3f8fc" titleColor="#071F3A" descriptionColor="#294963" questionColor="#071F3A" />
+
+    <section class="tc-section tc-reviews"><div class="tc-shell"><header class="tc-heading"><Icon name="star" /><div><h2>Clientes que confiaron en Pixon PC para mantenimiento y reparación</h2><h3>Opiniones reales sobre mantenimiento preventivo</h3><p>Las reseñas ayudan a conocer la atención, explicación técnica y seguimiento recibido por clientes en Cancún.</p></div></header></div></section>
+    <CommentsSection serviceId="pasta-termica-vs-metal-liquido-cancun" serviceName="Pasta térmica vs metal líquido" category="servicios" />
+
+    <section class="tc-final">
+      <div class="tc-shell tc-final__grid"><div><span>Diagnóstico local con cita previa</span><h2>Agenda tu diagnóstico térmico en Cancún con Pixon PC</h2><h3>Te decimos si necesitas pasta térmica, limpieza o metal líquido</h3><p>No arriesgues la placa por aplicar un material incompatible. Revisamos la causa y cotizamos antes de intervenir.</p><div class="tc-actions"><a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Enviar WhatsApp</a><a class="tc-btn tc-btn--ghost" href="#ticket-termico"><Icon name="clipboard-list" /> Crear ticket de mantenimiento</a></div></div><address><strong>Pixon PC / Rentalap</strong><span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span><a href="tel:+529986690777">+52 998 669 0777</a><a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></address></div>
+    </section>
+    <ContactSection />
+  </main>
+  <Footer />
+</Base>
+
+<style is:global>
+  :global(.thermal-compare-page section[id]){content-visibility:visible!important;contain:none!important}
+  :global(.thermal-compare-page .tc-main>section){padding-top:20px!important;padding-bottom:20px!important}
+  .tc-main,.tc-hero,.tc-final{--ink:#071F3A;--blue:#1479D4;--muted:#294963;--line:#cbdce8;--ice:#eef6fc;color:var(--ink)}
+  .tc-shell{width:min(1180px,calc(100% - 32px));margin:0 auto}.tc-section{padding:20px 0;content-visibility:visible!important;contain:none!important}.tc-section :where(h2,h3,p,li,span,strong,a,td,th){color:var(--ink)}.tc-svg{display:block;width:18px;height:18px;max-width:22px;max-height:22px;fill:currentColor;flex:0 0 auto}
+  .tc-section h2,.tc-final h2{margin:0 0 18px;font-family:var(--font-heading);font-size:clamp(2rem,3.8vw,3.45rem);font-style:italic;font-weight:800;line-height:1.08;text-wrap:balance}.tc-section h3,.tc-final h3{margin:22px 0 8px;font-size:1.08rem;line-height:1.3;text-wrap:balance}.tc-section p,.tc-final p{max-width:72ch;margin:0;color:var(--muted);font-weight:500;line-height:1.72}.tc-split,.tc-feature-grid,.tc-metal__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.88fr);gap:clamp(36px,7vw,88px);align-items:center}.tc-split--reverse>figure{grid-column:1;grid-row:1}.tc-split--reverse>.tc-copy{grid-column:2;grid-row:1}.tc-icon{display:grid;width:42px;height:42px;margin-bottom:16px;place-items:center;border-radius:8px;color:var(--blue);background:#dceffc}.tc-icon>.tc-svg{width:18px;height:18px}.tc-icon--dark{color:#fff;background:var(--ink)}
+  .tc-media{margin:0;overflow:hidden;border-radius:8px;background:#dce8f1}.tc-media img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}.tc-media--tall img{aspect-ratio:4/5}.tc-media figcaption{padding:12px 15px;color:var(--muted);font-size:.82rem;font-weight:650}.tc-heading{display:grid;grid-template-columns:48px minmax(0,780px);gap:16px;align-items:start;margin-bottom:24px}.tc-heading>.tc-svg{box-sizing:border-box;width:42px;height:42px;max-width:42px;max-height:42px;padding:11px;border-radius:8px;color:#fff;background:var(--blue)}.tc-heading h2{margin-top:0}
+  .tc-hero{position:relative;min-height:760px;display:grid;align-items:end;overflow:hidden;background:#071f3a}.tc-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.tc-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,17,31,.95),rgba(3,17,31,.78) 53%,rgba(3,17,31,.2))}.tc-hero__content{position:relative;padding:150px 0 60px}.tc-kicker,.tc-final>div>div>span{color:#bce0fb;font-weight:800}.tc-hero h1{max-width:900px;margin:12px 0 18px;color:#fff;font-family:var(--font-heading);font-size:clamp(2.45rem,5.7vw,5.2rem);font-style:italic;font-weight:800;line-height:1.02;text-wrap:balance}.tc-hero p{max-width:700px;color:rgba(255,255,255,.84);font-size:1.08rem;line-height:1.7}.tc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.tc-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:12px 17px;border:1px solid var(--blue);border-radius:8px;color:#fff!important;background:var(--blue);font-weight:800;text-decoration:none;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 160ms ease}.tc-btn--ghost{border-color:rgba(255,255,255,.5);background:rgba(7,31,58,.58)}.tc-btn:active{transform:scale(.97)}.tc-hero__facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:760px;margin:42px 0 0;border-top:1px solid rgba(255,255,255,.25)}.tc-hero__facts div{padding:16px 18px 0 0}.tc-hero__facts dt{color:#92c9f1;font-size:.75rem;font-weight:800}.tc-hero__facts dd{margin:3px 0 0;color:#fff;font-weight:700}
+  .tc-intro,.tc-paste,.tc-desktop,.tc-mac{background:#fff}.tc-difference,.tc-gaming,.tc-consoles,.tc-related,.tc-reviews{background:var(--ice)}.tc-dual{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.tc-dual article{padding:clamp(26px,4vw,46px);background:#fff}.tc-material{display:grid;width:42px;height:42px;margin-bottom:22px;place-items:center;border-radius:50%;color:#fff;background:var(--blue)}.tc-material>.tc-svg{width:17px;height:17px}.tc-material--metal{background:var(--ink)}.tc-dual h3{margin-top:0;font-size:1.3rem}
+  .tc-metal{background:#dcecf7}.tc-metal__grid{grid-template-columns:minmax(0,1fr) minmax(320px,.75fr)}.tc-media--dark{padding:12px;background:var(--ink)}.tc-risks{background:#fff}.tc-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.tc-risk-grid article{padding:22px;border-radius:8px;background:#f3f7fa}.tc-risk-grid .tc-svg{width:25px;height:25px;color:#b42318}.tc-risk-grid h3{font-size:1.2rem}
+  .tc-comparison{background:#dcecf7!important}.tc-comparison .tc-heading>.tc-svg{color:#fff;background:var(--ink)}.tc-table-wrap{overflow-x:auto;border-radius:8px}.tc-table-wrap table{width:100%;min-width:720px;border-collapse:collapse;background:#fff}.tc-table-wrap th,.tc-table-wrap td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line)}.tc-table-wrap th{color:var(--blue);font-size:.85rem}.tc-table-wrap td:first-child{font-weight:800}.tc-note{max-width:none!important;margin-top:14px!important;padding:14px 18px;border:1px solid #9fc5df;border-radius:8px;background:#fff}
+  .tc-gpu{background:#eef6fc!important}.tc-gpu__layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:clamp(28px,5vw,64px)}.tc-gpu__points{border-top:1px solid var(--line)}.tc-gpu__points article{padding:18px 0;border-bottom:1px solid var(--line)}.tc-gpu__points h3{margin-top:0}.tc-signals{background:#fff}.tc-signal-list{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.tc-signal-list article{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:20px;background:#fff}.tc-signal-list .tc-svg{width:22px;height:22px;color:var(--blue)}.tc-signal-list h3{margin-top:0}
+  .tc-diagnostic{background:#dcecf7}.tc-diagnostic__grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,5vw,64px);align-items:center}.tc-gauges{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tc-gauges span{display:grid;min-height:120px;padding:18px;align-content:space-between;border-radius:8px;background:#fff}.tc-gauges .tc-svg{width:27px;height:27px;color:var(--blue)}.tc-process{background:#fff}.tc-process__list{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0;padding:0;background:var(--line);list-style:none}.tc-process__list li{display:grid;grid-template-columns:36px 1fr;gap:15px;min-height:160px;padding:20px;background:#fff}.tc-process__list>li>strong{color:var(--blue)}.tc-process__list h3{margin-top:0}
+  .tc-related__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.tc-related__grid>a{display:grid;grid-template-columns:38px 1fr;gap:14px;padding:20px;border-radius:8px;color:inherit;background:#fff;text-decoration:none}.tc-related__grid>a>.tc-svg{width:22px;height:22px;color:var(--blue)}.tc-related__grid h3{margin-top:0}.tc-related__grid span{display:inline-flex;gap:8px;margin-top:12px;color:var(--blue)!important;font-weight:800}.tc-b2b{background:#fff}.tc-b2b__grid{display:grid;grid-template-columns:1fr 330px;gap:clamp(28px,6vw,72px)}.tc-b2b aside{display:grid;gap:12px;align-content:start;padding:24px;border-radius:8px;background:#dcecf7}.tc-b2b aside a{color:var(--blue)!important}.tc-errors{background:#dcecf7}.tc-errors__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.tc-errors__grid article{padding:20px;border-radius:8px;background:#fff}.tc-errors__grid b{color:var(--blue)}
+  .tc-final{padding:clamp(72px,9vw,110px) 0;background:#dcecf7!important}.tc-final__grid{display:grid;grid-template-columns:1fr 330px;gap:60px;align-items:center}.tc-final>div>div>span{color:var(--blue)}.tc-final address{display:grid;gap:10px;padding:26px;border:1px solid #9fc5df;border-radius:8px;background:#fff;font-style:normal}.tc-final address a{color:var(--blue)!important;text-decoration:none}.tc-final .tc-btn--ghost{border-color:var(--ink);color:var(--ink)!important;background:transparent}
+  @media(hover:hover) and (pointer:fine){.tc-btn:hover{transform:translateY(-2px);background:#0e68b8}.tc-related__grid>a{transition:transform 180ms cubic-bezier(.23,1,.32,1),background-color 180ms ease}.tc-related__grid>a:hover{transform:translateY(-3px);background:#e2f1fc}}
+  @media(max-width:900px){.tc-split,.tc-feature-grid,.tc-metal__grid,.tc-gpu__layout,.tc-diagnostic__grid,.tc-b2b__grid,.tc-final__grid{grid-template-columns:1fr}.tc-split--reverse>figure,.tc-split--reverse>.tc-copy{grid-column:auto;grid-row:auto}.tc-risk-grid,.tc-process__list,.tc-related__grid{grid-template-columns:repeat(2,1fr)}.tc-errors__grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){.tc-hero{min-height:720px}.tc-hero__content{padding-top:130px}.tc-hero__facts,.tc-dual,.tc-risk-grid,.tc-signal-list,.tc-gauges,.tc-process__list,.tc-related__grid,.tc-errors__grid{grid-template-columns:1fr}.tc-heading{grid-template-columns:42px 1fr;gap:12px}.tc-heading>.tc-svg{width:38px;height:38px;max-width:38px;max-height:38px;padding:10px}.tc-section{padding:20px 0}.tc-actions,.tc-actions .tc-btn{width:100%}.tc-table-wrap{margin-inline:-16px;border-radius:0}.tc-hero__facts div{padding-top:12px}.tc-hero__facts{gap:8px}.tc-b2b aside,.tc-final address{width:100%}}
+  @media(prefers-reduced-motion:reduce){.tc-btn,.tc-related__grid>a{transition:none}}
+</style>

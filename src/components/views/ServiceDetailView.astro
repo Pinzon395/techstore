@@ -9,6 +9,10 @@ import Footer from '../Footer.astro';
 const { service, category, description = '' } = Astro.props;
 
 const servicePath = `/servicios/${category.slug}/${service.slug}`;
+const serviceSlugClass = service.label === 'Cambio HDMI PS5'
+  ? 'sdv-service-cambio-hdmi-ps5'
+  : `sdv-service-${service.slug}`;
+const isPs5HdmiService = category.slug === 'consola' && service.slug === 'cambio-hdmi-ps5';
 const isMacBookRepair = category.slug === 'mac' && service.slug === 'reparacion-macbook';
 const isMacDiagnostic = category.slug === 'mac' && service.slug === 'diagnostico-mac';
 const isMacNoPower = category.slug === 'mac' && service.slug === 'macbook-no-enciende';
@@ -484,16 +488,26 @@ function getServiceImage() {
 }
 
 const serviceImage = getServiceImage();
-const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'} - servicio tecnico Pixon PC`;
+const serviceImageAlt = isPs5HdmiService
+  ? 'Cambio de HDMI PS5 en Cancún - servicio técnico Pixon PC'
+  : `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'} - servicio tecnico Pixon PC`;
 ---
 
-<div class={`sdv sdv-category-${category.slug} ${isMacBookRepair ? 'sdv-macbook-repair' : ''} ${isMacDiagnostic ? 'sdv-mac-diagnostic' : ''} ${isMacNoPower ? 'sdv-mac-no-power' : ''} ${isNetworkService ? 'sdv-network-service' : ''} ${isB2bMaintenancePremium ? 'sdv-b2b-policy' : ''}`}>
+<div class={`sdv sdv-category-${category.slug} ${serviceSlugClass} ${isMacBookRepair ? 'sdv-macbook-repair' : ''} ${isMacDiagnostic ? 'sdv-mac-diagnostic' : ''} ${isMacNoPower ? 'sdv-mac-no-power' : ''} ${isNetworkService ? 'sdv-network-service' : ''} ${isB2bMaintenancePremium ? 'sdv-b2b-policy' : ''}`}>
   <section class="sdv-hero">
     <div class="container sdv-hero-grid">
       <div class="sdv-hero-copy">
         <span class="sdv-eyebrow"><i class={`fa-solid ${category.icon}`}></i> {category.title} en Cancun</span>
         <h1>{title}</h1>
         <p>{hook}</p>
+        {isPs5HdmiService && (
+          <div class="sdv-hdmi-hero-tags" aria-label="Síntomas frecuentes de HDMI PS5">
+            <span><i class="fa-solid fa-tv"></i>Sin imagen</span>
+            <span><i class="fa-solid fa-plug-circle-xmark"></i>Puerto flojo</span>
+            <span><i class="fa-solid fa-wave-square"></i>Señal intermitente</span>
+            <span><i class="fa-solid fa-microchip"></i>Pistas y pads</span>
+          </div>
+        )}
         {isB2bMaintenancePremium && (
           <>
             <div class="b2b-hero-tags" aria-label={b2bMaintenanceHeroAria}>
@@ -589,15 +603,36 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
               {isNetworkService ? 'Medicion de cobertura' : isMacDiagnostic ? 'Diagnostico gratis' : 'Diagnostico por modulo'}
             </div>
           )}
+          {isPs5HdmiService && (
+            <div class="sdv-hdmi-media-badge">
+              <i class="fa-solid fa-screwdriver-wrench"></i>
+              Microsoldadura PS5
+            </div>
+          )}
         </div>
         <div class="sdv-hero-card-body">
-          <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
-          <span>Precio desde</span>
-          <div class="sdv-mini-list">
-            <p><i class="fa-solid fa-clock"></i> {service.eta || 'Tiempo segun diagnostico'}</p>
-            <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || 'Garantia por escrito'}</p>
-            <p><i class="fa-solid fa-location-dot"></i> Servicio local en Cancun</p>
-          </div>
+          {isPs5HdmiService ? (
+            <div class="sdv-hdmi-diagnostic-card" aria-label="Resumen de diagnostico HDMI PS5">
+              <span class="sdv-hdmi-kicker">Orden de revisión</span>
+              <strong>{service.fromPrice || 'Diagnóstico desde $650 MXN'}</strong>
+              <div class="sdv-hdmi-checklist">
+                <p><i class="fa-solid fa-magnifying-glass-chart"></i> Diagnóstico de puerto, pines, pads y filtros</p>
+                <p><i class="fa-solid fa-clock"></i> {service.eta || '48-96 h según daño'}</p>
+                <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || 'Garantía por escrito'}</p>
+                <p><i class="fa-solid fa-location-dot"></i> Taller local en Cancún</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
+              <span>Precio desde</span>
+              <div class="sdv-mini-list">
+                <p><i class="fa-solid fa-clock"></i> {service.eta || 'Tiempo segun diagnostico'}</p>
+                <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || 'Garantia por escrito'}</p>
+                <p><i class="fa-solid fa-location-dot"></i> Servicio local en Cancun</p>
+              </div>
+            </>
+          )}
         </div>
       </aside>
     </div>
@@ -1057,6 +1092,30 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
     color: #0F2A4A;
     padding-bottom: 0;
   }
+  .sdv-service-cambio-hdmi-ps5
+    :where(
+      .sdv-anchor-nav,
+      .sdv-light,
+      .sdv-local-seo,
+      .sdv-education,
+      .service-ticket-section,
+      .svc-related--light,
+      .faq-page-content
+    )
+    :where(h2, h3, h4, p, li, span, strong, label, a, button) {
+    color: #071F3A !important;
+  }
+  .sdv-service-cambio-hdmi-ps5
+    :where(.sdv-anchor-nav, .sdv-light, .sdv-local-seo, .sdv-education, .service-ticket-section, .svc-related--light, .faq-page-content)
+    :where(.sdv-btn-primary, .btn-primary, button[type="submit"]) {
+    color: #ffffff !important;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-dark {
+    background: #F8FAFC;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-dark :where(.sdv-eyebrow, h2, h3, p, span, li) {
+    color: #071F3A !important;
+  }
   .sdv-category-pc {
     --sdv-accent: #22D3EE;
     --sdv-accent-strong: #0E7490;
@@ -1147,6 +1206,96 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
     color: #F8FAFC;
     overflow: hidden;
   }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero {
+    position: relative;
+    padding: 96px 0 48px;
+    background:
+      radial-gradient(circle at 8% 24%, rgba(14, 165, 233, .22), transparent 29%),
+      radial-gradient(circle at 88% 8%, rgba(34, 211, 238, .16), transparent 27%),
+      linear-gradient(135deg, #06111F 0%, #08233F 48%, #0A3A4D 100%);
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: linear-gradient(90deg, rgba(0,0,0,.58), transparent 74%);
+    pointer-events: none;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero-grid {
+    position: relative;
+    z-index: 1;
+    grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+    gap: clamp(22px, 4vw, 52px);
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-eyebrow {
+    margin-bottom: 14px;
+    color: #9BE8FF;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero h1 {
+    max-width: 720px;
+    font-size: clamp(2.35rem, 4.8vw, 4.25rem);
+    line-height: 1;
+    text-wrap: balance;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero p {
+    max-width: 620px;
+    color: #D7EAF6;
+    font-size: clamp(1rem, 1.25vw, 1.13rem);
+    line-height: 1.68;
+    text-wrap: pretty;
+  }
+  .sdv-hdmi-hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 650px;
+    margin-top: 22px;
+  }
+  .sdv-hdmi-hero-tags span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 9px 12px;
+    border: 1px solid rgba(155, 232, 255, .22);
+    border-radius: 8px;
+    background: rgba(255,255,255,.07);
+    color: #F8FAFC;
+    font-size: .88rem;
+    font-weight: 900;
+    backdrop-filter: blur(10px);
+  }
+  .sdv-hdmi-hero-tags i {
+    color: #7DD3FC;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-btn {
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, border-color 160ms ease;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-btn:active {
+    transform: scale(.97);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .sdv-service-cambio-hdmi-ps5 .sdv-btn:hover {
+      transform: translateY(-1px);
+    }
+    .sdv-service-cambio-hdmi-ps5 .sdv-hdmi-hero-tags span:hover {
+      border-color: rgba(125, 211, 252, .46);
+      background: rgba(255,255,255,.11);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sdv-service-cambio-hdmi-ps5 .sdv-btn {
+      transition: background-color 120ms ease, border-color 120ms ease;
+    }
+    .sdv-service-cambio-hdmi-ps5 .sdv-btn:hover,
+    .sdv-service-cambio-hdmi-ps5 .sdv-btn:active {
+      transform: none;
+    }
+  }
   .sdv-hero-grid,
   .sdv-split {
     display: grid;
@@ -1231,6 +1380,11 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
     overflow: hidden;
     color: #0F2A4A;
   }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero-card {
+    border-color: rgba(155, 232, 255, .24);
+    background: #FFFFFF;
+    box-shadow: 0 24px 58px rgba(2, 8, 23, .30);
+  }
   .sdv-hero-media {
     position: relative;
     aspect-ratio: 16 / 11;
@@ -1250,8 +1404,34 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
     display: block;
     object-fit: cover;
   }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero-media {
+    aspect-ratio: 16 / 10;
+    background: #0B1F33;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero-media img {
+    filter: saturate(1.06) contrast(1.04);
+  }
+  .sdv-hdmi-media-badge {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.26);
+    background: rgba(6, 17, 31, .78);
+    color: #F8FAFC;
+    font-weight: 900;
+    backdrop-filter: blur(12px);
+  }
   .sdv-hero-card-body {
     padding: 22px;
+  }
+  .sdv-service-cambio-hdmi-ps5 .sdv-hero-card-body {
+    padding: 0;
   }
   .sdv-hero-card strong {
     display: block;
@@ -1272,6 +1452,43 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
     margin: 0;
     color: #334155;
     font-weight: 800;
+  }
+  .sdv-hdmi-diagnostic-card {
+    display: grid;
+    gap: 16px;
+    padding: 22px;
+  }
+  .sdv-hdmi-kicker {
+    width: fit-content;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #E0F2FE;
+    color: #075985 !important;
+    font-size: .78rem;
+    font-weight: 900;
+  }
+  .sdv-hdmi-diagnostic-card strong {
+    color: #071F3A;
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    line-height: 1.05;
+  }
+  .sdv-hdmi-checklist {
+    display: grid;
+    gap: 10px;
+  }
+  .sdv-hdmi-checklist p {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 9px;
+    align-items: start;
+    margin: 0;
+    color: #071F3A !important;
+    font-weight: 850;
+    line-height: 1.35;
+  }
+  .sdv-hdmi-checklist i {
+    margin-top: 2px;
+    color: #0284C7;
   }
   .sdv-anchor-nav {
     position: sticky;
@@ -2998,6 +3215,15 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
     .sdv-split {
       grid-template-columns: 1fr;
     }
+    .sdv-service-cambio-hdmi-ps5 .sdv-hero {
+      padding-top: 84px;
+    }
+    .sdv-service-cambio-hdmi-ps5 .sdv-hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .sdv-service-cambio-hdmi-ps5 .sdv-hero-card {
+      max-width: 620px;
+    }
     .sdv-trust-grid,
     .sdv-education-block,
     .sdv-before-after {
@@ -3061,6 +3287,30 @@ const serviceImageAlt = `${keyword}${/cancun/i.test(keyword) ? '' : ' en Cancun'
     }
     .sdv-hero-actions {
       display: grid;
+    }
+    .sdv-service-cambio-hdmi-ps5 .sdv-hero {
+      padding-bottom: 28px;
+    }
+    .sdv-service-cambio-hdmi-ps5 .sdv-hero h1 {
+      font-size: clamp(2.05rem, 10.5vw, 3rem);
+      line-height: 1.03;
+    }
+    .sdv-hdmi-hero-tags {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .sdv-hdmi-hero-tags span {
+      min-height: 42px;
+      padding: 9px 10px;
+      font-size: .82rem;
+    }
+    .sdv-hdmi-diagnostic-card {
+      padding: 18px;
+    }
+    .sdv-hdmi-checklist p {
+      font-size: .94rem;
     }
     .sdv-trust-grid,
     .sdv-education-points {

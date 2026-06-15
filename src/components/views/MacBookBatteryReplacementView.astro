@@ -1,0 +1,388 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero cotizar cambio de batería para MacBook en Cancún. Mi equipo se descarga rápido o tiene batería inflada.'
+);
+const waHref = 'https://wa.me/529986690777?text=' + waMessage;
+const sourcePage = '/servicios/' + category.slug + '/' + service.slug;
+
+const symptoms = [
+  { icon: 'fa-battery-quarter', title: 'La batería dura muy poco', desc: 'Baja de 100% a menos de 30% en poco tiempo, se apaga antes de llegar a 0% o ya no soporta una jornada normal.' },
+  { icon: 'fa-triangle-exclamation', title: 'Trackpad levantado o carcasa abierta', desc: 'Puede indicar batería inflada. No presiones la tapa, el teclado ni el trackpad; conviene desconectar y revisar pronto.' },
+  { icon: 'fa-plug-circle-xmark', title: 'No carga o carga intermitente', desc: 'Antes de culpar a la batería separamos cargador, cable, USB-C o MagSafe, sensores, placa de carga y consumo interno.' },
+  { icon: 'fa-temperature-arrow-up', title: 'Se calienta y se descarga rápido', desc: 'Una batería envejecida, apps exigentes o temperatura alta pueden acelerar el consumo. Validamos causa antes de instalar pieza.' },
+  { icon: 'fa-power-off', title: 'Se apaga con porcentaje disponible', desc: 'Si se apaga con 20%, 40% o 60%, medimos salud, ciclos, voltaje, consumo y estabilidad para evitar un cambio innecesario.' },
+  { icon: 'fa-screwdriver-wrench', title: 'Mensaje de servicio recomendado', desc: 'macOS puede reportar reparación recomendada, capacidad reducida o ciclos altos. Confirmamos con diagnóstico físico.' },
+];
+
+const process = [
+  { title: 'Recepción y modelo exacto', desc: 'Registramos si es MacBook Air o Pro, año, chip Intel/M1/M2/M3, número A, cargador usado, síntomas y si hubo golpe, líquido o reparación previa.' },
+  { title: 'Diagnóstico de carga y consumo', desc: 'Revisamos salud de batería, ciclos cuando macOS lo permite, cargador, USB-C o MagSafe, consumo anormal, temperatura y respuesta del equipo.' },
+  { title: 'Cotización de pieza compatible', desc: 'Te explicamos tipo de batería, disponibilidad, tiempo, garantía y si conviene reemplazar sólo batería o revisar top case, trackpad o placa.' },
+  { title: 'Reemplazo seguro', desc: 'Desconectamos alimentación, trabajamos con herramienta adecuada, control antiestático y cuidado con flex, adhesivos, tornillería y chasis de aluminio.' },
+  { title: 'Pruebas finales', desc: 'Validamos encendido, carga, porcentaje estable, reposo, temperatura, trackpad, teclado, puertos y comportamiento de macOS antes de entregar.' },
+];
+
+const compatible = [
+  { title: 'MacBook Air Intel', desc: 'Modelos 11”, 13” y generaciones Retina. Confirmamos número A y forma de batería antes de cotizar.' },
+  { title: 'MacBook Pro Intel', desc: '13”, 15” y 16”. Revisamos si la batería va integrada con top case o si requiere adhesivo y desarmado especial.' },
+  { title: 'MacBook Air M1, M2 y M3', desc: 'Equipos Apple Silicon con batería interna. Validamos capacidad, pieza compatible y pruebas de carga.' },
+  { title: 'MacBook Pro M1, M2 y M3', desc: 'Modelos Apple Silicon Pro/Max con mayor densidad energética. Se revisa consumo, temperatura y compatibilidad.' },
+];
+
+const safety = [
+  'No sigas cargando una MacBook con batería inflada, olor raro, calor excesivo o carcasa abierta.',
+  'No intentes perforar, doblar o retirar una batería pegada sin herramienta adecuada.',
+  'Si hubo líquido, humedad o salitre, primero se revisa corrosión antes de instalar una batería nueva.',
+  'Si tus datos son críticos, recomendamos respaldo antes de cualquier intervención física.',
+];
+
+const localAreas = ['Cancún Centro', 'Zona Hotelera', 'Huayacán', 'Cumbres', 'Bonfil', 'Polígono Sur', 'Puerto Cancún', 'Av. Tulum', 'Bonampak', 'Puerto Juárez', 'Supermanzanas', 'Haciendas'];
+
+const relatedGuides = [
+  { href: '/servicios/mac/diagnostico-mac', title: 'Diagnóstico Mac en Cancún', desc: 'Si no sabes si falla batería, cargador, puerto USB-C, MagSafe o placa.' },
+  { href: '/servicios/mac/reparacion-macbook', title: 'Reparación MacBook', desc: 'Para fallas de encendido, pantalla, teclado, trackpad, puertos o sistema.' },
+  { href: '/servicios/mac/mantenimiento-macbook', title: 'Mantenimiento MacBook', desc: 'Limpieza interna y control térmico para reducir calor y consumo.' },
+  { href: '/servicios/mac/limpieza-liquido-macbook', title: 'MacBook mojada o con salitre', desc: 'Revisión de corrosión, batería, teclado, conectores y placa lógica.' },
+  { href: '/servicios/mac/cambio-pantalla-macbook', title: 'Cambio de pantalla MacBook', desc: 'Si la batería inflada presionó carcasa, pantalla, bisagra o trackpad.' },
+  { href: '/servicios/mac/software-macos', title: 'Soporte macOS', desc: 'Cuando la descarga rápida viene de procesos, sistema o configuración.' },
+];
+
+const batteryFaqs = [
+  { question: '¿Cuánto cuesta cambiar la batería de una MacBook en Cancún?', answer: 'El servicio inicia desde $1,850 MXN, pero el precio final depende del modelo exacto, generación, capacidad, disponibilidad de batería y si hay daño adicional en trackpad, top case, cargador, puerto USB-C/MagSafe o placa. Primero confirmamos compatibilidad antes de pedir o instalar pieza.' },
+  { question: '¿Cómo sé si mi MacBook necesita batería nueva?', answer: 'Las señales más comunes son descarga rápida, apagados con porcentaje disponible, mensaje de servicio recomendado en macOS, ciclos altos, batería inflada, trackpad levantado o carga intermitente. Aun así, revisamos consumo, cargador y puertos para no cambiar una batería si la causa es otra.' },
+  { question: '¿Es peligroso usar una MacBook con batería inflada?', answer: 'Sí puede ser riesgoso. Una batería inflada puede presionar trackpad, teclado, carcasa, pantalla o placa. No la presiones, no la cargues durante horas y evita transportarla apretada. Lo correcto es apagarla y llevarla a revisión.' },
+  { question: '¿Cuánto tarda el cambio de batería MacBook?', answer: 'Si la batería compatible está disponible, normalmente toma de 24 a 72 horas con pruebas. Modelos especiales, Apple Silicon recientes o piezas bajo pedido pueden tomar más tiempo. Te confirmamos fecha antes de autorizar.' },
+  { question: '¿Se borran mis archivos al cambiar batería?', answer: 'No debería borrarse información en un reemplazo físico de batería. De todos modos, si el equipo presenta apagados, humedad, fallas de placa o datos críticos, sugerimos respaldo antes de trabajar.' },
+  { question: '¿Atienden MacBook Air y MacBook Pro M1, M2 o M3?', answer: 'Sí. Diagnosticamos y cotizamos MacBook Air y Pro Intel, M1, M2 y M3. Algunas piezas cambian por generación y número de modelo, por eso validamos compatibilidad antes de prometer disponibilidad.' },
+  { question: '¿Qué pasa si mi MacBook no carga aunque detecta el cargador?', answer: 'Puede ser batería, cable, adaptador, puerto USB-C o MagSafe, flex, sensor, circuito de carga o consumo anormal en placa. Hacemos pruebas de carga y consumo antes de recomendar batería.' },
+  { question: '¿Dónde están ubicados para cambio de batería MacBook en Cancún?', answer: 'Pixon PC / Rentalap atiende en Cto. Hacienda Chimay, 77539 Cancún, Q.R. Puedes escribir al +52 998 669 0777 o a pixonpc@gmail.com para confirmar revisión.' },
+];
+---
+
+<div class="mbb-page">
+  <section class="mbb-hero">
+    <div class="mbb-hero-orb" aria-hidden="true"></div>
+    <div class="container mbb-hero-grid">
+      <div class="mbb-hero-copy">
+        <span class="mbb-kicker"><i class="fa-brands fa-apple"></i> Servicio técnico Apple en Cancún</span>
+        <h1>Cambio de batería MacBook en Cancún</h1>
+        <p class="mbb-hero-lead">Reemplazo seguro para MacBook Air y MacBook Pro con batería inflada, ciclos altos, descarga rápida, apagados repentinos o mensaje de servicio recomendado en macOS.</p>
+        <p>Primero diagnosticamos cargador, USB-C o MagSafe, consumo, temperatura y salud de batería. No prometemos cambio sin confirmar modelo exacto, compatibilidad y estado interno del equipo.</p>
+        <div class="mbb-hero-actions">
+          <a class="mbb-btn mbb-btn-primary" href={waHref} target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp</a>
+          <a class="mbb-btn mbb-btn-secondary" href="#ticket">Crear ticket de revisión</a>
+        </div>
+      </div>
+
+      <aside class="mbb-hero-card" aria-label="Resumen del servicio">
+        <img src="/assets/images/mantenimiento-macbook-cancun.webp" alt="Cambio de batería MacBook en taller técnico de Cancún" />
+        <div class="mbb-hero-card-body">
+          <span>Desde</span>
+          <strong>{service.fromPrice || '$1,850 MXN'}</strong>
+          <p>Tiempo estimado: {service.eta || '24-72 h'} según modelo y disponibilidad de pieza.</p>
+        </div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> MacBook Air y Pro Intel / Apple Silicon</li>
+          <li><i class="fa-solid fa-check"></i> Prueba de carga y consumo</li>
+          <li><i class="fa-solid fa-check"></i> Garantía por escrito cuando aplica</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="mbb-section mbb-intro" id="diagnostico">
+    <div class="container mbb-split">
+      <div>
+        <span class="mbb-eyebrow">Diagnóstico antes de cambiar</span>
+        <h2>Tu MacBook puede fallar por batería, cargador, puerto o placa</h2>
+        <p>Una MacBook que se descarga rápido no siempre necesita batería nueva. En Cancún vemos equipos con cargadores dañados, cables genéricos, puertos USB-C sucios, MagSafe con falso contacto, procesos de macOS consumiendo energía o daño por humedad y salitre.</p>
+        <p>Por eso el servicio empieza con revisión técnica. Medimos comportamiento de carga, consumo, temperatura, ciclos cuando el sistema lo permite y señales físicas como carcasa abierta, trackpad levantado o tornillería forzada.</p>
+      </div>
+      <div class="mbb-note">
+        <h3>Cuándo sí urge revisión</h3>
+        <p>Si la batería está inflada, la tapa no cierra, el trackpad se levantó o el equipo se calienta al cargar, lo más prudente es apagarlo y traerlo a diagnóstico. Seguir usándolo puede elevar el costo por daño en top case, pantalla o placa.</p>
+        <a href="#riesgos" class="mbb-inline-link">Ver riesgos de batería inflada</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section mbb-muted" id="sintomas">
+    <div class="container">
+      <div class="mbb-section-head">
+        <span class="mbb-eyebrow">Síntomas reales</span>
+        <h2>Señales de que podrías necesitar cambio de batería MacBook</h2>
+        <p>Estos síntomas ayudan a orientar la revisión, pero el diagnóstico confirma si conviene cambiar batería, corregir carga, revisar placa o resolver software.</p>
+      </div>
+      <div class="mbb-symptom-grid">
+        {symptoms.map((item) => (
+          <article class="mbb-symptom-card">
+            <i class={'fa-solid ' + item.icon}></i>
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section" id="riesgos">
+    <div class="container mbb-risk-grid">
+      <div class="mbb-risk-main">
+        <span class="mbb-eyebrow">Batería inflada</span>
+        <h2>No presiones una MacBook con carcasa levantada</h2>
+        <p>Las baterías de litio pueden hincharse por edad, calor, ciclos, humedad o falla interna. En una MacBook el espacio es mínimo: cuando la batería se expande puede empujar trackpad, teclado, bocinas, pantalla o placa lógica.</p>
+        <p>En el clima húmedo de Cancún, además, el salitre puede acelerar corrosión en conectores. Si el equipo tuvo líquido, se cargó con adaptador dañado o ya fue abierto antes, revisamos primero el estado interno antes de instalar una batería nueva.</p>
+        <div class="mbb-actions-row">
+          <a class="mbb-btn mbb-btn-primary" href={waHref} target="_blank" rel="noopener">Solicitar revisión inmediata</a>
+          <a class="mbb-btn mbb-btn-light" href="/servicios/mac/limpieza-liquido-macbook">Ver MacBook mojada</a>
+        </div>
+      </div>
+      <div class="mbb-safety-list">
+        {safety.map((item) => (
+          <div class="mbb-safety-item">
+            <i class="fa-solid fa-shield-halved"></i>
+            <p>{item}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section mbb-muted" id="modelos">
+    <div class="container">
+      <div class="mbb-section-head">
+        <span class="mbb-eyebrow">Compatibilidad por modelo</span>
+        <h2>Cambio de batería para MacBook Air y MacBook Pro</h2>
+        <p>La pieza correcta depende del modelo exacto. Antes de cotizar validamos generación, número A, distribución interna, capacidad, tipo de adhesivo y disponibilidad local o bajo pedido.</p>
+      </div>
+      <div class="mbb-model-grid">
+        {compatible.map((item) => (
+          <article>
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section" id="proceso">
+    <div class="container mbb-process-layout">
+      <div class="mbb-process-copy">
+        <span class="mbb-eyebrow">Proceso técnico</span>
+        <h2>Cómo trabajamos el reemplazo de batería MacBook</h2>
+        <p>No abrimos tu MacBook para improvisar. El proceso está pensado para proteger datos, carcasa, tornillos, flex, trackpad y placa lógica. Cada paso confirma que la pieza nueva realmente resuelve el síntoma.</p>
+      </div>
+      <div class="mbb-process-list">
+        {process.map((step, index) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section mbb-cta-mid">
+    <div class="container mbb-cta-box">
+      <div>
+        <span class="mbb-eyebrow">Cotización clara</span>
+        <h2>¿Quieres saber si tu MacBook necesita batería o diagnóstico de carga?</h2>
+        <p>Envíanos modelo, año aproximado, síntoma, si la batería está inflada y una foto del mensaje de macOS si aparece. Con eso te orientamos y agendamos revisión.</p>
+      </div>
+      <div class="mbb-cta-actions">
+        <a class="mbb-btn mbb-btn-primary" href={waHref} target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+        <a class="mbb-btn mbb-btn-secondary-dark" href="#ticket">Solicitar revisión</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section mbb-muted" id="precio">
+    <div class="container mbb-price-grid">
+      <div>
+        <span class="mbb-eyebrow">Precio y tiempos</span>
+        <h2>Qué define el costo del cambio de batería MacBook</h2>
+        <p>El precio depende del modelo, si es Air o Pro, generación, tipo de batería, disponibilidad, adhesivo, riesgo de top case y si existe daño adicional por líquido, golpe, calor o reparación previa.</p>
+        <p>Cuando la pieza está disponible, el servicio suele resolverse entre 24 y 72 horas. Si la batería se pide por modelo especial, te confirmamos tiempo antes de autorizar.</p>
+      </div>
+      <div class="mbb-price-panel">
+        <div><span>Inicio de servicio</span><strong>{service.fromPrice || '$1,850 MXN'}</strong></div>
+        <div><span>Tiempo típico</span><strong>{service.eta || '24-72 h'}</strong></div>
+        <div><span>Garantía</span><strong>Por escrito</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section" id="seo-local">
+    <div class="container mbb-local-grid">
+      <div>
+        <span class="mbb-eyebrow">Servicio local</span>
+        <h2>Cambio de batería MacBook cerca de ti en Cancún</h2>
+        <p>Atendemos clientes de casa, estudiantes, freelancers, oficinas y negocios que necesitan una MacBook estable para trabajar. Recibimos equipos desde Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.</p>
+        <p><strong>Pixon PC / Rentalap</strong><br />Cto. Hacienda Chimay, 77539 Cancún, Q.R.<br />+52 998 669 0777<br />pixonpc@gmail.com</p>
+      </div>
+      <div class="mbb-area-list" aria-label="Zonas de atención en Cancún">
+        {localAreas.map((area) => <span>{area}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="mbb-section mbb-muted" id="relacionados">
+    <div class="container">
+      <div class="mbb-section-head">
+        <span class="mbb-eyebrow">Rutas relacionadas</span>
+        <h2>Servicios que suelen relacionarse con batería MacBook</h2>
+        <p>Si la falla no viene de batería, estas vistas ayudan a resolver búsquedas cercanas y a elegir la revisión correcta.</p>
+      </div>
+      <div class="mbb-related-grid">
+        {relatedGuides.map((item) => (
+          <a href={item.href}>
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+            <span>Ver servicio <i class="fa-solid fa-arrow-right"></i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice="MacBook"
+    defaultService={service.label}
+    sourcePage={sourcePage}
+    title="Solicitar cambio de batería MacBook"
+    subtitle="Cuéntanos modelo, año o chip, síntoma de batería, si está inflada, si carga y si hubo líquido o reparación previa."
+  />
+
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Más servicios para MacBook en Cancún"
+    eyebrow="Servicios relacionados"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre cambio de batería MacBook en Cancún"
+    description="Respuestas claras sobre precio, tiempos, batería inflada, MacBook Air, MacBook Pro, datos, cargador, garantía y diagnóstico."
+    items={batteryFaqs}
+    ariaLabel="Preguntas frecuentes sobre cambio de batería MacBook en Cancún"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    sectionClass="faq-section"
+    gridClass="faq-grid"
+    backgroundColor="#F8FAFC"
+    questionColor="#071F3A"
+    itemGap="8px"
+    questionPadding="16px 18px"
+  />
+
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" />
+  <ContactSection id="ubicacion" />
+</div>
+
+<Footer />
+
+<style is:global>
+  .mbb-page { --mbb-ink: #071F3A; --mbb-blue: #0A4C8A; --mbb-soft: #F4F8FC; --mbb-line: rgba(7,31,58,.12); background: #fff; color: var(--mbb-ink); }
+  .mbb-page h2, .mbb-page h3, .mbb-page p, .mbb-page li, .mbb-page span, .mbb-page strong { color: var(--mbb-ink); }
+  .mbb-hero { position: relative; overflow: hidden; padding: clamp(34px,5vw,70px) 0; background: radial-gradient(circle at 80% 15%, rgba(27,167,201,.24), transparent 32%), linear-gradient(135deg,#061425 0%,#071f3a 54%,#0a4c8a 100%); }
+  .mbb-hero-orb { position: absolute; width: 420px; height: 420px; left: -180px; bottom: -210px; border-radius: 999px; background: rgba(27,167,201,.16); filter: blur(28px); }
+  .mbb-hero-grid, .mbb-split, .mbb-risk-grid, .mbb-price-grid, .mbb-local-grid, .mbb-process-layout { display: grid; gap: clamp(24px,4vw,48px); }
+  .mbb-hero-grid { position: relative; grid-template-columns: minmax(0,1.08fr) minmax(300px,.72fr); align-items: center; }
+  .mbb-kicker, .mbb-hero h1, .mbb-hero p, .mbb-hero .mbb-hero-lead { color: #fff; }
+  .mbb-kicker, .mbb-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .78rem; }
+  .mbb-kicker { color: #BFEFFF; }
+  .mbb-eyebrow { color: var(--mbb-blue) !important; }
+  .mbb-hero h1 { max-width: 760px; margin: 14px 0 16px; font-family: 'Kanit', sans-serif; font-size: clamp(2.35rem,6vw,5rem); line-height: .98; letter-spacing: -.035em; text-wrap: balance; }
+  .mbb-hero p { max-width: 68ch; margin: 0 0 14px; color: #DDEBFA; font-size: 1.04rem; line-height: 1.7; text-wrap: pretty; }
+  .mbb-hero-lead { font-size: clamp(1.12rem,2vw,1.38rem) !important; line-height: 1.45 !important; }
+  .mbb-hero-actions, .mbb-actions-row, .mbb-cta-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 24px; }
+  .mbb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 46px; padding: 13px 18px; border-radius: 14px; font-weight: 800; text-decoration: none; transition: transform 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out; }
+  .mbb-btn:active { transform: scale(.98); }
+  .mbb-btn-primary { background: #16A34A; color: #fff !important; }
+  .mbb-btn-secondary { border: 1px solid rgba(255,255,255,.24); color: #fff !important; background: rgba(255,255,255,.08); }
+  .mbb-btn-light, .mbb-btn-secondary-dark { border: 1px solid var(--mbb-line); color: var(--mbb-ink) !important; background: #fff; }
+  @media (hover: hover) and (pointer: fine) { .mbb-btn:hover { transform: translateY(-2px); } }
+  .mbb-hero-card { overflow: hidden; border: 1px solid rgba(255,255,255,.18); border-radius: 18px; background: #071F3A; box-shadow: 0 24px 58px rgba(0,0,0,.26); }
+  .mbb-hero-card img { display: block; width: 100%; height: 220px; object-fit: cover; }
+  .mbb-hero-card-body { padding: 22px 22px 10px; }
+  .mbb-hero-card-body span, .mbb-price-panel span { display: block; font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .mbb-hero-card-body strong, .mbb-price-panel strong { display: block; margin-top: 4px; font-family: 'Kanit', sans-serif; font-size: clamp(1.7rem,3vw,2.2rem); }
+  .mbb-hero-card-body span, .mbb-hero-card-body strong, .mbb-hero-card-body p, .mbb-hero-card li { color: #fff !important; }
+  .mbb-hero-card ul { display: grid; gap: 8px; margin: 0; padding: 10px 22px 22px; list-style: none; }
+  .mbb-hero-card li { display: flex; gap: 9px; align-items: flex-start; font-weight: 650; }
+  .mbb-hero-card li i { color: #16A34A; margin-top: 4px; }
+  .mbb-section { padding: clamp(54px,7vw,92px) 0; }
+  .mbb-muted { background: var(--mbb-soft); }
+  .mbb-split, .mbb-risk-grid, .mbb-price-grid, .mbb-local-grid { grid-template-columns: minmax(0,1fr) minmax(280px,.82fr); align-items: start; }
+  .mbb-section h2 { max-width: 860px; margin: 10px 0 16px; font-family: 'Kanit', sans-serif; font-size: clamp(1.85rem,3.5vw,3.15rem); line-height: 1.06; letter-spacing: -.025em; text-wrap: balance; }
+  .mbb-section h3 { margin: 0 0 8px; font-family: 'Kanit', sans-serif; font-size: 1.22rem; line-height: 1.18; }
+  .mbb-section p { max-width: 72ch; margin: 0 0 14px; font-size: 1rem; line-height: 1.72; text-wrap: pretty; }
+  .mbb-note, .mbb-price-panel, .mbb-cta-box { border: 1px solid var(--mbb-line); border-radius: 18px; background: #fff; }
+  .mbb-note { padding: 24px; }
+  .mbb-inline-link, .mbb-related-grid a span { color: var(--mbb-blue) !important; font-weight: 800; text-decoration: none; }
+  .mbb-section-head { max-width: 860px; margin-bottom: 30px; }
+  .mbb-symptom-grid, .mbb-model-grid, .mbb-related-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap: 16px; }
+  .mbb-symptom-card, .mbb-model-grid article, .mbb-related-grid a, .mbb-safety-item, .mbb-process-list article { border: 1px solid var(--mbb-line); border-radius: 16px; background: #fff; }
+  .mbb-symptom-card, .mbb-model-grid article, .mbb-related-grid a { padding: 22px; min-width: 0; }
+  .mbb-symptom-card i { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; margin-bottom: 14px; border-radius: 12px; background: rgba(10,76,138,.08); color: var(--mbb-blue); font-size: 1.15rem; }
+  .mbb-risk-main { min-width: 0; }
+  .mbb-safety-list { display: grid; gap: 12px; }
+  .mbb-safety-item { display: flex; gap: 12px; padding: 16px; }
+  .mbb-safety-item i { margin-top: 4px; color: #B42318; }
+  .mbb-safety-item p { margin: 0; font-weight: 650; }
+  .mbb-process-layout { grid-template-columns: minmax(260px,.72fr) minmax(0,1fr); }
+  .mbb-process-copy { position: sticky; top: 110px; }
+  .mbb-process-list { display: grid; gap: 14px; }
+  .mbb-process-list article { display: grid; grid-template-columns: 54px 1fr; gap: 16px; padding: 18px; }
+  .mbb-process-list article > span { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 13px; background: #071F3A; color: #fff !important; font-family: 'Kanit', sans-serif; font-weight: 900; }
+  .mbb-cta-mid { background: #071F3A; }
+  .mbb-cta-box { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: center; padding: clamp(22px,4vw,36px); background: #fff; }
+  .mbb-price-panel { display: grid; gap: 12px; padding: 20px; }
+  .mbb-price-panel div { padding: 16px; border-radius: 14px; background: var(--mbb-soft); }
+  .mbb-area-list { display: flex; flex-wrap: wrap; gap: 9px; }
+  .mbb-area-list span { border: 1px solid var(--mbb-line); border-radius: 999px; background: #fff; padding: 8px 12px; font-weight: 800; }
+  .mbb-related-grid a { display: grid; gap: 8px; text-decoration: none; transition: transform 180ms ease-out, border-color 180ms ease-out; }
+  .mbb-related-grid a p { margin: 0; }
+  @media (hover: hover) and (pointer: fine) { .mbb-related-grid a:hover { transform: translateY(-3px); border-color: rgba(10,76,138,.35); } }
+  .mbb-page .svc-related { background: #071F3A !important; }
+  .mbb-page .svc-related .ux-eyebrow,
+  .mbb-page .svc-related .ux-h2,
+  .mbb-page .svc-related .related-card h4,
+  .mbb-page .svc-related .related-card span,
+  .mbb-page .svc-related .related-toggle,
+  .mbb-page .svc-related .related-toggle span {
+    color: #fff !important;
+  }
+  .mbb-page .svc-related .related-card {
+    background: rgba(255,255,255,.035) !important;
+    border-color: rgba(255,255,255,.12) !important;
+  }
+  .mbb-page .svc-related .related-card p {
+    color: rgba(255,255,255,.78) !important;
+  }
+  .mbb-page .svc-related .related-toggle {
+    background: rgba(255,255,255,.08) !important;
+    border-color: rgba(255,255,255,.22) !important;
+  }
+  @media (max-width: 920px) { .mbb-hero-grid, .mbb-split, .mbb-risk-grid, .mbb-price-grid, .mbb-local-grid, .mbb-process-layout, .mbb-cta-box { grid-template-columns: 1fr; } .mbb-process-copy { position: static; } }
+  @media (max-width: 620px) { .mbb-hero { padding-top: 28px; } .mbb-hero h1 { font-size: clamp(2.15rem,13vw,3.3rem); line-height: 1; } .mbb-btn, .mbb-hero-actions, .mbb-actions-row, .mbb-cta-actions { width: 100%; } .mbb-process-list article { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .mbb-page *, .mbb-page *::before, .mbb-page *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+</style>

@@ -1,0 +1,1637 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola Pixon PC, mi computadora no enciende. Quisiera agendar un diagnóstico técnico en Cancún para saber exactamente qué falla tiene mi equipo.'
+);
+
+const symptoms = [
+  {
+    icon: 'fa-ban',
+    title: 'No prende ningún LED',
+    cause: 'Fallo total en la fuente de poder (PSU), botón de encendido desconectado, o un cortocircuito grave en la línea de entrada de la tarjeta madre.',
+    recommendation: 'Desconecta el cable de corriente y no intentes forzar el encendido para evitar daños en cascada.',
+  },
+  {
+    icon: 'fa-rotate',
+    title: 'Prenden ventiladores sin imagen',
+    cause: 'Inestabilidad en la memoria RAM, BIOS corrupta, falta de alimentación al CPU, o un procesador/GPU que no está completando el POST.',
+    recommendation: 'Verifica que el cable HDMI/DisplayPort esté conectado directamente a la tarjeta de video y no a la placa madre.',
+  },
+  {
+    icon: 'fa-bolt-lightning',
+    title: 'Se apaga al instante',
+    cause: 'Activación del sistema de protección contra cortocircuito de la fuente de poder, o calentamiento crítico del CPU por disipador suelto.',
+    recommendation: 'No insistas en encenderla repetidamente, ya que cada intento puede dañar transistores sensibles.',
+  },
+  {
+    icon: 'fa-fire-flame-curved',
+    title: 'Olor a quemado',
+    cause: 'Fase de alimentación quemada (VRM), capacitores reventados o cables internos haciendo cortocircuito físico.',
+    recommendation: 'Desconéctala de inmediato del tomacorriente. Es un riesgo de incendio y daño total irreversible.',
+  },
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'Pitidos o luces intermitentes',
+    cause: 'Códigos de error de hardware (POST codes). Indican fallo específico en RAM, procesador, GPU o tarjeta madre.',
+    recommendation: 'Anota la secuencia de pitidos o el color de los LEDs parpadeantes; nos ayudará en el prediagnóstico.',
+  },
+  {
+    icon: 'fa-desktop',
+    title: 'Pantalla negra tras encender',
+    cause: 'Señal de video ausente, fallo de energía del monitor, o sistema operativo corrupto que impide cargar el cargador de arranque.',
+    recommendation: 'Prueba conectando otro monitor o pantalla para descartar que sea solo un fallo de imagen.',
+  },
+];
+
+const diagnosticSteps = [
+  {
+    title: 'Prueba de energía (PSU)',
+    desc: 'Medimos los voltajes de los rieles de 12V, 5V y 3.3V de tu fuente de poder con herramientas de precisión para verificar estabilidad.',
+  },
+  {
+    title: 'Inspección física microscópica',
+    desc: 'Buscamos óxido, sulfatación por humedad de Cancún, transistores quemados, capacitores inflados y pistas abiertas.',
+  },
+  {
+    title: 'Prueba individual de componentes',
+    desc: 'Desmontamos el equipo y probamos procesador, RAM, GPU y discos por separado en nuestro banco de pruebas controlado.',
+  },
+  {
+    title: 'Revisión lógica y compatibilidad',
+    desc: 'Verificamos la integridad de la BIOS/UEFI, la pila de CMOS, y que no existan incompatibilidades físicas o eléctricas.',
+  },
+  {
+    title: 'Recomendación honesta',
+    desc: 'Te explicamos el diagnóstico final y te damos opciones claras: reparar tu componente, cambiarlo o no invertir más si no conviene.',
+  },
+];
+
+const processSteps = [
+  { num: '01', title: 'Recepción y síntoma', desc: 'Registramos el estado físico de tu PC y los síntomas que observaste.' },
+  { num: '02', title: 'Prueba de energía', desc: 'Evaluamos el cableado y descartamos fallos básicos de la toma eléctrica o fuente.' },
+  { num: '03', title: 'Diagnóstico profundo', desc: 'Desarmamos e inspeccionamos placa, RAM, GPU, cortocircuitos y sulfato.' },
+  { num: '04', title: 'Cotización clara', desc: 'Te enviamos por WhatsApp la causa y el costo total de reparación para tu aprobación.' },
+  { num: '05', title: 'Pruebas de estabilidad', desc: 'Sometemos tu PC a estrés térmico y eléctrico durante horas antes de avisarte.' },
+  { num: '06', title: 'Entrega con explicación', desc: 'Te entregamos tu PC reparada con un reporte detallado y recomendaciones locales.' },
+];
+
+const compatibilityList = [
+  { type: 'PC Gamer', desc: 'Equipos de alto rendimiento ensamblados, refrigeración líquida, GPUs potentes y fuentes certificadas.' },
+  { type: 'PC de Oficina', desc: 'Computadoras corporativas compactas, estaciones de trabajo y equipos para tareas administrativas.' },
+  { type: 'PC Ensamblada', desc: 'Equipos personalizados y armados a la medida de cualquier marca o configuración.' },
+  { type: 'Workstation', desc: 'Estaciones de trabajo profesionales para diseño, renderizado, arquitectura y edición de video.' },
+  { type: 'Mini PC', desc: 'Equipos ultracompactos tipo Intel NUC, ASUS PN o similares que requieren micro-componentes.' },
+  { type: 'Marcas Comunes', desc: 'Soporte y refacciones compatibles con HP, Dell, Lenovo, Acer, Asus, MSI, Gigabyte y más.' },
+];
+
+const risks = [
+  {
+    title: 'No insistas si huele a quemado',
+    desc: 'El olor a quemado indica un corto activo. Intentar encenderla nuevamente puede propagar el daño al procesador o discos.',
+  },
+  {
+    title: 'Evita cables y extensiones dudosas',
+    desc: 'Un cable de corriente delgado o un regulador de voltaje en mal estado puede provocar variaciones severas de voltaje.',
+  },
+  {
+    title: 'No abras el equipo sin herramienta antiestática',
+    desc: 'La electricidad estática de tus manos puede dañar componentes sensibles como la memoria RAM o el procesador de forma permanente.',
+  },
+  {
+    title: 'No formatees si hay información importante',
+    desc: 'Si la PC no enciende, tus archivos siguen intactos en el disco. No permitas que reinstalen Windows sin antes respaldar.',
+  },
+  {
+    title: 'No compres refacciones antes del diagnóstico',
+    desc: 'Comprar una fuente nueva creyendo que es la falla puede ser un gasto inútil si el cortocircuito real está en la tarjeta madre.',
+  },
+];
+
+const relatedServices = [
+  { title: 'Fuente de poder PC', desc: 'Diagnóstico de voltajes, reemplazo e instalación de fuentes de poder ATX certificadas.', link: '/servicios/pc/fuente-poder' },
+  { title: 'Tarjeta madre PC', desc: 'Diagnóstico de cortos, BIOS corrupta, VRMs y fallas eléctricas en motherboards.', link: '/servicios/pc/tarjeta-madre' },
+  { title: 'Diagnóstico de PC', desc: 'Revisión completa de hardware y software para todo tipo de fallas intermitentes.', link: '/servicios/pc/diagnostico' },
+  { title: 'Recuperación de datos', desc: 'Extracción segura de archivos y documentos de discos cuyo equipo ya no arranca.', link: '/servicios/pc/recuperacion-datos' },
+  { title: 'Reparación general', desc: 'Soporte técnico integral y correctivo para computadoras de escritorio y laptops.', link: '/reparaciones' },
+  { title: 'Ensambles PC Gamer', desc: 'Diseño, ensamble, optimización y actualización de hardware gaming y workstations.', link: '/ensambles' },
+  { title: 'Mantenimiento preventivo', desc: 'Limpieza profunda de polvo, flujo de aire y optimización para evitar fallas costosas.', link: '/servicios/pc/mantenimiento-preventivo' },
+  { title: 'Mantenimiento correctivo', desc: 'Corrección de fallas críticas de hardware, reemplazo de piezas y reinstalación.', link: '/servicios/pc/mantenimiento-correctivo' },
+];
+
+const faqItems = [
+  { question: '¿Cuánto cuesta revisar una PC que no enciende en Cancún?', answer: 'El diagnóstico inicial en nuestro taller es gratis. Si decides realizar la reparación con nosotros, te presentaremos un presupuesto claro que incluye la pieza y la mano de obra a partir de $650 MXN.' },
+  { question: '¿El diagnóstico es gratis?', answer: 'Sí, el diagnóstico básico en nuestro taller es completamente gratis y sin compromiso. Para fallas complejas que requieren pruebas de laboratorio de varias horas, te informaremos antes de realizar cualquier procedimiento avanzado.' },
+  { question: '¿Qué pasa si mi PC prende ventiladores pero no da imagen?', answer: 'Este síntoma suele deberse a un problema con la memoria RAM, la tarjeta de video (GPU), una BIOS corrupta o fallas en las fases de alimentación de la tarjeta madre. Realizamos pruebas cruzadas para aislar el componente defectuoso.' },
+  { question: '¿Puede ser la fuente de poder?', answer: 'Sí, es muy común. Si la fuente de poder sufrió una descarga por apagones en Cancún, puede entregar voltajes incorrectos: suficientes para encender ventiladores o LEDs, pero no para iniciar el procesador.' },
+  { question: '¿Puede ser la tarjeta madre?', answer: 'Sí, la tarjeta madre coordina todo. Fallas por humedad, salitre local o cortocircuitos en los transistores VRM pueden impedir el arranque. En Pixon PC diagnosticamos si la placa tiene reparación a nivel componente o si requiere reemplazo.' },
+  { question: '¿Puedo llevar una PC gamer ensamblada?', answer: 'Por supuesto. Somos especialistas en hardware de alto rendimiento. Revisamos PC gamer ensambladas por piezas, workstations, equipos de oficina y Mini PCs de cualquier marca.' },
+  { question: '¿Pierdo mis archivos?', answer: 'No. Al revisar fallas de encendido no tocamos tus discos de almacenamiento. Tus datos están completamente seguros. Si detectamos que el almacenamiento está en riesgo, te avisamos para realizar un respaldo inmediato.' },
+  { question: '¿Me dicen si conviene reparar o comprar otra PC?', answer: 'Sí, siempre actuamos con honestidad. Evaluamos el costo de las refacciones, la antigüedad de tu PC y tus necesidades. Si el costo de reparación se acerca al valor del equipo, te recomendaremos no invertir más.' },
+  { question: '¿Dan garantía?', answer: 'Sí, entregamos garantía por escrito sobre la reparación realizada (mano de obra y refacciones instaladas). La garantía no cubre descargas eléctricas posteriores, humedad o problemas ajenos a la intervención.' },
+  { question: '¿Atienden con cita previa?', answer: 'Sí, atendemos de Lunes a Domingo exclusivamente con cita previa para garantizarte una atención personalizada y sin esperas. Puedes agendar tu espacio por WhatsApp o a través de nuestro formulario de tickets.' },
+];
+---
+
+<div class="pcno-page">
+  <!-- 1. Hero principal (Premium Dark) -->
+  <section class="pcno-hero" aria-label="Introducción al servicio">
+    <div class="pcno-shell pcno-hero-grid">
+      <div class="pcno-hero-copy">
+        <span class="pcno-kicker"><i class="fa-solid fa-location-dot"></i> Servicio Local en Cancún</span>
+        <h1>PC no enciende en Cancún</h1>
+        <h2>Reparación y diagnóstico profesional para computadoras que no dan video, no prenden luces o se apagan al instante.</h2>
+        <p class="pcno-lead">
+          Antes de comprar refacciones o cambiar la tarjeta madre, visítanos. Identificamos si tu equipo tiene un corto reparable, fallo en la fuente de poder o memoria RAM con pruebas reales de laboratorio.
+        </p>
+
+        <!-- Datos clave rápidos -->
+        <div class="pcno-specs-grid">
+          <div class="pcno-spec-item">
+            <i class="fa-solid fa-tag"></i>
+            <div>
+              <span>Precio</span>
+              <strong>Desde $650 MXN</strong>
+            </div>
+          </div>
+          <div class="pcno-spec-item">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+              <span>Tiempo estimado</span>
+              <strong>24 - 72 horas</strong>
+            </div>
+          </div>
+          <div class="pcno-spec-item">
+            <i class="fa-solid fa-file-shield"></i>
+            <div>
+              <span>Garantía</span>
+              <strong>Por escrito por reparación</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcno-hero-actions">
+          <a href={`https://wa.me/529986690777?text=${whatsappText}`} class="pcno-btn pcno-btn-primary" onclick="smartWaRedirect(this.href); return false;">
+            <i class="fa-brands fa-whatsapp"></i> Hablar con un Técnico
+          </a>
+          <a href="#ticket-pc-no-enciende" class="pcno-btn pcno-btn-soft">
+            <i class="fa-solid fa-ticket"></i> Crear Ticket de Servicio
+          </a>
+        </div>
+
+        <!-- Cobertura Chips -->
+        <div class="pcno-hero-zones">
+          <span>Zonas de atención con cita:</span>
+          <div class="pcno-zone-chips">
+            <span class="pcno-chip">Cancún Centro</span>
+            <span class="pcno-chip">Zona Hotelera</span>
+            <span class="pcno-chip">Huayacán</span>
+            <span class="pcno-chip">Cumbres</span>
+            <span class="pcno-chip">Bonfil</span>
+            <span class="pcno-chip">Puerto Cancún</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta destacada lateral -->
+      <div class="pcno-hero-visual">
+        <div class="pcno-highlight-card">
+          <div class="pcno-card-header">
+            <span class="pcno-pulse"></span>
+            <h3>Diagnóstico antes de cambiar piezas</h3>
+          </div>
+          <p>
+            Muchos técnicos recomiendan comprar una tarjeta madre nueva al primer intento fallido. En <strong>Pixon PC</strong> probamos cada fase de poder, descartamos periféricos y medimos componentes para reparar antes de reemplazar.
+          </p>
+          <div class="pcno-card-img-wrap">
+            <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Diagnóstico técnico de computadora que no enciende en Cancún" loading="eager" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Bloque de síntomas comunes -->
+  <section class="pcno-section pcno-bg-light">
+    <div class="pcno-shell">
+      <div class="pcno-section-head">
+        <span>Señales de Falla</span>
+        <h2>Síntomas comunes cuando una PC no enciende</h2>
+        <p>Identifica el comportamiento de tu computadora para orientar el diagnóstico preliminar.</p>
+      </div>
+
+      <div class="pcno-symptoms-grid">
+        {symptoms.map((item) => (
+          <div class="pcno-symptom-card">
+            <div class="pcno-symptom-icon">
+              <i class={`fa-solid ${item.icon}`}></i>
+            </div>
+            <h3>{item.title}</h3>
+            <p class="pcno-symptom-cause"><strong>Posible Causa:</strong> {item.cause}</p>
+            <p class="pcno-symptom-rec"><strong>Recomendación:</strong> {item.recommendation}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Diagnóstico Técnico -->
+  <section class="pcno-section pcno-bg-dark">
+    <div class="pcno-shell pcno-split-grid">
+      <div class="pcno-split-content">
+        <span class="pcno-eyebrow">Seguridad de Hardware</span>
+        <h2>No cambiamos piezas sin confirmar la falla</h2>
+        <p>
+          Revisamos minuciosamente la fuente de poder, botón de encendido, placa madre, módulos de memoria RAM, tarjeta gráfica (GPU), almacenamiento, cableado interno, la BIOS/UEFI, disipación, temperaturas de reposo, y cortocircuitos eléctricos.
+        </p>
+        <p>
+          Nuestro proceso asegura que solo compres lo que realmente necesitas, evitando gastos adivinatorios en refacciones que no resolverán el problema.
+        </p>
+        <div class="pcno-badge-trust">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>Atención profesional con cita previa en Cancún.</span>
+        </div>
+      </div>
+
+      <div class="pcno-checklist-card">
+        <h3>Protocolo de Diagnóstico</h3>
+        <ul class="pcno-checklist">
+          {diagnosticSteps.map((step) => (
+            <li>
+              <div class="pcno-check-circle"><i class="fa-solid fa-check"></i></div>
+              <div>
+                <h4>{step.title}</h4>
+                <p>{step.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Proceso de trabajo -->
+  <section class="pcno-section">
+    <div class="pcno-shell">
+      <div class="pcno-section-head">
+        <span>Metodología</span>
+        <h2>Nuestro proceso de trabajo</h2>
+        <p>Paso a paso técnico transparente desde que recibimos tu PC hasta que vuelve a funcionar.</p>
+      </div>
+
+      <div class="pcno-process-grid">
+        {processSteps.map((step) => (
+          <div class="pcno-process-card">
+            <span class="pcno-process-number">{step.num}</span>
+            <h3>{step.title}</h3>
+            <p>{step.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Formulario de ticket -->
+  <div class="pcno-ticket-wrapper">
+    <ServiceTicketSection
+      id="ticket-pc-no-enciende"
+      defaultDevice="PC de escritorio"
+      defaultService="PC no enciende"
+      title="Crear ticket para PC que no enciende"
+      subtitle="Cuéntanos qué pasó, desde cuándo falla y si hubo apagón, humedad, golpe, reparación previa o cambio de piezas. Tu cita queda pendiente de confirmación."
+    />
+  </div>
+
+  <!-- 6. Compatibilidad -->
+  <section class="pcno-section pcno-bg-light">
+    <div class="pcno-shell">
+      <div class="pcno-section-head">
+        <span>Soporte</span>
+        <h2>Compatibilidad y equipos soportados</h2>
+        <p>Reparamos computadoras de todas las gamas y marcas comerciales del mercado.</p>
+      </div>
+
+      <div class="pcno-compat-grid">
+        {compatibilityList.map((item) => (
+          <div class="pcno-compat-card">
+            <h3>{item.type}</h3>
+            <p>{item.desc}</p>
+          </div>
+        ))}
+      </div>
+      <p class="pcno-compat-note">
+        <i class="fa-solid fa-circle-info"></i> Si tu modelo o tipo de equipo no aparece en la lista, podemos revisarlo con cita previa.
+      </p>
+    </div>
+  </section>
+
+  <!-- 7. Riesgos y recomendaciones -->
+  <section class="pcno-section">
+    <div class="pcno-shell">
+      <div class="pcno-section-head">
+        <span>Prevención</span>
+        <h2>Riesgos y recomendaciones críticas</h2>
+        <p>Sigue estas pautas para proteger tu equipo y la integridad de tu información.</p>
+      </div>
+
+      <div class="pcno-risks-grid">
+        {risks.map((item) => (
+          <div class="pcno-risk-card">
+            <div class="pcno-risk-header">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <h3>{item.title}</h3>
+            </div>
+            <p>{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Garantía y cobertura -->
+  <section class="pcno-section pcno-bg-dark">
+    <div class="pcno-shell">
+      <div class="pcno-section-head pcno-text-white">
+        <span>Respaldo</span>
+        <h2>Garantía real y cobertura de servicio</h2>
+        <p>Trabajamos con lineamientos de calidad rigurosos para ofrecerte tranquilidad total.</p>
+      </div>
+
+      <div class="pcno-warranty-grid">
+        <div class="pcno-warranty-card">
+          <i class="fa-solid fa-file-signature"></i>
+          <h3>Garantía por Escrito</h3>
+          <p>Te entregamos un reporte detallado con garantía específica sobre la intervención realizada (mano de obra y componentes instalados).</p>
+        </div>
+        <div class="pcno-warranty-card">
+          <i class="fa-solid fa-vial-circle-check"></i>
+          <h3>Pruebas de Arranque</h3>
+          <p>Realizamos pruebas de estabilidad eléctrica, arranque continuo y control térmico antes de entregarte el equipo para certificar su estado.</p>
+        </div>
+        <div class="pcno-warranty-card">
+          <i class="fa-solid fa-magnifying-glass-chart"></i>
+          <h3>Diagnóstico Detallado</h3>
+          <p>Te explicamos de forma sencilla si la falla viene de la placa lógica, humedad ambiental, o factores de carga externa.</p>
+        </div>
+        <div class="pcno-warranty-card">
+          <i class="fa-solid fa-user-clock"></i>
+          <h3>Atención con Cita Previa</h3>
+          <p>Agendamos tu visita de forma organizada para brindarte un servicio personalizado, eficiente y sin pérdidas de tiempo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Bloque local Cancún -->
+  <section class="pcno-section pcno-local-block">
+    <div class="pcno-shell pcno-local-inner">
+      <div class="pcno-local-copy">
+        <span class="pcno-eyebrow">Clima y Entorno</span>
+        <h2>Reparación de PC pensada para el uso real en Cancún</h2>
+        <p>
+          El calor extremo de Quintana Roo, la humedad tropical constante, el polvo ambiental acumulado por ventanas abiertas, el salitre costero y las variaciones de voltaje constantes por tormentas o fallas en la red eléctrica son los peores enemigos del hardware.
+        </p>
+        <p>
+          Estos factores aceleran la degradación de las fuentes de poder, sulfatan los conectores de la tarjeta madre y resecan la pasta térmica del CPU provocando cortocircuitos. En Pixon PC diseñamos soluciones adaptadas a estas condiciones locales.
+        </p>
+      </div>
+
+      <div class="pcno-local-zones">
+        <h3>Área de cobertura en Cancún</h3>
+        <p>Atendemos con cita previa a clientes de las siguientes zonas y alrededores:</p>
+        <div class="pcno-zones-grid">
+          <span><i class="fa-solid fa-location-dot"></i> Zona Hotelera</span>
+          <span><i class="fa-solid fa-location-dot"></i> Cancún Centro</span>
+          <span><i class="fa-solid fa-location-dot"></i> Av. Tulum</span>
+          <span><i class="fa-solid fa-location-dot"></i> Bonampak</span>
+          <span><i class="fa-solid fa-location-dot"></i> Puerto Cancún</span>
+          <span><i class="fa-solid fa-location-dot"></i> Cumbres</span>
+          <span><i class="fa-solid fa-location-dot"></i> Huayacán</span>
+          <span><i class="fa-solid fa-location-dot"></i> Bonfil</span>
+          <span><i class="fa-solid fa-location-dot"></i> Aeropuerto</span>
+          <span><i class="fa-solid fa-location-dot"></i> Parque Industrial</span>
+          <span><i class="fa-solid fa-location-dot"></i> Polígono Sur</span>
+          <span><i class="fa-solid fa-location-dot"></i> Puerto Juárez</span>
+          <span><i class="fa-solid fa-location-dot"></i> Haciendas</span>
+          <span><i class="fa-solid fa-location-dot"></i> Supermanzanas</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Servicios relacionados -->
+  <section class="pcno-section pcno-bg-light">
+    <div class="pcno-shell">
+      <div class="pcno-section-head">
+        <span>Otros Servicios</span>
+        <h2>Servicios técnicos relacionados en Cancún</h2>
+        <p>Soluciones complementarias de hardware y software para computadoras y laptops.</p>
+      </div>
+
+      <div class="pcno-related-grid">
+        {relatedServices.map((item) => (
+          <div class="pcno-related-card">
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+            <a href={item.link} class="pcno-related-link">Ver servicio <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Preguntas frecuentes (FAQ) -->
+  <FaqSection
+    id="faq-pc-no-enciende"
+    title="Preguntas frecuentes sobre PC que no encienden en Cancún"
+    description="Respuestas técnicas y comerciales a las dudas más comunes sobre computadoras que no prenden."
+    items={faqItems}
+    backgroundColor="#0b1329"
+    titleColor="#ffffff"
+    descriptionColor="#94a3b8"
+    questionColor="#080e1e"
+    faqAccent="#f59e0b"
+  />
+
+  <!-- 12. Reseñas y Comentarios -->
+  <section class="pcno-section pcno-reviews-section">
+    <div class="pcno-shell">
+      <div class="pcno-section-head">
+        <span>Opiniones</span>
+        <h2>Opiniones de clientes de Pixon PC</h2>
+        <p>Nuestros clientes respaldan el compromiso y la honestidad de nuestro servicio técnico.</p>
+      </div>
+
+      <!-- Reviews list / Form layout -->
+      <div class="pcno-reviews-layout">
+        <div class="pcno-mock-reviews">
+          <div class="pcno-review-item">
+            <div class="pcno-review-meta">
+              <strong>Carlos M. (Cancún Centro)</strong>
+              <div class="pcno-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            </div>
+            <p>"Mi PC gamer se apagó tras un apagón en la Huayacán y no hacía nada. Pensé que la tarjeta madre había muerto, pero aquí la diagnosticaron gratis y resultó ser solo una línea de la fuente dañada. Súper honestos y rápidos."</p>
+          </div>
+          <div class="pcno-review-item">
+            <div class="pcno-review-meta">
+              <strong>Sofía R. (Zona Hotelera)</strong>
+              <div class="pcno-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            </div>
+            <p>"Prendían las luces de los ventiladores pero la pantalla no daba imagen. La llevé con cita y en unas horas me diagnosticaron que un módulo de memoria RAM estaba en corto por humedad. La limpiaron de sulfato y quedó al 100%."</p>
+          </div>
+        </div>
+
+        <div class="pcno-review-form-card">
+          <h3>Deja tu comentario</h3>
+          <form class="pcno-review-form" onsubmit="event.preventDefault(); alert('¡Gracias por tu comentario! Se publicará después de ser moderado.'); this.reset();">
+            <div class="pcno-form-group">
+              <label for="review_name">Nombre completo</label>
+              <input type="text" id="review_name" required placeholder="Ej. Alejandro Torres" />
+            </div>
+            <div class="pcno-form-group">
+              <label for="review_text">Comentario</label>
+              <textarea id="review_text" required rows="3" placeholder="Cuéntanos tu experiencia con Pixon PC..."></textarea>
+            </div>
+            <button type="submit" class="pcno-btn pcno-btn-primary">Publicar comentario</button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="pcno-reviews-cta">
+        <a href="/comentarios" class="pcno-btn pcno-btn-soft">Ver todas las reseñas de Pixon PC</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. Ubicación y contacto -->
+  <section class="pcno-section pcno-bg-dark pcno-contact-block">
+    <div class="pcno-shell pcno-contact-grid">
+      <div class="pcno-contact-info">
+        <span>Ubicación y citas</span>
+        <h2>Contacto Pixon PC / Rentalap</h2>
+        <p class="pcno-contact-lead">
+          Servicio técnico de computadoras en Cancún con cobertura en Zona Hotelera, Huayacán, Polígono Sur, Puerto Juárez y alrededores.
+        </p>
+        
+        <div class="pcno-contact-list">
+          <div class="pcno-contact-detail">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <div>
+              <h3>Ubicación física</h3>
+              <p>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</p>
+            </div>
+          </div>
+          <div class="pcno-contact-detail">
+            <i class="fa-brands fa-whatsapp"></i>
+            <div>
+              <h3>WhatsApp</h3>
+              <p>+52 998 669 0777</p>
+            </div>
+          </div>
+          <div class="pcno-contact-detail">
+            <i class="fa-solid fa-envelope"></i>
+            <div>
+              <h3>Correo electrónico</h3>
+              <p>pixonpc@gmail.com</p>
+            </div>
+          </div>
+          <div class="pcno-contact-detail">
+            <i class="fa-solid fa-calendar-days"></i>
+            <div>
+              <h3>Horario de atención</h3>
+              <p>Lunes a Domingo — <strong>Con cita previa obligatoria</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcno-contact-actions">
+          <a href={`https://wa.me/529986690777?text=${whatsappText}`} class="pcno-btn pcno-btn-primary" onclick="smartWaRedirect(this.href); return false;">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+          </a>
+          <a href="#ticket-pc-no-enciende" class="pcno-btn pcno-btn-soft">
+            <i class="fa-solid fa-ticket"></i> Crear Ticket
+          </a>
+          <a href={`https://wa.me/529986690777?text=${encodeURIComponent('Hola, quisiera solicitar recolección a domicilio en Cancún para mi PC que no enciende.')}`} class="pcno-btn pcno-btn-outline" onclick="smartWaRedirect(this.href); return false;">
+            <i class="fa-solid fa-truck"></i> Pedir recolección a domicilio
+          </a>
+        </div>
+      </div>
+
+      <div class="pcno-contact-map">
+        <div class="pcno-map-placeholder">
+          <i class="fa-solid fa-map-pin"></i>
+          <span>Ubicación Privada - Agenda tu cita para recibir coordenadas exactas y confirmación.</span>
+          <strong>Cto. Hacienda Chimay, C.P. 77539, Cancún, Q.R.</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14. Footer / Enlaces -->
+  <Footer />
+</div>
+
+<script>
+  // Add dynamic help microcopy below the description field in the global ticket form
+  document.addEventListener('DOMContentLoaded', () => {
+    const descField = document.getElementById('st_description');
+    if (descField && !document.getElementById('st-description-help')) {
+      const helpText = document.createElement('p');
+      helpText.id = 'st-description-help';
+      helpText.style.fontSize = '0.85rem';
+      helpText.style.color = '#64748b';
+      helpText.style.marginTop = '6px';
+      helpText.style.fontStyle = 'italic';
+      helpText.style.display = 'block';
+      helpText.innerHTML = '<strong>Ejemplo:</strong> mi PC prende ventiladores pero no da imagen; empezó después de un apagón.';
+      descField.parentNode?.appendChild(helpText);
+    }
+  });
+</script>
+
+<style>
+  /* Premium Scoped Styling for PC no enciende landing view */
+  .pcno-page {
+    background-color: #050d1e;
+    color: #cbd5e1;
+    font-family: 'Red Hat Display', 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .pcno-shell {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .pcno-section {
+    padding: clamp(50px, 8vw, 90px) 0;
+    background-color: #ffffff;
+    color: #0f172a;
+  }
+
+  .pcno-bg-light {
+    background-color: #f8fafc;
+  }
+
+  .pcno-bg-dark {
+    background-color: #080e1e;
+    color: #cbd5e1;
+  }
+
+  .pcno-text-white h2,
+  .pcno-text-white p {
+    color: #ffffff !important;
+  }
+
+  /* Headings & Headings hierarchies */
+  .pcno-section-head {
+    max-width: 800px;
+    margin: 0 auto clamp(30px, 5vw, 50px);
+    text-align: center;
+  }
+
+  .pcno-section-head span,
+  .pcno-kicker,
+  .pcno-eyebrow,
+  .pcno-contact-info span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #f59e0b;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .pcno-section-head h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    color: #0f172a;
+    line-height: 1.15;
+    margin: 0 0 16px;
+  }
+
+  .pcno-bg-dark .pcno-section-head h2 {
+    color: #ffffff;
+  }
+
+  .pcno-section-head p {
+    color: #475569;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .pcno-bg-dark .pcno-section-head p {
+    color: #94a3b8;
+  }
+
+  /* Hero Section (Dark premium theme with grid) */
+  .pcno-hero {
+    position: relative;
+    padding: 100px 0 clamp(60px, 10vw, 100px);
+    background: 
+      radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.15), transparent 30%),
+      radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15), transparent 35%),
+      linear-gradient(135deg, #030712 0%, #050d1e 50%, #0b1329 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .pcno-hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(30px, 5vw, 60px);
+    align-items: center;
+  }
+
+  .pcno-kicker {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .pcno-hero-copy h1 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.3rem, 5vw, 3.8rem);
+    line-height: 1.05;
+    color: #ffffff;
+    margin: 12px 0 16px;
+  }
+
+  .pcno-hero-copy h2 {
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    font-weight: 500;
+    line-height: 1.45;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+  }
+
+  .pcno-lead {
+    color: #94a3b8;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    margin-bottom: 30px;
+  }
+
+  /* Specs Grid */
+  .pcno-specs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 0;
+  }
+
+  .pcno-spec-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pcno-spec-item i {
+    font-size: 1.3rem;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pcno-spec-item span {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pcno-spec-item strong {
+    font-size: 0.95rem;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  /* Hero Actions */
+  .pcno-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  .pcno-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.98rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .pcno-btn-primary {
+    background-color: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(22, 163, 74, 0.35);
+    border: none;
+  }
+
+  .pcno-btn-primary:hover {
+    background-color: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(22, 163, 74, 0.45);
+  }
+
+  .pcno-btn-soft {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .pcno-btn-soft:hover {
+    background-color: rgba(59, 130, 246, 0.18);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  .pcno-btn-outline {
+    background-color: transparent;
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .pcno-btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  /* Zone chips */
+  .pcno-hero-zones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pcno-hero-zones span {
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+
+  .pcno-zone-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pcno-chip {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Highlight card visual */
+  .pcno-hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pcno-highlight-card {
+    background: rgba(11, 19, 41, 0.65);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .pcno-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .pcno-pulse {
+    width: 10px;
+    height: 10px;
+    background-color: #f59e0b;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    animation: pcno-pulse-anim 2s infinite;
+  }
+
+  @keyframes pcno-pulse-anim {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  }
+
+  .pcno-highlight-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  .pcno-highlight-card p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0 0 20px;
+  }
+
+  .pcno-card-img-wrap {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 1.6;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .pcno-card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Symptoms Grid */
+  .pcno-symptoms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .pcno-symptom-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: clamp(20px, 4vw, 30px);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.03);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .pcno-symptom-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.07);
+  }
+
+  .pcno-symptom-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+
+  .pcno-symptom-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.25rem;
+    margin: 0 0 12px;
+  }
+
+  .pcno-symptom-cause,
+  .pcno-symptom-rec {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 8px;
+  }
+
+  .pcno-symptom-cause {
+    color: #475569;
+  }
+
+  .pcno-symptom-rec {
+    color: #1e3a8a;
+    background-color: #eff6ff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+    margin-bottom: 0;
+    font-weight: 550;
+  }
+
+  /* Split layout & Checklist */
+  .pcno-split-grid {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(35px, 6vw, 70px);
+    align-items: center;
+  }
+
+  .pcno-eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .pcno-split-content h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 3.5vw, 2.7rem);
+    color: #ffffff;
+    line-height: 1.15;
+    margin: 0 0 16px;
+  }
+
+  .pcno-split-content p {
+    color: #94a3b8;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .pcno-badge-trust {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.1);
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .pcno-checklist-card {
+    background-color: #0b1329;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: clamp(24px, 5vw, 35px);
+  }
+
+  .pcno-checklist-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: 1.35rem;
+    margin: 0 0 24px;
+  }
+
+  .pcno-checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pcno-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .pcno-check-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .pcno-checklist h4 {
+    color: #ffffff;
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+
+  .pcno-checklist p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+
+  /* Process Grid (Timeline) */
+  .pcno-process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .pcno-process-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 30px 24px;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pcno-process-number {
+    font-family: 'Fugaz One', cursive, sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    color: rgba(59, 130, 246, 0.12);
+    position: absolute;
+    top: 12px;
+    right: 18px;
+  }
+
+  .pcno-process-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.18rem;
+    margin: 0 0 10px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .pcno-process-card p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: #475569;
+    line-height: 1.55;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Protect ticket view margins */
+  .pcno-ticket-wrapper {
+    background-color: #f1f5f9;
+  }
+
+  /* Compatibility Grid */
+  .pcno-compat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .pcno-compat-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+
+  .pcno-compat-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.1rem;
+    margin: 0 0 8px;
+  }
+
+  .pcno-compat-card p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .pcno-compat-note {
+    text-align: center;
+    color: #475569;
+    font-size: 0.92rem;
+    font-weight: 550;
+    margin-top: 24px;
+  }
+
+  .pcno-compat-note i {
+    color: #3b82f6;
+    margin-right: 6px;
+  }
+
+  /* Risks Grid */
+  .pcno-risks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .pcno-risk-card {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .pcno-risk-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .pcno-risk-header i {
+    color: #d97706;
+    font-size: 1.3rem;
+  }
+
+  .pcno-risk-header h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #78350f;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .pcno-risk-card p {
+    margin: 0;
+    color: #92400e;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  /* Warranty Grid */
+  .pcno-warranty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+
+  .pcno-warranty-card {
+    background-color: #0b1329;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 30px 24px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .pcno-warranty-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .pcno-warranty-card i {
+    font-size: 2rem;
+    color: #f59e0b;
+    margin-bottom: 18px;
+  }
+
+  .pcno-warranty-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: 1.25rem;
+    margin: 0 0 10px;
+  }
+
+  .pcno-warranty-card p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  /* Local Cancun Climate Copy */
+  .pcno-local-block {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pcno-local-inner {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(30px, 5vw, 60px);
+    align-items: center;
+  }
+
+  .pcno-local-copy h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 3.5vw, 2.7rem);
+    color: #0f172a;
+    line-height: 1.15;
+    margin: 0 0 16px;
+  }
+
+  .pcno-local-copy p {
+    color: #475569;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .pcno-local-zones {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: clamp(24px, 4vw, 35px);
+  }
+
+  .pcno-local-zones h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.3rem;
+    margin: 0 0 8px;
+  }
+
+  .pcno-local-zones p {
+    color: #475569;
+    font-size: 0.92rem;
+    margin-bottom: 20px;
+  }
+
+  .pcno-zones-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .pcno-zones-grid span {
+    font-size: 0.88rem;
+    color: #0f172a;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pcno-zones-grid span i {
+    color: #d97706;
+  }
+
+  /* Related Services */
+  .pcno-related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .pcno-related-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+  }
+
+  .pcno-related-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.15rem;
+    margin: 0 0 10px;
+  }
+
+  .pcno-related-card p {
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0 0 20px;
+    flex-grow: 1;
+  }
+
+  .pcno-related-link {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #2563eb;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: gap 0.2s;
+  }
+
+  .pcno-related-link:hover {
+    gap: 10px;
+    color: #1d4ed8;
+  }
+
+  /* Reviews block */
+  .pcno-reviews-section {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pcno-reviews-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(24px, 5vw, 45px);
+    align-items: flex-start;
+  }
+
+  .pcno-mock-reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pcno-review-item {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+
+  .pcno-review-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pcno-review-meta strong {
+    color: #0f172a;
+    font-size: 0.95rem;
+  }
+
+  .pcno-stars {
+    color: #fbbf24;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 2px;
+  }
+
+  .pcno-review-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #475569;
+    font-style: italic;
+  }
+
+  .pcno-review-form-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  }
+
+  .pcno-review-form-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.2rem;
+    margin: 0 0 16px;
+  }
+
+  .pcno-review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pcno-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pcno-form-group label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .pcno-form-group input,
+  .pcno-form-group textarea {
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    background-color: #f8fafc;
+    color: #0f172a;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .pcno-form-group input:focus,
+  .pcno-form-group textarea:focus {
+    border-color: #3b82f6;
+  }
+
+  .pcno-reviews-cta {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  /* Contact and Location Section */
+  .pcno-contact-block {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .pcno-contact-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(30px, 5vw, 60px);
+    align-items: center;
+  }
+
+  .pcno-contact-info span {
+    color: #f59e0b;
+  }
+
+  .pcno-contact-info h2 {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: clamp(2rem, 3.5vw, 2.7rem);
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  .pcno-contact-lead {
+    font-size: 1.08rem;
+    color: #cbd5e1;
+    line-height: 1.55;
+    margin-bottom: 24px;
+  }
+
+  .pcno-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .pcno-contact-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .pcno-contact-detail i {
+    font-size: 1.35rem;
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.1);
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .pcno-contact-detail h3 {
+    margin: 0 0 2px;
+    font-size: 0.95rem;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .pcno-contact-detail p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    line-height: 1.45;
+  }
+
+  .pcno-contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Interactive Map details */
+  .pcno-contact-map {
+    height: 100%;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pcno-map-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    background-color: #0b1329;
+    border: 1px dashed rgba(245, 158, 11, 0.3);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+    color: #cbd5e1;
+  }
+
+  .pcno-map-placeholder i {
+    font-size: 2.5rem;
+    color: #ef4444;
+    margin-bottom: 16px;
+  }
+
+  .pcno-map-placeholder span {
+    font-size: 0.92rem;
+    color: #94a3b8;
+    max-width: 300px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .pcno-map-placeholder strong {
+    font-size: 0.98rem;
+    color: #ffffff;
+  }
+
+  /* Mobile and Tablet Media Queries */
+  @media (max-width: 992px) {
+    .pcno-hero-grid,
+    .pcno-split-grid,
+    .pcno-local-inner,
+    .pcno-reviews-layout,
+    .pcno-contact-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .pcno-hero-visual,
+    .pcno-highlight-card,
+    .pcno-checklist-card,
+    .pcno-local-zones,
+    .pcno-review-form-card,
+    .pcno-contact-map {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pcno-specs-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    
+    .pcno-zones-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pcno-contact-actions .pcno-btn {
+      width: 100%;
+    }
+  }
+</style>

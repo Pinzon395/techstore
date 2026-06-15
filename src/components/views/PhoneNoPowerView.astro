@@ -1,0 +1,639 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+import DarkTechnicalSection from '../DarkTechnicalSection.astro';
+
+const { service } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola Pixon PC, mi celular no prende en Cancún. Se queda negro, vibra sin imagen, no carga o se apagó de repente. Quiero diagnóstico.'
+);
+
+const quickChecks = [
+  'No lo cargues con varios cables para probar.',
+  'Si se mojó, no lo pongas a secar con calor.',
+  'No lo sigas encendiendo si vibra o se queda negro.',
+  'Si prende a ratos, no lo fuerces hasta revisar la causa.',
+];
+
+const failureSignals = [
+  {
+    title: 'Pantalla negra',
+    text: 'Puede ser pantalla, flex, batería o placa. No siempre significa que el celular esté muerto.',
+  },
+  {
+    title: 'No carga',
+    text: 'Revisamos puerto, cable, cargador, batería y consumo real antes de cambiar piezas.',
+  },
+  {
+    title: 'Se mojó',
+    text: 'La humedad puede dejar corrosión activa aunque el equipo parezca responder al principio.',
+  },
+  {
+    title: 'Se apagó de repente',
+    text: 'Una caída, batería agotada o corto interno puede detener el arranque sin aviso previo.',
+  },
+];
+
+const diagnosisBlocks = [
+  {
+    title: 'Batería y consumo',
+    text: 'Medimos si la batería entrega energía real o si el equipo está consumiendo de más.',
+  },
+  {
+    title: 'Puerto de carga',
+    text: 'Revisamos falso contacto, pines dañados, suciedad, flex de carga y daño por uso o humedad.',
+  },
+  {
+    title: 'Pantalla y flex',
+    text: 'Un panel negro o sin retroiluminación puede parecer fallo total aunque el teléfono sí esté encendiendo.',
+  },
+  {
+    title: 'Placa madre',
+    text: 'Si hay corto, corrosión o daño eléctrico, la revisión interna cambia la ruta de reparación.',
+  },
+];
+
+const repairRoutes = [
+  {
+    title: 'Si fue batería',
+    text: 'Cuando la batería ya no sostiene carga, se cambia por una compatible y se valida consumo.',
+  },
+  {
+    title: 'Si fue puerto de carga',
+    text: 'Si el puerto está dañado, se revisa flex, conector y placa para no cambiar piezas de más.',
+  },
+  {
+    title: 'Si fue humedad',
+    text: 'Se limpia internamente y se decide si conviene recuperación, reparación de placa o detenerse.',
+  },
+  {
+    title: 'Si fue pantalla o energía',
+    text: 'Validamos si el equipo prende pero no muestra imagen o si realmente no está energizando.',
+  },
+];
+
+const localZones = [
+  'Cancún Centro',
+  'Zona Hotelera',
+  'Huayacán',
+  'Cumbres',
+  'Bonfil',
+  'Polígono Sur',
+  'Puerto Cancún',
+  'Bonampak',
+];
+
+const faqs = service.faqs ?? [
+  {
+    question: '¿Qué hago si mi celular no prende?',
+    answer: 'No lo fuerces con varios cargadores. Lo mejor es revisar batería, carga, pantalla, humedad y placa para ubicar la causa real.',
+  },
+  {
+    question: '¿Si vibra pero no muestra imagen todavía sirve?',
+    answer: 'Sí, muchas veces el equipo sí enciende y la falla está en pantalla, flex, backlight o conexión interna.',
+  },
+  {
+    question: '¿Se puede salvar si se mojó?',
+    answer: 'Depende del tiempo, del líquido y de si se encendió después. Mientras menos se haya forzado, mejores posibilidades hay.',
+  },
+  {
+    question: '¿Revisan batería y centro de carga?',
+    answer: 'Sí. Son dos de las causas más comunes cuando un celular no prende o no carga de forma estable.',
+  },
+  {
+    question: '¿Cuánto tarda el diagnóstico?',
+    answer: 'Depende del daño. En fallas simples puede ser rápido; humedad o placa suelen requerir más revisión.',
+  },
+];
+
+const relatedServices = [
+  {
+    href: '/servicios/telefono/diagnostico',
+    icon: 'fa-stethoscope',
+    label: 'Diagnóstico de celular',
+    desc: 'Si no quieres adivinar la falla, primero revisamos el síntoma real del equipo.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/telefono/centro-carga-celular',
+    icon: 'fa-plug-circle-bolt',
+    label: 'Centro de carga celular',
+    desc: 'Si el problema es carga lenta, falso contacto o puerto dañado, revisamos el conector.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/telefono/celular-mojado',
+    icon: 'fa-droplet',
+    label: 'Celular mojado',
+    desc: 'Si el equipo tuvo líquido o humedad, conviene revisar corrosión antes de encender.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/telefono/cambio-bateria',
+    icon: 'fa-battery-three-quarters',
+    label: 'Cambio de batería',
+    desc: 'Cuando la batería ya no responde, se reemplaza por una compatible y se prueba consumo.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/telefono/reparacion-iphone',
+    icon: 'fa-mobile-screen',
+    label: 'Reparación de iPhone',
+    desc: 'Si tu iPhone no prende, también revisamos modelos Apple por batería, carga, placa y pantalla.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/telefono/reparacion-samsung',
+    icon: 'fa-mobile',
+    label: 'Reparación Samsung',
+    desc: 'Diagnóstico para equipos Galaxy con falla de encendido, carga o humedad.',
+    cta: 'Ver servicio →',
+  },
+];
+---
+
+<div class="phone-np-page">
+  <section class="phone-np-hero">
+    <div class="phone-shell phone-np-grid">
+      <div class="phone-np-copy">
+        <span class="phone-kicker"><i class="fa-solid fa-power-off"></i> Servicio técnico local en Cancún</span>
+        <h1>Celular no prende en Cancún con diagnóstico de batería, carga, pantalla y placa</h1>
+        <p class="phone-lead">
+          Si tu celular quedó negro, vibra sin imagen, no carga o se apagó de repente, revisamos la causa real antes de cotizar.
+          No se trata de adivinar pieza: se trata de separar si falla energía, pantalla, humedad o placa.
+        </p>
+        <div class="phone-actions">
+          <a class="phone-btn phone-btn--primary" href="#ticket-celular-no-prende"><i class="fa-solid fa-ticket"></i> Solicitar diagnóstico</a>
+          <a class="phone-btn phone-btn--secondary" href={`https://wa.me/529986690777?text=${whatsappText}`}><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</a>
+        </div>
+        <div class="phone-benefits">
+          <span><i class="fa-solid fa-battery-three-quarters"></i> Batería y consumo</span>
+          <span><i class="fa-solid fa-plug-circle-bolt"></i> Carga y puerto</span>
+          <span><i class="fa-solid fa-microchip"></i> Pantalla y placa</span>
+        </div>
+        <div class="phone-alert">
+          <strong>Importante:</strong>
+          <span>Si vibra, se calienta o se mojó, no insistas en encenderlo. Primero hay que ubicar la falla real.</span>
+        </div>
+      </div>
+
+      <div class="phone-np-visual">
+        <figure class="phone-card phone-card--hero">
+          <img src="/assets/images/reparacion-celulares-cancun.webp" alt="Celular no prende en Cancún en diagnóstico técnico" loading="eager" fetchpriority="high" decoding="async" />
+          <figcaption>Primero revisamos si realmente no enciende o si la falla está en pantalla, batería o humedad.</figcaption>
+        </figure>
+        <div class="phone-stack">
+          <figure class="phone-card">
+            <img src="/assets/images/lavado-tarjeta-celular.webp" alt="Revisión de placa y corrosión en celular que no prende" loading="lazy" decoding="async" />
+          </figure>
+          <figure class="phone-card">
+            <img src="/assets/images/iphone-desarmado.webp" alt="Celular abierto para diagnóstico de batería y placa" loading="lazy" decoding="async" />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="phone-section">
+    <div class="phone-shell phone-split phone-split--lean">
+      <div>
+        <span class="phone-eyebrow">Qué hacer</span>
+        <h2>Qué hacer si tu celular no prende</h2>
+        <p>
+          No lo sigas probando con varios cargadores. Si el equipo vibra, se queda negro o se apagó de golpe, forzarlo puede empeorar un corto o una corrosión interna.
+        </p>
+        <div class="phone-note">
+          La mejor decisión es revisar si la falla viene de batería, carga, pantalla, humedad o placa antes de gastar en una pieza que no resuelve el problema.
+        </div>
+      </div>
+      <aside class="phone-panel">
+        <h3>Evita esto</h3>
+        <ul>
+          {quickChecks.map((item) => <li>{item}</li>)}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="phone-section phone-section--soft">
+    <div class="phone-shell phone-split phone-split--reverse">
+      <div>
+        <span class="phone-eyebrow">Síntomas</span>
+        <h2>Señales que suelen aparecer antes de declarar un celular muerto</h2>
+        <p>
+          Un celular que no prende no siempre está apagado de verdad. A veces sí enciende y la falla se concentra en una parte específica del hardware.
+        </p>
+      </div>
+      <div class="phone-signal-list">
+        {failureSignals.map((item, index) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="phone-section">
+    <div class="phone-shell phone-image-band">
+      <div class="phone-image-copy">
+        <span class="phone-eyebrow">Diagnóstico</span>
+        <h2>Revisamos batería, puerto de carga, pantalla y placa antes de cotizar</h2>
+        <p>
+          El objetivo es ubicar la causa real. Si el problema es energía, puede ser batería o puerto.
+          Si vibra pero no muestra imagen, tal vez el equipo sí enciende y solo falla el display.
+        </p>
+      </div>
+      <figure class="phone-image">
+        <img src="/assets/images/microscopio-flexor.jpg" alt="Diagnóstico de celular no prende en Cancún con revisión de flex y placa" loading="lazy" decoding="async" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="phone-section phone-section--soft">
+    <div class="phone-shell">
+      <div class="phone-section-head">
+        <span class="phone-eyebrow">Componentes</span>
+        <h2>Qué revisamos cuando el celular no enciende</h2>
+        <p>La inspección técnica ayuda a separar una falla simple de un daño más serio en el hardware.</p>
+      </div>
+      <div class="phone-diagnosis-band">
+        {diagnosisBlocks.map((item) => (
+          <article>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <DarkTechnicalSection
+    eyebrow="Ruta técnica"
+    title="Si el problema es batería, carga, pantalla o humedad, la solución cambia"
+    description="No todos los casos llevan la misma reparación. Primero se confirma qué pieza está bloqueando el arranque y luego se define si conviene reparar, reemplazar o detenerse."
+    steps={repairRoutes}
+  />
+
+  <section class="phone-section phone-section--soft">
+    <div class="phone-shell phone-gallery-shell">
+      <div class="phone-gallery-label">
+        <span class="phone-eyebrow">Revisión visual</span>
+        <h2>Imágenes del proceso de diagnóstico</h2>
+      </div>
+      <div class="phone-gallery">
+        <figure><img src="/assets/images/reparacion-celulares-cancun.webp" alt="Servicio técnico de celular no prende en Cancún" loading="lazy" decoding="async" /></figure>
+        <figure><img src="/assets/images/lavado-tarjeta-celular.webp" alt="Limpieza de placa para celular que no prende en Cancún" loading="lazy" decoding="async" /></figure>
+        <figure><img src="/assets/images/iphone-desarmado-2.webp" alt="Celular desarmado para revisión interna en Cancún" loading="lazy" decoding="async" /></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="phone-section">
+    <div class="phone-shell phone-split phone-split--reverse">
+      <div>
+        <span class="phone-eyebrow">Local</span>
+        <h2>Atención para celulares que no prenden en Cancún</h2>
+        <p>
+          Recibimos equipos de Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún y Bonampak.
+        </p>
+      </div>
+      <aside class="phone-panel">
+        <h3>Zonas comunes</h3>
+        <ul>
+          {localZones.map((zone) => <li>{zone}</li>)}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="phone-section phone-section--soft">
+    <div class="phone-shell phone-price">
+      <div>
+        <span class="phone-eyebrow">Tiempo y precio</span>
+        <h2>¿Cuánto tarda y cuánto cuesta revisar un celular que no prende?</h2>
+        <p>
+          Depende del daño. Una falla de batería o carga puede resolverse más rápido; humedad, placa o pantalla requieren revisión más larga para no cambiar piezas a ciegas.
+        </p>
+      </div>
+      <div>
+        <span class="phone-eyebrow">Honestidad técnica</span>
+        <h2>No prometemos encendido sin revisar la causa</h2>
+        <p>
+          Si la reparación no conviene por costo o riesgo, te lo decimos directo. La idea es recuperar el equipo con la mejor ruta posible, no vender una pieza innecesaria.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-celular-no-prende"
+    sourcePage={Astro.url.pathname}
+    defaultDevice="Celular"
+    defaultService={service.label}
+    title="Solicitar revisión de celular que no prende"
+    subtitle="Cuéntanos si vibra, si se mojó, si no carga o si se apagó de repente. Eso acelera el diagnóstico."
+  />
+  <RelatedServicesSection items={relatedServices} light={true} title="Servicios relacionados para celular" eyebrow="Más reparaciones" />
+  <FaqSection
+    id="faq-celular-no-prende"
+    title="Preguntas frecuentes sobre celular que no prende"
+    description="Respuestas directas sobre diagnóstico, humedad, batería, carga y tiempo de revisión."
+    items={faqs}
+    sectionClass="phone-np-faq"
+    titleColor="#071F3A"
+    descriptionColor="#334155"
+    questionColor="#071F3A"
+    backgroundColor="#F8FAFC"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver todas las preguntas"
+  />
+  <CommentsSection id="comentarios-celular-no-prende" title="Comentarios de clientes" description="Cuéntanos cómo te fue con la revisión." dark={false} />
+  <ContactSection id="contacto-celular-no-prende" />
+  <Footer />
+</div>
+
+<style>
+  .phone-np-page {
+    --ink: #071F3A;
+    --muted: #334155;
+    --line: #D6E0EC;
+    --soft: #F7FAFC;
+    --blue: #1659B7;
+    background: #fff;
+    color: var(--ink);
+  }
+  .phone-shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  .phone-np-page :is(h1,h2,h3,p,li,span,strong,figcaption) { color: var(--ink); }
+  .phone-np-hero {
+    padding: clamp(56px, 7vw, 92px) 0 clamp(42px, 6vw, 66px);
+    background: linear-gradient(180deg, #EEF5FC 0%, #FFFFFF 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  .phone-np-grid,
+  .phone-split,
+  .phone-image-band,
+  .phone-price {
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(320px, .98fr);
+    gap: 40px;
+    align-items: center;
+  }
+  .phone-kicker,
+  .phone-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #1D4ED8 !important;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: .8rem;
+  }
+  .phone-np-copy h1 {
+    margin: 0;
+    max-width: 13ch;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.95rem, 3.5vw, 3.25rem);
+    line-height: .96;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+  }
+  .phone-lead {
+    margin: 16px 0 0;
+    max-width: 68ch;
+    color: var(--muted) !important;
+    font-size: clamp(.98rem, 1.35vw, 1.08rem);
+    line-height: 1.62;
+  }
+  .phone-actions,
+  .phone-benefits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .phone-actions { margin-top: 20px; }
+  .phone-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 13px 20px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-weight: 850;
+    text-decoration: none;
+    transition: transform 160ms cubic-bezier(.23,1,.32,1), background-color 160ms ease;
+  }
+  .phone-btn:hover { transform: translateY(-1px); }
+  .phone-btn:active { transform: scale(.985); }
+  .phone-btn:focus-visible, a:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
+  .phone-btn--primary { background: var(--blue); color: #fff !important; }
+  .phone-btn--primary:hover { background: #104A9C; }
+  .phone-btn--secondary { background: #fff; border-color: #B9CBE0; color: var(--ink) !important; }
+  .phone-btn--secondary:hover { background: #EAF2FB; }
+  .phone-benefits span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-weight: 800;
+  }
+  .phone-benefits i { color: #1D4ED8; }
+  .phone-alert {
+    margin-top: 18px;
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid #D9E4F2;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 12px 28px rgba(7,31,58,.06);
+  }
+  .phone-alert strong,
+  .phone-alert span { color: var(--ink) !important; }
+  .phone-np-visual {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(170px, .72fr);
+    gap: 14px;
+    align-items: stretch;
+  }
+  .phone-card, .phone-panel, .phone-grid-2 article, .phone-price > div {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+  }
+  .phone-card { margin: 0; overflow: hidden; box-shadow: 0 20px 48px rgba(7,31,58,.12); }
+  .phone-card--hero { position: relative; }
+  .phone-card img { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 5; }
+  .phone-card--hero figcaption {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.96);
+    color: var(--ink) !important;
+    font-size: .92rem;
+    line-height: 1.35;
+    font-weight: 800;
+  }
+  .phone-stack { display: grid; gap: 14px; }
+  .phone-stack .phone-card img { aspect-ratio: 1 / 1; }
+  .phone-section { padding: clamp(40px, 6vw, 72px) 0; }
+  .phone-section--soft { background: var(--soft); }
+  .phone-gallery-shell {
+    position: relative;
+    z-index: 1;
+  }
+  .phone-section h2 {
+    margin: 0 0 14px;
+    color: var(--ink) !important;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.72rem, 3vw, 2.48rem);
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .phone-section h3 { margin: 0 0 12px; color: var(--ink) !important; font-size: 1.18rem; }
+  .phone-section p { margin: 0 0 14px; max-width: 72ch; color: var(--muted) !important; line-height: 1.7; font-size: 1.03rem; }
+  .phone-panel, .phone-grid-2 article, .phone-price > div {
+    padding: 22px;
+  }
+  .phone-panel ul, .phone-grid-2, .phone-gallery {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .phone-panel li, .phone-grid-2 p, .phone-price p {
+    color: var(--ink) !important;
+    font-weight: 700;
+    line-height: 1.55;
+  }
+  .phone-panel li { position: relative; padding-left: 20px; }
+  .phone-panel li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: .62em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1D4ED8;
+  }
+  .phone-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .phone-split--lean { align-items: start; }
+  .phone-note {
+    max-width: 58ch;
+    color: var(--ink) !important;
+    font-weight: 700;
+    line-height: 1.55;
+  }
+  .phone-signal-list {
+    display: grid;
+    gap: 12px;
+  }
+  .phone-signal-list article {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 18px 0;
+    border-bottom: 1px solid #D6E0EC;
+  }
+  .phone-signal-list article:last-child { border-bottom: 0; }
+  .phone-signal-list span {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    background: #E1ECF9;
+    color: #174EA6 !important;
+    font-weight: 900;
+  }
+  .phone-signal-list p { margin-bottom: 0; }
+  .phone-diagnosis-band {
+    display: grid;
+    gap: 12px;
+  }
+  .phone-diagnosis-band article {
+    padding: 18px 0;
+    border-bottom: 1px solid #D6E0EC;
+  }
+  .phone-diagnosis-band article:last-child { border-bottom: 0; }
+  .phone-gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+    grid-template-rows: 170px 170px;
+    gap: 12px;
+    width: min(880px, 100%);
+    margin: 0 auto;
+  }
+  .phone-gallery figure:first-child {
+    grid-row: 1 / span 2;
+  }
+  .phone-gallery figure { margin: 0; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 16px 36px rgba(7,31,58,.08); }
+  .phone-gallery img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .phone-gallery-shell {
+    display: grid;
+    gap: 22px;
+    justify-items: center;
+  }
+  .phone-gallery-label {
+    text-align: center;
+    max-width: 620px;
+  }
+  .phone-gallery-label p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .phone-gallery-label h2 {
+    margin-bottom: 0;
+  }
+  .phone-image { margin: 0; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 16px 36px rgba(7,31,58,.08); }
+  .phone-image img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .phone-price { align-items: stretch; }
+  .phone-price > div { display: flex; flex-direction: column; justify-content: center; }
+  .phone-np-page .service-ticket-section :is(h2,h3,p,li,strong,label,span) { color: var(--ink) !important; }
+  .phone-np-page .service-ticket-section p { color: var(--muted) !important; }
+  .phone-np-page .contact :is(h2,h3,p,li,strong),
+  .phone-np-page .faq-page-content :is(h2,h3,p,li,strong),
+  .phone-np-page .svc-related--light :is(h2,h3,h4,p),
+  .phone-np-page .comments-section :is(h2,h3,p,li,strong) { color: var(--ink) !important; }
+  @media (max-width: 980px) {
+    .phone-np-grid, .phone-split, .phone-image-band, .phone-price {
+      grid-template-columns: 1fr;
+    }
+    .phone-np-visual { grid-template-columns: 1fr; }
+    .phone-grid-2, .phone-gallery { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .phone-gallery figure:first-child { grid-row: auto; }
+    .phone-gallery { width: 100%; }
+    .phone-np-copy h1 { max-width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .phone-np-hero { padding-top: 48px; }
+    .phone-actions .phone-btn { width: 100%; }
+    .phone-panel, .phone-grid-2 article, .phone-price > div { padding: 18px; }
+    .phone-signal-list article,
+    .phone-diagnosis-band article { padding: 16px 0; }
+    .phone-gallery-label { max-width: 100%; }
+  }
+</style>

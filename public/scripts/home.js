@@ -118,6 +118,172 @@ if (document.querySelector('#commentForm, .comment-form-container')) {
     });
   });
 
+  const catalogGrid = document.querySelector('[data-catalog-grid]');
+  const catalogFilters = Array.from(document.querySelectorAll('[data-catalog-filter]'));
+  const catalogMore = document.querySelector('[data-catalog-more]');
+  const catalogCollapse = document.querySelector('[data-catalog-collapse]');
+  const catalogStatus = document.querySelector('[data-catalog-status]');
+
+  if (catalogGrid && catalogFilters.length) {
+    const cards = Array.from(catalogGrid.querySelectorAll('[data-category]'));
+    const initialLimit = Number(catalogGrid.dataset.initialLimit || 4);
+    const step = Number(catalogGrid.dataset.step || 4);
+    let activeFilter = catalogFilters.find((button) => button.classList.contains('active'))?.dataset.catalogFilter || 'Todos';
+    let visibleLimit = initialLimit;
+
+    const renderCatalog = ({ reset = false } = {}) => {
+      if (reset) visibleLimit = initialLimit;
+
+      const matches = cards.filter((card) => activeFilter === 'Todos' || card.dataset.category === activeFilter);
+      const visibleCards = matches.slice(0, visibleLimit);
+
+      cards.forEach((card) => {
+        const isVisible = visibleCards.includes(card);
+        card.hidden = !isVisible;
+        card.classList.toggle('catalog-card-visible', isVisible);
+      });
+
+      catalogFilters.forEach((button) => {
+        const isActive = button.dataset.catalogFilter === activeFilter;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+
+      if (catalogStatus) {
+        const filterLabel = activeFilter === 'Todos' ? 'vistas disponibles' : `vistas de ${activeFilter}`;
+        catalogStatus.textContent = `Mostrando ${visibleCards.length} de ${matches.length} ${filterLabel}.`;
+      }
+
+      if (catalogMore) {
+        const hasMore = visibleCards.length < matches.length;
+        catalogMore.hidden = !hasMore;
+        catalogMore.textContent = hasMore
+          ? `Ver mas servicios (${matches.length - visibleCards.length})`
+          : 'No hay mas servicios';
+      }
+
+      if (catalogCollapse) {
+        catalogCollapse.hidden = visibleCards.length <= initialLimit;
+      }
+    };
+
+    catalogFilters.forEach((button) => {
+      button.addEventListener('click', () => {
+        activeFilter = button.dataset.catalogFilter || 'Todos';
+        renderCatalog({ reset: true });
+      });
+    });
+
+    catalogMore?.addEventListener('click', () => {
+      visibleLimit += step;
+      renderCatalog();
+    });
+
+    catalogCollapse?.addEventListener('click', () => {
+      visibleLimit = initialLimit;
+      renderCatalog();
+      catalogGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    renderCatalog({ reset: true });
+  }
+
+  document.querySelectorAll('.before-after-slider').forEach((slider) => {
+    const input = slider.querySelector('input[type="range"]');
+    if (!input) return;
+    const updateReveal = () => slider.style.setProperty('--reveal', `${input.value}%`);
+    input.addEventListener('input', updateReveal);
+    updateReveal();
+  });
+
+  const initReviewExpands = (root = document) => {
+    root.querySelectorAll('[data-review-text]').forEach((textBox) => {
+      const button = textBox.parentElement?.querySelector('[data-review-toggle]');
+      if (!button) return;
+
+      const paragraph = textBox.querySelector('p') || textBox;
+      const lineHeight = Number.parseFloat(getComputedStyle(paragraph).lineHeight || '24') || 24;
+      const collapsedHeight = lineHeight * 3;
+      textBox.style.maxHeight = `${collapsedHeight}px`;
+      textBox.classList.remove('expanded');
+      button.setAttribute('aria-expanded', 'false');
+      button.textContent = 'Ver mas';
+      button.hidden = textBox.scrollHeight <= collapsedHeight + 2;
+
+      if (button.dataset.reviewBound === 'true') return;
+      button.dataset.reviewBound = 'true';
+      button.addEventListener('click', () => {
+        const isExpanded = textBox.classList.toggle('expanded');
+        button.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        button.textContent = isExpanded ? 'Ver menos' : 'Ver mas';
+        textBox.style.maxHeight = isExpanded ? `${textBox.scrollHeight}px` : `${collapsedHeight}px`;
+      });
+    });
+  };
+
+  const renderGoogleReviews = (reviews, target) => {
+    if (!Array.isArray(reviews) || !reviews.length || !target) return;
+    const safeReviews = reviews
+      .filter((review) => Number(review.rating || review.reviewRating || 0) >= 4)
+      .slice(0, 5);
+    if (!safeReviews.length) return;
+    target.innerHTML = safeReviews.map((review) => {
+      const name = review.author_name || review.name || review.author || 'Usuario de Google';
+      const date = review.relative_time_description || review.date || review.time_description || 'fecha visible en Google';
+      const rating = Number(review.rating || review.reviewRating || 5);
+      const text = review.text || review.reviewBody || 'Reseña verificada en Google.';
+      const photo = review.profile_photo_url || '';
+      const avatar = photo
+        ? `<img src="${photo}" alt="Foto de perfil de ${name}" width="44" height="44" loading="lazy" referrerpolicy="no-referrer">`
+        : name.charAt(0);
+      return `<article class="google-review-card"><div class="review-avatar" aria-hidden="true">${avatar}</div><div><div class="review-card-head"><h3>${name}</h3><p class="review-stars" aria-label="${rating} estrellas">${'★'.repeat(Math.round(rating))}</p></div><p class="review-date">${date}</p><div class="review-text" data-review-text><p>${text}</p></div><button class="review-more" type="button" data-review-toggle hidden aria-expanded="false">Ver mas</button></div></article>`;
+    }).join('');
+    initReviewExpands(target);
+  };
+
+  const reviewSection = document.querySelector('[data-google-reviews]');
+  if (reviewSection) initReviewExpands(reviewSection);
+  if (reviewSection && 'IntersectionObserver' in window) {
+    const reviewObserver = new IntersectionObserver(async (entries, obs) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      obs.disconnect();
+      try {
+        const response = await fetch(`/api/reviews/google?r=${Date.now()}`, { headers: { Accept: 'application/json' } });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.place_id) {
+          const mapsLink = reviewSection.querySelector('[data-google-maps-link]');
+          if (mapsLink) {
+            mapsLink.href = `https://search.google.com/local/writereview?placeid=${encodeURIComponent(data.place_id)}`;
+          }
+        }
+        if (data.rating && data.total) {
+          const summary = reviewSection.querySelector('[data-google-review-summary]');
+          if (summary) {
+            summary.textContent = `${Number(data.rating).toFixed(1)} estrellas basado en ${data.total} opiniones de Google`;
+          }
+        }
+        renderGoogleReviews(data.reviews || [], reviewSection.querySelector('[data-review-list]'));
+      } catch (_) {}
+    }, { rootMargin: '180px 0px' });
+    reviewObserver.observe(reviewSection);
+  }
+
+  const tiktokSection = document.getElementById('evidencia-real');
+  if (tiktokSection && 'IntersectionObserver' in window) {
+    const tiktokObserver = new IntersectionObserver((entries, obs) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      obs.disconnect();
+      if (!document.querySelector('script[src="https://www.tiktok.com/embed.js"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://www.tiktok.com/embed.js';
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    }, { rootMargin: '220px 0px' });
+    tiktokObserver.observe(tiktokSection);
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
     const worksSection = document.getElementById('trabajos');
     if (!worksSection) return;
@@ -295,5 +461,3 @@ let activeRepairVideo = null;
       });
     }
   });
-
-

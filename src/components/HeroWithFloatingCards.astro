@@ -1,0 +1,109 @@
+---
+interface Badge { icon?: string; label: string; value?: string }
+interface Props {
+  eyebrow: string;
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  badges?: Badge[];
+  price?: string;
+  primaryHref: string;
+  primaryLabel: string;
+  secondaryHref: string;
+  secondaryLabel: string;
+  benefits?: string[];
+}
+
+const {
+  eyebrow, title, description, image, imageAlt, badges = [], price,
+  primaryHref, primaryLabel, secondaryHref, secondaryLabel, benefits = [],
+} = Astro.props;
+---
+
+<section class="visual-hero section-dark">
+  <div class="visual-hero__shell">
+    <div class="visual-hero__copy">
+      <span class="visual-hero__eyebrow">{eyebrow}</span>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <div class="visual-hero__actions">
+        <a class="visual-hero__button visual-hero__button--primary" href={primaryHref} target={primaryHref.startsWith('http') ? '_blank' : undefined} rel={primaryHref.startsWith('http') ? 'noopener' : undefined}>{primaryLabel}</a>
+        <a class="visual-hero__button visual-hero__button--secondary" href={secondaryHref}>{secondaryLabel}</a>
+      </div>
+      <div class="visual-hero__benefits">
+        {benefits.map((benefit) => <span><i class="fa-solid fa-check" aria-hidden="true"></i>{benefit}</span>)}
+      </div>
+    </div>
+
+    <div class="visual-hero__stage">
+      <img src={image} alt={imageAlt} width="1200" height="900" loading="eager" fetchpriority="high" decoding="async" />
+      <div class="visual-hero__shade"></div>
+      <div class="visual-hero__badges">
+        {badges.map((badge) => (
+          <div class="visual-hero__badge">
+            {badge.icon && <i class={`fa-solid ${badge.icon}`} aria-hidden="true"></i>}
+            <span>{badge.label}</span>
+            {badge.value && <strong>{badge.value}</strong>}
+          </div>
+        ))}
+      </div>
+      {price && <div class="visual-hero__price"><span>Servicio desde</span><strong>{price}</strong><small>según diagnóstico</small></div>}
+      <div class="visual-hero__devices" aria-label="Equipos atendidos"><span>Laptop</span><span>PC</span><span>Gamer</span></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .visual-hero { padding: clamp(42px, 6vw, 78px) 0 54px; background: linear-gradient(135deg, #06192e 0%, #082c4f 58%, #0d4c80 100%); overflow: hidden; }
+  .visual-hero__shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(430px, .92fr); gap: clamp(54px, 7vw, 92px); align-items: end; width: min(1220px, calc(100% - 32px)); margin: 0 auto; }
+  .visual-hero__copy { position: relative; z-index: 2; }
+  .visual-hero__eyebrow { display: inline-block; margin-bottom: 13px; color: #cfe9ff !important; font-size: .78rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+  .visual-hero h1 { max-width: 15ch; margin: 0 0 18px; color: #fff !important; font-family: 'Kanit', sans-serif; font-size: clamp(2.3rem, 4.2vw, 4.25rem); line-height: .98; letter-spacing: 0; text-wrap: balance; }
+  .visual-hero__copy > p { max-width: 60ch; margin: 0; color: rgb(255 255 255 / 84%) !important; font-size: clamp(1rem, 1.35vw, 1.13rem); line-height: 1.68; }
+  .visual-hero__actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 25px; }
+  .visual-hero__button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; padding: 0 20px; border: 1px solid transparent; border-radius: 7px; color: #fff !important; font-weight: 800; text-decoration: none; transition: transform 180ms ease-out, background-color 180ms ease-out; }
+  .visual-hero__button--primary { background: #1683e5; }
+  .visual-hero__button--secondary { border-color: rgb(255 255 255 / 34%); background: rgb(255 255 255 / 8%); }
+  .visual-hero__button:active { transform: scale(.97); }
+  .visual-hero__benefits { display: flex; flex-wrap: wrap; gap: 11px 20px; margin-top: 26px; }
+  .visual-hero__benefits span { display: flex; align-items: center; gap: 7px; color: rgb(255 255 255 / 82%) !important; font-size: .85rem; font-weight: 700; }
+  .visual-hero__benefits i { color: #72c2ff; }
+  .visual-hero__stage { position: relative; min-height: 500px; margin-top: 72px; isolation: isolate; }
+  .visual-hero__stage > img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 8px; object-fit: cover; box-shadow: 0 30px 80px rgb(0 0 0 / 30%); }
+  .visual-hero__shade { position: absolute; inset: 0; z-index: 1; border-radius: 8px; background: linear-gradient(180deg, transparent 45%, rgb(3 18 34 / 72%) 100%); }
+  .visual-hero__badges { position: absolute; top: 18px; left: 18px; z-index: 2; display: contents; }
+  .visual-hero__badge { position: absolute; z-index: 2; display: grid; grid-template-columns: 28px 1fr; gap: 0 9px; align-items: center; min-width: 190px; padding: 11px 14px; border: 1px solid rgb(255 255 255 / 30%); border-radius: 7px; background: rgb(6 30 54 / 86%); box-shadow: 0 12px 34px rgb(0 0 0 / 18%); backdrop-filter: blur(12px); }
+  .visual-hero__badge:first-child { top: 18px; left: 18px; }
+  .visual-hero__badge:nth-child(2) { bottom: 18px; left: 18px; }
+  .visual-hero__badge:nth-child(n + 3) { display: none; }
+  .visual-hero__badge i { grid-row: 1 / 3; color: #78c5ff; }
+  .visual-hero__badge span, .visual-hero__badge strong { color: #fff !important; }
+  .visual-hero__badge span { font-size: .76rem; opacity: .78; }
+  .visual-hero__badge strong { font-size: .94rem; }
+  .visual-hero__price { position: absolute; right: 18px; bottom: 62px; z-index: 2; display: grid; min-width: 170px; padding: 15px 18px; border-radius: 7px; background: #fff; box-shadow: 0 18px 45px rgb(0 25 48 / 24%); }
+  .visual-hero__price :where(span, strong, small) { color: #071f3a !important; }
+  .visual-hero__price span, .visual-hero__price small { font-size: .72rem; }
+  .visual-hero__price strong { font-size: 1.35rem; }
+  .visual-hero__devices { position: absolute; right: 18px; bottom: 18px; z-index: 2; display: flex; gap: 7px; }
+  .visual-hero__devices span { padding: 6px 9px; border: 1px solid rgb(255 255 255 / 28%); border-radius: 5px; background: rgb(4 22 41 / 62%); color: #fff !important; font-size: .72rem; font-weight: 800; }
+  @media (hover: hover) and (pointer: fine) { .visual-hero__button:hover { transform: translateY(-2px); } }
+  @media (max-width: 940px) {
+    .visual-hero__shell { grid-template-columns: 1fr; }
+    .visual-hero__copy { max-width: 760px; }
+    .visual-hero__stage { min-height: 480px; margin: 0; }
+  }
+  @media (max-width: 640px) {
+    .visual-hero { padding-top: 38px; }
+    .visual-hero__eyebrow { display: block; max-width: 30ch; font-size: .7rem; line-height: 1.45; }
+    .visual-hero h1 { max-width: 100%; font-size: clamp(1.95rem, 9vw, 2.75rem); line-height: 1.02; overflow-wrap: break-word; }
+    .visual-hero__actions, .visual-hero__button { width: 100%; }
+    .visual-hero__benefits { display: grid; }
+    .visual-hero__stage { min-height: 410px; margin: 5px 0 0; }
+    .visual-hero__badge { min-width: 176px; padding: 9px 11px; }
+    .visual-hero__badge:first-child { top: 12px; left: 12px; }
+    .visual-hero__badge:nth-child(2) { bottom: 12px; left: 12px; }
+    .visual-hero__price { right: 12px; bottom: 58px; min-width: 150px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .visual-hero__button { transition: none; } }
+</style>

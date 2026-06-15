@@ -26,6 +26,10 @@ const consoleClusterService = ({
   bullets,
   problems,
   relatedSlugs,
+  fromPrice = '$650 MXN',
+  eta = '24-72 h',
+  warranty = 'Garantía por escrito según reparación',
+  overrides = {},
 }: {
   slug: string;
   label: string;
@@ -35,6 +39,10 @@ const consoleClusterService = ({
   bullets: string[];
   problems: { problem: string; solution: string }[];
   relatedSlugs: string[];
+  fromPrice?: string;
+  eta?: string;
+  warranty?: string;
+  overrides?: Partial<ServiceItem>;
 }): ServiceItem => ({
   slug,
   label,
@@ -42,9 +50,9 @@ const consoleClusterService = ({
   hook,
   intro,
   bullets,
-  fromPrice: '$650 MXN',
-  eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  fromPrice,
+  eta,
+  warranty,
   whyUs: [
     { icon: 'fa-gamepad', title: 'Diagnóstico gamer', desc: 'Revisamos encendido, HDMI, temperatura, lector, fuente, almacenamiento, red y controles con pruebas reales.' },
     { icon: 'fa-temperature-half', title: 'Clima Cancún', desc: 'Consideramos polvo, humedad, salitre, calor y muebles cerrados, causas comunes de fallas en consolas.' },
@@ -56,6 +64,7 @@ const consoleClusterService = ({
   compatibleBrands: ['PlayStation 5', 'PS5 Slim', 'PlayStation 4', 'Xbox Series X', 'Xbox Series S', 'Xbox One', 'Nintendo Switch', 'Switch OLED', 'Switch Lite'],
   faqs: consoleFaqs(label.toLowerCase()),
   relatedSlugs,
+  ...overrides,
 });
 
 const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
@@ -138,16 +147,133 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
     slug: 'cambio-hdmi-ps5',
     label: 'Cambio HDMI PS5',
     keyword: 'Cambio HDMI PS5 Cancún',
-    hook: 'Cambio de puerto HDMI PS5 para consola sin imagen, puerto roto, pines doblados, señal intermitente o daño por jalón.',
-    intro: 'Reparación HDMI PS5 en Cancún con diagnóstico de puerto, soldadura, pistas, señal, audio/video y pruebas de estabilidad.',
-    bullets: ['Puerto HDMI PS5 Fat/Slim', 'Revisión de pistas e IC', 'Soldadura profesional', 'Prueba de video y audio'],
+    hook: 'Cambio de puerto HDMI PS5 para consola sin imagen, puerto roto, pines doblados, señal intermitente o daño por jalón, con diagnóstico antes de tocar la placa.',
+    intro: 'Reparación HDMI PS5 en Cancún con diagnóstico de puerto, soldadura, pistas, señal, audio, video y pruebas de estabilidad antes de entregar.',
+    bullets: ['Puerto HDMI PS5 Fat y Slim', 'Revisión de pistas, filtros e IC de video', 'Microsoldadura con control de riesgo', 'Prueba de video, audio y estabilidad'],
     problems: [
-      { problem: 'Puerto HDMI roto', solution: 'Se reemplaza el conector y se revisan pistas levantadas.' },
-      { problem: 'PS5 prende sin imagen', solution: 'Probamos HDMI, cable, resolución, puerto y circuito de video.' },
-      { problem: 'Imagen parpadea', solution: 'Puede ser soldadura floja, pines dañados o cable.' },
-      { problem: 'Se dañó por jalón', solution: 'Revisamos si el daño llegó a placa antes de cotizar.' },
+      { problem: 'Puerto HDMI roto o flojo', solution: 'Revisamos pines, carcasa, soldadura, pistas levantadas y daño por jalón antes de cambiar el conector.' },
+      { problem: 'PS5 prende sin imagen', solution: 'Probamos cable, pantalla, modo seguro, resolución, puerto HDMI, filtros y circuito de video.' },
+      { problem: 'Imagen parpadea o se corta', solution: 'Puede ser soldadura floja, pines dañados, cable, puerto deformado o señal inestable en la placa.' },
+      { problem: 'Se dañó por jalón, caída o golpe', solution: 'Confirmamos si el daño quedó en el conector o si llegó a pistas, pads, componentes cercanos o IC de video.' },
     ],
-    relatedSlugs: ['reparacion-ps5', 'no-da-imagen', 'hdmi', 'diagnostico'],
+    relatedSlugs: ['reparacion-ps5', 'no-da-imagen', 'hdmi', 'diagnostico', 'limpieza-metal-liquido-ps5', 'ps5-se-apaga'],
+    eta: '48-96 h según daño',
+    warranty: 'Garantía por escrito sobre el trabajo realizado',
+    overrides: {
+      h1: 'Cambio de HDMI PS5 en Cancún',
+      metaTitle: 'Cambio HDMI PS5 en Cancún | Puerto roto, sin imagen y microsoldadura',
+      metaDescription: 'Cambio de puerto HDMI PS5 en Cancún para consola sin imagen, pines doblados o daño por jalón. Diagnóstico de pistas, soldadura, audio/video y garantía por escrito.',
+      fromPrice: 'Diagnóstico desde $650 MXN',
+      intro: 'Servicio de cambio HDMI PS5 en Cancún para PlayStation 5 Fat y Slim con revisión de puerto, pistas, pads, filtros, soldadura, señal de video, audio y pruebas reales antes de entregar.',
+      bullets: [
+        'Diagnóstico antes de cambiar el puerto',
+        'Revisión de pines, pistas, pads y filtros HDMI',
+        'Microsoldadura para PS5 Fat y PS5 Slim',
+        'Prueba con cable, pantalla, audio y video estable',
+        'Cotización clara si hay daño en placa o IC de video',
+      ],
+      whyUs: [
+        { icon: 'fa-magnifying-glass-chart', title: 'Diagnóstico de señal', desc: 'No asumimos que todo es el puerto. Revisamos cable, pantalla, resolución, conector, filtros, pistas y salida de video.' },
+        { icon: 'fa-microchip', title: 'Trabajo de microsoldadura', desc: 'El cambio de HDMI PS5 requiere retirar el conector sin levantar pads y validar continuidad antes de cerrar la consola.' },
+        { icon: 'fa-shield-halved', title: 'Riesgo explicado antes', desc: 'Si hay pistas levantadas, daño por jalón, humedad o IC afectado, te avisamos antes de avanzar con una reparación más profunda.' },
+        { icon: 'fa-location-dot', title: 'Taller local en Cancún', desc: 'Atendemos consolas de Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Puerto Juárez, Supermanzanas y Haciendas.' },
+      ],
+      process: [
+        { title: 'Recepción y síntoma', desc: 'Registramos si la PS5 enciende, si da audio, si hubo jalón, caída, humedad, reparación previa o cambio de cable.' },
+        { title: 'Pruebas externas', desc: 'Probamos cable HDMI, pantalla, modo seguro, resolución y salida de video para descartar una falla simple.' },
+        { title: 'Inspección del puerto', desc: 'Revisamos pines doblados, carcasa floja, soldadura, pads, pistas y componentes cercanos al conector.' },
+        { title: 'Cotización técnica', desc: 'Te explicamos si requiere cambio de puerto, reconstrucción de pistas, revisión de IC o si no conviene avanzar.' },
+        { title: 'Cambio y pruebas', desc: 'Realizamos microsoldadura, limpiamos zona de trabajo y probamos imagen, audio, estabilidad y movimiento del cable.' },
+      ],
+      commonProblems: [
+        { problem: 'La PS5 prende pero la TV dice sin señal', solution: 'Se revisa primero cable, pantalla y modo seguro. Si el puerto está dañado, se cotiza cambio de HDMI.' },
+        { problem: 'El puerto se mueve o está hundido', solution: 'Normalmente requiere reemplazo del conector y revisión de pads para evitar que vuelva a fallar.' },
+        { problem: 'Solo funciona si muevo el cable', solution: 'Puede haber pines flojos, soldadura fracturada o deformación del conector. Seguir usándola puede levantar pistas.' },
+        { problem: 'Otro taller cambió el HDMI y sigue sin imagen', solution: 'Revisamos continuidad, filtros, componentes cercanos e IC de video para ubicar la causa real.' },
+        { problem: 'El daño ocurrió por jalón del cable', solution: 'Validamos si el conector arrancó pads o pistas de la placa antes de prometer una reparación.' },
+        { problem: 'Hay óxido o humedad cerca del puerto', solution: 'Primero se evalúa corrosión y corto. La garantía depende del alcance real del daño por humedad.' },
+      ],
+      compatibleBrands: ['PlayStation 5 Fat', 'PlayStation 5 Slim', 'PS5 Digital Edition', 'PS5 con lector', 'Control DualSense para prueba', 'Pantallas HDMI 1080p / 4K'],
+      educationalBlocks: [
+        {
+          eyebrow: 'Diagnóstico HDMI PS5',
+          title: 'No todo PS5 sin imagen se resuelve cambiando el puerto',
+          intro: 'Antes de soldar confirmamos si la falla viene del conector, cable, resolución, pantalla, filtros, pistas o circuito de video. Esto evita cobrar una pieza que no resolvería el problema.',
+          imgSrc: '/assets/images/ps5_xbox.webp',
+          imgAlt: 'Consolas PlayStation y Xbox listas para diagnóstico HDMI en Cancún',
+          points: [
+            { icon: 'fa-plug-circle-exclamation', title: 'Puerto y cable', text: 'Probamos cable, pantalla y movimiento del conector para separar falla externa de daño físico.' },
+            { icon: 'fa-microchip', title: 'Pistas y pads', text: 'Un jalón puede levantar pads de la placa. Si eso ocurre, el cambio de puerto solo no basta.' },
+            { icon: 'fa-tv', title: 'Señal de audio y video', text: 'Validamos imagen, audio, resolución y estabilidad después del cambio.' },
+          ],
+        },
+        {
+          eyebrow: 'Cuidado de placa',
+          title: 'Qué revisamos cuando el HDMI fue golpeado o jalado',
+          intro: 'El conector HDMI va soldado a la placa. Si se fuerza el cable, puede dañar pines internos, soldadura, pistas o componentes cercanos. Por eso la cotización depende del diagnóstico.',
+          imgSrc: '/assets/images/responsive/gaming_controllers_collection.webp',
+          imgAlt: 'Accesorios y controles gamer en revisión de consola PS5',
+          reverse: true,
+          points: [
+            { icon: 'fa-screwdriver-wrench', title: 'Conector completo', text: 'No enderezamos pines como solución final si el puerto ya perdió firmeza o contacto confiable.' },
+            { icon: 'fa-wave-square', title: 'Continuidad', text: 'Se revisan líneas de señal para detectar cortes o pistas dañadas antes de cerrar.' },
+            { icon: 'fa-shield-halved', title: 'Garantía realista', text: 'La garantía cubre el trabajo realizado, no nuevos golpes, jalones, humedad o manipulación externa.' },
+          ],
+        },
+      ],
+      localSeoTitle: 'Cambio HDMI PS5 en Cancún con diagnóstico técnico real',
+      localSeoIntro: 'Integramos cobertura local porque el usuario normalmente busca una solución cercana y confiable. La prioridad sigue siendo diagnosticar la causa antes de prometer reparación.',
+      localSeoSections: [
+        {
+          id: 'hdmi-ps5-cancun-centro',
+          eyebrow: 'Cancún Centro y Av. Tulum',
+          icon: 'fa-location-dot',
+          title: 'Reparación HDMI PS5 para consola sin imagen cerca de Cancún Centro',
+          copy: 'Si vienes desde Cancún Centro, Av. Tulum o Bonampak, puedes traer la PS5 con cable y una descripción clara del síntoma. Revisamos si el problema es puerto, pantalla, cable o circuito de video.',
+          points: ['Puerto roto o flojo', 'Pantalla negra o sin señal', 'Prueba antes de cotizar'],
+        },
+        {
+          id: 'hdmi-ps5-zona-hotelera',
+          eyebrow: 'Zona Hotelera y Puerto Cancún',
+          icon: 'fa-route',
+          title: 'Atención para PS5 con HDMI dañado en Zona Hotelera y Puerto Cancún',
+          copy: 'Para jugadores, rentas vacacionales y negocios con consolas de entretenimiento, documentamos el estado del puerto y el riesgo si el daño fue por jalón, golpe o humedad ambiental.',
+          points: ['Diagnóstico con evidencia', 'Cotización antes de soldar', 'Garantía por escrito'],
+        },
+        {
+          id: 'hdmi-ps5-huayacan-cumbres',
+          eyebrow: 'Huayacán, Cumbres y Bonfil',
+          icon: 'fa-gamepad',
+          title: 'Cambio de puerto HDMI PS5 para Huayacán, Cumbres y Bonfil',
+          copy: 'Si la consola prende pero no da video, parpadea o solo funciona moviendo el cable, lo mejor es dejar de usarla para no levantar más pistas del conector.',
+          points: ['PS5 Fat y Slim', 'Revisión de pines doblados', 'Prueba de estabilidad'],
+        },
+        {
+          id: 'hdmi-ps5-poligono-sur-haciendas',
+          eyebrow: 'Polígono Sur, Supermanzanas y Haciendas',
+          icon: 'fa-house-signal',
+          title: 'Diagnóstico HDMI PS5 para Polígono Sur, Supermanzanas y Haciendas',
+          copy: 'Atendemos consolas que fallaron después de mover muebles, cambiar pantalla, transportar la consola o conectar cables forzados. La revisión define si basta el puerto o si hay daño en placa.',
+          points: ['Daño por jalón', 'Pistas levantadas', 'Revisión de placa'],
+        },
+      ],
+      faqs: [
+        { question: '¿Cuánto cuesta cambiar el HDMI de PS5 en Cancún?', answer: 'El diagnóstico inicia desde $650 MXN. El costo final depende de si solo se cambia el puerto o si hay pistas levantadas, pads dañados, humedad o falla en circuito de video. Te damos cotización antes de reparar.' },
+        { question: '¿Cuánto tarda el cambio de puerto HDMI de PS5?', answer: 'Normalmente puede tomar de 48 a 96 horas según carga de trabajo, disponibilidad de puerto y nivel de daño. Si hay pistas o componentes afectados, puede requerir más pruebas.' },
+        { question: '¿Mi PS5 puede prender y aun así tener el HDMI dañado?', answer: 'Sí. La consola puede encender, dar luz y no mandar imagen si el puerto, pines, soldadura, pistas o circuito de video están dañados. También puede ser cable, pantalla o resolución.' },
+        { question: '¿Conviene seguir usando la PS5 si solo da imagen moviendo el cable?', answer: 'No es recomendable. Mover el cable puede terminar de romper pines o levantar pistas de la placa, haciendo la reparación más compleja.' },
+        { question: '¿Cambiar el HDMI borra mis juegos o partidas?', answer: 'No. Es una reparación física del puerto y no debe tocar almacenamiento ni cuentas. Si detectamos otra falla que implique software o disco, te avisamos antes.' },
+        { question: '¿Dan garantía por el cambio HDMI PS5?', answer: 'Sí, por escrito sobre el trabajo realizado. No cubre nuevos golpes, jalones, humedad, cable forzado o manipulación externa posterior.' },
+      ],
+      ticketTitle: 'Crear ticket para cambio HDMI PS5',
+      ticketSubtitle: 'Cuéntanos si la PS5 prende, si hubo jalón o golpe, si el puerto se mueve y qué mensaje muestra la pantalla. Con eso preparamos el diagnóstico.',
+      relatedTitle: 'Vistas relacionadas para PS5 y video',
+      relatedExternal: [
+        { label: 'Reparación de controles', href: '/reparacion-controles', icon: 'fa-gamepad', desc: 'Si además tienes drift, botones fallando o problemas con el DualSense.' },
+        { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes', icon: 'fa-circle-question', desc: 'Dudas generales sobre diagnóstico, tiempos, garantía, WhatsApp y tickets.' },
+        { label: 'Crear ticket directo', href: '/tickets', icon: 'fa-ticket', desc: 'Abre una solicitud si prefieres registrar la revisión sin pasar por WhatsApp.' },
+      ],
+    },
   }),
   consoleClusterService({
     slug: 'ps5-se-apaga',
@@ -163,6 +289,33 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Está en mueble cerrado', solution: 'El flujo de aire puede causar apagados por acumulación de calor.' },
     ],
     relatedSlugs: ['limpieza-metal-liquido-ps5', 'fuente', 'limpieza-interna', 'diagnostico'],
+    overrides: {
+      h1: 'PS5 se apaga sola al jugar en Cancún',
+      metaTitle: 'PS5 se apaga sola en Cancún | Diagnóstico, fuente y metal líquido',
+      metaDescription: 'Diagnóstico para PS5 que se apaga sola en Cancún al jugar. Revisamos temperatura, polvo, ventilador, metal líquido, fuente, consumo y placa antes de cotizar.',
+      intro: 'Diagnóstico para PS5 que se apaga sola en Cancún con pruebas bajo carga, revisión térmica, fuente, metal líquido, ventilador, disipador, consumo y condiciones reales de uso.',
+      bullets: [
+        'Prueba bajo carga con juego exigente',
+        'Revisión de polvo, ventilador y disipador',
+        'Diagnóstico de fuente, consumo y cable de corriente',
+        'Evaluación de metal líquido sin manipularlo si no hace falta',
+        'Cotización antes de cambiar piezas',
+      ],
+      whyUs: [
+        { icon: 'fa-temperature-half', title: 'Diagnóstico bajo carga', desc: 'Probamos la PS5 como falla en casa: con juego exigente, ruido, temperatura, consumo y apagado intermitente.' },
+        { icon: 'fa-vial', title: 'Metal líquido con criterio', desc: 'No abrimos ni movemos metal líquido por rutina. Primero buscamos evidencia de mala transferencia térmica o intervención previa.' },
+        { icon: 'fa-bolt', title: 'Fuente y placa', desc: 'Si no hay aviso de temperatura, revisamos fuente, cable, consumo y líneas de alimentación antes de culpar a la limpieza.' },
+        { icon: 'fa-location-dot', title: 'Contexto Cancún', desc: 'Consideramos calor, humedad, polvo pegado, salitre y muebles cerrados, factores comunes en Cancún y sus zonas residenciales.' },
+      ],
+      faqs: [
+        { question: '¿Por qué mi PS5 se apaga sola al jugar?', answer: 'Puede apagarse por temperatura alta, polvo en disipador, metal líquido mal distribuido, fuente fatigada, ventilador con bajo flujo, cable de corriente, humedad o consumo anormal en placa. Se prueba bajo carga antes de recomendar reparación.' },
+        { question: '¿Por qué mi PS5 se apaga sin aviso de temperatura?', answer: 'Cuando no aparece aviso térmico, la causa puede estar en fuente, cableado, consumo, placa o una caída eléctrica. También puede haber apagado térmico rápido si el APU no transfiere calor correctamente.' },
+        { question: '¿Siempre hay que cambiar el metal líquido?', answer: 'No. Manipular metal líquido sin necesidad aumenta riesgo porque es conductor. Primero revisamos polvo, ventilador, disipador y evidencia de mala transferencia térmica.' },
+        { question: '¿Cuánto cuesta revisar una PS5 que se apaga en Cancún?', answer: 'El diagnóstico inicia desde $650 MXN. El costo final depende de si requiere limpieza, corrección de metal líquido, fuente, ventilador o reparación de placa. Se cotiza antes de avanzar.' },
+        { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente de 24 a 72 horas. Si el apagado es intermitente o sólo ocurre con juegos exigentes, puede requerir pruebas extendidas para confirmar estabilidad.' },
+        { question: '¿Puedo seguir usando mi PS5 si se apaga sola?', answer: 'No es recomendable. Cada apagado puede afectar datos, fuente o placa si la causa es temperatura o alimentación. Lo mejor es apagarla, evitar muebles cerrados y traerla a revisión.' },
+      ],
+    },
   }),
   consoleClusterService({
     slug: 'lector-disco',

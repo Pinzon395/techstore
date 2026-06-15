@@ -108,7 +108,7 @@ export const impresoraCategory: ServiceCategory = {
           { question: `¿Recargan tóner?`, answer: `Sí, dependiendo del cartucho, estado del tóner y desgaste de piezas internas. Primero revisamos si conviene recargar o reemplazar, porque un cartucho dañado puede provocar manchas, fugas o mala calidad aunque tenga tóner nuevo.` },
           { question: `¿Por qué mi impresora imprime con rayas?`, answer: `Puede deberse a tinta baja, cabezal tapado, cartucho dañado, mala calidad de tinta, tóner irregular o falta de mantenimiento. Revisamos patrón de impresión, niveles y estado del cabezal antes de recomendar cambio de insumo.` },
           { question: `¿Qué pasa si mi impresora no reconoce el cartucho?`, answer: `Revisamos chip, contactos, compatibilidad, instalación, firmware y configuración antes de recomendar comprar otro cartucho. A veces se corrige limpiando contactos o reinstalando correctamente; otras veces sí requiere insumo compatible distinto.` },
-          { question: `¿Atienden impresoras para oficina o negocio?`, answer: `Sí, atendemos impresoras domásticas, escolares, de oficina y negocios en Cancún. En equipos de alto uso también revisamos volumen de impresión, tipo de insumo y mantenimiento preventivo para reducir atascos, manchas y fallas recurrentes.` },
+          { question: `¿Atienden impresoras para oficina o negocio?`, answer: `Sí, atendemos impresoras domésticas, escolares, de oficina y negocios en Cancún. En equipos de alto uso también revisamos volumen de impresión, tipo de insumo y mantenimiento preventivo para reducir atascos, manchas y fallas recurrentes.` },
         ],
         relatedSlugs: ['mantenimiento', 'atascos', 'conectividad', 'diagnostico'],
       },

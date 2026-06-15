@@ -1,0 +1,276 @@
+---
+import DarkTechnicalSection from '../DarkTechnicalSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappUrl = `https://wa.me/529986690777?text=${encodeURIComponent(
+  'Hola, mi MacBook tuvo contacto con líquido o humedad. Quiero solicitar una revisión y puedo indicar modelo, líquido, fecha del derrame y si se intentó encender.'
+)}`;
+
+const diagnosticSteps = [
+  { title: 'Recepción sin energizar', description: 'Registramos modelo, líquido, tiempo transcurrido e intentos de encendido. Si existe riesgo de corto, no conectamos cargador.' },
+  { title: 'Apertura e inspección', description: 'Desconectamos batería y revisamos placa lógica, indicadores de humedad, teclado, trackpad, puertos, flex y zonas alcanzadas.' },
+  { title: 'Limpieza según residuo', description: 'Retiramos humedad, minerales y corrosión. La limpieza ultrasónica se utiliza cuando la placa y el alcance lo justifican.' },
+  { title: 'Diagnóstico eléctrico', description: 'Medimos líneas, consumo y componentes afectados antes de concluir si basta limpiar, reparar placa o sustituir un módulo.' },
+  { title: 'Pruebas y decisión', description: 'Validamos carga, encendido, teclado, trackpad, pantalla, puertos, audio, WiFi, temperatura y acceso a datos antes de cerrar.' },
+];
+
+const faqs = service.faqs ?? [];
+
+const relatedServices = [
+  { href: '/servicios/mac/macbook-no-enciende', icon: 'fa-power-off', label: 'MacBook no enciende', desc: 'Diagnóstico de energía, batería, USB-C, MagSafe, pantalla y placa lógica.' },
+  { href: '/servicios/mac/reparacion-macbook', icon: 'fa-laptop-medical', label: 'Reparación de MacBook', desc: 'Revisión integral para MacBook Air y Pro Intel o Apple Silicon.' },
+  { href: '/servicios/mac/teclado-macbook', icon: 'fa-keyboard', label: 'Teclado MacBook', desc: 'Evaluación de teclado, top case, flex y trackpad afectados por derrames.' },
+  { href: '/servicios/mac/recuperacion-datos-mac', icon: 'fa-hard-drive', label: 'Recuperación de datos Mac', desc: 'Prioridad para archivos cuando el equipo o almacenamiento están en riesgo.' },
+  { href: '/servicios/mac/diagnostico-mac', icon: 'fa-magnifying-glass', label: 'Diagnóstico Mac', desc: 'Pruebas técnicas antes de cambiar módulos o invertir en una reparación.' },
+  { href: '/antisulfatacion', icon: 'fa-microscope', label: 'Antisulfatación en Cancún', desc: 'Tratamiento para equipos afectados por humedad, salitre y corrosión.' },
+];
+---
+
+<main class="mac-liquid-page">
+  <header class="ml-hero">
+    <div class="container ml-hero__layout">
+      <div class="ml-hero__copy">
+        <p class="ml-hero__kicker">Atención prioritaria para MacBook Air y Pro</p>
+        <h1>Reparación de MacBook mojada en Cancún por líquido y corrosión</h1>
+        <p class="ml-hero__lead">Si recibió agua, café, refresco o humedad, apágala y no conectes el cargador. Revisamos placa lógica, batería, teclado, puertos y datos antes de intentar encenderla.</p>
+        <div class="ml-actions">
+          <a class="ml-btn ml-btn--primary" href="#ticket-form">Solicitar revisión</a>
+          <a class="ml-btn ml-btn--secondary" href={whatsappUrl}><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar por WhatsApp</a>
+        </div>
+        <ul class="ml-hero__facts" aria-label="Prioridades del servicio">
+          <li><i class="fa-solid fa-battery-empty" aria-hidden="true"></i><span><strong>Sin energía</strong>No probar ni cargar</span></li>
+          <li><i class="fa-solid fa-microscope" aria-hidden="true"></i><span><strong>Inspección interna</strong>Placa y conectores</span></li>
+          <li><i class="fa-solid fa-database" aria-hidden="true"></i><span><strong>Datos primero</strong>Evaluamos el SSD</span></li>
+        </ul>
+      </div>
+
+      <figure class="ml-hero__visual">
+        <img src="/assets/images/responsive/reparacion-sulfatacion-cancun.webp" alt="Reparación de MacBook mojada y limpieza de corrosión en Cancún" width="800" height="800" loading="eager" fetchpriority="high" decoding="async" />
+        <figcaption><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Inspección de placa antes de energizar</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <aside class="ml-emergency" role="note">
+    <div class="container ml-emergency__inner">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <p><strong>Acción inmediata:</strong> apaga la MacBook, desconecta cargador y accesorios, no uses secadora y no la metas en arroz. Que todavía encienda no significa que esté fuera de riesgo.</p>
+    </div>
+  </aside>
+
+  <section class="ml-section ml-first-aid" id="que-hacer">
+    <div class="container">
+      <header class="ml-heading">
+        <h2>Qué hacer si se mojó tu MacBook</h2>
+        <p>Los primeros minutos importan. El objetivo no es secar la carcasa, sino detener la corriente y evitar que el líquido avance hacia placa, batería y conectores.</p>
+      </header>
+      <ol class="ml-action-list">
+        <li><span>01</span><div><h3>Apágala</h3><p>Mantén presionado el botón solo para apagar si continúa encendida.</p></div></li>
+        <li><span>02</span><div><h3>Desconecta todo</h3><p>Retira cargador USB-C o MagSafe, hubs, memorias y periféricos.</p></div></li>
+        <li><span>03</span><div><h3>No hagas pruebas</h3><p>No intentes confirmar si carga, enciende o vuelve a mostrar imagen.</p></div></li>
+        <li><span>04</span><div><h3>Llévala a revisión</h3><p>Indica qué líquido cayó, cuánto tiempo pasó y si fue energizada.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="ml-section ml-section--soft">
+    <div class="container ml-risk-layout">
+      <div class="ml-risk-copy">
+        <h2>Por qué una MacBook mojada puede fallar días después</h2>
+        <p>El líquido puede evaporarse y dejar minerales, azúcar o sales conductivas. Esos residuos continúan reaccionando con cobre, soldadura y conectores aunque la superficie parezca seca.</p>
+        <p>Una MacBook puede encender hoy y después perder carga, teclado, puertos, imagen o estabilidad. Por eso la revisión no se limita a limpiar el exterior.</p>
+      </div>
+      <div class="ml-risk-path" aria-label="Evolución posible del daño">
+        <div><i class="fa-solid fa-droplet" aria-hidden="true"></i><span>Ingreso de líquido</span></div>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        <div><i class="fa-solid fa-bolt" aria-hidden="true"></i><span>Corriente y residuos</span></div>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        <div><i class="fa-solid fa-microchip" aria-hidden="true"></i><span>Corrosión o corto</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ml-section ml-diagnostic">
+    <div class="container">
+      <header class="ml-heading ml-heading--wide">
+        <h2>Diagnóstico de daño por líquido en MacBook</h2>
+        <p>No prometemos reparación antes de abrir el equipo. El alcance cambia según el modelo, el líquido y las zonas que recibieron corriente.</p>
+      </header>
+      <div class="ml-module-board">
+        <article><i class="fa-solid fa-microchip"></i><h3>Placa lógica</h3><p>Corrosión, líneas de alimentación, componentes y conectores.</p></article>
+        <article><i class="fa-solid fa-battery-half"></i><h3>Batería y carga</h3><p>Batería, USB-C o MagSafe, consumo y posibles cortos.</p></article>
+        <article><i class="fa-solid fa-keyboard"></i><h3>Top case</h3><p>Teclado, trackpad, flex, retroiluminación y botón de encendido.</p></article>
+        <article><i class="fa-solid fa-display"></i><h3>Pantalla</h3><p>Flex, backlight, cámara y conectores cercanos a la bisagra.</p></article>
+        <article><i class="fa-solid fa-hard-drive"></i><h3>Almacenamiento</h3><p>Acceso a datos, SSD integrado y prioridad de respaldo.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <DarkTechnicalSection
+    id="proceso-tecnico"
+    eyebrow="Proceso de rescate"
+    title="La limpieza es una etapa; el diagnóstico eléctrico confirma el daño real"
+    description="Trabajamos en orden para no energizar una placa contaminada ni reemplazar módulos sin comprobar la causa. Cada decisión se documenta antes de avanzar."
+    steps={diagnosticSteps}
+    topFadeColor="#ffffff"
+    bottomFadeColor="#f4f8fb"
+  />
+
+  <section class="ml-section ml-section--soft">
+    <div class="container ml-ultrasonic">
+      <figure>
+        <img src="/assets/images/responsive/reparacion-mac-cancun.webp" alt="Diagnóstico técnico de placa lógica de MacBook dañada por líquido" width="900" height="620" loading="lazy" decoding="async" />
+      </figure>
+      <div>
+        <h2>Limpieza ultrasónica de placa lógica MacBook</h2>
+        <p>La limpieza ultrasónica puede ayudar a desprender residuos y corrosión en zonas difíciles de alcanzar. Se desmonta la placa y se trabaja con un proceso adecuado para electrónica.</p>
+        <p><strong>No es una garantía de reparación.</strong> Si el derrame provocó un corto, dañó pistas o afectó circuitos integrados, se necesita reparación electrónica adicional o valorar si la inversión conviene.</p>
+        <ul class="ml-checks">
+          <li>Remoción de minerales y residuos</li>
+          <li>Inspección posterior bajo aumento</li>
+          <li>Secado controlado antes de medir</li>
+          <li>Pruebas eléctricas antes del ensamble</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="ml-section">
+    <div class="container">
+      <header class="ml-heading">
+        <h2>El tipo de líquido cambia el nivel de riesgo</h2>
+        <p>No todos los derrames dejan el mismo residuo. La información correcta ayuda a elegir limpieza, prioridad y pruebas.</p>
+      </header>
+      <div class="ml-liquid-spectrum">
+        <article><span>Menor residuo</span><h3>Agua simple</h3><p>Puede causar corto y minerales, especialmente si el equipo estaba conectado.</p></article>
+        <article><span>Residuo medio</span><h3>Café o alcohol</h3><p>Depende de azúcar, leche, concentración y zonas alcanzadas.</p></article>
+        <article><span>Residuo alto</span><h3>Refresco y bebidas dulces</h3><p>Dejan material pegajoso y conductivo en teclado, flex y placa.</p></article>
+        <article><span>Riesgo crítico</span><h3>Agua salada y salitre</h3><p>Aceleran la corrosión y requieren atención particularmente rápida.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="ml-section ml-compare-section">
+    <div class="container ml-compare">
+      <div class="ml-compare__intro">
+        <h2>MacBook que enciende frente a MacBook que no responde</h2>
+        <p>Ambos casos requieren revisión. Que muestre imagen solo confirma que algunas líneas siguen funcionando, no que la placa esté limpia o estable.</p>
+      </div>
+      <article>
+        <i class="fa-solid fa-laptop"></i><h3>Enciende, pero falla</h3>
+        <ul><li>Teclado o trackpad intermitente</li><li>USB-C o MagSafe irregular</li><li>Apagados, reinicios o calentamiento</li><li>Audio, cámara o WiFi sin funcionar</li></ul>
+      </article>
+      <article>
+        <i class="fa-solid fa-power-off"></i><h3>No enciende</h3>
+        <ul><li>Corto o consumo anormal</li><li>Batería o circuito de carga afectado</li><li>Teclado o periférico bloqueando arranque</li><li>Placa, pantalla o energía comprometida</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="ml-section">
+    <div class="container ml-models">
+      <div>
+        <h2>Revisión para MacBook Intel y Apple Silicon</h2>
+        <p>El desarmado, distribución de placa y acceso al almacenamiento cambian entre MacBook Air y Pro. Confirmamos número de modelo y chip antes de abrir o cotizar piezas.</p>
+      </div>
+      <div class="ml-model-rail" aria-label="Modelos atendidos">
+        <span>MacBook Air Intel</span><span>MacBook Pro Intel</span><span>MacBook Air M1, M2 y M3</span><span>MacBook Pro Apple Silicon</span><span>USB-C y MagSafe</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="ml-section ml-data-section">
+    <div class="container ml-data-layout">
+      <div class="ml-data-visual"><i class="fa-solid fa-database"></i><strong>Prioridad de información</strong><span>Antes de reinstalar, formatear o sustituir módulos</span></div>
+      <div>
+        <h2>Recuperación de datos en una MacBook mojada</h2>
+        <p>Si hay archivos de trabajo, escuela o fotografías importantes, indícalo desde la recepción. En modelos con SSD integrado a placa, recuperar datos puede depender de estabilizar la placa original.</p>
+        <p>No reinstalamos macOS ni borramos información sin autorización. Primero evaluamos si el equipo permite respaldo y qué intervención representa menor riesgo.</p>
+        <a class="ml-text-link" href="/servicios/mac/recuperacion-datos-mac">Ver recuperación de datos Mac <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ml-section">
+    <div class="container ml-local-layout">
+      <div>
+        <h2>Humedad, salitre y corrosión de MacBook en Cancún</h2>
+        <p>El ambiente tropical y costero puede acelerar la corrosión cuando ya existen residuos, sellos deteriorados o exposición constante cerca de ventanas, playa y espacios húmedos.</p>
+        <p>Atendemos equipos de hogares, oficinas, hoteles y profesionales de Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonampak, Puerto Cancún y Supermanzanas.</p>
+      </div>
+      <figure>
+        <img src="/assets/images/responsive/mantenimiento-macbook-cancun.webp" alt="Revisión interna de MacBook por humedad y salitre en Cancún" width="900" height="620" loading="lazy" decoding="async" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="ml-section ml-section--soft">
+    <div class="container ml-cost-layout">
+      <div>
+        <h2>Cuánto cuesta reparar una MacBook mojada</h2>
+        <p>El servicio inicia desde <strong>{service.fromPrice}</strong>, pero el precio final depende del modelo, nivel de corrosión y componentes afectados. Primero confirmamos si requiere limpieza, reparación de placa o cambio de módulo.</p>
+      </div>
+      <div class="ml-cost-factors">
+        <h3>La cotización puede incluir</h3>
+        <ul><li>Limpieza interna o ultrasónica</li><li>Reparación de placa lógica</li><li>Teclado, top case o trackpad</li><li>Batería o circuito de carga</li><li>Pruebas de SSD y recuperación de datos</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="ml-section ml-decision">
+    <div class="container">
+      <header class="ml-heading">
+        <h2>Cuándo conviene reparar y cuándo detener la inversión</h2>
+        <p>Una recomendación responsable compara daño, modelo, costo, datos y estabilidad esperada.</p>
+      </header>
+      <div class="ml-decision-grid">
+        <article><i class="fa-solid fa-circle-check"></i><h3>Puede convenir reparar</h3><p>Cuando la corrosión es localizada, la placa es recuperable, los datos importan o el costo mantiene sentido frente al valor del equipo.</p></article>
+        <article><i class="fa-solid fa-scale-balanced"></i><h3>Requiere valorar opciones</h3><p>Cuando hay varios módulos dañados, antecedentes de reparación o una pieza costosa con disponibilidad limitada.</p></article>
+        <article><i class="fa-solid fa-circle-xmark"></i><h3>Puede convenir detenerse</h3><p>Cuando el daño es extenso, la reparación no ofrece estabilidad razonable o supera una parte importante del valor del equipo.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="ml-final-cta">
+    <div class="container ml-final-cta__inner">
+      <div><h2>¿Tu MacBook acaba de mojarse?</h2><p>Déjala apagada y cuéntanos qué ocurrió. Mientras menos tiempo permanezca energizada con líquido o residuos, menor es el riesgo de daño adicional.</p></div>
+      <div class="ml-actions"><a class="ml-btn ml-btn--light" href="#ticket-form">Crear ticket de revisión</a><a class="ml-btn ml-btn--outline" href={whatsappUrl}>WhatsApp</a></div>
+    </div>
+  </section>
+
+  <ServiceTicketSection defaultDevice="MacBook" defaultService="Limpieza por líquido y corrosión MacBook" title="Solicitar revisión de MacBook mojada" subtitle="Indica modelo, líquido, cuándo ocurrió, si estaba conectada y si se intentó encender después del derrame." />
+  <RelatedServicesSection title="Servicios relacionados para MacBook" eyebrow="Diagnóstico, datos y reparación" items={relatedServices} initialLimit={6} compact={true} light={true} />
+  <FaqSection title="Preguntas frecuentes sobre MacBook mojadas" description="Qué hacer, qué evita daños adicionales y cómo definimos si conviene limpiar, reparar o recuperar datos." items={faqs} id="faq-macbook-liquido" backgroundColor="#f4f8fb" titleColor="#071F3A" descriptionColor="#334155" questionColor="#071F3A" viewMoreHref="/preguntas-frecuentes" viewMoreLabel="Ver todas las preguntas" />
+  <CommentsSection viewMoreHref="/comentarios" />
+  <ContactSection id="ubicacion" />
+</main>
+<Footer />
+
+<style>
+  .mac-liquid-page{--ink:#071f3a;--muted:#334b63;--line:#cad8e6;--soft:#f4f8fb;--blue:#1659b7;--blue-deep:#0b315d;--warning:#b86113;background:#fff;color:var(--ink)}
+  .mac-liquid-page :where(h2,h3,h4,p,li,span,strong,a){text-wrap:pretty}.container{width:min(1180px,calc(100% - 32px));margin-inline:auto}
+  .ml-hero{padding:clamp(42px,6vw,72px) 0 38px;background:linear-gradient(120deg,#edf5fc 0%,#fff 62%);border-bottom:1px solid var(--line)}
+  .ml-hero__layout{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(340px,.97fr);gap:clamp(28px,5vw,64px);align-items:center}.ml-hero__copy{position:relative;z-index:2}.ml-hero__kicker{margin:0 0 11px;color:#174f8f!important;font-weight:850;font-size:.9rem}.ml-hero h1{max-width:760px;margin:0;color:var(--ink)!important;font-family:'Kanit',sans-serif;font-size:clamp(2rem,4.1vw,3.65rem);line-height:1;letter-spacing:-.025em;text-wrap:balance}.ml-hero__lead{max-width:690px;margin:17px 0 0;color:var(--muted)!important;font-size:clamp(1rem,1.35vw,1.13rem);line-height:1.62}.ml-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.ml-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:12px 19px;border:1px solid transparent;border-radius:10px;font-weight:850;text-decoration:none;transition:transform 150ms cubic-bezier(.23,1,.32,1),background-color 180ms ease,border-color 180ms ease}.ml-btn:active{transform:scale(.97)}.ml-btn:focus-visible,.ml-text-link:focus-visible{outline:3px solid #f59e0b;outline-offset:3px}.ml-btn--primary{background:var(--blue);color:#fff!important}.ml-btn--secondary{background:#fff;border-color:#9eb8d2;color:var(--ink)!important}.ml-hero__facts{display:flex;flex-wrap:wrap;gap:10px 22px;margin:22px 0 0;padding:18px 0 0;border-top:1px solid var(--line);list-style:none}.ml-hero__facts li{display:flex;gap:9px;align-items:center;color:var(--ink)!important}.ml-hero__facts i{color:var(--blue);font-size:1.05rem}.ml-hero__facts span{display:grid;color:var(--muted)!important;font-size:.82rem;line-height:1.25}.ml-hero__facts strong{color:var(--ink)!important;font-size:.92rem}.ml-hero__visual{position:relative;margin:0}.ml-hero__visual img{display:block;width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:14px}.ml-hero__visual figcaption{position:absolute;right:14px;bottom:14px;display:flex;gap:8px;align-items:center;max-width:280px;padding:11px 13px;border-radius:10px;background:rgba(255,255,255,.95);color:var(--ink)!important;font-weight:800;font-size:.9rem}.ml-hero__visual figcaption i{color:#14804a}
+  .ml-emergency{background:#fff7e8;border-bottom:1px solid #edd09f}.ml-emergency__inner{display:flex;align-items:flex-start;gap:13px;padding-top:18px;padding-bottom:18px}.ml-emergency i{margin-top:3px;color:var(--warning);font-size:1.15rem}.ml-emergency p{margin:0;color:var(--ink)!important;line-height:1.55}
+  .ml-section{padding:clamp(54px,7vw,82px) 0;background:#fff}.ml-section--soft{background:var(--soft)}.ml-heading{max-width:790px;margin-bottom:30px}.ml-heading--wide{max-width:900px}.ml-section h2,.ml-final-cta h2{margin:0 0 12px;color:var(--ink)!important;font-family:'Kanit',sans-serif;font-size:clamp(1.75rem,3vw,2.55rem);line-height:1.08;letter-spacing:0;text-wrap:balance}.ml-section h3{margin:0 0 7px;color:var(--ink)!important;font-size:1.08rem;line-height:1.3}.ml-section p{margin:0 0 12px;color:var(--muted)!important;line-height:1.68}.ml-heading p{max-width:72ch;font-size:1.04rem}
+  .ml-action-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.ml-action-list li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:23px 20px;border-right:1px solid var(--line)}.ml-action-list li:first-child{padding-left:0}.ml-action-list li:last-child{border-right:0}.ml-action-list>li>span{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#e5f0fb;color:#174f8f!important;font-size:.78rem;font-weight:900}.ml-action-list p{font-size:.92rem;line-height:1.52}
+  .ml-risk-layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(380px,1.1fr);gap:clamp(32px,6vw,78px);align-items:center}.ml-risk-copy{max-width:620px}.ml-risk-path{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}.ml-risk-path>div{min-height:132px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:18px;text-align:center;border-bottom:3px solid #7fa8cf;background:#fff}.ml-risk-path>div i{color:var(--blue);font-size:1.65rem}.ml-risk-path>div span{color:var(--ink)!important;font-weight:850}.ml-risk-path>i{color:#7a92aa}
+  .ml-module-board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden}.ml-module-board article{min-height:190px;padding:24px 20px;border-right:1px solid var(--line);background:#fff}.ml-module-board article:last-child{border-right:0}.ml-module-board i{display:grid;place-items:center;width:42px;height:42px;margin-bottom:28px;border-radius:10px;background:#e6f0fb;color:var(--blue);font-size:1.1rem}.ml-module-board p{font-size:.91rem;line-height:1.5}
+  .ml-ultrasonic{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);gap:clamp(32px,6vw,76px);align-items:center}.ml-ultrasonic figure,.ml-local-layout figure{margin:0}.ml-ultrasonic img,.ml-local-layout img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px}.ml-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 20px;margin:20px 0 0;padding:0;list-style:none}.ml-checks li{position:relative;padding-left:24px;color:var(--ink)!important;font-weight:750}.ml-checks li:before{content:'\2713';position:absolute;left:0;color:var(--blue);font-weight:900}
+  .ml-liquid-spectrum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.ml-liquid-spectrum article{padding:24px;border-right:1px solid var(--line)}.ml-liquid-spectrum article:first-child{padding-left:0}.ml-liquid-spectrum article:last-child{padding-right:0;border-right:0}.ml-liquid-spectrum span{display:block;margin-bottom:18px;color:#35658f!important;font-size:.78rem;font-weight:900}.ml-liquid-spectrum p{font-size:.92rem;line-height:1.52}
+  .ml-compare-section{background:#edf4fa}.ml-compare{display:grid;grid-template-columns:1.15fr .85fr .85fr;gap:16px;align-items:stretch}.ml-compare__intro{padding-right:clamp(10px,3vw,38px);align-self:center}.ml-compare article{padding:27px;background:#fff;border-radius:12px}.ml-compare article>i{margin-bottom:26px;color:var(--blue);font-size:1.6rem}.ml-compare ul,.ml-cost-factors ul{display:grid;gap:9px;margin:15px 0 0;padding:0;list-style:none}.ml-compare li,.ml-cost-factors li{position:relative;padding-left:19px;color:var(--ink)!important;line-height:1.45}.ml-compare li:before,.ml-cost-factors li:before{content:'';position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--blue)}
+  .ml-models{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,6vw,72px);align-items:center}.ml-model-rail{display:flex;flex-wrap:wrap;border-top:1px solid var(--line)}.ml-model-rail span{flex:1 1 210px;padding:15px 12px 15px 0;border-bottom:1px solid var(--line);color:var(--ink)!important;font-weight:800}.ml-data-section{background:#e9f2fa}.ml-data-layout{display:grid;grid-template-columns:minmax(280px,.75fr) minmax(0,1.25fr);gap:clamp(32px,6vw,82px);align-items:center}.ml-data-visual{min-height:250px;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;border-radius:12px;background:var(--blue-deep);color:#fff!important}.ml-data-visual i{margin-bottom:auto;color:#b9daf7;font-size:2.2rem}.ml-data-visual strong{color:#fff!important;font-family:'Kanit',sans-serif;font-size:1.55rem}.ml-data-visual span{margin-top:6px;color:rgba(255,255,255,.78)!important}.ml-text-link{display:inline-flex;gap:8px;align-items:center;margin-top:7px;color:#104f96!important;font-weight:850;text-decoration:none}.ml-local-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:clamp(32px,6vw,76px);align-items:center}
+  .ml-cost-layout{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,7vw,90px);align-items:start}.ml-cost-factors{padding-left:30px;border-left:1px solid var(--line)}.ml-decision-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.ml-decision-grid article{padding:24px 0;border-top:3px solid #8eb3d7}.ml-decision-grid i{margin-bottom:20px;color:var(--blue);font-size:1.35rem}.ml-decision-grid p{font-size:.94rem}
+  .ml-final-cta{padding:clamp(48px,6vw,68px) 0;background:#e9f2fa;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.ml-final-cta__inner{display:flex;align-items:center;justify-content:space-between;gap:34px}.ml-final-cta h2{color:var(--ink)!important}.ml-final-cta p{max-width:760px;margin:0;color:var(--muted)!important;line-height:1.6}.ml-final-cta .ml-actions{flex:0 0 auto;margin:0}.ml-btn--light{background:var(--blue);color:#fff!important}.ml-btn--outline{border-color:#8ba9c7;background:#fff;color:var(--ink)!important}.service-ticket-section{scroll-margin-top:92px}.mac-liquid-page .service-ticket-section :is(h2,h3,label,strong){color:var(--ink)!important}.mac-liquid-page .service-ticket-section p{color:var(--muted)!important}.mac-liquid-page .svc-related--light :is(h2,h3,h4,p),.mac-liquid-page .faq-page-content :is(h2,h3,p,li,strong),.mac-liquid-page .comments-section :is(h2,h3,p,li,strong),.mac-liquid-page .contact :is(h2,h3,p,li,strong){color:var(--ink)!important}
+  @media (hover:hover) and (pointer:fine){.ml-btn:hover{transform:translateY(-2px)}.ml-text-link:hover i{transform:translateX(3px)}.ml-text-link i{transition:transform 160ms cubic-bezier(.23,1,.32,1)}}
+  @media(max-width:980px){.ml-hero__layout,.ml-risk-layout,.ml-ultrasonic,.ml-models,.ml-data-layout,.ml-local-layout{grid-template-columns:1fr}.ml-hero__visual{max-width:720px}.ml-action-list{grid-template-columns:repeat(2,1fr)}.ml-action-list li:nth-child(2){border-right:0}.ml-action-list li:first-child{padding-left:20px}.ml-module-board{grid-template-columns:repeat(2,1fr)}.ml-module-board article{border-bottom:1px solid var(--line)}.ml-module-board article:nth-child(2n){border-right:0}.ml-module-board article:last-child{grid-column:1/-1;border-bottom:0}.ml-liquid-spectrum{grid-template-columns:repeat(2,1fr)}.ml-liquid-spectrum article:nth-child(2){border-right:0}.ml-liquid-spectrum article:first-child{padding-left:24px}.ml-liquid-spectrum article:last-child{padding-right:24px}.ml-compare{grid-template-columns:1fr 1fr}.ml-compare__intro{grid-column:1/-1}.ml-final-cta__inner{align-items:flex-start;flex-direction:column}.ml-final-cta .ml-actions{margin-top:0}}
+  @media(max-width:680px){.ml-hero{padding-top:34px}.ml-hero h1{font-size:clamp(1.9rem,10vw,2.65rem);line-height:1.04}.ml-actions,.ml-btn{width:100%}.ml-hero__facts{display:grid;grid-template-columns:1fr}.ml-hero__visual img{aspect-ratio:16/11}.ml-hero__visual figcaption{position:static;border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px}.ml-action-list,.ml-module-board,.ml-liquid-spectrum,.ml-compare,.ml-cost-layout,.ml-decision-grid{grid-template-columns:1fr}.ml-action-list li,.ml-action-list li:first-child{padding:18px 0;border-right:0}.ml-module-board article,.ml-module-board article:nth-child(2n),.ml-module-board article:last-child{grid-column:auto;border-right:0}.ml-module-board article{min-height:auto}.ml-module-board i{margin-bottom:18px}.ml-risk-path{grid-template-columns:1fr}.ml-risk-path>i{transform:rotate(90deg);justify-self:center}.ml-checks{grid-template-columns:1fr}.ml-liquid-spectrum article,.ml-liquid-spectrum article:first-child,.ml-liquid-spectrum article:last-child{padding:20px 0;border-right:0}.ml-compare__intro{grid-column:auto}.ml-cost-factors{padding:24px 0 0;border-left:0;border-top:1px solid var(--line)}.ml-data-visual{min-height:220px}.ml-final-cta .ml-actions{width:100%}}
+  @media(prefers-reduced-motion:reduce){.ml-btn,.ml-text-link i{transition:none!important}}
+</style>

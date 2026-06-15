@@ -12,7 +12,7 @@
  * Para subir version del sitio: cambiar la constante CURRENT_VERSION.
  */
 (function () {
-    var CURRENT_VERSION = '20260607-1';
+    var CURRENT_VERSION = '20260614-3';
     var KEY = 'pixon_version';
 
     try {

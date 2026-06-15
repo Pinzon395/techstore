@@ -1,0 +1,1182 @@
+---
+// SamsungBatteryView.astro - Cambio de batería Samsung Galaxy en Cancún
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import Footer from '../Footer.astro';
+
+const waMessage = encodeURIComponent('Hola, quiero revisar mi Samsung Galaxy por batería. Se descarga rápido, se apaga, se calienta o tiene batería inflada. Estoy en Cancún.');
+
+const symptoms = [
+  { title: 'Se descarga muy rápido', text: 'Baja de porcentaje aunque casi no lo uses, pierde carga por la noche o ya no aguanta el día completo.', icon: 'fa-battery-quarter' },
+  { title: 'Se apaga con porcentaje', text: 'Marca 30%, 20% o 15% y se apaga al abrir cámara, datos móviles, mapas, juegos o apps pesadas.', icon: 'fa-power-off' },
+  { title: 'Carga lento o no sube', text: 'Conecta, desconecta, se queda en un porcentaje o tarda demasiado incluso con cargador correcto.', icon: 'fa-plug-circle-bolt' },
+  { title: 'Se calienta al cargar', text: 'Sube mucho la temperatura, se pone lento o muestra aviso de calor durante carga o uso normal.', icon: 'fa-temperature-half' },
+  { title: 'Tapa o pantalla levantada', text: 'Puede ser batería inflada. Conviene dejar de cargarlo y revisarlo antes de presionar más el equipo.', icon: 'fa-triangle-exclamation' },
+  { title: 'Porcentaje brinca', text: 'La lectura sube o baja de golpe. Puede ser batería, sistema, centro de carga o consumo interno.', icon: 'fa-chart-line' },
+];
+
+const checks = [
+  ['Carga real', 'Probamos cable, cargador, puerto USB-C y estabilidad de amperaje antes de abrir.'],
+  ['Consumo interno', 'Revisamos drenaje anormal, temperatura, reinicios y comportamiento con pantalla encendida.'],
+  ['Estado físico', 'Validamos tapa, pantalla, humedad, golpes y presión por batería inflada.'],
+  ['Compatibilidad', 'Confirmamos modelo exacto Galaxy antes de instalar o pedir batería.'],
+];
+
+const models = [
+  'Galaxy S24, S23, S22, S21',
+  'Galaxy S20, S10, S9',
+  'Galaxy A55, A54, A53, A52',
+  'Galaxy A35, A34, A33, A32',
+  'Galaxy A25, A24, A23, A22',
+  'Galaxy A15, A14, A13, A12',
+  'Galaxy Note 20, Note 10',
+  'Galaxy M y modelos compatibles',
+  'Galaxy Z Flip',
+  'Galaxy Z Fold',
+];
+
+const decisionRows = [
+  { signal: 'Dura poco, pero carga estable', action: 'Prueba de salud y consumo para confirmar cambio de batería.', result: 'Cambio si la celda está degradada.' },
+  { signal: 'No carga o carga intermitente', action: 'Revisión de centro de carga, cable, cargador y humedad.', result: 'Puede requerir puerto, no solo batería.' },
+  { signal: 'Se calienta mucho', action: 'Medición de temperatura y consumo antes de instalar pieza.', result: 'Se descarta consumo en placa.' },
+  { signal: 'Tapa o pantalla se levanta', action: 'Manejo como batería inflada, sin seguir cargando.', result: 'Prioridad por seguridad del equipo.' },
+];
+
+const process = [
+  { step: '01', title: 'Recepción y modelo', text: 'Confirmamos modelo Galaxy, síntomas, golpes, humedad, cargador usado y si el equipo abre o no.' },
+  { step: '02', title: 'Diagnóstico de energía', text: 'Probamos carga, consumo, temperatura, apagados y puerto USB-C para evitar cambios innecesarios.' },
+  { step: '03', title: 'Cotización clara', text: 'Te decimos si conviene batería, puerto de carga, limpieza, diagnóstico de placa o esperar pieza.' },
+  { step: '04', title: 'Apertura controlada', text: 'Retiramos tapa con calor controlado, cuidando flex, cámaras, marco, huella y adhesivos.' },
+  { step: '05', title: 'Instalación y sellado', text: 'Instalamos batería compatible por modelo y aplicamos adhesivo nuevo cuando corresponde.' },
+  { step: '06', title: 'Pruebas finales', text: 'Validamos encendido, carga, porcentaje, temperatura, audio, cámaras, señal y estabilidad.' },
+];
+
+const gallery = [
+  { src: '/assets/images/reparacion-celulares-cancun.webp', alt: 'Servicio técnico de celulares Samsung en Cancún', title: 'Revisión de energía', text: 'Carga, consumo, temperatura y estado del puerto antes de cotizar.' },
+  { src: '/assets/images/lavado-tarjeta-celular.webp', alt: 'Revisión interna de celular por humedad y consumo en Cancún', title: 'Consumo y humedad', text: 'Si hubo líquido o calentamiento, revisamos antes de instalar batería.' },
+  { src: '/assets/images/microscopio-flexor.webp', alt: 'Revisión técnica de flex y conectores de celular en Cancún', title: 'Conectores y flex', text: 'Un flex o conector dañado puede parecer falla de batería.' },
+  { src: '/assets/images/servicio-celulares-cancun.webp', alt: 'Reparación de Samsung Galaxy y celulares en Pixon PC Cancún', title: 'Entrega probada', text: 'No entregamos sin validar carga estable y funcionamiento general.' },
+];
+
+const zones = ['Cancún Centro', 'Zona Hotelera', 'Huayacán', 'Cumbres', 'Bonfil', 'Polígono Sur', 'Puerto Cancún', 'Av. Tulum', 'Bonampak', 'Puerto Juárez', 'Supermanzanas', 'Haciendas'];
+
+const faqItems = [
+  { question: '¿Cuánto cuesta cambiar la batería de un Samsung en Cancún?', answer: 'Depende del modelo exacto, disponibilidad de la batería y estado del equipo. Para cotizar mejor pedimos modelo Galaxy, síntomas, si carga bien y si la tapa o pantalla está levantada.' },
+  { question: '¿Cuánto tarda el cambio de batería Samsung?', answer: 'En muchos modelos puede hacerse el mismo día si la batería está disponible y no hay daño adicional. Si el modelo requiere pedido o trae humedad, carga dañada o batería inflada, primero se confirma el diagnóstico.' },
+  { question: '¿Qué hago si la batería está inflada?', answer: 'No recomendamos seguir cargando el Samsung. Tráelo a revisión para evitar presión sobre pantalla, tapa, marco o componentes internos. La prioridad es retirar la presión de forma controlada.' },
+  { question: '¿Siempre que dura poco necesita batería nueva?', answer: 'No siempre. También puede ser centro de carga, cargador, humedad, apps consumiendo energía, sistema o consumo en placa. Por eso revisamos antes de instalar.' },
+  { question: '¿Trabajan Samsung Galaxy A, S, Note y Z?', answer: 'Sí. Revisamos disponibilidad por modelo exacto para Galaxy A, S, Note, M, Z Flip y Z Fold. La pieza y el proceso cambian según tapa, marco, adhesivo y compatibilidad.' },
+  { question: '¿La reparación tiene garantía?', answer: 'Sí, entregamos garantía por escrito sobre la batería instalada y mano de obra. No cubre golpes, humedad posterior, manipulación externa ni fallas no relacionadas con la batería.' },
+];
+---
+
+<div class="samsung-battery-page">
+  <section class="samsung-battery-hero">
+    <div class="container sb-hero-grid">
+      <div class="sb-hero-copy">
+        <span class="sb-kicker"><i class="fa-solid fa-mobile-screen"></i> Servicio Samsung Galaxy en Cancún</span>
+        <h1>Cambio de batería Samsung en Cancún</h1>
+        <p class="sb-hero-lead">Diagnóstico de carga, consumo, temperatura y batería inflada antes de instalar pieza nueva.</p>
+        <p class="sb-hero-text">Si tu Samsung Galaxy se descarga rápido, se apaga con porcentaje, carga lento o se calienta, revisamos primero si la falla viene de batería, centro de carga, humedad, sistema o consumo interno.</p>
+        <div class="sb-hero-actions">
+          <a class="sb-btn sb-btn-wa" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp
+          </a>
+          <a class="sb-btn sb-btn-light" href="#ticket-samsung-bateria">
+            Crear ticket <i class="fa-solid fa-arrow-down"></i>
+          </a>
+        </div>
+        <p class="sb-note">Envía modelo exacto, síntomas y foto si la tapa o pantalla se está levantando.</p>
+      </div>
+
+      <div class="sb-hero-visual" aria-label="Diagnóstico visual de batería Samsung">
+        <div class="sb-phone" aria-hidden="true">
+          <div class="sb-phone-top"></div>
+          <div class="sb-screen">
+            <span>Galaxy battery check</span>
+            <strong>31%</strong>
+            <div class="sb-charge-bar"><i></i></div>
+            <small>Revisión recomendada</small>
+          </div>
+        </div>
+        <div class="sb-battery-module" aria-hidden="true">
+          <span>Batería inflada</span>
+          <strong>Riesgo de presión</strong>
+        </div>
+        <div class="sb-diagnostic-panel">
+          <span><i class="fa-solid fa-bolt"></i> Carga USB-C</span>
+          <span><i class="fa-solid fa-temperature-half"></i> Temperatura</span>
+          <span><i class="fa-solid fa-gauge-high"></i> Consumo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section sb-intro">
+    <div class="container sb-intro-grid">
+      <div>
+        <h2>Cambio de batería Samsung Galaxy con diagnóstico real</h2>
+        <p>Una batería nueva no debe instalarse a ciegas. En Pixon PC / Rentalap revisamos carga, consumo, puerto USB-C, temperatura, estado físico y compatibilidad para decidir si el cambio de batería Samsung en Cancún realmente va a resolver la falla.</p>
+      </div>
+      <div class="sb-nap-card" aria-label="Datos de contacto Pixon PC">
+        <strong>Pixon PC / Rentalap</strong>
+        <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+        <a href="tel:+529986690777">+52 998 669 0777</a>
+        <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section">
+    <div class="container">
+      <div class="sb-section-head">
+        <h2>Síntomas de batería Samsung dañada</h2>
+        <p>Estos síntomas ayudan a orientar el diagnóstico. La causa final se confirma con pruebas, no solo por apariencia o porcentaje.</p>
+      </div>
+      <div class="sb-symptom-grid">
+        {symptoms.map((item) => (
+          <article class="sb-symptom">
+            <i class={`fa-solid ${item.icon}`}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section sb-diagnostic">
+    <div class="container sb-diagnostic-grid">
+      <div class="sb-photo-stack">
+        <img src="/assets/images/reparacion-celulares-cancun.webp" alt="Revisión técnica de Samsung Galaxy para cambio de batería en Cancún" loading="lazy" />
+        <div class="sb-photo-card">
+          <strong>Antes de abrir</strong>
+          <span>Probamos carga, consumo y temperatura para no cambiar piezas sin necesidad.</span>
+        </div>
+      </div>
+      <div class="sb-checks">
+        <h2>Qué revisamos antes de instalar una batería</h2>
+        <p>El objetivo es separar batería degradada de fallas parecidas: centro de carga, humedad, cable, cargador, sistema o placa.</p>
+        <div class="sb-check-list">
+          {checks.map(([title, text]) => (
+            <article>
+              <span><i class="fa-solid fa-check"></i></span>
+              <div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section">
+    <div class="container sb-models-layout">
+      <div>
+        <h2>Batería para Galaxy A, S, Note, M, Z Flip y Z Fold</h2>
+        <p>Trabajamos por modelo exacto. Samsung usa distintas capacidades, conectores, adhesivos y formas de apertura, por eso confirmamos compatibilidad antes de cotizar.</p>
+        <a class="sb-text-link" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer">Consultar disponibilidad por WhatsApp</a>
+      </div>
+      <div class="sb-model-cloud" aria-label="Modelos Samsung Galaxy compatibles">
+        {models.map((model) => <span>{model}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section sb-warning">
+    <div class="container sb-warning-grid">
+      <div>
+        <h2>Batería inflada en Samsung: no sigas cargándolo</h2>
+        <p>Si la tapa trasera se despega, la pantalla se levanta o el marco se abre, la batería puede estar inflada. En ese caso conviene dejar de cargar el equipo y traerlo a revisión para evitar presión sobre pantalla, flex, tapa y placa.</p>
+        <div class="sb-warning-actions">
+          <a class="sb-btn sb-btn-wa" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-whatsapp"></i> Reportar batería inflada
+          </a>
+          <a class="sb-btn sb-btn-outline" href="#ticket-samsung-bateria">Solicitar revisión</a>
+        </div>
+      </div>
+      <div class="sb-pressure-visual" role="img" aria-label="Visual de batería inflada presionando tapa de Samsung">
+        <div class="sb-back-cover"></div>
+        <div class="sb-swollen-cell"></div>
+        <div class="sb-pressure-lines"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section">
+    <div class="container">
+      <div class="sb-section-head">
+        <h2>No siempre es batería: así decidimos la ruta correcta</h2>
+        <p>Esta tabla evita promesas falsas. Primero se revisa el síntoma, después se define si conviene batería, centro de carga o diagnóstico más profundo.</p>
+      </div>
+      <div class="sb-decision-table">
+        {decisionRows.map((row) => (
+          <article>
+            <h3>{row.signal}</h3>
+            <p>{row.action}</p>
+            <strong>{row.result}</strong>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section sb-gallery">
+    <div class="container">
+      <div class="sb-section-head">
+        <h2>Galería técnica del servicio</h2>
+        <p>La vista combina revisión física, pruebas de carga y diagnóstico interno para que el servicio sea claro desde el primer contacto.</p>
+      </div>
+      <div class="sb-gallery-grid">
+        {gallery.map((item, index) => (
+          <article class={`sb-gallery-item ${index === 0 ? 'is-large' : ''}`}>
+            <img src={item.src} alt={item.alt} loading="lazy" />
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section sb-process" id="proceso">
+    <div class="container">
+      <div class="sb-section-head">
+        <h2>Proceso de cambio de batería Samsung en Cancún</h2>
+        <p>El proceso cuida diagnóstico, apertura, compatibilidad, instalación y pruebas finales para reducir riesgos en tu Galaxy.</p>
+      </div>
+      <div class="sb-process-grid">
+        {process.map((step) => (
+          <article>
+            <span>{step.step}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-section sb-local">
+    <div class="container sb-local-grid">
+      <div>
+        <h2>Servicio local para Samsung en Cancún</h2>
+        <p>Atendemos clientes que vienen desde Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas. Integramos la zona solo para orientar el servicio local, sin llenar la página de keywords artificiales.</p>
+      </div>
+      <div class="sb-zone-grid" aria-label="Zonas de servicio en Cancún">
+        {zones.map((zone) => <span>{zone}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-samsung-bateria"
+    defaultDevice="Celular"
+    defaultService="Cambio batería Samsung"
+    sourcePage="/servicios/telefono/cambio-bateria-samsung"
+    title="Crear ticket para cambio de batería Samsung"
+    subtitle="Cuéntanos modelo Galaxy, síntomas, si carga, si se calienta y si la tapa o pantalla se levantó. Revisamos disponibilidad y te contactamos por WhatsApp."
+  />
+
+  <section class="sb-section sb-final-cta">
+    <div class="container sb-final-grid">
+      <div>
+        <h2>Agenda revisión antes de que el daño avance</h2>
+        <p>Si tu Samsung se apaga, dura poco, carga raro o está inflado, escríbenos. Te diremos qué datos enviar para cotizar con más precisión y evitar cambios innecesarios.</p>
+      </div>
+      <div class="sb-final-actions">
+        <a class="sb-btn sb-btn-wa" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer">
+          <i class="fa-brands fa-whatsapp"></i> WhatsApp
+        </a>
+        <a class="sb-btn sb-btn-outline" href="#ticket-samsung-bateria">Crear ticket</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sb-related-shell">
+    <RelatedServicesSection
+      category={category}
+      service={service}
+      eyebrow="Servicios relacionados"
+      title="Otros servicios para celular que podrían ayudarte"
+      compact={true}
+      includeCategoryServices={true}
+      initialLimit={4}
+    />
+  </section>
+
+  <FaqSection
+    id="faq-bateria-samsung"
+    title="Preguntas frecuentes sobre cambio de batería Samsung en Cancún"
+    description="Dudas comunes sobre costo, tiempos, batería inflada, carga lenta, modelos Galaxy y garantía."
+    items={faqItems}
+    backgroundColor="#f8fbff"
+    questionColor="#071F3A"
+    titleColor="#071F3A"
+    descriptionColor="#071F3A"
+    faqAccent="#0ea5e9"
+    sectionClass="sb-faq-light"
+  />
+
+  <section class="sb-comments">
+    <CommentsSection
+      title="Clientes que revisaron su celular en Pixon PC"
+      description="Opiniones de clientes en Cancún con fallas de carga, batería, pantalla, humedad o apagados repentinos."
+      dark={false}
+    />
+  </section>
+
+  <section class="sb-contact-shell">
+    <ContactSection id="ubicacion" />
+  </section>
+</div>
+
+<Footer />
+
+<style is:global>
+.samsung-battery-page {
+  --azul-oscuro: #071F3A;
+  --sb-ink: #071F3A;
+  --sb-blue: #0f5ea8;
+  --sb-cyan: #0ea5e9;
+  --sb-green: #16a34a;
+  --sb-line: rgba(7, 31, 58, .12);
+  --sb-soft: #f8fbff;
+  --sb-panel: #ffffff;
+  --sb-muted: #38536d;
+  color: var(--sb-ink);
+  background: var(--sb-soft);
+  overflow-x: hidden;
+}
+
+.samsung-battery-page h1,
+.samsung-battery-page h2,
+.samsung-battery-page h3 {
+  font-family: 'Kanit', sans-serif;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.samsung-battery-page section:not(.samsung-battery-hero),
+.samsung-battery-page section:not(.samsung-battery-hero) h2,
+.samsung-battery-page section:not(.samsung-battery-hero) h3,
+.samsung-battery-page section:not(.samsung-battery-hero) p,
+.samsung-battery-page section:not(.samsung-battery-hero) span,
+.samsung-battery-page section:not(.samsung-battery-hero) strong,
+.samsung-battery-page section:not(.samsung-battery-hero) li {
+  color: var(--azul-oscuro);
+}
+
+.samsung-battery-hero {
+  position: relative;
+  min-height: 620px;
+  display: grid;
+  align-items: center;
+  padding: 54px 0 48px;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(14, 165, 233, .34), transparent 28%),
+    radial-gradient(circle at 88% 78%, rgba(22, 163, 74, .24), transparent 24%),
+    linear-gradient(135deg, #061525 0%, #071F3A 55%, #0b2c4b 100%);
+}
+
+.sb-hero-grid,
+.sb-intro-grid,
+.sb-diagnostic-grid,
+.sb-models-layout,
+.sb-warning-grid,
+.sb-local-grid,
+.sb-final-grid {
+  display: grid;
+  gap: clamp(22px, 4vw, 42px);
+}
+
+.sb-hero-grid {
+  grid-template-columns: minmax(0, .92fr) minmax(320px, .8fr);
+  align-items: center;
+}
+
+.sb-hero-copy {
+  max-width: 760px;
+}
+
+.sb-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+  color: #b9e8ff;
+  font-size: .82rem;
+  font-weight: 850;
+}
+
+.samsung-battery-hero h1 {
+  margin: 0 0 12px;
+  max-width: 760px;
+  color: #ffffff;
+  font-size: clamp(2.15rem, 5vw, 4.6rem);
+  line-height: .98;
+}
+
+.sb-hero-lead {
+  max-width: 670px;
+  margin: 0 0 10px;
+  color: #e4f6ff;
+  font-size: clamp(1.08rem, 2vw, 1.34rem);
+  line-height: 1.42;
+}
+
+.sb-hero-text {
+  max-width: 690px;
+  margin: 0 0 22px;
+  color: #c8e2f1;
+  line-height: 1.62;
+}
+
+.sb-hero-actions,
+.sb-warning-actions,
+.sb-final-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 12px 17px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-weight: 850;
+  text-decoration: none;
+  transition: transform 160ms cubic-bezier(.23, 1, .32, 1), background-color 180ms cubic-bezier(.23, 1, .32, 1), border-color 180ms cubic-bezier(.23, 1, .32, 1);
+}
+
+.sb-btn:active {
+  transform: scale(.98);
+}
+
+.sb-btn-wa {
+  background: var(--sb-green);
+  color: #ffffff !important;
+  box-shadow: 0 14px 26px rgba(22, 163, 74, .22);
+}
+
+.sb-btn-light {
+  background: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .2);
+  color: #ffffff !important;
+}
+
+.sb-btn-outline {
+  background: #ffffff;
+  border-color: rgba(7, 31, 58, .18);
+  color: var(--sb-ink) !important;
+}
+
+.sb-note {
+  margin: 12px 0 0;
+  color: #a9d7ed;
+  font-size: .92rem;
+}
+
+.sb-hero-visual {
+  position: relative;
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.sb-hero-visual::before {
+  content: "";
+  position: absolute;
+  width: min(86%, 460px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 165, 233, .2), transparent 68%);
+  filter: blur(4px);
+  z-index: -1;
+}
+
+.sb-phone {
+  width: min(72vw, 255px);
+  aspect-ratio: 9 / 18.5;
+  padding: 16px;
+  border-radius: 30px;
+  background: linear-gradient(160deg, #111827, #071F3A);
+  border: 1px solid rgba(255, 255, 255, .18);
+  box-shadow: 0 34px 70px rgba(0, 0, 0, .32);
+  transform: rotate(-4deg);
+}
+
+.sb-phone-top {
+  width: 78px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .18);
+  margin: 0 auto 18px;
+}
+
+.sb-screen {
+  height: calc(100% - 28px);
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(14, 165, 233, .18), rgba(22, 163, 74, .08)),
+    #0b2743;
+  border: 1px solid rgba(185, 232, 255, .18);
+}
+
+.sb-screen span,
+.sb-screen small {
+  color: #c8e2f1;
+}
+
+.sb-screen strong {
+  color: #ffffff;
+  font-size: 3.6rem;
+  line-height: .9;
+}
+
+.sb-charge-bar {
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .16);
+}
+
+.sb-charge-bar i {
+  display: block;
+  width: 31%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f59e0b, #16a34a);
+}
+
+.sb-battery-module,
+.sb-diagnostic-panel {
+  position: absolute;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .94);
+  color: var(--sb-ink);
+  border: 1px solid rgba(255, 255, 255, .45);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .22);
+}
+
+.sb-battery-module {
+  right: 2%;
+  top: 18%;
+  width: 190px;
+  padding: 16px;
+}
+
+.sb-battery-module::before {
+  content: "";
+  display: block;
+  height: 56px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(248, 113, 113, .4), transparent 46%),
+    linear-gradient(90deg, #dbeafe, #f8fafc);
+  border: 1px solid rgba(7, 31, 58, .12);
+}
+
+.sb-battery-module span,
+.sb-battery-module strong {
+  display: block;
+  color: var(--sb-ink);
+}
+
+.sb-battery-module span {
+  font-size: .8rem;
+}
+
+.sb-diagnostic-panel {
+  left: 0;
+  bottom: 12%;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.sb-diagnostic-panel span {
+  color: var(--sb-ink);
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.sb-section {
+  padding: clamp(46px, 7vw, 82px) 0;
+  background: var(--sb-soft);
+}
+
+.sb-intro-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .45fr);
+  align-items: stretch;
+}
+
+.sb-intro h2,
+.sb-section-head h2,
+.sb-checks h2,
+.sb-models-layout h2,
+.sb-warning h2,
+.sb-local h2,
+.sb-final-cta h2 {
+  margin: 0 0 12px;
+  color: var(--sb-ink);
+  font-size: clamp(1.55rem, 3vw, 2.45rem);
+  line-height: 1.08;
+}
+
+.sb-intro p,
+.sb-section-head p,
+.sb-checks p,
+.sb-models-layout p,
+.sb-warning p,
+.sb-local p,
+.sb-final-cta p {
+  max-width: 820px;
+  margin: 0;
+  color: var(--sb-ink);
+  line-height: 1.68;
+  text-wrap: pretty;
+}
+
+.sb-nap-card {
+  display: grid;
+  gap: 7px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--sb-line);
+}
+
+.sb-nap-card a {
+  color: var(--sb-blue);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sb-section-head {
+  max-width: 860px;
+  margin-bottom: 28px;
+}
+
+.sb-symptom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.sb-symptom,
+.sb-check-list article,
+.sb-decision-table article,
+.sb-process-grid article {
+  min-width: 0;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--sb-line);
+}
+
+.sb-symptom {
+  padding: 20px;
+}
+
+.sb-symptom i {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #e6f6ff;
+  color: var(--sb-blue);
+}
+
+.sb-symptom h3,
+.sb-check-list h3,
+.sb-decision-table h3,
+.sb-gallery-item h3,
+.sb-process-grid h3 {
+  margin: 0 0 7px;
+  color: var(--sb-ink);
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.sb-symptom p,
+.sb-check-list p,
+.sb-decision-table p,
+.sb-gallery-item p,
+.sb-process-grid p {
+  margin: 0;
+  color: var(--sb-ink);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.sb-diagnostic {
+  background: #eef8ff;
+}
+
+.sb-diagnostic-grid {
+  grid-template-columns: minmax(280px, .8fr) minmax(0, 1fr);
+  align-items: center;
+}
+
+.sb-photo-stack {
+  position: relative;
+}
+
+.sb-photo-stack img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid rgba(7, 31, 58, .12);
+}
+
+.sb-photo-card {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(255, 255, 255, .55);
+}
+
+.sb-check-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.sb-check-list article {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 13px;
+  padding: 16px;
+}
+
+.sb-check-list article > span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: #dcfce7;
+}
+
+.sb-check-list i {
+  color: var(--sb-green);
+}
+
+.sb-models-layout {
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.sb-text-link {
+  display: inline-flex;
+  margin-top: 18px;
+  color: var(--sb-blue);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.sb-model-cloud,
+.sb-zone-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.sb-model-cloud span,
+.sb-zone-grid span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--sb-line);
+  color: var(--sb-ink);
+  font-size: .88rem;
+  font-weight: 800;
+}
+
+.sb-warning {
+  background: linear-gradient(135deg, #fff7ed, #f8fbff);
+}
+
+.sb-warning-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .58fr);
+  align-items: center;
+}
+
+.sb-warning-actions {
+  margin-top: 22px;
+}
+
+.sb-pressure-visual {
+  position: relative;
+  min-height: 310px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--sb-line);
+  overflow: hidden;
+}
+
+.sb-back-cover {
+  position: absolute;
+  inset: 52px 44px 66px;
+  border-radius: 24px;
+  background: linear-gradient(150deg, #e2e8f0, #ffffff);
+  border: 2px solid rgba(7, 31, 58, .16);
+  transform: rotate(-5deg);
+}
+
+.sb-swollen-cell {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150px;
+  height: 190px;
+  transform: translate(-50%, -50%) rotate(4deg);
+  border-radius: 38% 42% 36% 44%;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(248, 113, 113, .42), transparent 48%),
+    linear-gradient(160deg, #dbeafe, #f8fafc);
+  border: 1px solid rgba(248, 113, 113, .28);
+}
+
+.sb-pressure-lines span {
+  position: absolute;
+  right: 36px;
+  width: 72px;
+  height: 2px;
+  border-radius: 999px;
+  background: #ef4444;
+}
+
+.sb-pressure-lines span:nth-child(1) { top: 112px; }
+.sb-pressure-lines span:nth-child(2) { top: 154px; width: 98px; }
+.sb-pressure-lines span:nth-child(3) { top: 198px; width: 62px; }
+
+.sb-decision-table {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sb-decision-table article {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 18px;
+}
+
+.sb-decision-table strong {
+  color: var(--sb-blue) !important;
+  font-size: .9rem;
+}
+
+.sb-gallery {
+  background: #eef8ff;
+}
+
+.sb-gallery-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr .85fr;
+  grid-auto-rows: minmax(210px, auto);
+  gap: 14px;
+}
+
+.sb-gallery-item {
+  position: relative;
+  min-height: 230px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--sb-line);
+}
+
+.sb-gallery-item.is-large {
+  grid-row: span 2;
+}
+
+.sb-gallery-item img {
+  width: 100%;
+  height: 100%;
+  min-height: 230px;
+  object-fit: cover;
+}
+
+.sb-gallery-item div {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  padding: 13px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .94);
+}
+
+.sb-process-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sb-process-grid article {
+  padding: 16px;
+  min-height: 182px;
+}
+
+.sb-process-grid article > span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #e6f6ff;
+  color: var(--sb-blue) !important;
+  font-weight: 900;
+}
+
+.sb-local {
+  background: #ffffff;
+}
+
+.sb-local-grid {
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.sb-final-cta {
+  background: linear-gradient(135deg, #eef8ff, #ffffff);
+}
+
+.sb-final-grid {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.sb-final-actions {
+  justify-content: flex-end;
+}
+
+.sb-related-shell,
+.sb-comments,
+.sb-contact-shell {
+  background: #f8fbff;
+}
+
+.sb-related-shell .svc-related,
+.sb-related-shell section {
+  background: #f8fbff !important;
+}
+
+.sb-related-shell .svc-related .related-card,
+.sb-related-shell .svc-related .related-toggle {
+  background: #ffffff !important;
+  border-color: rgba(7, 31, 58, .12) !important;
+  box-shadow: none !important;
+}
+
+.sb-related-shell .svc-related .related-card i {
+  color: var(--sb-blue) !important;
+}
+
+.sb-faq-light {
+  background: #f8fbff !important;
+}
+
+.sb-faq-light .faq-item,
+.sb-faq-light .faq-item--open {
+  background: #ffffff !important;
+  border-color: rgba(7, 31, 58, .12) !important;
+  box-shadow: none !important;
+}
+
+.sb-contact-shell #ubicacion.contact {
+  background: #ffffff !important;
+}
+
+.samsung-battery-page .service-ticket-section {
+  scroll-margin-top: 110px;
+}
+
+.samsung-battery-page .service-ticket-section h2,
+.samsung-battery-page .service-ticket-section h3,
+.samsung-battery-page .service-ticket-section label,
+.samsung-battery-page .service-ticket-section p,
+.samsung-battery-page .service-ticket-section strong,
+.samsung-battery-page .service-ticket-section span,
+.samsung-battery-page .service-ticket-section input,
+.samsung-battery-page .service-ticket-section select,
+.samsung-battery-page .service-ticket-section textarea,
+.samsung-battery-page .comments-section-container h2,
+.samsung-battery-page .comments-section-container p,
+.samsung-battery-page .comments-section-container input,
+.samsung-battery-page .comments-section-container textarea,
+.samsung-battery-page .contact h2,
+.samsung-battery-page .contact h3,
+.samsung-battery-page .contact p,
+.samsung-battery-page .contact span,
+.samsung-battery-page .contact strong,
+.samsung-battery-page .contact li,
+.samsung-battery-page .svc-related h2,
+.samsung-battery-page .svc-related h3,
+.samsung-battery-page .svc-related h4,
+.samsung-battery-page .svc-related p,
+.samsung-battery-page .svc-related span {
+  color: var(--azul-oscuro) !important;
+}
+
+.samsung-battery-page .service-ticket-section button[type="submit"],
+.samsung-battery-page .service-ticket-section button[type="submit"] span,
+.samsung-battery-page .comments-section-container .btn-primary,
+.samsung-battery-page .comments-section-container .btn-primary span,
+.samsung-battery-page .sb-btn-wa,
+.samsung-battery-page .sb-btn-wa span {
+  color: #ffffff !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sb-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .sb-symptom:hover,
+  .sb-decision-table article:hover,
+  .sb-process-grid article:hover {
+    border-color: rgba(14, 165, 233, .35);
+  }
+}
+
+@media (max-width: 1120px) {
+  .sb-symptom-grid,
+  .sb-decision-table {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sb-process-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .sb-hero-grid,
+  .sb-intro-grid,
+  .sb-diagnostic-grid,
+  .sb-models-layout,
+  .sb-warning-grid,
+  .sb-local-grid,
+  .sb-final-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sb-final-actions {
+    justify-content: flex-start;
+  }
+
+  .sb-gallery-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sb-gallery-item.is-large {
+    grid-row: span 1;
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .samsung-battery-hero {
+    min-height: auto;
+    padding: 38px 0 34px;
+  }
+
+  .samsung-battery-hero h1 {
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+
+  .sb-hero-actions,
+  .sb-warning-actions,
+  .sb-final-actions {
+    flex-direction: column;
+  }
+
+  .sb-btn {
+    width: 100%;
+  }
+
+  .sb-hero-visual {
+    min-height: 420px;
+  }
+
+  .sb-battery-module {
+    right: 0;
+    top: 6%;
+    width: 165px;
+  }
+
+  .sb-diagnostic-panel {
+    left: 0;
+    bottom: 4%;
+  }
+
+  .sb-symptom-grid,
+  .sb-decision-table,
+  .sb-process-grid,
+  .sb-gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sb-gallery-item.is-large {
+    grid-column: auto;
+  }
+
+  .sb-check-list article {
+    grid-template-columns: 38px 1fr;
+  }
+
+  .sb-photo-card {
+    position: static;
+    margin-top: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .samsung-battery-page *,
+  .samsung-battery-page *::before,
+  .samsung-battery-page *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>

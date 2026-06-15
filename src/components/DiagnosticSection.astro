@@ -1,0 +1,47 @@
+---
+interface Item { label: string; detail: string; status: string; icon: string }
+interface Props { eyebrow: string; title: string; description: string; items: Item[] }
+const { eyebrow, title, description, items } = Astro.props;
+---
+<section class="diagnostic-section">
+  <div class="diagnostic-section__shell">
+    <header>
+      <span>{eyebrow}</span>
+      <h2>{title}</h2>
+      <p>{description}</p>
+    </header>
+    <div class="diagnostic-panel">
+      <div class="diagnostic-panel__top"><strong>Lectura del sistema térmico</strong><span><i></i> Diagnóstico activo</span></div>
+      <div class="diagnostic-panel__grid">
+        {items.map((item) => (
+          <article>
+            <i class={`fa-solid ${item.icon}`} aria-hidden="true"></i>
+            <div><h3>{item.label}</h3><p>{item.detail}</p></div>
+            <span>{item.status}</span>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .diagnostic-section { padding: clamp(72px, 9vw, 116px) 0; background: #f4f8fb; color: #071f3a; }
+  .diagnostic-section__shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  .diagnostic-section header { max-width: 760px; margin: 0 0 38px; }
+  .diagnostic-section header > span { color: #1672ca; font-size: .78rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+  .diagnostic-section h2 { margin: 10px 0 16px; color: #071f3a; font-family: 'Kanit', sans-serif; font-size: clamp(2rem, 3.5vw, 3.2rem); line-height: 1.05; letter-spacing: 0; text-wrap: balance; }
+  .diagnostic-section header p { max-width: 66ch; margin: 0; color: #24435f; line-height: 1.72; }
+  .diagnostic-panel { border: 1px solid #cad9e6; border-radius: 8px; background: #fff; box-shadow: 0 22px 60px rgb(17 62 99 / 10%); overflow: hidden; }
+  .diagnostic-panel__top { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 17px 20px; border-bottom: 1px solid #d9e4ed; color: #071f3a; }
+  .diagnostic-panel__top span { display: flex; align-items: center; gap: 8px; color: #31506c; font-size: .78rem; font-weight: 750; }
+  .diagnostic-panel__top i { width: 7px; height: 7px; border-radius: 50%; background: #1683e5; box-shadow: 0 0 0 4px rgb(22 131 229 / 13%); }
+  .diagnostic-panel__grid { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .diagnostic-panel article { display: grid; align-content: space-between; min-height: 225px; padding: 22px 19px; border-right: 1px solid #d9e4ed; }
+  .diagnostic-panel article:last-child { border-right: 0; }
+  .diagnostic-panel article > i { color: #1683e5; font-size: 1.35rem; }
+  .diagnostic-panel h3 { margin: 32px 0 7px; color: #071f3a; font-size: 1.02rem; }
+  .diagnostic-panel p { margin: 0; color: #31506c; font-size: .86rem; line-height: 1.55; }
+  .diagnostic-panel article > span { align-self: end; width: fit-content; margin-top: 22px; padding: 5px 8px; border-radius: 5px; background: #eaf4fd; color: #086bbf; font-size: .7rem; font-weight: 850; text-transform: uppercase; }
+  @media (max-width: 900px) { .diagnostic-panel__grid { grid-template-columns: repeat(2, 1fr); } .diagnostic-panel article { border-bottom: 1px solid #d9e4ed; } }
+  @media (max-width: 600px) { .diagnostic-panel__grid { grid-template-columns: 1fr; } .diagnostic-panel article { min-height: 0; grid-template-columns: 34px 1fr; gap: 0 12px; } .diagnostic-panel article > i { grid-row: 1 / 3; } .diagnostic-panel h3 { margin: 0 0 5px; } .diagnostic-panel article > span { grid-column: 2; } }
+</style>

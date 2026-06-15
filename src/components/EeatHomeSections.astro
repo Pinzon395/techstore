@@ -1,0 +1,509 @@
+---
+const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=Pixon%20Pc%20Haciendas%2077539%20Canc%C3%BAn%20Q.R.';
+const googleRating = '5.0';
+const googleReviewCount = 9;
+
+const fallbackReviews = [
+  { name: 'Fred Uriostegui', date: 'mayo 2025', rating: 5, text: 'Muy buen servicio, reparación entregada a tiempo y de forma correcta. La atención fue clara desde el diagnóstico.' },
+  { name: 'Deon Daboy', date: 'mayo 2025', rating: 5, text: 'Excelente servicio y comunicación; informa cada detalle con fotos y videos durante la reparación.' },
+  { name: 'Joel Sonda', date: 'mayo 2025', rating: 5, text: 'Buen servicio con atención especializada. Explica problemas claramente y ofrece soluciones según presupuesto.' },
+  { name: 'Eduardo Álvarez', date: 'cliente atendido', rating: 5, text: 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.' },
+  { name: 'Ana Maria Martínez', date: 'cliente atendido', rating: 5, text: 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.' },
+];
+
+const catalogItems = [
+  { category: 'Mac', href: '/servicios/mac/reparacion-macbook', img: '/assets/images/mantenimiento-macbook-cancun.webp', alt: 'Mantenimiento profundo de MacBook en Cancún', title: 'MacBook con sobrecalentamiento', desc: 'Limpieza interna, cambio de pasta térmica y prueba de temperatura.', eta: '24-48 h' },
+  { category: 'Laptop', href: '/servicios/laptop/cambio-pantalla', img: '/assets/images/cambio-pantalla-laptop.webp', alt: 'Cambio de pantalla de laptop en Cancún', title: 'Laptop con pantalla rota', desc: 'Diagnóstico de display, bisagras, flex y reemplazo de panel compatible.', eta: '24-72 h' },
+  { category: 'Laptop', href: '/servicios/laptop/cambio-bateria', img: '/assets/images/laptop-feliz-limpia.webp', alt: 'Cambio de batería de laptop en Cancún', title: 'Batería inflada o sin duración', desc: 'Revisión de ciclos, voltaje, cargador y cambio seguro de batería.', eta: '24-48 h' },
+  { category: 'Laptop', href: '/servicios/laptop/pasta-termica', img: '/assets/images/laptop-gamer-rogstrix.webp', alt: 'Cambio de pasta térmica en laptop gamer en Cancún', title: 'Laptop gamer con thermal throttling', desc: 'Mantenimiento térmico, limpieza de ventiladores y prueba bajo carga.', eta: '24-48 h' },
+  { category: 'Laptop', href: '/servicios/laptop/upgrade', img: '/assets/images/cambio-ssd.webp', alt: 'Cambio de SSD para laptop lenta en Cancún', title: 'Laptop lenta por disco mecánico', desc: 'Migración a SSD, limpieza de inicio y prueba de salud SMART.', eta: '24 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/tarjeta-video-gpu', img: '/assets/images/mantenimiento-pc-escritorio.webp', alt: 'Limpieza profunda RTX 4070 en Cancún', title: 'RTX 4070 con polvo y thermal pads secos', desc: 'Desarme, limpieza de disipador y renovación térmica.', eta: '48 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/limpieza-profunda', img: '/assets/images/pc-gamer-gama-alta.webp', alt: 'Limpieza profunda de PC Gamer en Cancún', title: 'PC Gamer con polvo compacto', desc: 'Limpieza interna, gestión de aire, revisión de temperaturas y ruido.', eta: '24-48 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/fuente-poder', img: '/assets/images/pc-gamer-gama-media.webp', alt: 'Diagnóstico de fuente de poder PC Gamer en Cancún', title: 'Apagones por fuente de poder', desc: 'Prueba de PSU, consumo bajo carga y revisión de conectores PCIe.', eta: '24-72 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/tarjeta-madre', img: '/assets/images/ensamble-pc-gamer-cancun.webp', alt: 'Reparación de tarjeta madre PC Gamer en Cancún', title: 'Motherboard sin POST', desc: 'Diagnóstico de RAM, BIOS, VRM, slots PCIe y corto en placa.', eta: '48-96 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/refrigeracion', img: '/assets/images/mantenimiento-pastaternima-thermalpads.webp', alt: 'Refrigeración de PC Gamer en Cancún', title: 'CPU caliente o ventiladores al máximo', desc: 'Cambio de pasta, pads, flujo de aire y curva de ventilación.', eta: '24-48 h' },
+  { category: 'Celular', href: '/servicios/telefono/celular-mojado', img: '/assets/images/lavado-tarjeta-celular.webp', alt: 'Lavado ultrasónico de tarjeta de celular en Cancún', title: 'Celular con humedad en placa', desc: 'Lavado ultrasónico, inspección de conectores y prueba de carga.', eta: '24-72 h' },
+  { category: 'Celular', href: '/servicios/telefono/reparacion-iphone', img: '/assets/images/iphone-desarmado.webp', alt: 'Reparación de iPhone en Cancún', title: 'iPhone con falla de carga o pantalla', desc: 'Diagnóstico de batería, centro de carga, pantalla y conectores internos.', eta: '24-72 h' },
+  { category: 'Celular', href: '/servicios/telefono/cambio-pantalla', img: '/assets/images/pantalla-rota-iphone.webp', alt: 'Cambio de pantalla de celular en Cancún', title: 'Pantalla rota o sin touch', desc: 'Reemplazo de pantalla, prueba de brillo, touch y sensores.', eta: '24-48 h' },
+  { category: 'Celular', href: '/servicios/telefono/reparacion-carga', img: '/assets/images/iphone-desarmado-2.webp', alt: 'Reparación de centro de carga celular en Cancún', title: 'Centro de carga flojo', desc: 'Limpieza o reemplazo del conector y validación de amperaje.', eta: '24-48 h' },
+  { category: 'Celular', href: '/servicios/telefono/cambio-bateria', img: '/assets/images/servicio-celulares-cancun.webp', alt: 'Cambio de batería de celular en Cancún', title: 'Batería que se descarga rápido', desc: 'Revisión de consumo, salud de batería y reemplazo con prueba final.', eta: '24-48 h' },
+  { category: 'Consola', href: '/servicios/consola/sobrecalentamiento', img: '/assets/images/mantenimiento-metal-liquido-cancun.webp', alt: 'Mantenimiento de PS5 con metal líquido en Cancún', title: 'PS5 con apagones por temperatura', desc: 'Revisión de ventilación, metal líquido y limpieza del disipador.', eta: '24-48 h' },
+  { category: 'Consola', href: '/servicios/consola/reparacion-ps5', img: '/assets/images/ps5_xbox.webp', alt: 'Reparación de PS5 y Xbox en Cancún', title: 'PS5 sin imagen o se apaga', desc: 'Diagnóstico de HDMI, fuente, ventilación y estabilidad bajo carga.', eta: '24-96 h' },
+  { category: 'Consola', href: '/servicios/consola/cambio-hdmi-ps5', img: '/assets/images/xbox.webp', alt: 'Cambio de HDMI de consola en Cancún', title: 'Puerto HDMI dañado', desc: 'Reemplazo de conector, microsoldadura y prueba de video estable.', eta: '48-96 h' },
+  { category: 'Consola', href: '/servicios/consola/controles-drift', img: '/assets/images/control_repair_workshop.webp', alt: 'Reparación de joystick drift en Cancún', title: 'Control con joystick drift', desc: 'Prueba de ejes, limpieza o reemplazo de potenciómetro según desgaste.', eta: '24-48 h' },
+  { category: 'Consola', href: '/servicios/consola/ventilacion', img: '/assets/images/gaming_controllers_collection.webp', alt: 'Mantenimiento de consola y controles en Cancún', title: 'Consola con ventilación bloqueada', desc: 'Limpieza de ductos, ventilador, pasta o metal líquido según modelo.', eta: '24-48 h' },
+  { category: 'Empresa', href: '/empresas', img: '/assets/images/soporte-hoteles-hero.webp', alt: 'Soporte técnico para empresa en Cancún', title: 'Soporte B2B para equipo administrativo', desc: 'Diagnóstico, reporte fotográfico y plan preventivo por lote.', eta: 'Programado' },
+  { category: 'Empresa', href: '/servicios/b2b/soporte-hoteles', img: '/assets/images/soporte-hoteles-hero.webp', alt: 'Soporte técnico para hoteles en Cancún', title: 'Soporte TI para hoteles', desc: 'Atención a recepción, equipos administrativos, red, impresoras y operación.', eta: 'Por póliza' },
+  { category: 'Empresa', href: '/servicios/b2b/soporte-oficinas', img: '/assets/images/reparacion-impresoras-cancun.webp', alt: 'Soporte técnico para oficinas en Cancún', title: 'Oficina con equipos lentos', desc: 'Mantenimiento por lote, reportes, control de tickets y prioridades.', eta: 'Programado' },
+  { category: 'Empresa', href: '/servicios/b2b/polizas-mantenimiento', img: '/assets/images/optimizacion-pc-cancun.webp', alt: 'Póliza de mantenimiento TI para empresas en Cancún', title: 'Pólizas de mantenimiento TI', desc: 'Visitas programadas, prevención, inventario y seguimiento mensual.', eta: 'Mensual' },
+  { category: 'Empresa', href: '/servicios/b2b/wifi-empresarial', img: '/assets/images/actualizacion-windows-cancun.webp', alt: 'Soporte de red WiFi empresarial en Cancún', title: 'WiFi empresarial inestable', desc: 'Diagnóstico de red, cobertura, routers, repetidores y equipos críticos.', eta: 'Programado' },
+  { category: 'Laptop', href: '/servicios/laptop/diagnostico', img: '/assets/images/microscopio-flexor.webp', alt: 'Diagnostico de laptop en Cancun', title: 'Laptop que no enciende', desc: 'Revision de cargador, placa, memoria, almacenamiento y consumo electrico.', eta: '24-72 h' },
+  { category: 'Laptop', href: '/servicios/laptop/reparacion-hp', img: '/assets/images/laptop-feliz-limpia.webp', alt: 'Reparacion de laptop HP en Cancun', title: 'HP Pavilion, Victus u Omen con falla', desc: 'Diagnostico por modelo, temperatura, pantalla, carga, SSD, RAM y Windows.', eta: '24-96 h' },
+  { category: 'Laptop', href: '/servicios/laptop/reparacion-dell', img: '/assets/images/cambio-ssd.webp', alt: 'Reparacion de laptop Dell en Cancun', title: 'Dell Inspiron o Latitude lenta', desc: 'Revision de disco, memoria, Windows, bateria y mantenimiento interno.', eta: '24-72 h' },
+  { category: 'Laptop', href: '/reparacion-bisagras', img: '/assets/images/DespuesBisagra.webp', alt: 'Reparacion de bisagras de laptop en Cancun', title: 'Bisagra rota o tapa levantada', desc: 'Refuerzo de carcasa, ajuste de bisagras y revision de flex de pantalla.', eta: '48-96 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/no-enciende', img: '/assets/images/ensamble-pc-gamer-cancun.webp', alt: 'PC gamer que no enciende en Cancun', title: 'PC sin encendido o reinicios', desc: 'Diagnostico de fuente, motherboard, RAM, GPU, botones y cortos.', eta: '24-72 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/pantalla-azul', img: '/assets/images/actualizacion-windows-cancun.webp', alt: 'Pantalla azul en PC Windows Cancun', title: 'Pantallazos azules en Windows', desc: 'Revision de drivers, RAM, disco, temperaturas y estabilidad del sistema.', eta: '24-72 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/virus-malware', img: '/assets/images/optimizacion-pc-cancun.webp', alt: 'Limpieza de virus y malware en PC Cancun', title: 'Virus, anuncios o programas raros', desc: 'Limpieza de malware, revision de inicio, navegadores y seguridad basica.', eta: '24-48 h' },
+  { category: 'PC Gamer', href: '/servicios/pc/instalacion-componentes', img: '/assets/images/pc-gamer-entrada.webp', alt: 'Instalacion de componentes PC Gamer Cancun', title: 'Instalacion de GPU, SSD o fuente', desc: 'Montaje limpio, cableado, drivers, BIOS y prueba de carga.', eta: '24-48 h' },
+  { category: 'Celular', href: '/servicios/telefono/iphone-no-prende', img: '/assets/images/iphone-desarmado.webp', alt: 'iPhone que no prende en Cancun', title: 'iPhone no prende', desc: 'Diagnostico de bateria, carga, placa, humedad y consumo anormal.', eta: '24-96 h' },
+  { category: 'Celular', href: '/servicios/telefono/reparacion-face-id-iphone', img: '/assets/images/microscopio-flexor.webp', alt: 'Reparacion Face ID iPhone Cancun', title: 'Face ID o camara frontal falla', desc: 'Inspeccion de flexores, humedad, conectores y diagnostico de modulo.', eta: '48-96 h' },
+  { category: 'Celular', href: '/servicios/telefono/reparacion-bocina-iphone', img: '/assets/images/iphone-desarmado-2.webp', alt: 'Reparacion de bocina iPhone Cancun', title: 'iPhone sin audio o microfono', desc: 'Prueba de bocinas, microfonos, flexores y limpieza de mallas.', eta: '24-72 h' },
+  { category: 'Celular', href: '/servicios/telefono/reparacion-placa-iphone', img: '/assets/images/lavado-tarjeta-celular.webp', alt: 'Reparacion de placa iPhone Cancun', title: 'Falla de placa en iPhone', desc: 'Diagnostico avanzado de consumo, lineas principales y microsoldadura.', eta: '48-120 h' },
+  { category: 'Consola', href: '/servicios/consola/fuente', img: '/assets/images/xbox.webp', alt: 'Reparacion de fuente de consola Cancun', title: 'Consola sin energia', desc: 'Revision de fuente, entrada de corriente, placa y apagones repentinos.', eta: '48-96 h' },
+  { category: 'Consola', href: '/servicios/consola/limpieza-metal-liquido-ps5', img: '/assets/images/mantenimiento-metal-liquido-cancun.webp', alt: 'Limpieza de metal liquido PS5 Cancun', title: 'PS5 requiere servicio termico', desc: 'Limpieza interna, control seguro de metal liquido y prueba de temperatura.', eta: '24-48 h' },
+  { category: 'Consola', href: '/servicios/consola/reparacion-xbox', img: '/assets/images/xbox.webp', alt: 'Reparacion Xbox en Cancun', title: 'Xbox con falla de video o encendido', desc: 'Diagnostico de HDMI, fuente, ventilacion, almacenamiento y sistema.', eta: '48-96 h' },
+  { category: 'Consola', href: '/servicios/consola/reparacion-nintendo-switch', img: '/assets/images/gaming_controllers_collection.webp', alt: 'Reparacion Nintendo Switch Cancun', title: 'Nintendo Switch no carga o no da imagen', desc: 'Revision de puerto USB-C, bateria, pantalla, joycons y placa.', eta: '48-120 h' },
+  { category: 'Impresora', href: '/servicios/impresora/mantenimiento', img: '/assets/images/reparacion-impresoras-cancun.webp', alt: 'Mantenimiento de impresora en Cancun', title: 'Impresora con atascos o manchas', desc: 'Limpieza, rodillos, ruta de papel, bandejas y prueba de impresion.', eta: '24-72 h' },
+  { category: 'Impresora', href: '/servicios/impresora/atascos', img: '/assets/images/reparacion-impresoras-cancun.webp', alt: 'Reparacion de atasco de papel Cancun', title: 'Atasco de papel repetido', desc: 'Revision de sensores, rodillos, bandeja, engranes y ruta de papel.', eta: '24-72 h' },
+  { category: 'Impresora', href: '/servicios/impresora/conectividad', img: '/assets/images/actualizacion-windows-cancun.webp', alt: 'Configuracion de impresora WiFi Cancun', title: 'Impresora no conecta a WiFi', desc: 'Configuracion en red, equipos Windows, IP, drivers y prueba remota.', eta: '24-48 h' },
+  { category: 'Impresora', href: '/servicios/impresora/cabezal', img: '/assets/images/reparacion-impresoras-cancun.webp', alt: 'Reparacion de cabezal de impresora Cancun', title: 'Cabezal tapado o mala impresion', desc: 'Limpieza de cabezal, purga, prueba de inyectores y diagnostico.', eta: '24-96 h' },
+  { category: 'Mac', href: '/mantenimiento-mac', img: '/assets/images/mantenimiento-macbook-cancun.webp', alt: 'Mantenimiento de MacBook en Cancun', title: 'Mantenimiento MacBook', desc: 'Limpieza termica, pasta, ventilador, macOS y revision preventiva.', eta: '24-72 h' },
+  { category: 'Mac', href: '/servicios/mac/diagnostico-mac', img: '/assets/images/reparacion-mac-cancun.webp', alt: 'Diagnostico de Mac en Cancun', title: 'MacBook no enciende', desc: 'Diagnostico de cargador, bateria, placa, humedad y sistema.', eta: '24-96 h' },
+  { category: 'Mac', href: '/servicios/mac/cambio-bateria-macbook', img: '/assets/images/mac-mini.webp', alt: 'Cambio de bateria MacBook Cancun', title: 'Bateria MacBook inflada', desc: 'Revision de ciclos, reemplazo seguro y prueba de carga.', eta: '24-72 h' },
+  { category: 'Mac', href: '/servicios/mac/software-macos', img: '/assets/images/formateo-windows-cancun.webp', alt: 'Servicio macOS en Cancun', title: 'macOS lento o con error', desc: 'Revision de sistema, respaldo, reinstalacion y optimizacion.', eta: '24-72 h' },
+];
+
+const catalogCategories = ['Todos', ...Array.from(new Set(catalogItems.map((item) => item.category)))];
+const catalogFilters = catalogCategories.map((name) => ({
+  name,
+  count: name === 'Todos' ? catalogItems.length : catalogItems.filter((item) => item.category === name).length,
+}));
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Pixon',
+    jobTitle: 'Técnico en Soporte y Mantenimiento de Equipo de Cómputo',
+    worksFor: { '@type': 'LocalBusiness', name: 'Pixon PC' },
+    knowsAbout: ['Reparación de laptops', 'Mantenimiento de PC Gamer', 'Diagnóstico a nivel componente', 'Aplicación de metal líquido', 'Reparación por daño de líquido'],
+    hasCredential: {
+      '@type': 'EducationalOccupationalCredential',
+      credentialCategory: 'Certificación técnica',
+      name: 'TSMEC — Técnico en Soporte y Mantenimiento de Equipo de Cómputo',
+    },
+  },
+  ...['MacBook Pro 2019 — Falla por líquido', 'PC Gamer RTX 4070 — Sobrecalentamiento', 'PS5 — Apagado por temperatura'].map((name, index) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    name,
+    itemReviewed: { '@type': 'Service', name: 'Reparación técnica Pixon PC' },
+    author: { '@type': 'Person', name: ['Carlos M.', 'Andrea R.', 'Miguel S.'][index] },
+    datePublished: ['2024-03-12', '2024-08-20', '2025-02-08'][index],
+    reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+    publisher: { '@type': 'LocalBusiness', name: 'Pixon PC' },
+  })),
+  ...[
+    ['Por qué las computadoras se dañan más rápido en Cancún (y cómo evitarlo)', '2026-06-10', '/assets/images/reparacion-sulfatacion-cancun.webp'],
+    ['Metal líquido vs pasta térmica: cuándo aplica cada uno en laptops gaming', '2026-06-10', '/assets/images/mantenimiento-metal-liquido-cancun.webp'],
+    ['Joystick drift en controles: qué es, por qué pasa y cómo se repara', '2026-06-10', '/assets/images/control_repair_workshop.webp'],
+  ].map(([headline, datePublished, image]) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline,
+    author: { '@type': 'Person', name: 'Pixon' },
+    datePublished,
+    publisher: { '@type': 'Organization', name: 'Pixon PC', logo: { '@type': 'ImageObject', url: 'https://pixon.com.mx/assets/images/LOGOCIRCULAR.webp' } },
+    image: `https://pixon.com.mx${image}`,
+  })),
+];
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+<section class="eeat-section google-proof-section" id="google-reviews" data-google-reviews>
+  <div class="container">
+    <div class="eeat-heading">
+      <span>Reseñas verificables</span>
+      <h2 data-google-review-summary>{googleRating} estrellas basado en {googleReviewCount} opiniones de Google</h2>
+      <p>Clientes reales califican a Pixon PC en Google Business. Puedes revisar el perfil público, ubicación, horario y opiniones antes de agendar.</p>
+    </div>
+
+    <div class="google-proof-card">
+      <div class="google-score">
+        <span>{googleRating}</span>
+        <strong aria-label={`${googleRating} de 5 estrellas`}>★★★★★</strong>
+        <small>{googleReviewCount} opiniones en Google</small>
+      </div>
+      <div class="google-business-copy">
+        <span class="google-business-label">Perfil de Negocio verificado</span>
+        <h3>Pixon PC</h3>
+        <p>Servicio de reparación de teléfonos, laptops, computadoras, consolas e impresoras en Cancún. Atención por cita, diagnóstico claro y garantía por escrito.</p>
+        <div class="google-business-meta" aria-label="Datos del perfil de negocio">
+          <span>Haciendas, 77539 Cancún, Q.R.</span>
+          <span>998 669 0777</span>
+          <span>Abre 9:00 a.m.</span>
+        </div>
+      </div>
+      <a class="google-proof-link" href={googleMapsUrl} target="_blank" rel="noopener noreferrer" data-google-maps-link>
+        <svg viewBox="0 0 488 512" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"/></svg>
+        Ver perfil en Google Maps
+      </a>
+    </div>
+
+    <div class="google-review-grid" data-review-list>
+      {fallbackReviews.map((review) => (
+        <article class="google-review-card">
+          <div class="review-avatar" aria-hidden="true">{review.name.charAt(0)}</div>
+          <div>
+            <div class="review-card-head">
+              <h3>{review.name}</h3>
+              <p class="review-stars" aria-label={`${review.rating} estrellas`}>★★★★★</p>
+            </div>
+            <p class="review-date">{review.date}</p>
+            <div class="review-text" data-review-text>
+              <p>{review.text}</p>
+            </div>
+            <button class="review-more" type="button" data-review-toggle hidden aria-expanded="false">Ver mas</button>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="eeat-section eeat-muted" id="credenciales">
+  <div class="container">
+    <div class="eeat-heading">
+      <span>Autoridad local</span>
+      <h2>Credenciales, plataformas y marcas que atendemos</h2>
+      <p>Servicio técnico con presencia pública, atención por cita y documentación de cada trabajo.</p>
+    </div>
+    <div class="credential-grid">
+      <a class="credential-card" href={googleMapsUrl} target="_blank" rel="noopener noreferrer"><strong>Google Business Profile</strong><span>Negocio verificable en Google Maps</span></a>
+      <article class="credential-card"><strong>Negocio verificado en Google</strong><span>Reseñas públicas y ubicación de atención en Cancún</span></article>
+      <article class="credential-card"><strong>Clientes empresariales</strong><span>Servicio a empresas en Cancún, incluyendo grupos locales como Impar Grupo sin revelar datos confidenciales.</span></article>
+    </div>
+    <div class="brand-strip" aria-label="Marcas de equipos que reparamos">
+      {['Dell', 'HP', 'Lenovo', 'Apple', 'ASUS', 'Acer'].map((brand) => (
+        <span><svg viewBox="0 0 120 36" role="img" aria-label={brand}><rect width="120" height="36" rx="6" fill="currentColor" opacity=".08"/><text x="60" y="23" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor">{brand}</text></svg></span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="eeat-section" id="el-tecnico">
+  <div class="container technician-grid">
+    <img src="/assets/images/microscopio-flexor.webp" alt="Pixon, técnico en reparación de computadoras en Cancún" width="500" height="500" loading="lazy" decoding="async">
+    <div>
+      <span class="eeat-kicker">Sobre el técnico</span>
+      <h2>Pixon</h2>
+      <p class="tech-title">Técnico en Soporte y Mantenimiento de Equipo de Cómputo (TSMEC) · 7+ años de experiencia</p>
+      <ul class="specialty-list">
+        <li>Reparación a nivel componente</li>
+        <li>Aplicación de metal líquido</li>
+        <li>Diagnóstico de fallas por humedad y salitre</li>
+        <li>Ensamble de PC Gamer</li>
+        <li>Soporte B2B</li>
+      </ul>
+      <p>Soy Pixon y atiendo Pixon PC con un enfoque directo: diagnosticar antes de vender, documentar lo que encuentro y explicar si una reparación conviene. En Cancún el calor, la humedad y el salitre cambian la forma de revisar equipos; por eso no me quedo solo con “formatear” o “limpiar”. Reviso temperatura, voltajes, conectores, sulfatación y comportamiento real bajo carga. Mi formación TSMEC me dio la base de soporte y mantenimiento, y la experiencia diaria en laptops, PCs gamer, celulares y consolas me ha enseñado a trabajar con evidencia: fotos, pruebas, mediciones y reportes claros para que el cliente sepa qué se hizo y por qué.</p>
+    </div>
+  </div>
+</section>
+
+<section class="eeat-section eeat-muted" id="proceso-tecnico">
+  <div class="container">
+    <div class="eeat-heading">
+      <span>Método de diagnóstico</span>
+      <h2>Proceso técnico documentado</h2>
+    </div>
+    <ol class="technical-timeline">
+      <li><strong>Recepción y evaluación visual</strong><p>Inspección de puertos, carcasa, signos de impacto o líquido. Se documenta con fotos antes de abrir.</p></li>
+      <li><strong>Diagnóstico a nivel sistema</strong><p>POST, lectura de temperatura con HWMonitor o ThrottleStop, chequeo de voltajes con multímetro. En móviles, identificación de IC fallido con herramienta compatible.</p></li>
+      <li><strong>Diagnóstico a nivel componente</strong><p>Microscopio de inspección, medición de ESR en capacitores, prueba de MOSFETs y lectura de memoria con herramienta de flasheo.</p></li>
+      <li><strong>Reparación con materiales de calidad</strong><p>Estaño libre de plomo o 60/40 según caso, flux no-clean, Thermal Grizzly Kryonaut o Conductonaut según TDP y baño ultrasónico ante oxidación.</p></li>
+      <li><strong>Prueba de estrés y entrega documentada</strong><p>Burn-in mínimo de 30 minutos con Cinebench y FurMark cuando aplica, registro de temperaturas y reporte físico o digital.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="eeat-section" id="articulos">
+  <div class="container">
+    <div class="eeat-heading">
+      <span>Blog técnico</span>
+      <h2>Guías escritas por Pixon</h2>
+    </div>
+    <div class="blog-accordion">
+      <details class="blog-card">
+        <summary>
+          <img src="/assets/images/reparacion-sulfatacion-cancun.webp" alt="" width="80" height="80" loading="lazy">
+          <div>
+            <h3>Por qué las computadoras se dañan más rápido en Cancún (y cómo evitarlo)</h3>
+            <span class="blog-summary-text">Humedad, salitre y calor tropical aceleran el deterioro de los componentes internos. Te explicamos cómo prevenirlo.</span>
+          </div>
+          <svg class="blog-chevron" viewBox="0 0 448 512" fill="currentColor" width="18" height="18"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 182.6c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+        </summary>
+        <div class="blog-card-body">
+          <img src="/assets/images/reparacion-sulfatacion-cancun.webp" alt="Reparación por sulfatación en Cancún" width="700" height="460" loading="lazy" class="blog-card-hero">
+          <div class="guide-insight">
+            <div>
+              <span>Diagnóstico local</span>
+              <strong>El clima de Cancún cambia la forma de reparar</strong>
+              <p>Antes de limpiar o formatear, revisamos temperatura, corrosión, puertos, ventilación y rastros de humedad para evitar que una falla eléctrica regrese.</p>
+            </div>
+            <ul>
+              <li>Revisión de sulfatación con lupa o microscopio</li>
+              <li>Fotos internas antes de intervenir</li>
+              <li>Recomendación preventiva según zona y uso</li>
+            </ul>
+          </div>
+          <p>En Cancún una computadora no envejece igual que en una ciudad seca. La humedad ambiental puede superar 80%, el calor se mantiene gran parte del año y el salitre viaja en el aire aunque el equipo no esté frente al mar. Esa mezcla favorece sulfatación en conectores, oxidación ligera en componentes expuestos y acumulación de polvo húmedo dentro de ventiladores y disipadores. El problema no aparece de un día a otro: primero suben las temperaturas, después fallan puertos USB o carga, luego aparecen apagones, pantallas azules o lentitud por thermal throttling.</p>
+          <p>Los primeros afectados suelen ser VRM, RAM, SSD, conectores de carga, flexores, puertos y zonas cercanas al ventilador. En placas con humedad se observan puntos verdosos o blancos, tornillos oxidados, pistas opacas y pads con residuos. En laptops, el calor constante seca la pasta térmica y obliga al ventilador a trabajar más; en PCs gamer, el polvo húmedo se pega a filtros, radiadores y aletas del disipador. Si el equipo se usa para trabajo o escuela, conviene prevenir antes de que una falla intermitente se vuelva pérdida de datos.</p>
+          <p>La prevención real incluye limpieza interna cada 12 a 18 meses, revisión de temperaturas, uso de regulador o no-break, evitar guardar laptops en mochilas húmedas y mantener el equipo lejos de ventanas donde entra salitre. En Pixon PC hacemos diagnóstico anti-sulfatación en Cancún con inspección visual, fotos internas y recomendaciones claras antes de intervenir.</p>
+          <p>También conviene revisar dónde se usa el equipo. Una laptop colocada sobre cama o tela respira aire caliente y atrapa pelusa en la entrada del ventilador. Una PC ubicada en el piso absorbe más polvo y humedad que una torre elevada. En oficinas cercanas a ventanas, el aire acondicionado puede condensar humedad si el equipo pasa de frío a calor constantemente. Esas condiciones no siempre dañan de inmediato, pero aceleran corrosión y fatiga térmica.</p>
+          <p>Cuando revisamos un equipo afectado por clima, no basta con soplar polvo. Se inspeccionan tornillos, blindajes, conectores, ranuras de RAM, SSD, batería CMOS y zonas de carga. Si hay sulfatación, se decide si procede limpieza puntual, baño ultrasónico, reemplazo de conector o reparación a nivel componente. La meta es evitar que una limpieza estética o un formateo escondan una falla eléctrica que regresará semanas después.</p>
+          <p>Si tu computadora vive en Cancún y ya presenta ruido, temperatura alta, olor a humedad o puertos intermitentes, conviene revisarla antes de esperar a que deje de encender. Un diagnóstico preventivo cuesta menos que una reparación de placa y permite decidir con evidencia si basta mantenimiento o si hay riesgo eléctrico real.</p>
+        </div>
+      </details>
+      <details class="blog-card">
+        <summary>
+          <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="" width="80" height="80" loading="lazy">
+          <div>
+            <h3>Metal líquido vs pasta térmica: cuándo aplica cada uno en laptops gaming</h3>
+            <span class="blog-summary-text">Comparativa real entre metal líquido y pasta térmica para laptops gaming. Beneficios, riesgos y cuándo elegir cada uno.</span>
+          </div>
+          <svg class="blog-chevron" viewBox="0 0 448 512" fill="currentColor" width="18" height="18"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 182.6c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+        </summary>
+        <div class="blog-card-body">
+          <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Aplicación de metal líquido en laptop gaming" width="700" height="460" loading="lazy" class="blog-card-hero">
+          <div class="guide-insight guide-insight--thermal">
+            <div>
+              <span>Decisión técnica</span>
+              <strong>No todo equipo necesita metal líquido</strong>
+              <p>Primero se mide la temperatura real y se revisa el disipador. Si el riesgo supera la ganancia térmica, usamos pasta premium y dejamos evidencia del resultado.</p>
+            </div>
+            <ul>
+              <li>Validación de material del disipador</li>
+              <li>Aislamiento previo en zona del die</li>
+              <li>Prueba de estrés con registro de temperatura</li>
+            </ul>
+          </div>
+          <p>La pasta térmica convencional suele ofrecer conductividad aproximada de 4 a 8 W/m·K. Una pasta premium puede estar entre 8 y 12 W/m·K. El metal líquido, como Thermal Grizzly Conductonaut, supera 73 W/m·K, pero esa cifra no significa que siempre sea la mejor opción. En una laptop gaming importa el diseño del disipador, presión de montaje, material de contacto, aislamiento alrededor del die y mantenimiento futuro. Una mala aplicación de metal líquido puede causar cortos, corrosión o migración del material.</p>
+          <p>No usamos metal líquido en disipadores de aluminio porque puede reaccionar y dañarlos. Tampoco lo recomendamos si el chasis o zona alrededor del procesador no permite aislamiento seguro, si el equipo viaja mucho con golpes constantes o si el cliente busca un mantenimiento de bajo riesgo. En esos casos una pasta premium como Kryonaut, aplicada con limpieza correcta y presión uniforme, puede dar resultados estables y suficientes. El metal líquido se reserva para equipos de alto TDP donde el fabricante lo contempla o donde la mejora térmica justifica el riesgo controlado.</p>
+          <p>El proceso seguro requiere limpiar el die y disipador con alcohol isopropílico, aislar componentes cercanos con barrera adecuada, aplicar una capa mínima, verificar que no haya exceso y hacer pruebas de estrés con registro de temperatura. En Pixon PC explicamos cuándo conviene, cuándo no, y entregamos el equipo probado antes de recomendar metal líquido en laptops gaming de Cancún.</p>
+          <p>La decisión también depende del usuario. Si la laptop se mueve todos los días, viaja en mochila o se usa en ambientes húmedos, una pasta premium puede ser más prudente porque tolera mejor mantenimiento normal y reduce el riesgo de migración. Si el equipo es una estación fija de alto rendimiento, con disipador compatible y presión correcta, el metal líquido puede bajar varios grados y sostener frecuencias más altas. En ambos casos medimos antes y después para no vender una mejora innecesaria.</p>
+          <p>Un mantenimiento térmico serio incluye revisar ventiladores, heatpipes, pads de VRAM y VRM, presión del disipador y estado de tornillos. Cambiar solo la pasta sin revisar pads puede empeorar contacto en memorias o fases de alimentación. Por eso documentamos temperaturas en reposo y carga, ruido de ventilador y estabilidad. Si el equipo ya tiene metal líquido de fábrica, se revisa si está seco, desplazado o contaminado antes de tocarlo.</p>
+          <p>La recomendación final siempre debe considerar riesgo, rendimiento y mantenimiento futuro. Una laptop que baja pocos grados con metal líquido quizá no justifica el costo ni la exposición. Una laptop que trabaja al límite térmico puede beneficiarse mucho si el aislamiento es correcto. La decisión se toma después de medir, no por moda.</p>
+        </div>
+      </details>
+      <details class="blog-card">
+        <summary>
+          <img src="/assets/images/control_repair_workshop.webp" alt="" width="80" height="80" loading="lazy">
+          <div>
+            <h3>Joystick drift en controles: qué es, por qué pasa y cómo se repara</h3>
+            <span class="blog-summary-text">El molesto drift que mueve la cámara sola tiene solución. Te contamos por qué ocurre y cuándo conviene repararlo.</span>
+          </div>
+          <svg class="blog-chevron" viewBox="0 0 448 512" fill="currentColor" width="18" height="18"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 182.6c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+        </summary>
+        <div class="blog-card-body">
+          <img src="/assets/images/control_repair_workshop.webp" alt="Reparación de joystick drift en controles" width="700" height="460" loading="lazy" class="blog-card-hero">
+          <div class="guide-insight guide-insight--console">
+            <div>
+              <span>Prueba antes de soldar</span>
+              <strong>Limpieza temporal o cambio real de potenciómetro</strong>
+              <p>Probamos centro, zona muerta y recorrido antes de decidir. Si la pista ya está desgastada, el reemplazo evita que el drift vuelva en pocos días.</p>
+            </div>
+            <ul>
+              <li>Lectura de ejes en software de prueba</li>
+              <li>Inspección de pads y flexores</li>
+              <li>Calibración final en consola o PC</li>
+            </ul>
+          </div>
+          <p>El joystick drift ocurre cuando el control detecta movimiento aunque el usuario no toque la palanca. En muchos controles el origen está en potenciómetros tipo ALPS RKJXV o compatibles: con el uso, la pista interna se desgasta, entra polvo o pierde lectura estable. El síntoma aparece como cámara que se mueve sola, personaje caminando sin tocar el stick o calibración que nunca vuelve al centro. Limpiar puede ayudar si el problema es suciedad superficial, pero no corrige desgaste real del potenciómetro.</p>
+          <p>La limpieza con contact cleaner sirve para casos leves y temporales. Cuando la pista ya está marcada o el módulo tiene holgura, la reparación correcta es reemplazar el potenciómetro o el módulo completo, desoldando con control de temperatura y evitando levantar pads de la placa. En DualSense de PS5 hay que cuidar gatillos adaptativos, flexores y batería. En controles Xbox cambia el acomodo de placa y carcasa. En Switch Pro el espacio interno y los flexores requieren más paciencia durante el desarme.</p>
+          <p>Después de reparar se calibra y se prueba en software para confirmar zona muerta, centro y recorrido. En Pixon PC revisamos si conviene limpieza o reemplazo, y explicamos el costo antes de soldar. Para controles usados a diario, cambiar el potenciómetro desgastado suele ser más confiable que repetir limpiezas cada pocas semanas.</p>
+          <p>También revisamos si el drift viene acompañado de botones falsos, gatillos que no llegan al 100% o problemas de batería. En controles PS5 DualSense, por ejemplo, un mal desarme puede dañar flexores de gatillos adaptativos o micrófono. En Xbox, la carcasa y los módulos tienen tolerancias distintas y conviene validar que el stick no roce. En Switch Pro se debe cuidar la ruta de flexores y la calibración final desde la consola.</p>
+          <p>La reparación correcta no termina al soldar. Se limpia flux residual, se inspeccionan pads bajo aumento, se confirma que no haya puentes y se prueba el control en diferentes direcciones. Si el cliente juega shooters competitivos, la zona muerta importa más que en juegos casuales. Por eso explicamos si basta limpieza, si conviene cambiar potenciómetro o si el módulo completo está fatigado. Así evitas pagar varias limpiezas temporales cuando el desgaste ya es mecánico.</p>
+          <p>En Cancún también vemos controles con humedad interna por guardarlos cerca de ventanas, mochilas o habitaciones sin ventilación. Esa humedad acelera suciedad en mecanismos y corrosión en contactos. Si el drift aparece después de un golpe o derrame, lo correcto es revisar placa y flexores antes de asumir que solo falló el potenciómetro.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="eeat-section eeat-muted" id="casos-reales">
+  <div class="container">
+    <div class="eeat-heading"><span>Experiencia real</span><h2>Casos de estudio documentados</h2></div>
+    <div class="case-grid">
+      {[
+        ['MacBook Pro 2019 — Falla por líquido', 'Carlos M.', 'Marzo 2024', 'Traje mi MacBook porque se apagó después de caerle café. Primero encendía unos segundos y luego dejó de responder. Me preocupaba perder mi información de trabajo.', 'Oxidación en zona de VRM, residuos en conector de teclado y consumo anormal en rail de 5V.', 'Desarme completo, baño ultrasónico de placa, limpieza con alcohol isopropílico, flux no-clean y resoldado puntual con estaño 60/40.', 'Equipo entregado encendiendo estable, teclado validado y respaldo de datos confirmado.'],
+        ['PC Gamer RTX 4070 — Sobrecalentamiento', 'Andrea R.', 'Agosto 2024', 'Mi PC se apagaba jugando y el ventilador sonaba demasiado. En Warzone bajaban los FPS después de unos minutos. Quería saber si era la tarjeta o la fuente.', 'Pasta térmica seca en GPU, thermal pads rígidos y polvo compacto en aletas del disipador.', 'Desarme de GPU, limpieza de disipador, cambio de pads, Thermal Grizzly Kryonaut y prueba con FurMark.', 'Temperatura de GPU reducida de 88 °C a 69 °C en prueba sostenida de 30 minutos.'],
+        ['PS5 — Apagado por temperatura', 'Miguel S.', 'Febrero 2025', 'La consola se apagaba sola después de una hora de juego. No marcaba error, solo se iba a negro. Nunca se le había hecho mantenimiento.', 'Acumulación severa de polvo, ventilador obstruido y metal líquido desplazado en el APU.', 'Limpieza profunda, revisión de ventilador, redistribución segura de metal líquido y prueba de carga.', 'Consola entregada estable, sin apagones durante prueba de estrés y ventilación normalizada.'],
+      ].map(([title, client, date, problem, diagnosis, process, result], index) => {
+        const caseLinks = ['/servicios/mac/reparacion-macbook', '/servicios/pc/tarjeta-video-gpu', '/servicios/consola/sobrecalentamiento'];
+        const caseIds = ['caso-macbook-liquido', 'caso-rtx4070-temperatura', 'caso-ps5-temperatura'];
+        const caseCtas = ['Ver reparación de MacBook', 'Ver reparación de GPU / PC Gamer', 'Ver reparación de consolas'];
+        return (
+        <details class="case-card" id={caseIds[index]}>
+          <summary>{title}</summary>
+          <p><strong>Cliente:</strong> {client} · <strong>Fecha:</strong> {date}</p>
+          <p><strong>Problema reportado:</strong> {problem}</p>
+          <p><strong>Diagnóstico técnico:</strong> {diagnosis}</p>
+          <p><strong>Proceso de reparación:</strong> {process}</p>
+          <p><strong>Resultado:</strong> {result}</p>
+          <div class="case-actions">
+            <a href={caseLinks[index]}>{caseCtas[index]}</a>
+            <a href="/tickets">Crear ticket para un caso similar</a>
+          </div>
+          <div class="before-after-slider">
+            <img src={index === 0 ? '/assets/images/lavado-tarjeta-celular.webp' : index === 1 ? '/assets/images/mantenimiento-pc-escritorio.webp' : '/assets/images/mantenimiento-metal-liquido-cancun.webp'} alt={`${title} antes de reparación en Cancún`} width="700" height="460" loading="lazy">
+            <div class="after"><img src={index === 0 ? '/assets/images/laptop-feliz-limpia.webp' : index === 1 ? '/assets/images/pc-gamer-gama-alta.webp' : '/assets/images/ps5_xbox.webp'} alt={`${title} después de reparación en Cancún`} width="700" height="460" loading="lazy"></div>
+            <input type="range" min="0" max="100" value="50" aria-label="Comparar antes y después">
+          </div>
+        </details>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<section class="eeat-section" id="catalogo">
+  <div class="container">
+    <div class="eeat-heading">
+      <span>Trabajos con contexto</span>
+      <h2>Catálogo de reparaciones en Cancún</h2>
+      <p>Elige una categoría para ver solo las vistas disponibles de ese tipo de equipo.</p>
+    </div>
+    <div class="catalog-filter-panel" role="group" aria-label="Filtrar reparaciones por tipo de equipo">
+      <span class="catalog-filter-label">Tipo de equipo</span>
+      <div class="catalog-filter-buttons">
+        {catalogFilters.map((filter) => (
+          <button
+            type="button"
+            class={filter.name === 'Todos' ? 'active' : ''}
+            data-catalog-filter={filter.name}
+            aria-pressed={filter.name === 'Todos' ? 'true' : 'false'}
+          >
+            <span>{filter.name}</span>
+            <small>{filter.count}</small>
+          </button>
+        ))}
+      </div>
+    </div>
+    <p class="catalog-status" data-catalog-status>Mostrando 4 de {catalogItems.length} vistas disponibles.</p>
+    <div class="catalog-grid" data-catalog-grid data-initial-limit="4" data-step="4">
+      {catalogItems.map((item, index) => (
+        <a class="catalog-card" href={item.href} data-category={item.category} aria-label={`Ver vista de ${item.title}`} hidden={index >= 4}>
+          <img src={item.img} alt={item.alt} width="640" height="430" loading="lazy" decoding="async">
+          <span>{item.category}</span>
+          <h3>{item.title}</h3>
+          <p>{item.desc}</p>
+          <small>Entrega: {item.eta}</small>
+          <strong class="catalog-card-cta">Ver servicio</strong>
+        </a>
+      ))}
+    </div>
+    <div class="catalog-more-wrap">
+      <button type="button" class="catalog-more-btn" data-catalog-more>Ver mas servicios ({catalogItems.length - 4})</button>
+      <button type="button" class="catalog-collapse-btn" data-catalog-collapse hidden>Contraer vista</button>
+    </div>
+  </div>
+</section>
+
+<section class="eeat-section eeat-muted" id="evidencia-real">
+  <div class="container">
+    <div class="eeat-heading">
+      <span>Taller en video</span>
+      <h2>Lo que hacemos, grabado en tiempo real</h2>
+      <p>Cada reparación se documenta. Seguimos en TikTok con más de 100 reparaciones grabadas.</p>
+    </div>
+    <div class="tiktok-card-wrapper">
+      <a href="https://www.tiktok.com/@pixonpc" target="_blank" rel="noopener noreferrer" class="tiktok-profile-card">
+        <div class="tiktok-icon-ring">
+          <svg viewBox="0 0 448 512" fill="currentColor" width="28" height="28"><path d="M448 209.9a210.1 210.1 0 0 1-122.8-39.3V349.4A162.6 162.6 0 1 1 185 188.3V278.2a74.6 74.6 0 1 0 52.2 71.2V0l88 0a121.2 121.2 0 0 0 1.9 22.2h0A122.2 122.2 0 0 0 381 102.4a121.4 121.4 0 0 0 67 20.1z"/></svg>
+        </div>
+        <div>
+          <strong>@pixonpc</strong>
+          <span>100+ reparaciones grabadas en nuestro taller</span>
+        </div>
+        <span class="tiktok-arrow">
+          <svg viewBox="0 0 448 512" fill="currentColor" width="16" height="16"><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .eeat-section{padding:56px 0;background:#fff;color:#0f172a}.eeat-muted{background:#f8fafc}.eeat-heading{max-width:820px;margin:0 auto 28px;text-align:center}.eeat-heading span,.eeat-kicker{display:inline-block;color:#2563eb;font-weight:700;text-transform:uppercase;font-size:.78rem;letter-spacing:0}.eeat-heading h2,.technician-grid h2{font-size:clamp(1.7rem,3vw,2.5rem);line-height:1.15;margin:8px 0 10px}.eeat-heading p{color:#475569}.eeat-link{font-weight:700;color:#2563eb}.google-review-grid,.credential-grid,.case-grid,.catalog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}.google-review-card,.credential-card,.case-card,.catalog-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:18px;box-shadow:0 14px 35px rgba(15,23,42,.06)}.review-avatar{width:44px;height:44px;border-radius:50%;background:#2563eb;color:#fff;display:grid;place-items:center;font-weight:800;float:left;margin-right:12px}.review-date,.review-stars{font-size:.86rem;color:#64748b}.review-stars{color:#f59e0b;letter-spacing:0}.brand-strip{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:24px;color:#334155}.brand-strip svg{width:120px;height:36px}.technician-grid{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:34px;align-items:center}.technician-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}.tech-title{font-weight:700;color:#334155}.specialty-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:16px 0;padding:0;list-style:none}.specialty-list li{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px}.technical-timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;list-style:none;padding:0;counter-reset:step}.technical-timeline li{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:18px}.technical-timeline li:before{counter-increment:step;content:counter(step);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;font-weight:800;margin-bottom:10px}.case-card p{color:#475569}.case-card summary{cursor:pointer;font-weight:700}.before-after-slider{--reveal:50%;position:relative;overflow:hidden;border-radius:8px;aspect-ratio:16/10;background:#111;margin-top:12px}.before-after-slider img{width:100%;height:100%;object-fit:cover;display:block}.before-after-slider .after{position:absolute;inset:0;width:var(--reveal);overflow:hidden}.before-after-slider input{position:absolute;inset:auto 10px 10px;width:calc(100% - 20px)}.catalog-filters{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:22px}.catalog-filters button{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:10px 14px;font-weight:700;cursor:pointer}.catalog-filters button.active{background:#0f172a;color:#fff}.catalog-card img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px}.catalog-card span{display:inline-block;margin-top:12px;background:#dbeafe;color:#1d4ed8;border-radius:999px;padding:4px 9px;font-size:.76rem;font-weight:700}.tiktok-card-wrapper{max-width:500px;margin:0 auto}.tiktok-profile-card{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 24px;text-decoration:none;color:#0f172a;box-shadow:0 4px 16px rgba(0,0,0,.06);transition:border-color .2s,box-shadow .2s}.tiktok-profile-card:hover{border-color:#94a3b8;box-shadow:0 8px 24px rgba(0,0,0,.1)}.tiktok-icon-ring{width:52px;height:52px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}.tiktok-profile-card>div{flex:1;display:flex;flex-direction:column;gap:2px}.tiktok-profile-card strong{font-size:1.05rem}.tiktok-profile-card span{font-size:.85rem;color:#64748b}.tiktok-arrow{color:#94a3b8;flex-shrink:0;transition:transform .2s}.tiktok-profile-card:hover .tiktok-arrow{transform:translateX(4px)}.blog-accordion{display:grid;gap:12px}.blog-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.04);transition:border-color .2s}.blog-card[open]{border-color:#bfdbfe}.blog-card summary{display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer;list-style:none;-webkit-user-select:none;user-select:none}.blog-card summary::-webkit-details-marker{display:none}.blog-card summary img{width:60px;height:60px;border-radius:10px;object-fit:cover;flex-shrink:0}.blog-card summary div{flex:1;min-width:0}.blog-card summary h3{font-size:1rem;margin:0 0 4px;line-height:1.3}.blog-summary-text{font-size:.85rem;color:#64748b;display:block;line-height:1.4}.blog-chevron{color:#94a3b8;flex-shrink:0;transition:transform .3s}.blog-card[open] .blog-chevron{transform:rotate(180deg)}.blog-card-body{padding:0 18px 18px;border-top:1px solid #e2e8f0}.blog-card-hero{width:100%;border-radius:10px;margin:16px 0 14px;aspect-ratio:16/9;object-fit:cover}.blog-card-body p{color:#475569;margin-bottom:12px;font-size:.93rem;line-height:1.65}.stat-proof{display:block;font-size:11px;color:#64748b;line-height:1.2}.stat-proof a{color:#64748b}.package-guarantee{display:grid;gap:6px;margin:12px 0}.package-guarantee details{border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;background:#f8fafc}.package-guarantee summary{font-weight:700;cursor:pointer}.package-guarantee p{font-size:.85rem;color:#475569;margin:6px 0 0}@media (max-width:900px){.technician-grid,.technical-timeline{grid-template-columns:1fr}.eeat-section{padding:42px 0}}
+</style>
+
+<style>
+  .eeat-section,.eeat-section *{font-family:var(--font-main)}
+  .eeat-section h2,.eeat-section .technician-grid h2{font-family:var(--font-heading);font-weight:700;font-style:normal;letter-spacing:0}
+  .eeat-section h3,.eeat-section summary,.eeat-section strong{font-family:var(--font-main);font-weight:700;font-style:normal;letter-spacing:0}
+  .eeat-section p,.eeat-section li,.eeat-section small,.eeat-section span,.eeat-section a,.eeat-section button{font-family:var(--font-main);font-style:normal;letter-spacing:0}
+  .eeat-section p,.eeat-section li{font-weight:500}
+  .eeat-heading span,.eeat-kicker,.catalog-card span,.guide-insight span{font-weight:700;letter-spacing:0}
+  .review-avatar,.technical-timeline li:before{font-weight:800}
+  .case-actions a,.catalog-card-cta,.catalog-filter-buttons button{font-weight:700}
+  .google-proof-section{background:linear-gradient(180deg,#fff 0%,#f8fafc 100%)}
+  .google-proof-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;margin:0 auto 22px;padding:18px;border:1px solid #dbe4f0;border-radius:12px;background:#fff;box-shadow:0 16px 36px rgba(15,23,42,.07)}
+  .google-score{display:grid;place-items:center;min-width:138px;padding:14px 16px;border-radius:10px;background:#0f172a;color:#fff;text-align:center}
+  .google-score span{font-size:clamp(2.1rem,4vw,3rem);font-weight:900;line-height:1;color:#fff}
+  .google-score strong{color:#f59e0b;font-size:.95rem;letter-spacing:0;margin:5px 0 3px}
+  .google-score small{color:#dbeafe;font-size:.78rem;font-weight:700}
+  .google-business-copy{min-width:0}
+  .google-business-label{display:inline-flex;margin:0 0 5px;color:#2563eb;font-size:.72rem;font-weight:800;text-transform:uppercase}
+  .google-business-copy h3{margin:0 0 5px;color:#0f172a;font-size:1.2rem}
+  .google-business-copy p{margin:0;color:#475569;line-height:1.5}
+  .google-business-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .google-business-meta span{display:inline-flex;align-items:center;min-height:28px;border:1px solid #dbe4f0;border-radius:999px;background:#f8fafc;color:#334155;padding:0 10px;font-size:.78rem;font-weight:700}
+  .google-proof-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:999px;background:#2563eb;color:#fff;padding:0 15px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 12px 24px rgba(37,99,235,.18);transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
+  .google-proof-link:hover,.google-proof-link:focus-visible{transform:translateY(-1px);background:#1d4ed8;box-shadow:0 16px 30px rgba(37,99,235,.22);outline:none}
+  #google-reviews .google-review-grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  #google-reviews .google-review-card{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);gap:15px;min-height:100%;padding:22px;border-radius:12px;box-shadow:0 12px 28px rgba(15,23,42,.06)}
+  #google-reviews .review-avatar{float:none;margin:0;background:#eff6ff;color:#1d4ed8}
+  #google-reviews .review-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  #google-reviews .review-card-head h3{margin:0;color:#0f172a;font-size:1rem;line-height:1.25}
+  #google-reviews .review-date{margin:3px 0 9px;color:#64748b;font-size:.8rem}
+  #google-reviews .google-review-card .review-stars{margin:0;color:#f59e0b!important;font-size:.78rem;white-space:nowrap}
+  #google-reviews .review-text{position:relative;max-height:5.05em;overflow:hidden;transition:max-height .32s ease}
+  #google-reviews .review-text:after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.7em;background:linear-gradient(180deg,rgba(255,255,255,0),#fff);opacity:1;transition:opacity .2s ease;pointer-events:none}
+  #google-reviews .review-text.expanded:after{opacity:0}
+  #google-reviews .review-text p{margin:0;color:#475569;font-size:.94rem;line-height:1.68}
+  #google-reviews .review-more{display:inline-flex;width:max-content;margin-top:10px;border:0;background:transparent;color:#2563eb;padding:0;font-size:.84rem;font-weight:800;cursor:pointer}
+  #google-reviews .review-more:hover,#google-reviews .review-more:focus-visible{color:#1d4ed8;text-decoration:underline;outline:none}
+  #google-reviews .review-more[hidden]{display:none}
+  .guide-insight{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);gap:18px;align-items:stretch;background:linear-gradient(135deg,#eff6ff,#fff);border:1px solid #bfdbfe;border-radius:14px;padding:18px;margin:0 0 18px}
+  .guide-insight--thermal{background:linear-gradient(135deg,#fff7ed,#fff);border-color:#fed7aa}
+  .guide-insight--console{background:linear-gradient(135deg,#f5f3ff,#fff);border-color:#ddd6fe}
+  .guide-insight span{display:inline-flex;margin-bottom:6px;color:#2563eb;font-size:.72rem;text-transform:uppercase}
+  .guide-insight strong{display:block;font-size:1.08rem;color:#0f172a;margin-bottom:6px}
+  .guide-insight p{margin:0;color:#475569}
+  .guide-insight ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+  .guide-insight li{position:relative;padding-left:22px;color:#334155;font-size:.92rem}
+  .guide-insight li:before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+  .case-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+  .case-actions a,.catalog-card-cta{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;font-size:.86rem;text-decoration:none}
+  .case-actions a{padding:9px 12px;background:#0f172a;color:#fff}
+  .case-actions a+ a{background:#eff6ff;color:#1d4ed8}
+  .catalog-card{display:flex;flex-direction:column;color:#0f172a;text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+  .catalog-card:hover,.catalog-card:focus-visible{transform:translateY(-4px);border-color:#93c5fd;box-shadow:0 20px 42px rgba(15,23,42,.12);outline:none}
+  .catalog-card p{color:#475569}
+  .catalog-card small{color:#64748b}
+  .catalog-card-cta{width:max-content;margin-top:auto;padding:8px 11px;background:#eff6ff;color:#1d4ed8}
+  #catalogo .catalog-grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));align-items:stretch}
+  #catalogo .catalog-filter-panel{max-width:900px;margin:0 auto 16px;background:#fff;border:1px solid #dbe4f0;border-radius:12px;padding:12px;box-shadow:0 10px 24px rgba(15,23,42,.05)}
+  #catalogo .catalog-filter-label{display:block;margin:0 0 9px;color:#334155;font-size:.78rem;font-weight:800;text-transform:uppercase}
+  #catalogo .catalog-filter-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+  #catalogo .catalog-filter-buttons button{display:inline-flex;align-items:center;gap:8px;min-height:40px;border:1px solid #d7e0ec;border-radius:999px;background:#fff;color:#334155;padding:0 12px;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease}
+  #catalogo .catalog-filter-buttons button:hover,#catalogo .catalog-filter-buttons button:focus-visible{border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;outline:none}
+  #catalogo .catalog-filter-buttons button.active{border-color:#0f172a;background:#0f172a;color:#fff;box-shadow:0 10px 20px rgba(15,23,42,.12)}
+  #catalogo .catalog-filter-buttons small{display:inline-grid;place-items:center;min-width:24px;height:22px;border-radius:999px;background:#eef2f7;color:inherit;font-size:.74rem;font-weight:800}
+  #catalogo .catalog-filter-buttons button.active small{background:rgba(255,255,255,.18)}
+  .catalog-status{text-align:center;color:#64748b;font-size:.92rem;margin:0 0 22px}
+  #catalogo .catalog-card{min-height:100%;gap:8px}
+  #catalogo .catalog-card h3{font-size:1.04rem;line-height:1.22;margin:4px 0 0}
+  #catalogo .catalog-card p{font-size:.92rem;line-height:1.45;margin:0}
+  #catalogo .catalog-card img{background:#f1f5f9}
+  #catalogo .catalog-card[hidden]{display:none}
+  .catalog-more-wrap{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:22px}
+  .catalog-more-btn,.catalog-collapse-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:999px;padding:0 18px;font-weight:800;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
+  .catalog-more-btn{border:1px solid #0f172a;background:#0f172a;color:#fff;box-shadow:0 12px 24px rgba(15,23,42,.13)}
+  .catalog-collapse-btn{border:1px solid #cbd5e1;background:#fff;color:#334155;box-shadow:none}
+  .catalog-more-btn:hover,.catalog-more-btn:focus-visible{transform:translateY(-1px);background:#1d4ed8;border-color:#1d4ed8;box-shadow:0 16px 30px rgba(37,99,235,.16);outline:none}
+  .catalog-collapse-btn:hover,.catalog-collapse-btn:focus-visible{transform:translateY(-1px);border-color:#94a3b8;background:#f8fafc;outline:none}
+  .catalog-more-btn[hidden],.catalog-collapse-btn[hidden]{display:none}
+  @media (max-width:720px){.google-proof-card{grid-template-columns:1fr;padding:14px}.google-score{min-width:0}.google-proof-link{width:100%}#google-reviews .google-review-grid{gap:16px}#google-reviews .google-review-card{grid-template-columns:44px minmax(0,1fr);padding:18px;gap:13px}#google-reviews .review-card-head{display:grid;gap:3px}.guide-insight{grid-template-columns:1fr}.case-actions a{width:100%}#catalogo .catalog-filter-panel{max-width:none}.catalog-status{text-align:left}#catalogo .catalog-filter-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}#catalogo .catalog-filter-buttons button{justify-content:space-between;width:100%}.catalog-more-wrap{justify-content:stretch}.catalog-more-btn,.catalog-collapse-btn{width:100%}}
+</style>

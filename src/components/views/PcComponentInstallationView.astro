@@ -1,0 +1,924 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola Pixon PC, necesito instalacion de componentes para mi PC en Cancun. Quiero cotizar SSD, RAM, GPU, fuente o revisar compatibilidad antes de instalar.'
+);
+
+const faqs = service.faqs ?? [
+  {
+    question: '¿Instalan SSD, RAM y tarjeta gráfica en Cancún?',
+    answer: 'Sí. Revisamos compatibilidad, espacio físico, BIOS, potencia y conectores antes de instalar SSD NVMe o SATA, módulos de RAM, GPU, fuentes y otros componentes.',
+  },
+  {
+    question: '¿Pueden clonar mi sistema al poner un SSD?',
+    answer: 'Sí. Si tu disco actual todavía responde, podemos clonar Windows, programas y archivos al SSD para que no tengas que configurar todo desde cero.',
+  },
+  {
+    question: '¿También revisan BIOS y drivers?',
+    answer: 'Sí. Después de montar el hardware revisamos arranque, orden de booteo, BIOS y drivers básicos para que el equipo quede estable.',
+  },
+  {
+    question: '¿Instalan componentes en PC gamer y de oficina?',
+    answer: 'Sí. Trabajamos equipos gamer, de oficina, escolares y armados por piezas. Ajustamos la instalación según el uso y el presupuesto.',
+  },
+  {
+    question: '¿Cuánto tarda la instalación?',
+    answer: 'En casos normales puede tardar entre 1 y 4 horas, según el componente, el estado de la PC y si hace falta clonación, pruebas o actualización de BIOS.',
+  },
+];
+
+const relatedServices = [
+  {
+    href: '/servicios/pc/upgrade',
+    icon: 'fa-memory',
+    label: 'Upgrade de PC',
+    desc: 'Mejora de rendimiento con SSD, RAM y cambios que sí se sienten en el uso diario.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/pc/fuente-poder',
+    icon: 'fa-bolt',
+    label: 'Fuente de poder PC',
+    desc: 'Validación de watts, conectores y compatibilidad antes de montar GPU o hardware nuevo.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/pc/tarjeta-video-gpu',
+    icon: 'fa-display',
+    label: 'Tarjeta de video GPU',
+    desc: 'Instalación y revisión de tarjeta gráfica para gaming, edición o trabajo pesado.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/pc/refrigeracion',
+    icon: 'fa-fan',
+    label: 'Refrigeración y ventilación',
+    desc: 'Flujo de aire, ventiladores, temperatura y ajuste térmico para equipos exigidos.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/pc/diagnostico',
+    icon: 'fa-stethoscope',
+    label: 'Diagnóstico de PC',
+    desc: 'Si antes de comprar piezas quieres confirmar la falla real, revisamos el equipo completo.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/pc/no-enciende',
+    icon: 'fa-power-off',
+    label: 'PC no enciende',
+    desc: 'Si el equipo prende o falla al arrancar, primero conviene revisar energía y placa.',
+    cta: 'Ver servicio →',
+  },
+];
+
+const zones = [
+  'Cancún Centro',
+  'Zona Hotelera',
+  'Huayacán',
+  'Cumbres',
+  'Bonfil',
+  'Polígono Sur',
+  'Puerto Cancún',
+  'Av. Tulum',
+  'Bonampak',
+  'Puerto Juárez',
+];
+
+const installTypes = [
+  {
+    title: 'SSD NVMe y SATA',
+    text: 'Mejora tiempos de arranque, carga de Windows y apertura de programas cuando el disco mecánico ya limita el equipo.',
+  },
+  {
+    title: 'RAM DDR3, DDR4 y DDR5',
+    text: 'Instalación y validación de capacidad, frecuencia, dual channel y compatibilidad con placa y procesador.',
+  },
+  {
+    title: 'GPU y expansión gráfica',
+    text: 'Montaje de tarjeta de video con validación de espacio, energía, BIOS y conectores PCIe.',
+  },
+  {
+    title: 'Fuente de poder',
+    text: 'Cambio de PSU con revisión de watts, certificación, cableado y estabilidad bajo carga.',
+  },
+];
+
+const checklist = [
+  'Revisamos socket, ranuras, watts y formato físico.',
+  'Validamos si la pieza nueva realmente conviene para tu uso.',
+  'Acomodamos el cableado para evitar calor o vibración.',
+  'Confirmamos arranque, BIOS y reconocimiento del hardware.',
+];
+
+const compatibilityBlocks = [
+  {
+    title: 'Placa madre',
+    text: 'No todas las tarjetas aceptan cualquier RAM, CPU o SSD. Revisamos chipset, puertos y límites de la placa antes de instalar.',
+  },
+  {
+    title: 'Gabinete y espacio',
+    text: 'La medida de la GPU, la fuente y los ventiladores importa. Si no cabe, se busca una solución real antes de forzar piezas.',
+  },
+  {
+    title: 'Energía y consumo',
+    text: 'Una fuente corta puede volver inestable la PC. Medimos consumo y conectores para no montar hardware que luego falle.',
+  },
+  {
+    title: 'BIOS y arranque',
+    text: 'Si hace falta, revisamos orden de arranque, XMP, perfiles de memoria y ajustes básicos para que el sistema reconozca el cambio.',
+  },
+];
+
+const processSteps = [
+  {
+    step: '01',
+    title: 'Revisión del hardware',
+    text: 'Identificamos qué componente quieres instalar y si la PC realmente está lista para recibirlo.',
+  },
+  {
+    step: '02',
+    title: 'Compatibilidad',
+    text: 'Validamos compatibilidad física, eléctrica y de BIOS antes de abrir o mover piezas.',
+  },
+  {
+    step: '03',
+    title: 'Instalación y orden',
+    text: 'Montamos la pieza, ordenamos cableado y cuidamos fijación, ventilación y acceso interno.',
+  },
+  {
+    step: '04',
+    title: 'Pruebas',
+    text: 'Arranque, detección en Windows, temperatura, estabilidad y funcionamiento final.',
+  },
+];
+---
+
+<div class="pc-components-page">
+  <section class="pc-components-hero">
+    <div class="pc-shell pc-components-hero__grid">
+      <div class="pc-components-copy">
+        <span class="pc-kicker"><i class="fa-solid fa-screwdriver-wrench"></i> Servicio técnico local en Cancún</span>
+        <h1>Instalación de componentes PC en Cancún con compatibilidad, BIOS y pruebas reales</h1>
+        <p class="pc-hero-lead">
+          Montamos SSD, RAM, GPU, fuente, ventiladores, WiFi y otros componentes con revisión técnica antes de instalar.
+          Si el equipo necesita clonación, cableado limpio o ajuste de arranque, también lo dejamos resuelto.
+        </p>
+        <div class="pc-actions">
+          <a class="pc-btn pc-btn--primary" href="#ticket-componentes-pc"><i class="fa-solid fa-ticket"></i> Solicitar diagnóstico</a>
+          <a class="pc-btn pc-btn--secondary" href={`https://wa.me/529986690777?text=${whatsappText}`}><i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp</a>
+        </div>
+        <div class="pc-benefits" aria-label="Beneficios del servicio">
+          <span><i class="fa-solid fa-shield-halved"></i> Compatibilidad antes de instalar</span>
+          <span><i class="fa-solid fa-cable-car"></i> Cableado limpio y seguro</span>
+          <span><i class="fa-solid fa-microchip"></i> SSD, RAM, GPU y fuente</span>
+        </div>
+        <div class="pc-hero-badges">
+          <div>
+            <strong>{service.fromPrice || 'Desde $650 MXN'}</strong>
+            <span>{service.eta || '24-72 h'}</span>
+          </div>
+          <div>
+            <strong>PC gamer y oficina</strong>
+            <span>Montaje, upgrade y pruebas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-components-visual">
+        <figure class="pc-hero-figure pc-hero-figure--large">
+          <img
+            src="/assets/images/ensamble-pc-gamer-cancun.webp"
+            alt="Instalación de componentes PC en Cancún con ensamble y cableado limpio"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <figcaption>Primero validamos compatibilidad. Después instalamos y probamos.</figcaption>
+        </figure>
+        <div class="pc-hero-stack">
+          <figure class="pc-hero-figure">
+            <img
+              src="/assets/images/cambio-ssd.webp"
+              alt="Instalación de SSD NVMe y clonación de sistema en PC en Cancún"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+          <figure class="pc-hero-figure">
+            <img
+              src="/assets/images/pc-gamer-gama-alta.webp"
+              alt="Instalación de tarjeta gráfica GPU en PC gamer en Cancún"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-split">
+      <div>
+        <span class="pc-eyebrow">Cuándo conviene</span>
+        <h2>Cuándo conviene instalar componentes nuevos en una PC</h2>
+        <p>
+          No siempre hace falta cambiar todo. A veces la mejora correcta es un SSD, más RAM, una fuente mejor o una tarjeta gráfica compatible.
+          Revisamos la PC para ver qué upgrade realmente aporta rendimiento.
+        </p>
+        <p>
+          Si el equipo ya va lento, se apaga, no reconoce piezas nuevas o el gabinete está mal ventilado, conviene revisar el conjunto completo antes de comprar.
+        </p>
+      </div>
+      <aside class="pc-inline-panel">
+        <h3>Señales típicas</h3>
+        <ul>
+          <li>Windows tarda demasiado en abrir.</li>
+          <li>La PC se queda corta para juegos o trabajo.</li>
+          <li>Falta espacio, RAM o potencia eléctrica.</li>
+          <li>Quieres mover el sistema a un SSD.</li>
+          <li>Necesitas mejorar ventilación o video.</li>
+          <li>Compraste una pieza y no estás seguro si es compatible.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="pc-components-section pc-components-section--soft">
+    <div class="pc-shell">
+      <div class="pc-section-head">
+        <span class="pc-eyebrow">Piezas que montamos</span>
+        <h2>Instalación de SSD, RAM, GPU y fuente de poder</h2>
+        <p>La mayor parte de la mejora visible en una PC sale de montar el componente correcto, no de llenar el equipo con programas o ajustes irrelevantes.</p>
+      </div>
+      <div class="pc-feature-grid">
+        {installTypes.map((item) => (
+          <article>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-image-band">
+      <div class="pc-image-copy">
+        <span class="pc-eyebrow">SSD y sistema</span>
+        <h2>Instalar SSD NVMe o SATA sí cambia el uso diario</h2>
+        <p>
+          Un SSD bien instalado reduce tiempos de arranque, carga de programas y respuesta general. Si el disco viejo todavía funciona, podemos clonar Windows y conservar la configuración.
+        </p>
+        <p>
+          Cuando el disco original ya falla, primero priorizamos el rescate de archivos o definimos una migración limpia según el estado del equipo.
+        </p>
+        <ul class="pc-check-list">
+          {checklist.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+      <figure class="pc-image-figure">
+        <img
+          src="/assets/images/cambio-ssd.webp"
+          alt="Instalación de SSD NVMe y migración de Windows en PC en Cancún"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="pc-components-section pc-components-section--soft">
+    <div class="pc-shell pc-image-band pc-image-band--reverse">
+      <div class="pc-image-copy">
+        <span class="pc-eyebrow">Memoria</span>
+        <h2>Instalación de RAM para una PC más fluida</h2>
+        <p>
+          Agregar o reemplazar RAM sirve cuando el equipo abre varias pestañas, usa Office, edición ligera, juegos o software pesado.
+          También revisamos frecuencia, capacidad y si conviene dejar los módulos trabajando en dual channel.
+        </p>
+      </div>
+      <figure class="pc-image-figure">
+        <img
+          src="/assets/images/pc-gamer-gama-media.webp"
+          alt="Instalación de RAM y upgrade de memoria en PC gamer y de oficina"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-image-band">
+      <div class="pc-image-copy">
+        <span class="pc-eyebrow">Gráficos</span>
+        <h2>Instalación de tarjeta gráfica para gaming, diseño o edición</h2>
+        <p>
+          Si vas a montar una GPU nueva, revisamos watts, conectores PCIe, espacio físico y el balance entre procesador, fuente y tarjeta madre.
+          Así evitamos cuellos de botella y apagones por potencia insuficiente.
+        </p>
+      </div>
+      <figure class="pc-image-figure">
+        <img
+          src="/assets/images/pc-gamer-gama-alta.webp"
+          alt="Instalación de tarjeta gráfica GPU en PC gamer en Cancún"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="pc-components-section pc-components-section--soft">
+    <div class="pc-shell pc-split">
+      <div>
+        <span class="pc-eyebrow">Energía</span>
+        <h2>Cambio de fuente de poder con revisión de consumo</h2>
+        <p>
+          Una fuente correcta protege el equipo y sostiene la carga cuando agregas GPU, más discos o ventilación adicional.
+          No instalamos una PSU sin revisar potencia real, eficiencia y conectores.
+        </p>
+        <p>
+          Si una fuente falla o se queda corta, la PC puede reiniciar, congelarse o no encender con estabilidad.
+        </p>
+      </div>
+      <aside class="pc-inline-panel">
+        <h3>Qué revisamos</h3>
+        <ul>
+          <li>Watts reales y certificación.</li>
+          <li>Conectores para CPU, GPU y periféricos.</li>
+          <li>Longitud y orden del cableado.</li>
+          <li>Ventilación alrededor de la fuente.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-split pc-split--image">
+      <div class="pc-inline-panel pc-inline-panel--dense">
+        <h3>Compatibilidad antes de comprar</h3>
+        <ul>
+          <li>Placa madre y socket.</li>
+          <li>Formato de RAM y velocidad.</li>
+          <li>Espacio del gabinete para GPU o disipador.</li>
+          <li>Conectores y consumo de fuente.</li>
+          <li>Soporte de BIOS para el componente nuevo.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="pc-eyebrow">Compatibilidad</span>
+        <h2>Revisamos placa, gabinete, energía y BIOS antes de instalar</h2>
+        <p>
+          La falla más común al comprar hardware es asumir que todo entra y funciona. Antes de abrir la caja validamos medidas, ranuras, energía y soporte del sistema.
+        </p>
+        <p>
+          Eso evita devoluciones, piezas mal compradas y montajes que se ven bien pero no arrancan con estabilidad.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-components-section pc-components-section--soft">
+    <div class="pc-shell pc-accordion-grid">
+      <article>
+        <span class="pc-eyebrow">Ventilación</span>
+        <h2>Ventilación, gabinete y flujo de aire</h2>
+        <p>
+          Cuando se instala una GPU, una fuente más potente o más discos, el flujo de aire también importa.
+          Ordenamos ventiladores y cableado para que el calor no se acumule dentro del gabinete.
+        </p>
+      </article>
+      <article>
+        <span class="pc-eyebrow">Conectividad</span>
+        <h2>Tarjeta WiFi, Bluetooth y capturadoras</h2>
+        <p>
+          También instalamos tarjetas de red, Bluetooth, capturadoras y expansiones PCIe cuando el equipo necesita conectar mejor, transmitir o trabajar con periféricos adicionales.
+        </p>
+      </article>
+      <article>
+        <span class="pc-eyebrow">Migración</span>
+        <h2>Clonado y migración al SSD</h2>
+        <p>
+          Si quieres conservar tu Windows actual, se puede clonar el sistema antes o después de montar el SSD, siempre que el disco original lo permita.
+        </p>
+      </article>
+      <article>
+        <span class="pc-eyebrow">Puesta a punto</span>
+        <h2>Pruebas de arranque y BIOS</h2>
+        <p>
+          Tras la instalación verificamos encendido, detección de hardware, orden de booteo, frecuencia y estabilidad básica del sistema.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-gallery-grid">
+      <figure><img src="/assets/images/ensamble-pc-gamer-cancun.webp" alt="Instalación de componentes y ensamble de PC gamer en Cancún" loading="lazy" decoding="async" /></figure>
+      <figure><img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Instalación de ventilación y revisión de PC de escritorio" loading="lazy" decoding="async" /></figure>
+      <figure><img src="/assets/images/actualizacion-windows-cancun.webp" alt="Migración y ajuste de Windows después de instalar componentes" loading="lazy" decoding="async" /></figure>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-split">
+      <div>
+        <span class="pc-eyebrow">Errores comunes</span>
+        <h2>Errores comunes al montar componentes nuevos</h2>
+        <p>
+          Instalar piezas sin revisar compatibilidad puede generar pantallas sin imagen, arranques inestables, cuellos de botella o problemas térmicos.
+          También es común montar un SSD sin clonar bien o dejar cables sueltos dentro del gabinete.
+        </p>
+      </div>
+      <aside class="pc-inline-panel">
+        <h3>Fallas que evitamos</h3>
+        <ul>
+          <li>La GPU no entra o tapa cables.</li>
+          <li>La fuente no soporta la carga real.</li>
+          <li>La RAM queda mal configurada.</li>
+          <li>Windows no reconoce el cambio.</li>
+          <li>El equipo calienta más por mal airflow.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="pc-components-section pc-components-section--soft">
+    <div class="pc-shell pc-process">
+      <div class="pc-section-head">
+        <span class="pc-eyebrow">Proceso</span>
+        <h2>Cómo dejamos la PC lista después de la instalación</h2>
+      </div>
+      <div class="pc-process-grid">
+        {processSteps.map((item) => (
+          <article>
+            <span>{item.step}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-two-col">
+      <div class="pc-price-box">
+        <span class="pc-eyebrow">Tiempo y costo</span>
+        <h2>¿Cuánto tarda la instalación de componentes en Cancún?</h2>
+        <p>
+          En casos normales la instalación puede resolverse el mismo día, especialmente si la pieza ya está lista y la PC no necesita clonación o ajustes complejos.
+          Si hay BIOS, cableado, migración o pruebas largas, el tiempo sube.
+        </p>
+      </div>
+      <div class="pc-price-box">
+        <span class="pc-eyebrow">Precio de referencia</span>
+        <h2>Precio de instalación y upgrade de componentes</h2>
+        <p>
+          El servicio parte desde {service.fromPrice || '$650 MXN'} y puede variar según el componente, la complejidad y si incluye clonación, BIOS, cableado extra o pruebas especiales.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-components-section pc-components-section--soft">
+    <div class="pc-shell pc-local">
+      <div>
+        <span class="pc-eyebrow">Cobertura local</span>
+        <h2>Servicio técnico para PC en Cancún con enfoque local</h2>
+        <p>
+          Atendemos instalación de componentes para equipos de casa, oficina y gaming en zonas como Cancún Centro, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Bonampak y Zona Hotelera.
+        </p>
+      </div>
+      <div class="pc-local-panel">
+        <ul>
+          {zones.map((zone) => <li><i class="fa-solid fa-location-dot"></i> {zone}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-components-section">
+    <div class="pc-shell pc-close">
+      <div>
+        <span class="pc-eyebrow">Soporte técnico</span>
+        <h2>Instalación de componentes PC en Cancún con revisión real, no solo montaje</h2>
+        <p>
+          El valor del servicio está en revisar compatibilidad, montar bien la pieza y dejar pruebas de arranque útiles.
+          Si la mejor opción no es instalar de inmediato, te lo decimos con claridad.
+        </p>
+      </div>
+      <figure>
+        <img src="/assets/images/pc-gamer-entrada.webp" alt="PC gamer lista para instalación de componentes en Cancún" loading="lazy" decoding="async" />
+      </figure>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-componentes-pc"
+    sourcePage={Astro.url.pathname}
+    defaultDevice="PC de escritorio / Gamer"
+    defaultService={service.label}
+    title="Solicitar instalación de componentes"
+    subtitle="Cuéntanos qué pieza quieres instalar, qué modelo tienes y si deseas revisión previa de compatibilidad."
+  />
+  <RelatedServicesSection items={relatedServices} light={true} title="Servicios relacionados para upgrade de PC" eyebrow="Más soluciones" />
+  <FaqSection
+    id="faq-componentes-pc"
+    title="Preguntas frecuentes sobre instalación de componentes PC"
+    description="Respuestas directas sobre compatibilidad, montaje, clonado y pruebas después de instalar piezas nuevas."
+    items={faqs}
+    sectionClass="pc-components-faq"
+    titleColor="#071F3A"
+    descriptionColor="#334155"
+    questionColor="#071F3A"
+    backgroundColor="#F8FAFC"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver todas las preguntas"
+  />
+  <CommentsSection id="comentarios-componentes-pc" title="Comentarios de clientes" description="Comparte tu experiencia con la instalación o el upgrade de tu PC." dark={false} />
+  <ContactSection id="contacto-componentes-pc" />
+  <Footer />
+</div>
+
+<style>
+  .pc-components-page {
+    --ink: #071F3A;
+    --muted: #334155;
+    --line: #D6E0EC;
+    --soft: #F7FAFC;
+    --blue: #1659B7;
+    background: #fff;
+    color: var(--ink);
+  }
+  .pc-components-page :is(h1,h2,h3,p,li,span,strong,figcaption) { color: var(--ink); }
+  .pc-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+  .pc-components-hero {
+    padding: clamp(54px, 7vw, 88px) 0 clamp(40px, 6vw, 64px);
+    background: linear-gradient(180deg, #EEF5FC 0%, #FFFFFF 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  .pc-components-hero__grid,
+  .pc-split,
+  .pc-image-band,
+  .pc-two-col,
+  .pc-local,
+  .pc-close {
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(320px, .98fr);
+    gap: clamp(22px, 4vw, 48px);
+    align-items: center;
+  }
+  .pc-kicker,
+  .pc-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #1D4ED8 !important;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: .8rem;
+  }
+  .pc-components-copy h1 {
+    margin: 0;
+    max-width: 13ch;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.95rem, 3.5vw, 3.2rem);
+    line-height: .96;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .pc-hero-lead {
+    margin: 16px 0 0;
+    max-width: 68ch;
+    color: var(--muted) !important;
+    font-size: clamp(.98rem, 1.35vw, 1.08rem);
+    line-height: 1.62;
+  }
+  .pc-actions,
+  .pc-benefits,
+  .pc-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pc-actions { margin-top: 20px; }
+  .pc-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 13px 20px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-weight: 850;
+    text-decoration: none;
+    transition: transform 160ms cubic-bezier(.23,1,.32,1), background-color 160ms ease;
+  }
+  .pc-btn:hover { transform: translateY(-1px); }
+  .pc-btn:active { transform: scale(.985); }
+  .pc-btn:focus-visible,
+  a:focus-visible {
+    outline: 3px solid #F59E0B;
+    outline-offset: 3px;
+  }
+  .pc-btn--primary { background: var(--blue); color: #fff !important; }
+  .pc-btn--primary:hover { background: #104A9C; }
+  .pc-btn--secondary { background: #fff; border-color: #B9CBE0; color: var(--ink) !important; }
+  .pc-btn--secondary:hover { background: #EAF2FB; }
+  .pc-benefits { margin-top: 18px; }
+  .pc-benefits span,
+  .pc-hero-badges div {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-weight: 800;
+    color: var(--ink) !important;
+  }
+  .pc-benefits i { color: #1D4ED8; }
+  .pc-hero-badges {
+    margin-top: 18px;
+  }
+  .pc-hero-badges div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 200px;
+    gap: 2px;
+  }
+  .pc-hero-badges strong { color: var(--ink) !important; }
+  .pc-hero-badges span { border: 0; background: transparent; padding: 0; color: var(--muted) !important; font-weight: 700; }
+  .pc-components-visual {
+    display: grid;
+    grid-template-columns: minmax(0, 1.18fr) minmax(170px, .72fr);
+    gap: 14px;
+    align-items: stretch;
+  }
+  .pc-hero-figure {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 20px 48px rgba(7,31,58,.12);
+  }
+  .pc-hero-figure--large { min-height: 100%; }
+  .pc-hero-figure img,
+  .pc-image-figure img,
+  .pc-gallery-grid img,
+  .pc-close img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pc-hero-figure--large img { aspect-ratio: 4 / 5; }
+  .pc-hero-stack {
+    display: grid;
+    gap: 14px;
+  }
+  .pc-hero-stack .pc-hero-figure img { aspect-ratio: 1 / 1; }
+  .pc-hero-figure figcaption {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.96);
+    color: var(--ink) !important;
+    font-size: .92rem;
+    line-height: 1.35;
+    font-weight: 800;
+  }
+  .pc-components-section {
+    padding: clamp(54px, 8vw, 92px) 0;
+    background: #fff;
+  }
+  .pc-components-section--soft { background: var(--soft); }
+  .pc-section-head h2,
+  .pc-components-section h2 {
+    margin: 0 0 14px;
+    color: var(--ink) !important;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.72rem, 3vw, 2.52rem);
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .pc-components-section h3 {
+    margin: 0 0 12px;
+    color: var(--ink) !important;
+    font-size: 1.2rem;
+    line-height: 1.18;
+  }
+  .pc-components-section p {
+    margin: 0 0 14px;
+    max-width: 72ch;
+    color: var(--muted) !important;
+    line-height: 1.7;
+    font-size: 1.03rem;
+  }
+  .pc-inline-panel {
+    padding: clamp(22px, 3vw, 30px);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+  }
+  .pc-inline-panel ul,
+  .pc-check-list,
+  .pc-local-panel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .pc-inline-panel li,
+  .pc-check-list li,
+  .pc-local-panel li {
+    position: relative;
+    padding-left: 20px;
+    color: var(--ink) !important;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .pc-inline-panel li::before,
+  .pc-check-list li::before,
+  .pc-local-panel li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: .62em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1D4ED8;
+  }
+  .pc-inline-panel--dense {
+    max-width: 420px;
+  }
+  .pc-feature-grid,
+  .pc-accordion-grid,
+  .pc-process-grid {
+    display: grid;
+    gap: 16px;
+  }
+  .pc-feature-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .pc-feature-grid article,
+  .pc-accordion-grid article,
+  .pc-process-grid article,
+  .pc-price-box,
+  .pc-local-panel {
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+  }
+  .pc-accordion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pc-process-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .pc-process-grid span {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    background: #E1ECF9;
+    color: #174EA6 !important;
+    font-weight: 900;
+  }
+  .pc-image-band {
+    align-items: center;
+  }
+  .pc-image-band--reverse {
+    grid-template-columns: minmax(320px, .98fr) minmax(0, 1.02fr);
+  }
+  .pc-image-figure {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 48px rgba(7,31,58,.1);
+  }
+  .pc-image-figure img { aspect-ratio: 4 / 3; }
+  .pc-check-list {
+    margin-top: 16px;
+  }
+  .pc-split--image {
+    align-items: start;
+  }
+  .pc-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .pc-gallery-grid figure {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 16px 36px rgba(7,31,58,.08);
+  }
+  .pc-gallery-grid img { aspect-ratio: 4 / 3; }
+  .pc-two-col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pc-price-box h2 { font-size: clamp(1.4rem, 2vw, 2rem); }
+  .pc-local { align-items: start; }
+  .pc-local-panel ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pc-local-panel li { font-weight: 800; }
+  .pc-close figure {
+    margin: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    box-shadow: 0 20px 48px rgba(7,31,58,.1);
+  }
+  .pc-close img { aspect-ratio: 4 / 3; }
+  .pc-components-page .service-ticket-section :is(h2,h3,p,li,strong,label,span) { color: var(--ink) !important; }
+  .pc-components-page .service-ticket-section p { color: var(--muted) !important; }
+  .pc-components-page .contact :is(h2,h3,p,li,strong),
+  .pc-components-page .faq-page-content :is(h2,h3,p,li,strong),
+  .pc-components-page .svc-related--light :is(h2,h3,h4,p),
+  .pc-components-page .comments-section :is(h2,h3,p,li,strong) {
+    color: var(--ink) !important;
+  }
+  @media (max-width: 980px) {
+    .pc-components-hero__grid,
+    .pc-split,
+    .pc-image-band,
+    .pc-two-col,
+    .pc-local,
+    .pc-close {
+      grid-template-columns: 1fr;
+    }
+    .pc-components-visual {
+      grid-template-columns: 1fr;
+    }
+    .pc-hero-figure--large img,
+    .pc-hero-stack .pc-hero-figure img {
+      aspect-ratio: 16 / 10;
+    }
+    .pc-feature-grid,
+    .pc-accordion-grid,
+    .pc-process-grid,
+    .pc-gallery-grid,
+    .pc-local-panel ul {
+      grid-template-columns: 1fr;
+    }
+    .pc-components-copy h1 {
+      max-width: 100%;
+    }
+  }
+  @media (max-width: 640px) {
+    .pc-components-hero {
+      padding-top: 48px;
+    }
+    .pc-actions .pc-btn {
+      width: 100%;
+    }
+    .pc-benefits span,
+    .pc-hero-badges div {
+      width: 100%;
+    }
+    .pc-inline-panel,
+    .pc-feature-grid article,
+    .pc-accordion-grid article,
+    .pc-process-grid article,
+    .pc-price-box,
+    .pc-local-panel {
+      padding: 18px;
+    }
+  }
+</style>

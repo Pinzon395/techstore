@@ -1,0 +1,778 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola Pixon PC, necesito recuperacion de datos en una PC. Mi equipo no arranca, el disco falla, Windows no entra o borre archivos importantes.'
+);
+
+const warningSteps = [
+  'Apaga el equipo si el disco hace ruidos raros, clics o tarda demasiado.',
+  'No guardes archivos nuevos en el disco afectado.',
+  'No reinstales Windows sobre el mismo medio sin revisar el riesgo.',
+  'No sigas probando encendidos si la PC se congela o reinicia.',
+];
+
+const fileTypes = [
+  { title: 'Documentos y trabajo', text: 'Word, Excel, PDF, presentaciones, contabilidad y archivos de oficina.' },
+  { title: 'Fotos y video', text: 'Imágenes personales, material escolar, sesiones de trabajo y bibliotecas multimedia.' },
+  { title: 'Proyectos y carpetas', text: 'Carpetas completas de escuela, trabajo, diseño, edición o archivo.' },
+  { title: 'Bases de datos y correo', text: 'Bases locales, respaldos, PST/OST, exportaciones y perfiles de usuario.' },
+];
+
+const storageTypes = [
+  {
+    title: 'SSD SATA y NVMe',
+    icon: 'fa-microchip',
+    text: 'Unidades rápidas que pueden fallar por controladora, firmware, desgaste o daño lógico del sistema.',
+  },
+  {
+    title: 'Disco duro mecánico',
+    icon: 'fa-hard-drive',
+    text: 'Medios con cabezales y platos que pueden hacer ruido, dañarse por golpes o perder sectores.',
+  },
+  {
+    title: 'Unidades externas',
+    icon: 'fa-floppy-disk',
+    text: 'Discos USB, memorias y tarjetas que presentan desconexiones, corrupción o borrado accidental.',
+  },
+];
+
+const processSteps = [
+  {
+    step: '01',
+    title: 'Diagnóstico del medio',
+    text: 'Revisamos si el problema es lógico o físico antes de tocar archivos, particiones o el sistema.',
+  },
+  {
+    step: '02',
+    title: 'Lectura segura',
+    text: 'Cuando el disco lo permite, trabajamos sobre una copia para reducir el desgaste del medio original.',
+  },
+  {
+    step: '03',
+    title: 'Filtrado y verificación',
+    text: 'Separamos lo útil, verificamos nombres, carpetas y archivos clave, y descartamos resultados incompletos.',
+  },
+  {
+    step: '04',
+    title: 'Entrega y respaldo',
+    text: 'Te entregamos la información recuperada y, si lo necesitas, dejamos recomendaciones para evitar repetir la pérdida.',
+  },
+];
+
+const localZones = [
+  'Cancún Centro',
+  'Zona Hotelera',
+  'Huayacán',
+  'Cumbres',
+  'Bonfil',
+  'Puerto Cancún',
+  'Bonampak',
+  'Polígono Sur',
+];
+
+const faqItems = [
+  {
+    question: '¿Se pueden recuperar datos si la PC no enciende?',
+    answer: 'Sí. Si el problema está en fuente, placa, RAM o Windows pero el disco sigue sano, normalmente se puede extraer la información con el equipo apagado y trabajar el medio por separado.',
+  },
+  {
+    question: '¿Qué hago si mi disco hace ruido?',
+    answer: 'Apágalo de inmediato y no lo sigas probando. Un disco con clics, raspado o desconexiones puede estar dañando la superficie o la electrónica interna con cada intento de encendido.',
+  },
+  {
+    question: '¿También recuperan información de SSD?',
+    answer: 'Sí. Revisamos SSD SATA, NVMe y unidades externas. La recuperación depende de si el daño es lógico, de controladora o físico; por eso primero hacemos diagnóstico.',
+  },
+  {
+    question: '¿Si ya formatearon la PC todavía se puede rescatar algo?',
+    answer: 'A veces sí, pero depende de cuánto se haya escrito después del formateo. Mientras menos uso tenga el disco después del error, mejores son las posibilidades de rescate.',
+  },
+  {
+    question: '¿Cuánto tarda la recuperación de datos?',
+    answer: 'El tiempo varía según el tipo de daño. Casos lógicos simples pueden resolverse más rápido; fallas físicas, discos lentos o medios muy dañados necesitan más tiempo de lectura y verificación.',
+  },
+  {
+    question: '¿Mis archivos son confidenciales?',
+    answer: 'Sí. El manejo de información se hace con criterio técnico y confidencialidad. Solo trabajamos lo necesario para recuperar y entregarte tus archivos.',
+  },
+];
+---
+
+<div class="pc-recovery-page">
+  <section class="pc-recovery-hero" aria-label="Recuperación de datos en PC">
+    <div class="pc-shell pc-recovery-hero__grid">
+      <div class="pc-recovery-copy">
+        <span class="pc-kicker"><i class="fa-solid fa-hard-drive"></i> Servicio técnico local en Cancún</span>
+        <h1>Recuperación de datos en Cancún para PC con Windows dañado, SSD o archivos borrados</h1>
+        <p class="pc-recovery-lead">
+          Cuando una computadora no arranca, el disco falla o desaparecen carpetas importantes, primero diagnosticamos el medio para decidir si conviene clonación, lectura directa o recuperación lógica.
+        </p>
+
+        <div class="pc-recovery-actions">
+          <a class="pc-btn pc-btn--primary" href="#ticket-recuperacion-pc">
+            <i class="fa-solid fa-ticket"></i> Solicitar diagnóstico
+          </a>
+          <a class="pc-btn pc-btn--secondary" href={`https://wa.me/529986690777?text=${whatsappText}`}>
+            <i class="fa-brands fa-whatsapp"></i> Enviar equipo a revisión
+          </a>
+        </div>
+
+        <ul class="pc-recovery-benefits" aria-label="Beneficios del servicio">
+          <li><i class="fa-solid fa-shield-heart"></i> Diagnóstico antes de tocar archivos</li>
+          <li><i class="fa-solid fa-folder-open"></i> Prioridad a documentos, fotos y trabajo</li>
+          <li><i class="fa-solid fa-microchip"></i> SSD, HDD, NVMe y medios externos</li>
+        </ul>
+
+        <div class="pc-recovery-alert" role="note">
+          <strong>Importante:</strong> si el disco hace clics, se congela o tarda demasiado, deja de encender la PC. Cada intento puede reducir las posibilidades de rescate.
+        </div>
+      </div>
+
+      <div class="pc-recovery-visual">
+        <figure class="pc-recovery-figure">
+          <img
+            src="/assets/images/cambio-ssd.webp"
+            alt="Diagnóstico de recuperación de datos en PC con SSD y disco duro en Cancún"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <figcaption>
+            Primero revisamos el medio. No se recomiendan pruebas agresivas sobre el disco original.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-section">
+    <div class="pc-shell pc-split">
+      <div>
+        <span class="pc-eyebrow">Diagnóstico inicial</span>
+        <h2>Cuándo conviene pedir recuperación de datos</h2>
+        <p>
+          No toda PC lenta necesita rescate de archivos, pero sí conviene actuar cuando el equipo deja de arrancar, Windows muestra errores repetidos o el almacenamiento empieza a fallar de forma clara.
+        </p>
+        <p>
+          Primero se revisa si la pérdida es lógica o física. Eso define si podemos leer el disco, clonarlo, extraer una imagen o si hay que detener el uso para evitar daño mayor.
+        </p>
+      </div>
+      <div class="pc-inline-panel">
+        <h3>Señales comunes</h3>
+        <ul>
+          <li>La PC no arranca o Windows entra en bucle.</li>
+          <li>El disco aparece muy lento o se desconecta.</li>
+          <li>Se borraron carpetas, fotos o proyectos importantes.</li>
+          <li>El sistema pide reparar o formatear sin parar.</li>
+          <li>La computadora se apaga al abrir archivos.</li>
+          <li>La información es más valiosa que reinstalar Windows.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-section pc-section--soft">
+    <div class="pc-shell pc-warning-grid">
+      <div>
+        <span class="pc-eyebrow">Qué evitar</span>
+        <h2>Qué no debes hacer cuando un disco falla</h2>
+        <p>
+          El error más caro es seguir usando el medio como si nada. Guardar archivos nuevos, forzar reinicios o correr reparaciones automáticas sobre un disco dañado puede sobrescribir información que todavía era recuperable.
+        </p>
+        <p>
+          Si el daño es físico o el disco ya muestra ruidos, la prioridad es estabilizar y no insistir. Si el problema es lógico, todavía hay margen para trabajar con más seguridad.
+        </p>
+      </div>
+      <div class="pc-warning-card">
+        <img
+          src="/assets/images/mantenimiento-pc-escritorio.webp"
+          alt="PC abierta para revisar almacenamiento y recuperar archivos en Cancún"
+          loading="lazy"
+          decoding="async"
+        />
+        <ul>
+          {warningSteps.map((step) => <li><i class="fa-solid fa-triangle-exclamation"></i> {step}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-section">
+    <div class="pc-shell">
+      <div class="pc-section-head">
+        <span class="pc-eyebrow">Qué recuperamos</span>
+        <h2>Archivos y proyectos que solemos rescatar</h2>
+        <p>Priorizamos lo que de verdad importa para trabajo, escuela o negocio. Si hay poco tiempo o el disco está inestable, empezamos por lo crítico.</p>
+      </div>
+      <div class="pc-file-grid">
+        {fileTypes.map((item) => (
+          <article>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-section pc-section--soft">
+    <div class="pc-shell pc-storage-layout">
+      <div>
+        <span class="pc-eyebrow">Medios compatibles</span>
+        <h2>Recuperación desde SSD, HDD y unidades externas</h2>
+        <p>
+          No todos los discos fallan igual. Un SSD suele romper la lógica de acceso; un HDD puede hacer ruido o perder sectores; una memoria o externo puede estar bien físicamente pero con archivos dañados.
+        </p>
+        <p>
+          La decisión técnica cambia según el medio, el tipo de conexión y el tiempo que el equipo estuvo encendido después del fallo.
+        </p>
+      </div>
+      <div class="pc-storage-grid">
+        {storageTypes.map((item) => (
+          <article>
+            <div class="pc-storage-icon"><i class={`fa-solid ${item.icon}`}></i></div>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-section">
+    <div class="pc-shell pc-image-band">
+      <div class="pc-image-band__copy">
+        <span class="pc-eyebrow">Windows dañado</span>
+        <h2>Cuando Windows no arranca pero los archivos siguen ahí</h2>
+        <p>
+          Muchas veces la computadora no entra al sistema, pero la información sigue intacta en el disco. En esos casos se evalúa si conviene extraer el medio, montar una lectura segura o restaurar la estructura sin escribir sobre la unidad original.
+        </p>
+        <p>
+          Esto aplica cuando la PC se queda en el logo, marca error de reparación automática o cae en pantalla azul antes de abrir el escritorio.
+        </p>
+      </div>
+      <figure class="pc-image-band__figure">
+        <img
+          src="/assets/images/optimizacion-pc-cancun.webp"
+          alt="Análisis de Windows dañado en una computadora de escritorio para recuperar datos"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="pc-section pc-section--soft">
+    <div class="pc-shell pc-image-band pc-image-band--reverse">
+      <div class="pc-image-band__copy">
+        <span class="pc-eyebrow">Pérdida lógica</span>
+        <h2>Archivos borrados, particiones dañadas y formateos accidentales</h2>
+        <p>
+          Si borraste carpetas, formateaste por error o la partición desapareció, todavía puede haber margen de recuperación mientras el disco no haya sido sobrescrito. Por eso es importante no seguir usando la PC para tareas nuevas.
+        </p>
+        <p>
+          También revisamos daños por Windows corrupto, tablas de partición rotas y errores de estructura que impiden ver la información aunque siga presente.
+        </p>
+      </div>
+      <figure class="pc-image-band__figure">
+        <img
+          src="/assets/images/microscopio-flexor.webp"
+          alt="Inspección técnica de tarjeta y almacenamiento para rescate de archivos en PC"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="pc-section">
+    <div class="pc-shell pc-process-layout">
+      <div>
+        <span class="pc-eyebrow">Proceso técnico</span>
+        <h2>Cómo trabajamos la recuperación de datos</h2>
+        <p>
+          El objetivo no es prometer milagros. El objetivo es revisar el estado real del medio, elegir el método correcto y darte una respuesta clara sobre qué sí se puede rescatar y qué no conviene forzar.
+        </p>
+      </div>
+      <div class="pc-process-grid">
+        {processSteps.map((item) => (
+          <article>
+            <span>{item.step}</span>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pc-section pc-section--soft">
+    <div class="pc-shell pc-local-layout">
+      <div>
+        <span class="pc-eyebrow">SEO local Cancún</span>
+        <h2>Recuperación de datos en Cancún con atención para hogares, estudiantes y negocios</h2>
+        <p>
+          Atendemos equipos con información sensible y tiempos ajustados. Si la PC falló en casa, oficina o taller, revisamos el caso y te decimos si conviene rescate lógico, clonación o una solución distinta.
+        </p>
+        <p>
+          Damos servicio en Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Puerto Cancún, Bonampak y Polígono Sur, con comunicación clara por WhatsApp y diagnóstico antes de seguir.
+        </p>
+      </div>
+      <aside class="pc-local-card">
+        <h3>Pixon PC / Rentalap</h3>
+        <p>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</p>
+        <p>+52 998 669 0777</p>
+        <p>pixonpc@gmail.com</p>
+        <div class="pc-local-zones">
+          {localZones.map((zone) => <span>{zone}</span>)}
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="pc-section">
+    <div class="pc-shell pc-cost-layout">
+      <div>
+        <span class="pc-eyebrow">Costo y tiempos</span>
+        <h2>Cuánto tarda una recuperación de datos</h2>
+        <p>
+          El tiempo depende del tipo de falla. Un caso lógico sencillo puede resolverse más rápido; un disco lento, con sectores dañados o con ruido necesita más tiempo para leer, validar y copiar sin arriesgar la información.
+        </p>
+      </div>
+      <div class="pc-cost-card">
+        <h3>Qué cambia el costo</h3>
+        <ul>
+          <li>Tipo de medio: SSD, HDD o externo.</li>
+          <li>Si el daño es lógico o físico.</li>
+          <li>Si hace falta clonación o lectura especial.</li>
+          <li>Si ya hubo intentos previos de reparación.</li>
+        </ul>
+        <p>No inventamos recuperación garantizada. Primero se revisa el estado real del medio y después se define el camino más seguro.</p>
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-recuperacion-pc"
+    defaultDevice="PC de escritorio"
+    defaultService="Recuperación de datos PC"
+    title="Crear ticket de recuperación de datos"
+    subtitle="Cuéntanos si la PC no enciende, el disco hace ruido, Windows no abre o borraste archivos importantes."
+  />
+
+  <RelatedServicesSection
+    service={service}
+    category={category}
+    initialLimit={6}
+    title="Servicios relacionados para recuperación y estabilidad"
+  />
+
+  <FaqSection
+    id="faq-recuperacion-pc"
+    title="Preguntas frecuentes sobre recuperación de datos en PC"
+    description="Respuestas claras sobre discos dañados, archivos borrados, Windows que no arranca y tiempos de rescate."
+    items={faqItems}
+    backgroundColor="#F8FAFC"
+    titleColor="#071F3A"
+    descriptionColor="#334155"
+    questionColor="#071F3A"
+    faqAccent="#0D9488"
+  />
+
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios-recuperacion-pc" />
+  <ContactSection id="ubicacion-recuperacion-pc" />
+  <Footer />
+</div>
+
+<style>
+  .pc-recovery-page {
+    background: #ffffff;
+    color: #071F3A;
+    overflow: hidden;
+  }
+  .pc-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+  .pc-recovery-hero {
+    padding: clamp(72px, 9vw, 112px) 0 clamp(42px, 6vw, 72px);
+    background: linear-gradient(180deg, #eef5fc 0%, #f8fbff 100%);
+    border-bottom: 1px solid #d6e0ec;
+  }
+  .pc-recovery-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+  }
+  .pc-kicker,
+  .pc-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1d4ed8;
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pc-kicker {
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #bfd3ea;
+    margin-bottom: 18px;
+  }
+  .pc-recovery-copy h1,
+  .pc-section h2,
+  .pc-section-head h2 {
+    margin: 8px 0 12px;
+    color: #071F3A;
+    font-family: 'Kanit', sans-serif;
+    line-height: 1.08;
+  }
+  .pc-recovery-copy h1 {
+    font-size: clamp(2rem, 4.1vw, 3.45rem);
+    max-width: 16ch;
+  }
+  .pc-recovery-lead,
+  .pc-section p,
+  .pc-inline-panel li,
+  .pc-warning-card li,
+  .pc-file-grid p,
+  .pc-storage-grid p,
+  .pc-image-band__copy p,
+  .pc-process-grid p,
+  .pc-local-layout p,
+  .pc-cost-card p,
+  .pc-local-card p {
+    color: #334155;
+    line-height: 1.66;
+    font-weight: 550;
+  }
+  .pc-recovery-lead {
+    margin: 0 0 18px;
+    max-width: 62ch;
+    font-size: 1.03rem;
+  }
+  .pc-recovery-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .pc-btn {
+    min-height: 48px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .pc-btn:hover {
+    transform: translateY(-2px);
+  }
+  .pc-btn--primary {
+    background: linear-gradient(135deg, #0d9488, #2563eb);
+    color: #fff;
+    box-shadow: 0 16px 30px rgba(13, 148, 136, 0.22);
+  }
+  .pc-btn--secondary {
+    background: #fff;
+    color: #071F3A;
+    border: 1px solid #bfd3ea;
+  }
+  .pc-recovery-benefits {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .pc-recovery-benefits li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #071F3A;
+    font-weight: 750;
+  }
+  .pc-recovery-benefits i {
+    color: #0d9488;
+  }
+  .pc-recovery-alert {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(245, 158, 11, 0.28);
+    background: #fff7ed;
+    color: #7c2d12;
+    line-height: 1.55;
+  }
+  .pc-recovery-visual {
+    display: grid;
+    place-items: center;
+  }
+  .pc-recovery-figure {
+    width: 100%;
+    max-width: 520px;
+    margin: 0;
+    padding: 16px;
+    border-radius: 24px;
+    background: #fff;
+    border: 1px solid #d6e0ec;
+    box-shadow: 0 20px 45px rgba(7, 31, 58, 0.08);
+  }
+  .pc-recovery-figure img,
+  .pc-warning-card img,
+  .pc-image-band__figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 18px;
+  }
+  .pc-recovery-figure figcaption {
+    margin-top: 12px;
+    color: #475569;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  .pc-section {
+    padding: 62px 0;
+    background: #fff;
+  }
+  .pc-section--soft {
+    background: #f8fafc;
+  }
+  .pc-section-head {
+    max-width: 820px;
+    margin: 0 auto 28px;
+  }
+  .pc-section-head h2,
+  .pc-section h2 {
+    font-size: clamp(1.7rem, 3vw, 2.75rem);
+  }
+  .pc-split,
+  .pc-warning-grid,
+  .pc-storage-layout,
+  .pc-image-band,
+  .pc-process-layout,
+  .pc-local-layout,
+  .pc-cost-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  .pc-inline-panel,
+  .pc-warning-card,
+  .pc-storage-grid article,
+  .pc-file-grid article,
+  .pc-process-grid article,
+  .pc-cost-card,
+  .pc-local-card {
+    background: #fff;
+    border: 1px solid #d6e0ec;
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(7, 31, 58, 0.05);
+  }
+  .pc-inline-panel {
+    padding: 24px;
+  }
+  .pc-inline-panel h3,
+  .pc-warning-card h3,
+  .pc-storage-grid h3,
+  .pc-file-grid h3,
+  .pc-process-grid h3,
+  .pc-cost-card h3,
+  .pc-local-card h3 {
+    margin: 0 0 10px;
+    color: #071F3A;
+    font-family: 'Kanit', sans-serif;
+    line-height: 1.15;
+  }
+  .pc-inline-panel ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 10px;
+    color: #334155;
+  }
+  .pc-warning-card {
+    padding: 20px;
+    display: grid;
+    gap: 16px;
+  }
+  .pc-warning-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .pc-warning-card li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .pc-warning-card i {
+    color: #dc2626;
+    margin-top: 3px;
+  }
+  .pc-file-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .pc-file-grid article,
+  .pc-storage-grid article,
+  .pc-process-grid article {
+    padding: 22px;
+  }
+  .pc-file-grid h3 {
+    font-size: 1.08rem;
+  }
+  .pc-storage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .pc-storage-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    color: #0d9488;
+    background: #ccfbf1;
+  }
+  .pc-storage-grid p,
+  .pc-file-grid p {
+    margin: 0;
+  }
+  .pc-image-band {
+    align-items: center;
+  }
+  .pc-image-band--reverse .pc-image-band__copy {
+    order: 2;
+  }
+  .pc-image-band--reverse .pc-image-band__figure {
+    order: 1;
+  }
+  .pc-image-band__figure {
+    margin: 0;
+  }
+  .pc-image-band__copy p + p {
+    margin-top: 12px;
+  }
+  .pc-process-grid {
+    display: grid;
+    gap: 12px;
+  }
+  .pc-process-grid article {
+    display: grid;
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+  }
+  .pc-process-grid span {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d9488, #2563eb);
+    color: #fff;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 700;
+  }
+  .pc-local-card,
+  .pc-cost-card {
+    padding: 24px;
+  }
+  .pc-local-zones {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pc-local-zones span {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid #bfd3ea;
+    background: #fff;
+    color: #071F3A;
+    font-weight: 800;
+    font-size: 0.84rem;
+  }
+  .pc-cost-card ul {
+    margin: 0 0 12px;
+    padding-left: 18px;
+    display: grid;
+    gap: 10px;
+    color: #334155;
+  }
+
+  @media (max-width: 1080px) {
+    .pc-file-grid,
+    .pc-storage-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 900px) {
+    .pc-recovery-hero__grid,
+    .pc-split,
+    .pc-warning-grid,
+    .pc-storage-layout,
+    .pc-image-band,
+    .pc-process-layout,
+    .pc-local-layout,
+    .pc-cost-layout {
+      grid-template-columns: 1fr;
+    }
+    .pc-image-band--reverse .pc-image-band__copy,
+    .pc-image-band--reverse .pc-image-band__figure {
+      order: initial;
+    }
+    .pc-process-grid article {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 680px) {
+    .pc-recovery-hero {
+      padding: 30px 0 26px;
+    }
+    .pc-recovery-copy h1 {
+      max-width: none;
+      font-size: clamp(2rem, 10vw, 2.9rem);
+    }
+    .pc-recovery-actions {
+      display: grid;
+    }
+    .pc-section {
+      padding: 44px 0;
+    }
+    .pc-file-grid,
+    .pc-storage-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

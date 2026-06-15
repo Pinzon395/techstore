@@ -1,0 +1,276 @@
+---
+interface Step {
+  title: string;
+  description?: string;
+  text?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  steps: Step[];
+  id?: string;
+  className?: string;
+  blendEdges?: boolean;
+  fadeTop?: boolean;
+  fadeBottom?: boolean;
+  topFadeColor?: string;
+  bottomFadeColor?: string;
+}
+
+const {
+  eyebrow = 'Ruta técnica',
+  title,
+  description,
+  steps,
+  id,
+  className = '',
+  blendEdges = true,
+  fadeTop = blendEdges,
+  fadeBottom = blendEdges,
+  topFadeColor = '#F7FAFC',
+  bottomFadeColor = '#F7FAFC',
+} = Astro.props;
+---
+
+<section
+  id={id}
+  style={`--dark-fade-top-color: ${topFadeColor}; --dark-fade-bottom-color: ${bottomFadeColor};`}
+  class:list={[
+    'section-dark dark-section dark-technical-section',
+    'dark-technical',
+    {
+      'dark-section--fade-top dark-technical--fade-top': fadeTop,
+      'dark-section--fade-bottom dark-technical--fade-bottom': fadeBottom,
+      'dark-section--no-fade-top': !fadeTop,
+      'dark-section--no-fade-bottom': !fadeBottom,
+    },
+    className,
+  ]}
+>
+  <div class="dark-technical__inner">
+    <header class="dark-technical__intro">
+      {eyebrow && <span class="dark-technical__eyebrow">{eyebrow}</span>}
+      <h2>{title}</h2>
+      {description && <p class="dark-technical__description">{description}</p>}
+    </header>
+
+    <ol class="dark-technical__steps">
+      {steps.map((step, index) => (
+        <li class="dark-technical__step">
+          <span class="dark-technical__number" aria-hidden="true">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+          <div>
+            <h3>{step.title}</h3>
+            <p>{step.description ?? step.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .dark-technical {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    content-visibility: visible !important;
+    contain-intrinsic-size: none !important;
+    padding: clamp(104px, 9vw, 120px) 0;
+    background:
+      radial-gradient(circle at 12% 8%, rgb(55 119 205 / 18%), transparent 32%),
+      linear-gradient(135deg, #071b33 0%, #0b2a4a 52%, #071b33 100%);
+  }
+
+  .dark-technical::before,
+  .dark-technical::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    display: none;
+  }
+
+  .dark-technical--fade-top::before {
+    top: 0;
+    display: block;
+    height: clamp(84px, 8vw, 104px);
+    background: linear-gradient(
+      to bottom,
+      var(--dark-fade-top-color) 0%,
+      color-mix(in srgb, var(--dark-fade-top-color) 55%, transparent) 35%,
+      transparent 100%
+    );
+  }
+
+  .dark-technical--fade-bottom::after {
+    bottom: 0;
+    display: block;
+    height: clamp(92px, 9vw, 112px);
+    background: linear-gradient(
+      to top,
+      var(--dark-fade-bottom-color) 0%,
+      color-mix(in srgb, var(--dark-fade-bottom-color) 55%, transparent) 35%,
+      transparent 100%
+    );
+  }
+
+  .dark-section--no-fade-top::before,
+  .dark-section--no-fade-bottom::after {
+    display: none;
+  }
+
+  .dark-technical__inner {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    gap: clamp(36px, 6vw, 76px);
+    align-items: center;
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .dark-technical__intro {
+    max-width: 560px;
+  }
+
+  .dark-technical__eyebrow {
+    display: inline-flex;
+    margin-bottom: 12px;
+    color: #d9ecff !important;
+    font-size: 0.8rem;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .dark-technical h2 {
+    max-width: 18ch;
+    margin: 0 0 16px;
+    color: #ffffff !important;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.75rem, 3vw, 2.55rem);
+    line-height: 1.08;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .dark-technical__description {
+    max-width: 58ch;
+    margin: 0;
+    color: rgb(255 255 255 / 84%) !important;
+    font-size: 1.03rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .dark-technical__steps {
+    max-width: 720px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .dark-technical__step {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding: 18px 0;
+    border-bottom: 1px solid rgb(255 255 255 / 20%);
+  }
+
+  .dark-technical__step:first-child {
+    padding-top: 0;
+  }
+
+  .dark-technical__step:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .dark-technical__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgb(255 255 255 / 18%);
+    border-radius: 10px;
+    background: rgb(96 165 250 / 18%);
+    color: #d9ecff !important;
+    font-size: 0.83rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .dark-technical__step h3 {
+    margin: 0 0 6px;
+    color: #ffffff !important;
+    font-size: 1.12rem;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .dark-technical__step p {
+    margin: 0;
+    color: rgb(255 255 255 / 82%) !important;
+    line-height: 1.62;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 860px) {
+    .dark-technical__inner {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+
+    .dark-technical__intro,
+    .dark-technical__steps {
+      max-width: 100%;
+    }
+
+    .dark-technical h2 {
+      max-width: 22ch;
+    }
+
+    .dark-technical__step {
+      padding: 20px 0;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .dark-technical {
+      padding: 90px 0;
+    }
+
+    .dark-technical__inner {
+      width: min(100% - 32px, 1180px);
+      gap: 32px;
+    }
+
+    .dark-technical__step {
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 13px;
+    }
+
+    .dark-technical__number {
+      width: 34px;
+      height: 34px;
+    }
+
+    .dark-technical--fade-top::before {
+      height: 82px;
+    }
+
+    .dark-technical--fade-bottom::after {
+      height: 88px;
+    }
+  }
+</style>

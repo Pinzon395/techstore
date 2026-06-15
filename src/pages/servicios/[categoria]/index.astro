@@ -25,8 +25,14 @@ const title = `Reparación de ${category.title} en Cancún | Pixon PC`;
 const description = `Servicios profesionales de reparación de ${category.title.toLowerCase()} en Cancún. ${category.services.length} servicios disponibles, garantía por escrito y diagnóstico gratis.`;
 const waMessage = encodeURIComponent(`Hola, quiero información sobre los servicios de ${category.title}`);
 
-const featured = category.services.slice(0, 3);
-const remaining = category.services.slice(3);
+const orderedServices = category.slug === 'laptop'
+  ? [
+      ...category.services.filter((service) => service.slug === 'laptop-mojada'),
+      ...category.services.filter((service) => service.slug !== 'laptop-mojada'),
+    ]
+  : category.services;
+const featured = orderedServices.slice(0, 3);
+const remaining = orderedServices.slice(3);
 const hideServicePrices = true;
 
 const schema = [

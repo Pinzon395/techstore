@@ -12,14 +12,108 @@ const faqs = [
   { question: `¿Necesito comprar componentes nuevos?`, answer: `No siempre. La optimización básica limpia software, arranque, temporales, malware y servicios innecesarios sin tocar hardware. Si tu equipo sigue limitado por disco duro, poca RAM o temperatura, te explicamos qué componente sí cambiaría el rendimiento y cuál no vale la pena.` },
   { question: `¿Cuánto tiempo dura el efecto?`, answer: `Si mantienes buenos hábitos, no instalas software basura y mantienes protección activa, el efecto puede durar de 12 a 18 meses. Si el equipo se usa para gaming, descargas pesadas o muchas apps, conviene mantenimiento peri?dico para evitar que vuelva la lentitud.` },
   { question: `¿Pierdo mis programas o archivos?`, answer: `No. La optimización conserva tus archivos y programas; solo eliminamos basura, malware, temporales y procesos innecesarios. Si alguna acción pudiera afectar datos, configuración o sesiones, te lo avisamos antes de ejecutarla para que autorices.` },
+  { question: `¿La optimización siempre aumenta los FPS?`, answer: `No prometemos una cifra fija. Puede mejorar estabilidad, uso de CPU, procesos de fondo y configuración, pero el límite final depende de procesador, tarjeta gráfica, RAM, temperatura, resolución y del propio juego.` },
+  { question: `¿Pueden bajar mi ping desde Windows?`, answer: `Podemos corregir procesos que consumen red, drivers, WiFi, configuración y pérdida de paquetes local. No podemos reducir la distancia al servidor ni resolver saturación o rutas externas del proveedor de internet.` },
+  { question: `¿También optimizan teclado, mouse y monitor para gaming?`, answer: `Sí. Revisamos frecuencia del monitor, V-Sync, límites de FPS, polling rate, aceleración del mouse, conexión USB y configuraciones que pueden aumentar la sensación de retraso.` },
+];
+
+const performanceChecks = [
+  ['CPU', 'Uso, frecuencia, procesos, límites de energía y temperatura.'],
+  ['GPU', 'Drivers, carga, VRAM, clocks, temperatura y configuración gráfica.'],
+  ['RAM', 'Capacidad, canales, frecuencia, consumo y paginación.'],
+  ['SSD / HDD', 'Salud, espacio libre, velocidad, errores y tiempos de carga.'],
+  ['Red', 'Ping, jitter, pérdida de paquetes, WiFi, Ethernet y consumo de fondo.'],
+  ['Windows', 'Inicio, servicios, malware, actualizaciones y plan de energía.'],
+];
+
+const gamingTopics = [
+  {
+    id: 'bajones-fps',
+    icon: 'fa-chart-line',
+    title: 'Bajones de FPS en juegos: cómo localizar el cuello de botella',
+    intro: 'Los FPS pueden caer por CPU saturado, GPU al 100%, poca VRAM, RAM insuficiente, temperatura, disco lento, shaders o procesos de Windows. Medimos antes de cambiar configuraciones.',
+    symptoms: ['Caídas al entrar en combate', 'FPS altos con bajones repentinos', 'Uso bajo de GPU', 'Peor rendimiento después de varios minutos'],
+    checks: ['Uso y clocks de CPU/GPU', 'Temperatura y throttling', 'VRAM, RAM y archivo de paginación', 'Configuración por juego'],
+  },
+  {
+    id: 'stuttering',
+    icon: 'fa-wave-square',
+    title: 'Stuttering y microtirones aunque el contador marque buenos FPS',
+    intro: 'Un promedio alto no garantiza fluidez. Revisamos frametimes, compilación de shaders, lectura del disco, memoria, drivers y programas que interrumpen el juego en segundo plano.',
+    symptoms: ['La imagen se congela por milisegundos', 'Tirones al mover la cámara', 'Microcortes al cargar zonas', 'Audio o Discord también se traban'],
+    checks: ['Frametime y 1% lows', 'SSD y lectura de archivos', 'RAM en dual channel', 'Overlays y capturadores'],
+  },
+  {
+    id: 'input-lag',
+    icon: 'fa-computer-mouse',
+    title: 'Menor input lag y respuesta más rápida de mouse, teclado y monitor',
+    intro: 'La latencia de entrada depende del juego, límite de FPS, sincronización, monitor, polling rate, USB, CPU y GPU. Ajustamos la cadena completa sin desactivar protecciones al azar.',
+    symptoms: ['El mouse se siente pesado', 'El disparo responde tarde', 'Teclado con retraso en partidas', 'Monitor de 144 Hz funcionando a 60 Hz'],
+    checks: ['Hz reales de pantalla', 'V-Sync, Reflex y Anti-Lag', 'Polling rate y puertos USB', 'Cola de renderizado'],
+  },
+  {
+    id: 'ping-alto',
+    icon: 'fa-signal',
+    title: 'Ping alto, jitter y pérdida de paquetes al jugar online',
+    intro: 'Subidas de ping no siempre se arreglan con un “comando mágico”. Separamos consumo local, WiFi saturado, router, cableado, servidor lejano y problemas del proveedor antes de recomendar cambios.',
+    symptoms: ['Ping que sube por momentos', 'Personajes que se teletransportan', 'Pérdida de paquetes', 'Discord se corta mientras juegas'],
+    checks: ['Ping y jitter por cable', 'Pérdida dentro y fuera de la red', 'Canal y señal WiFi', 'Descargas y procesos de fondo'],
+  },
+];
+
+const systemTopics = [
+  {
+    icon: 'fa-microchip',
+    title: 'Rendimiento de CPU y GPU sin sobrecargar el equipo',
+    text: 'Revisamos frecuencias, energía, drivers, carga real y límites térmicos. Undervolt u overclock solo se consideran cuando el hardware, BIOS y estabilidad lo permiten.',
+    points: ['Plan de energía correcto', 'Drivers limpios y compatibles', 'Pruebas de estabilidad'],
+  },
+  {
+    icon: 'fa-temperature-three-quarters',
+    title: 'Temperaturas altas, thermal throttling y ventiladores al máximo',
+    text: 'Si CPU o GPU reducen frecuencia por calor, ningún ajuste de Windows sostendrá el rendimiento. Medimos temperatura antes de recomendar limpieza, pasta térmica o curva de ventilación.',
+    points: ['Temperatura en reposo y carga', 'Frecuencia sostenida', 'Flujo de aire y mantenimiento'],
+  },
+  {
+    icon: 'fa-memory',
+    title: 'RAM insuficiente, single channel y XMP o EXPO desactivado',
+    text: 'La memoria afecta multitarea, 1% lows y estabilidad. Validamos capacidad, módulos, dual channel, frecuencia soportada y uso del archivo de paginación.',
+    points: ['Consumo real de memoria', 'Dual channel', 'Perfil XMP o EXPO compatible'],
+  },
+  {
+    icon: 'fa-hard-drive',
+    title: 'SSD lento, poco espacio y cargas tardías en juegos y programas',
+    text: 'Un almacenamiento saturado o degradado puede causar cargas largas, texturas tardías, congelamientos y arranque lento. Revisamos salud antes de limpiar o clonar.',
+    points: ['SMART y temperatura', 'Espacio libre', 'Velocidad y errores'],
+  },
+  {
+    icon: 'fa-window-restore',
+    title: 'Windows lento por programas de inicio, bloatware, virus o errores',
+    text: 'Eliminamos carga innecesaria con criterio. No desactivamos servicios esenciales ni aplicamos scripts desconocidos que puedan romper actualizaciones, seguridad o periféricos.',
+    points: ['Inicio y procesos', 'Malware y tareas programadas', 'Integridad de Windows'],
+  },
+  {
+    icon: 'fa-display',
+    title: 'Configuración gráfica correcta para calidad, FPS y estabilidad',
+    text: 'Ajustamos resolución, escalado, límite de FPS, texturas, sombras y tecnologías del fabricante según tu monitor y hardware, no con un preset universal.',
+    points: ['Resolución y refresco', 'VRAM disponible', 'Perfil por juego'],
+  },
+];
+
+const topicVisuals = [
+  { metric: '1% LOW', symbols: ['fa-gauge-high', 'fa-microchip', 'fa-display'] },
+  { metric: 'FRAME TIME', symbols: ['fa-wave-square', 'fa-stopwatch', 'fa-hard-drive'] },
+  { metric: 'RESPUESTA', symbols: ['fa-computer-mouse', 'fa-keyboard', 'fa-desktop'] },
+  { metric: 'LATENCIA', symbols: ['fa-router', 'fa-signal', 'fa-server'] },
 ];
 ---
 
 <Base
-  title="Optimización de Equipos de Cómputo | Pixon PC"
-  description="Optimización de equipos de cómputo remota y presencial. Mejora el rendimiento de tu PC o laptop sin comprar componentes nuevos."
+  title="Optimización de PC en Cancún | FPS, ping y Windows | Pixon PC"
+  description="Optimización de PC y laptop en Cancún o remota para bajones de FPS, input lag, ping alto, stuttering, Windows lento, temperatura, SSD, RAM y drivers."
   canonical="https://pixon.com.mx/optimizacion"
   image="/assets/images/responsive/optimizacion-pc-cancun.webp"
+  bodyClass="optimization-page"
   schema={[
     {
         "@context": "https://schema.org",
@@ -298,11 +392,162 @@ const faqs = [
     </section>
 
     <ServiceTicketSection
+      id="ticket-optimizacion"
       defaultDevice="Laptop / PC"
       defaultService="Optimizacion"
       title="Crear Ticket de Optimizacion"
       subtitle="Cuentanos si buscas mas velocidad, menos lag, mas FPS o limpieza de software para recomendar el paquete correcto."
     />
+
+    <main class="opt-performance-content">
+      <section class="opt-section opt-overview" id="diagnostico-rendimiento">
+        <div class="container opt-overview-grid">
+          <div>
+            <div class="opt-diagnostic-symbol" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i><i class="fa-solid fa-laptop-medical"></i><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+            <span class="opt-label">Diagnóstico antes de optimizar</span>
+            <h2>Qué revisamos para mejorar el rendimiento de una PC o laptop</h2>
+            <p>Una optimización profesional empieza midiendo. El objetivo es distinguir si la lentitud viene de Windows, red, temperatura, almacenamiento, memoria o de un límite real del hardware.</p>
+            <a class="opt-text-cta" href="#ticket-optimizacion">Solicitar revisión <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+          <div class="opt-check-rail">
+            {performanceChecks.map(([title, text]) => (
+              <article><strong>{title}</strong><p>{text}</p></article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {gamingTopics.map((topic, index) => (
+        <section class={`opt-section opt-topic opt-topic-${index + 1} ${index % 2 ? 'opt-topic-soft' : ''}`} id={topic.id}>
+          <div class="container opt-topic-grid">
+            <div class="opt-topic-copy">
+              <div class="opt-topic-visual" aria-hidden="true">
+                <span class="opt-topic-metric">{topicVisuals[index].metric}</span>
+                <div class="opt-topic-symbols">
+                  {topicVisuals[index].symbols.map((symbol) => <i class={`fa-solid ${symbol}`}></i>)}
+                </div>
+                <div class="opt-signal-bars"><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+              <h2>{topic.title}</h2>
+              <p>{topic.intro}</p>
+            </div>
+            <div class="opt-topic-details">
+              <div>
+                <h3>Señales frecuentes</h3>
+                <ul>{topic.symptoms.map((item) => <li><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>{item}</li>)}</ul>
+              </div>
+              <div>
+                <h3>Qué comprobamos</h3>
+                <ul>{topic.checks.map((item) => <li><i class="fa-solid fa-check" aria-hidden="true"></i>{item}</li>)}</ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      ))}
+
+      <section class="opt-section opt-network-limit" id="limites-ping">
+        <div class="container opt-limit-grid">
+          <div>
+            <div class="opt-network-symbol" aria-hidden="true"><i class="fa-solid fa-house-signal"></i><span></span><i class="fa-solid fa-cloud"></i><span></span><i class="fa-solid fa-server"></i></div>
+            <span class="opt-label">Red y latencia real</span>
+            <h2>Qué sí puede mejorar el ping y qué depende de tu proveedor o servidor</h2>
+            <p>Podemos corregir problemas dentro de tu PC y red local. La distancia física al servidor, una ruta internacional deficiente o la saturación externa requieren otra solución.</p>
+          </div>
+          <div class="opt-limit-columns">
+            <article>
+              <h3>Podemos revisar</h3>
+              <ul>
+                <li>Descargas y actualizaciones en segundo plano</li>
+                <li>WiFi con señal débil o canal saturado</li>
+                <li>Driver de red, ahorro de energía y cable Ethernet</li>
+                <li>Jitter y pérdida de paquetes dentro de tu red</li>
+              </ul>
+            </article>
+            <article>
+              <h3>No se debe prometer</h3>
+              <ul>
+                <li>Ping mínimo a servidores ubicados en otro continente</li>
+                <li>Corregir una caída general del proveedor desde Windows</li>
+                <li>Eliminar lag causado por servidores saturados del juego</li>
+                <li>Duplicar la velocidad contratada mediante un programa</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-mid-cta">
+        <div class="container opt-mid-cta-inner">
+          <div>
+            <h2>¿Tienes bajones de FPS, input lag o ping inestable?</h2>
+            <p>Indica tu procesador, gráfica, RAM, juego, FPS actuales, conexión y desde cuándo aparece la falla.</p>
+          </div>
+          <a href="#ticket-optimizacion" class="opt-btn"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Crear ticket de rendimiento</a>
+        </div>
+      </section>
+
+      <section class="opt-section opt-system" id="componentes-rendimiento">
+        <div class="container">
+          <header class="opt-head">
+            <div class="opt-component-symbol" aria-hidden="true"><i class="fa-solid fa-microchip"></i><i class="fa-solid fa-memory"></i><i class="fa-solid fa-hard-drive"></i><i class="fa-solid fa-fan"></i></div>
+            <span class="opt-label">Sistema y componentes</span>
+            <h2>Otros factores que limitan el rendimiento, los FPS y la estabilidad</h2>
+            <p>Completamos la revisión con los elementos que más se confunden con “falta de optimización”. Cada uno requiere pruebas diferentes.</p>
+          </header>
+          <div class="opt-system-list">
+            {systemTopics.map((topic) => (
+              <article>
+                <div class="opt-system-symbol" aria-hidden="true">
+                  <i class={`fa-solid ${topic.icon}`}></i>
+                  <span></span><span></span><span></span>
+                </div>
+                <div>
+                  <h2>{topic.title}</h2>
+                  <p>{topic.text}</p>
+                  <ul>{topic.points.map((point) => <li>{point}</li>)}</ul>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-section opt-workloads" id="optimizacion-por-uso">
+        <div class="container opt-workload-grid">
+          <div>
+            <div class="opt-workload-symbol" aria-hidden="true"><i class="fa-solid fa-laptop-code"></i><i class="fa-solid fa-gamepad"></i><i class="fa-solid fa-photo-film"></i></div>
+            <span class="opt-label">No solo gaming</span>
+            <h2>Optimización para trabajo, estudio, streaming, edición y multitarea</h2>
+            <p>El mejor ajuste depende del uso. Una PC para oficina necesita arranque limpio y estabilidad; una estación de edición necesita memoria, almacenamiento y caché; un equipo de streaming debe equilibrar juego, codificación y red.</p>
+          </div>
+          <div class="opt-workload-list">
+            <span><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Oficina y sistemas administrativos</span>
+            <span><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Clases, navegador y videollamadas</span>
+            <span><i class="fa-solid fa-video" aria-hidden="true"></i> Streaming y grabación</span>
+            <span><i class="fa-solid fa-photo-film" aria-hidden="true"></i> Edición de foto y video</span>
+            <span><i class="fa-solid fa-cubes" aria-hidden="true"></i> Render y diseño 3D</span>
+            <span><i class="fa-solid fa-code" aria-hidden="true"></i> Programación y máquinas virtuales</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-section opt-expectations" id="resultados-optimizacion">
+        <div class="container opt-expectation-grid">
+          <div>
+            <div class="opt-result-symbol" aria-hidden="true"><i class="fa-solid fa-chart-column"></i><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <span class="opt-label">Resultados medibles</span>
+            <h2>Cómo comprobamos si la optimización realmente funcionó</h2>
+            <p>Comparamos el estado inicial y final con métricas relevantes. No usamos sensaciones como única evidencia ni prometemos porcentajes idénticos para todos los equipos.</p>
+          </div>
+          <ol>
+            <li><strong>Antes</strong><span>Arranque, procesos, temperatura, almacenamiento, FPS o red según el caso.</span></li>
+            <li><strong>Ajuste</strong><span>Cambios documentados y aplicados según el cuello de botella confirmado.</span></li>
+            <li><strong>Prueba</strong><span>Validación de estabilidad, uso cotidiano y juego o programa reportado.</span></li>
+            <li><strong>Reporte</strong><span>Qué mejoró, qué sigue limitado y qué upgrade tendría sentido.</span></li>
+          </ol>
+        </div>
+      </section>
+    </main>
 
     <!-- SEO SECTIONS -->
     <section
@@ -417,8 +662,592 @@ const faqs = [
       viewMoreLabel="Ver todas las preguntas"
     />
 
+    <section class="opt-final-cta" aria-labelledby="opt-final-title">
+      <div class="container opt-final-cta-inner">
+        <div>
+          <span class="opt-label">Atención en Cancún y soporte remoto</span>
+          <h2 id="opt-final-title">Optimiza tu PC con una revisión basada en métricas</h2>
+          <p>Cuéntanos qué juego o programa falla, qué equipo utilizas y cuándo empezó el problema. Revisamos el caso antes de recomendar ajustes o componentes.</p>
+        </div>
+        <div class="opt-final-actions">
+          <a class="opt-btn" href="#ticket-optimizacion"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Crear ticket</a>
+          <a class="opt-btn opt-btn-secondary" href="https://wa.me/529986690777?text=Hola%2C%20quiero%20solicitar%20una%20revisi%C3%B3n%20de%20rendimiento%20para%20mi%20PC" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Solicitar revisión</a>
+        </div>
+      </div>
+    </section>
+
     <CommentsSection viewMoreHref="/comentarios" />
+
+  <style>
+    :global(#ticket-optimizacion) {
+      content-visibility: visible !important;
+      contain: none !important;
+    }
+    .opt-performance-content {
+      --opt-ink: #071F3A;
+      --opt-muted: #294963;
+      --opt-blue: #1479D4;
+      --opt-line: #D6E3EE;
+      background: #F8FAFC;
+      color: var(--opt-ink);
+    }
+    .opt-performance-content :where(h2, h3, p, li, span, strong, a) {
+      color: var(--opt-ink);
+    }
+    .opt-section {
+      padding: clamp(56px, 8vw, 96px) 0;
+      background: #F8FAFC;
+      content-visibility: visible !important;
+      contain: none !important;
+    }
+    .opt-section h2,
+    .opt-mid-cta h2 {
+      margin: 10px 0 14px;
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3.2vw, 3rem);
+      font-style: italic;
+      font-weight: 800;
+      line-height: 1.08;
+      text-wrap: balance;
+    }
+    .opt-section h3 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.25;
+    }
+    .opt-section p,
+    .opt-mid-cta p {
+      margin: 0;
+      color: var(--opt-muted);
+      font-weight: 500;
+      line-height: 1.7;
+    }
+    .opt-label {
+      display: inline-flex;
+      color: var(--opt-blue) !important;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .opt-overview-grid,
+    .opt-topic-grid,
+    .opt-limit-grid,
+    .opt-workload-grid,
+    .opt-expectation-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+      gap: clamp(28px, 6vw, 76px);
+      align-items: start;
+    }
+    .opt-text-cta,
+    .opt-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 46px;
+      margin-top: 20px;
+      padding: 11px 17px;
+      border-radius: 8px;
+      background: var(--opt-blue);
+      color: #FFFFFF !important;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 160ms cubic-bezier(.23, 1, .32, 1), background-color 160ms ease;
+    }
+    .opt-text-cta:active,
+    .opt-btn:active {
+      transform: scale(.97);
+    }
+    .opt-check-rail {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 1px solid var(--opt-line);
+    }
+    .opt-diagnostic-symbol {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .opt-diagnostic-symbol i {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid #A9D4F2;
+      border-radius: 50%;
+      color: var(--opt-blue);
+      background: #FFFFFF;
+    }
+    .opt-diagnostic-symbol i + i { margin-left: -7px; }
+    .opt-check-rail article {
+      min-width: 0;
+      padding: 18px 18px 18px 0;
+      border-bottom: 1px solid var(--opt-line);
+    }
+    .opt-check-rail article:nth-child(odd) {
+      border-right: 1px solid var(--opt-line);
+    }
+    .opt-check-rail article:nth-child(even) {
+      padding-left: 18px;
+    }
+    .opt-check-rail strong {
+      display: block;
+      margin-bottom: 5px;
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 800;
+    }
+    .opt-check-rail p {
+      font-size: .92rem;
+    }
+    .opt-topic {
+      background: #FFFFFF;
+    }
+    .opt-topic-soft {
+      background: #EEF6FC;
+    }
+    .opt-topic-visual {
+      position: relative;
+      width: min(100%, 430px);
+      min-height: 112px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #071F3A;
+      color: #FFFFFF;
+    }
+    .opt-topic-metric {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      color: #B8DFFF !important;
+      font-size: .7rem;
+      font-weight: 800;
+    }
+    .opt-topic-symbols {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    .opt-topic-symbols i {
+      color: #FFFFFF;
+      font-size: 1.4rem;
+    }
+    .opt-topic-symbols i:nth-child(2) {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border: 1px solid rgba(184, 223, 255, .55);
+      border-radius: 50%;
+      color: #62B8F6;
+      font-size: 1.6rem;
+    }
+    .opt-signal-bars {
+      position: absolute;
+      right: 16px;
+      bottom: 15px;
+      left: 16px;
+      display: flex;
+      align-items: end;
+      gap: 5px;
+      height: 18px;
+    }
+    .opt-signal-bars span {
+      flex: 1;
+      height: 35%;
+      background: #1479D4;
+    }
+    .opt-signal-bars span:nth-child(2) { height: 70%; }
+    .opt-signal-bars span:nth-child(3) { height: 45%; }
+    .opt-signal-bars span:nth-child(4) { height: 92%; }
+    .opt-signal-bars span:nth-child(5) { height: 58%; }
+    .opt-topic-2 .opt-topic-grid {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+    }
+    .opt-topic-2 .opt-topic-copy { grid-column: 2; }
+    .opt-topic-2 .opt-topic-details { grid-column: 1; grid-row: 1; }
+    .opt-topic-2 .opt-topic-visual {
+      background: #E1F1FD;
+      border: 1px solid #A9D4F2;
+    }
+    .opt-topic-2 .opt-topic-symbols i { color: #071F3A; }
+    .opt-topic-2 .opt-signal-bars span:nth-child(odd) { height: 90%; }
+    .opt-topic-2 .opt-signal-bars span:nth-child(even) { height: 20%; }
+    .opt-topic-3 { background: #DCECF7; }
+    .opt-topic-3 .opt-topic-grid { align-items: center; }
+    .opt-topic-3 .opt-topic-details { border-color: #A9CBE2; }
+    .opt-topic-3 .opt-topic-visual {
+      background: #FFFFFF;
+      box-shadow: 10px 10px 0 #1479D4;
+    }
+    .opt-topic-3 .opt-topic-symbols i { color: #071F3A; }
+    .opt-topic-3 .opt-topic-symbols i:nth-child(2) { border-color: #1479D4; color: #1479D4; }
+    .opt-topic-4 .opt-topic-grid {
+      grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+    }
+    .opt-topic-4 .opt-topic-visual {
+      min-height: 150px;
+      background: #DDEFFA;
+    }
+    .opt-topic-4 .opt-topic-symbols { gap: 36px; }
+    .opt-topic-4 .opt-topic-symbols i { color: #071F3A; }
+    .opt-topic-4 .opt-topic-symbols:before,
+    .opt-topic-4 .opt-topic-symbols:after {
+      content: '';
+      width: 42px;
+      border-top: 2px dashed #1479D4;
+    }
+    .opt-topic-details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 26px;
+      border-top: 1px solid var(--opt-line);
+      padding-top: 20px;
+    }
+    .opt-topic-details ul,
+    .opt-limit-columns ul,
+    .opt-system-list ul {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .opt-topic-details li {
+      display: flex;
+      gap: 9px;
+      font-weight: 600;
+    }
+    .opt-topic-details li i {
+      color: var(--opt-blue);
+      margin-top: 4px;
+    }
+    .opt-network-limit {
+      background: #F8FAFC;
+    }
+    .opt-network-symbol {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: min(100%, 360px);
+      margin-bottom: 20px;
+      color: var(--opt-blue);
+      font-size: 1.25rem;
+    }
+    .opt-network-symbol span {
+      flex: 1;
+      border-top: 2px dashed #8ABFE8;
+    }
+    .opt-limit-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .opt-limit-columns article {
+      padding: 22px;
+      border-top: 3px solid var(--opt-blue);
+      background: #FFFFFF;
+    }
+    .opt-limit-columns li {
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--opt-line);
+      font-weight: 500;
+    }
+    .opt-mid-cta {
+      padding: 42px 0;
+      background: #DDEFFA;
+    }
+    .opt-mid-cta-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .opt-mid-cta h2 {
+      color: var(--opt-ink);
+      font-size: clamp(1.55rem, 2.7vw, 2.35rem);
+    }
+    .opt-mid-cta .opt-btn {
+      flex: 0 0 auto;
+      margin-top: 0;
+    }
+    .opt-system {
+      background: #FFFFFF;
+    }
+    .opt-head {
+      max-width: 880px;
+      margin-bottom: 36px;
+    }
+    .opt-component-symbol {
+      display: grid;
+      grid-template-columns: repeat(4, 42px);
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+    .opt-component-symbol i {
+      display: grid;
+      height: 42px;
+      place-items: center;
+      border-radius: 6px;
+      color: #FFFFFF;
+      background: #071F3A;
+    }
+    .opt-component-symbol i:nth-child(even) { color: #071F3A; background: #B8DFFF; }
+    .opt-system-list {
+      border-top: 1px solid var(--opt-line);
+    }
+    .opt-system-list article {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      gap: 20px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--opt-line);
+    }
+    .opt-system-symbol {
+      position: relative;
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--opt-blue);
+      background: #E1F1FD;
+    }
+    .opt-system-symbol span {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .opt-system-symbol span:nth-child(2) { top: 6px; right: 6px; }
+    .opt-system-symbol span:nth-child(3) { right: 6px; bottom: 6px; }
+    .opt-system-symbol span:nth-child(4) { bottom: 6px; left: 6px; }
+    .opt-system-list article:nth-child(even) {
+      grid-template-columns: minmax(0, 1fr) 54px;
+      padding: 32px 24px;
+      background: #EEF6FC;
+    }
+    .opt-system-list article:nth-child(even) .opt-system-symbol { grid-column: 2; grid-row: 1; }
+    .opt-system-list article:nth-child(even) > div:last-child { grid-column: 1; grid-row: 1; }
+    .opt-system-list article:nth-child(3n) .opt-system-symbol {
+      color: #FFFFFF;
+      background: #1479D4;
+      transform: rotate(8deg);
+    }
+    .opt-system-list h2 {
+      margin-top: 0;
+      font-size: clamp(1.45rem, 2.4vw, 2.15rem);
+    }
+    .opt-system-list ul {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+    .opt-system-list li {
+      padding: 9px 11px;
+      border: 1px solid var(--opt-line);
+      border-radius: 8px;
+      background: #F8FAFC;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+    .opt-workloads {
+      background: #EEF6FC;
+    }
+    .opt-workload-symbol {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .opt-workload-symbol i {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border-radius: 50%;
+      color: #FFFFFF;
+      background: #071F3A;
+    }
+    .opt-workload-symbol i:nth-child(2) { background: #1479D4; transform: translateY(-8px); }
+    .opt-workload-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .opt-workload-list span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 12px 14px;
+      border: 1px solid var(--opt-line);
+      border-radius: 8px;
+      background: #FFFFFF;
+      font-weight: 600;
+    }
+    .opt-workload-list i {
+      color: var(--opt-blue);
+    }
+    .opt-expectations {
+      background: #FFFFFF;
+    }
+    .opt-result-symbol {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding: 13px 16px;
+      border-radius: 8px;
+      color: #FFFFFF;
+      background: #071F3A;
+      font-size: 1.3rem;
+    }
+    .opt-result-symbol i:last-child { color: #62B8F6; }
+    .opt-expectation-grid ol {
+      display: grid;
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--opt-line);
+    }
+    .opt-expectation-grid li {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr);
+      gap: 18px;
+      padding: 17px 0;
+      border-bottom: 1px solid var(--opt-line);
+    }
+    .opt-expectation-grid strong {
+      color: var(--opt-blue);
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 800;
+    }
+    .opt-expectation-grid span {
+      color: var(--opt-muted);
+    }
+    .opt-final-cta {
+      padding: clamp(56px, 8vw, 88px) 0;
+      background: #EAF4FC;
+      color: #071F3A;
+      content-visibility: visible !important;
+      contain: none !important;
+    }
+    .opt-final-cta-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) auto;
+      gap: clamp(28px, 6vw, 72px);
+      align-items: center;
+    }
+    .opt-final-cta h2 {
+      margin: 10px 0 12px;
+      color: #071F3A;
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-style: italic;
+      font-weight: 800;
+      line-height: 1.08;
+    }
+    .opt-final-cta p {
+      max-width: 760px;
+      margin: 0;
+      color: #294963;
+      font-weight: 500;
+      line-height: 1.7;
+    }
+    .opt-final-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .opt-final-actions .opt-btn {
+      margin-top: 0;
+    }
+    .opt-btn-secondary {
+      background: #071F3A;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .opt-text-cta:hover,
+      .opt-btn:hover {
+        transform: translateY(-2px);
+        background: #0F68B8;
+      }
+    }
+    @media (max-width: 900px) {
+      .opt-overview-grid,
+      .opt-topic-grid,
+      .opt-limit-grid,
+      .opt-workload-grid,
+      .opt-expectation-grid {
+        grid-template-columns: 1fr;
+      }
+      .opt-topic-2 .opt-topic-copy,
+      .opt-topic-2 .opt-topic-details {
+        grid-column: auto;
+        grid-row: auto;
+      }
+      .opt-mid-cta-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .opt-final-cta-inner {
+        grid-template-columns: 1fr;
+      }
+      .opt-final-actions {
+        justify-content: flex-start;
+      }
+    }
+    @media (max-width: 640px) {
+      .opt-section {
+        padding: 48px 0;
+      }
+      .opt-check-rail,
+      .opt-topic-details,
+      .opt-limit-columns,
+      .opt-system-list ul,
+      .opt-workload-list {
+        grid-template-columns: 1fr;
+      }
+      .opt-check-rail article:nth-child(odd) {
+        border-right: 0;
+      }
+      .opt-check-rail article:nth-child(even) {
+        padding-left: 0;
+      }
+      .opt-system-list article {
+        grid-template-columns: 1fr;
+      }
+      .opt-system-list article:nth-child(even) {
+        grid-template-columns: 1fr;
+        padding: 24px 18px;
+      }
+      .opt-system-list article:nth-child(even) .opt-system-symbol,
+      .opt-system-list article:nth-child(even) > div:last-child {
+        grid-column: auto;
+        grid-row: auto;
+      }
+      .opt-mid-cta .opt-btn {
+        width: 100%;
+      }
+      .opt-final-actions,
+      .opt-final-actions .opt-btn {
+        width: 100%;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .opt-text-cta,
+      .opt-btn {
+        transition: none;
+      }
+    }
+  </style>
 
   <Footer />
 </Base>
-

@@ -3,7 +3,7 @@
  * Maneja cache offline y mejora rendimiento
  */
 
-const CACHE_NAME = 'pixon-20260607-1';
+const CACHE_NAME = 'pixon-20260614-3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

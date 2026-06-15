@@ -1,4 +1,8 @@
 ---
+import HeroWithFloatingCards from '../HeroWithFloatingCards.astro';
+import DiagnosticSection from '../DiagnosticSection.astro';
+import BeforeAfterSection from '../BeforeAfterSection.astro';
+import DarkTechnicalSection from '../DarkTechnicalSection.astro';
 import FaqSection from '../FaqSection.astro';
 import RelatedServicesSection from '../RelatedServicesSection.astro';
 import CommentsSection from '../CommentsSection.astro';
@@ -7,986 +11,256 @@ import ServiceTicketSection from '../ServiceTicketSection.astro';
 import Footer from '../Footer.astro';
 
 const { service, category } = Astro.props;
+const whatsappText = encodeURIComponent('Hola, necesito revisar el sobrecalentamiento de mi laptop o PC y saber si requiere cambio de pasta térmica.');
 
-const whatsappText = encodeURIComponent(
-  'Hola, necesito cambio de pasta termica para laptop en Cancun. Mi laptop se calienta, suena fuerte, baja rendimiento o se apaga.'
-);
-
-const symptoms = [
-  ['fa-temperature-high', 'Laptop se calienta demasiado en Cancún', 'Revisamos temperatura real de CPU y GPU, polvo interno, ventilador, disipador, pasta térmica seca y flujo de aire antes de intervenir.'],
-  ['fa-volume-high', 'Ventilador fuerte todo el tiempo', 'El ventilador acelerado suele indicar polvo, pasta vencida, thermal throttling, procesos pesados o disipador bloqueado.'],
-  ['fa-power-off', 'Se apaga al jugar, editar o abrir programas pesados', 'Validamos si el apagado viene de temperatura, batería, cargador, motherboard, SSD, RAM o sistema operativo.'],
-  ['fa-gauge-high', 'Baja FPS o rendimiento después de unos minutos', 'En laptops gamer el calor reduce frecuencia del CPU/GPU. Probamos estabilidad bajo carga y temperatura sostenida.'],
-  ['fa-fire-flame-curved', 'Teclado, carcasa o base muy caliente', 'No basta con limpiar por fuera. Hay que revisar disipador, heatpipes, pads térmicos, ventilador y pasta del procesador.'],
-  ['fa-cloud-sun-rain', 'Humedad, polvo y salitre de Cancún', 'El clima local acelera polvo pegado, corrosión ligera y obstrucción de ventilación, sobre todo si el equipo trabaja a diario.'],
+const diagnosticItems = [
+  { label: 'CPU', detail: 'Temperatura, frecuencia y estabilidad bajo carga.', status: 'Medición', icon: 'fa-microchip' },
+  { label: 'GPU', detail: 'Calor, ventilación y pérdida de rendimiento gráfico.', status: 'Prueba', icon: 'fa-display' },
+  { label: 'Ventilador', detail: 'Velocidad, ruido, desgaste y movimiento de aire.', status: 'Inspección', icon: 'fa-fan' },
+  { label: 'Disipador', detail: 'Contacto, polvo, presión y estado de heatpipes.', status: 'Revisión', icon: 'fa-temperature-half' },
+  { label: 'Pasta térmica', detail: 'Estado, cobertura y compuesto adecuado al equipo.', status: 'Decisión', icon: 'fa-droplet' },
 ];
 
-const included = [
-  ['01', 'Diagnóstico térmico inicial', 'Medimos comportamiento, ruido, temperatura, uso de CPU/GPU, ventilador y síntomas antes de abrir la laptop.'],
-  ['02', 'Apertura segura por modelo', 'Desarmamos HP, Dell, Lenovo, Asus, Acer, MSI, Alienware, ROG, Legion, Victus, Omen y MacBook según su arquitectura.'],
-  ['03', 'Limpieza interna real', 'Retiramos polvo de ventilador, disipador, rejillas y zona térmica. No es limpieza superficial de carcasa.'],
-  ['04', 'Cambio de pasta térmica premium', 'Retiramos compuesto seco, limpiamos superficie de CPU/GPU y aplicamos pasta de calidad en cantidad correcta.'],
-  ['05', 'Revisión de thermal pads', 'Si hay pads resecos, deformados o fuera de contacto, te avisamos antes de cambiarlos para evitar temperaturas desbalanceadas.'],
-  ['06', 'Prueba final y recomendaciones', 'Probamos temperatura, ruido, estabilidad, carga real y te damos recomendaciones para evitar sobrecalentamiento.'],
+const technicalSteps = [
+  { title: 'Medimos antes de abrir', description: 'Registramos temperatura, ruido y rendimiento para no intervenir por intuición.' },
+  { title: 'Localizamos la restricción', description: 'Revisamos ventiladores, rejillas, disipador, pasta, pads y flujo de aire.' },
+  { title: 'Hacemos el servicio necesario', description: 'Limpiamos, ajustamos o reemplazamos el compuesto solo cuando corresponde.' },
+  { title: 'Comprobamos bajo carga', description: 'Validamos temperatura, estabilidad y respuesta antes de entregar.' },
 ];
 
-const laptopTypes = [
-  ['fa-gamepad', 'Laptop gamer en Cancún', 'Mantenimiento térmico para Asus ROG/TUF, Lenovo Legion/LOQ, HP Omen/Victus, Dell Alienware/G Series, MSI, Acer Nitro y Predator.'],
-  ['fa-briefcase', 'Laptop de oficina o escuela', 'Ideal para HP Pavilion, Dell Inspiron, Lenovo IdeaPad, Acer Aspire, Asus VivoBook, ThinkPad, Latitude y EliteBook con calor o lentitud.'],
-  ['fa-laptop-code', 'Workstation y diseño', 'Revisamos laptops para AutoCAD, arquitectura, edición, streaming, programación y render donde el calor afecta rendimiento sostenido.'],
-  ['fa-apple-whole', 'MacBook y ultrabooks', 'En equipos delgados cuidamos flex, tornillería, batería, pads, disipador compacto y ventilación limitada por diseño.'],
-];
-
-const decisionCards = [
-  {
-    title: 'Solo pasta térmica',
-    badge: 'Cuando aplica',
-    points: ['Pasta seca o vencida', 'Ventilador limpio', 'Disipador sin bloqueo fuerte', 'Temperatura alta bajo carga'],
-  },
-  {
-    title: 'Mantenimiento preventivo completo',
-    badge: 'Lo más común',
-    points: ['Polvo interno visible', 'Más de 12 meses sin abrir', 'Ruido fuerte', 'Lentitud por temperatura'],
-  },
-  {
-    title: 'Diagnóstico de falla térmica',
-    badge: 'Si hay apagados',
-    points: ['Se apaga de golpe', 'No detecta ventilador', 'Batería o cargador dudoso', 'Daño por humedad o motherboard'],
-  },
+const process = [
+  ['01', 'Abrimos', 'Desarmado seguro según modelo y arquitectura térmica.'],
+  ['02', 'Limpiamos', 'Retiro de polvo en ventiladores, rejillas y disipadores.'],
+  ['03', 'Revisamos', 'Pasta, thermal pads, heatpipes, presión y conectores.'],
+  ['04', 'Ensamblamos', 'Aplicación correcta y cierre sin forzar clips o flex.'],
+  ['05', 'Probamos', 'Carga controlada, temperatura, ruido y estabilidad final.'],
 ];
 
 const relatedCards = [
-  {
-    href: '/servicios/laptop/mantenimiento-preventivo',
-    icon: 'fa-screwdriver-wrench',
-    label: 'Mantenimiento preventivo de laptop',
-    desc: 'Limpieza interna, revisión térmica, ventilador, batería, disco y reporte para evitar fallas caras.',
-    cta: 'Ver mantenimiento →',
-  },
-  {
-    href: '/servicios/laptop/diagnostico',
-    icon: 'fa-stethoscope',
-    label: 'Diagnóstico de laptop',
-    desc: 'Si no sabes si es pasta, ventilador, batería, cargador o motherboard, empezamos con pruebas reales.',
-    cta: 'Diagnosticar laptop →',
-  },
-  {
-    href: '/servicios/laptop/upgrade',
-    icon: 'fa-memory',
-    label: 'Upgrade SSD y RAM',
-    desc: 'Una laptop lenta puede necesitar temperatura estable, SSD y memoria suficiente para rendir bien.',
-    cta: 'Ver upgrade →',
-  },
-  {
-    href: '/servicios/pc/refrigeracion',
-    icon: 'fa-fan',
-    label: 'Refrigeración para PC',
-    desc: 'Si también tienes PC gamer o de trabajo, revisamos airflow, ventiladores, disipador y pasta térmica.',
-    cta: 'Ver refrigeración →',
-  },
-  {
-    href: '/mantenimiento-mac',
-    icon: 'fa-apple',
-    label: 'Mantenimiento MacBook',
-    desc: 'Servicio especializado para MacBook con revisión de temperatura, ventilación y limpieza interna.',
-    cta: 'Ver MacBook →',
-  },
-  {
-    href: '/limpieza-laptop-liquido',
-    icon: 'fa-droplet',
-    label: 'Limpieza por líquido',
-    desc: 'Si hubo derrame, humedad o salitre, el calor puede ser síntoma de daño interno o corrosión.',
-    cta: 'Ver limpieza →',
-  },
+  { href: '/servicios/laptop/mantenimiento-preventivo', icon: 'fa-screwdriver-wrench', label: 'Mantenimiento de laptop', desc: 'Limpieza interna, ventilación, batería, almacenamiento y temperatura.', cta: 'Ver servicio' },
+  { href: '/servicios/pc/limpieza-profunda', icon: 'fa-computer', label: 'Limpieza profunda de PC', desc: 'Gabinetes con polvo, ventiladores saturados y flujo de aire limitado.', cta: 'Ver servicio' },
+  { href: '/servicios/pc/tarjeta-video-gpu', icon: 'fa-microchip', label: 'Revisión de tarjeta gráfica', desc: 'GPU con temperatura alta, artefactos, cierres o ventiladores ruidosos.', cta: 'Ver servicio' },
+  { href: '/servicios/laptop/diagnostico', icon: 'fa-stethoscope', label: 'Diagnóstico de laptop', desc: 'Para apagados o lentitud donde la causa aún no está clara.', cta: 'Ver servicio' },
+  { href: '/servicios/laptop/laptop-mojada', icon: 'fa-droplet', label: 'Laptop mojada o con corrosión', desc: 'Líquido y humedad requieren revisión distinta antes de intervenir.', cta: 'Ver servicio' },
+  { href: '/servicios/pc/instalacion-componentes', icon: 'fa-memory', label: 'Instalación de componentes', desc: 'Ventiladores, disipadores y componentes con compatibilidad previa.', cta: 'Ver servicio' },
 ];
 
 const faqs = [
-  {
-    question: '¿Cuánto cuesta cambiar la pasta térmica de una laptop en Cancún?',
-    answer: 'El servicio inicia desde $550 MXN, pero el costo final depende del modelo, nivel de desarme, si requiere limpieza profunda, thermal pads, ventilador o diagnóstico adicional. Primero revisamos la laptop para confirmar si realmente necesita cambio de pasta térmica o mantenimiento preventivo completo.',
-  },
-  {
-    question: '¿Cada cuánto se cambia la pasta térmica de una laptop?',
-    answer: 'En Cancún recomendamos revisar cada 12 a 18 meses por calor, humedad y polvo. En laptops gamer, equipos de diseño, render o uso diario intenso puede convenir antes si hay ventilador fuerte, apagados, bajo rendimiento o temperaturas altas.',
-  },
-  {
-    question: '¿Cambiar pasta térmica arregla una laptop que se apaga sola?',
-    answer: 'Puede solucionarlo si el apagado ocurre por sobrecalentamiento. Aun así validamos batería, cargador, SSD, RAM, ventilador y motherboard para no cambiar pasta térmica si el problema real es eléctrico o de placa.',
-  },
-  {
-    question: '¿El mantenimiento térmico mejora los FPS en laptop gamer?',
-    answer: 'Sí puede mejorar estabilidad y FPS sostenidos si el equipo estaba bajando frecuencia por thermal throttling. Probamos temperatura y carga para confirmar que el CPU/GPU mantengan mejor rendimiento después del servicio.',
-  },
-  {
-    question: '¿También cambian thermal pads?',
-    answer: 'Sí, pero solo cuando aplica. No todos los equipos usan los mismos grosores ni materiales. Si los pads están resecos, rotos o sin contacto correcto, te avisamos y cotizamos antes de cambiarlos.',
-  },
-  {
-    question: '¿Puedo usar mi laptop el mismo día?',
-    answer: 'Depende del modelo y la carga de trabajo. Muchos mantenimientos se resuelven el mismo día o en 24 horas, pero equipos gamer, ultrabooks o casos con apagados requieren pruebas más completas antes de entregar.',
-  },
+  { question: '¿Cuánto cuesta el cambio de pasta térmica en Cancún?', answer: 'El servicio inicia desde $550 MXN. El costo depende del equipo, complejidad de apertura, cantidad de chips, estado de ventiladores y si necesita thermal pads o reparación adicional. Se confirma después del diagnóstico.' },
+  { question: '¿Cada cuánto debe cambiarse la pasta térmica?', answer: 'No existe un intervalo idéntico para todos los equipos. Conviene revisarla cuando aparecen temperaturas anormales, ruido, pérdida de rendimiento o después de un periodo prolongado sin mantenimiento.' },
+  { question: '¿Cambiar la pasta térmica siempre baja la temperatura?', answer: 'No necesariamente. Si la causa es un ventilador dañado, heatpipe defectuoso, mala ventilación, software o un disipador mal instalado, cambiar solo la pasta no resuelve el problema.' },
+  { question: '¿Atienden PC gamer y laptop gamer?', answer: 'Sí. Revisamos laptops gamer, PC ensambladas, equipos de oficina y workstations. La intervención cambia según su sistema de refrigeración.' },
+  { question: '¿También cambian thermal pads?', answer: 'Sí, cuando están dañados y se puede confirmar material y grosor correctos. Un pad incorrecto puede empeorar el contacto del disipador.' },
+  { question: '¿Cuánto tarda el servicio?', answer: 'Normalmente entre 24 y 48 horas. Puede tomar más si hay apagados intermitentes, ventiladores dañados, enfriamiento líquido o necesidad de pruebas prolongadas.' },
 ];
 ---
 
-<div class="ltp-page">
-  <section class="ltp-hero">
-    <div class="container ltp-hero-grid">
-      <div class="ltp-hero-copy">
-        <span class="ltp-kicker"><i class="fa-solid fa-location-dot"></i> Servicio térmico de laptop en Cancún</span>
-        <h1>Cambio de pasta térmica para laptop en Cancún</h1>
-        <h2>Solución para laptop que se calienta, ventilador fuerte, apagados, bajo rendimiento y thermal throttling.</h2>
-        <p>
-          En Pixon PC no cambiamos pasta térmica a ciegas. Primero revisamos temperatura, ventilador, disipador, polvo, thermal pads, uso de CPU/GPU y condiciones del equipo para decidir si necesita pasta, mantenimiento preventivo o diagnóstico de falla térmica.
-        </p>
-        <div class="ltp-tags" aria-label="Servicios incluidos">
-          <span>HP, Dell, Lenovo, Asus, Acer</span>
-          <span>Legion, ROG, Omen, Victus, MSI</span>
-          <span>Prueba de temperatura</span>
-          <span>Garantía por escrito</span>
-        </div>
-        <div class="ltp-actions">
-          <a class="ltp-btn ltp-primary" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener">
-            <i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp
-          </a>
-          <a class="ltp-btn ltp-secondary" href="#diagnostico-termico-laptop">
-            Ver diagnóstico térmico <i class="fa-solid fa-arrow-down"></i>
-          </a>
-        </div>
-        <div class="ltp-trust">
-          <span><strong>Desde {service.fromPrice || '$550 MXN'}</strong> según modelo</span>
-          <span><strong>24-48 h</strong> promedio</span>
-          <span><strong>3 meses</strong> mano de obra</span>
-        </div>
-      </div>
+<div class="thermal-page">
+  <HeroWithFloatingCards
+    eyebrow="Servicio térmico para laptop y PC en Cancún"
+    title="Sobrecalentamiento y cambio de pasta térmica en Cancún"
+    description="Diagnosticamos equipos que se calientan, hacen demasiado ruido, pierden rendimiento o se apagan. Revisamos la causa antes de cambiar pasta térmica o recomendar piezas."
+    image="/assets/images/mantenimiento-pastaternima-thermalpads.webp"
+    imageAlt="Cambio de pasta térmica y revisión de sobrecalentamiento en Cancún"
+    badges={[
+      { icon: 'fa-stethoscope', label: 'Diagnóstico', value: 'Térmico y funcional' },
+      { icon: 'fa-fan', label: 'Servicio', value: 'Limpieza interna' },
+    ]}
+    price={service.fromPrice || '$550 MXN'}
+    primaryHref={`https://wa.me/529986690777?text=${whatsappText}`}
+    primaryLabel="Solicitar revisión"
+    secondaryHref="#ticket-sobrecalentamiento"
+    secondaryLabel="Crear ticket"
+    benefits={['Diagnóstico antes de intervenir', 'Laptop, PC y gamer', 'Prueba térmica final']}
+  />
 
-      <aside class="ltp-hero-card">
-        <img
-          src="/assets/images/mantenimiento-pastaternima-thermalpads.webp"
-          alt="Cambio de pasta térmica y thermal pads para laptop en Cancún"
-          width="1200"
-          height="900"
-          loading="eager"
-          decoding="async"
-          fetchpriority="high"
-        />
-        <div class="ltp-temp-panel" aria-label="Mejora térmica esperada">
-          <div>
-            <span>Antes</span>
-            <strong>90°C+</strong>
-            <small>ruido, throttling, apagados</small>
-          </div>
-          <i class="fa-solid fa-arrow-right"></i>
-          <div>
-            <span>Después</span>
-            <strong>menos calor</strong>
-            <small>temperatura estable y prueba final</small>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </section>
+  <main>
+    <DiagnosticSection
+      eyebrow="Diagnóstico térmico"
+      title="Cinco puntos que revisamos antes de recomendar una solución"
+      description="El calor es un síntoma. Este tablero resume los componentes que determinan si el equipo necesita limpieza, pasta térmica, ventilador, ajuste de montaje o una reparación distinta."
+      items={diagnosticItems}
+    />
 
-  <section class="ltp-section ltp-local">
-    <div class="container ltp-local-grid">
-      <div>
-        <span class="ltp-eyebrow">SEO local real</span>
-        <h2>Pasta térmica para laptop gamer, de oficina y MacBook en Cancún</h2>
-        <p>
-          Atendemos laptops con sobrecalentamiento en Cancún Centro, Huayacán, Cumbres, Bonampak, Zona Hotelera, Puerto Cancún, Polígono Sur y alrededores. El calor de Cancún, la humedad, el polvo y el salitre hacen que el mantenimiento térmico sea más importante que en climas secos.
-        </p>
-      </div>
-      <div class="ltp-local-card">
-        <i class="fa-solid fa-map-location-dot"></i>
-        <h3>Keywords principales trabajadas</h3>
-        <p>Cambio de pasta térmica laptop Cancún, laptop se calienta Cancún, mantenimiento preventivo laptop Cancún, limpieza interna laptop gamer Cancún y reparación por sobrecalentamiento.</p>
-      </div>
-    </div>
-  </section>
+    <DarkTechnicalSection
+      id="ruta-tecnica"
+      eyebrow="Ruta técnica"
+      title="La solución cambia según dónde se queda atrapado el calor"
+      description="No tratamos igual una pasta seca, un ventilador desgastado, un heatpipe defectuoso o un gabinete sin flujo de aire. La medición guía la intervención."
+      steps={technicalSteps}
+      topFadeColor="#f4f8fb"
+      bottomFadeColor="#ffffff"
+    />
 
-  <section class="ltp-section ltp-symptoms">
-    <div class="container">
-      <div class="ltp-head">
-        <span class="ltp-eyebrow">Síntomas comunes</span>
-        <h2>¿Cuándo necesita cambio de pasta térmica una laptop?</h2>
-        <p>Estos síntomas pueden parecer normales, pero suelen indicar pérdida de transferencia térmica, polvo interno o ventilación limitada.</p>
-      </div>
-      <div class="ltp-symptom-grid">
-        {symptoms.map(([icon, title, text]) => (
-          <article>
-            <i class={`fa-solid ${icon}`}></i>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
+    <BeforeAfterSection
+      title="Cómo se ve una respuesta térmica más estable"
+      description="La meta no es perseguir una cifra universal, sino evitar picos, ruido excesivo y pérdida de frecuencia. La comparación muestra el tipo de cambio que buscamos y medimos."
+    />
 
-  <section class="ltp-section" id="diagnostico-termico-laptop">
-    <div class="container ltp-split">
-      <div class="ltp-image-card">
-        <img
-          src="/assets/images/laptop-gamer-rogstrix.webp"
-          alt="Laptop gamer con mantenimiento térmico y limpieza interna en Cancún"
-          width="1200"
-          height="900"
-          loading="lazy"
-          decoding="async"
-        />
-        <div>
-          <strong>Pruebas bajo carga</strong>
-          <span>Temperatura, ruido, rendimiento y estabilidad antes de entregar.</span>
-        </div>
-      </div>
-      <div>
-        <span class="ltp-eyebrow">Proceso técnico</span>
-        <h2>Qué incluye el cambio de pasta térmica de laptop</h2>
-        <p>Un servicio correcto no es solo poner pasta nueva. El resultado depende de limpieza interna, contacto del disipador, presión, pads térmicos, ventilador y pruebas posteriores.</p>
-        <div class="ltp-process">
-          {included.map(([num, title, text]) => (
-            <article>
-              <strong>{num}</strong>
-              <div>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </div>
-            </article>
+    <section class="process-section">
+      <div class="page-shell">
+        <header class="section-intro">
+          <span>Limpieza interna</span>
+          <h2>Un proceso continuo, no una foto decorativa</h2>
+          <p>La calidad del servicio depende de cómo se abre, limpia, inspecciona, ensambla y prueba el equipo. Cada paso deja preparado el siguiente.</p>
+        </header>
+        <ol class="process-track">
+          {process.map(([number, title, description]) => (
+            <li><strong>{number}</strong><div><h3>{title}</h3><p>{description}</p></div></li>
           ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="device-section">
+      <div class="device-section__media" role="img" aria-label="Mantenimiento térmico para laptop gamer y PC en Cancún"></div>
+      <div class="page-shell device-section__content">
+        <span class="section-label">Equipos de alto rendimiento</span>
+        <h2>Laptop gamer, PC ensamblada y workstation</h2>
+        <p>En equipos de juego, arquitectura, edición o render revisamos CPU y GPU como un sistema. También verificamos la ventilación del gabinete, presión del disipador, pads de memoria y enfriamiento líquido cuando aplica.</p>
+        <div class="device-metrics">
+          <div><strong>CPU + GPU</strong><span>Evaluación conjunta</span></div>
+          <div><strong>Aire + contacto</strong><span>Dos rutas de calor</span></div>
+          <div><strong>Carga real</strong><span>Prueba según uso</span></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="ltp-section ltp-types">
-    <div class="container">
-      <div class="ltp-head">
-        <span class="ltp-eyebrow">Modelos que atendemos</span>
-        <h2>Mantenimiento térmico para laptop gamer, oficina, workstation y MacBook</h2>
-        <p>La técnica cambia según el equipo. Una laptop gamer con CPU/GPU dedicada no se trabaja igual que una ultrabook delgada o una laptop empresarial.</p>
+    <section class="brands-section" aria-label="Marcas de laptop gamer atendidas">
+      <div class="page-shell">
+        <header class="brands-section__heading">
+          <span>Compatibilidad por modelo</span>
+          <h2>El sistema térmico cambia por fabricante. El procedimiento también.</h2>
+          <p>Antes de abrir confirmamos modelo, distribución de heatpipes, número de ventiladores y tipo de compuesto. Así evitamos tratar todos los equipos como si fueran iguales.</p>
+        </header>
+
+        <div class="brand-matrix">
+          <article><span>01</span><div><strong>ASUS ROG</strong><small>ROG / TUF</small></div><p>Doble ventilador, GPU dedicada y disipadores compartidos.</p></article>
+          <article><span>02</span><div><strong>MSI</strong><small>Katana / Raider</small></div><p>Varias zonas térmicas y acceso distinto según chasis.</p></article>
+          <article><span>03</span><div><strong>LENOVO LEGION</strong><small>Legion / LOQ</small></div><p>Heatpipes amplios, pads y salidas traseras de aire.</p></article>
+          <article><span>04</span><div><strong>ACER NITRO</strong><small>Nitro / Predator</small></div><p>Rejillas sensibles al polvo y ventilación lateral.</p></article>
+          <article><span>05</span><div><strong>HP OMEN</strong><small>Omen / Victus</small></div><p>Montaje térmico compacto y presión uniforme crítica.</p></article>
+          <article><span>06</span><div><strong>DELL G</strong><small>G Series / Alienware</small></div><p>Diseño interno por generación y módulos de ventilación.</p></article>
+        </div>
+
+        <div class="office-band">
+          <div><i class="fa-solid fa-laptop" aria-hidden="true"></i><span>Oficina y ultrabooks</span></div>
+          <p>También atendemos HP, Dell, Lenovo, Acer, Asus y otros fabricantes. Confirmamos el modelo exacto antes de desarmar porque incluso dentro de una misma marca cambia la apertura.</p>
+          <span>Modelo primero</span>
+        </div>
       </div>
-      <div class="ltp-type-grid">
-        {laptopTypes.map(([icon, title, text]) => (
-          <article>
-            <i class={`fa-solid ${icon}`}></i>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </article>
-        ))}
+    </section>
+
+    <section class="decision-section">
+      <div class="page-shell decision-grid">
+        <header><span>Decisión técnica</span><h2>No todo sobrecalentamiento se resuelve con pasta térmica</h2></header>
+        <div class="decision-list">
+          <article><strong>01</strong><h3>Solo limpieza</h3><p>Cuando el compuesto está bien pero el disipador y las rejillas están bloqueados.</p></article>
+          <article><strong>02</strong><h3>Pasta y mantenimiento</h3><p>Cuando hay compuesto seco, polvo y pérdida de transferencia térmica.</p></article>
+          <article><strong>03</strong><h3>Cambio de ventilador</h3><p>Cuando gira lento, se detiene, vibra o ya no mueve suficiente aire.</p></article>
+          <article><strong>04</strong><h3>Diagnóstico adicional</h3><p>Cuando la causa está en bomba, sensor, placa, software o alimentación.</p></article>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="ltp-section ltp-decision">
-    <div class="container ltp-decision-grid">
-      <div>
-        <span class="ltp-eyebrow">Decisión honesta</span>
-        <h2>¿Necesitas pasta térmica, limpieza interna o diagnóstico?</h2>
-        <p>Cambiar pasta térmica sin limpiar disipador o sin revisar ventilador puede dejar el problema a medias. Por eso separamos los escenarios antes de cotizar.</p>
-        <img
-          src="/assets/images/laptop-feliz-limpia.webp"
-          alt="Laptop limpia y funcionando después de mantenimiento preventivo en Cancún"
-          width="1200"
-          height="900"
-          loading="lazy"
-          decoding="async"
-        />
+    <section class="local-section">
+      <div class="page-shell local-grid">
+        <div><span>Servicio local</span><h2>El clima de Cancún exige revisar polvo, humedad y salitre</h2><p>Atendemos equipos de Cancún Centro, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Zona Hotelera y Supermanzanas.</p></div>
+        <aside><strong>Pixon PC / Rentalap</strong><span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span><a href="tel:+529986690777">+52 998 669 0777</a><a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></aside>
       </div>
-      <div class="ltp-decision-cards">
-        {decisionCards.map((item) => (
-          <article>
-            <span>{item.badge}</span>
-            <h3>{item.title}</h3>
-            <ul>
-              {item.points.map((point) => <li><i class="fa-solid fa-check"></i>{point}</li>)}
-            </ul>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="ltp-section ltp-links" aria-label="Servicios relacionados con temperatura de laptop">
-    <div class="container">
-      <div class="ltp-head">
-        <span class="ltp-eyebrow">Rutas relacionadas</span>
-        <h2>Servicios que conectan con sobrecalentamiento y rendimiento</h2>
-        <p>Estas tarjetas llevan a vistas relacionadas para usuarios que buscan mantenimiento preventivo, diagnóstico, upgrade o reparación por temperatura.</p>
-      </div>
-      <div class="ltp-related-grid">
-        {relatedCards.map((item) => (
-          <a href={item.href} class="ltp-related-card">
-            <i class={`fa-solid ${item.icon}`}></i>
-            <h3>{item.label}</h3>
-            <p>{item.desc}</p>
-            <span>{item.cta}</span>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
+    <section class="mid-cta">
+      <div class="page-shell"><div><span>Diagnóstico antes de gastar</span><h2>Confirma la causa antes de cambiar piezas</h2><p>Cuéntanos cuándo se calienta, qué ruido hace y en qué tareas pierde rendimiento.</p></div><a href="#ticket-sobrecalentamiento">Agendar diagnóstico <i class="fa-solid fa-arrow-right"></i></a></div>
+    </section>
 
-  <ServiceTicketSection
-    id="ticket-pasta-termica-laptop"
-    defaultDevice="Laptop"
-    defaultService="Cambio de pasta térmica"
-    title="Agenda revisión térmica de tu laptop"
-    subtitle="Cuéntanos modelo, síntomas, si se apaga, si suena fuerte o si baja rendimiento. Te orientamos antes de abrir."
-  />
-
-  <RelatedServicesSection
-    category={category}
-    service={service}
-    title="Más servicios de laptop relacionados"
-    eyebrow="También te puede servir"
-    items={relatedCards}
-    compact={true}
-    initialLimit={6}
-  />
-
-  <FaqSection
-    id="faq-pasta-termica-laptop"
-    title="Preguntas frecuentes sobre pasta térmica de laptop en Cancún"
-    description="Resolvemos dudas sobre temperatura, ventilador, apagados, mantenimiento preventivo, laptop gamer, thermal pads y tiempos de servicio."
-    items={faqs}
-    viewMoreHref="/preguntas-frecuentes"
-    viewMoreLabel="Ver más preguntas frecuentes"
-    ariaLabel="Preguntas frecuentes sobre cambio de pasta térmica de laptop"
-    backgroundColor="#0B1120"
-    titleColor="#F8FAFC"
-    descriptionColor="#CBD5E1"
-    questionColor="#0F2A4A"
-  />
-
-  <CommentsSection serviceId={service.slug} serviceName={service.label} category={category.slug} dark={true} />
-  <ContactSection />
+    <ServiceTicketSection id="ticket-sobrecalentamiento" defaultDevice="Laptop / PC" defaultService="Sobrecalentamiento y pasta térmica" title="Solicita diagnóstico de temperatura" subtitle="Indica modelo, temperatura aproximada, ruido, apagados y en qué tareas aparece el problema." />
+    <RelatedServicesSection category={category} service={service} title="Servicios relacionados con temperatura y rendimiento" eyebrow="Diagnóstico conectado" items={relatedCards} compact={true} initialLimit={6} />
+    <FaqSection id="faq-sobrecalentamiento" title="Preguntas frecuentes sobre sobrecalentamiento y pasta térmica" description="Respuestas sobre diagnóstico, costos, tiempos, thermal pads y mantenimiento para laptop y PC en Cancún." items={faqs} viewMoreHref="/preguntas-frecuentes" viewMoreLabel="Ver más preguntas frecuentes" ariaLabel="Preguntas frecuentes sobre sobrecalentamiento y cambio de pasta térmica" backgroundColor="#f5f8fb" titleColor="#071F3A" descriptionColor="#24435f" questionColor="#071F3A" />
+    <CommentsSection serviceId={service.slug} serviceName="Sobrecalentamiento y pasta térmica" category={category.slug} />
+    <ContactSection />
+  </main>
   <Footer />
 </div>
 
 <style>
-  .ltp-page {
-    background: #0B1120;
-    color: #E2E8F0;
-    overflow: hidden;
+  .thermal-page { --navy: #071f3a; --blue: #1683e5; color: var(--navy); background: #fff; overflow: hidden; }
+  .thermal-page :global(*) { box-sizing: border-box; }
+  .page-shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  .section-intro { max-width: 760px; margin-bottom: 48px; }
+  .section-intro > span, .section-label, .brands-section__heading > span, .decision-grid header > span, .local-grid > div > span, .mid-cta span { color: #1672ca; font-size: .78rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+  .section-intro h2, .device-section h2, .brands-section h2, .decision-section h2, .local-section h2, .mid-cta h2 { margin: 10px 0 16px; color: var(--navy); font-family: 'Kanit', sans-serif; font-size: clamp(2rem, 3.5vw, 3.15rem); line-height: 1.05; letter-spacing: 0; text-wrap: balance; }
+  .section-intro p, .device-section p, .brands-section p, .decision-section p, .local-section p, .mid-cta p { margin: 0; color: #294963; line-height: 1.7; }
+  .process-section { padding: clamp(76px, 9vw, 116px) 0; background: #fff; }
+  .process-track { display: grid; grid-template-columns: repeat(5, 1fr); margin: 0; padding: 0; border-top: 1px solid #cfdce7; list-style: none; }
+  .process-track li { position: relative; padding: 26px 20px 0 0; }
+  .process-track li::before { content: ''; position: absolute; top: -5px; left: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 5px #eaf4fd; }
+  .process-track strong { display: block; margin-bottom: 38px; color: #6b8296; font-size: .75rem; }
+  .process-track h3 { margin: 0 0 8px; color: var(--navy); font-size: 1.08rem; }
+  .process-track p { margin: 0; color: #31506c; font-size: .9rem; line-height: 1.6; }
+  .device-section { position: relative; min-height: 680px; display: grid; align-items: end; overflow: hidden; color: #fff; background: #071f3a !important; isolation: isolate; }
+  .device-section__media { position: absolute; inset: 0; z-index: 0; background: url('/assets/images/ensamble-pc-gamer-cancun.webp') center 43% / cover no-repeat; }
+  .device-section::after { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgb(3 17 31 / 91%) 0%, rgb(3 17 31 / 72%) 46%, rgb(3 17 31 / 18%) 100%); pointer-events: none; }
+  .device-section__content { position: relative; z-index: 2; padding-bottom: 66px; }
+  .device-section__content > * { max-width: 670px; }
+  .device-section .section-label { color: #bfe2ff; }
+  .device-section h2 { margin: 10px 0 16px; color: #fff !important; }
+  .device-section p { color: rgb(255 255 255 / 82%) !important; }
+  .device-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; max-width: 700px; margin-top: 30px; background: rgb(255 255 255 / 22%); }
+  .device-metrics div { display: grid; gap: 4px; padding: 17px; background: rgb(5 25 45 / 76%); backdrop-filter: blur(8px); }
+  .device-metrics strong { color: #fff; }
+  .device-metrics span { color: rgb(255 255 255 / 72%); font-size: .78rem; }
+  .brands-section { padding: clamp(72px, 8vw, 100px) 0; background: #f4f8fb; }
+  .brands-section__heading { max-width: 760px; }
+  .brands-section__heading h2 { margin: 10px 0 16px; }
+  .brands-section__heading p { max-width: 66ch; }
+  .brand-matrix { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 42px; border-top: 1px solid #cbd9e4; border-left: 1px solid #cbd9e4; background: #fff; }
+  .brand-matrix article { display: grid; grid-template-columns: 30px 1fr; gap: 16px; min-height: 185px; padding: 24px; border-right: 1px solid #cbd9e4; border-bottom: 1px solid #cbd9e4; }
+  .brand-matrix article > span { color: var(--blue); font-size: .72rem; font-weight: 900; }
+  .brand-matrix article div { display: grid; align-content: start; gap: 5px; }
+  .brand-matrix strong { color: var(--navy); font-size: 1rem; }
+  .brand-matrix small { color: #607a91; font-size: .75rem; font-weight: 750; }
+  .brand-matrix p { grid-column: 2; align-self: end; color: #31506c; font-size: .88rem; line-height: 1.55; }
+  .office-band { display: grid; grid-template-columns: 220px 1fr auto; gap: 26px; align-items: center; margin-top: 20px; padding: 22px 24px; border-left: 3px solid var(--blue); background: #e8f2fa; }
+  .office-band > div { display: flex; align-items: center; gap: 11px; }
+  .office-band i { color: var(--blue); }
+  .office-band div span { color: var(--navy); font-weight: 850; }
+  .office-band p { color: #294963; font-size: .9rem; line-height: 1.6; }
+  .office-band > span { padding: 7px 10px; border: 1px solid #b5cde0; border-radius: 5px; color: #0a67b6; font-size: .72rem; font-weight: 850; text-transform: uppercase; white-space: nowrap; }
+  .decision-section { padding: clamp(76px, 9vw, 116px) 0; }
+  .decision-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(40px, 8vw, 100px); }
+  .decision-grid header h2 { margin-top: 12px; }
+  .decision-list { border-top: 1px solid #cad8e4; }
+  .decision-list article { display: grid; grid-template-columns: 44px 180px 1fr; gap: 18px; align-items: baseline; padding: 23px 0; border-bottom: 1px solid #cad8e4; }
+  .decision-list strong { color: var(--blue); font-size: .75rem; }
+  .decision-list h3 { margin: 0; color: var(--navy); font-size: 1rem; }
+  .local-section { padding: 76px 0; background: #f4f8fb; }
+  .local-grid { display: grid; grid-template-columns: 1fr 320px; gap: clamp(38px, 8vw, 100px); }
+  .local-grid h2 { margin: 10px 0 16px; }
+  .local-grid aside { display: grid; align-content: start; gap: 10px; padding-left: 24px; border-left: 3px solid var(--blue); }
+  .local-grid aside :where(strong, span, a) { color: var(--navy); text-decoration: none; }
+  .mid-cta { padding: 42px 0; background: #fff; }
+  .mid-cta .page-shell { display: flex; align-items: center; justify-content: space-between; gap: 35px; padding: 34px 38px; border: 1px solid #cfdee9; border-radius: 8px; }
+  .mid-cta h2 { margin: 8px 0; font-size: clamp(1.65rem, 2.7vw, 2.35rem); }
+  .mid-cta a { display: inline-flex; flex: 0 0 auto; min-height: 48px; align-items: center; gap: 9px; padding: 0 20px; border-radius: 7px; background: var(--blue); color: #fff; font-weight: 800; text-decoration: none; transition: transform 180ms ease-out, background-color 180ms ease-out; }
+  .mid-cta a:active { transform: scale(.97); }
+  @media (hover: hover) and (pointer: fine) { .mid-cta a:hover { transform: translateY(-2px); background: #0874d2; } }
+  @media (max-width: 900px) {
+    .process-track { grid-template-columns: repeat(2, 1fr); gap: 32px 0; border-top: 0; } .process-track li { border-top: 1px solid #cfdce7; }
+    .brand-matrix { grid-template-columns: repeat(2, 1fr); }
+    .office-band { grid-template-columns: 1fr; gap: 12px; }
+    .office-band > span { width: fit-content; }
+    .decision-grid, .local-grid { grid-template-columns: 1fr; }
+    .local-grid aside { padding: 20px 0 0; border-top: 3px solid var(--blue); border-left: 0; }
   }
-
-  .ltp-page :global(.container) {
-    max-width: 1180px;
-  }
-
-  .ltp-hero {
-    position: relative;
-    padding: clamp(64px, 8vw, 112px) 0 72px;
-    background:
-      radial-gradient(circle at 10% 10%, rgba(239, 68, 68, 0.22), transparent 34%),
-      radial-gradient(circle at 88% 16%, rgba(59, 130, 246, 0.18), transparent 30%),
-      linear-gradient(135deg, #07111F 0%, #0B1120 54%, #111827 100%);
-  }
-
-  .ltp-hero::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.42), transparent);
-  }
-
-  .ltp-hero-grid,
-  .ltp-local-grid,
-  .ltp-split,
-  .ltp-decision-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-    gap: clamp(28px, 5vw, 64px);
-    align-items: center;
-  }
-
-  .ltp-kicker,
-  .ltp-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: #93C5FD;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-  }
-
-  .ltp-hero h1,
-  .ltp-head h2,
-  .ltp-local h2,
-  .ltp-split h2,
-  .ltp-decision h2 {
-    margin: 14px 0 14px;
-    color: #F8FAFC;
-    font-family: 'Kanit', sans-serif;
-    line-height: 1.03;
-    letter-spacing: -0.04em;
-  }
-
-  .ltp-hero h1 {
-    max-width: 780px;
-    font-size: clamp(2.35rem, 6vw, 5.25rem);
-  }
-
-  .ltp-hero h2 {
-    color: #BFDBFE;
-    font-size: clamp(1.12rem, 2.4vw, 1.55rem);
-    line-height: 1.35;
-    max-width: 760px;
-    margin: 0 0 18px;
-  }
-
-  .ltp-hero p,
-  .ltp-local p,
-  .ltp-head p,
-  .ltp-split p,
-  .ltp-decision p {
-    color: #CBD5E1;
-    line-height: 1.72;
-    font-weight: 650;
-    margin: 0;
-  }
-
-  .ltp-tags,
-  .ltp-trust {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 22px;
-  }
-
-  .ltp-tags span,
-  .ltp-trust span {
-    border: 1px solid rgba(147, 197, 253, 0.2);
-    background: rgba(15, 23, 42, 0.78);
-    color: #DBEAFE;
-    border-radius: 999px;
-    padding: 9px 12px;
-    font-size: 0.88rem;
-    font-weight: 800;
-  }
-
-  .ltp-trust span strong {
-    color: #FCA5A5;
-  }
-
-  .ltp-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 28px;
-  }
-
-  .ltp-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 50px;
-    padding: 14px 18px;
-    border-radius: 14px;
-    text-decoration: none;
-    font-weight: 950;
-  }
-
-  .ltp-primary {
-    background: #16A34A;
-    color: #FFFFFF;
-    box-shadow: 0 18px 42px rgba(22, 163, 74, 0.28);
-  }
-
-  .ltp-secondary {
-    background: rgba(15, 23, 42, 0.78);
-    color: #F8FAFC;
-    border: 1px solid rgba(147, 197, 253, 0.26);
-  }
-
-  .ltp-hero-card,
-  .ltp-image-card,
-  .ltp-local-card,
-  .ltp-decision-cards article,
-  .ltp-related-card,
-  .ltp-symptom-grid article,
-  .ltp-type-grid article {
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: rgba(15, 23, 42, 0.82);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
-  }
-
-  .ltp-hero-card {
-    border-radius: 30px;
-    padding: 14px;
-    transform: rotate(1deg);
-  }
-
-  .ltp-hero-card img,
-  .ltp-image-card img,
-  .ltp-decision img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 22px;
-    object-fit: cover;
-  }
-
-  .ltp-temp-panel {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 14px;
-    align-items: center;
-    margin-top: 14px;
-    padding: 16px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(127, 29, 29, 0.42), rgba(30, 64, 175, 0.32));
-  }
-
-  .ltp-temp-panel span,
-  .ltp-temp-panel small {
-    display: block;
-    color: #CBD5E1;
-    font-weight: 750;
-  }
-
-  .ltp-temp-panel strong {
-    display: block;
-    color: #FFFFFF;
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.35rem;
-    line-height: 1.1;
-  }
-
-  .ltp-temp-panel i {
-    color: #93C5FD;
-  }
-
-  .ltp-section {
-    padding: clamp(56px, 7vw, 92px) 0;
-    background: #0B1120;
-  }
-
-  .ltp-symptoms {
-    background: #F8FAFC;
-  }
-
-  .ltp-symptoms .ltp-eyebrow {
-    color: #2563EB;
-  }
-
-  .ltp-symptoms h2 {
-    color: #0F172A;
-  }
-
-  .ltp-symptoms .ltp-head p {
-    color: #475569;
-  }
-
-  .ltp-symptom-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .ltp-symptom-grid article {
-    border-radius: 22px;
-    padding: 24px;
-    background: #FFFFFF;
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
-  }
-
-  .ltp-symptom-grid article i {
-    display: inline-grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: rgba(37, 99, 235, 0.08);
-    color: #2563EB;
-    font-size: 1.25rem;
-  }
-
-  .ltp-symptom-grid article h3 {
-    color: #0F172A;
-    font-family: 'Kanit', sans-serif;
-    margin: 12px 0 8px;
-    line-height: 1.15;
-  }
-
-  .ltp-symptom-grid article p {
-    color: #475569;
-    line-height: 1.62;
-    font-weight: 650;
-    margin: 0;
-  }
-
-  #diagnostico-termico-laptop {
-    background: linear-gradient(135deg, #F0F7FF 0%, #E0F2FE 100%);
-    position: relative;
-  }
-
-  #diagnostico-termico-laptop::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.05), transparent 45%);
-    pointer-events: none;
-  }
-
-  #diagnostico-termico-laptop .ltp-eyebrow {
-    color: #1D4ED8;
-  }
-
-  #diagnostico-termico-laptop h2 {
-    color: #0F2A4A;
-  }
-
-  #diagnostico-termico-laptop p {
-    color: #1E3A8A;
-  }
-
-  #diagnostico-termico-laptop .ltp-process article {
-    background: #FFFFFF;
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
-    transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
-  }
-
-  #diagnostico-termico-laptop .ltp-process article:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 40px rgba(59, 130, 246, 0.08);
-    border-color: rgba(59, 130, 246, 0.35);
-  }
-
-  #diagnostico-termico-laptop .ltp-process article strong {
-    background: linear-gradient(135deg, #2563EB, #1D4ED8);
-    color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
-  }
-
-  #diagnostico-termico-laptop .ltp-process article h3 {
-    color: #0F2A4A;
-  }
-
-  #diagnostico-termico-laptop .ltp-process article p {
-    color: #334155;
-  }
-
-  #diagnostico-termico-laptop .ltp-image-card {
-    background: #FFFFFF;
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.05);
-  }
-
-  #diagnostico-termico-laptop .ltp-image-card strong {
-    color: #0F2A4A;
-  }
-
-  #diagnostico-termico-laptop .ltp-image-card span {
-    color: #475569;
-  }
-
-  .ltp-local,
-  .ltp-types {
-    background:
-      linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(11, 17, 32, 0.98)),
-      radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.16), transparent 32%);
-  }
-
-  .ltp-local h2,
-  .ltp-head h2,
-  .ltp-split h2,
-  .ltp-decision h2 {
-    font-size: clamp(2rem, 4vw, 3.45rem);
-  }
-
-  .ltp-local-card {
-    border-radius: 24px;
-    padding: 28px;
-  }
-
-  .ltp-local-card i {
-    color: #60A5FA;
-    font-size: 2rem;
-  }
-
-  .ltp-local-card h3,
-  .ltp-type-grid h3,
-  .ltp-process h3,
-  .ltp-decision-cards h3,
-  .ltp-related-card h3 {
-    color: #F8FAFC;
-    font-family: 'Kanit', sans-serif;
-    margin: 12px 0 8px;
-    line-height: 1.15;
-  }
-
-  .ltp-head {
-    max-width: 820px;
-    margin: 0 auto 34px;
-    text-align: center;
-  }
-
-  .ltp-type-grid,
-  .ltp-related-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .ltp-type-grid article,
-  .ltp-related-card {
-    border-radius: 22px;
-    padding: 24px;
-  }
-
-  .ltp-type-grid i,
-  .ltp-related-card i {
-    display: inline-grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: rgba(59, 130, 246, 0.15);
-    color: #60A5FA;
-    font-size: 1.25rem;
-  }
-
-  .ltp-type-grid p,
-  .ltp-related-card p,
-  .ltp-process p,
-  .ltp-decision-cards li {
-    color: #CBD5E1;
-    line-height: 1.62;
-    font-weight: 650;
-    margin: 0;
-  }
-
-  .ltp-image-card {
-    border-radius: 28px;
-    padding: 14px;
-  }
-
-  .ltp-image-card div {
-    display: grid;
-    gap: 6px;
-    padding: 16px;
-  }
-
-  .ltp-image-card strong {
-    color: #F8FAFC;
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.3rem;
-  }
-
-  .ltp-image-card span {
-    color: #CBD5E1;
-    font-weight: 650;
-  }
-
-  .ltp-process {
-    display: grid;
-    gap: 12px;
-    margin-top: 24px;
-  }
-
-  .ltp-process article {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 16px;
-    padding: 18px;
-    border-radius: 18px;
-    background: rgba(15, 23, 42, 0.72);
-    border: 1px solid rgba(148, 163, 184, 0.14);
-  }
-
-  .ltp-process strong {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    background: #1D4ED8;
-    color: #FFFFFF;
-    font-family: 'Kanit', sans-serif;
-  }
-
-  .ltp-decision {
-    background: linear-gradient(135deg, #07111F 0%, #0B1120 100%);
-  }
-
-  .ltp-decision img {
-    margin-top: 24px;
-  }
-
-  .ltp-decision-cards {
-    display: grid;
-    gap: 14px;
-  }
-
-  .ltp-decision-cards article {
-    border-radius: 22px;
-    padding: 22px;
-  }
-
-  .ltp-decision-cards article span {
-    color: #93C5FD;
-    font-size: 0.78rem;
-    font-weight: 950;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .ltp-decision-cards ul {
-    display: grid;
-    gap: 8px;
-    margin: 12px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .ltp-decision-cards li {
-    display: flex;
-    gap: 10px;
-  }
-
-  .ltp-decision-cards li i {
-    color: #22C55E;
-    margin-top: 4px;
-  }
-
-  .ltp-links {
-    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
-  }
-
-  .ltp-links .ltp-eyebrow {
-    color: #1D4ED8;
-  }
-
-  .ltp-links h2 {
-    color: #0F2A4A;
-  }
-
-  .ltp-links .ltp-head p {
-    color: #1E3A8A;
-  }
-
-  .ltp-links .ltp-related-card {
-    background: #FFFFFF;
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
-    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1), border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
-  }
-
-  .ltp-links .ltp-related-card i {
-    background: rgba(37, 99, 235, 0.08);
-    color: #2563EB;
-  }
-
-  .ltp-links .ltp-related-card h3 {
-    color: #0F2A4A;
-    font-family: 'Kanit', sans-serif;
-    margin: 12px 0 8px;
-    line-height: 1.15;
-  }
-
-  .ltp-links .ltp-related-card p {
-    color: #475569;
-  }
-
-  .ltp-links .ltp-related-card span {
-    color: #2563EB;
-  }
-
-  .ltp-links .ltp-related-card:hover,
-  .ltp-links .ltp-related-card:focus-visible {
-    transform: translateY(-5px);
-    background: #FFFFFF;
-    border-color: #3B82F6;
-    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.08);
-  }
-
-  .ltp-page :global(.svc-related) {
-    background: #0F172A !important;
-  }
-
-  .ltp-page :global(.svc-related .ux-eyebrow) {
-    color: #93C5FD !important;
-  }
-
-  .ltp-page :global(.svc-related .ux-h2),
-  .ltp-page :global(.svc-related .related-card h4) {
-    color: #F8FAFC !important;
-  }
-
-  .ltp-page :global(.svc-related .related-card) {
-    background: rgba(15, 23, 42, 0.86) !important;
-    border-color: rgba(148, 163, 184, 0.18) !important;
-  }
-
-  .ltp-page :global(.svc-related .related-card p) {
-    color: #CBD5E1 !important;
-  }
-
-  .ltp-page :global(.svc-related .related-card span),
-  .ltp-page :global(.svc-related .related-card i) {
-    color: #93C5FD !important;
-  }
-
-  .ltp-page :global(.comments-section-container) {
-    background: #0B1120 !important;
-  }
-
-  .ltp-page :global(.contact) {
-    background: #0F172A !important;
-  }
-
-  @media (max-width: 980px) {
-    .ltp-hero-grid,
-    .ltp-local-grid,
-    .ltp-split,
-    .ltp-decision-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .ltp-hero-card {
-      transform: none;
-    }
-
-    .ltp-symptom-grid,
-    .ltp-type-grid,
-    .ltp-related-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
   @media (max-width: 640px) {
-    .ltp-hero {
-      padding-top: 48px;
-    }
-
-    .ltp-actions,
-    .ltp-btn {
-      width: 100%;
-    }
-
-    .ltp-symptom-grid,
-    .ltp-type-grid,
-    .ltp-related-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .ltp-temp-panel {
-      grid-template-columns: 1fr;
-      text-align: center;
-    }
-
-    .ltp-temp-panel i {
-      transform: rotate(90deg);
-    }
-
-    .ltp-process article {
-      grid-template-columns: 1fr;
-    }
+    .process-track { grid-template-columns: 1fr; } .process-track strong { margin-bottom: 18px; }
+    .device-section { min-height: 720px; } .device-section::after { background: linear-gradient(0deg, rgb(3 17 31 / 94%) 0%, rgb(3 17 31 / 65%) 66%, rgb(3 17 31 / 28%) 100%); }
+    .device-metrics { grid-template-columns: 1fr; }
+    .brand-matrix { grid-template-columns: 1fr; border-left: 0; }
+    .brand-matrix article { min-height: 150px; padding: 22px 0; border-right: 0; }
+    .decision-list article { grid-template-columns: 34px 1fr; } .decision-list article p { grid-column: 2; }
+    .mid-cta .page-shell { align-items: stretch; flex-direction: column; padding: 27px 22px; } .mid-cta a { justify-content: center; }
   }
+  @media (prefers-reduced-motion: reduce) { .mid-cta a { transition: none; } }
 </style>

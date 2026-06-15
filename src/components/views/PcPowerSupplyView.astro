@@ -1,0 +1,1554 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappText = encodeURIComponent(
+  'Hola Pixon PC, mi computadora tiene fallas con la fuente de poder. Quisiera agendar un diagnóstico técnico en Cancún para revisar voltajes o cotizar una instalación.'
+);
+
+const symptoms = [
+  {
+    icon: 'fa-gamepad',
+    title: 'Se reinicia sola al abrir juegos',
+    desc: 'Bajo demanda gráfica, la GPU exige más Watts de los que la fuente degradada o de pocos watts puede suministrar, forzando un reinicio de seguridad.',
+    recommendation: 'Revisamos el consumo real de tu CPU y GPU para instalar la capacidad de Watts ideal.',
+  },
+  {
+    icon: 'fa-plug-circle-xmark',
+    title: 'La PC no hace nada (muerta)',
+    desc: 'Al presionar el botón de encendido no da luces ni ventiladores. La fuente está completamente inactiva o en corto interno.',
+    recommendation: 'No insistas. Realizamos pruebas con tester de PSU y descargo de cortos antes de cambiar piezas.',
+  },
+  {
+    icon: 'fa-wind',
+    title: 'Ventilador ruidoso o trabado',
+    desc: 'El ventilador de la fuente acumula polvo y humedad local, provocando ruidos fuertes o deteniéndose por completo, sobrecalentando la fuente.',
+    recommendation: 'Reemplazamos el ventilador o instalamos una fuente nueva con sistema Zero RPM inteligente.',
+  },
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'Chispazo, olor a quemado o humo',
+    desc: 'Fallo catastrófico en los capacitores primarios o puente rectificador. Los fusibles internos de protección de la fuente se han fundido.',
+    recommendation: 'Desconecta el cable de corriente de inmediato. No intentes encenderla bajo ninguna circunstancia.',
+  },
+];
+
+const diagnosticSteps = [
+  {
+    title: 'Prueba de voltajes con PSU Tester',
+    desc: 'Medimos de forma aislada los rieles de +12V, +5V, +3.3V y -12V de la fuente de poder para corroborar que estén dentro del rango de tolerancia ATX.',
+  },
+  {
+    title: 'Test de carga simulada',
+    desc: 'Verificamos si la fuente mantiene estables los voltajes al ser sometida a un consumo eléctrico similar al de tu tarjeta de video y procesador.',
+  },
+  {
+    title: 'Prueba cruzada de descarte',
+    desc: 'Probamos tu computadora con una fuente de laboratorio garantizada para descartar que la falla de encendido venga de la tarjeta madre o procesador.',
+  },
+  {
+    title: 'Inspección de conectores y cables',
+    desc: 'Revisamos que los conectores EPS de 8 pines, ATX de 24 pines y PCIe no muestren plástico derretido, pines quemados o humedad.',
+  },
+];
+
+const psuFormats = [
+  {
+    type: 'Fuentes ATX Estándar',
+    desc: 'Formato común para la mayoría de gabinetes de escritorio de oficina, PC gamer y estaciones de trabajo de torre mediana a grande.',
+  },
+  {
+    type: 'Fuentes SFX / ITX',
+    desc: 'Fuentes ultracompactas diseñadas para gabinetes Small Form Factor (SFF) o mini PC que requieren alta potencia en poco espacio.',
+  },
+  {
+    type: 'Certificaciones 80 Plus',
+    desc: 'Instalamos fuentes certificadas 80+ White, Bronze, Silver, Gold, Platinum y Titanium para garantizar la máxima eficiencia de energía.',
+  },
+  {
+    type: 'Fuentes Modulares',
+    desc: 'Permiten conectar solo los cables necesarios, optimizando el flujo de aire interno de tu PC y facilitando el mantenimiento futuro.',
+  },
+];
+
+const risks = [
+  {
+    title: 'Riesgo de daño a componentes caros',
+    desc: 'Una fuente de mala calidad o genérica carece de protecciones básicas (OVP, UVP, SCP, OPP). Al fallar, puede enviar un pico de 12V directo a tu tarjeta de video (GPU), procesador (CPU) o tarjeta madre, quemándolos por completo.',
+  },
+  {
+    title: 'Inestabilidad del sistema y pantallazos azules',
+    desc: 'Las fuentes genéricas no entregan la potencia etiquetada en picos de consumo. Esto causa caídas de voltaje temporales que resultan en crashes aleatorios, BSOD de Windows y congelamientos de pantalla.',
+  },
+  {
+    title: 'Consumo eléctrico excesivo y calor interno',
+    desc: 'Las fuentes de baja eficiencia desperdician hasta un 40% de la energía eléctrica convirtiéndola en calor residual. Esto eleva la temperatura interna de tu gabinete y acorta la vida útil de tus ventiladores.',
+  },
+  {
+    title: 'Pérdida de garantía de componentes nuevos',
+    desc: 'Al instalar una tarjeta de video potente de última generación, los fabricantes exigen una fuente con certificación y Watts mínimos especificados. Usar una inferior anula garantías por daño eléctrico.',
+  },
+];
+
+const relatedServices = [
+  { title: 'PC no enciende', desc: 'Diagnóstico de cortocircuitos eléctricos, botón de encendido y componentes primarios.', link: '/servicios/pc/no-enciende' },
+  { title: 'Tarjeta madre PC', desc: 'Diagnóstico de pistas rotas, condensadores inflados, BIOS y transistores en placa.', link: '/servicios/pc/tarjeta-madre' },
+  { title: 'Tarjeta de video GPU', desc: 'Soporte térmico, cambio de pasta y diagnóstico para tarjetas gráficas gamer.', link: '/servicios/pc/tarjeta-video-gpu' },
+  { title: 'Diagnóstico de PC', desc: 'Revisión completa de hardware y sistema operativo para localizar fallas intermitentes.', link: '/servicios/pc/diagnostico' },
+  { title: 'Reparación general', desc: 'Soporte técnico integral para todo tipo de computadoras de escritorio y workstations.', link: '/reparaciones' },
+  { title: 'Ensambles PC Gamer', desc: 'Diseño, ensamble de computadoras personalizadas con balanceo eléctrico óptimo.', link: '/ensambles' },
+  { title: 'Mantenimiento preventivo', desc: 'Limpieza de polvo y pelusa acumulada en la rejilla de ventilación de la fuente.', link: '/servicios/pc/mantenimiento-preventivo' },
+  { title: 'Mantenimiento correctivo', desc: 'Sustitución de componentes defectuosos con pruebas de estabilidad eléctrica.', link: '/servicios/pc/mantenimiento-correctivo' },
+];
+
+const faqItems = [
+  { question: '¿Cuánto cuesta cambiar la fuente de poder de una PC en Cancún?', answer: 'El servicio de diagnóstico de la fuente es gratis. Si requiere reemplazo, la mano de obra de instalación y acomodo de cableado es de $650 MXN. El costo de la refacción varía según los Watts y la certificación (desde $750 MXN).' },
+  { question: '¿El diagnóstico de la fuente de poder es gratis?', answer: 'Sí, el diagnóstico en nuestro taller físico en Cancún es gratis. Probamos tu fuente con testeadores de voltaje bajo carga y multímetros sin costo alguno.' },
+  { question: '¿Por qué mi computadora se apaga sola mientras juego o trabajo?', answer: 'Suele deberse a sobrecalentamiento o a una fuente de poder degradada que ya no soporta la demanda eléctrica de la tarjeta de video (GPU). También puede ser un corto en la tarjeta madre.' },
+  { question: '¿Qué es la certificación 80 Plus (Bronze, Gold, etc.)?', answer: 'Es un estándar de eficiencia energética. Una fuente 80 Plus Gold desperdicia menos electricidad en forma de calor, lo cual es vital en el clima cálido de Cancún, y protege mejor los componentes.' },
+  { question: '¿Cómo sé cuántos Watts necesita mi PC gamer?', answer: 'Depende principalmente de tu procesador (CPU) y tarjeta gráfica (GPU). Para una GPU gama media sugerimos mínimo 650W, mientras que gamas altas requieren 750W o 850W con certificación Gold.' },
+  { question: '¿Los apagones de CFE en Cancún pueden quemar la fuente?', answer: 'Sí, los apagones y picos de voltaje son la causa número uno de fuentes quemadas en Cancún. El pico eléctrico daña los capacitores primarios de la fuente, impidiendo el paso de energía.' },
+  { question: '¿Tienen fuentes de poder en stock para entrega inmediata?', answer: 'Sí, manejamos stock constante de fuentes de poder certificadas de 500W a 850W de marcas líderes como Corsair, EVGA, XPG y Gigabyte, ideales para PC gamer u oficina.' },
+  { question: '¿Qué pasa si mi PC huele a quemado o dio un chispazo?', answer: 'Desconéctala inmediatamente. La fuente de poder tiene fusibles y protecciones internas, pero si se puentean, el corto puede pasar directamente a la tarjeta madre, RAM y procesador.' },
+  { question: '¿Qué garantía tienen las fuentes de poder que instalan?', answer: 'Ofrecemos garantía por escrito en nuestra mano de obra de instalación. Las refacciones cuentan con garantía directa de fabricante que va desde 1 hasta 5 o 10 años, según la marca y modelo.' },
+  { question: '¿Reparan fuentes de poder o solo las cambian?', answer: 'Evaluamos la viabilidad. Para fuentes genéricas o de bajo costo, no conviene repararlas por seguridad. En fuentes gamer premium de gama alta, diagnosticamos si la falla es menor (fusible, capacitor de entrada) o si lo más seguro es reemplazarla.' },
+];
+---
+
+<div class="pcps-page">
+  <!-- 1. Hero principal (Premium Dark) -->
+  <section class="pcps-hero" aria-label="Introducción al servicio">
+    <div class="pcps-shell pcps-hero-grid">
+      <div class="pcps-hero-copy">
+        <span class="pcps-kicker"><i class="fa-solid fa-bolt-lightning"></i> Especialistas en Hardware</span>
+        <h1>Fuente de poder PC en Cancún</h1>
+        <h2>Instalación, cambio y diagnóstico técnico para fuentes de poder ATX, SFX de PC gamer, oficina o workstations.</h2>
+        <p class="pcps-lead">
+          ¿Tu PC se apaga sola, huele a quemado o no enciende tras un apagón eléctrico? En <strong>Pixon PC</strong> diagnosticamos tu fuente de poder gratis bajo carga para confirmar si requiere reparación menor o reemplazo por seguridad.
+        </p>
+
+        <!-- Datos rápidos -->
+        <div class="pcps-specs-grid">
+          <div class="pcps-spec-item">
+            <i class="fa-solid fa-circle-dollar-to-slot"></i>
+            <div>
+              <span>Mano de obra</span>
+              <strong>Desde $650 MXN</strong>
+            </div>
+          </div>
+          <div class="pcps-spec-item">
+            <i class="fa-solid fa-hourglass-half"></i>
+            <div>
+              <span>Tiempo de cambio</span>
+              <strong>24h - 48h</strong>
+            </div>
+          </div>
+          <div class="pcps-spec-item">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+              <span>Garantía refacción</span>
+              <strong>Hasta 5+ años</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcps-hero-actions">
+          <a href={`https://wa.me/529986690777?text=${whatsappText}`} class="pcps-btn pcps-btn-primary" onclick="smartWaRedirect(this.href); return false;">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp Técnico
+          </a>
+          <a href="#ticket-pc-fuente-poder" class="pcps-btn pcps-btn-soft">
+            <i class="fa-solid fa-ticket"></i> Generar Ticket
+          </a>
+        </div>
+
+        <!-- Cobertura -->
+        <div class="pcps-hero-zones">
+          <span>Servicio con cita previa en Cancún:</span>
+          <div class="pcps-zone-chips">
+            <span class="pcps-chip">Cancún Centro</span>
+            <span class="pcps-chip">Huayacán</span>
+            <span class="pcps-chip">Zona Hotelera</span>
+            <span class="pcps-chip">Cumbres</span>
+            <span class="pcps-chip">Polígono Sur</span>
+            <span class="pcps-chip">Bonfil</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta destacada lateral -->
+      <div class="pcps-hero-visual">
+        <div class="pcps-highlight-card">
+          <div class="pcps-card-header">
+            <span class="pcps-pulse"></span>
+            <h3>No arriesgues tu PC: Diagnóstico primero</h3>
+          </div>
+          <p>
+            No conectes una fuente nueva si sospechas de un cortocircuito grave. Medimos los componentes en placa con multímetro para proteger tu procesador y GPU de sobrevoltajes letales.
+          </p>
+          <div class="pcps-card-img-wrap">
+            <img src="/assets/images/ensamble-pc-gamer-cancun.webp" alt="Instalación de fuente de poder en Cancún" loading="eager" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Síntomas de una fuente dañada (H2 local / Intención de búsqueda) -->
+  <section class="pcps-section pcps-bg-light">
+    <div class="pcps-shell">
+      <div class="pcps-section-head">
+        <span>Fallas comunes</span>
+        <h2>¿Por qué tu computadora se apaga sola o no enciende?</h2>
+        <p>Estos son los comportamientos típicos que indican que tu fuente de poder (PSU) está fallando o es insuficiente.</p>
+      </div>
+
+      <div class="pcps-symptoms-grid">
+        {symptoms.map((item) => (
+          <div class="pcps-symptom-card">
+            <div class="pcps-symptom-icon">
+              <i class={`fa-solid ${item.icon}`}></i>
+            </div>
+            <h3>{item.title}</h3>
+            <p class="pcps-symptom-desc">{item.desc}</p>
+            <p class="pcps-symptom-rec"><strong>En taller:</strong> {item.recommendation}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Diagnóstico técnico (H2 SEO) -->
+  <section class="pcps-section pcps-bg-dark">
+    <div class="pcps-shell pcps-split-grid">
+      <div class="pcps-split-content">
+        <span class="pcps-eyebrow">Precisión Eléctrica</span>
+        <h2>Diagnóstico técnico de fuente de poder en Cancún: Descartando cortos y voltajes</h2>
+        <p>
+          En Pixon PC no adivinamos. Desarmamos el chasis, aislamos la fuente de poder y aplicamos un protocolo de pruebas exhaustivo para medir la salida exacta de corriente.
+        </p>
+        <p>
+          Verificamos los rieles principales de corriente y la estabilidad bajo carga constante utilizando herramientas profesionales antes de sugerir que compres un repuesto.
+        </p>
+        <div class="pcps-badge-trust">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>Diagnóstico de fuente sin costo en taller.</span>
+        </div>
+      </div>
+
+      <div class="pcps-checklist-card">
+        <h3>Protocolo de Pruebas PSU</h3>
+        <ul class="pcps-checklist">
+          {diagnosticSteps.map((step) => (
+            <li>
+              <div class="pcps-check-circle"><i class="fa-solid fa-check"></i></div>
+              <div>
+                <h4>{step.title}</h4>
+                <p>{step.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Formatos e Instalación (H2 SEO) -->
+  <section class="pcps-section">
+    <div class="pcps-shell">
+      <div class="pcps-section-head">
+        <span>Gama Gamer y Oficina</span>
+        <h2>Instalación y cambio de fuente de poder gamer y de oficina en Cancún</h2>
+        <p>Asesoría en Watts y eficiencias para configurar tu PC con la protección y potencia correctas.</p>
+      </div>
+
+      <div class="pcps-formats-grid">
+        {psuFormats.map((item) => (
+          <div class="pcps-format-card">
+            <h3>{item.type}</h3>
+            <p>{item.desc}</p>
+          </div>
+        ))}
+      </div>
+      <p class="pcps-format-note">
+        <i class="fa-solid fa-info-circle"></i> Trabajamos con las mejores marcas del mercado: Corsair, EVGA, Cooler Master, Seasonic, ASUS, Gigabyte, XPG y MSI.
+      </p>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN ADICIONAL 1 (Con imagen): Selección de fuente gamer -->
+  <section class="pcps-section pcps-bg-light">
+    <div class="pcps-shell pcps-split-grid" style="grid-template-columns: 0.9fr 1.1fr;">
+      <div class="pcps-visual-wrap">
+        <img src="/assets/images/pc-gamer-gama-alta.webp" alt="Elección de fuente de poder gamer de gama alta en Cancún" class="pcps-split-img" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);" />
+      </div>
+      <div class="pcps-split-text-content">
+        <span class="pcps-eyebrow">PC Gamer Cancún</span>
+        <h2>¿Cómo elegir la fuente de poder ideal para tu PC gamer en Cancún?</h2>
+        <p>
+          Las tarjetas de video modernas como la serie NVIDIA RTX 40 o AMD Radeon 7000 consumen energía en microsegundos de carga pico. Si tu fuente de poder no es capaz de amortiguar estas demandas rápidas de corriente, tu juego se cerrará o la PC se apagará súbitamente.
+        </p>
+        <p>
+          En el taller de **Pixon PC** evaluamos las especificaciones de tu tarjeta de video y procesador. Te asesoramos para elegir la capacidad correcta de Watts reales y te recomendamos fuentes con la nueva norma **ATX 3.0** y conectores **PCIe 5.0 (12VHPWR)** nativos para alimentar tus componentes de gama alta con total estabilidad y sin adaptadores riesgosos.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Clima local y CFE (H2 SEO local potente) -->
+  <section class="pcps-section pcps-local-block">
+    <div class="pcps-shell pcps-local-inner">
+      <div class="pcps-local-copy">
+        <span class="pcps-eyebrow">Entorno Caribeño</span>
+        <h2>Apagones de CFE, humedad y salitre: Daño común en fuentes de poder en Cancún</h2>
+        <p>
+          Las variaciones de voltaje repentinas causadas por apagones de CFE frecuentes en la Península de Yucatán son la causa de daño eléctrico número uno de computadoras en Cancún.
+        </p>
+        <p>
+          El calor extremo de Quintana Roo obliga a los ventiladores de la fuente a trabajar a máximas revoluciones, jalando polvo fino y humedad con salitre. Esta mezcla se deposita sobre los componentes calientes de la fuente, oxidando las soldaduras y provocando arcos eléctricos que funden los capacitores.
+        </p>
+        <p>
+          Por ello, al instalar una fuente nueva en nuestro taller de Cancún, aplicamos tratamientos preventivos antisulfatación básicos e instalamos protecciones eléctricas robustas.
+        </p>
+      </div>
+
+      <div class="pcps-local-zones">
+        <h3>Zonas de reparación de PC en Cancún</h3>
+        <p>Cobertura local con cita previa en las supermanzanas y avenidas principales:</p>
+        <div class="pcps-zones-grid">
+          <span><i class="fa-solid fa-location-dot"></i> Huayacán y Cumbres</span>
+          <span><i class="fa-solid fa-location-dot"></i> Cancún Centro</span>
+          <span><i class="fa-solid fa-location-dot"></i> Zona Hotelera</span>
+          <span><i class="fa-solid fa-location-dot"></i> Av. Tulum y Bonampak</span>
+          <span><i class="fa-solid fa-location-dot"></i> Puerto Cancún</span>
+          <span><i class="fa-solid fa-location-dot"></i> Alfredo V. Bonfil</span>
+          <span><i class="fa-solid fa-location-dot"></i> Polígono Sur y SMs</span>
+          <span><i class="fa-solid fa-location-dot"></i> Puerto Juárez</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN ADICIONAL 2 (Con imagen): Mantenimiento de PSU -->
+  <section class="pcps-section pcps-bg-dark">
+    <div class="pcps-shell pcps-split-grid" style="grid-template-columns: 1.15fr 0.85fr;">
+      <div class="pcps-split-text-content">
+        <span class="pcps-eyebrow" style="color: #fbbf24;">Prevención de Explosiones</span>
+        <h2 style="color: #ffffff;">Mantenimiento preventivo de fuentes de poder: Evita cortocircuitos por salitre y polvo</h2>
+        <p style="color: #94a3b8;">
+          La fuente de poder actúa como el escudo de tu computadora. Su ventilador inferior absorbe aire de la parte más baja del gabinete, que es donde se acumula la mayor cantidad de polvo y pelusa. En Cancún, la combinación de este polvo con la humedad tropical genera una pasta conductora de electricidad que se adhiere a los transformadores y bobinas de la fuente.
+        </p>
+        <p style="color: #cbd5e1;">
+          Con nuestro servicio de mantenimiento preventivo, desarmamos el gabinete, soplamos el interior de la fuente con aire seco controlado, limpiamos el ventilador de aspas y verificamos el estado físico de los capacitores antes de que se hinchen o exploten, alargando la vida de tu inversión.
+        </p>
+      </div>
+      <div class="pcps-visual-wrap">
+        <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento preventivo y limpieza de fuente de poder en taller Cancún" class="pcps-split-img" style="width: 100%; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Formulario de ticket -->
+  <div class="pcps-ticket-wrapper">
+    <ServiceTicketSection
+      id="ticket-pc-fuente-poder"
+      defaultDevice="PC de escritorio"
+      defaultService="Fuente de poder"
+      title="Crear ticket para revisión de fuente de poder"
+      subtitle="Cuéntanos qué síntomas presenta tu PC (si se apaga sola, huele a quemado, no prende nada o dio un chispazo) para prepararte opciones de diagnóstico y refacciones."
+    />
+  </div>
+
+  <!-- NUEVA SECCIÓN ADICIONAL 3 (Con imagen): Reparación en taller -->
+  <section class="pcps-section">
+    <div class="pcps-shell pcps-split-grid" style="grid-template-columns: 0.9fr 1.1fr;">
+      <div class="pcps-visual-wrap">
+        <img src="/assets/images/reparacion-sulfatacion-cancun.webp" alt="Técnico de computadoras reparando fuente de poder en Cancún" class="pcps-split-img" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);" />
+      </div>
+      <div class="pcps-split-text-content">
+        <span class="pcps-eyebrow">Reparación a Nivel Componente</span>
+        <h2>¿Qué hacemos en nuestro taller técnico si tu fuente sufrió un cortocircuito?</h2>
+        <p>
+          Cuando una fuente de poder gamer premium de gama alta deja de funcionar tras una descarga, no siempre es necesario tirarla. En **Pixon PC** desarmamos la fuente en un entorno seguro y realizamos un lavado químico ultrasónico especial para eliminar la corrosión provocada por el salitre caribeño.
+        </p>
+        <p>
+          Utilizando microscopios de inspección y estaciones de soldadura profesional, localizamos fusibles abiertos, diodos quemados o capacitores secos. Si el circuito integrado principal o los MOSFETs están sanos, podemos cambiar los componentes dañados, devolviendo la fuente a su funcionamiento original con una fracción del costo de un equipo nuevo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Riesgos de fuente genérica (H2 SEO) -->
+  <section class="pcps-section pcps-bg-light">
+    <div class="pcps-shell">
+      <div class="pcps-section-head">
+        <span>Prevención de hardware</span>
+        <h2>Riesgos de usar una fuente de poder genérica o dañada</h2>
+        <p>Ahorrar en la fuente de poder es el error más común y peligroso al armar o reparar una computadora.</p>
+      </div>
+
+      <div class="pcps-risks-grid">
+        {risks.map((item) => (
+          <div class="pcps-risk-card">
+            <div class="pcps-risk-header">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <h3>{item.title}</h3>
+            </div>
+            <p>{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN ADICIONAL 4 (Con imagen): Actualización de hardware (GPU) -->
+  <section class="pcps-section">
+    <div class="pcps-shell pcps-split-grid" style="grid-template-columns: 1.1fr 0.9fr;">
+      <div class="pcps-split-text-content">
+        <span class="pcps-eyebrow">Actualización de Tarjeta Gráfica</span>
+        <h2>Actualización de hardware: Cambio de fuente de poder al instalar tarjetas gráficas (GPU) nuevas</h2>
+        <p>
+          Si compraste una tarjeta de video nueva como una RTX 4070 o superior, la fuente que usabas anteriormente para tu PC de oficina ya no será suficiente. Una GPU moderna requiere cables de corriente independientes para evitar sobrecalentar las líneas de la fuente.
+        </p>
+        <p>
+          Realizamos la instalación física de tu fuente nueva, acomodamos los cables detrás de la tapa del gabinete para mejorar el flujo de aire y realizamos pruebas de estabilidad (stress tests) de tu GPU y CPU al mismo tiempo para garantizar que la nueva fuente responda con estabilidad bajo carga extrema de trabajo o juego.
+        </p>
+      </div>
+      <div class="pcps-visual-wrap">
+        <img src="/assets/images/cambio-ssd.webp" alt="Instalación de fuente de poder gamer certificada en Cancún" class="pcps-split-img" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Servicios relacionados -->
+  <section class="pcps-section pcps-bg-light">
+    <div class="pcps-shell">
+      <div class="pcps-section-head">
+        <span>Navegación</span>
+        <h2>Servicios complementarios de PC en Cancún</h2>
+        <p>Soluciones adicionales de hardware y software para optimizar o reparar tu equipo.</p>
+      </div>
+
+      <div class="pcps-related-grid">
+        {relatedServices.map((item) => (
+          <div class="pcps-related-card">
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+            <a href={item.link} class="pcps-related-link">Ver servicio <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Preguntas frecuentes (H2 SEO) -->
+  <FaqSection
+    id="faq-pc-fuente-poder"
+    title="Preguntas frecuentes sobre fuentes de poder en Cancún"
+    description="Dudas técnicas comunes sobre fallas, Watts, marcas, garantías y picos de energía en computadoras."
+    items={faqItems}
+    backgroundColor="#0b1329"
+    titleColor="#ffffff"
+    descriptionColor="#94a3b8"
+    questionColor="#080e1e"
+    faqAccent="#f59e0b"
+  />
+
+  <!-- 10. Reseñas y opiniones -->
+  <section class="pcps-section pcps-reviews-section">
+    <div class="pcps-shell">
+      <div class="pcps-section-head">
+        <span>Social Proof</span>
+        <h2>Opiniones sobre cambio de fuentes de PC en Cancún</h2>
+        <p>Comentarios reales de clientes que confiaron en nuestro taller para proteger sus computadoras.</p>
+      </div>
+
+      <div class="pcps-reviews-layout">
+        <div class="pcps-mock-reviews">
+          <div class="pcno-review-item">
+            <div class="pcno-review-meta">
+              <strong>Andrés L. (Cumbres)</strong>
+              <div class="pcno-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            </div>
+            <p>"Mi computadora gamer empezó a reiniciarse sola cuando jugaba Warzone. En Pixon diagnosticaron que mi fuente de 500W no aguantaba picos de la tarjeta gráfica. Me instalaron una Corsair de 750W con certificación Gold y todo el cableado quedó súper ordenado."</p>
+          </div>
+          <div class="pcno-review-item">
+            <div class="pcno-review-meta">
+              <strong>Patricia G. (Polígono Sur)</strong>
+              <div class="pcno-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            </div>
+            <p>"Después de una tormenta eléctrica la PC de mi oficina no prendía nada. Me hicieron el diagnóstico de la fuente gratis, confirmaron que se había quemado y me pusieron una nueva certificada en 24 horas. Súper recomendados."</p>
+          </div>
+        </div>
+
+        <div class="pcps-review-form-card">
+          <h3>Escribe una valoración</h3>
+          <form class="pcno-review-form" onsubmit="event.preventDefault(); alert('¡Gracias por tu comentario! Será visible pronto.'); this.reset();">
+            <div class="pcno-form-group">
+              <label for="review_name_ps">Nombre completo</label>
+              <input type="text" id="review_name_ps" required placeholder="Ej. Mariana Sánchez" />
+            </div>
+            <div class="pcno-form-group">
+              <label for="review_text_ps">Opinión</label>
+              <textarea id="review_text_ps" required rows="3" placeholder="Comenta tu experiencia con la reparación o instalación..."></textarea>
+            </div>
+            <button type="submit" class="pcno-btn pcno-btn-primary">Publicar opinión</button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="pcps-reviews-cta">
+        <a href="/comentarios" class="pcno-btn pcno-btn-soft">Ver todas las reseñas de clientes</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. NAP y Ubicación (H2 SEO) -->
+  <section class="pcps-section pcps-bg-dark pcps-contact-block">
+    <div class="pcps-shell pcps-contact-grid">
+      <div class="pcps-contact-info">
+        <span>Agendar cita previa</span>
+        <h2>Taller técnico de computadoras en Cancún y contacto</h2>
+        <p class="pcps-contact-lead">
+          Pixon PC / Rentalap proporciona diagnósticos de fuente de poder y refacciones con cita previa de Lunes a Domingo.
+        </p>
+        
+        <div class="pcps-contact-list">
+          <div class="pcps-contact-detail">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <div>
+              <h3>Dirección del taller</h3>
+              <p>Cto. Hacienda Chimay, CP 77539, Cancún, Q.R.</p>
+            </div>
+          </div>
+          <div class="pcps-contact-detail">
+            <i class="fa-brands fa-whatsapp"></i>
+            <div>
+              <h3>WhatsApp</h3>
+              <p>+52 998 669 0777</p>
+            </div>
+          </div>
+          <div class="pcps-contact-detail">
+            <i class="fa-solid fa-envelope"></i>
+            <div>
+              <h3>Correo de soporte</h3>
+              <p>pixonpc@gmail.com</p>
+            </div>
+          </div>
+          <div class="pcps-contact-detail">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+              <h3>Atención</h3>
+              <p>Lunes a Domingo con cita previa obligatoria</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcps-contact-actions">
+          <a href={`https://wa.me/529986690777?text=${whatsappText}`} class="pcps-btn pcps-btn-primary" onclick="smartWaRedirect(this.href); return false;">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+          </a>
+          <a href="#ticket-pc-fuente-poder" class="pcps-btn pcps-btn-soft">
+            <i class="fa-solid fa-ticket"></i> Crear Ticket
+          </a>
+          <a href={`https://wa.me/529986690777?text=${encodeURIComponent('Hola, quisiera solicitar recolección a domicilio en Cancún para mi PC que tiene fallas en la fuente de poder.')}`} class="pcps-btn pcps-btn-outline" onclick="smartWaRedirect(this.href); return false;">
+            <i class="fa-solid fa-truck-moving"></i> Solicitar recolección
+          </a>
+        </div>
+      </div>
+
+      <div class="pcps-contact-map">
+        <div class="pcno-map-placeholder">
+          <i class="fa-solid fa-map-pin"></i>
+          <span>Ubicación Privada - Agenda tu cita para recibir coordenadas exactas y confirmación.</span>
+          <strong>Cto. Hacienda Chimay, C.P. 77539, Cancún, Q.R.</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <Footer />
+</div>
+
+<script>
+  // Add dynamic help microcopy below the description field in the global ticket form
+  document.addEventListener('DOMContentLoaded', () => {
+    const descField = document.getElementById('st_description');
+    if (descField && !document.getElementById('st-description-help-ps')) {
+      const helpText = document.createElement('p');
+      helpText.id = 'st-description-help-ps';
+      helpText.style.fontSize = '0.85rem';
+      helpText.style.color = '#64748b';
+      helpText.style.marginTop = '6px';
+      helpText.style.fontStyle = 'italic';
+      helpText.style.display = 'block';
+      helpText.innerHTML = '<strong>Ejemplo:</strong> Mi PC se apaga sola a los 10 minutos de abrir un juego.';
+      descField.parentNode?.appendChild(helpText);
+    }
+  });
+</script>
+
+<style>
+  /* Premium Scoped Styles for PcPowerSupplyView */
+  .pcps-page {
+    background-color: #050d1e;
+    color: #cbd5e1;
+    font-family: 'Red Hat Display', 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .pcps-shell {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .pcps-section {
+    padding: clamp(50px, 8vw, 90px) 0;
+    background-color: #ffffff;
+    color: #0f172a;
+  }
+
+  .pcps-bg-light {
+    background-color: #f8fafc;
+  }
+
+  .pcps-bg-dark {
+    background-color: #080e1e;
+    color: #cbd5e1;
+  }
+
+  .pcps-section-head {
+    max-width: 800px;
+    margin: 0 auto clamp(30px, 5vw, 50px);
+    text-align: center;
+  }
+
+  .pcps-section-head span,
+  .pcps-kicker,
+  .pcps-eyebrow,
+  .pcps-contact-info span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #f59e0b;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .pcps-section-head h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    color: #0f172a;
+    line-height: 1.15;
+    margin: 0 0 16px;
+  }
+
+  .pcps-bg-dark .pcps-section-head h2 {
+    color: #ffffff;
+  }
+
+  .pcps-section-head p {
+    color: #475569;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .pcps-bg-dark .pcps-section-head p {
+    color: #94a3b8;
+  }
+
+  /* Hero Section (Dark premium) */
+  .pcps-hero {
+    position: relative;
+    padding: 100px 0 clamp(60px, 10vw, 100px);
+    background: 
+      radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.15), transparent 30%),
+      radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15), transparent 35%),
+      linear-gradient(135deg, #030712 0%, #050d1e 50%, #0b1329 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .pcps-hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(30px, 5vw, 60px);
+    align-items: center;
+  }
+
+  .pcps-kicker {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .pcps-hero-copy h1 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.3rem, 5vw, 3.8rem);
+    line-height: 1.05;
+    color: #ffffff;
+    margin: 12px 0 16px;
+  }
+
+  .pcps-hero-copy h2 {
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    font-weight: 500;
+    line-height: 1.45;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+  }
+
+  .pcps-lead {
+    color: #94a3b8;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    margin-bottom: 30px;
+  }
+
+  /* Specs Grid */
+  .pcps-specs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 0;
+  }
+
+  .pcps-spec-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pcps-spec-item i {
+    font-size: 1.3rem;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pcps-spec-item span {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pcps-spec-item strong {
+    font-size: 0.95rem;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  /* Actions */
+  .pcps-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  .pcps-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.98rem;
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+
+  .pcps-btn-primary {
+    background-color: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(22, 163, 74, 0.35);
+    border: none;
+  }
+
+  .pcps-btn-primary:hover {
+    background-color: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(22, 163, 74, 0.45);
+  }
+
+  .pcps-btn-soft {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .pcps-btn-soft:hover {
+    background-color: rgba(59, 130, 246, 0.18);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  .pcps-btn-outline {
+    background-color: transparent;
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .pcps-btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  /* Zone chips */
+  .pcps-hero-zones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pcps-hero-zones span {
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+
+  .pcps-zone-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pcps-chip {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Highlight card lateral */
+  .pcps-hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pcps-highlight-card {
+    background: rgba(11, 19, 41, 0.65);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .pcps-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .pcps-pulse {
+    width: 10px;
+    height: 10px;
+    background-color: #f59e0b;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    animation: pcps-pulse-anim 2s infinite;
+  }
+
+  @keyframes pcps-pulse-anim {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  }
+
+  .pcps-highlight-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  .pcps-highlight-card p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0 0 20px;
+  }
+
+  .pcps-card-img-wrap {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 1.6;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .pcps-card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Symptoms Grid */
+  .pcps-symptoms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .pcps-symptom-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: clamp(20px, 4vw, 30px);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.03);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .pcps-symptom-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.07);
+  }
+
+  .pcps-symptom-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+
+  .pcps-symptom-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.25rem;
+    margin: 0 0 12px;
+  }
+
+  .pcps-symptom-desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #475569;
+    margin: 0 0 12px;
+  }
+
+  .pcps-symptom-rec {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #1e3a8a;
+    background-color: #eff6ff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 0;
+    font-weight: 550;
+  }
+
+  /* Split layout & Checklist */
+  .pcps-split-grid {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(35px, 6vw, 70px);
+    align-items: center;
+  }
+
+  .pcps-eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .pcps-split-content h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 3.5vw, 2.7rem);
+    color: #ffffff;
+    line-height: 1.15;
+    margin: 0 0 16px;
+  }
+
+  .pcps-split-content p {
+    color: #94a3b8;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .pcps-badge-trust {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.1);
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .pcps-checklist-card {
+    background-color: #0b1329;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: clamp(24px, 5vw, 35px);
+  }
+
+  .pcps-checklist-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: 1.35rem;
+    margin: 0 0 24px;
+  }
+
+  .pcps-checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pcps-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .pcps-check-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .pcps-checklist h4 {
+    color: #ffffff;
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+
+  .pcps-checklist p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+
+  /* Formats Grid */
+  .pcps-formats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .pcps-format-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+  }
+
+  .pcps-format-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.15rem;
+    margin: 0 0 10px;
+  }
+
+  .pcps-format-card p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .pcps-format-note {
+    text-align: center;
+    color: #475569;
+    font-size: 0.92rem;
+    font-weight: 550;
+    margin-top: 30px;
+  }
+
+  .pcps-format-note i {
+    color: #3b82f6;
+    margin-right: 6px;
+  }
+
+  /* Climate / Local Cancun SEO H2 details */
+  .pcps-local-block {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pcps-local-inner {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(30px, 5vw, 60px);
+    align-items: center;
+  }
+
+  .pcps-local-copy h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2rem, 3.5vw, 2.7rem);
+    color: #0f172a;
+    line-height: 1.15;
+    margin: 0 0 16px;
+  }
+
+  .pcps-local-copy p {
+    color: #475569;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .pcps-local-zones {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: clamp(24px, 4vw, 35px);
+  }
+
+  .pcps-local-zones h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.3rem;
+    margin: 0 0 8px;
+  }
+
+  .pcps-local-zones p {
+    color: #475569;
+    font-size: 0.92rem;
+    margin-bottom: 20px;
+  }
+
+  .pcps-zones-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .pcps-zones-grid span {
+    font-size: 0.88rem;
+    color: #0f172a;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pcps-zones-grid span i {
+    color: #d97706;
+  }
+
+  .pcps-ticket-wrapper {
+    background-color: #f1f5f9;
+  }
+
+  /* Risks Grid */
+  .pcps-risks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .pcps-risk-card {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .pcps-risk-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .pcps-risk-header i {
+    color: #d97706;
+    font-size: 1.3rem;
+  }
+
+  .pcps-risk-header h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #78350f;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .pcps-risk-card p {
+    margin: 0;
+    color: #92400e;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  /* Related Services */
+  .pcps-related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .pcps-related-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+  }
+
+  .pcps-related-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.15rem;
+    margin: 0 0 10px;
+  }
+
+  .pcps-related-card p {
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0 0 20px;
+    flex-grow: 1;
+  }
+
+  .pcps-related-link {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #2563eb;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: gap 0.2s;
+  }
+
+  .pcps-related-link:hover {
+    gap: 10px;
+    color: #1d4ed8;
+  }
+
+  /* Reviews */
+  .pcps-reviews-section {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pcps-reviews-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(24px, 5vw, 45px);
+    align-items: flex-start;
+  }
+
+  .pcps-mock-reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pcno-review-item {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+
+  .pcno-review-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pcno-review-meta strong {
+    color: #0f172a;
+    font-size: 0.95rem;
+  }
+
+  .pcno-stars {
+    color: #fbbf24;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 2px;
+  }
+
+  .pcno-review-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #475569;
+    font-style: italic;
+  }
+
+  .pcps-review-form-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  }
+
+  .pcps-review-form-card h3 {
+    font-family: 'Kanit', sans-serif;
+    color: #0f172a;
+    font-size: 1.2rem;
+    margin: 0 0 16px;
+  }
+
+  .pcno-review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pcno-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pcno-form-group label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .pcno-form-group input,
+  .pcno-form-group textarea {
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    background-color: #f8fafc;
+    color: #0f172a;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .pcno-form-group input:focus,
+  .pcno-form-group textarea:focus {
+    border-color: #3b82f6;
+  }
+
+  .pcno-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.98rem;
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+
+  .pcps-reviews-cta {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  /* Contact and NAP block */
+  .pcps-contact-block {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .pcps-contact-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(30px, 5vw, 60px);
+    align-items: center;
+  }
+
+  .pcps-contact-info span {
+    color: #f59e0b;
+  }
+
+  .pcps-contact-info h2 {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    font-size: clamp(2rem, 3.5vw, 2.7rem);
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  .pcps-contact-lead {
+    font-size: 1.08rem;
+    color: #cbd5e1;
+    line-height: 1.55;
+    margin-bottom: 24px;
+  }
+
+  .pcps-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .pcps-contact-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .pcps-contact-detail i {
+    font-size: 1.35rem;
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.1);
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .pcps-contact-detail h3 {
+    margin: 0 0 2px;
+    font-size: 0.95rem;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .pcps-contact-detail p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    line-height: 1.45;
+  }
+
+  .pcps-contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .pcps-contact-map {
+    height: 100%;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pcno-map-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    background-color: #0b1329;
+    border: 1px dashed rgba(245, 158, 11, 0.3);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+    color: #cbd5e1;
+  }
+
+  .pcno-map-placeholder i {
+    font-size: 2.5rem;
+    color: #ef4444;
+    margin-bottom: 16px;
+  }
+
+  .pcno-map-placeholder span {
+    font-size: 0.92rem;
+    color: #94a3b8;
+    max-width: 300px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .pcno-map-placeholder strong {
+    font-size: 0.98rem;
+    color: #ffffff;
+  }
+
+  /* Responsiveness Media Queries */
+  @media (max-width: 992px) {
+    .pcps-hero-grid,
+    .pcps-split-grid,
+    .pcps-local-inner,
+    .pcps-reviews-layout,
+    .pcps-contact-grid {
+      grid-template-columns: 1fr !important;
+      gap: 40px;
+    }
+
+    .pcps-hero-visual,
+    .pcps-highlight-card,
+    .pcps-checklist-card,
+    .pcps-local-zones,
+    .pcps-review-form-card,
+    .pcps-contact-map {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pcps-specs-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    
+    .pcps-zones-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pcps-contact-actions .pcps-btn {
+      width: 100%;
+    }
+  }
+</style>

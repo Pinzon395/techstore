@@ -1,0 +1,323 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero revisar mi PS5 en Cancún porque se apaga sola al jugar. Quiero diagnóstico antes de cambiar piezas.'
+);
+const waHref = 'https://wa.me/529986690777?text=' + waMessage;
+const sourcePage = '/servicios/' + category.slug + '/' + service.slug;
+
+const symptoms = [
+  { icon: 'fa-power-off', title: 'Se apaga en juegos de PS5', text: 'Falla después de 10, 20 o 60 minutos en títulos exigentes, pero en menú o apps ligeras parece normal.' },
+  { icon: 'fa-tv', title: 'Pantalla negra sin aviso', text: 'La consola se va a negro, deja de responder o requiere desconectar corriente para volver a encender.' },
+  { icon: 'fa-temperature-arrow-up', title: 'Calor o ruido fuerte', text: 'Puede haber polvo bloqueando disipador, ventilador forzado o mala transferencia de calor en el APU.' },
+  { icon: 'fa-bolt', title: 'Apagado bajo carga', text: 'Si no aparece aviso de temperatura, también revisamos fuente, consumo, cable de corriente y placa.' },
+  { icon: 'fa-droplet', title: 'Metal líquido desplazado', text: 'En PS5 el metal líquido puede quedar mal distribuido, con zonas secas o riesgo de fuga si fue intervenido antes.' },
+  { icon: 'fa-box', title: 'Consola en mueble cerrado', text: 'El aire caliente se recicla y sube la temperatura interna, sobre todo en Cancún por calor y humedad.' },
+];
+
+const causes = [
+  { title: 'Polvo en disipador', text: 'La PS5 puede verse limpia por fuera y tener el disipador tapado por dentro. Esto reduce flujo de aire y dispara temperatura.' },
+  { title: 'Metal líquido mal distribuido', text: 'Si el contacto térmico del APU no es uniforme, la consola puede apagarse aunque el ventilador funcione.' },
+  { title: 'Fuente fatigada', text: 'Una fuente puede encender la consola en menú, pero caer cuando el juego exige potencia sostenida.' },
+  { title: 'Ventilador o flujo de aire', text: 'Ruido, vibración, RPM bajas o entradas bloqueadas pueden provocar apagados y bajo rendimiento.' },
+  { title: 'Humedad o salitre', text: 'En Cancún la humedad puede afectar conectores, fuente, placa y polvo pegado dentro de la consola.' },
+  { title: 'Daño en placa', text: 'Si el apagado continúa tras corregir temperatura y fuente, revisamos consumo y líneas de alimentación.' },
+];
+
+const process = [
+  { step: '01', title: 'Recepción y síntomas', text: 'Registramos modelo, si es PS5 Fat o Slim, juego donde falla, tiempo antes del apagado, ubicación, historial de limpieza y si hubo apagón o humedad.' },
+  { step: '02', title: 'Prueba bajo carga', text: 'Probamos encendido, video, ventilador, ruido y comportamiento con carga real. No basta con ver que prende en menú.' },
+  { step: '03', title: 'Diagnóstico térmico y eléctrico', text: 'Revisamos polvo, disipador, ventilador, metal líquido, fuente, cable de corriente, consumo y señales de corto o humedad.' },
+  { step: '04', title: 'Cotización responsable', text: 'Te decimos si conviene limpieza, revisión de metal líquido, fuente, ventilador o diagnóstico de placa antes de autorizar.' },
+  { step: '05', title: 'Intervención controlada', text: 'Abrimos con herramienta correcta, cuidando flex, fuente, sellos, disipador y placa. El metal líquido se toca sólo si el diagnóstico lo justifica.' },
+  { step: '06', title: 'Prueba final con juego', text: 'Validamos estabilidad, ruido, encendido, temperatura y comportamiento con juego exigente antes de entregar.' },
+];
+
+const relatedGuides = [
+  { href: '/servicios/consola/limpieza-metal-liquido-ps5', title: 'Limpieza metal líquido PS5', text: 'Para PS5 con calor, ruido fuerte, polvo interno o revisión térmica del APU.' },
+  { href: '/servicios/consola/fuente', title: 'Reparación de fuente', text: 'Cuando se apaga sin aviso de temperatura, no prende estable o falló tras apagón.' },
+  { href: '/servicios/consola/sobrecalentamiento', title: 'Sobrecalentamiento de consola', text: 'Diagnóstico térmico para PS5, Xbox, Switch y consolas portátiles.' },
+  { href: '/servicios/consola/limpieza-interna', title: 'Limpieza interna de consolas', text: 'Mantenimiento preventivo por polvo, ventilador, disipador y flujo de aire.' },
+  { href: '/servicios/consola/diagnostico', title: 'Diagnóstico de consolas', text: 'Si aún no sabes si la falla es temperatura, fuente, HDMI, lector o placa.' },
+  { href: '/servicios/consola/reparacion-ps5', title: 'Reparación PS5', text: 'Vista general para fallas de imagen, encendido, lector, temperatura o sistema.' },
+];
+
+const areas = ['Cancún Centro', 'Zona Hotelera', 'Huayacán', 'Cumbres', 'Bonfil', 'Polígono Sur', 'Puerto Cancún', 'Av. Tulum', 'Bonampak', 'Puerto Juárez', 'Supermanzanas', 'Haciendas'];
+
+const faqs = [
+  { question: '¿Por qué mi PS5 se apaga sola al jugar?', answer: 'Puede apagarse por temperatura alta, polvo en disipador, metal líquido mal distribuido, fuente fatigada, ventilador con bajo flujo, cable de corriente, humedad o consumo anormal en placa. Por eso probamos bajo carga antes de recomendar una reparación.' },
+  { question: '¿Por qué mi PS5 se apaga sin mostrar aviso de temperatura?', answer: 'Cuando no hay aviso térmico, la causa puede estar en fuente, consumo, placa o caída eléctrica. También puede haber apagado térmico rápido si el APU no transfiere calor correctamente. Se revisan ambas rutas: térmica y eléctrica.' },
+  { question: '¿Siempre hay que cambiar el metal líquido si la PS5 se apaga?', answer: 'No. Primero revisamos polvo, ventilador, disipador y distribución del metal líquido. Manipularlo sin necesidad aumenta riesgo porque es conductor. Sólo se corrige si hay evidencia de mala transferencia o desplazamiento.' },
+  { question: '¿Cuánto cuesta reparar una PS5 que se apaga en Cancún?', answer: 'El diagnóstico inicia desde $650 MXN. El costo final depende de si basta limpieza, si requiere corrección de metal líquido, fuente, ventilador o reparación de placa. Te damos cotización antes de avanzar.' },
+  { question: '¿Cuánto tarda el diagnóstico de PS5 que se apaga?', answer: 'Normalmente de 24 a 72 horas. Si el apagado es intermitente o sólo ocurre con juegos exigentes, puede requerir pruebas extendidas para confirmar estabilidad.' },
+  { question: '¿Puedo seguir usando mi PS5 si se apaga sola?', answer: 'No es recomendable. Cada apagado puede afectar datos, fuente o placa si la causa es temperatura o alimentación. Lo correcto es apagarla, no encerrarla en muebles y traerla a revisión.' },
+  { question: '¿Se borran mis juegos o partidas?', answer: 'Una reparación física por temperatura, fuente o limpieza normalmente no borra juegos ni partidas. Si se detecta falla de almacenamiento o software, te avisamos antes de tocar datos.' },
+  { question: '¿Dónde están ubicados para revisar PS5 en Cancún?', answer: 'Pixon PC / Rentalap atiende en Cto. Hacienda Chimay, 77539 Cancún, Q.R. Puedes escribir al +52 998 669 0777 o a pixonpc@gmail.com para confirmar revisión.' },
+];
+---
+
+<div class="ps5off-page">
+  <section class="ps5off-hero">
+    <div class="container ps5off-hero-grid">
+      <div class="ps5off-hero-copy">
+        <span class="ps5off-kicker"><i class="fa-brands fa-playstation"></i> Servicio técnico PS5 en Cancún</span>
+        <h1>PS5 se apaga sola al jugar en Cancún</h1>
+        <p class="ps5off-lead">Diagnóstico para PlayStation 5 que se apaga con juegos pesados, pantalla negra, calor, ruido fuerte, falla de fuente, polvo interno o metal líquido mal distribuido.</p>
+        <p>No asumimos que “es limpieza” ni que “es la fuente” sin pruebas. Revisamos temperatura, consumo, ventilador, disipador, metal líquido y estabilidad bajo carga antes de cotizar.</p>
+        <div class="ps5off-actions">
+          <a class="ps5off-btn ps5off-btn-primary" href={waHref} target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp</a>
+          <a class="ps5off-btn ps5off-btn-secondary" href="#ticket">Crear ticket</a>
+        </div>
+      </div>
+      <aside class="ps5off-panel" aria-label="Resumen del diagnóstico PS5">
+        <img src="/assets/images/ps5_xbox.webp" alt="Diagnóstico de PS5 que se apaga en Cancún" />
+        <div class="ps5off-panel-body">
+          <span>Diagnóstico desde</span>
+          <strong>{service.fromPrice || '$650 MXN'}</strong>
+          <p>Tiempo estimado: {service.eta || '24-72 h'} según pruebas y causa del apagado.</p>
+        </div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> PS5 Fat y PS5 Slim</li>
+          <li><i class="fa-solid fa-check"></i> Prueba con juego exigente</li>
+          <li><i class="fa-solid fa-check"></i> Revisión térmica y eléctrica</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="ps5off-section ps5off-light" id="sintomas">
+    <div class="container">
+      <div class="ps5off-head">
+        <span class="ps5off-eyebrow">Síntomas de apagado</span>
+        <h2>Señales de que tu PS5 necesita diagnóstico bajo carga</h2>
+        <p>El apagado puede venir de temperatura, fuente, ventilación, metal líquido o placa. Estas señales ayudan a orientar la revisión sin prometer una reparación antes de medir.</p>
+      </div>
+      <div class="ps5off-symptom-grid">
+        {symptoms.map((item) => (
+          <article>
+            <i class={'fa-solid ' + item.icon}></i>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ps5off-section ps5off-dark" id="causas">
+    <div class="container ps5off-split">
+      <div>
+        <span class="ps5off-eyebrow">Causa real primero</span>
+        <h2>Por qué una PS5 se apaga sola: no siempre es el mismo problema</h2>
+        <p>Dos consolas pueden apagarse igual y tener causas distintas. En taller separamos flujo de aire, metal líquido, fuente y consumo para evitar gastos innecesarios.</p>
+        <a class="ps5off-btn ps5off-btn-primary" href={waHref} target="_blank" rel="noopener">Enviar síntoma por WhatsApp</a>
+      </div>
+      <div class="ps5off-cause-list">
+        {causes.map((item) => (
+          <article>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ps5off-section ps5off-light" id="metal-liquido">
+    <div class="container ps5off-media-grid">
+      <div class="ps5off-image-card">
+        <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Revisión de metal líquido en PS5 Cancún" loading="lazy" />
+      </div>
+      <div>
+        <span class="ps5off-eyebrow">PS5 y metal líquido</span>
+        <h2>El metal líquido puede causar apagados si no transfiere bien el calor</h2>
+        <p>La PS5 usa metal líquido sobre el APU. Si está desplazado, seco por zonas o fue manipulado mal, la consola puede apagarse en juegos exigentes. También puede existir polvo en el disipador o fuente fatigada, por eso se revisa completo.</p>
+        <div class="ps5off-check-grid">
+          <span>Distribución del metal líquido</span>
+          <span>Disipador y ventilador</span>
+          <span>Fuente y consumo</span>
+          <span>Prueba con juego real</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ps5off-section ps5off-light" id="proceso">
+    <div class="container">
+      <div class="ps5off-head">
+        <span class="ps5off-eyebrow">Proceso técnico</span>
+        <h2>Cómo diagnosticamos una PS5 que se apaga al jugar</h2>
+        <p>La meta es encontrar la causa con evidencia y entregar una consola estable, no sólo limpia por fuera.</p>
+      </div>
+      <div class="ps5off-process">
+        {process.map((item) => (
+          <article>
+            <span>{item.step}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ps5off-section ps5off-compare">
+    <div class="container ps5off-compare-grid">
+      <div>
+        <span class="ps5off-eyebrow">Decisión clara</span>
+        <h2>¿Limpieza, fuente, ventilador o placa?</h2>
+        <p>Antes de autorizar, te explicamos el escenario más probable, el costo, el tiempo y el riesgo. No prometemos resultados sin diagnóstico.</p>
+      </div>
+      <div class="ps5off-decision-cards">
+        <article><h3>Puede bastar limpieza si:</h3><p>Hay polvo, ventilador forzado, mueble cerrado, ruido alto o nunca tuvo mantenimiento.</p></article>
+        <article><h3>Puede ser fuente si:</h3><p>Se apaga sin aviso, sólo falla bajo carga, hubo apagón o requiere desconectar para volver a prender.</p></article>
+        <article><h3>Puede ser placa si:</h3><p>Sigue apagándose tras corregir temperatura, hay consumo anormal, humedad o corto interno.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="ps5off-section ps5off-local" id="seo-local">
+    <div class="container ps5off-local-grid">
+      <div>
+        <span class="ps5off-eyebrow">Servicio local Cancún</span>
+        <h2>Revisión de PS5 que se apaga cerca de ti en Cancún</h2>
+        <p>Atendemos PS5 de jugadores, familias, renta vacacional, departamentos y negocios desde Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.</p>
+        <p><strong>Pixon PC / Rentalap</strong><br />Cto. Hacienda Chimay, 77539 Cancún, Q.R.<br />+52 998 669 0777<br />pixonpc@gmail.com</p>
+      </div>
+      <div class="ps5off-area-list">
+        {areas.map((area) => <span>{area}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="ps5off-section ps5off-light" id="relacionados">
+    <div class="container">
+      <div class="ps5off-head">
+        <span class="ps5off-eyebrow">Rutas relacionadas</span>
+        <h2>Servicios que suelen resolver apagados de PS5</h2>
+        <p>Si el diagnóstico apunta a una causa específica, estas vistas ayudan a continuar por la ruta correcta.</p>
+      </div>
+      <div class="ps5off-related-grid">
+        {relatedGuides.map((item) => (
+          <a href={item.href}>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+            <span>Ver servicio <i class="fa-solid fa-arrow-right"></i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice="PS5"
+    defaultService={service.label}
+    sourcePage={sourcePage}
+    title="Solicitar diagnóstico para PS5 que se apaga"
+    subtitle="Cuéntanos si se apaga en juegos específicos, cuánto tarda, si muestra aviso, si suena fuerte, si está en mueble cerrado o si tuvo apagones."
+  />
+
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Más servicios para PS5 y consolas"
+    eyebrow="Servicios relacionados"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre PS5 que se apaga sola en Cancún"
+    description="Resolvemos dudas sobre apagados en juegos, metal líquido, fuente, ventilador, limpieza, tiempos, precio, datos y diagnóstico."
+    items={faqs}
+    ariaLabel="Preguntas frecuentes sobre PS5 que se apaga sola en Cancún"
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    sectionClass="faq-section"
+    gridClass="faq-grid"
+    backgroundColor="#F8FAFC"
+    questionColor="#071F3A"
+    itemGap="8px"
+    questionPadding="16px 18px"
+  />
+
+  <CommentsSection dark={true} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" />
+  <ContactSection id="ubicacion" />
+</div>
+
+<Footer />
+
+<style is:global>
+  .ps5off-page { --ink:#071F3A; --blue:#0A4C8A; --soft:#F4F8FC; --line:rgba(7,31,58,.12); background:#fff; color:var(--ink); }
+  .ps5off-page h2,.ps5off-page h3,.ps5off-page p,.ps5off-page li,.ps5off-page span,.ps5off-page strong{color:var(--ink)}
+  .ps5off-hero{position:relative;overflow:hidden;padding:clamp(36px,5vw,74px) 0;background:radial-gradient(circle at 84% 12%,rgba(56,189,248,.22),transparent 32%),radial-gradient(circle at 12% 18%,rgba(37,99,235,.24),transparent 34%),linear-gradient(135deg,#061425 0%,#071f3a 54%,#0b1120 100%)}
+  .ps5off-hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,#000,transparent 86%)}
+  .ps5off-hero-grid,.ps5off-split,.ps5off-media-grid,.ps5off-compare-grid,.ps5off-local-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.82fr);gap:clamp(24px,4vw,48px);align-items:center}
+  .ps5off-kicker,.ps5off-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+  .ps5off-kicker,.ps5off-hero h1,.ps5off-hero p{color:#fff!important}
+  .ps5off-kicker{color:#BFEFFF!important}
+  .ps5off-eyebrow{color:var(--blue)!important}
+  .ps5off-hero h1{max-width:820px;margin:14px 0 16px;font-family:'Kanit',sans-serif;font-size:clamp(2.3rem,5.8vw,5rem);line-height:.98;letter-spacing:-.035em;text-wrap:balance}
+  .ps5off-hero p{max-width:70ch;color:#DDEBFA!important;line-height:1.7;margin:0 0 14px}
+  .ps5off-lead{font-size:clamp(1.12rem,2vw,1.38rem)!important;line-height:1.46!important}
+  .ps5off-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+  .ps5off-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:13px 18px;border-radius:14px;font-weight:900;text-decoration:none;transition:transform 180ms ease-out,background-color 180ms ease-out,border-color 180ms ease-out}
+  .ps5off-btn:active{transform:scale(.98)}
+  .ps5off-btn-primary{background:#16A34A;color:#fff!important}
+  .ps5off-btn-secondary{border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:#fff!important}
+  @media (hover:hover) and (pointer:fine){.ps5off-btn:hover,.ps5off-related-grid a:hover{transform:translateY(-3px)}}
+  .ps5off-panel{overflow:hidden;border:1px solid rgba(255,255,255,.18);border-radius:18px;background:#071F3A;box-shadow:0 24px 58px rgba(0,0,0,.26)}
+  .ps5off-panel img{display:block;width:100%;height:220px;object-fit:cover}
+  .ps5off-panel-body{padding:22px 22px 10px}
+  .ps5off-panel-body span,.ps5off-panel-body strong,.ps5off-panel-body p,.ps5off-panel li{color:#fff!important}
+  .ps5off-panel-body span{display:block;font-size:.78rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+  .ps5off-panel-body strong{display:block;margin-top:4px;font-family:'Kanit',sans-serif;font-size:clamp(1.7rem,3vw,2.2rem)}
+  .ps5off-panel ul{display:grid;gap:8px;margin:0;padding:10px 22px 22px;list-style:none}
+  .ps5off-panel li{display:flex;gap:9px;align-items:flex-start;font-weight:700}
+  .ps5off-panel li i{color:#22C55E;margin-top:4px}
+  .ps5off-section{padding:clamp(54px,7vw,92px) 0}
+  .ps5off-light{background:var(--soft)}
+  .ps5off-dark{background:#EAF3FB}
+  .ps5off-dark h2,.ps5off-dark h3,.ps5off-dark p{color:var(--ink)!important}
+  .ps5off-dark .ps5off-eyebrow{color:var(--blue)!important}
+  .ps5off-head{max-width:880px;margin:0 auto 30px;text-align:center}
+  .ps5off-section h2{max-width:900px;margin:10px 0 16px;font-family:'Kanit',sans-serif;font-size:clamp(1.85rem,3.5vw,3.15rem);line-height:1.06;letter-spacing:-.025em;text-wrap:balance}
+  .ps5off-head h2{margin-left:auto;margin-right:auto}
+  .ps5off-section h3{margin:0 0 8px;font-family:'Kanit',sans-serif;font-size:1.2rem;line-height:1.18}
+  .ps5off-section p{max-width:72ch;margin:0 0 14px;line-height:1.72;text-wrap:pretty}
+  .ps5off-symptom-grid,.ps5off-process,.ps5off-related-grid,.ps5off-cause-list,.ps5off-decision-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+  .ps5off-symptom-grid article,.ps5off-process article,.ps5off-related-grid a,.ps5off-cause-list article,.ps5off-decision-cards article{border:1px solid var(--line);border-radius:16px;background:#fff;padding:22px;min-width:0}
+  .ps5off-symptom-grid i{display:inline-flex;width:42px;height:42px;align-items:center;justify-content:center;margin-bottom:14px;border-radius:12px;background:rgba(10,76,138,.08);color:var(--blue);font-size:1.15rem}
+  .ps5off-dark .ps5off-cause-list article{background:#fff;border-color:var(--line)}
+  .ps5off-media-grid{align-items:center}
+  .ps5off-image-card{border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 22px 54px rgba(7,31,58,.12)}
+  .ps5off-image-card img{display:block;width:100%;height:100%;min-height:320px;object-fit:cover}
+  .ps5off-check-grid,.ps5off-area-list{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+  .ps5off-check-grid span,.ps5off-area-list span{border:1px solid var(--line);border-radius:999px;background:#fff;padding:9px 12px;font-weight:900}
+  .ps5off-process{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ps5off-process span{display:inline-flex;width:44px;height:44px;align-items:center;justify-content:center;margin-bottom:12px;border-radius:13px;background:#EAF3FB;color:var(--ink)!important;font-family:'Kanit',sans-serif;font-weight:950}
+  .ps5off-compare,.ps5off-local{background:#fff}
+  .ps5off-decision-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ps5off-related-grid a{display:grid;gap:8px;text-decoration:none;transition:transform 180ms ease-out,border-color 180ms ease-out}
+  .ps5off-related-grid a p{margin:0}
+  .ps5off-related-grid a span{color:var(--blue)!important;font-weight:900}
+  .ps5off-section .ps5off-btn-primary{border:1px solid var(--line);background:#fff;color:var(--ink)!important}
+  .ps5off-page .svc-related{background:var(--soft)!important}
+  .ps5off-page .svc-related .ux-eyebrow,.ps5off-page .svc-related .ux-h2,.ps5off-page .svc-related .related-card h4,.ps5off-page .svc-related .related-card span,.ps5off-page .svc-related .related-toggle,.ps5off-page .svc-related .related-toggle span{color:var(--ink)!important}
+  .ps5off-page .svc-related .related-card{background:#fff!important;border-color:var(--line)!important}
+  .ps5off-page .svc-related .related-card p{color:var(--ink)!important}
+  .ps5off-page .svc-related .related-toggle{background:#fff!important;border-color:var(--line)!important}
+  @media(max-width:980px){.ps5off-hero-grid,.ps5off-split,.ps5off-media-grid,.ps5off-compare-grid,.ps5off-local-grid{grid-template-columns:1fr}.ps5off-process,.ps5off-decision-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:620px){.ps5off-hero{padding-top:30px}.ps5off-hero h1{font-size:clamp(2rem,12vw,3.2rem)}.ps5off-btn,.ps5off-actions{width:100%}.ps5off-process,.ps5off-decision-cards{grid-template-columns:1fr}.ps5off-image-card img{min-height:240px}}
+  @media(prefers-reduced-motion:reduce){.ps5off-page *,.ps5off-page *::before,.ps5off-page *::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>

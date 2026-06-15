@@ -1,0 +1,1184 @@
+---
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const waMessage = encodeURIComponent(
+  'Hola, quiero cotizar reparación de tarjeta de video GPU en Cancún. Mi PC no da imagen, muestra artefactos, se calienta o quiero instalar una GPU nueva.'
+);
+
+const zones = [
+  'Cancún Centro',
+  'Huayacán',
+  'Zona Hotelera',
+  'Cumbres',
+  'Av. Tulum',
+  'Bonampak',
+  'Puerto Cancún',
+  'Polígono Sur',
+  'Bonfil',
+  'Puerto Juárez',
+  'Supermanzanas',
+  'Haciendas',
+];
+
+const heroFacts = [
+  { label: 'Diagnóstico desde', value: '$650 MXN' },
+  { label: 'Prueba bajo carga', value: 'Benchmark, temperatura y voltajes' },
+  { label: 'Tiempo típico', value: '24 a 72 h según falla' },
+  { label: 'Garantía', value: 'Por escrito sobre lo intervenido' },
+];
+
+const symptoms = [
+  {
+    icon: 'fa-image',
+    title: 'Artefactos, líneas o cuadros en pantalla',
+    what: 'La imagen se distorsiona, aparecen bloques de color o líneas al jugar o iniciar Windows.',
+    cause: 'Puede venir de VRAM, temperatura alta, driver dañado o una falla física en la tarjeta.',
+    check: 'Probamos la GPU bajo carga, salidas HDMI/DisplayPort, temperatura y estabilidad de memoria.',
+  },
+  {
+    icon: 'fa-display',
+    title: 'PC enciende pero no da imagen',
+    what: 'Los ventiladores giran y la PC prende, pero el monitor queda negro o sin señal.',
+    cause: 'Puede ser GPU, fuente de poder, ranura PCIe, cable, monitor, BIOS o RAM.',
+    check: 'Descartamos monitor, cable, RAM, fuente, ranura PCIe y salida de video antes de culpar la GPU.',
+  },
+  {
+    icon: 'fa-gamepad',
+    title: 'Juegos se cierran solos',
+    what: 'El juego se congela, se cierra o Windows regresa al escritorio sin explicación clara.',
+    cause: 'Suele relacionarse con temperatura, drivers NVIDIA/AMD, fuente insuficiente o inestabilidad de GPU.',
+    check: 'Revisamos visor de eventos, drivers, stress test, consumo y voltajes bajo carga.',
+  },
+  {
+    icon: 'fa-moon',
+    title: 'Pantalla negra al jugar',
+    what: 'La PC sigue encendida, pero la pantalla se apaga al abrir juegos o renderizar.',
+    cause: 'Puede ser protección térmica, fuente degradada, cable PCIe flojo o fallo de alimentación.',
+    check: 'Probamos fuente, conectores 8 pines o 12VHPWR, temperatura y carga real de la tarjeta.',
+  },
+  {
+    icon: 'fa-gauge-high',
+    title: 'FPS bajos o bajo rendimiento',
+    what: 'La tarjeta no rinde como debería o cae mucho el rendimiento después de unos minutos.',
+    cause: 'Puede ser thermal throttling, driver incorrecto, cuello de botella o mala configuración.',
+    check: 'Comparamos benchmark, uso de GPU, temperatura, drivers, CPU, RAM y configuración de energía.',
+  },
+  {
+    icon: 'fa-fan',
+    title: 'Ventiladores de GPU al máximo',
+    what: 'Los ventiladores suben al 100%, hacen ruido o cambian de velocidad de forma brusca.',
+    cause: 'Pasta térmica seca, polvo, thermal pads vencidos, sensor alterado o mala ventilación.',
+    check: 'Inspeccionamos disipador, ventiladores, pasta térmica, pads, curva térmica y flujo de aire.',
+  },
+  {
+    icon: 'fa-triangle-exclamation',
+    title: 'Pantalla azul o errores de drivers',
+    what: 'Aparecen errores de video, reinicios o mensajes relacionados con NVIDIA o AMD.',
+    cause: 'Puede ser driver corrupto, Windows inestable, GPU dañada, RAM o almacenamiento.',
+    check: 'Reinstalamos drivers de forma limpia, revisamos Windows y probamos hardware por separado.',
+  },
+  {
+    icon: 'fa-temperature-high',
+    title: 'Temperatura alta',
+    what: 'La GPU supera temperaturas normales, baja frecuencia o se apaga al exigirla.',
+    cause: 'El calor de Cancún, polvo, humedad y pasta térmica seca aceleran el desgaste térmico.',
+    check: 'Medimos temperatura en reposo y bajo carga, hotspot, ventilación y condición del disipador.',
+  },
+];
+
+const diagnosticChecks = [
+  'Temperatura en reposo y bajo carga.',
+  'Benchmark y stress test para reproducir fallas.',
+  'Revisión de drivers NVIDIA o AMD.',
+  'Prueba de fuente de poder y consumo bajo carga.',
+  'Medición de voltajes principales.',
+  'Revisión de ranura PCIe y montaje físico.',
+  'Inspección de VRAM, VRM, capacitores y conectores.',
+  'Prueba de HDMI, DisplayPort y alimentación de GPU.',
+  'Recomendación honesta: reparar, dar mantenimiento, cambiar o no invertir.',
+];
+
+const serviceBlocks = [
+  {
+    title: 'Diagnóstico técnico de GPU en Cancún',
+    text: 'Antes de cotizar revisamos si la falla realmente viene de la tarjeta de video o si el origen está en fuente, drivers, RAM, monitor, cableado o ranura PCIe.',
+  },
+  {
+    title: 'Reparación, mantenimiento e instalación de GPU',
+    text: 'Atendemos fallas de video, temperatura, ventiladores, conectores, drivers e instalación de tarjetas nuevas en PC gamer o estaciones de trabajo.',
+  },
+  {
+    title: 'Cambio de pasta térmica y thermal pads de GPU',
+    text: 'Conviene cuando la tarjeta se calienta, baja rendimiento, hace mucho ruido o no recibe mantenimiento desde hace tiempo. Se revisa antes y después.',
+  },
+  {
+    title: 'Instalación de tarjeta de video para PC gamer',
+    text: 'Validamos fuente, gabinete, conectores, drivers oficiales, benchmark final, temperatura, FPS y estabilidad para que la actualización tenga sentido.',
+  },
+];
+
+const gamerChecks = [
+  'Compatibilidad con gabinete y placa madre.',
+  'Validación de fuente de poder y watts disponibles.',
+  'Revisión de conectores 8 pines, 12VHPWR o PCIe 5.0.',
+  'Instalación limpia de drivers oficiales.',
+  'Benchmark final y prueba de temperatura.',
+  'Revisión de FPS, estabilidad y ruido bajo carga.',
+];
+
+const localFactors = [
+  'Calor ambiental que eleva la temperatura base del gabinete.',
+  'Humedad y salitre que pueden afectar conectores, VRM y soldaduras.',
+  'Polvo acumulado en ventiladores, disipador y filtros.',
+  'Variaciones eléctricas que castigan fuente de poder y GPU.',
+  'Pasta térmica y thermal pads secos por uso prolongado.',
+];
+
+const decisionRoutes = [
+  {
+    label: 'Reparar',
+    title: 'Cuando la falla es localizada',
+    text: 'Conectores, ventiladores, alimentación o intervención viable después de pruebas. Se cotiza antes de abrir reparación.',
+  },
+  {
+    label: 'Mantener',
+    title: 'Cuando el problema es térmico',
+    text: 'Pasta seca, pads vencidos, polvo o hotspot alto. Se valida con temperatura antes y después, sin prometer resultados fijos.',
+  },
+  {
+    label: 'Cambiar',
+    title: 'Cuando el costo ya no conviene',
+    text: 'Si el daño supera el valor útil de la tarjeta, recomendamos reemplazo compatible con fuente, gabinete y procesador.',
+  },
+  {
+    label: 'No invertir',
+    title: 'Cuando el riesgo es alto',
+    text: 'Si hay daño severo, humedad o falla intermitente costosa, te explicamos por qué conviene detener gasto.',
+  },
+];
+
+const relatedServices = [
+  { href: '/servicios/pc/fuente-poder', title: 'Fuente de poder PC', text: 'Revisión de voltajes, watts disponibles, conectores PCIe y estabilidad bajo carga.' },
+  { href: '/servicios/pc/diagnostico', title: 'Diagnóstico profesional de PC', text: 'Pruebas por componente para ubicar si la falla es GPU, RAM, fuente, placa o Windows.' },
+  { href: '/servicios/pc/limpieza-profunda', title: 'Limpieza profunda de PC', text: 'Limpieza interna, flujo de aire, polvo acumulado y revisión térmica general.' },
+  { href: '/servicios/pc/mantenimiento-correctivo', title: 'Mantenimiento correctivo', text: 'Corrección de fallas de hardware o software después de identificar la causa real.' },
+  { href: '/servicios/pc/refrigeracion', title: 'Refrigeración y temperatura', text: 'Mejora de ventilación, pasta térmica, ventiladores y estabilidad térmica.' },
+  { href: '/servicios/pc/upgrade', title: 'Upgrade SSD y RAM', text: 'Actualización de almacenamiento y memoria para balancear rendimiento de la PC.' },
+  { href: '/ensambles', title: 'Ensambles PC Gamer', text: 'Armado y actualización de equipos gamer con compatibilidad de componentes.' },
+];
+
+const gpuFaqs = [
+  {
+    question: '¿Cuánto cuesta revisar una tarjeta de video en Cancún?',
+    answer: 'La revisión inicia desde $650 MXN cuando requiere pruebas técnicas, mantenimiento o intervención. Antes de reparar se confirma la falla y se envía cotización clara.',
+  },
+  {
+    question: '¿Cómo sé si mi GPU está fallando?',
+    answer: 'Los síntomas más comunes son artefactos, pantalla negra, cierres de juegos, temperatura alta, ventiladores al máximo, errores de drivers o PC sin imagen.',
+  },
+  {
+    question: '¿Qué pasa si mi PC prende pero no da imagen?',
+    answer: 'No siempre es la tarjeta de video. Revisamos monitor, cable, RAM, fuente, ranura PCIe, BIOS y GPU antes de recomendar reparación o cambio.',
+  },
+  {
+    question: '¿Puede ser la fuente de poder y no la GPU?',
+    answer: 'Sí. Una fuente degradada o insuficiente puede causar pantalla negra, reinicios y cierres al jugar. Por eso medimos voltajes y consumo bajo carga.',
+  },
+  {
+    question: '¿Reparan tarjetas NVIDIA y AMD?',
+    answer: 'Diagnosticamos tarjetas NVIDIA GeForce, RTX, GTX y AMD Radeon. Si la reparación no conviene, te lo decimos antes de invertir.',
+  },
+  {
+    question: '¿Hacen cambio de pasta térmica y thermal pads?',
+    answer: 'Sí. Se realiza cuando la temperatura, ruido o mantenimiento pendiente lo justifican. No se prometen milagros: la mejora depende del estado de la tarjeta.',
+  },
+  {
+    question: '¿Pueden instalar una GPU nueva?',
+    answer: 'Sí. Revisamos fuente, espacio del gabinete, conectores, drivers, temperatura y estabilidad final para instalarla correctamente.',
+  },
+  {
+    question: '¿El calor de Cancún afecta la GPU?',
+    answer: 'Sí. El calor, humedad, polvo y salitre pueden acelerar problemas térmicos, corrosión en conectores y fallas de estabilidad en PC gamer.',
+  },
+  {
+    question: '¿Dan garantía?',
+    answer: 'Sí, la garantía se entrega por escrito según la reparación o instalación realizada. No cubre humedad posterior, descargas eléctricas o piezas no intervenidas.',
+  },
+  {
+    question: '¿Conviene reparar o cambiar la tarjeta de video?',
+    answer: 'Depende del daño, costo de pieza, antigüedad y uso. Después del diagnóstico recomendamos reparar, dar mantenimiento, cambiar o no invertir.',
+  },
+];
+---
+
+<div class="gpu-page">
+  <section class="gpu-hero">
+    <div class="gpu-hero-grid" aria-hidden="true"></div>
+    <div class="container gpu-hero-inner">
+      <div class="gpu-hero-copy">
+        <span class="gpu-kicker">Servicio técnico PC gamer en Cancún</span>
+        <h1>Reparación de tarjeta de video GPU en Cancún</h1>
+        <p>
+          Diagnóstico técnico para GPU sin imagen, artefactos en pantalla, temperatura alta, crashes en juegos
+          o instalación de tarjeta de video para PC gamer. Primero aislamos la causa, después te decimos si conviene reparar, mantener o cambiar.
+        </p>
+        <div class="gpu-hero-actions">
+          <a class="gpu-btn gpu-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i>
+            Cotizar por WhatsApp
+          </a>
+          <a class="gpu-btn gpu-btn-secondary" href="#ticket-gpu">
+            <i class="fa-solid fa-clipboard-list"></i>
+            Generar ticket
+          </a>
+        </div>
+        <div class="gpu-zone-list" aria-label="Zonas de atención en Cancún">
+          {zones.map((zone) => <span>{zone}</span>)}
+        </div>
+      </div>
+
+      <aside class="gpu-hero-card" aria-label="Resumen técnico del diagnóstico de GPU">
+        <div class="gpu-visual" aria-hidden="true">
+          <div class="gpu-board">
+            <span class="gpu-chip"></span>
+            <span class="gpu-fan gpu-fan-a"></span>
+            <span class="gpu-fan gpu-fan-b"></span>
+            <span class="gpu-connector"></span>
+            <span class="gpu-scan gpu-scan-a"></span>
+            <span class="gpu-scan gpu-scan-b"></span>
+          </div>
+        </div>
+        <div class="gpu-hero-card-head">
+          <span>Ruta de diagnóstico</span>
+          <strong>GPU, fuente, drivers y temperatura</strong>
+        </div>
+        <div class="gpu-fact-list">
+          {heroFacts.map((fact) => (
+            <div>
+              <span>{fact.label}</span>
+              <strong>{fact.value}</strong>
+            </div>
+          ))}
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="sintomas-gpu" class="gpu-section">
+    <div class="container">
+      <div class="gpu-heading">
+        <span>Síntomas reales</span>
+        <h2>Síntomas de una tarjeta de video dañada</h2>
+        <p>Estos signos no siempre significan que la GPU murió. En Pixon PC / Rentalap se revisa la causa antes de cambiar piezas.</p>
+      </div>
+      <div class="symptom-grid">
+        {symptoms.map((item, index) => (
+          <article class={`symptom-card ${index < 2 ? 'symptom-card-priority' : ''}`}>
+            <div class="symptom-icon"><i class={`fa-solid ${item.icon}`}></i></div>
+            <h3>{item.title}</h3>
+            <p><strong>Qué pasa:</strong> {item.what}</p>
+            <p><strong>Posible causa:</strong> {item.cause}</p>
+            <p><strong>Qué revisamos:</strong> {item.check}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="diagnostico-gpu" class="gpu-section gpu-section-soft">
+    <div class="container split-layout">
+      <div>
+        <span class="section-label">Diagnóstico técnico de GPU en Cancún</span>
+        <h2>Cómo saber si el problema es la GPU, la fuente o los drivers</h2>
+        <p>
+          No cambiamos la tarjeta de video por intuición. Una PC gamer puede fallar por fuente de poder,
+          drivers, RAM, BIOS, cable, monitor, ranura PCIe o temperatura. El diagnóstico separa cada causa
+          para darte una recomendación honesta.
+        </p>
+        <div class="diagnostic-note">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>Si no conviene reparar o invertir en esa GPU, se informa antes de hacer gasto en refacciones. La recomendación puede ser mantenimiento, cambio de fuente, cambio de GPU o no invertir.</p>
+        </div>
+      </div>
+      <div class="check-panel">
+        <h3>Pruebas que realizamos</h3>
+        <ul>
+          {diagnosticChecks.map((check) => (
+            <li><i class="fa-solid fa-check"></i>{check}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="gpu-section">
+    <div class="container">
+      <div class="gpu-heading">
+        <span>Servicio completo</span>
+        <h2>Reparación, mantenimiento e instalación de GPU</h2>
+        <p>La vista está pensada para que entiendas qué se revisa, qué se puede corregir y cuándo conviene cambiar la tarjeta.</p>
+      </div>
+      <div class="service-grid">
+        {serviceBlocks.map((item) => (
+          <article>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="gpu-section decision-section">
+    <div class="container">
+      <div class="gpu-heading">
+        <span>Decisión técnica antes de gastar</span>
+        <h2>Te decimos si conviene reparar, mantener, cambiar o no invertir</h2>
+        <p>Una GPU puede fallar por daño real, temperatura, fuente insuficiente, drivers o mala instalación. El objetivo es evitar compras innecesarias.</p>
+      </div>
+      <div class="decision-grid">
+        {decisionRoutes.map((item) => (
+          <article>
+            <span>{item.label}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+      <div class="mid-cta">
+        <p>¿Tu PC prende pero no da imagen o se apaga al jugar?</p>
+        <a class="gpu-btn gpu-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
+          <i class="fa-brands fa-whatsapp"></i>
+          Enviar síntomas por WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="mantenimiento-gpu" class="gpu-section gpu-section-soft">
+    <div class="container split-layout">
+      <div class="check-panel">
+        <h3>Cuándo conviene mantenimiento térmico</h3>
+        <ul>
+          <li><i class="fa-solid fa-check"></i>Temperatura alta o hotspot elevado.</li>
+          <li><i class="fa-solid fa-check"></i>Ventiladores al máximo o ruido excesivo.</li>
+          <li><i class="fa-solid fa-check"></i>Rendimiento que cae después de jugar unos minutos.</li>
+          <li><i class="fa-solid fa-check"></i>Pasta térmica seca o thermal pads deteriorados.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="section-label">Cambio de pasta térmica y thermal pads de GPU</span>
+        <h2>Mantenimiento de GPU sin prometer milagros</h2>
+        <p>
+          Antes de abrir la tarjeta medimos temperatura y revisamos si el mantenimiento tiene sentido.
+          Después se valida con prueba de carga. La mejora depende del estado del chip, disipador, pads,
+          ventiladores y uso previo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="instalacion-gpu" class="gpu-section">
+    <div class="container split-layout">
+      <div>
+        <span class="section-label">Instalación de tarjeta de video Cancún</span>
+        <h2>Instalación de tarjeta de video para PC gamer</h2>
+        <p>
+          Si compraste una GPU nueva o quieres actualizar tu PC gamer en Cancún, validamos compatibilidad
+          antes de instalar. No basta con que la tarjeta entre en el gabinete: también debe soportarla la fuente,
+          el cableado, la ventilación y la plataforma.
+        </p>
+        <a class="text-link" href="#ticket-gpu">Agendar diagnóstico</a>
+      </div>
+      <div class="check-panel">
+        <h3>Validación de instalación</h3>
+        <ul>
+          {gamerChecks.map((check) => (
+            <li><i class="fa-solid fa-check"></i>{check}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="gpu-section gpu-section-soft">
+    <div class="container split-layout">
+      <div>
+        <span class="section-label">Fallas comunes de GPU por calor, polvo y humedad en Cancún</span>
+        <h2>Servicio local para PC gamer en Cancún</h2>
+        <p>
+          En Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonampak, Puerto Cancún, Polígono Sur,
+          Bonfil, Puerto Juárez, Av. Tulum, Haciendas, Supermanzanas y alrededores, el calor y la humedad pueden
+          afectar GPU, fuente, conectores, ventiladores, pasta térmica y estabilidad del equipo.
+        </p>
+      </div>
+      <div class="check-panel">
+        <h3>Factores que revisamos</h3>
+        <ul>
+          {localFactors.map((factor) => (
+            <li><i class="fa-solid fa-check"></i>{factor}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="ticket-gpu-intro" class="gpu-section ticket-intro">
+    <div class="container ticket-callout">
+      <div>
+        <span class="section-label">Crear ticket para diagnóstico de GPU</span>
+        <h2>Solicita revisión con datos claros</h2>
+        <p>
+          Cuéntanos si tu PC no da imagen, muestra artefactos, se apaga al jugar, tiene temperatura alta,
+          ventiladores al máximo o si quieres instalar una GPU nueva. Con esa información preparamos el diagnóstico.
+        </p>
+        <p class="example-text">
+          Ejemplo: mi PC gamer prende, pero al abrir juegos la pantalla se pone negra y los ventiladores de la GPU suben al máximo.
+        </p>
+      </div>
+      <a class="gpu-btn gpu-btn-primary" href="#ticket-gpu">Solicitar revisión y cotización</a>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket-gpu"
+    defaultDevice="PC de escritorio"
+    defaultService="Diagnóstico tarjeta de video GPU"
+    sourcePage="/servicios/pc/tarjeta-video-gpu"
+    title="Crear ticket para diagnóstico de GPU"
+    subtitle="Cuéntanos si tu PC no da imagen, muestra artefactos, se apaga al jugar, tiene temperatura alta, ventiladores al máximo o si quieres instalar una GPU nueva. Ejemplo: mi PC gamer prende, pero al abrir juegos la pantalla se pone negra y los ventiladores de la GPU suben al máximo."
+  />
+
+  <section id="relacionados" class="gpu-section">
+    <div class="container">
+      <div class="gpu-heading">
+        <span>Servicios relacionados para PC gamer en Cancún</span>
+        <h2>Servicios relacionados para PC gamer en Cancún</h2>
+        <p>Servicios internos que suelen cruzarse con fallas de GPU, instalación o bajo rendimiento.</p>
+      </div>
+      <div class="related-grid">
+        {relatedServices.map((item) => (
+          <a class="related-card" href={item.href}>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+            <span>Ver servicio relacionado</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto-gpu" class="gpu-section gpu-section-soft contact-nap">
+    <div class="container split-layout">
+      <div>
+        <span class="section-label">Taller técnico de computadoras en Cancún</span>
+        <h2>Taller técnico de computadoras en Cancún</h2>
+        <p>
+          Atención local para diagnóstico de GPU, reparación de computadoras en Cancún, PC gamer y servicio técnico PC con cita previa.
+        </p>
+      </div>
+      <address>
+        <strong>Pixon PC / Rentalap</strong>
+        <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+        <span>WhatsApp: <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">+52 998 669 0777</a></span>
+        <span>Correo: <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></span>
+        <span>Horario: Lunes a Domingo con cita previa</span>
+      </address>
+    </div>
+  </section>
+
+  <FaqSection
+    id="faq-gpu"
+    title="Preguntas frecuentes sobre tarjeta de video GPU en Cancún"
+    description="Respuestas directas para decidir si necesitas diagnóstico, mantenimiento, instalación o cambio de GPU."
+    items={gpuFaqs}
+    titleColor="#071F3A"
+    descriptionColor="#071F3A"
+    questionColor="#071F3A"
+  />
+
+  <CommentsSection />
+  <ContactSection />
+  <Footer />
+</div>
+
+<style is:global>
+  .gpu-page {
+    --azul-oscuro: #071F3A;
+    --gpu-blue: #2563eb;
+    --gpu-cyan: #38bdf8;
+    --gpu-border: #dbe5f0;
+    --gpu-soft: #f6f9fd;
+    --gpu-ease: cubic-bezier(.23, 1, .32, 1);
+    background: #ffffff;
+    color: var(--azul-oscuro);
+  }
+
+  .gpu-page section:not(.gpu-hero),
+  .gpu-page section:not(.gpu-hero) h2,
+  .gpu-page section:not(.gpu-hero) h3,
+  .gpu-page section:not(.gpu-hero) p,
+  .gpu-page section:not(.gpu-hero) li,
+  .gpu-page section:not(.gpu-hero) span,
+  .gpu-page section:not(.gpu-hero) label,
+  .gpu-page section:not(.gpu-hero) small,
+  .gpu-page section:not(.gpu-hero) strong,
+  .gpu-page section:not(.gpu-hero) address,
+  .gpu-page section:not(.gpu-hero) a:not(.gpu-btn):not(.related-card):not(.text-link) {
+    color: var(--azul-oscuro) !important;
+  }
+
+  .gpu-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 112px 0 66px;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(56, 189, 248, .24), transparent 32%),
+      radial-gradient(circle at 88% 24%, rgba(37, 99, 235, .22), transparent 30%),
+      linear-gradient(135deg, #06172c 0%, #082848 50%, #071f3a 100%);
+    color: #ffffff;
+  }
+
+  .gpu-hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    opacity: .34;
+  }
+
+  .gpu-hero-inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(330px, .92fr);
+    gap: clamp(28px, 5vw, 58px);
+    align-items: center;
+  }
+
+  .gpu-kicker,
+  .section-label,
+  .gpu-heading span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .gpu-kicker {
+    color: #bfdbfe;
+    margin-bottom: 14px;
+  }
+
+  .gpu-hero h1 {
+    max-width: 760px;
+    margin: 0 0 18px;
+    font-size: clamp(2.2rem, 4.5vw, 4.05rem);
+    font-style: normal;
+    line-height: 1.03;
+    letter-spacing: 0;
+    color: #ffffff;
+    text-wrap: balance;
+  }
+
+  .gpu-hero p {
+    max-width: 760px;
+    margin: 0;
+    color: #dbeafe;
+    font-size: clamp(1rem, 2vw, 1.22rem);
+    line-height: 1.65;
+  }
+
+  .gpu-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 28px 0 22px;
+  }
+
+  .gpu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform .18s var(--gpu-ease), box-shadow .18s var(--gpu-ease), background .18s var(--gpu-ease);
+  }
+
+  .gpu-btn:active {
+    transform: scale(.98);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .gpu-btn:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .gpu-btn-primary {
+    background: #25d366;
+    color: #06172c !important;
+    box-shadow: 0 16px 30px rgba(37, 211, 102, .24);
+  }
+
+  .gpu-btn-secondary {
+    background: rgba(255,255,255,.12);
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,.28);
+  }
+
+  .gpu-zone-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .gpu-zone-list span {
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 999px;
+    padding: 7px 10px;
+    background: rgba(255,255,255,.08);
+    color: #e0f2fe;
+    font-size: .86rem;
+    font-weight: 700;
+  }
+
+  .gpu-hero-card {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(6, 23, 44, .72);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, .28);
+  }
+
+  .gpu-visual {
+    min-height: 220px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(56,189,248,.1) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(56,189,248,.1) 1px, transparent 1px),
+      radial-gradient(circle at center, rgba(37,99,235,.26), transparent 48%);
+    background-size: 34px 34px, 34px 34px, auto;
+  }
+
+  .gpu-board {
+    position: relative;
+    width: min(100%, 320px);
+    aspect-ratio: 1.6;
+    border-radius: 14px;
+    border: 1px solid rgba(191, 219, 254, .28);
+    background:
+      linear-gradient(135deg, rgba(15, 42, 74, .96), rgba(8, 40, 72, .98)),
+      #082848;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 24px 48px rgba(0,0,0,.28);
+  }
+
+  .gpu-chip,
+  .gpu-fan,
+  .gpu-connector,
+  .gpu-scan {
+    position: absolute;
+  }
+
+  .gpu-chip {
+    left: 38%;
+    top: 34%;
+    width: 24%;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    border: 1px solid rgba(56,189,248,.45);
+    background: #0f2a4a;
+    box-shadow: 0 0 24px rgba(56,189,248,.22);
+  }
+
+  .gpu-fan {
+    top: 28%;
+    width: 25%;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    border: 12px solid rgba(219,234,254,.18);
+    background: radial-gradient(circle, rgba(219,234,254,.8) 0 10%, rgba(56,189,248,.18) 11% 100%);
+  }
+
+  .gpu-fan-a { left: 8%; }
+  .gpu-fan-b { right: 8%; }
+
+  .gpu-connector {
+    right: -2px;
+    top: 34%;
+    width: 10px;
+    height: 34%;
+    border-radius: 4px 0 0 4px;
+    background: #dbeafe;
+  }
+
+  .gpu-scan {
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gpu-cyan), transparent);
+    box-shadow: 0 0 18px rgba(56,189,248,.75);
+  }
+
+  .gpu-scan-a { top: 24%; }
+  .gpu-scan-b { bottom: 24%; }
+
+  .gpu-hero-card-head {
+    display: grid;
+    gap: 6px;
+  }
+
+  .gpu-hero-card-head span,
+  .gpu-fact-list span {
+    color: #bfdbfe;
+    font-size: .84rem;
+    font-weight: 760;
+  }
+
+  .gpu-hero-card-head strong {
+    color: #ffffff;
+    font-size: 1.18rem;
+    line-height: 1.2;
+  }
+
+  .gpu-fact-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .gpu-fact-list div {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.08);
+  }
+
+  .gpu-fact-list strong {
+    color: #ffffff;
+    font-size: .96rem;
+    line-height: 1.28;
+  }
+
+  .gpu-section {
+    padding: 72px 0;
+    background: #ffffff;
+  }
+
+  .gpu-section-soft {
+    background: var(--gpu-soft);
+  }
+
+  .gpu-heading {
+    max-width: 860px;
+    margin: 0 auto 30px;
+    text-align: center;
+  }
+
+  .gpu-heading h2,
+  .split-layout h2,
+  .ticket-callout h2 {
+    margin: 8px 0 12px;
+    color: var(--azul-oscuro);
+    font-size: clamp(1.75rem, 3vw, 2.65rem);
+    font-style: normal;
+    line-height: 1.12;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .gpu-heading p,
+  .split-layout p,
+  .ticket-callout p {
+    margin: 0;
+    color: var(--azul-oscuro);
+    line-height: 1.68;
+  }
+
+  .symptom-grid,
+  .service-grid,
+  .related-grid,
+  .decision-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .symptom-card,
+  .service-grid article,
+  .related-card,
+  .check-panel,
+  .decision-grid article,
+  .ticket-callout,
+  .contact-nap address {
+    border: 1px solid var(--gpu-border);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 14px 34px rgba(7, 31, 58, .06);
+  }
+
+  .symptom-card {
+    padding: 18px;
+  }
+
+  .symptom-card-priority {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    column-gap: 14px;
+    align-content: start;
+    background: #f8fbff;
+  }
+
+  .symptom-card-priority h3 {
+    margin-top: 0;
+  }
+
+  .symptom-card-priority p {
+    grid-column: 2;
+  }
+
+  .symptom-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: #eaf2ff;
+    color: var(--gpu-blue);
+    margin-bottom: 12px;
+  }
+
+  .symptom-card h3,
+  .service-grid h3,
+  .decision-grid h3,
+  .related-card h3,
+  .check-panel h3 {
+    margin: 0 0 10px;
+    color: var(--azul-oscuro);
+    font-size: 1.05rem;
+    font-style: normal;
+    line-height: 1.25;
+  }
+
+  .symptom-card p {
+    margin: 10px 0 0;
+    line-height: 1.55;
+    font-size: .94rem;
+  }
+
+  .split-layout {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 28px;
+    align-items: center;
+  }
+
+  .check-panel {
+    padding: 22px;
+    text-align: left;
+  }
+
+  .check-panel ul {
+    display: grid;
+    gap: 11px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .check-panel li {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+    align-items: start;
+    line-height: 1.5;
+  }
+
+  .check-panel i,
+  .diagnostic-note i {
+    color: var(--gpu-blue);
+  }
+
+  .diagnostic-note {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 12px;
+    align-items: start;
+    margin-top: 20px;
+    padding: 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #eef6ff;
+  }
+
+  .service-grid article {
+    padding: 20px;
+  }
+
+  .decision-section {
+    background: #ffffff;
+  }
+
+  .decision-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .decision-grid article {
+    padding: 20px;
+    min-width: 0;
+  }
+
+  .decision-grid article > span {
+    display: inline-flex;
+    margin-bottom: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eaf2ff;
+    color: var(--gpu-blue) !important;
+    font-size: .78rem;
+    font-weight: 900;
+  }
+
+  .decision-grid p {
+    margin: 0;
+    line-height: 1.58;
+  }
+
+  .mid-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 22px;
+    padding: 18px 20px;
+    border-radius: 8px;
+    background: #071F3A;
+  }
+
+  .mid-cta p {
+    margin: 0;
+    color: #ffffff !important;
+    font-weight: 850;
+  }
+
+  .text-link {
+    display: inline-flex;
+    margin-top: 18px;
+    color: var(--gpu-blue) !important;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .ticket-intro {
+    padding-bottom: 30px;
+  }
+
+  .ticket-callout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+    padding: 24px;
+    background: #f9fbff;
+  }
+
+  .ticket-callout .gpu-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .example-text {
+    margin-top: 12px !important;
+    font-weight: 700;
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+
+  .related-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 190px;
+    padding: 18px;
+    color: var(--azul-oscuro) !important;
+    text-decoration: none;
+  }
+
+  .related-card p {
+    margin: 0;
+    line-height: 1.55;
+    font-size: .92rem;
+  }
+
+  .related-card span {
+    margin-top: auto;
+    color: var(--gpu-blue) !important;
+    font-weight: 800;
+  }
+
+  .contact-nap address {
+    display: grid;
+    gap: 8px;
+    padding: 22px;
+    font-style: normal;
+  }
+
+  .contact-nap a {
+    color: var(--gpu-blue) !important;
+    font-weight: 800;
+  }
+
+  .gpu-page #ticket-gpu.service-ticket-section,
+  .gpu-page #ticket-gpu.service-ticket-section .container {
+    color: var(--azul-oscuro) !important;
+  }
+
+  .gpu-page #ticket-gpu.service-ticket-section h2,
+  .gpu-page #ticket-gpu.service-ticket-section h3,
+  .gpu-page #ticket-gpu.service-ticket-section p,
+  .gpu-page #ticket-gpu.service-ticket-section label,
+  .gpu-page #ticket-gpu.service-ticket-section span,
+  .gpu-page #ticket-gpu.service-ticket-section strong,
+  .gpu-page #ticket-gpu.service-ticket-section input,
+  .gpu-page #ticket-gpu.service-ticket-section select,
+  .gpu-page #ticket-gpu.service-ticket-section textarea {
+    color: var(--azul-oscuro) !important;
+  }
+
+  .gpu-page #ticket-gpu.service-ticket-section h2,
+  .gpu-page #ticket-gpu.service-ticket-section h3 {
+    font-style: normal !important;
+  }
+
+  .gpu-page #ticket-gpu.service-ticket-section button[type="submit"],
+  .gpu-page #ticket-gpu.service-ticket-section button[type="submit"] i,
+  .gpu-page #ticket-gpu.service-ticket-section #st_wa_link,
+  .gpu-page #ticket-gpu.service-ticket-section #st_wa_link i {
+    color: #ffffff !important;
+  }
+
+  .gpu-page #faq-gpu,
+  .gpu-page #faq-gpu *,
+  .gpu-page .comments,
+  .gpu-page .comments *,
+  .gpu-page .contact,
+  .gpu-page .contact *,
+  .gpu-page footer,
+  .gpu-page footer * {
+    color: var(--azul-oscuro) !important;
+  }
+
+  .gpu-page footer {
+    background: #f6f9fd !important;
+  }
+
+  .gpu-page .btn,
+  .gpu-page .btn *,
+  .gpu-page button[type="submit"],
+  .gpu-page button[type="submit"] *,
+  .gpu-page [data-wa-url],
+  .gpu-page [data-wa-url] * {
+    color: inherit;
+  }
+
+  @media (max-width: 1120px) {
+    .symptom-grid,
+    .service-grid,
+    .decision-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .related-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 860px) {
+    .gpu-hero {
+      padding: 96px 0 54px;
+    }
+
+    .gpu-hero-inner,
+    .split-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .ticket-callout {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .mid-cta {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .ticket-callout .gpu-btn,
+    .mid-cta .gpu-btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .gpu-section {
+      padding: 50px 0;
+    }
+
+    .symptom-grid,
+    .service-grid,
+    .decision-grid,
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .symptom-card-priority {
+      grid-column: auto;
+      grid-template-columns: 1fr;
+    }
+
+    .symptom-card-priority p {
+      grid-column: auto;
+    }
+
+    .gpu-hero-actions .gpu-btn {
+      width: 100%;
+    }
+
+    .gpu-fact-list {
+      grid-template-columns: 1fr;
+    }
+
+    .gpu-zone-list span {
+      font-size: .8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gpu-btn,
+    .gpu-btn:hover,
+    .gpu-btn:active {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>

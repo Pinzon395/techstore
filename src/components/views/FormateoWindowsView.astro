@@ -1,0 +1,932 @@
+---
+import Base from '../../layouts/Base.astro';
+import Navbar from '../Navbar.astro';
+import Footer from '../Footer.astro';
+import Breadcrumb from '../Breadcrumb.astro';
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+
+const pageTitle = 'Formateo de laptop en Cancún | Windows, virus y respaldo';
+const pageDescription = 'Servicio de formateo de laptop en Cancún con respaldo de archivos, reinstalación de Windows, eliminación de virus, drivers y optimización profesional.';
+const canonicalUrl = 'https://pixon.com.mx/servicios/laptop/formateo-windows-virus-cancun';
+
+const faqs = [
+  {
+    question: '¿Pierdo mis archivos si formatean mi laptop?',
+    answer: 'Antes del formateo se revisan y respaldan los archivos importantes indicados por el cliente. Si el disco está dañado, primero se realiza diagnóstico porque el respaldo puede depender del estado del almacenamiento.',
+  },
+  {
+    question: '¿Cuánto tarda formatear una laptop?',
+    answer: 'En casos normales puede tardar entre 2 y 4 horas. Si requiere respaldo grande, recuperación de archivos o revisión de disco, el tiempo puede aumentar.',
+  },
+  {
+    question: '¿También instalan drivers?',
+    answer: 'Sí. Después de instalar Windows se colocan los drivers necesarios para WiFi, audio, video, touchpad, Bluetooth y otros componentes compatibles con el modelo.',
+  },
+  {
+    question: '¿Pueden eliminar virus sin formatear?',
+    answer: 'Sí, cuando el daño es leve se puede limpiar el sistema. Si Windows está muy afectado, lento o inestable, puede convenir una reinstalación limpia.',
+  },
+  {
+    question: '¿Instalan Windows 10 o Windows 11?',
+    answer: 'Se recomienda según las características del equipo. No todas las laptops funcionan igual con Windows 11, por eso se revisa compatibilidad antes de instalar.',
+  },
+];
+
+const relatedServices = [
+  {
+    href: '/servicios/laptop/mantenimiento-preventivo',
+    icon: 'fa-screwdriver-wrench',
+    label: 'Mantenimiento de laptop en Cancún',
+    desc: 'Limpieza interna, revisión térmica y diagnóstico preventivo para evitar lentitud por calor o polvo.',
+    cta: 'Ver mantenimiento →',
+  },
+  {
+    href: '/reparaciones',
+    icon: 'fa-laptop-medical',
+    label: 'Reparación de laptop en Cancún',
+    desc: 'Revisión de pantalla, teclado, carga, batería, placa, disco, RAM y fallas de Windows.',
+    cta: 'Ver reparación →',
+  },
+  {
+    href: '/servicios/laptop/upgrade',
+    icon: 'fa-hard-drive',
+    label: 'Cambio de disco duro a SSD',
+    desc: 'Mejora real de velocidad cuando la lentitud viene de un disco mecánico o almacenamiento dañado.',
+    cta: 'Ver upgrade →',
+  },
+  {
+    href: '/servicios/laptop/pasta-termica',
+    icon: 'fa-temperature-three-quarters',
+    label: 'Solución de sobrecalentamiento',
+    desc: 'Cambio de pasta térmica, limpieza de ventilador y pruebas de temperatura para laptops lentas por calor.',
+    cta: 'Ver temperatura →',
+  },
+  {
+    href: '/servicios/pc/formateo',
+    icon: 'fa-shield-virus',
+    label: 'Eliminación de virus',
+    desc: 'Limpieza de malware, programas sospechosos, extensiones del navegador y software basura.',
+    cta: 'Ver servicio →',
+  },
+  {
+    href: '/servicios/pc/diagnostico',
+    icon: 'fa-desktop',
+    label: 'Servicio técnico de computadoras en Cancún',
+    desc: 'Diagnóstico para PC lenta, pantalla azul, disco fallando, drivers, virus o problemas de arranque.',
+    cta: 'Ver diagnóstico →',
+  },
+];
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  '@id': `${canonicalUrl}#service`,
+  name: 'Formateo de laptop en Cancún con respaldo y reinstalación de Windows',
+  serviceType: 'Formateo, reinstalación de Windows, respaldo y eliminación de virus',
+  url: canonicalUrl,
+  image: 'https://pixon.com.mx/assets/images/responsive/formateo-windows-cancun.webp',
+  description: pageDescription,
+  provider: {
+    '@type': 'LocalBusiness',
+    '@id': 'https://pixon.com.mx/#business',
+    name: 'Pixon PC / Rentalap',
+    telephone: '+529986690777',
+    email: 'pixonpc@gmail.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Cto. Hacienda Chimay',
+      addressLocality: 'Cancún',
+      addressRegion: 'Quintana Roo',
+      postalCode: '77539',
+      addressCountry: 'MX',
+    },
+  },
+  areaServed: [
+    'Cancún Centro',
+    'Zona Hotelera',
+    'Huayacán',
+    'Cumbres',
+    'Bonfil',
+    'Polígono Sur',
+    'Puerto Cancún',
+    'Av. Tulum',
+    'Bonampak',
+    'Puerto Juárez',
+    'Supermanzanas',
+    'Haciendas',
+  ],
+  offers: {
+    '@type': 'Offer',
+    price: '450',
+    priceCurrency: 'MXN',
+    availability: 'https://schema.org/InStock',
+    url: canonicalUrl,
+    description: 'Formateo y reinstalación de Windows desde $450 MXN. El precio puede variar si requiere respaldo grande, recuperación de información, cambio de disco o instalación adicional.',
+  },
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer.replace(/<[^>]*>/g, ''),
+    },
+  })),
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Inicio',
+      item: 'https://pixon.com.mx/',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Formateo y Windows',
+      item: canonicalUrl,
+    },
+  ],
+};
+---
+
+<Base
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonicalUrl}
+  image="/assets/images/responsive/formateo-windows-cancun.webp"
+  schema={[serviceSchema, faqSchema, breadcrumbSchema]}
+>
+  <Navbar />
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: 'Laptop', href: '/servicios/laptop' },
+    { label: 'Formateo y Windows' },
+  ]} />
+
+  <main class="format-page">
+    <header class="format-hero">
+      <div class="container format-hero__grid">
+        <div class="format-hero__copy">
+          <p class="format-kicker">Formateo - Windows · Servicio técnico local en Cancún</p>
+          <h1>Formateo de laptop en Cancún con respaldo y reinstalación de Windows</h1>
+          <p class="format-hero__lead">
+            Recupera el rendimiento de tu laptop con instalación limpia de Windows, respaldo de archivos, drivers correctos y eliminación de virus o programas sospechosos.
+          </p>
+          <div class="format-actions" aria-label="Acciones principales">
+            <a class="format-btn format-btn--primary" href="#ticket-form">Solicitar diagnóstico</a>
+            <button
+              class="format-btn format-btn--secondary"
+              type="button"
+              onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola,%20quiero%20enviar%20mi%20equipo%20a%20revisi%C3%B3n%20por%20formateo,%20Windows%20o%20virus.')"
+            >
+              Enviar equipo a revisión
+            </button>
+          </div>
+          <div class="format-benefits" aria-label="Beneficios del servicio">
+            <span><i class="fa-solid fa-file-shield" aria-hidden="true"></i> Respaldo antes del formateo</span>
+            <span><i class="fa-brands fa-windows" aria-hidden="true"></i> Windows limpio y actualizado</span>
+            <span><i class="fa-solid fa-plug-circle-check" aria-hidden="true"></i> Drivers y programas básicos instalados</span>
+          </div>
+        </div>
+        <div class="format-hero__media" aria-label="Proceso técnico de formateo e instalación de Windows">
+          <img
+            src="/assets/images/responsive/formateo-windows-cancun.webp"
+            alt="Laptop en servicio técnico durante formateo e instalación de Windows en Cancún"
+            width="720"
+            height="540"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <div class="format-hero__note">
+            <strong>Diagnóstico antes de borrar</strong>
+            <span>Revisamos si la falla viene de Windows, disco, RAM o temperatura.</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="format-section">
+      <div class="container format-two">
+        <div>
+          <h2>¿Cuándo conviene formatear una laptop?</h2>
+          <p>
+            Conviene formatear cuando Windows ya está demasiado dañado, saturado o infectado para trabajar con estabilidad. No formateamos por rutina: primero revisamos si la lentitud viene de software, disco, RAM o temperatura, porque cada causa necesita una solución distinta.
+          </p>
+          <p>
+            Si el equipo está muy lento, tarda mucho en prender, abre anuncios raros o se traba con programas básicos, el formateo puede ser la ruta correcta. Si ya se intentó optimizar y sigue fallando, también revisamos si el disco duro está limitando el rendimiento.
+          </p>
+        </div>
+        <div class="format-checklist">
+          <h3>Señales comunes</h3>
+          <ul>
+            <li>La laptop está muy lenta o tarda mucho en prender.</li>
+            <li>Tiene virus, anuncios raros o programas desconocidos.</li>
+            <li>Windows marca errores constantes o pantalla azul.</li>
+            <li>Se traba al abrir navegador, Office o programas básicos.</li>
+            <li>Ya se intentó optimizar y sigue fallando.</li>
+            <li>El equipo fue usado por otra persona y se quiere dejar limpio.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="format-section format-section--soft">
+      <div class="container format-two format-two--reverse">
+        <div>
+          <h2>Formateo de laptop con respaldo de archivos</h2>
+          <p>
+            Antes de borrar el sistema revisamos contigo qué archivos son importantes. Lo normal es respaldar documentos, escritorio, descargas, imágenes, videos y carpetas de trabajo o escuela.
+          </p>
+          <p>
+            El respaldo depende del estado del disco. Si el almacenamiento está dañado, hace ruido, se desconecta o Windows no permite acceso normal, primero se diagnostica el riesgo para no empeorar la pérdida de información.
+          </p>
+        </div>
+        <aside class="format-list-panel" aria-label="Qué se puede respaldar">
+          <h3>Qué se puede respaldar</h3>
+          <ul>
+            <li>Documentos</li>
+            <li>Escritorio</li>
+            <li>Descargas</li>
+            <li>Imágenes y videos</li>
+            <li>Carpetas de trabajo</li>
+            <li>Carpetas de escuela</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="format-section">
+      <div class="container format-service-grid">
+        <article>
+          <h2>Reinstalación de Windows en computadoras lentas</h2>
+          <p>
+            Instalamos Windows de forma limpia, estable y compatible con el equipo. Revisamos si conviene Windows 10 o Windows 11 según procesador, RAM, tipo de disco, TPM, Secure Boot y drivers disponibles.
+          </p>
+          <ul>
+            <li>Instalación limpia del sistema.</li>
+            <li>Configuración inicial y usuario.</li>
+            <li>Actualizaciones necesarias.</li>
+            <li>Activación según licencia existente del equipo.</li>
+            <li>Ajustes básicos de privacidad y rendimiento.</li>
+          </ul>
+        </article>
+        <article>
+          <h2>Eliminación de virus, malware y programas sospechosos</h2>
+          <p>
+            No todos los equipos necesitan formateo. Cuando el daño es leve, se puede limpiar el sistema sin borrar todo. Si Windows quedó inestable, lento o comprometido, conviene una reinstalación limpia.
+          </p>
+          <ul>
+            <li>Virus y malware que afectan rendimiento.</li>
+            <li>Programas que abren anuncios o ventanas extrañas.</li>
+            <li>Extensiones sospechosas del navegador.</li>
+            <li>Software basura instalado junto con descargas.</li>
+            <li>Riesgo de robo de información o sesiones abiertas.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="format-section format-section--contrast">
+      <div class="container">
+        <div class="format-section-head">
+          <h2>Diferencia entre formatear y limpiar virus</h2>
+          <p>La recomendación depende del nivel de daño, archivos importantes, estabilidad de Windows y estado del disco.</p>
+        </div>
+        <div class="format-compare">
+          <article>
+            <h3>Limpiar virus</h3>
+            <ul>
+              <li>Se conserva el sistema actual.</li>
+              <li>Útil cuando el daño es leve.</li>
+              <li>Puede ser más rápido.</li>
+              <li>No siempre elimina problemas profundos.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Formatear laptop</h3>
+            <ul>
+              <li>Se instala Windows desde cero.</li>
+              <li>Elimina configuraciones dañadas.</li>
+              <li>Mejora estabilidad.</li>
+              <li>Recomendado con errores graves o lentitud extrema.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="format-section">
+      <div class="container format-two">
+        <div>
+          <h2>Instalación de drivers y programas básicos</h2>
+          <p>
+            Después del formateo instalamos los controladores correctos para que funcionen WiFi, audio, video, touchpad, Bluetooth, teclado, puertos USB y cámara cuando aplica.
+          </p>
+          <p>
+            También dejamos programas básicos solicitados por el cliente, como navegador, lector PDF, compresor de archivos y herramientas esenciales. Evitamos instalar programas innecesarios que vuelvan lenta la laptop.
+          </p>
+        </div>
+        <div class="format-feature-lines">
+          <span><i class="fa-solid fa-wifi" aria-hidden="true"></i> WiFi y Bluetooth</span>
+          <span><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Audio y video</span>
+          <span><i class="fa-solid fa-keyboard" aria-hidden="true"></i> Touchpad y teclado</span>
+          <span><i class="fa-solid fa-usb" aria-hidden="true"></i> Puertos USB</span>
+          <span><i class="fa-solid fa-camera" aria-hidden="true"></i> Cámara si aplica</span>
+          <span><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> PDF, navegador y compresor</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="format-section format-section--soft">
+      <div class="container format-two">
+        <div>
+          <h2>Optimización después del formateo</h2>
+          <p>
+            No solo instalamos Windows. Dejamos el equipo listo para usarse con un inicio más limpio, menos programas innecesarios, configuración de actualizaciones, revisión de almacenamiento y ajustes básicos de rendimiento.
+          </p>
+          <p>
+            También revisamos la salud del disco para detectar alertas antes de entregar. Si hay señales de daño, te explicamos si conviene respaldar, cambiar a SSD o detener la instalación.
+          </p>
+        </div>
+        <div>
+          <h2>Recuperación de rendimiento en laptops lentas</h2>
+          <p>
+            Una laptop lenta puede deberse a Windows dañado, disco duro mecánico, poco espacio, virus, demasiados programas al inicio, falta de mantenimiento o temperatura alta.
+          </p>
+          <p>
+            Si tu laptop sigue lenta incluso después del formateo, revisamos si el problema viene del disco, RAM o temperatura.
+          </p>
+          <div class="format-inline-links">
+            <a href="/servicios/laptop/upgrade">Cambio de disco duro a SSD</a>
+            <a href="/servicios/laptop/mantenimiento-preventivo">Mantenimiento de laptop</a>
+            <a href="/servicios/laptop/pasta-termica">Solución de sobrecalentamiento</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="format-section">
+      <div class="container format-price-grid">
+        <article>
+          <h2>¿Cuánto tarda un formateo de laptop en Cancún?</h2>
+          <p>
+            En casos normales el tiempo estimado es de 2 a 4 horas. Puede tardar más si hay respaldo grande, disco dañado, recuperación de archivos, actualizaciones pesadas o instalación especial de programas.
+          </p>
+        </article>
+        <article>
+          <h2>Precio de formateo y reinstalación de Windows</h2>
+          <p>
+            El precio actual se mantiene desde <strong>$450 MXN</strong>. Puede variar si requiere respaldo grande, recuperación de información, cambio de disco, instalación adicional o revisión de hardware.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="format-section format-section--contrast">
+      <div class="container format-two">
+        <div>
+          <h2>Errores comunes después de instalar Windows</h2>
+          <p>
+            Una instalación rápida pero incompleta puede dejar fallas que aparecen al usar el equipo. Por eso el servicio incluye revisión posterior a la instalación.
+          </p>
+        </div>
+        <div class="format-error-list">
+          <span>No funciona el WiFi.</span>
+          <span>No hay audio.</span>
+          <span>La pantalla se ve mal.</span>
+          <span>Faltan drivers.</span>
+          <span>Windows queda lento por instalación incorrecta.</span>
+          <span>No reconoce impresora o periféricos.</span>
+          <span>Se pierden archivos por no respaldar bien.</span>
+          <span>Se instalan programas basura.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="format-section">
+      <div class="container format-local">
+        <div>
+          <h2>Servicio técnico para laptops en Cancún</h2>
+          <p>
+            Pixon PC atiende laptops y computadoras en Cancún con diagnóstico claro, garantía por escrito cuando aplica y comunicación directa por WhatsApp. Trabajamos equipos de estudiantes, hogares y negocios que necesitan volver a usar su laptop sin perder información.
+          </p>
+          <p>
+            Atendemos zonas como Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas, integrando recolección o cita según disponibilidad.
+          </p>
+        </div>
+        <aside>
+          <h3>Pixon PC / Rentalap</h3>
+          <p>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</p>
+          <p>+52 998 669 0777</p>
+          <p>pixonpc@gmail.com</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="format-mid-cta">
+      <div class="container format-mid-cta__inner">
+        <div>
+          <h2>¿Quieres saber si conviene formatear o solo limpiar virus?</h2>
+          <p>Cuéntanos los síntomas y revisamos si la falla apunta a Windows, disco, RAM, temperatura o malware.</p>
+        </div>
+        <a class="format-btn format-btn--primary" href="#ticket-form">Crear ticket de revisión</a>
+      </div>
+    </section>
+
+    <ServiceTicketSection
+      defaultDevice="Laptop / PC"
+      defaultService="Formateo, Windows y eliminación de virus"
+      title="Crear ticket para formateo o revisión"
+      subtitle="Cuéntanos si necesitas respaldo, reinstalar Windows, eliminar virus, drivers o recuperar rendimiento."
+    />
+
+    <ContactSection id="ubicacion" />
+
+    <CommentsSection viewMoreHref="/comentarios" />
+
+    <FaqSection
+      title="Preguntas frecuentes sobre formateo y Windows"
+      description="Dudas comunes antes de formatear, respaldar archivos o limpiar virus."
+      items={faqs}
+      id="faq-formateo-windows"
+      backgroundColor="#f8fafc"
+      titleColor="#071F3A"
+      descriptionColor="#334155"
+      questionColor="#071F3A"
+      viewMoreHref="/preguntas-frecuentes"
+      viewMoreLabel="Ver todas las preguntas"
+    />
+
+    <RelatedServicesSection
+      title="Servicios relacionados para recuperar rendimiento"
+      eyebrow="Servicios relacionados"
+      items={relatedServices}
+      initialLimit={6}
+      compact={true}
+      light={true}
+    />
+  </main>
+
+  <Footer />
+
+  <style>
+    .format-page {
+      --format-ink: #071F3A;
+      --format-muted: #334155;
+      --format-soft: #F8FAFC;
+      --format-line: #D6E0EC;
+      --format-accent: #2563EB;
+      color: var(--format-ink);
+      background: #FFFFFF;
+    }
+
+    .format-hero {
+      padding: clamp(84px, 12vw, 132px) 0 clamp(54px, 8vw, 92px);
+      background: #EEF5FC;
+      color: var(--format-ink);
+      overflow: hidden;
+      border-bottom: 1px solid #D6E0EC;
+    }
+
+    .format-hero__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: clamp(28px, 5vw, 64px);
+      align-items: center;
+    }
+
+    .format-kicker {
+      display: inline-flex;
+      width: fit-content;
+      margin: 0 0 16px;
+      border: 1px solid #BFD3EA;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #FFFFFF;
+      color: #174EA6 !important;
+      font-weight: 800;
+    }
+
+    .format-hero h1 {
+      max-width: 920px;
+      margin: 0;
+      color: var(--format-ink);
+      font-family: 'Kanit', sans-serif;
+      font-size: clamp(2.25rem, 5vw, 4.9rem);
+      line-height: 0.98;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+    }
+
+    .format-hero__lead {
+      max-width: 720px;
+      margin: 22px 0 0;
+      color: #334155 !important;
+      font-size: clamp(1.04rem, 1.6vw, 1.24rem);
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+
+    .format-actions,
+    .format-benefits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .format-btn {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      padding: 13px 20px;
+      border: 1px solid transparent;
+      font-weight: 850;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, border-color 160ms ease;
+    }
+
+    .format-btn:active {
+      transform: scale(0.98);
+    }
+
+    .format-btn:focus-visible,
+    .format-inline-links a:focus-visible {
+      outline: 3px solid #F59E0B;
+      outline-offset: 3px;
+    }
+
+    .format-btn--primary {
+      background: var(--format-accent);
+      color: #FFFFFF !important;
+      border-color: var(--format-accent);
+    }
+
+    .format-btn--primary:hover {
+      background: #1D4ED8;
+      border-color: #1D4ED8;
+    }
+
+    .format-btn--secondary {
+      background: #FFFFFF;
+      color: var(--format-ink) !important;
+      border-color: #AFC6DF;
+    }
+
+    .format-btn--secondary:hover {
+      background: #E5EEF8;
+    }
+
+    .format-benefits {
+      gap: 10px 16px;
+      max-width: 860px;
+    }
+
+    .format-benefits span {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--format-ink) !important;
+      font-weight: 800;
+    }
+
+    .format-benefits i {
+      color: var(--format-accent);
+    }
+
+    .format-hero__media {
+      position: relative;
+      min-width: 0;
+    }
+
+    .format-hero__media img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 18px 48px rgba(7,31,58,0.16);
+    }
+
+    .format-hero__note {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      display: grid;
+      gap: 4px;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.94);
+      box-shadow: 0 16px 34px rgba(15,23,42,0.18);
+    }
+
+    .format-hero__note strong,
+    .format-hero__note span {
+      color: var(--format-ink) !important;
+    }
+
+    .format-section {
+      padding: clamp(54px, 8vw, 92px) 0;
+      background: #FFFFFF;
+    }
+
+    .format-section--soft {
+      background: var(--format-soft);
+    }
+
+    .format-section--contrast {
+      background: #EEF5FF;
+    }
+
+    .format-two,
+    .format-service-grid,
+    .format-price-grid,
+    .format-local {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.86fr);
+      gap: clamp(24px, 5vw, 58px);
+      align-items: start;
+    }
+
+    .format-two--reverse {
+      grid-template-columns: minmax(280px, 0.86fr) minmax(0, 1fr);
+    }
+
+    .format-section h2 {
+      margin: 0 0 16px;
+      color: var(--format-ink) !important;
+      font-family: 'Kanit', sans-serif;
+      font-size: clamp(1.75rem, 3vw, 2.55rem);
+      line-height: 1.08;
+      text-wrap: balance;
+    }
+
+    .format-section h3 {
+      margin: 0 0 14px;
+      color: var(--format-ink) !important;
+      font-size: clamp(1.12rem, 1.8vw, 1.38rem);
+      font-weight: 900;
+    }
+
+    .format-section p {
+      margin: 0 0 14px;
+      max-width: 72ch;
+      color: var(--format-muted) !important;
+      font-size: 1.03rem;
+      line-height: 1.72;
+      text-wrap: pretty;
+    }
+
+    .format-checklist,
+    .format-list-panel,
+    .format-service-grid article,
+    .format-price-grid article,
+    .format-local aside {
+      border: 1px solid var(--format-line);
+      border-radius: 16px;
+      background: #FFFFFF;
+      padding: clamp(20px, 3vw, 28px);
+    }
+
+    .format-checklist ul,
+    .format-list-panel ul,
+    .format-service-grid ul,
+    .format-compare ul {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .format-checklist li,
+    .format-list-panel li,
+    .format-service-grid li,
+    .format-compare li {
+      position: relative;
+      padding-left: 22px;
+      color: var(--format-ink) !important;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .format-checklist li::before,
+    .format-list-panel li::before,
+    .format-service-grid li::before,
+    .format-compare li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--format-accent);
+    }
+
+    .format-section-head {
+      max-width: 760px;
+      margin-bottom: 28px;
+    }
+
+    .format-compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .format-compare article {
+      border: 1px solid #C8D8EA;
+      border-radius: 16px;
+      background: #FFFFFF;
+      padding: clamp(20px, 3vw, 28px);
+    }
+
+    .format-feature-lines,
+    .format-error-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .format-feature-lines span,
+    .format-error-list span {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--format-line);
+      border-radius: 12px;
+      background: #FFFFFF;
+      padding: 13px 14px;
+      color: var(--format-ink) !important;
+      font-weight: 800;
+    }
+
+    .format-feature-lines i {
+      width: 22px;
+      color: var(--format-accent);
+      text-align: center;
+    }
+
+    .format-inline-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .format-inline-links a {
+      border: 1px solid #BFD3EA;
+      border-radius: 999px;
+      background: #FFFFFF;
+      padding: 9px 12px;
+      color: #1D4ED8 !important;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .format-local {
+      align-items: stretch;
+    }
+
+    .format-local aside {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      background: #F8FAFC;
+    }
+
+    .format-local aside p {
+      margin: 0;
+      font-weight: 800;
+    }
+
+    .format-mid-cta {
+      padding: clamp(34px, 6vw, 56px) 0;
+      background: #E9F2FA !important;
+      border-top: 1px solid #C9D8E7;
+      border-bottom: 1px solid #C9D8E7;
+    }
+
+    .format-mid-cta__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .format-mid-cta h2 {
+      margin: 0 0 8px;
+      color: #071F3A !important;
+      font-family: 'Kanit', sans-serif;
+      font-size: clamp(1.55rem, 3vw, 2.2rem);
+      text-wrap: balance;
+    }
+
+    .format-mid-cta p {
+      margin: 0;
+      max-width: 720px;
+      color: #334B63 !important;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .service-ticket-section {
+      scroll-margin-top: 92px;
+    }
+
+    .format-page .contact :is(h2, h3, p, li, strong),
+    .format-page .faq-page-content :is(h2, h3, p, li, strong),
+    .format-page .svc-related--light :is(h2, h3, h4, p) {
+      color: var(--format-ink) !important;
+    }
+
+    .format-page .svc-related--light .related-card {
+      border-radius: 16px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .format-inline-links a:hover,
+      .format-feature-lines span:hover,
+      .format-error-list span:hover {
+        border-color: #93B7E3;
+        background: #F8FBFF;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .format-hero__grid,
+      .format-two,
+      .format-two--reverse,
+      .format-service-grid,
+      .format-price-grid,
+      .format-local {
+        grid-template-columns: 1fr;
+      }
+
+      .format-two--reverse .format-list-panel {
+        order: 2;
+      }
+
+      .format-mid-cta__inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .format-hero {
+        padding-top: 76px;
+      }
+
+      .format-hero__media img {
+        aspect-ratio: 16 / 11;
+      }
+
+      .format-hero__note {
+        position: static;
+        margin-top: 12px;
+      }
+
+      .format-actions {
+        flex-direction: column;
+      }
+
+      .format-btn {
+        width: 100%;
+      }
+
+      .format-compare {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .format-btn,
+      .format-inline-links a,
+      .format-feature-lines span,
+      .format-error-list span {
+        transition: none;
+      }
+    }
+  </style>
+</Base>

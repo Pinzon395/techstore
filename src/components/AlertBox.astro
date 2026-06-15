@@ -28,9 +28,42 @@ const config: Record<string, { bg: string; border: string; color: string; iconBg
 const c = config[type] || config.info;
 ---
 
-<div style={`display:flex;align-items:flex-start;gap:10px;background:${c.bg};border:1px solid ${c.border};border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:0.83rem;color:${c.color};font-weight:600;line-height:1.5;`}>
-  <span style={`display:inline-flex;align-items:center;justify-content:center;background:${c.iconBg};border-radius:50%;width:26px;height:26px;min-width:26px;flex-shrink:0;margin-top:1px;`}>
+<div
+  class={`alert-box alert-box-${type}`}
+  style={`--alert-bg:${c.bg};--alert-border:${c.border};--alert-color:${c.color};--alert-icon-bg:${c.iconBg};`}
+>
+  <span class="alert-box__icon">
     <Fragment set:html={c.svg} />
   </span>
   <span><slot /></span>
 </div>
+
+<style>
+  .alert-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--alert-bg);
+    border: 1px solid var(--alert-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-size: 0.83rem;
+    color: var(--alert-color);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .alert-box__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--alert-icon-bg);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+</style>

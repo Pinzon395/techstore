@@ -48,6 +48,22 @@ export interface ServiceItem {
   relatedSlugs?: string[];
   /** Links externos a otras vistas relacionadas (paquetes, FAQ general, etc.) */
   relatedExternal?: { label: string; href: string; icon: string; desc: string }[];
+  /** Titulo especifico para la seccion de servicios relacionados */
+  relatedTitle?: string;
+  /** Titulo y subtitulo especificos para el formulario de ticket */
+  ticketTitle?: string;
+  ticketSubtitle?: string;
+  /** Bloques SEO locales renderizados en ServiceDetailView */
+  localSeoTitle?: string;
+  localSeoIntro?: string;
+  localSeoSections?: {
+    id: string;
+    eyebrow: string;
+    icon?: string;
+    title: string;
+    copy: string;
+    points: string[];
+  }[];
   /** Garantía específica (texto corto, ej. "6 meses por escrito") */
   warranty?: string;
   /** Trust Strip - estadísticas de confianza (4 items) */
