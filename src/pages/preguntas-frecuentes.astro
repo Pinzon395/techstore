@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
+import Icon from '../components/LocalSpriteIcon.astro';
 import { buildBreadcrumbSchema, buildFAQSchema } from '../lib/schema';
 
 const faqCategories = [
@@ -118,7 +119,7 @@ const faqCategories = [
   },
   {
     title: 'Windows, software y datos',
-    icon: 'fa-window-restore',
+    icon: 'fa-windows',
     items: [
       {
         question: '¿Instalan Windows con drivers?',
@@ -202,7 +203,83 @@ const faqCategories = [
   },
 ];
 
+const additionalFaqsByCategory: Record<string, Array<{ question: string; answer: string }>> = {
+  'Servicio, diagnóstico y tiempos': [
+    { question: '¿Qué información necesitan para cotizar una reparación?', answer: 'Necesitamos el tipo de equipo, marca, modelo exacto y una descripción clara de la falla. También ayuda saber desde cuándo ocurre, si el equipo sufrió golpe, líquido, variación eléctrica o una reparación anterior. Con esos datos podemos orientar el proceso, pero el precio definitivo se confirma después de revisar físicamente el equipo cuando la causa no es evidente.' },
+    { question: '¿Puedo rechazar la reparación después del diagnóstico?', answer: 'Sí. Después del diagnóstico te explicamos la causa probable, el trabajo recomendado, el costo y el tiempo estimado. Tú decides si autorizas. Si no deseas continuar, coordinamos la devolución del equipo y únicamente se considera el costo de diagnóstico cuando se haya informado previamente para ese tipo de revisión.' },
+    { question: '¿Por qué una reparación puede tardar más de lo estimado?', answer: 'Puede ocurrir si durante las pruebas aparece una falla intermitente, si la refacción necesita pedirse, si el equipo requiere tiempo de secado o si debemos comprobar estabilidad bajo carga. Cuando el plazo cambia, te informamos la causa y el nuevo estimado antes de continuar.' },
+    { question: '¿Entregan evidencia del trabajo realizado?', answer: 'Según el servicio podemos documentar el estado de ingreso, componentes afectados, limpieza, piezas reemplazadas y pruebas finales. En tickets empresariales el reporte puede organizarse por equipo. La evidencia disponible depende de que fotografiar el proceso no comprometa datos privados ni interrumpa una prueba técnica.' },
+    { question: '¿Revisan equipos que ya fueron reparados en otro taller?', answer: 'Sí. Es importante indicar qué trabajo se hizo, qué piezas se cambiaron y qué síntomas aparecieron después. Revisamos soldaduras, conectores, tornillería, aislantes, flex, configuración y posibles daños previos. No asumimos que la reparación anterior sea la causa hasta comprobarlo.' },
+  ],
+  'Laptops y computadoras': [
+    { question: '¿Por qué mi laptop prende pero no da imagen?', answer: 'La causa puede estar en pantalla, cable flex, memoria RAM, BIOS, GPU, alimentación o placa madre. Primero probamos salida externa, iluminación, memoria y secuencia de encendido. Cambiar la pantalla sin diagnóstico puede generar un gasto innecesario si la señal de video nunca sale de la placa.' },
+    { question: '¿Reparan bisagras y carcasas quebradas?', answer: 'Sí. Evaluamos bisagras, bases roscadas, tapa, marco y cableado cercano. Algunas reparaciones requieren reconstrucción de soportes y otras el reemplazo de carcasa. También revisamos que la bisagra no esté forzando el flex de pantalla, antenas WiFi o cámara.' },
+    { question: '¿Pueden hacer más rápida una laptop vieja?', answer: 'En muchos casos sí. Revisamos salud del disco, cantidad de RAM, temperatura, programas de inicio y estado de Windows. Cambiar un disco mecánico por SSD suele mejorar mucho la respuesta, pero primero confirmamos que procesador, placa y batería permitan una inversión razonable.' },
+    { question: '¿Qué significa que la batería aparezca conectada pero no cargando?', answer: 'Puede deberse a batería agotada, cargador incompatible, centro de carga flojo, controlador de energía, BIOS o circuito de carga. Probamos voltaje y consumo antes de recomendar batería nueva. Usar cargadores genéricos con potencia incorrecta puede agravar la falla.' },
+    { question: '¿Atienden laptops de trabajo con información confidencial?', answer: 'Sí. Limitamos el acceso a la información al mínimo necesario y solicitamos autorización si una prueba requiere iniciar sesión. Para empresas podemos acordar respaldo previo, usuario temporal o retiro del almacenamiento cuando el diagnóstico lo permita.' },
+  ],
+  'PC gamer, ensambles y upgrades': [
+    { question: '¿Cómo saben si mi fuente de poder es suficiente?', answer: 'Revisamos consumo estimado de CPU y GPU, calidad real de la fuente, conectores disponibles, antigüedad y margen para picos de carga. No basta con comparar watts impresos en la etiqueta. Una fuente de baja calidad puede causar reinicios, pantalla negra o daño aunque declare una potencia alta.' },
+    { question: '¿Pueden diagnosticar bajones de FPS y stuttering?', answer: 'Sí. Medimos temperaturas, frecuencias, uso de CPU, GPU, RAM, almacenamiento y procesos en segundo plano. También revisamos drivers, configuración de energía y conexión cuando el síntoma parece latencia. El objetivo es separar un límite normal del hardware de una falla térmica o de software.' },
+    { question: '¿Actualizan BIOS para instalar un procesador nuevo?', answer: 'Sí, cuando la tarjeta madre y el procesador son compatibles. Confirmamos versión de BIOS, revisión física de la placa y método de actualización. Una actualización interrumpida puede dejar el equipo sin iniciar, por lo que se realiza con energía estable y siguiendo el procedimiento del fabricante.' },
+    { question: '¿Hacen mantenimiento a tarjetas gráficas?', answer: 'Sí, en modelos compatibles. Revisamos temperatura del chip, hotspot, ventiladores, pasta térmica, pads, memorias y estado físico. Los pads no se cambian por una medida aproximada: el grosor incorrecto puede impedir contacto del disipador y empeorar las temperaturas.' },
+    { question: '¿Pueden mejorar el flujo de aire de mi gabinete?', answer: 'Sí. Analizamos orientación y cantidad de ventiladores, presión de aire, filtros, cableado, espacio de GPU y disipador. Una configuración con muchos ventiladores no siempre enfría mejor; buscamos una ruta clara de entrada y salida sin recircular aire caliente.' },
+  ],
+  'Humedad, líquido y antisulfatación': [
+    { question: '¿Sirve meter un equipo mojado en arroz?', answer: 'No. El arroz no elimina residuos conductivos ni corrosión dentro del equipo y puede introducir polvo. Lo correcto es apagarlo, desconectarlo, evitar cargarlo y realizar apertura y limpieza técnica lo antes posible. Cada intento de encendido puede producir un corto adicional.' },
+    { question: '¿Un equipo puede fallar semanas después de mojarse?', answer: 'Sí. Aunque vuelva a encender, los minerales y residuos pueden continuar reaccionando con humedad y corriente. La corrosión avanza bajo conectores y componentes, causando fallas intermitentes días o semanas después. Por eso se recomienda revisión incluso si parece funcionar.' },
+    { question: '¿La humedad de Cancún afecta equipos que nunca se mojaron?', answer: 'Sí. La humedad ambiental y el salitre pueden oxidar conectores, puertos, tornillos y pistas, especialmente cerca de playa, ventanas o aire acondicionado. La prevención incluye limpieza periódica, ventilación adecuada y evitar guardar el equipo en lugares húmedos.' },
+    { question: '¿Pueden recuperar datos de un equipo mojado?', answer: 'En algunos casos sí. Primero evitamos aplicar energía innecesaria y evaluamos almacenamiento, placa y nivel de corrosión. Si el SSD está soldado, recuperar datos puede requerir reparar parcialmente la placa. No se puede garantizar recuperación hasta evaluar el daño.' },
+  ],
+  'Celulares, tablets y consolas': [
+    { question: '¿Cómo sé si debo cambiar la batería de mi celular?', answer: 'Señales comunes son apagados con carga restante, porcentaje inestable, descarga rápida, calentamiento o batería inflada. Antes de cambiarla revisamos consumo, puerto de carga y software, porque una aplicación, un corto o un cargador defectuoso pueden producir síntomas similares.' },
+    { question: '¿Cambiar la pantalla afecta Face ID o huella?', answer: 'Depende del modelo y del daño. Algunos sensores están emparejados con la placa y deben transferirse con cuidado. Te informamos si una pantalla compatible conserva brillo, color, huella o funciones originales antes de instalarla.' },
+    { question: '¿Por qué mi consola se apaga cuando abro un juego?', answer: 'Al iniciar un juego aumenta el consumo y la temperatura. La falla puede venir de polvo, fuente, pasta o metal líquido, ventilador, APU, almacenamiento o soldadura. Probamos bajo carga para evitar confundir un apagado térmico con una falla de alimentación.' },
+    { question: '¿Reparan puertos HDMI de consolas?', answer: 'Sí. Revisamos primero el conector, filtros, líneas de señal y circuito HDMI. Un puerto doblado puede venir acompañado de pistas levantadas o daño del integrado. La cotización depende del estado real de la placa, no solo del aspecto exterior.' },
+    { question: '¿Pueden limpiar una consola sin cambiar metal líquido?', answer: 'Sí. No todas las consolas usan metal líquido ni todas necesitan reemplazarlo. Se revisa el sistema térmico original, distribución del material, sello, ventilación y temperaturas. Manipular metal líquido sin necesidad agrega riesgo eléctrico.' },
+  ],
+  'Windows, software y datos': [
+    { question: '¿Formatear es la única forma de arreglar una computadora lenta?', answer: 'No. Primero revisamos disco, RAM, temperatura, programas de inicio, malware y errores de Windows. Formatear puede limpiar software, pero no corrige un SSD degradado, poca memoria o sobrecalentamiento. Solo lo recomendamos cuando aporta una solución real.' },
+    { question: '¿Pueden conservar mis programas al cambiar a SSD?', answer: 'Cuando el disco original está sano y el sistema es compatible, podemos clonar Windows, archivos y programas. Si hay corrupción o sectores dañados, puede ser más seguro respaldar datos e instalar desde cero. Te explicamos ambas opciones antes de iniciar.' },
+    { question: '¿Instalan programas de diseño, oficina o trabajo?', answer: 'Podemos instalar y configurar programas que cuenten con licencia válida o que sean gratuitos. No proporcionamos activadores ilegales. También verificamos requisitos para evitar instalar software que el equipo no pueda ejecutar de forma estable.' },
+    { question: '¿Qué hago si el disco duro hace clic o ruidos?', answer: 'Apaga el equipo y evita seguir copiando archivos. Un disco con ruido mecánico puede deteriorarse rápidamente. Primero evaluamos si es posible realizar una imagen o recuperación controlada; ejecutar reparaciones automáticas puede aumentar el daño.' },
+    { question: '¿Pueden recuperar una cuenta o contraseña de Windows?', answer: 'Podemos orientar o recuperar acceso únicamente cuando el propietario demuestra autorización sobre el equipo. No intervenimos cuentas de terceros ni evadimos protecciones empresariales. En cuentas Microsoft puede ser necesario usar el proceso oficial de recuperación.' },
+  ],
+  'Empresas, pagos y factura': [
+    { question: '¿Ofrecen mantenimiento preventivo por lote?', answer: 'Sí. Organizamos los equipos por prioridad, área y horario para reducir interrupciones. El servicio puede incluir inventario, limpieza, diagnóstico de disco, temperatura, Windows y reporte por equipo. La frecuencia se define según uso y ambiente.' },
+    { question: '¿Pueden dar soporte sin detener toda la oficina?', answer: 'Sí. Planeamos ventanas de atención, equipos de respaldo y revisión por grupos. Las incidencias de software pueden resolverse de forma remota cuando están autorizadas; hardware, red física y limpieza requieren atención en sitio o taller.' },
+    { question: '¿Manejan pólizas mensuales o trimestrales?', answer: 'Sí. El alcance se define según número de equipos, ubicaciones, tiempos de respuesta y servicios incluidos. Una póliza no significa reparaciones ilimitadas: documenta cobertura, prioridades, visitas y costos para que ambas partes tengan expectativas claras.' },
+    { question: '¿Revisan impresoras, red y sistemas de facturación?', answer: 'Podemos diagnosticar conectividad, instalación, impresión, carpetas compartidas y rendimiento del equipo donde opera el sistema. Para fallas propias del proveedor de facturación coordinamos información técnica, pero no modificamos bases de datos o licencias sin autorización.' },
+    { question: '¿Cómo solicito una cotización para varios equipos?', answer: 'Indica cantidad de equipos, tipos, síntomas, ubicación, horario disponible y si requieren factura o reporte. Con esos datos proponemos revisión en sitio, recepción por lote o diagnóstico inicial. El precio final depende del alcance confirmado.' },
+  ],
+  'Ubicación, domicilio y garantía': [
+    { question: '¿Necesito cita para llevar mi equipo?', answer: 'Sí, recomendamos confirmar por WhatsApp antes de trasladarte. La cita permite preparar recepción, espacio y tiempo técnico, además de evitar que llegues cuando estamos atendiendo servicios fuera del taller.' },
+    { question: '¿Qué debo llevar junto con mi equipo?', answer: 'Lleva cargador cuando el problema sea de energía, carga o batería. En PC de escritorio normalmente basta el gabinete, salvo que la falla involucre monitor o periféricos. Retira accesorios no relacionados y avisa si existe una contraseña necesaria para pruebas.' },
+    { question: '¿Qué situaciones pueden invalidar una garantía?', answer: 'Golpes, líquido posterior, manipulación por terceros, sellos alterados, variaciones eléctricas o fallas en componentes no intervenidos pueden quedar fuera. Cada garantía corresponde al trabajo y pieza descritos en el folio; primero revisamos el equipo antes de determinar cobertura.' },
+    { question: '¿Atienden Zona Hotelera, Huayacán y otras zonas de Cancún?', answer: 'Sí. Coordinamos atención según agenda en Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas. El costo y horario de traslado se confirman antes.' },
+    { question: '¿Puedo enviar a otra persona a recoger mi equipo?', answer: 'Sí, siempre que lo autorices y la persona presente los datos o folio necesarios. Para proteger el equipo y la información podemos solicitar confirmación por el canal de contacto registrado antes de entregarlo.' },
+  ],
+  'English support': [
+    { question: 'Can you provide an estimate before I visit?', answer: 'We can provide an initial range if you send the exact model, symptoms and photos. The final estimate may require physical diagnosis because charging, display and motherboard failures can look similar from the outside.' },
+    { question: 'Can you help with an urgent data backup?', answer: 'Yes, when the storage device is still readable. Stop using the computer if the drive makes unusual noises or disconnects. We will assess the safest way to copy the data and explain the risks before proceeding.' },
+    { question: 'Do you provide written repair updates?', answer: 'Yes. We can communicate the diagnosis, authorization request and status through WhatsApp or the repair ticket. Business customers may request a more structured report per device.' },
+    { question: 'Can someone else collect my repaired device?', answer: 'Yes, with prior authorization from the registered customer. We may request the ticket details or confirmation through the original contact channel before releasing the device.' },
+  ],
+};
+
+faqCategories.forEach((category) => {
+  category.items.push(...(additionalFaqsByCategory[category.title] || []));
+});
+
 const allFaqs = faqCategories.flatMap((category) => category.items);
+const localFaqRecords = faqCategories.flatMap((category) => category.items.map((item, index) => ({
+  id: `local-${category.title}-${index}`,
+  category: category.title,
+  icon: `fa-solid ${category.icon}`,
+  question: item.question,
+  answer: item.answer,
+  display_order: index,
+})));
 const schema = [
   buildBreadcrumbSchema([
     { label: 'Inicio', href: '/' },
@@ -218,23 +295,49 @@ const schema = [
   canonical="https://pixon.com.mx/preguntas-frecuentes"
   image="/LOGOCIRCULAR.png"
   schema={schema}
+  bodyClass="light-theme faq-hub-page"
 >
   <Navbar />
   <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Centro de Ayuda / Preguntas' }]} />
 
   <header class="faq-hero">
     <div class="container">
+      <span class="faq-hero-kicker"><Icon name="circle-question" /> Centro de ayuda Pixon PC</span>
       <h1>Preguntas frecuentes sobre reparación en Cancún</h1>
       <p>Resolvemos dudas sobre laptops, PCs gamer, celulares, consolas, humedad, garantía, domicilio, pagos y soporte para empresas.</p>
+      <div class="faq-hero-stats" aria-label="Resumen del centro de ayuda">
+        <span><strong id="faq-total-count">{allFaqs.length}</strong> respuestas</span>
+        <span><strong>{faqCategories.length}</strong> categorías</span>
+        <span><Icon name="clock" /> Búsqueda instantánea</span>
+      </div>
     </div>
   </header>
 
   <div class="faq-search-bar" id="faq-search-bar">
     <div class="container">
-      <div class="faq-search-wrap" style="position:relative;">
-        <span class="faq-search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+      <div class="faq-search-wrap">
+        <span class="faq-search-icon" aria-hidden="true"><Icon name="magnifying-glass" /></span>
         <input type="search" id="faq-search-input" placeholder="Busca: laptop, garantía, humedad, domicilio, empresa..." autocomplete="off" aria-label="Buscar preguntas frecuentes">
-        <span id="faq-result-count" aria-live="polite" style="position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:0.8rem; color:#64748b; pointer-events:none; display:none;"></span>
+        <kbd class="faq-search-shortcut" aria-hidden="true">/</kbd>
+        <button type="button" id="faq-search-clear" class="faq-search-clear" aria-label="Limpiar búsqueda" hidden><Icon name="xmark" /></button>
+      </div>
+      <div class="faq-search-meta" aria-label="Estado de la búsqueda">
+        <span class="faq-meta-item faq-meta-results">
+          <span class="faq-meta-icon" aria-hidden="true"><Icon name="list-check" /></span>
+          <span><small>Resultados</small><strong id="faq-result-count" aria-live="polite">Mostrando todas las respuestas</strong></span>
+        </span>
+        <span class="faq-meta-item faq-meta-source">
+          <span class="faq-meta-icon" aria-hidden="true"><Icon name="shield-halved" /></span>
+          <span><small>Fuente</small><strong id="faq-source-status">Contenido verificado por Pixon PC</strong></span>
+        </span>
+      </div>
+      <div class="faq-filter-header">
+        <span><Icon name="sliders" /> Explorar por tema</span>
+        <small>Selecciona una categoría para filtrar</small>
+      </div>
+      <div class="faq-category-tabs" id="faq-category-tabs" aria-label="Filtrar por categoría">
+        <button type="button" class="faq-category-tab active" data-faq-filter="all" aria-pressed="true"><span class="faq-tab-icon"><Icon name="layer-group" /></span><span>Todas</span></button>
+        {faqCategories.map((category) => <button type="button" class="faq-category-tab" data-faq-filter={category.title} aria-pressed="false"><span class="faq-tab-icon"><Icon name={category.icon.replace('fa-', '')} /></span><span>{category.title}</span></button>)}
       </div>
     </div>
   </div>
@@ -242,14 +345,14 @@ const schema = [
   <section class="faq-page-content" id="preguntas-frecuentes-content">
     <div class="container">
       {faqCategories.map((category, categoryIndex) => (
-        <section class="faq-category-block" data-faq-category>
+        <section class="faq-category-block" data-faq-category data-category-name={category.title}>
           <h2 class="faq-category-title" style={categoryIndex === 0 ? 'margin-top:0;' : ''}>
-            <i class={`fa-solid ${category.icon}`}></i> {category.title}
+            <Icon name={category.icon.replace('fa-', '')} /> <span>{category.title}</span><small>{category.items.length}</small>
           </h2>
           <div class="faq-page-grid">
             {category.items.map((item, itemIndex) => (
               <div class="faq-item" id={`faq-${categoryIndex}-${itemIndex}`} data-faq-item data-faq-text={`${item.question} ${item.answer}`}>
-                <button class="faq-question" type="button" aria-expanded="false" aria-controls={`faq-answer-${categoryIndex}-${itemIndex}`} data-faq-question onclick="window.toggleFaq && window.toggleFaq(this)">
+                <button class="faq-question" type="button" aria-expanded="false" aria-controls={`faq-answer-${categoryIndex}-${itemIndex}`} data-faq-question>
                   <span>{item.question}</span>
                   <i class="fa-solid fa-chevron-down faq-chevron" aria-hidden="true"></i>
                 </button>
@@ -262,32 +365,41 @@ const schema = [
         </section>
       ))}
 
-      <div class="faq-no-results" id="faq-no-results" style="display:none; background:#fff; border-radius:20px; padding:48px 28px; border:2px dashed #e2e8f0; box-shadow:0 4px 20px rgba(0,0,0,0.04); text-align:center;">
-        <span class="faq-no-icon" style="font-size:2.8rem; display:block; margin-bottom:16px; color:#3b82f6;"><i class="fa-solid fa-magnifying-glass"></i></span>
-        <h3 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin-bottom:8px;">No encontramos esa pregunta</h3>
-        <p style="color:#64748b; margin-bottom:24px;">Mándanosla por WhatsApp y te respondemos directo.</p>
+      <div class="faq-no-results" id="faq-no-results" hidden>
+        <span class="faq-no-icon"><Icon name="magnifying-glass" /></span>
+        <h3>No encontramos esa pregunta</h3>
+        <p>Registramos tu búsqueda para mejorar este centro de ayuda. También puedes preguntarnos directamente.</p>
         <a href="https://wa.me/529986690777?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20servicio" class="btn-faq-wa" target="_blank" rel="noopener">
-          <i class="fa-brands fa-whatsapp"></i> Preguntar por WhatsApp
+          <Icon name="whatsapp" /> Preguntar por WhatsApp
         </a>
       </div>
 
-      <div class="epic-cta-box" style="margin-top: 5rem;">
-        <h2 style="font-weight: 800; font-size: 2rem; color: #020617; margin-bottom: 10px;">Tu equipo en manos expertas.</h2>
-        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 30px;">Garantía por escrito, pago con tarjeta, entrega y recolección a domicilio en Cancún.</p>
-        <button onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20le%C3%AD%20las%20preguntas%20frecuentes%20y%20quiero%20agendar%20hoy')" class="btn btn-primary btn-large pulse" style="display:inline-flex; align-items:center;">
-          <i class="fa-brands fa-whatsapp" style="margin-right:8px; font-size:1.2rem;"></i> Agendar diagnóstico hoy
-        </button>
+      <div class="faq-final-cta">
+        <div><span>¿Tu caso necesita diagnóstico?</span><h2>Convierte tu duda en un ticket con seguimiento</h2><p>Registra equipo, síntomas y datos de contacto para conservar toda la información desde el inicio.</p></div>
+        <div class="faq-final-actions"><a href="/tickets" class="faq-primary-action"><Icon name="ticket" /> Crear ticket</a><a href="https://wa.me/529986690777?text=Hola%2C%20le%C3%AD%20las%20preguntas%20frecuentes%20y%20necesito%20ayuda" target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a></div>
       </div>
     </div>
   </section>
+
+  <script type="application/json" id="faq-local-data" set:html={JSON.stringify(localFaqRecords)}></script>
 
   <script is:inline>
     (function () {
       const input = document.getElementById('faq-search-input');
       const resultCount = document.getElementById('faq-result-count');
       const emptyState = document.getElementById('faq-no-results');
-      const categoryBlocks = Array.from(document.querySelectorAll('[data-faq-category]'));
-      const faqItems = Array.from(document.querySelectorAll('[data-faq-item]'));
+      const content = document.querySelector('#preguntas-frecuentes-content > .container');
+      const clearButton = document.getElementById('faq-search-clear');
+      const tabs = document.getElementById('faq-category-tabs');
+      const sourceStatus = document.getElementById('faq-source-status');
+      const totalCount = document.getElementById('faq-total-count');
+      const loggedQueries = new Set();
+      const localData = (() => {
+        try { return JSON.parse(document.getElementById('faq-local-data')?.textContent || '[]'); }
+        catch (_error) { return []; }
+      })();
+      let activeCategory = new URLSearchParams(location.search).get('categoria') || 'all';
+      let unansweredTimer;
 
       function normalize(value) {
         return String(value || '')
@@ -298,13 +410,20 @@ const schema = [
           .trim();
       }
 
+      function getItems() {
+        return Array.from(document.querySelectorAll('[data-faq-item]'));
+      }
+
+      function getCategories() {
+        return Array.from(document.querySelectorAll('[data-faq-category]'));
+      }
+
       function closeFaq(item) {
         const button = item.querySelector('[data-faq-question]');
         const answer = item.querySelector('.faq-answer');
         item.classList.remove('faq-item--open');
         button?.setAttribute('aria-expanded', 'false');
         answer?.setAttribute('aria-hidden', 'true');
-        if (answer) answer.style.maxHeight = '0px';
       }
 
       function openFaq(item) {
@@ -313,59 +432,284 @@ const schema = [
         item.classList.add('faq-item--open');
         button?.setAttribute('aria-expanded', 'true');
         answer?.setAttribute('aria-hidden', 'false');
-        if (answer) answer.style.maxHeight = `${answer.scrollHeight}px`;
       }
 
       function toggleFaq(button) {
         const item = button.closest('[data-faq-item]');
         if (!item) return;
         if (item.classList.contains('faq-item--open')) closeFaq(item);
-        else openFaq(item);
+        else {
+          openFaq(item);
+          history.replaceState(null, '', `${location.pathname}${location.search}#${item.id}`);
+        }
       }
 
       window.toggleFaq = toggleFaq;
 
-      faqItems.forEach((item) => {
-        const answer = item.querySelector('.faq-answer');
-        if (answer) answer.style.maxHeight = '0px';
-      });
+      function updateUrl(query) {
+        const params = new URLSearchParams();
+        if (query) params.set('q', query);
+        if (activeCategory !== 'all') params.set('categoria', activeCategory);
+        const search = params.toString();
+        history.replaceState(null, '', `${location.pathname}${search ? `?${search}` : ''}`);
+      }
 
-      function filterFaqs() {
+      function logUnanswered(query) {
+        const normalized = normalize(query);
+        if (normalized.length < 3 || loggedQueries.has(normalized)) return;
+        clearTimeout(unansweredTimer);
+        unansweredTimer = setTimeout(() => {
+          loggedQueries.add(normalized);
+          fetch('/api/faqs/unanswered', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query.slice(0, 180) }),
+            keepalive: true,
+          }).catch(() => {});
+        }, 900);
+      }
+
+      function filterFaqs(options = {}) {
         const query = normalize(input?.value || '');
+        const tokens = query.split(' ').filter(Boolean);
         let visible = 0;
 
-        faqItems.forEach((item) => {
+        getItems().forEach((item) => {
           const searchableText = normalize(item.getAttribute('data-faq-text') || item.textContent || '');
-          const matches = !query || searchableText.includes(query);
+          const category = item.closest('[data-faq-category]')?.getAttribute('data-category-name') || '';
+          const matchesText = !query || tokens.every((token) => searchableText.includes(token));
+          const matchesCategory = activeCategory === 'all' || category === activeCategory;
+          const matches = matchesText && matchesCategory;
           item.hidden = !matches;
-          item.style.display = matches ? '' : 'none';
           if (!matches) closeFaq(item);
           if (matches) visible += 1;
         });
 
-        categoryBlocks.forEach((block) => {
+        getCategories().forEach((block) => {
           const hasVisibleItem = Array.from(block.querySelectorAll('[data-faq-item]')).some((item) => !item.hidden);
           block.hidden = !hasVisibleItem;
-          block.style.display = hasVisibleItem ? '' : 'none';
         });
 
         if (resultCount) {
-          resultCount.style.display = query ? 'block' : 'none';
-          resultCount.textContent = `${visible} ${visible === 1 ? 'resultado' : 'resultados'}`;
+          resultCount.textContent = query || activeCategory !== 'all'
+            ? `${visible} ${visible === 1 ? 'respuesta encontrada' : 'respuestas encontradas'}`
+            : 'Mostrando todas las respuestas';
         }
-        if (emptyState) emptyState.style.display = visible === 0 ? 'block' : 'none';
+        if (emptyState) emptyState.hidden = visible !== 0;
+        if (clearButton) clearButton.hidden = !query;
+        tabs?.querySelectorAll('[data-faq-filter]').forEach((tab) => {
+          const selected = tab.dataset.faqFilter === activeCategory;
+          tab.classList.toggle('active', selected);
+          tab.setAttribute('aria-pressed', String(selected));
+        });
+        if (!options.skipUrl) updateUrl(input?.value.trim() || '');
+        if (visible === 0 && query) logUnanswered(input.value.trim());
       }
 
-      input?.addEventListener('input', filterFaqs);
+      function plainText(html) {
+        const node = document.createElement('div');
+        node.innerHTML = String(html || '').replace(/<br\s*\/?\s*>/gi, '\n');
+        return node.textContent || '';
+      }
+
+      function iconName(value) {
+        const matches = String(value || '').match(/fa-([\w-]+)/g) || [];
+        return matches.length ? matches[matches.length - 1].replace('fa-', '') : 'circle-question';
+      }
+
+      function svgIcon(name, className = '') {
+        return `<svg class="tc-svg ${className}" aria-hidden="true" focusable="false"><use href="/assets/icons/sprite.svg#fa-${name}"></use></svg>`;
+      }
+
+      function renderFaqData(data) {
+        const grouped = new Map();
+        data.forEach((faq) => {
+          const category = String(faq.category || 'General').trim() || 'General';
+          if (!grouped.has(category)) grouped.set(category, { icon: iconName(faq.icon), items: [] });
+          grouped.get(category).items.push(faq);
+        });
+        content.querySelectorAll('[data-faq-category]').forEach((node) => node.remove());
+        [...grouped.entries()].forEach(([category, group], categoryIndex) => {
+          group.items.sort((a, b) => Number(a.display_order || 0) - Number(b.display_order || 0));
+          const section = document.createElement('section');
+          section.className = 'faq-category-block';
+          section.dataset.faqCategory = '';
+          section.dataset.categoryName = category;
+          const title = document.createElement('h2');
+          title.className = 'faq-category-title';
+          title.innerHTML = `${svgIcon(group.icon)}<span></span><small>${group.items.length}</small>`;
+          title.querySelector('span').textContent = category;
+          const grid = document.createElement('div');
+          grid.className = 'faq-page-grid';
+          group.items.forEach((faq, itemIndex) => {
+            const id = `faq-${faq.id || `${categoryIndex}-${itemIndex}`}`;
+            const item = document.createElement('div');
+            item.className = 'faq-item';
+            item.id = id;
+            item.dataset.faqItem = '';
+            item.dataset.faqText = `${faq.question || ''} ${plainText(faq.answer)} ${category}`;
+            const button = document.createElement('button');
+            button.className = 'faq-question';
+            button.type = 'button';
+            button.dataset.faqQuestion = '';
+            button.setAttribute('aria-expanded', 'false');
+            button.setAttribute('aria-controls', `${id}-answer`);
+            const question = document.createElement('span');
+            question.textContent = faq.question || '';
+            button.append(question);
+            button.insertAdjacentHTML('beforeend', svgIcon('chevron-down', 'faq-chevron'));
+            const answer = document.createElement('div');
+            answer.className = 'faq-answer';
+            answer.id = `${id}-answer`;
+            answer.setAttribute('aria-hidden', 'true');
+            const answerInner = document.createElement('div');
+            answerInner.className = 'faq-answer-inner';
+            answerInner.textContent = plainText(faq.answer);
+            answer.append(answerInner);
+            item.append(button, answer);
+            grid.append(item);
+          });
+          section.append(title, grid);
+          content.insertBefore(section, emptyState);
+        });
+        if (totalCount) totalCount.textContent = String(data.length);
+        if (tabs) {
+          tabs.innerHTML = '<button type="button" class="faq-category-tab active" data-faq-filter="all" aria-pressed="true">Todas</button>';
+          [...grouped.keys()].forEach((category) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'faq-category-tab';
+            button.dataset.faqFilter = category;
+            button.setAttribute('aria-pressed', 'false');
+            button.textContent = category;
+            tabs.append(button);
+          });
+        }
+      }
+
+      input?.addEventListener('input', () => filterFaqs());
+      clearButton?.addEventListener('click', () => { input.value = ''; input.focus(); filterFaqs(); });
+      tabs?.addEventListener('click', (event) => {
+        const tab = event.target.closest('[data-faq-filter]');
+        if (!tab) return;
+        activeCategory = tab.dataset.faqFilter || 'all';
+        filterFaqs();
+      });
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-faq-question]');
+        if (button) toggleFaq(button);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === '/' && document.activeElement !== input && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) {
+          event.preventDefault();
+          input?.focus();
+        }
+        if (event.key === 'Escape' && document.activeElement === input && input.value) {
+          input.value = '';
+          filterFaqs();
+        }
+      });
       window.addEventListener('resize', () => {
-        faqItems.forEach((item) => {
+        getItems().forEach((item) => {
           if (item.classList.contains('faq-item--open')) openFaq(item);
         });
       });
 
-      filterFaqs();
+      const params = new URLSearchParams(location.search);
+      if (input) input.value = params.get('q') || '';
+      getItems().forEach((item) => closeFaq(item));
+      filterFaqs({ skipUrl: true });
+
+      fetch('/api/faqs')
+        .then((response) => response.ok ? response.json() : Promise.reject())
+        .then((data) => {
+          if (!Array.isArray(data)) return;
+          const merged = new Map(localData.map((faq) => [normalize(faq.question), faq]));
+          data.forEach((faq) => merged.set(normalize(faq.question), faq));
+          renderFaqData([...merged.values()]);
+          if (![...tabs.querySelectorAll('[data-faq-filter]')].some((tab) => tab.dataset.faqFilter === activeCategory)) activeCategory = 'all';
+          if (sourceStatus) sourceStatus.textContent = 'Sincronizado con el panel administrativo';
+          filterFaqs({ skipUrl: true });
+          if (location.hash) document.querySelector(location.hash)?.querySelector('[data-faq-question]')?.click();
+        })
+        .catch(() => { if (sourceStatus) sourceStatus.textContent = 'Contenido local disponible'; });
     })();
   </script>
+
+  <style>
+    :global(.faq-hub-page) { --faq-ink:#071f3a; --faq-blue:#0b65d8; --faq-cyan:#39bce9; --faq-soft:#eef6fb; background:#f7fafc; }
+    :global(.faq-hub-page .tc-svg) { width:1em; height:1em; fill:currentColor; }
+    :global(.faq-hub-page .faq-hero) { position:relative; overflow:hidden; padding:clamp(72px,9vw,118px) 0 88px; background:#071f3a; text-align:left; }
+    :global(.faq-hub-page .faq-hero::before) { content:""; position:absolute; inset:0; background:linear-gradient(rgba(57,188,233,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(57,188,233,.08) 1px,transparent 1px); background-size:44px 44px; mask-image:linear-gradient(to right,#000,transparent 88%); }
+    :global(.faq-hub-page .faq-hero::after) { content:"?"; position:absolute; right:5vw; bottom:-.34em; color:rgba(57,188,233,.1); font-family:var(--font-heading); font-size:clamp(14rem,28vw,28rem); font-weight:900; line-height:1; }
+    :global(.faq-hub-page .faq-hero .container) { position:relative; z-index:1; }
+    :global(.faq-hub-page .faq-hero h1) { max-width:900px; margin:14px 0 16px; color:#fff; font-family:var(--font-heading); font-size:clamp(2.5rem,6vw,5.2rem); line-height:1; letter-spacing:0; }
+    :global(.faq-hub-page .faq-hero p) { max-width:720px; margin:0; color:#bed1e4; font-size:clamp(1rem,2vw,1.15rem); line-height:1.7; }
+    .faq-hero-kicker { display:inline-flex; align-items:center; gap:8px; color:#75d3f5!important; font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
+    .faq-hero-stats { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+    .faq-hero-stats span { display:inline-flex; align-items:center; gap:7px; padding:8px 12px; color:#d9e8f5!important; border:1px solid rgba(255,255,255,.16); border-radius:6px; background:rgba(255,255,255,.05); font-size:.82rem; font-weight:700; }
+    .faq-hero-stats strong { color:#57c9f2!important; }
+    :global(.faq-hub-page .faq-search-bar) { position:sticky; top:66px; z-index:20; margin:0; padding:20px 0 14px; background:rgba(247,250,252,.96); border-bottom:1px solid #d6e3ed; backdrop-filter:blur(12px); }
+    .faq-search-wrap { position:relative; max-width:860px; }
+    :global(.faq-hub-page #faq-search-input) { width:100%; height:58px; padding:0 104px 0 52px; color:var(--faq-ink); border:1px solid #91b5cf; border-radius:8px; background:#fff; box-shadow:0 10px 30px rgba(7,31,58,.08); font:700 1rem var(--font-main); outline:none; }
+    :global(.faq-hub-page #faq-search-input:focus) { border-color:var(--faq-blue); box-shadow:0 0 0 3px rgba(11,101,216,.15),0 10px 30px rgba(7,31,58,.08); }
+    .faq-search-icon { position:absolute; left:18px; top:50%; z-index:1; transform:translateY(-50%); color:var(--faq-blue); font-size:1.1rem; }
+    .faq-search-shortcut { position:absolute; right:18px; top:50%; transform:translateY(-50%); min-width:28px; padding:3px 7px; color:#59738a; border:1px solid #c8d7e3; border-radius:5px; background:#f3f7fa; text-align:center; font:800 .78rem var(--font-main); }
+    .faq-search-clear { position:absolute; right:14px; top:50%; width:34px; height:34px; transform:translateY(-50%); display:grid; place-items:center; color:#405c74; border:0; border-radius:6px; background:#eaf1f6; cursor:pointer; }
+    .faq-search-clear[hidden] { display:none; }
+    .faq-search-wrap:has(.faq-search-clear:not([hidden])) .faq-search-shortcut { display:none; }
+    .faq-search-meta { display:flex; justify-content:space-between; gap:12px; max-width:860px; margin-top:8px; color:#5a7186; font-size:.76rem; font-weight:700; }
+    .faq-category-tabs { display:flex; gap:8px; margin-top:14px; padding-bottom:2px; overflow-x:auto; scrollbar-width:thin; }
+    .faq-category-tab { flex:0 0 auto; min-height:36px; padding:0 13px; color:#2d4b64; border:1px solid #c6d7e4; border-radius:6px; background:#fff; font:800 .78rem var(--font-main); cursor:pointer; transition:background-color 160ms ease-out,color 160ms ease-out,border-color 160ms ease-out,transform 160ms ease-out; }
+    .faq-category-tab.active { color:#fff; border-color:var(--faq-ink); background:var(--faq-ink); }
+    .faq-category-tab:active { transform:scale(.97); }
+    :global(.faq-hub-page .faq-page-content) { padding:clamp(50px,7vw,84px) 0; background:#f7fafc; }
+    :global(.faq-hub-page .faq-category-block) { margin:0 0 52px; }
+    :global(.faq-hub-page .faq-category-title) { display:grid; grid-template-columns:38px 1fr auto; align-items:center; gap:12px; margin:0 0 16px!important; padding-bottom:13px; color:var(--faq-ink); border-bottom:1px solid #bfd1df; font-family:var(--font-heading); font-size:clamp(1.35rem,3vw,2rem); }
+    :global(.faq-hub-page .faq-category-title .tc-svg) { width:38px; height:38px; padding:10px; color:#fff; border-radius:7px; background:var(--faq-blue); }
+    :global(.faq-hub-page .faq-category-title small) { color:#668096; font:800 .76rem var(--font-main); }
+    :global(.faq-hub-page .faq-page-grid) { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    :global(.faq-hub-page .faq-item) { align-self:start; overflow:hidden; border:1px solid #cad9e5; border-radius:8px; background:#fff; box-shadow:none; }
+    :global(.faq-hub-page .faq-question) { width:100%; min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 20px; color:var(--faq-ink)!important; border:0; background:transparent; text-align:left; font:800 .98rem/1.4 var(--font-main); cursor:pointer; }
+    :global(.faq-hub-page .faq-question span) { color:inherit!important; }
+    :global(.faq-hub-page .faq-question .faq-chevron) { width:14px; height:14px; flex:0 0 auto; color:#658096; transition:transform 180ms ease-out; }
+    :global(.faq-hub-page .faq-item--open) { border-color:#6ebde3; box-shadow:0 14px 35px rgba(7,31,58,.08); }
+    :global(.faq-hub-page .faq-item--open .faq-question) { color:#0758b4!important; background:#edf8fd; }
+    :global(.faq-hub-page .faq-item--open .faq-chevron) { transform:rotate(180deg); }
+    :global(.faq-hub-page .faq-answer) { display:none!important; max-height:none!important; overflow:hidden; }
+    :global(.faq-hub-page .faq-item--open .faq-answer) { display:block!important; max-height:none!important; }
+    :global(.faq-hub-page .faq-answer-inner) { min-height:0; overflow:hidden; padding:0 20px 22px; color:#38546c!important; line-height:1.7; white-space:pre-line; }
+    .faq-no-results { padding:50px 24px; border:1px dashed #8eb7d2; border-radius:8px; background:#fff; text-align:center; }
+    .faq-no-results[hidden] { display:none; }
+    .faq-no-results:not([hidden]) { display:block!important; }
+    .faq-no-icon { width:58px; height:58px; display:grid; place-items:center; margin:0 auto 16px; color:#fff!important; border-radius:8px; background:var(--faq-blue); font-size:1.35rem; }
+    .faq-no-results h3 { color:var(--faq-ink); font-size:1.35rem; }
+    .faq-no-results p { max-width:540px; margin:8px auto 22px; color:#506a80!important; }
+    .btn-faq-wa,.faq-final-actions a { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:46px; padding:0 18px; border-radius:7px; font-weight:900; text-decoration:none; }
+    .btn-faq-wa { color:#fff!important; background:#128c55; }
+    .faq-final-cta { display:grid; gap:24px; align-items:center; margin-top:60px; padding:clamp(28px,5vw,48px); overflow:hidden; position:relative; border-radius:8px; background:var(--faq-ink); }
+    .faq-final-cta::after { content:""; position:absolute; width:170px; height:170px; right:-65px; bottom:-90px; border:20px solid rgba(57,188,233,.13); transform:rotate(24deg); }
+    .faq-final-cta>div { position:relative; z-index:1; }
+    .faq-final-cta>div>span { color:#65d0f5!important; font-size:.76rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+    .faq-final-cta h2 { max-width:700px; margin:8px 0; color:#fff!important; font-family:var(--font-heading); font-size:clamp(1.7rem,4vw,2.8rem); line-height:1.08; }
+    .faq-final-cta p { color:#bdd0e1!important; }
+    .faq-final-actions { display:flex; flex-wrap:wrap; gap:10px; }
+    .faq-final-actions a { color:#fff!important; border:1px solid rgba(255,255,255,.25); }
+    .faq-final-actions .faq-primary-action { color:#05233d!important; border-color:#51c8f1; background:#51c8f1; }
+    @media (min-width:900px) { .faq-final-cta { grid-template-columns:1fr auto; } }
+    @media (max-width:760px) {
+      :global(.faq-hub-page .faq-search-bar) { top:58px; }
+      :global(.faq-hub-page .faq-page-grid) { grid-template-columns:1fr; }
+      .faq-search-meta { align-items:flex-start; flex-direction:column; gap:2px; }
+      .faq-final-actions a { width:100%; }
+    }
+    @media (hover:hover) and (pointer:fine) {
+      .faq-category-tab:hover { border-color:#6fa8cb; }
+      :global(.faq-hub-page .faq-question:hover) { color:#0758b4!important; background:#f1f8fc; }
+      .faq-final-actions a:hover,.btn-faq-wa:hover { transform:translateY(-2px); }
+    }
+    @media (prefers-reduced-motion:reduce) { :global(.faq-hub-page .faq-answer),:global(.faq-hub-page .faq-chevron),.faq-category-tab { transition:none; } }
+  </style>
 
   <Footer />
 </Base>

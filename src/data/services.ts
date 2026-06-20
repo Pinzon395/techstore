@@ -27,6 +27,16 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   redesCategory,
 ];
 
+export const SERVICE_ROUTES = SERVICE_CATEGORIES.flatMap((category) =>
+  category.services
+    .filter((service) => !service.customUrl)
+    .map((service) => ({
+      params: { categoria: category.slug, servicio: service.slug },
+      props: { category, service },
+      path: `/servicios/${category.slug}/${service.slug}`,
+    }))
+);
+
 /** Helper para obtener una categoria por slug */
 export function getCategory(slug: string): ServiceCategory | undefined {
   return SERVICE_CATEGORIES.find((c) => c.slug === slug);

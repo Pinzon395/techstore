@@ -327,12 +327,20 @@ async function bootstrap() {
             setHeaders: (res, filePath) => {
                 setUtf8StaticHeaders(res, filePath);
                 const p = filePath.replace(/\\/g, '/');
-                if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/.test(p)) {
+                if (/\.(html?)$/i.test(p)) {
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400');
+                } else if (/\/_astro\/.+\.[A-Za-z0-9_-]{8,}\.(js|css|mjs)$/i.test(p)) {
+                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                } else if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/i.test(p)) {
                     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
                 } else if (/\/(styles|scripts|components)\/.+\.(js|css|mjs)$/i.test(p)) {
                     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+                } else if (/\/(sw|cache-buster)\.js$/i.test(p)) {
+                    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+                } else if (/\/(manifest\.json|robots\.txt|sitemap\.xml)$/i.test(p)) {
+                    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
                 } else if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800');
+                    res.setHeader('Cache-Control', 'public, max-age=2592000, s-maxage=604800, stale-while-revalidate=2592000');
                 }
             }
 })));

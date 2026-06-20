@@ -12,12 +12,16 @@
  * Para subir version del sitio: cambiar la constante CURRENT_VERSION.
  */
 (function () {
-    var CURRENT_VERSION = '20260614-3';
+    var CURRENT_VERSION = '20260620-1';
     var KEY = 'pixon_version';
 
     try {
         var userVersion = localStorage.getItem(KEY);
         if (userVersion === CURRENT_VERSION) return;
+        if (!userVersion) {
+            localStorage.setItem(KEY, CURRENT_VERSION);
+            return;
+        }
 
         localStorage.clear();
         sessionStorage.clear();

@@ -3,7 +3,7 @@
  * Maneja cache offline y mejora rendimiento
  */
 
-const CACHE_NAME = 'pixon-20260614-3';
+const CACHE_NAME = 'pixon-20260620-1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -22,7 +22,8 @@ const CACHE_STRATEGIES = {
   ],
   // Recursos que se cachean al primer acceso
   resources: [
-    /\.(?:js|css|woff2?|png|jpg|jpeg|svg|ico)$/,
+    /\.(?:woff2?|png|jpg|jpeg|webp|avif|svg|ico)$/,
+    /\/_astro\/.*\.(?:js|css)$/,
     /\/assets\//
   ]
 };

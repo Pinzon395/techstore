@@ -597,7 +597,7 @@ function renderUnanswered() {
     tbody.innerHTML = '';
 
     if (allUnanswered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b;">No hay registros de búsquedas sin respuesta. ðx}0</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b;">No hay búsquedas sin respuesta.</td></tr>`;
         return;
     }
 
@@ -613,6 +613,7 @@ function renderUnanswered() {
             <td style="font-weight: 600;">${escapeHtml(u.query)}</td>
             <td style="color:${countColor}; font-weight:700;">${u.count}</td>
             <td style="font-size: 0.85rem; color:#94a3b8;">${date}</td>
+            <td><button type="button" class="btn-admin btn-approve" data-create-faq-query="${escapeHtml(u.query)}"><i class="fa-solid fa-plus"></i> Crear FAQ</button></td>
         `;
         tbody.appendChild(tr);
     });
@@ -623,16 +624,17 @@ function renderFaqs() {
     if(!container) return;
     container.innerHTML = '';
 
-    const searchTerm = (document.getElementById('faqSearchInput') ? document.getElementById('faqSearchInput').value.toLowerCase() : '');
+    const normalizeFaqSearch = (value) => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+    const searchTerm = normalizeFaqSearch(document.getElementById('faqSearchInput')?.value || '');
+    const searchTokens = searchTerm.split(' ').filter(Boolean);
     const categoryFilter = document.getElementById('faqCategoryFilter')?.value || 'all';
 
     let filtered = allFaqs;
     if (searchTerm) {
-        filtered = allFaqs.filter(f => 
-            f.question.toLowerCase().includes(searchTerm) || 
-            f.answer.toLowerCase().includes(searchTerm) || 
-            f.category.toLowerCase().includes(searchTerm)
-        );
+        filtered = allFaqs.filter(f => {
+            const haystack = normalizeFaqSearch(`${f.question} ${f.answer} ${f.category}`);
+            return searchTokens.every(token => haystack.includes(token));
+        });
     }
     if (categoryFilter !== 'all') {
         filtered = filtered.filter(f => f.category === categoryFilter);
@@ -723,9 +725,11 @@ function renderFaqs() {
 // Escuchar búsqueda en tiempo real
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('faqSearchInput');
+    let faqSearchTimer;
     if(searchInput) {
         searchInput.addEventListener('input', () => {
-            renderFaqs();
+            clearTimeout(faqSearchTimer);
+            faqSearchTimer = setTimeout(renderFaqs, 120);
         });
     }
     document.getElementById('faqCategoryFilter')?.addEventListener('change', renderFaqs);
@@ -739,6 +743,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFaqs();
     });
     document.addEventListener('click', (event) => {
+        const createButton = event.target.closest('[data-create-faq-query]');
+        if (createButton) {
+            addNewFaq(createButton.dataset.createFaqQuery || '');
+            return;
+        }
         const toggle = event.target.closest('.faq-category-toggle');
         if (!toggle) return;
         const category = toggle.dataset.category;
@@ -761,16 +770,20 @@ window.clearUnanswered = async function() {
     }
 };
 
-window.addNewFaq = function() {
+window.addNewFaq = function(prefillQuestion = '') {
     document.getElementById('faqModalTitle').textContent = 'Nueva Pregunta';
     document.getElementById('faqId').value = '';
     document.getElementById('faqCategory').value = '';
     document.getElementById('faqIcon').value = 'fa-solid fa-circle-question';
-    document.getElementById('faqQuestion').value = '';
+    document.getElementById('faqQuestion').value = prefillQuestion;
     document.getElementById('faqAnswer').value = '';
     document.getElementById('faqOrder').value = '0';
     
     document.getElementById('faqModalOverlay').classList.add('show');
+    requestAnimationFrame(() => {
+        const target = prefillQuestion ? document.getElementById('faqAnswer') : document.getElementById('faqCategory');
+        target?.focus();
+    });
 };
 
 window.editAdminFaq = function(id) {
