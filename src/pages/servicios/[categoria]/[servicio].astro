@@ -11,6 +11,7 @@ import ServiceTicketSection from '../../../components/ServiceTicketSection.astro
 import { SERVICE_ROUTES } from '../../../data/services';
 import { getServiceFlags } from '../../../lib/service-page-rules';
 import { resolveServiceView } from '../../../lib/service-view-registry';
+import { getServiceSeoMeta } from '../../../lib/service-seo';
 import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
 
 export function getStaticPaths() {
@@ -25,6 +26,7 @@ const {
   isLaptopScreenReplacement,
   isLaptopKeyboardReplacement,
   isLaptopThermalPaste,
+  isLaptopPreventiveMaintenance,
   isLaptopDiagnostic,
   isLenovoLaptopRepair,
   isHpLaptopRepair,
@@ -92,279 +94,15 @@ const {
 } = serviceFlags;
 const CustomView = await resolveServiceView(serviceFlags, category, service);
 // SEO LOCAL H1 / TITLE
-const seoKeyword = service.seoKeyword || service.label;
-const seoTitle = isPcFormat
-  ? 'Formateo de PC en CancÃºn | Windows, respaldo y drivers'
-  : isPcNoEnciende
-  ? 'PC no enciende en CancÃºn | DiagnÃ³stico y reparaciÃ³n | Pixon PC'
-  : isPcGpu
-  ? 'ReparaciÃ³n de tarjeta de video GPU en CancÃºn | Pixon PC'
-  : isPcPowerSupply
-  ? 'Fuente de poder PC en CancÃºn | InstalaciÃ³n y ReparaciÃ³n | Pixon PC'
-  : isPcDiagnostic
-  ? 'DiagnÃ³stico de PC en CancÃºn | Pixon PC'
-  : isPcBlueScreen
-  ? 'Pantalla azul Windows en Canc\u00fan | Diagn\u00f3stico BSOD PC'
-  : isPcLentitud
-  ? 'PC lenta en Canc\u00fan | Diagn\u00f3stico, limpieza y optimizaci\u00f3n para acelerar tu computadora'
-  : isPcDataRecovery
-  ? 'RecuperaciÃ³n de datos en CancÃºn | PC, SSD, HDD y archivos borrados'
-  : isPcVirusMalware
-  ? 'EliminaciÃ³n de virus y malware en CancÃºn | PC lenta y anuncios'
-  : isPcInstallComponents
-  ? 'InstalaciÃ³n de componentes PC en CancÃºn | SSD, RAM, GPU y fuente'
-  : isLaptopDataRecovery
-  ? 'RecuperaciÃ³n de datos de laptop en CancÃºn | SSD, HDD, NVMe y Borrado'
-  : isLaptopThermalPaste
-  ? 'Cambio de pasta tÃ©rmica para laptop en CancÃºn | Sobrecalentamiento'
-  : isLaptopDiagnostic
-  ? 'DiagnÃ³stico de laptop en CancÃºn | RevisiÃ³n profesional | Pixon PC'
-  : isDellLaptopRepair
-  ? 'Reparaci\u00f3n laptop Dell en Canc\u00fan | Inspiron, Latitude, XPS y Alienware'
-  : isLenovoLaptopRepair
-  ? 'Reparaci\u00f3n laptop Lenovo en Canc\u00fan | ThinkPad, IdeaPad, Legion y Yoga'
-  : isHpLaptopRepair
-  ? 'Reparaci\u00f3n laptop HP en Canc\u00fan | Pavilion, Envy, Omen, Victus y EliteBook'
-  : isPrinterMaintenance
-  ? 'Mantenimiento de impresoras en CancÃºn | Pixon PC'
-  : isPrinterInkToner
-  ? 'Cambio de tinta y tÃ³ner en CancÃºn | Pixon PC'
-  : isPrinterDiagnostic
-  ? 'DiagnÃ³stico de impresoras en CancÃºn | Pixon PC'
-  : isPrinterConnectivity
-  ? 'ConfiguraciÃ³n de impresoras WiFi en CancÃºn | Pixon PC'
-  : isPrinterRollers
-  ? 'Cambio de rodillos de impresora en CancÃºn | Pixon PC'
-  : isPrinterJams
-  ? 'ReparaciÃ³n de atascos de impresora en CancÃºn | Pixon PC'
-  : isConsolePreventiveMaintenance
-  ? 'Mantenimiento preventivo de consolas en CancÃºn | Pixon'
-  : isPs5LiquidMetalCleaning
-  ? 'Limpieza PS5 CancÃºn con metal lÃ­quido | Servicio tÃ©cnico PlayStation'
-  : isPs5Shutdown
-  ? service.metaTitle || 'PS5 se apaga sola en CancÃºn | DiagnÃ³stico PlayStation'
-  : isHotelSupport
-  ? 'Soporte TI para Hoteles en CancÃºn | Soporte TÃ©cnico 24/7'
-  : isB2bOfficeSupport
-  ? 'Soporte TI para oficinas en CancÃºn | Red, impresoras y Windows'
-  : isB2bWifiEmpresarial
-  ? 'WiFi empresarial en CancÃºn | Red, cobertura e impresoras'
-  : isMacSoftware
-  ? 'Software y Soporte macOS en CancÃºn | ReinstalaciÃ³n, OptimizaciÃ³n y DiagnÃ³stico'
-  : isImacMacMiniRepair
-  ? 'ReparaciÃ³n iMac y Mac mini en CancÃºn | DiagnÃ³stico Apple'
-  : isMacbookPreventiveMaintenance
-  ? 'Mantenimiento Preventivo MacBook en CancÃºn | Limpieza, OptimizaciÃ³n y DiagnÃ³stico Profesional'
-  : isConsoleCleaning
-  ? 'Limpieza de consolas en CancÃºn | PS5, Xbox, Switch y Steam Deck'
-  : isConsoleThermalPaste
-  ? 'Cambio de pasta tÃ©rmica de consolas en CancÃºn | PS5, Xbox y Switch'
-  : isConsolePowerSupply
-  ? 'ReparaciÃ³n de fuente de consolas en CancÃºn | PS5, Xbox y Switch'
-  : isConsoleHdmi
-  ? 'ReparaciÃ³n de puerto HDMI de consolas en CancÃºn | Pixon PC'
-  : isConsoleOverheating
-  ? 'Sobrecalentamiento de consola en CancÃºn | PS5, Xbox y Switch'
-  : isPhoneSpeakerRepair
-  ? 'ReparaciÃ³n de bocina de celular en CancÃºn | Pixon PC'
-  : isPhoneScreenReplacement
-  ? 'Cambio de pantalla de celular en CancÃºn | iPhone, Samsung y Xiaomi'
-  : isPhoneSoftwareUnlock
-  ? 'LiberaciÃ³n y software de celulares en CancÃºn | Pixon PC'
-  : isPhoneFlexButtons
-  ? 'Cambio de flex y botones de celular en CancÃºn | Pixon PC'
-  : isPhoneDiagnostic
-  ? 'DiagnÃ³stico de celulares en CancÃºn | Pixon PC'
-  : isIphoneBatteryReplacement
-  ? 'Cambio de baterÃ­a iPhone en CancÃºn | Pixon PC'
-  : isSamsungBatteryReplacement
-  ? 'Cambio de baterÃ­a Samsung en CancÃºn | Galaxy | Pixon PC'
-  : isIphoneCameraRepair
-  ? 'ReparaciÃ³n de cÃ¡mara iPhone en CancÃºn | Pixon PC'
-  : isIphoneFaceIdRepair
-  ? 'ReparaciÃ³n de Face ID iPhone en CancÃºn | Pixon PC'
-  : isIphoneHumidityRepair
-  ? 'ReparaciÃ³n de iPhone mojado en CancÃºn | Pixon PC'
-  : isIphoneChargeRepair
-  ? 'ReparaciÃ³n de carga iPhone en CancÃºn | Pixon PC'
-  : isIphoneSpeakerRepair
-  ? 'ReparaciÃ³n de bocina iPhone en CancÃºn | Pixon PC'
-  : isIphoneDiagnostic
-  ? 'DiagnÃ³stico iPhone en CancÃºn | No prende, no carga, pantalla negra'
-  : isIphoneButtonsRepair
-  ? 'ReparaciÃ³n de botones iPhone en CancÃºn | Power, volumen y mute'
-  : isIphoneMicrophoneRepair
-  ? 'ReparaciÃ³n de micrÃ³fono iPhone en CancÃºn | Llamadas, WhatsApp y video'
-  : isLaptopKeyboardReplacement
-  ? 'Cambio de teclado de laptop en CancÃºn | Pixon PC'
-  : isIphoneService
-  ? `${seoKeyword} | Pixon PC`
-  : isLaptopLocalReplacement
-  ? `${seoKeyword} con garantÃ­a | Pixon PC`
-  : `${seoKeyword} para ${category.title} en CancÃºn | Pixon PC`;
-const description = isPcFormat
-  ? 'Formateo de PC en CancÃºn desde $750 MXN. Windows limpio, respaldo de archivos, drivers, paqueterÃ­a bÃ¡sica y optimizaciÃ³n.'
-  : isPcNoEnciende
-  ? 'Â¿Tu PC no enciende, prende ventiladores sin imagen o se apaga al instante? DiagnÃ³stico tÃ©cnico en CancÃºn para fuente, tarjeta madre, RAM, GPU y cortos. AtenciÃ³n con cita previa.'
-  : isPcGpu
-  ? 'DiagnÃ³stico y reparaciÃ³n de GPU en CancÃºn para PC sin imagen, artefactos, temperatura alta, crashes, mantenimiento tÃ©rmico e instalaciÃ³n de tarjeta de video.'
-  : isPcPowerSupply
-  ? 'Â¿Tu computadora se apaga sola, huele a quemado o no prende tras un apagÃ³n? Cambio, diagnÃ³stico e instalaciÃ³n de fuentes de poder en CancÃºn con garantÃ­a.'
-  : isPcDiagnostic
-  ? 'DiagnÃ³stico de PC en CancÃºn para computadoras que no encienden, se reinician, van lentas, tienen pantalla azul, fallas de Windows, fuente, RAM, SSD, GPU o temperatura.'
-  : isPcBlueScreen
-  ? 'SoluciÃ³n de pantalla azul Windows en CancÃºn. DiagnÃ³stico BSOD para PC que se reinicia, falla al jugar, marca errores de RAM, SSD, drivers, GPU, temperatura o Windows daÃ±ado.'
-  : isPcLentitud
-  ? 'DiagnÃ³stico de PC lenta en CancÃºn. Identificamos cuellos de botella por disco duro mecÃ¡nico, falta de RAM, virus, temperatura o Windows. Acelera tu computadora con opciones seguras desde $300 MXN.'
-  : isPcDataRecovery
-  ? 'RecuperaciÃ³n de datos en CancÃºn | PC, SSD, HDD y archivos borrados'
-  : isPcVirusMalware
-  ? 'EliminaciÃ³n de virus y malware en CancÃºn | PC lenta y anuncios'
-  : isPcInstallComponents
-  ? 'InstalaciÃ³n de componentes PC en CancÃºn para SSD, RAM, GPU, fuente, ventiladores, WiFi y capturadoras. RevisiÃ³n de compatibilidad, BIOS, cableado y pruebas.'
-  : isLaptopDataRecovery
-  ? 'Rescate de archivos, fotos y documentos desde laptops que no encienden, discos daÃ±ados, SSD corruptos, borrado accidental o formateo en CancÃºn. Proceso seguro, rÃ¡pido y confidencial desde $650 MXN.'
-  : isLaptopThermalPaste
-  ? 'Cambio de pasta tÃ©rmica para laptop en CancÃºn desde $550 MXN. SoluciÃ³n para sobrecalentamiento, ventilador fuerte, apagados, bajo rendimiento, laptop gamer, HP, Dell, Lenovo, Asus, MSI y MacBook.'
-  : isLaptopDiagnostic
-  ? 'DiagnÃ³stico de laptop en CancÃºn para equipos que no encienden, no cargan, van lentos, se calientan, tienen pantalla negra, humedad, fallas de Windows o datos en riesgo.'
-  : isHpLaptopRepair
-  ? 'Reparaci\u00f3n de laptop HP en Canc\u00fan para Pavilion, Envy, Omen, Victus, EliteBook, ProBook y Spectre. Diagn\u00f3stico de pantalla, carga, bater\u00eda, teclado, SSD, RAM, temperatura, Windows y placa.'
-  : isPrinterMaintenance
-  ? 'Mantenimiento de impresoras en CancÃºn desde $750 MXN. Limpieza, rodillos, bandejas, cabezales, tÃ³ner, tinta, prueba de impresiÃ³n y revisiÃ³n preventiva.'
-  : isPrinterInkToner
-  ? 'Cambio, recarga e instalaciÃ³n de tinta y tÃ³ner para impresoras en CancÃºn. Revisamos cartuchos, tÃ³ner, cabezales y prueba de impresiÃ³n.'
-  : isPrinterDiagnostic
-  ? 'DiagnÃ³stico de impresoras en CancÃºn para HP, Epson, Canon, Brother y mÃ¡s. Revisamos impresiÃ³n, atascos, cartuchos, tÃ³ner, cabezales, WiFi y errores antes de cotizar.'
-  : isPrinterConnectivity
-  ? 'ConfiguraciÃ³n de impresoras WiFi, USB, Ethernet e IP en CancÃºn. Instalamos drivers, conectamos PC, Mac y mÃ³viles, y dejamos prueba de impresiÃ³n.'
-  : isPrinterRollers
-  ? 'Cambio y reparaciÃ³n de rodillos de impresora en CancÃºn. Corregimos fallas de alimentaciÃ³n, papel atorado, hojas dobles y bandejas que no jalan.'
-  : isPrinterJams
-  ? 'ReparaciÃ³n de atascos de impresora en CancÃºn desde $450 MXN. Revisamos ruta de papel, sensores, rodillos, bandejas y alimentaciÃ³n para evitar fallas repetidas.'
-  : isConsolePreventiveMaintenance
-  ? 'Mantenimiento preventivo y limpieza de consolas en CancÃºn. Evita sobrecalentamiento en PS5, Xbox Series X, Nintendo Switch y portÃ¡tiles con pasta tÃ©rmica nueva y limpieza interna.'
-  : isPs5LiquidMetalCleaning
-  ? 'Limpieza de PS5 en CancÃºn con revisiÃ³n de metal lÃ­quido, ventilador, disipador, APU, fuente, ruido y apagados al jugar. Servicio tÃ©cnico PlayStation con garantÃ­a.'
-  : isPs5Shutdown
-  ? service.metaDescription || 'DiagnÃ³stico para PS5 que se apaga sola en CancÃºn al jugar. Revisamos temperatura, polvo, ventilador, metal lÃ­quido, fuente, consumo y placa antes de cotizar.'
-  : isHotelSupport
-  ? 'Soporte tÃ©cnico y TI para hoteles en CancÃºn y Zona Hotelera. Soporte 24/7 para recepciÃ³n, reservas, PMS Opera/Sabre, impresoras de tickets, redes WiFi Hotspot y mantenimiento preventivo por lote.'
-  : isB2bOfficeSupport
-  ? 'Soporte TI para oficinas en CancÃºn para PCs, laptops, impresoras, red, Windows y respaldos. AtenciÃ³n para administraciÃ³n, contabilidad y operaciÃ³n local.'
-  : isB2bWifiEmpresarial
-  ? 'WiFi empresarial en CancÃºn para oficinas y negocios. Revisamos red, cobertura, impresoras, routers, switches y equipos conectados con diagnÃ³stico local.'
-  : isMacSoftware
-  ? 'Soporte macOS en CancÃºn para Mac lenta, no inicia, apps con error, reinstalaciÃ³n de macOS Sonoma y Sequoia, respaldo con Time Machine y migraciÃ³n de datos. MacBook Air, Pro, iMac y Mac mini.'
-  : isImacMacMiniRepair
-  ? 'ReparaciÃ³n iMac y Mac mini en CancÃºn para equipos que no prenden, no dan imagen, van lentos, se calientan, fallan con macOS, SSD, puertos o datos.'
-  : isMacbookPreventiveMaintenance
-  ? 'Mantenimiento preventivo MacBook en CancÃºn: limpieza interna, cambio de pasta tÃ©rmica, optimizaciÃ³n macOS y diagnÃ³stico profesional para MacBook Air, MacBook Pro e iMac.'
-  : isConsoleCleaning
-  ? 'Limpieza interna de consolas en CancÃºn para PS5, Xbox, Nintendo Switch, Steam Deck y ROG Ally. Mantenimiento tÃ©rmico, polvo, ventilador, pasta y metal lÃ­quido con garantÃ­a.'
-  : isConsoleThermalPaste
-  ? 'Cambio de pasta tÃ©rmica de consolas en CancÃºn. Revisamos PS5, Xbox, Nintendo Switch, Steam Deck, ROG Ally, metal lÃ­quido, disipador, ventilador y polvo.'
-  : isConsolePowerSupply
-  ? 'ReparaciÃ³n de fuente de consolas en CancÃºn. Diagnosticamos PS5, PS4, Xbox, Nintendo Switch, voltajes, fusibles, capacitores, consumo y placa antes de cotizar.'
-  : isConsoleHdmi
-  ? 'ReparaciÃ³n de puerto HDMI de consolas en CancÃºn. Cambio de HDMI para PS5, PS4, Xbox y Nintendo Switch con diagnÃ³stico de puerto, placa e IC de video.'
-  : isConsoleOverheating
-  ? 'SoluciÃ³n de sobrecalentamiento de consolas en CancÃºn. Revisamos PS5, Xbox, Nintendo Switch, Steam Deck, ventilador, pasta tÃ©rmica, metal lÃ­quido, polvo y flujo de aire.'
-  : isPhoneSpeakerRepair
-  ? 'ReparaciÃ³n de bocina, auricular y audio de celular en CancÃºn. Revisamos rejilla, flex, humedad, micrÃ³fono y altavoz antes de cambiar piezas.'
-  : isPhoneScreenReplacement
-  ? 'Cambio de pantalla de celular en CancÃºn para iPhone, Samsung, Xiaomi, Motorola y mÃ¡s. Revisamos touch, display, marco, humedad y calidad de refacciÃ³n antes de instalar.'
-  : isPhoneSoftwareUnlock
-  ? 'LiberaciÃ³n de red, flasheo, actualizaciÃ³n, FRP y reparaciÃ³n de software para celulares en CancÃºn. Revisamos IMEI, cuenta, respaldo y compatibilidad antes de trabajar.'
-  : isPhoneFlexButtons
-  ? 'Cambio de flex, botÃ³n power, volumen, home, mute y botones laterales de celular en CancÃºn. Revisamos flex, humedad, carcasa y placa antes de cotizar.'
-  : isPhoneDiagnostic
-  ? 'DiagnÃ³stico de celulares en CancÃºn para fallas de pantalla, baterÃ­a, carga, audio, cÃ¡maras, humedad, placa y software. Revisamos antes de cambiar piezas.'
-  : isIphoneBatteryReplacement
-  ? 'Cambio de baterÃ­a iPhone en CancÃºn con diagnÃ³stico de salud, carga, consumo, temperatura, baterÃ­a inflada y garantÃ­a por escrito. Servicio local Pixon PC.'
-  : isSamsungBatteryReplacement
-  ? 'Cambio de baterÃ­a Samsung Galaxy en CancÃºn para equipos que se descargan rÃ¡pido, se apagan, se calientan o tienen baterÃ­a inflada. DiagnÃ³stico de carga, consumo y garantÃ­a.'
-  : isIphoneCameraRepair
-  ? 'ReparaciÃ³n de cÃ¡mara iPhone en CancÃºn con diagnÃ³stico de cÃ¡mara frontal, trasera, enfoque, manchas, lente roto, humedad y garantÃ­a por escrito.'
-  : isIphoneFaceIdRepair
-  ? 'ReparaciÃ³n de Face ID iPhone en CancÃºn. DiagnÃ³stico de cÃ¡mara TrueDepth, sensores infrarrojos, flex y humedad antes de cotizar. GarantÃ­a por escrito.'
-  : isIphoneHumidityRepair
-  ? 'ReparaciÃ³n de iPhone mojado en CancÃºn. DiagnÃ³stico por humedad, limpieza ultrasÃ³nica, revisiÃ³n de placa lÃ³gica, baterÃ­a, pantalla, carga, cÃ¡maras y Face ID.'
-  : isIphoneChargeRepair
-  ? 'Reparamos puerto de carga iPhone en CancÃºn. Revisamos Lightning, USB-C, baterÃ­a, humedad, cable, adaptador y flex antes de cotizar.'
-  : isIphoneSpeakerRepair
-  ? 'ReparaciÃ³n de bocina iPhone en CancÃºn para audio bajo, bocina distorsionada, auricular sin sonido, rejilla tapada, humedad, flex y llamadas.'
-  : isIphoneDiagnostic
-  ? 'DiagnÃ³stico iPhone en CancÃºn para equipos que no prenden, no cargan, tienen pantalla negra, baterÃ­a daÃ±ada, Face ID, cÃ¡mara, audio, humedad, software o placa.'
-  : isIphoneButtonsRepair
-  ? 'ReparaciÃ³n de botones iPhone en CancÃºn para power, volumen, silencio, Home, botÃ³n lateral, flex, carcasa, humedad, golpes y falsos contactos.'
-  : isIphoneMicrophoneRepair
-  ? 'ReparaciÃ³n de micrÃ³fono iPhone en CancÃºn para llamadas sin voz, WhatsApp sin audio, notas de voz, video sin sonido, Siri, flex de carga, humedad y placa.'
-  : isLaptopKeyboardReplacement
-  ? 'Cambio y reparaciÃ³n de teclado de laptop en CancÃºn. Revisamos flex, conector, lÃ­quido, backlit y compatibilidad antes de instalar.'
-  : service.intro
-  ? `${service.intro} CotizaciÃ³n gratis, diagnÃ³stico claro y reparaciÃ³n profesional en CancÃºn.`
-  : `Servicio especializado de ${service.label} para ${category.title} en CancÃºn. DiagnÃ³stico profundo y garantÃ­a por escrito.`;
-const finalSeoTitle = service.metaTitle || seoTitle;
-const finalDescription = service.metaDescription || description;
-const faqServiceContext = category.slug === 'telefono'
-  ? 'celular'
-  : category.slug === 'pc'
-  ? 'PC'
-  : category.slug === 'consola'
-  ? 'consola'
-  : category.slug === 'impresora'
-  ? 'impresora'
-  : category.slug === 'b2b'
-  ? 'oficina'
-  : 'laptop';
-const genericFaqTitle = `Preguntas frecuentes sobre ${service.label} de ${faqServiceContext} en CancÃºn`;
-
-const waMessage = encodeURIComponent(isPcFormat
-  ? 'Hola, quiero cotizar formateo de PC en CancÃºn con respaldo, Windows, drivers y optimizaciÃ³n.'
-  : isPcDiagnostic
-  ? 'Hola, quiero agendar diagnÃ³stico de PC en CancÃºn. Mi computadora presenta una falla y quiero saber quÃ© tiene antes de reparar.'
-  : isPcInstallComponents
-  ? 'Hola, quiero cotizar la instalaciÃ³n de componentes para mi PC en CancÃºn. Necesito SSD, RAM, GPU, fuente o revisar compatibilidad antes de instalar.'
-  : isPrinterMaintenance
-  ? 'Hola, quiero cotizar mantenimiento de impresora en CancÃºn. Puedo enviar marca, modelo y la falla que presenta.'
-  : isPrinterInkToner
-  ? 'Hola, quiero cotizar cambio de tinta o tÃ³ner para mi impresora en CancÃºn. Puedo enviar marca y modelo.'
-  : isPrinterDiagnostic
-  ? 'Hola, quiero agendar diagnÃ³stico de impresora en CancÃºn. Puedo enviar marca, modelo y el error que presenta.'
-  : isPrinterConnectivity
-  ? 'Hola, quiero configurar mi impresora WiFi, USB o de red en CancÃºn. Puedo enviar marca, modelo y cuÃ¡ntos equipos necesito conectar.'
-  : isPrinterRollers
-  ? 'Hola, quiero cotizar cambio o reparaciÃ³n de rodillos de impresora en CancÃºn. Puedo enviar marca, modelo y el problema de alimentaciÃ³n de papel.'
-  : isPrinterJams
-  ? 'Hola, quiero cotizar reparaciÃ³n de atascos de impresora en CancÃºn. Puedo enviar marca, modelo y foto o video del atasco.'
-  : isConsoleCleaning
-  ? 'Hola, quiero cotizar limpieza interna de consola en CancÃºn. Puedo enviar modelo, fotos y decir si es PS5, Xbox, Nintendo Switch, Steam Deck o ROG Ally.'
-  : isConsoleThermalPaste
-  ? 'Hola, quiero cotizar cambio de pasta tÃ©rmica para consola en CancÃºn. Mi consola se calienta, suena fuerte o se apaga al jugar.'
-  : isConsolePowerSupply
-  ? 'Hola, quiero cotizar reparaciÃ³n de fuente de consola en CancÃºn. Mi consola no enciende, se apaga o se reinicia.'
-  : isConsoleHdmi
-  ? 'Hola, quiero cotizar reparaciÃ³n de puerto HDMI de consola en CancÃºn. Mi consola enciende pero no da imagen o tiene el HDMI daÃ±ado.'
-  : isConsoleOverheating
-  ? 'Hola, quiero cotizar diagnÃ³stico por sobrecalentamiento de consola en CancÃºn. Mi consola se calienta, suena fuerte o se apaga al jugar.'
-  : isPhoneSpeakerRepair
-  ? 'Hola, quiero cotizar reparaciÃ³n de bocina o audio de mi celular en CancÃºn. Puedo enviar modelo, marca y la falla que presenta.'
-  : isPhoneScreenReplacement
-  ? 'Hola, quiero cotizar cambio de pantalla de celular en CancÃºn. Puedo enviar marca, modelo y foto del daÃ±o.'
-  : isPhoneSoftwareUnlock
-  ? 'Hola, quiero cotizar liberaciÃ³n o reparaciÃ³n de software de celular en CancÃºn. Puedo enviar marca, modelo y la falla.'
-  : isPhoneFlexButtons
-  ? 'Hola, quiero cotizar cambio de flex o botones de celular en CancÃºn. Puedo enviar marca, modelo y la falla del botÃ³n.'
-  : isPhoneDiagnostic
-  ? 'Hola, quiero diagnÃ³stico de celular en CancÃºn. Puedo enviar marca, modelo y la falla que presenta.'
-  : isLaptopKeyboardReplacement
-  ? 'Hola, quiero cotizar cambio o reparaciÃ³n de teclado de laptop en CancÃºn. Puedo enviar modelo o foto del equipo.'
-  : `Hola, necesito el servicio de ${service.label} para mi ${category.title}. Â¿Me podrÃ­an cotizar?`);
-
-// Hooks y Bullets
-const hook = service.hook || `Evita fallas costosas y recupera el rendimiento de tu ${category.title}`;
-
+const {
+  seoKeyword,
+  finalSeoTitle,
+  finalDescription,
+  faqServiceContext,
+  genericFaqTitle,
+  waMessage,
+  hook,
+} = getServiceSeoMeta(category, service, serviceFlags);
 // FAQ items con SEO local
 const faqItems = [
   { question: `Â¿CuÃ¡nto tiempo toma este servicio en CancÃºn?`, answer: `El tiempo depende del tipo de intervenciÃ³n, disponibilidad de refacciones y gravedad de la falla. En servicios simples puede resolverse el mismo dÃ­a; en reparaciones con piezas o pruebas extendidas puede tomar de 24 a 72 horas. Siempre te damos tiempo estimado antes de iniciar.` },
@@ -652,7 +390,13 @@ const visibleFaqs = isPcFormat
   : faqItems;
 
 const pageSchema = [
-  buildServiceSchema({ service, category, url: canonical, description: finalDescription }),
+  buildServiceSchema({
+    service,
+    category,
+    url: canonical,
+    description: finalDescription,
+    image: isLaptopPreventiveMaintenance ? service.featuredImage : undefined,
+  }),
   buildBreadcrumbSchema([
     { label: 'Inicio', href: '/' },
     { label: 'Servicios', href: '/servicios' },
@@ -667,6 +411,7 @@ const pageSchema = [
   title={finalSeoTitle}
   description={finalDescription}
   canonical={canonical}
+  image={isLaptopPreventiveMaintenance ? '/assets/images/laptop-feliz-limpia.webp' : undefined}
   schema={pageSchema}
   bodyClass="service-page"
   ogTitle={isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en CancÃºn | Pixon PC' : finalSeoTitle}

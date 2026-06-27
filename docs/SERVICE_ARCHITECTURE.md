@@ -7,11 +7,13 @@ Service pages should scale from data first.
 - Source of truth: `src/data/services/**`.
 - Aggregator and route index: `src/data/services.ts`.
 - Dynamic route generation should use `SERVICE_ROUTES`.
+- Local SEO service-area data lives in `src/data/local-seo.ts`.
 
 ## Rendering Rules
 
 - Service flags live in `src/lib/service-page-rules.ts`.
 - Special view selection lives in `src/lib/service-view-registry.ts`.
+- SEO/meta copy selection lives in `src/lib/service-seo.ts`.
 - `src/pages/servicios/[categoria]/[servicio].astro` should focus on layout,
   legacy fallback markup, and composition.
 
@@ -28,3 +30,8 @@ Service pages should scale from data first.
 - Astro pages should reference WebP/AVIF for local raster images.
 - Run `npm run check:images` before shipping.
 - Run `npm run check:images:inventory` when deciding what to optimize or remove.
+
+## Verification Rules
+
+- Run `npm run build` after service data, routing, SEO, or CSS changes.
+- Run `npm run check:service-visual` after moving service CSS or templates.

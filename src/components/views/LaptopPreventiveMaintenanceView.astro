@@ -1,0 +1,502 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+const servicePath = `/servicios/${category.slug}/${service.slug}`;
+const whatsappText = encodeURIComponent(
+  'Hola, quiero cotizar mantenimiento preventivo para mi laptop en Cancún. ¿Me ayudan a revisar el equipo?'
+);
+const whatsappUrl = `https://wa.me/529986690777?text=${whatsappText}`;
+
+const included = [
+  ['fa-fan', 'Sistema de enfriamiento', 'Limpieza de ventilador, disipador, rejillas y salidas de aire.'],
+  ['fa-temperature-half', 'Revisión térmica', 'Medición de temperatura y revisión de pasta térmica según el modelo.'],
+  ['fa-hard-drive', 'Disco y memoria', 'Comprobación básica de salud del SSD o HDD y funcionamiento de RAM.'],
+  ['fa-battery-three-quarters', 'Batería y carga', 'Revisión de batería, cargador, conector y comportamiento de carga.'],
+  ['fa-laptop', 'Pruebas funcionales', 'Arranque, teclado, touchpad, puertos, WiFi y estabilidad general.'],
+  ['fa-file-shield', 'Reporte y garantía', 'Hallazgos claros por WhatsApp y garantía por escrito sobre la intervención.'],
+];
+
+const warningSigns = [
+  ['01', 'El ventilador no descansa', 'Suena fuerte aun con pocas aplicaciones o aumenta de velocidad sin una carga clara.'],
+  ['02', 'Se calienta más que antes', 'El teclado, la base o la zona de salida de aire alcanzan una temperatura incómoda.'],
+  ['03', 'Pierde rendimiento', 'Se vuelve lenta, se congela o baja sus frecuencias cuando trabajas, estudias o juegas.'],
+  ['04', 'Lleva más de un año cerrada', 'Aunque todavía funcione bien, el polvo puede estar reduciendo el flujo de aire interno.'],
+];
+
+const process = [
+  ['Recepción técnica', 'Registramos modelo, síntomas, uso diario, golpes, humedad y reparaciones previas.'],
+  ['Pruebas iniciales', 'Revisamos temperatura, batería, carga, almacenamiento, memoria y funciones básicas.'],
+  ['Desarmado documentado', 'Abrimos con herramienta adecuada y cuidamos tornillos, clips, flex y conectores.'],
+  ['Limpieza y servicio térmico', 'Retiramos polvo y revisamos pasta térmica; si requiere cambio, se aplica el compuesto adecuado.'],
+  ['Validación y entrega', 'Repetimos pruebas, documentamos hallazgos y explicamos qué se corrigió y qué conviene vigilar.'],
+];
+
+const useCases = [
+  ['fa-briefcase', 'Trabajo y oficina', 'Para videollamadas, administración y jornadas largas: revisamos estabilidad, batería, carga y temperatura.'],
+  ['fa-graduation-cap', 'Escuela y universidad', 'Prevenimos apagados y fallas antes de clases, exámenes, proyectos o viajes.'],
+  ['fa-gamepad', 'Gaming y alto rendimiento', 'Evaluamos CPU, GPU, ventiladores y comportamiento térmico bajo una carga proporcionada.'],
+];
+
+const zones = [
+  'Cancún Centro', 'Zona Hotelera', 'Huayacán', 'Cumbres', 'Bonfil', 'Polígono Sur',
+  'Puerto Cancún', 'Av. Tulum', 'Bonampak', 'Puerto Juárez', 'Supermanzanas', 'Haciendas',
+];
+---
+
+<main class="lpm-page">
+  <section class="lpm-hero" aria-labelledby="lpm-title">
+    <div class="lpm-hero__grid container">
+      <div class="lpm-hero__copy">
+        <span class="lpm-kicker"><i class="fa-solid fa-location-dot"></i> Taller local en Cancún · con cita previa</span>
+        <h1 id="lpm-title">Mantenimiento preventivo de laptop en Cancún</h1>
+        <p class="lpm-hero__lead">Limpieza interna, revisión térmica y diagnóstico preventivo para recuperar una ventilación estable antes de que el calor, el polvo o la humedad se conviertan en una reparación mayor.</p>
+
+        <ul class="lpm-hero__checks" aria-label="Beneficios principales">
+          <li><i class="fa-solid fa-check"></i> No borramos tus archivos ni reinstalamos Windows</li>
+          <li><i class="fa-solid fa-check"></i> No cambiamos piezas sin explicarte el diagnóstico</li>
+          <li><i class="fa-solid fa-check"></i> Reporte claro y garantía por escrito</li>
+        </ul>
+
+        <div class="lpm-actions">
+          <a class="lpm-btn lpm-btn--primary" href="#ticket"><i class="fa-solid fa-clipboard-check"></i> Solicitar revisión</a>
+          <a class="lpm-btn lpm-btn--ghost" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp</a>
+        </div>
+        <p class="lpm-hero__note">El precio final depende del modelo, dificultad de desarmado y condición del equipo.</p>
+      </div>
+
+      <aside class="lpm-hero__visual" aria-label="Resumen del servicio">
+        <figure>
+          <img src="/assets/images/laptop-feliz-limpia.webp" alt="Limpieza interna durante mantenimiento preventivo de laptop en Cancún" width="1200" height="800" loading="eager" fetchpriority="high" />
+          <figcaption><span><i class="fa-solid fa-camera"></i> Evidencia del servicio</span><strong>Antes de cerrar, probamos.</strong></figcaption>
+        </figure>
+        <div class="lpm-quote-card">
+          <div><span>Servicio desde</span><strong>{service.fromPrice || '$650 MXN'}</strong></div>
+          <div><span>Tiempo estimado</span><strong>{service.eta || '24–48 h'}</strong></div>
+          <div><span>Respaldo</span><strong>Garantía escrita</strong></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="lpm-proof" aria-label="Diferenciadores del servicio">
+    <div class="container lpm-proof__grid">
+      <div><i class="fa-solid fa-screwdriver-wrench"></i><span>Desarmado correcto</span><small>Sin forzar tapas, clips ni flex</small></div>
+      <div><i class="fa-solid fa-temperature-arrow-down"></i><span>Medición térmica</span><small>Comparamos el comportamiento</small></div>
+      <div><i class="fa-solid fa-shield-halved"></i><span>Sin cambios sorpresa</span><small>Autorizas cualquier pieza adicional</small></div>
+      <div><i class="fa-solid fa-map-location-dot"></i><span>Atención en Cancún</span><small>Pixon PC / Rentalap</small></div>
+    </div>
+  </section>
+
+  <section class="lpm-section lpm-includes" id="que-incluye">
+    <div class="container">
+      <header class="lpm-heading lpm-heading--split">
+        <div>
+          <span class="lpm-eyebrow">Alcance verificable</span>
+          <h2>Qué incluye el mantenimiento de tu laptop</h2>
+        </div>
+        <p>Una limpieza profesional no es “darle aire”. Revisamos el sistema completo para distinguir suciedad normal de una falla de ventilador, batería, almacenamiento o placa.</p>
+      </header>
+
+      <div class="lpm-includes__layout">
+        <figure class="lpm-detail-image">
+          <img src="/assets/images/mantenimiento-pastaternima-thermalpads.webp" alt="Revisión de pasta térmica y thermal pads en laptop en Cancún" width="1200" height="800" loading="lazy" decoding="async" />
+          <figcaption>
+            <span>Servicio térmico responsable</span>
+            <strong>No toda laptop necesita el mismo compuesto ni el mismo procedimiento.</strong>
+          </figcaption>
+        </figure>
+        <div class="lpm-includes__list">
+          {included.map(([icon, title, text]) => (
+            <article>
+              <i class={`fa-solid ${icon}`}></i>
+              <div><h3>{title}</h3><p>{text}</p></div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lpm-section lpm-warning" id="sintomas">
+    <div class="container lpm-warning__grid">
+      <div class="lpm-warning__intro">
+        <span class="lpm-eyebrow">Señales que sí importan</span>
+        <h2>Cuándo conviene revisar la laptop</h2>
+        <p>El mantenimiento es preventivo cuando se agenda antes de un apagado o daño de placa. Si hubo líquido, olor a quemado o ya no enciende, primero corresponde un diagnóstico de falla.</p>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Cuéntanos el síntoma <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <ol class="lpm-warning__list">
+        {warningSigns.map(([number, title, text]) => (
+          <li><span>{number}</span><div><h3>{title}</h3><p>{text}</p></div></li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="lpm-cta" aria-label="Crear ticket de mantenimiento">
+    <div class="container lpm-cta__inner">
+      <div><span>¿Ya sabes qué está haciendo tu laptop?</span><h2>Describe el síntoma y recibe una revisión con contexto.</h2></div>
+      <a class="lpm-btn lpm-btn--dark" href="#ticket"><i class="fa-solid fa-ticket"></i> Crear ticket</a>
+    </div>
+  </section>
+
+  <section class="lpm-section lpm-process" id="proceso">
+    <div class="container">
+      <header class="lpm-heading">
+        <span class="lpm-eyebrow">Método Pixon PC</span>
+        <h2>Del diagnóstico inicial a una entrega documentada</h2>
+        <p>El orden evita conclusiones rápidas: primero medimos, después intervenimos y al final validamos.</p>
+      </header>
+      <ol class="lpm-process__list">
+        {process.map(([title, text], index) => (
+          <li>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div><h3>{title}</h3><p>{text}</p></div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="lpm-section lpm-use" id="tipos-de-laptop">
+    <div class="container lpm-use__grid">
+      <div class="lpm-use__copy">
+        <span class="lpm-eyebrow">El uso cambia el diagnóstico</span>
+        <h2>Laptops de oficina, escuela y gaming requieren revisiones distintas</h2>
+        <p>No aplicamos una receta única. El diseño térmico, las horas de trabajo, el tipo de procesador y el entorno determinan qué revisar y qué pruebas son razonables.</p>
+        <div class="lpm-use__cases">
+          {useCases.map(([icon, title, text]) => (
+            <article><i class={`fa-solid ${icon}`}></i><div><h3>{title}</h3><p>{text}</p></div></article>
+          ))}
+        </div>
+      </div>
+      <figure>
+        <img src="/assets/images/laptop-gamer-rogstrix.webp" alt="Laptop gamer ROG Strix en servicio de mantenimiento preventivo en Cancún" width="1200" height="800" loading="eager" decoding="async" />
+        <figcaption><span>Compatibilidad</span><strong>HP · Dell · Lenovo · Asus · Acer · MSI · ROG · Alienware · Huawei · Samsung</strong></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="lpm-section lpm-local" id="mantenimiento-laptop-cancun">
+    <div class="container lpm-local__grid">
+      <div>
+        <span class="lpm-eyebrow">Servicio técnico local</span>
+        <h2>Mantenimiento de laptop pensado para el clima de Cancún</h2>
+        <p>El calor, la humedad y el polvo fino pueden compactar la suciedad en ventiladores y disipadores. Por eso revisamos ventilación, señales de corrosión y antecedentes de humedad sin asumir que una limpieza resolverá cualquier falla.</p>
+        <address>
+          <strong>Pixon PC / Rentalap</strong>
+          <span><i class="fa-solid fa-location-dot"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777"><i class="fa-solid fa-phone"></i> +52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com"><i class="fa-solid fa-envelope"></i> pixonpc@gmail.com</a>
+        </address>
+      </div>
+      <div class="lpm-local__zones" aria-label="Zonas de servicio en Cancún">
+        <span class="lpm-local__label">Cobertura por zona y disponibilidad</span>
+        <div>{zones.map((zone) => <span><i class="fa-solid fa-location-dot"></i>{zone}</span>)}</div>
+        <p>Atendemos en taller con cita previa. La recolección o entrega se confirma según zona, horario y tipo de equipo.</p>
+        <a class="lpm-btn lpm-btn--blue" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> Confirmar atención</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="lpm-section lpm-scope">
+    <div class="container lpm-scope__grid">
+      <div>
+        <span class="lpm-eyebrow">Expectativas claras</span>
+        <h2>Qué puede resolver el mantenimiento y qué se cotiza aparte</h2>
+      </div>
+      <div class="lpm-scope__columns">
+        <article>
+          <h3><i class="fa-solid fa-circle-check"></i> Incluido en el servicio</h3>
+          <ul><li>Limpieza y revisión descritas</li><li>Pruebas funcionales proporcionadas</li><li>Recomendaciones y garantía escrita</li></ul>
+        </article>
+        <article>
+          <h3><i class="fa-solid fa-circle-plus"></i> Requiere autorización</h3>
+          <ul><li>Ventilador, batería o cargador nuevos</li><li>Reparación de placa o daño por líquido</li><li>SSD, RAM, teclado u otras refacciones</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice="Laptop"
+    defaultService="Mantenimiento preventivo"
+    sourcePage={servicePath}
+    title="Solicita revisión para tu laptop"
+    subtitle="Indica marca, modelo, síntomas y cuándo fue su último mantenimiento. Confirmaremos alcance, tiempo y cotización antes de intervenir."
+  />
+
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Servicios relacionados para laptop"
+    eyebrow="Si el síntoma requiere otra solución"
+    initialLimit={6}
+    includeCategoryServices={true}
+    light={true}
+  />
+
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre mantenimiento de laptop en Cancún"
+    description="Respuestas claras antes de dejar tu equipo en revisión."
+    items={service.faqs || []}
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    backgroundColor="#F4F7FB"
+    questionColor="#071F3A"
+    titleColor="#071F3A"
+    descriptionColor="#324B66"
+    faqAccent="#1479FF"
+    itemGap="10px"
+    questionPadding="18px 20px"
+  />
+
+  <CommentsSection viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" />
+  <ContactSection id="ubicacion" />
+  <Footer />
+
+  <nav class="lpm-mobile-cta" aria-label="Acciones rápidas de mantenimiento">
+    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+    <a href="#ticket"><i class="fa-solid fa-clipboard-check"></i> Solicitar revisión</a>
+  </nav>
+</main>
+
+<script>
+  const quickActions = document.querySelector('.lpm-mobile-cta');
+  const hero = document.querySelector('.lpm-hero');
+
+  if (quickActions && hero && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(([entry]) => {
+      quickActions.classList.toggle('is-visible', !entry.isIntersecting);
+    }, { threshold: 0.05 });
+    observer.observe(hero);
+  }
+</script>
+
+<style>
+  :global(body.service-page) {
+    background: #f4f7fb !important;
+  }
+
+  :global(.lpm-page section) {
+    content-visibility: visible !important;
+    contain-intrinsic-size: none !important;
+  }
+
+  .lpm-page {
+    --ink: #071f3a;
+    --muted: #071f3a;
+    --blue: #1479ff;
+    --blue-deep: #0959c7;
+    --cyan: #4dd7ed;
+    --line: #dbe5ef;
+    background: #f4f7fb;
+    color: var(--ink);
+    overflow: clip;
+  }
+
+  .lpm-page :is(h2, h3, p, li, span, strong, small, a, address) {
+    color: var(--ink);
+  }
+
+  .lpm-page :is(h1, h2, h3, p) { margin-top: 0; }
+  .lpm-page :is(h1, h2, h3) { font-style: normal !important; }
+  .lpm-page h2 { font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.02; letter-spacing: -.045em; }
+  .lpm-page h3 { line-height: 1.15; }
+  .lpm-page p { line-height: 1.7; }
+
+  .lpm-hero {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(4rem, 8vw, 7.5rem) 0 clamp(3.5rem, 7vw, 6rem);
+    background:
+      radial-gradient(circle at 84% 18%, rgba(77, 215, 237, .18), transparent 24rem),
+      linear-gradient(125deg, #061629 0%, #092a4c 58%, #064d70 100%) !important;
+  }
+
+  .lpm-hero::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: '';
+    opacity: .12;
+    background-image: linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(90deg, #000, transparent 72%);
+  }
+
+  .lpm-hero__grid { display: grid; gap: clamp(2.5rem, 6vw, 5.5rem); align-items: center; }
+  .lpm-kicker, .lpm-eyebrow { display: inline-flex; align-items: center; gap: .55rem; margin-bottom: 1.15rem; font-size: .78rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+  .lpm-hero .lpm-kicker { color: #7cecff; }
+  .lpm-hero .lpm-kicker i { color: #7cecff; }
+  .lpm-hero h1 { max-width: 740px; margin-bottom: 1.35rem; color: #fff; font-size: clamp(2.65rem, 6.2vw, 5.55rem); font-weight: 800; line-height: .94; letter-spacing: -.06em; text-wrap: balance; }
+  .lpm-hero__lead { max-width: 680px; margin-bottom: 1.5rem; color: #d9e9f7 !important; font-size: clamp(1.05rem, 1.7vw, 1.25rem); }
+  .lpm-hero__checks { display: grid; gap: .65rem; padding: 0; margin: 0 0 1.8rem; list-style: none; }
+  .lpm-hero__checks li { display: flex; gap: .7rem; color: #eef7ff !important; }
+  .lpm-hero__checks i { display: grid; flex: 0 0 1.4rem; height: 1.4rem; place-items: center; border-radius: 50%; background: rgba(77,215,237,.18); color: #7cecff; font-size: .7rem; }
+  .lpm-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .lpm-btn { display: inline-flex; min-height: 50px; align-items: center; justify-content: center; gap: .6rem; padding: .85rem 1.15rem; border: 1px solid transparent; border-radius: 10px; font-weight: 800; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease; }
+  .lpm-btn:hover { transform: translateY(-2px); }
+  .lpm-btn:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
+  .lpm-btn--primary { background: #fff; color: var(--ink) !important; box-shadow: 0 14px 35px rgba(0,0,0,.2); }
+  .lpm-btn--ghost { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.08); color: #fff !important; }
+  .lpm-btn--ghost i { color: #78f0a4; }
+  .lpm-hero__note { margin: 1rem 0 0; color: #abc1d5 !important; font-size: .82rem; }
+
+  .lpm-hero__visual { max-width: 620px; margin-inline: auto; }
+  .lpm-hero__visual figure { position: relative; margin: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.24); border-radius: 22px 22px 0 0; background: #071f3a; box-shadow: 0 30px 70px rgba(0,0,0,.3); }
+  .lpm-hero__visual img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .lpm-hero__visual figcaption { position: absolute; right: 0; bottom: 0; left: 0; display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 3rem 1.2rem 1.1rem; background: linear-gradient(transparent, rgba(3,14,27,.94)); }
+  .lpm-hero__visual figcaption span, .lpm-hero__visual figcaption strong { color: #fff !important; }
+  .lpm-hero__visual figcaption span { font-size: .8rem; }
+  .lpm-hero__visual figcaption strong { max-width: 230px; text-align: right; }
+  .lpm-quote-card { display: grid; grid-template-columns: repeat(3, 1fr); overflow: hidden; border-radius: 0 0 22px 22px; background: #fff; box-shadow: 0 26px 60px rgba(0,0,0,.23); }
+  .lpm-quote-card div { display: flex; min-height: 104px; flex-direction: column; justify-content: center; padding: 1rem; border-right: 1px solid var(--line); }
+  .lpm-quote-card div:last-child { border: 0; }
+  .lpm-quote-card span { margin-bottom: .35rem; color: var(--muted); font-size: .72rem; }
+  .lpm-quote-card strong { font-size: clamp(.95rem, 1.7vw, 1.25rem); line-height: 1.05; }
+
+  .lpm-proof { border-bottom: 1px solid var(--line); background: #fff !important; }
+  .lpm-proof__grid { display: grid; }
+  .lpm-proof__grid > div { display: grid; grid-template-columns: 42px 1fr; padding: 1.25rem 0; border-bottom: 1px solid var(--line); }
+  .lpm-proof__grid i { grid-row: span 2; align-self: center; color: var(--blue); font-size: 1.25rem; }
+  .lpm-proof__grid span { font-weight: 800; }
+  .lpm-proof__grid small { color: var(--muted); }
+
+  .lpm-section { padding: clamp(4.5rem, 9vw, 8rem) 0; }
+  .lpm-heading { max-width: 760px; margin-bottom: clamp(2.25rem, 5vw, 4.5rem); }
+  .lpm-heading--split { display: grid; max-width: none; gap: 1.5rem; }
+  .lpm-heading h2, .lpm-warning h2, .lpm-use h2, .lpm-local h2, .lpm-scope h2 { margin-bottom: 1.1rem; }
+  .lpm-heading p, .lpm-warning p, .lpm-use p, .lpm-local p { color: var(--muted); }
+  .lpm-eyebrow { color: var(--blue) !important; }
+
+  .lpm-includes { background: #fff !important; }
+  .lpm-includes__layout { display: grid; gap: 1.5rem; }
+  .lpm-detail-image { position: relative; min-height: 440px; margin: 0; overflow: hidden; border-radius: 22px; }
+  .lpm-detail-image img { width: 100%; height: 100%; object-fit: cover; }
+  .lpm-detail-image figcaption { position: absolute; inset: auto 0 0; padding: 5rem 1.5rem 1.5rem; background: linear-gradient(transparent, rgba(2,18,34,.94)); }
+  .lpm-detail-image figcaption span, .lpm-detail-image figcaption strong { display: block; color: #fff !important; }
+  .lpm-detail-image figcaption span { margin-bottom: .4rem; color: #7cecff !important; font-size: .75rem; font-weight: 800; text-transform: uppercase; }
+  .lpm-detail-image figcaption strong { max-width: 440px; font-size: 1.3rem; line-height: 1.2; }
+  .lpm-includes__list { display: grid; border-top: 1px solid var(--line); }
+  .lpm-includes__list article { display: grid; grid-template-columns: 42px 1fr; gap: .8rem; padding: 1.15rem .2rem; border-bottom: 1px solid var(--line); }
+  .lpm-includes__list i { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 9px; background: #eaf3ff; color: var(--blue); }
+  .lpm-includes__list h3 { margin-bottom: .25rem; font-size: 1rem; }
+  .lpm-includes__list p { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.55; }
+
+  .lpm-warning { background: #eef4fa !important; }
+  .lpm-warning__grid { display: grid; gap: 2.5rem; }
+  .lpm-warning__intro { align-self: center; }
+  .lpm-warning__intro a { display: inline-flex; align-items: center; gap: .55rem; color: var(--blue) !important; font-weight: 800; text-decoration: none; }
+  .lpm-warning__list { padding: 0; margin: 0; border-top: 1px solid #bdcddd; list-style: none; }
+  .lpm-warning__list li { display: grid; grid-template-columns: 42px 1fr; gap: 1rem; padding: 1.35rem 0; border-bottom: 1px solid #bdcddd; }
+  .lpm-warning__list > li > span { color: var(--blue) !important; font-weight: 800; }
+  .lpm-warning__list h3 { margin-bottom: .35rem; font-size: 1.1rem; }
+  .lpm-warning__list p { margin: 0; font-size: .92rem; }
+
+  .lpm-cta { padding: 1.4rem 0; background: #4dd7ed !important; }
+  .lpm-cta__inner { display: flex; flex-direction: column; gap: 1.25rem; }
+  .lpm-cta span { font-size: .78rem; font-weight: 800; text-transform: uppercase; }
+  .lpm-cta h2 { max-width: 760px; margin: .3rem 0 0; font-size: clamp(1.4rem, 3vw, 2.2rem); letter-spacing: -.035em; }
+  .lpm-btn--dark { flex: 0 0 auto; background: var(--ink); color: #fff !important; box-shadow: 0 12px 24px rgba(7,31,58,.2); }
+
+  .lpm-process { background: #fff !important; }
+  .lpm-process__list { padding: 0; margin: 0; counter-reset: step; list-style: none; }
+  .lpm-process__list li { position: relative; display: grid; grid-template-columns: 52px 1fr; gap: 1rem; padding: 0 0 2.25rem; }
+  .lpm-process__list li::before { position: absolute; top: 42px; bottom: 0; left: 20px; width: 1px; background: #bcd0e3; content: ''; }
+  .lpm-process__list li:last-child::before { display: none; }
+  .lpm-process__list > li > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: var(--ink); color: #fff !important; font-size: .78rem; font-weight: 800; }
+  .lpm-process__list h3 { margin-bottom: .4rem; font-size: 1.1rem; }
+  .lpm-process__list p { margin: 0; color: var(--muted); font-size: .94rem; }
+
+  .lpm-use { background: #f4f7fb !important; }
+  .lpm-use__grid { display: grid; gap: 2.5rem; align-items: center; }
+  .lpm-use__cases { margin-top: 2rem; border-top: 1px solid var(--line); }
+  .lpm-use__cases article { display: grid; grid-template-columns: 38px 1fr; gap: .8rem; padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+  .lpm-use__cases i { color: var(--blue); font-size: 1.2rem; }
+  .lpm-use__cases h3 { margin-bottom: .25rem; font-size: 1rem; }
+  .lpm-use__cases p { margin: 0; font-size: .9rem; }
+  .lpm-use figure { position: relative; margin: 0; overflow: hidden; border-radius: 22px; box-shadow: 0 24px 60px rgba(7,31,58,.14); }
+  .lpm-use figure img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .lpm-use figcaption { padding: 1.2rem; background: #fff; }
+  .lpm-use figcaption span, .lpm-use figcaption strong { display: block; }
+  .lpm-use figcaption span { margin-bottom: .35rem; color: var(--blue) !important; font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+  .lpm-use figcaption strong { line-height: 1.45; }
+
+  .lpm-local { background: #fff !important; }
+  .lpm-local__grid { display: grid; gap: 2.5rem; }
+  .lpm-local address { display: grid; gap: .6rem; padding: 1.2rem 0 0; font-style: normal; }
+  .lpm-local address a, .lpm-local address span { display: flex; align-items: center; gap: .65rem; text-decoration: none; }
+  .lpm-local address i { width: 18px; color: var(--blue); text-align: center; }
+  .lpm-local__zones { padding: clamp(1.25rem, 4vw, 2.2rem); border: 1px solid var(--line); border-radius: 20px; background: #f4f7fb; }
+  .lpm-local__label { display: block; margin-bottom: 1rem; font-weight: 800; }
+  .lpm-local__zones > div { display: flex; flex-wrap: wrap; gap: .55rem; }
+  .lpm-local__zones > div span { display: inline-flex; gap: .45rem; padding: .52rem .68rem; border: 1px solid #cfdfed; border-radius: 999px; background: #fff; font-size: .8rem; }
+  .lpm-local__zones > div i { color: var(--blue); }
+  .lpm-local__zones p { margin: 1.2rem 0; font-size: .88rem; }
+  .lpm-btn--blue { background: var(--blue); color: #fff !important; }
+
+  .lpm-scope { background: #eaf1f7 !important; }
+  .lpm-scope__grid { display: grid; gap: 2rem; }
+  .lpm-scope__columns { display: grid; gap: 1rem; }
+  .lpm-scope__columns article { padding: 1.3rem; border-left: 3px solid var(--blue); background: #fff; }
+  .lpm-scope__columns h3 { margin-bottom: 1rem; font-size: 1rem; }
+  .lpm-scope__columns h3 i { margin-right: .45rem; color: var(--blue); }
+  .lpm-scope__columns ul { display: grid; gap: .55rem; padding-left: 1.15rem; margin: 0; }
+  .lpm-scope__columns li { font-size: .9rem; }
+
+  .lpm-mobile-cta { position: fixed; right: 8px; bottom: 8px; left: 8px; z-index: 90; display: grid; grid-template-columns: .9fr 1.1fr; gap: 6px; padding: 6px; border: 1px solid rgba(255,255,255,.25); border-radius: 13px; opacity: 0; pointer-events: none; transform: translateY(120%); background: rgba(5,20,37,.92); box-shadow: 0 16px 34px rgba(0,0,0,.28); backdrop-filter: blur(14px); transition: opacity .2s ease, transform .2s ease; }
+  .lpm-mobile-cta.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .lpm-mobile-cta a { display: flex; min-height: 46px; align-items: center; justify-content: center; gap: .4rem; border-radius: 8px; background: #fff; color: var(--ink) !important; font-size: .8rem; font-weight: 800; text-decoration: none; }
+  .lpm-mobile-cta a:first-child { background: #19b867; color: #fff !important; }
+
+  @media (min-width: 720px) {
+    .lpm-hero__grid { grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr); }
+    .lpm-proof__grid { grid-template-columns: repeat(2, 1fr); }
+    .lpm-proof__grid > div { padding: 1.35rem; border-right: 1px solid var(--line); }
+    .lpm-heading--split { grid-template-columns: 1.1fr .9fr; align-items: end; }
+    .lpm-includes__layout { grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr); align-items: stretch; }
+    .lpm-warning__grid { grid-template-columns: .88fr 1.12fr; }
+    .lpm-cta__inner { flex-direction: row; align-items: center; justify-content: space-between; }
+    .lpm-process__list { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid #bcd0e3; }
+    .lpm-process__list li { display: block; padding: 2.2rem 1.25rem 0 0; }
+    .lpm-process__list li::before { top: -6px; bottom: auto; left: 0; width: 11px; height: 11px; border-radius: 50%; background: var(--blue); }
+    .lpm-process__list > li > span { width: auto; height: auto; margin-bottom: 1rem; place-items: start; background: transparent; color: var(--blue) !important; font-size: .85rem; }
+    .lpm-use__grid, .lpm-local__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lpm-scope__grid { grid-template-columns: .8fr 1.2fr; align-items: start; }
+    .lpm-scope__columns { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1100px) {
+    .lpm-proof__grid { grid-template-columns: repeat(4, 1fr); }
+    .lpm-proof__grid > div { border-bottom: 0; }
+    .lpm-mobile-cta { display: none; }
+  }
+
+  @media (max-width: 719px) {
+    .lpm-hero { padding-top: 3.6rem; }
+    .lpm-hero h1 { font-size: clamp(2.55rem, 13vw, 4rem); }
+    .lpm-actions .lpm-btn { width: 100%; }
+    .lpm-quote-card { grid-template-columns: 1fr; }
+    .lpm-quote-card div { min-height: auto; padding: .85rem 1rem; border-right: 0; border-bottom: 1px solid var(--line); }
+    .lpm-hero__visual figcaption { display: block; }
+    .lpm-hero__visual figcaption strong { margin-top: .3rem; text-align: left; }
+    .lpm-detail-image { min-height: 360px; }
+    .lpm-section { padding: 4.25rem 0; }
+    .lpm-page h2 { font-size: 2.15rem; }
+    :global(.lpm-page .service-ticket-section) { padding-inline: 12px !important; }
+    :global(.lpm-page .service-ticket-section > .container) { padding-inline: 18px !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lpm-btn { transition: none; }
+  }
+</style>

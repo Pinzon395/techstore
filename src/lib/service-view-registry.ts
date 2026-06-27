@@ -50,6 +50,7 @@ const viewRules: ViewRule[] = [
     load: () => import('../components/views/CambioBateriaView.astro'),
   },
   { matches: (f) => f.isLaptopThermalPaste, load: () => import('../components/views/LaptopThermalPasteView.astro') },
+  { matches: (f) => f.isLaptopPreventiveMaintenance, load: () => import('../components/views/LaptopPreventiveMaintenanceView.astro') },
   { matches: (f) => f.isPcPreventiveMaintenance, load: () => import('../components/views/PcPreventiveMaintenanceView.astro') },
   { matches: (f) => f.isPcCorrectiveMaintenance, load: () => import('../components/views/PcCorrectiveMaintenanceView.astro') },
   { matches: (f) => f.isPcDeepCleaning, load: () => import('../components/views/PcDeepCleaningView.astro') },

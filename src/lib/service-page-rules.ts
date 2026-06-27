@@ -4,6 +4,7 @@ export interface ServiceFlags {
   isLaptopScreenReplacement: boolean;
   isLaptopKeyboardReplacement: boolean;
   isLaptopThermalPaste: boolean;
+  isLaptopPreventiveMaintenance: boolean;
   isLaptopDiagnostic: boolean;
   isLenovoLaptopRepair: boolean;
   isHpLaptopRepair: boolean;
@@ -74,6 +75,7 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
   const isLaptopScreenReplacement = category.slug === 'laptop' && service.slug === 'cambio-pantalla';
   const isLaptopKeyboardReplacement = category.slug === 'laptop' && service.slug === 'cambio-teclado';
   const isLaptopThermalPaste = category.slug === 'laptop' && service.slug === 'pasta-termica';
+  const isLaptopPreventiveMaintenance = category.slug === 'laptop' && service.slug === 'mantenimiento-preventivo';
   const isLaptopDiagnostic = category.slug === 'laptop' && service.slug === 'diagnostico';
   const isLenovoLaptopRepair = category.slug === 'laptop' && service.slug === 'reparacion-lenovo';
   const isHpLaptopRepair = category.slug === 'laptop' && service.slug === 'reparacion-hp';
@@ -153,6 +155,7 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
     isLaptopScreenReplacement,
     isLaptopKeyboardReplacement,
     isLaptopThermalPaste,
+    isLaptopPreventiveMaintenance,
     isLaptopDiagnostic,
     isLenovoLaptopRepair,
     isHpLaptopRepair,
