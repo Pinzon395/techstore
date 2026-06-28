@@ -84,16 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Configurar Tabs Principales
-        const tabBtns = document.querySelectorAll('.admin-tab');
-        const viewDashboard = document.getElementById('view-dashboard');
-        const viewComments = document.getElementById('view-comments');
-        const viewUsers = document.getElementById('view-users');
-        const viewFaqs = document.getElementById('view-faqs');
-        const viewRepairs = document.getElementById('view-repairs');
-        const viewBuilds = document.getElementById('view-builds');
-        const subtitle = document.getElementById('admin-subtitle');
-
         function updateDashboardStats() {
             const pendingComments = allComments.filter(c => c.approved === 0).length;
             setStatNumber('stat-comments-pending', pendingComments);
@@ -110,41 +100,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         dashboardStatsUpdater = updateDashboardStats;
 
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                const targetView = e.target.getAttribute('data-view');
-                viewDashboard.style.display = 'none';
-                viewComments.style.display = 'none';
-                viewUsers.style.display = 'none';
-                viewFaqs.style.display = 'none';
-                if(viewRepairs) viewRepairs.style.display = 'none';
-                if(viewBuilds) viewBuilds.style.display = 'none';
+        // Escuchar el evento de cambio de vista del sidebar para recargar datos frescos
+        window.addEventListener('admin:switch-view', (e) => {
+            const targetView = e.detail && e.detail.view;
+            if (!targetView) return;
+            if (targetView === 'dashboard') {
+                updateDashboardStats();
+                fetchAnalytics();
+            } else if (targetView === 'comments') {
+                fetchComments();
+            } else if (targetView === 'users') {
+                fetchUsers();
+            } else if (targetView === 'faqs') {
+                fetchFaqs();
+                fetchUnanswered();
+            } else if (targetView === 'repairs') {
+                fetchRepairs();
+            } else if (targetView === 'builds') {
+                fetchBuilds();
+            }
+        });
 
-                if (targetView === 'dashboard') {
-                    viewDashboard.style.display = 'block';
-                    subtitle.textContent = 'Resumen general de tu plataforma.';
-                    updateDashboardStats();
-                } else if (targetView === 'comments') {
-                    viewComments.style.display = 'block';
-                    subtitle.textContent = 'Revisa, aprueba y gestiona los comentarios de los clientes.';
-                } else if (targetView === 'users') {
-                    viewUsers.style.display = 'block';
-                    subtitle.textContent = 'Directorio de usuarios registrados en la plataforma.';
-                } else if (targetView === 'faqs') {
-                    viewFaqs.style.display = 'block';
-                    subtitle.textContent = 'Gestiona las preguntas frecuentes y las dudas sin responder.';
-                } else if (targetView === 'repairs') {
-                    if(viewRepairs) viewRepairs.style.display = 'block';
-                    subtitle.textContent = 'Administra los tickets de reparación y mantenimientos.';
-                } else if (targetView === 'builds') {
-                    if(viewBuilds) viewBuilds.style.display = 'block';
-                    subtitle.textContent = 'Gestiona los paquetes y ensambles pre-configurados.';
+        // Botón Refrescar del dashboard
+        const refreshBtn = document.getElementById('dashboard-refresh-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                refreshBtn.disabled = true;
+                const icon = refreshBtn.querySelector('.fa-icon');
+                if (icon) icon.style.animation = 'adminSpin .7s linear infinite';
+                try {
+                    await Promise.all([
+                        fetchComments(),
+                        fetchUsers(),
+                        fetchFaqs(),
+                        fetchUnanswered(),
+                        fetchRepairs(),
+                        fetchBuilds(),
+                        fetchAnalytics()
+                    ]);
+                    showAdminNotice('Datos actualizados correctamente.', 'success');
+                } catch (err) {
+                    showAdminNotice('Error al actualizar: ' + err.message, 'error');
+                } finally {
+                    refreshBtn.disabled = false;
+                    if (icon) icon.style.animation = '';
                 }
             });
-        });
+        }
         
         // Initial dashboard stats population
         setTimeout(updateDashboardStats, 1000);
@@ -495,8 +497,11 @@ function renderDailyChart() {
 
     const chronological = data.slice().reverse();
     const labels = chronological.map(d => {
-        const parts = String(d.date).split('-');
-        return parts.length === 3 ? `${parts[2]}/${parts[1]}` : String(d.date);
+        if (!d.date) return '';
+        // Recortar a YYYY-MM-DD antes de split para manejar ISOs con timestamp
+        const dateStr = String(d.date).substring(0, 10);
+        const parts = dateStr.split('-');
+        return parts.length === 3 ? `${parts[2]}/${parts[1]}` : dateStr;
     });
     const views = chronological.map(d => Number(d.views || 0));
     const uniques = chronological.map(d => Number(d.unique_visitors || 0));

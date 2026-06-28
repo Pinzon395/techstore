@@ -130,6 +130,7 @@ import '../../styles/admin.css';
               <button type="button" class="dashboard-action dashboard-action-primary" data-view-target="repairs" data-open-repair><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-plus" /></svg><span>Nuevo ticket</span></button>
               <button type="button" class="dashboard-action" data-view-target="comments"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-comments" /></svg><span>Moderar</span></button>
               <button type="button" class="dashboard-action" data-view-target="faqs"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-circle-question" /></svg><span>Gestionar FAQ</span></button>
+              <button type="button" class="dashboard-action" id="dashboard-refresh-btn"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-rotate-left" /></svg><span>Refrescar</span></button>
             </div>
           </div>
 
@@ -696,6 +697,7 @@ import '../../styles/admin.css';
         if (window.innerWidth < 1024) shell.classList.remove('sb-open');
         try { sessionStorage.setItem('admin_view', view); } catch (_) {}
         if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view);
+        window.dispatchEvent(new CustomEvent('admin:switch-view', { detail: { view } }));
       }
 
       document.querySelectorAll('.nav-link[data-view]').forEach(link => {
@@ -779,20 +781,21 @@ import '../../styles/admin.css';
       const feedEl    = document.getElementById('live-feed');
       const svgEl     = document.getElementById('live-sparkline');
 
-      function relTime(iso) {
+      function relTime(iso, nowTime) {
         const t = new Date(iso).getTime();
-        const diffSec = Math.max(0, (Date.now() - t) / 1000);
+        const now = nowTime ? new Date(nowTime).getTime() : Date.now();
+        const diffSec = Math.max(0, (now - t) / 1000);
         if (diffSec < 60)        return Math.floor(diffSec) + 's';
         if (diffSec < 3600)      return Math.floor(diffSec / 60) + ' min';
         if (diffSec < 86400)     return Math.floor(diffSec / 3600) + ' h';
         return Math.floor(diffSec / 86400) + ' d';
       }
 
-      function renderSparkline(perMinute, windowMin) {
+      function renderSparkline(perMinute, windowMin, serverTime) {
         if (!svgEl) return;
         // Construir un array de 30 minutos (rellenar huecos con 0)
         const buckets = new Array(windowMin).fill(0);
-        const now = Date.now();
+        const now = serverTime ? new Date(serverTime).getTime() : Date.now();
         perMinute.forEach((p) => {
           const minute = new Date(p.minute).getTime();
           const ago = Math.floor((now - minute) / 60000);
@@ -823,15 +826,15 @@ import '../../styles/admin.css';
         return raw || '/';
       }
 
-      function groupFeedItems(items, windowMinutes) {
-        const now = Date.now();
-        const todayKey = new Date().toDateString();
+      function groupFeedItems(items, windowMinutes, serverTime) {
+        const now = serverTime ? new Date(serverTime).getTime() : Date.now();
+        const todayKey = new Date(now).toDateString();
         const windowMs = Number(windowMinutes || 30) * 60000;
         const grouped = new Map();
 
         items.forEach((item) => {
           const path = normalizeFeedPath(item.path);
-          const seenValue = item.last_seen || item.created_at || new Date().toISOString();
+          const seenValue = item.last_seen || item.created_at || new Date(now).toISOString();
           const seenAt = new Date(seenValue).getTime();
           const current = grouped.get(path) || {
             path,
@@ -865,13 +868,13 @@ import '../../styles/admin.css';
           .sort((a, b) => Number(b.week_views || 0) - Number(a.week_views || 0) || new Date(b.last_seen).getTime() - new Date(a.last_seen).getTime());
       }
 
-      function renderFeed(items, windowMinutes) {
+      function renderFeed(items, windowMinutes, serverTime) {
         if (!feedEl) return;
         if (!items || !items.length) {
           feedEl.innerHTML = '<li class="empty-state">Aun no hay vistas registradas.</li>';
           return;
         }
-        const groupedItems = groupFeedItems(items, windowMinutes);
+        const groupedItems = groupFeedItems(items, windowMinutes, serverTime);
         feedEl.innerHTML = groupedItems.map((v) => {
           const path = normalizeFeedPath(v.path).replace(/[<>"']/g, '');
           const weekViews = Number(v.week_views || 0);
@@ -882,7 +885,7 @@ import '../../styles/admin.css';
             '<span class="live-feed-dot"></span>' +
             '<span class="live-feed-main">' +
               '<span class="live-feed-path" title="' + path + '">' + path + '</span>' +
-              '<span class="live-feed-sub">última visita hace ' + relTime(lastSeen) + '</span>' +
+              '<span class="live-feed-sub">última visita hace ' + relTime(lastSeen, serverTime) + '</span>' +
             '</span>' +
             '<span class="live-feed-metrics" aria-label="Conteos de visitas">' +
               '<span><strong>' + weekViews + '</strong></span>' +
@@ -905,8 +908,8 @@ import '../../styles/admin.css';
           if (winViews) winViews.textContent = totalViews;
           if (winVis)   winVis.textContent   = totalVisitors;
           if (updatedEl) updatedEl.textContent = 'actualizado ' + new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          renderSparkline(data.per_minute || [], data.window_minutes || 30);
-          renderFeed(data.grouped_pages || data.last_views || [], data.window_minutes || 30);
+          renderSparkline(data.per_minute || [], data.window_minutes || 30, data.ts);
+          renderFeed(data.grouped_pages || data.last_views || [], data.window_minutes || 30, data.ts);
         } catch (_) {}
       }
 

@@ -372,7 +372,7 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
     );
     const [perMinute] = await pool.execute(
         `SELECT
-            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:00') AS minute,
+            FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(created_at) / 60) * 60) AS minute,
             COUNT(*) AS views,
             COUNT(DISTINCT session_id) AS visitors
          FROM page_views
