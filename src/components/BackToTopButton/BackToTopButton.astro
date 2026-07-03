@@ -1,0 +1,180 @@
+---
+---
+
+<button
+  type="button"
+  id="back-to-top"
+  class="back-to-top-btn"
+  aria-label="Volver al inicio de la página"
+  title="Volver al inicio"
+>
+  <span class="back-to-top-btn__icon">
+    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+  </span>
+</button>
+
+<script>
+  function initBackToTop() {
+    const btn = document.getElementById('back-to-top');
+    if (!btn) return;
+
+    let isScrolling = false;
+
+    const checkScroll = () => {
+      if (window.scrollY > 300) {
+        btn.classList.add('is-visible');
+      } else {
+        btn.classList.remove('is-visible');
+      }
+      isScrolling = false;
+    };
+
+    const onScroll = () => {
+      if (!isScrolling) {
+        requestAnimationFrame(checkScroll);
+        isScrolling = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    btn.addEventListener('click', () => {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+      // Buscar el hero de la vista actual
+      const hero =
+        document.querySelector('#hero') ||
+        document.querySelector('#inicio') ||
+        document.querySelector('[data-hero]') ||
+        document.querySelector('main section:first-of-type');
+
+      if (hero) {
+        // Encontrar el header o navbar fijo para no encimarse
+        const header = document.querySelector('header') || document.querySelector('.navbar') || document.querySelector('.navbar2');
+        const headerHeight = header ? header.getBoundingClientRect().height : 80;
+        const heroTop = hero.getBoundingClientRect().top + window.scrollY - headerHeight;
+
+        window.scrollTo({
+          top: heroTop,
+          behavior: behavior
+        });
+      } else {
+        // Respaldo por si no se detecta ningún hero
+        window.scrollTo({
+          top: 0,
+          behavior: behavior
+        });
+      }
+    });
+
+    // Comprobación inicial por si la página carga con scroll activo
+    checkScroll();
+  }
+
+  // Inicializar en carga inicial
+  initBackToTop();
+
+  // Para compatibilidad con futuras transiciones de Astro (View Transitions)
+  document.addEventListener('astro:after-swap', initBackToTop);
+</script>
+
+<style>
+  .back-to-top-btn {
+    position: fixed;
+    left: 24px;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    width: 48px;
+    height: 48px;
+    background-color: var(--primary, #3b82f6);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 12px rgba(7, 31, 58, 0.15);
+    cursor: pointer;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease,
+                visibility 0.25s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                background-color 0.2s ease;
+  }
+
+  .back-to-top-btn__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: backToTopArrowFloat 1.8s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .back-to-top-btn i {
+    color: #ffffff !important;
+  }
+
+  .back-to-top-btn.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Animación de flotación suave y continua de la flecha */
+  @keyframes backToTopArrowFloat {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  /* Efecto Hover en pantallas con puntero de precisión */
+  @media (hover: hover) and (pointer: fine) {
+    .back-to-top-btn:hover {
+      background-color: var(--primary-hover, #2563eb);
+      transform: translateY(-2px);
+    }
+    .back-to-top-btn:hover .back-to-top-btn__icon {
+      animation-duration: 1.1s;
+    }
+  }
+
+  /* Efecto de pulsación activa */
+  .back-to-top-btn:active {
+    transform: translateY(0) scale(0.96);
+  }
+
+  /* Foco accesible por teclado */
+  .back-to-top-btn:focus-visible {
+    outline: 3px solid var(--gold, #f59e0b);
+    outline-offset: 3px;
+  }
+
+  /* Ajustes responsivos para móviles */
+  @media (max-width: 768px) {
+    .back-to-top-btn {
+      left: 16px;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      width: 44px;
+      height: 44px;
+      font-size: 1.05rem;
+    }
+  }
+
+  /* Accesibilidad y reducción de movimiento del usuario */
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top-btn,
+    .back-to-top-btn__icon {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 // --------------------------------------------------------
-//  Navbar 3.0 â¬ JavaScript v3.2 â¬ Full UX Overhaul
+//  Navbar 3.0 → JavaScript v3.2 → Full UX Overhaul
 //  · Desktop: 4s auto-close, 2s cross-section, 3s exit grace
 //  · Mobile: stable accordion, no accidental close on scroll
 //  · Gap tolerance 400ms between nested items
@@ -23,7 +23,7 @@ mobileMenuBtn?.addEventListener('click', () => {
   if (!isOpen) closeAllCascades();
 });
 
-// 2. DROPDOWNS ESTÁNDAR (sin cascade â¬ compatibilidad futura)
+// 2. DROPDOWNS ESTÁNDAR (sin cascade → compatibilidad futura)
 document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').forEach((trigger) => {
   trigger.addEventListener('click', (e) => {
     if (!IS_MOBILE()) return;
@@ -44,7 +44,7 @@ document.querySelectorAll('.has-dropdown:not(.has-cascade) > .nav-dd-trigger').f
   });
 });
 
-// â¬â¬ Shared state â¬â¬
+// ── Shared state ──
 let autoCloseTimer = null;
 let crossSectionTimer = null;
 let lastOpenedCascade = null;
@@ -220,7 +220,7 @@ document.querySelectorAll('.has-cascade > .nav-dd-trigger').forEach((trigger) =>
   });
 });
 
-// 4. TOLERANCIA DE GAPS â¬ L1 panel: 3s de gracia
+// 4. TOLERANCIA DE GAPS → L1 panel: 3s de gracia
 document.querySelectorAll('.v3-cascade-l1').forEach((l1) => {
   let l1Timer = null;
   l1.addEventListener('mouseenter', () => { clearTimers(); if (l1Timer) { clearTimeout(l1Timer); l1Timer = null; } });

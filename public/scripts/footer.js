@@ -1,4 +1,4 @@
-﻿const whatsappFloat = document.getElementById('whatsapp-float');
+const whatsappFloat = document.getElementById('whatsapp-float');
   let whatsappTicking = false;
 
   function updateWhatsappFloat() {

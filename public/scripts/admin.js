@@ -17,7 +17,7 @@ let adminAppointments = [];
 let activeAppointmentFilter = 'today';
 let pendingDeleteRepairId = null;
 
-// M8 â¬ header CSRF que el backend exige en POST/PUT/DELETE.
+// M8 → header CSRF que el backend exige en POST/PUT/DELETE.
 // Helper para no olvidarlo en ninguna llamada de escritura.
 const CSRF_HEADER = { 'X-Requested-With': 'fetch' };
 const JSON_HEADERS = { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' };
@@ -349,9 +349,9 @@ function connectSSE() {
     }
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* ─────────────────────────────────────────────────────────────
    ANALYTICS
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+───────────────────────────────────────────────────────────── */
 async function fetchAnalytics() {
     const [summaryResult, topPagesResult, dailyResult] = await Promise.allSettled([
         fetchJsonOrThrow(`${API_BASE}/admin/analytics/summary`, 'resumen de visitas'),
@@ -567,9 +567,9 @@ function confirmAdminAction(message) {
     return window.confirm(message);
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* ─────────────────────────────────────────────────────────────
    FAQ AND UNANSWERED LOGIC
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+───────────────────────────────────────────────────────────── */
 let allFaqs = [];
 let allUnanswered = [];
 let openFaqCategories = new Set();
@@ -857,9 +857,9 @@ window.deleteAdminFaq = async function(id) {
     }
 };
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* ─────────────────────────────────────────────────────────────
    TALLER (REPAIRS) LOGIC
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+───────────────────────────────────────────────────────────── */
 async function fetchRepairs() {
     try {
         const res = await fetch(`${API_BASE}/admin/repairs`, INCLUDE_CREDENTIALS);
@@ -1428,9 +1428,9 @@ async function saveRepairTicketChanges() {
     }
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+/* ─────────────────────────────────────────────────────────────
    TALLER (REPAIRS) UI
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+───────────────────────────────────────────────────────────── */
 
 function renderRepairs() {
     const tbody = document.getElementById('repairs-tbody');

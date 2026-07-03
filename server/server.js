@@ -1,10 +1,10 @@
 /**
  * ============================================================
- *  server/server.js  â¬ API Express + MariaDB + Auth
+ *  server/server.js  → API Express + MariaDB + Auth
  * ============================================================
  *
  *  Migrado a MariaDB (mysql2/promise pool) + express-mysql-session.
- *  Las funciones de DB son async â¬ todos los handlers usan await.
+ *  Las funciones de DB son async → todos los handlers usan await.
  * ============================================================
  */
 
@@ -159,9 +159,9 @@ function isTrustedRequestOrigin(req) {
     }
 }
 
-/* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-   BOOTSTRAP â¬ todo el setup que necesita la DB lista va dentro
-â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+/* ─────────────────────────────────────────────────────────────
+   BOOTSTRAP → todo el setup que necesita la DB lista va dentro
+───────────────────────────────────────────────────────────── */
 async function bootstrap() {
     await initDB();
 
@@ -193,11 +193,11 @@ async function bootstrap() {
         }
     });
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
        MIDDLEWARES GLOBALES
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
 
-    // SECURITY-2 (M1+C2) â¬ Helmet con CSP pragmatica.
+    // SECURITY-2 (M1+C2) → Helmet con CSP pragmatica.
     // El build convierte scripts y handlers inline en archivos externos.
     // style-src conserva unsafe-inline hasta migrar los estilos embebidos.
     app.use(helmet({
@@ -260,7 +260,7 @@ async function bootstrap() {
         const pathname = req.path;
         if (/\.(jpe?g|png)$/i.test(pathname) && req.accepts('image/webp')) {
             const webpPath = pathname.replace(/\.(jpe?g|png)$/i, '.webp');
-            // Tras cutover a Astro, dev y prod sirven de dist/ â¬ un solo path.
+            // Tras cutover a Astro, dev y prod sirven de dist/ → un solo path.
             const fullPath = path.join(distPath, webpPath);
             if (fs.existsSync(fullPath)) {
                 req.url = webpPath;
@@ -283,7 +283,7 @@ async function bootstrap() {
     app.use('/api/track/view', express.text({ type: '*/*', limit: '10kb' }));
     app.use(express.json({ limit: '10kb' }));
 
-    // SECURITY-2 â¬ bloquear /admin* a no-admins ANTES de cualquier static.
+    // SECURITY-2 → bloquear /admin* a no-admins ANTES de cualquier static.
     // Sin este pre-gate, /admin/admin.html y /admin/ se servían sin auth.
     // Hooks de auth aún no existen aquí (passport va más abajo) por lo que
     // re-evaluamos la sesión cuando ya esté inicializada (req.isAuthenticated
@@ -368,7 +368,7 @@ async function bootstrap() {
             }
         });
 
-    // M2 â¬ CORS con metodos completos
+    // M2 → CORS con metodos completos
     app.use(cors({
         origin: Array.from(trustedOrigins),
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -376,7 +376,7 @@ async function bootstrap() {
         credentials: true
     }));
 
-    // SECURITY-2 (B2) â¬ Rate-limit. Protege OAuth callback de brute-force
+    // SECURITY-2 (B2) → Rate-limit. Protege OAuth callback de brute-force
     // y endpoints publicos de spam.
     const authLimiter = createLimiter({
         windowMs: 10 * 60 * 1000,    // 10 min
@@ -420,10 +420,10 @@ async function bootstrap() {
     app.use('/auth/', authLimiter);
     app.use('/api/admin', adminMutationLimiter);
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
        SESIONES + PASSPORT
        (usa la tabla `sessions` que ya creó 01-schema.sql)
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     app.set('trust proxy', 1);
 
     app.use(session({
@@ -436,7 +436,7 @@ async function bootstrap() {
         resave: false,
         saveUninitialized: false,
         cookie: {
-            // M1 â¬ secure dinámica. En prod Cloudflare entrega HTTPS y trust proxy=1
+            // M1 → secure dinámica. En prod Cloudflare entrega HTTPS y trust proxy=1
             // ya hace que Express vea X-Forwarded-Proto correctamente.
             secure:   'auto',
             httpOnly: true,
@@ -488,12 +488,12 @@ async function bootstrap() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-       M8 â¬ CSRF mínimo: cualquier request que muta estado debe
+    /* ─────────────────────────────────────────────────────────
+       M8 → CSRF mínimo: cualquier request que muta estado debe
        traer header X-Requested-With:fetch. Esto bloquea CSRF clásico
        basado en formularios cross-site (no pueden setear ese header
        sin pasar por preflight CORS).
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     app.use((req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
         if (req.path.startsWith('/auth/')) return next();
@@ -510,9 +510,9 @@ async function bootstrap() {
         next();
     });
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
        AUTORIZACIÓN
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     function requireAuth(req, res, next) {
         if (req.isAuthenticated()) return next();
         res.status(401).json({ error: 'No autorizado' });
@@ -523,7 +523,7 @@ async function bootstrap() {
         res.status(403).json({ error: 'Prohibido' });
     }
 
-    // SECURITY-2 (M2) â¬ gate del HTML del panel admin a nivel servidor.
+    // SECURITY-2 (M2) → gate del HTML del panel admin a nivel servidor.
     // Antes la proteccion era solo client-side (admin.js mostraba "Acceso
     // Denegado"). Ahora ni siquiera se sirve el HTML a no-admins.
     function gateAdminPage(req, res, next) {
@@ -537,7 +537,7 @@ async function bootstrap() {
             return res.status(503).send(`<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login no configurado - Pixon PC</title>
   <style>
@@ -565,7 +565,7 @@ async function bootstrap() {
         });
     }
 
-    // SECURITY-3 (M6) â¬ wrapper que extrae datos del req para admin_logs.
+    // SECURITY-3 (M6) → wrapper que extrae datos del req para admin_logs.
     // Llamar despues de la mutacion: audit(req, 'delete', 'comment', id)
     function audit(req, action, entity, entity_id, diff) {
         return logAdminAction({
@@ -588,9 +588,9 @@ async function bootstrap() {
             .replace(/'/g, '&#39;');
     }
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
        AUTH
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     app.get('/auth/google', requireGoogleOAuthConfigured, (req, res, next) => {
         const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '';
         if (returnTo.startsWith('/') && !returnTo.startsWith('//')) {
@@ -599,7 +599,7 @@ async function bootstrap() {
         passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
     });
 
-    // SECURITY-2 (M5) â¬ regenerar la sesion previene session fixation:
+    // SECURITY-2 (M5) → regenerar la sesion previene session fixation:
     // un atacante no puede preparar una cookie y heredarla autenticada.
     app.get('/auth/google/callback', requireGoogleOAuthConfigured, (req, res, next) => {
         passport.authenticate('google', (err, user, info) => {
@@ -629,7 +629,7 @@ async function bootstrap() {
         res.status(401).send(`<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Error al iniciar sesion - Pixon PC</title>
   <style>
@@ -665,10 +665,10 @@ async function bootstrap() {
 
     app.post('/api/me/profile', profileLimiter, requireAuth, ah(async (req, res) => {
         const { phone } = req.body;
-        // M7 â¬ validar phone con regex (10-15 digitos, opcional + al inicio)
+        // M7 → validar phone con regex (10-15 digitos, opcional + al inicio)
         const cleanedPhone = cleanPhone(phone);
         if (!/^\+?\d{10,15}$/.test(cleanedPhone)) {
-            return res.status(400).json({ error: 'Número de celular inválido (10â¬15 dígitos, opcional + al inicio).' });
+            return res.status(400).json({ error: 'Número de celular inválido (10–15 dígitos, opcional + al inicio).' });
         }
 
         const success = await updateUserProfile(req.user.id, { phone: cleanedPhone });
@@ -680,9 +680,9 @@ async function bootstrap() {
         }
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
        API PÚBLICA
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     app.use('/api', createHealthRoutes({ getClientCount: () => sseClients.size }));
 
     app.get('/api/comments', ah(async (_req, res) => {
@@ -691,10 +691,10 @@ async function bootstrap() {
         res.json(comments);
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-       GOOGLE PLACES API â¬ Reseñas reales de Google Maps
+    /* ─────────────────────────────────────────────────────────
+       GOOGLE PLACES API → Reseñas reales de Google Maps
        Cacheado 1h en memoria (Places API es billable, ~$17/1000 calls)
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     const googleReviewsCache = { data: null, expires: 0 };
     const GOOGLE_REVIEWS_TTL = 60 * 60 * 1000; // 1 hora
 
@@ -845,7 +845,7 @@ async function bootstrap() {
 
         if (errors.length) return res.status(400).json({ errors });
 
-        // M4 â¬ guardar user_id ademas de email para no perder trazabilidad
+        // M4 → guardar user_id ademas de email para no perder trazabilidad
         const user_id    = req.user?.id    || null;
         const user_email = req.user?.email || null;
         const created = await insertComment({ name: cleanName, stars: cleanStars, text: cleanComment, user_id, user_email });
@@ -853,7 +853,7 @@ async function bootstrap() {
     }));
 
     // ---------------------------------------------------------------
-    // TICKETS â¬ Crear ticket de servicio con auth
+    // TICKETS → Crear ticket de servicio con auth
     // ---------------------------------------------------------------
     app.get('/api/appointments/config', ah(async (_req, res) => {
         res.set('Cache-Control', 'no-store');
@@ -984,15 +984,15 @@ async function bootstrap() {
         res.json({ success: true });
     }));
 
-    // M3 â¬ endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
+    // M3 → endpoint publico no expone cost, compare_price, stock_alert ni SKUs internos
     app.get('/api/builds', ah(async (_req, res) => {
         const builds = await getAllBuildsPublic();
         res.json(builds);
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
-        ANALYTICS â¬ Page View Tracking
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    /* ─────────────────────────────────────────────────────────
+        ANALYTICS → Page View Tracking
+    ───────────────────────────────────────────────────────── */
     app.post('/api/track/view', trackingLimiter, (req, res) => {
         const payload = typeof req.body === 'string'
             ? (() => {
@@ -1019,9 +1019,9 @@ async function bootstrap() {
         res.json({ ok: true });
     });
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
         PANEL DE ADMINISTRACIÓN
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     app.get('/api/admin/users', requireAdmin, ah(async (_req, res) => {
         const users = await getAllUsersAdmin();
         res.json(users);
@@ -1195,9 +1195,9 @@ async function bootstrap() {
         res.json({ success: true });
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
         ADMIN ANALYTICS
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     app.get('/api/admin/analytics/summary', requireAdmin, ah(async (_req, res) => {
         res.json(await getPageViewsSummary());
     }));
@@ -1225,11 +1225,11 @@ async function bootstrap() {
         res.json(await getPageViewsTop(limit, days));
     }));
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
         ARCHIVOS ESTATICOS Y RUTAS HTML
         Tras el cutover Astro, dev y prod sirven el MISMO árbol dist/.
         Por eso la tabla de rutas y el handler son únicos.
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     {
         // Las páginas Astro emiten archivos planos en dist/<ruta>.html
         // (build.format = 'file' en astro.config.ts). Las únicas páginas
@@ -1272,7 +1272,7 @@ async function bootstrap() {
             '/preguntas-frecuentes':        'preguntas-frecuentes.html',
             '/privacidad':                  'privacidad.html',
             '/garantia':                    'garantia.html',
-            // VISTAS DE PRUEBAS â¬ no listadas en sitemap, pero sirven con HTTP 200
+            // VISTAS DE PRUEBAS → no listadas en sitemap, pero sirven con HTTP 200
             '/test-navbar-3':               'test-navbar-3.html',
             // Hub general de servicios
             '/servicios':                   'servicios/index.html',
@@ -1300,13 +1300,13 @@ async function bootstrap() {
         legacyRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
-        // M6 â¬ canonicaliza /b2b -> /B2B (Preferencia del usuario por Mayúsculas)
+        // M6 → canonicaliza /b2b -> /B2B (Preferencia del usuario por Mayúsculas)
         app.get('/b2b', (req, res, next) => {
             if (req.path === '/b2b') return res.redirect(301, '/B2B');
             next();
         });
 
-        // SECURITY-2 (M2) â¬ gate del HTML admin antes del catch-all.
+        // SECURITY-2 (M2) → gate del HTML admin antes del catch-all.
         // Acepta /admin y /admin/ (con trailing slash) y bloquea acceso directo
         // a /admin/admin.html (que el static middleware serviría sin gate).
         app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, (_req, res) => {
@@ -1363,9 +1363,9 @@ async function bootstrap() {
         });
     }
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
        MANEJO DE ERRORES (handlers async sin catch caen aquí)
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     app.use((req, res, next) => {
         if (req.path.startsWith('/api') || req.path.startsWith('/auth')) {
             return res.status(404).json({
@@ -1380,9 +1380,9 @@ async function bootstrap() {
 
     app.use(errorHandler);
 
-    /* â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬
+    /* ─────────────────────────────────────────────────────────
        ARRANCAR
-    â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬â¬ */
+    ───────────────────────────────────────────────────────── */
     const server = app.listen(PORT, () => {
         const mode = process.env.NODE_ENV || 'development';
         console.log(`
