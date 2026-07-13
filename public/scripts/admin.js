@@ -12,6 +12,9 @@ let analyticsDailyError = null;
 let allUsers = [];
 let dashboardStatsUpdater = null;
 let activeRepairTicket = null;
+let crmCurrentPage = 1;
+let crmPageSize = 25;
+let crmSelectedTickets = new Set();
 let appointmentConfig = { settings: [], exceptions: [] };
 let adminAppointments = [];
 let activeAppointmentFilter = 'today';
@@ -84,16 +87,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        function updateDashboardStats() {
-            const pendingComments = allComments.filter(c => c.approved === 0).length;
-            setStatNumber('stat-comments-pending', pendingComments);
-            setStatNumber('stat-users', allUsers.length);
-            setStatNumber('stat-faqs-unanswered', allUnanswered.length);
+        async function updateDashboardStats() {
+            try {
+                const kpiRes = await fetch(`${API_BASE}/admin/kpis`, INCLUDE_CREDENTIALS);
+                if (kpiRes.ok) {
+                    const kpis = await kpiRes.json();
+                    setStatNumber('kpi-tickets-open', kpis.openTickets || 0);
+                    setStatNumber('kpi-tickets-month', kpis.deliveredThisMonth || 0);
+                    const timeEl = document.getElementById('kpi-resolution-time');
+                    if (timeEl) timeEl.textContent = `${kpis.avgResolutionDays || 0}d`;
+                    setStatNumber('kpi-tickets-urgent', kpis.urgentTickets || 0);
+                    const revEl = document.getElementById('kpi-revenue');
+                    if (revEl) revEl.textContent = `$${Number(kpis.monthlyRevenue || 0).toLocaleString('es-MX')}`;
+                    setStatNumber('kpi-new-clients', kpis.newClientsThisMonth || 0);
+                }
+            } catch (err) {
+                console.error('Error cargando KPIs:', err);
+            }
 
             if (analyticsData) {
-                setStatNumber('stat-total-views', analyticsData.totalViews || 0);
-                setStatNumber('stat-today-views', analyticsData.todayViews || 0);
-                setStatNumber('stat-unique-today', analyticsData.uniqueToday || 0);
                 renderTopPages();
                 renderDailyChart();
             }
@@ -333,6 +345,13 @@ function connectSSE() {
                     allComments.unshift(newComment); // Añadir al principio
                     renderComments();
                     if (dashboardStatsUpdater) dashboardStatsUpdater();
+                    addNotification({
+                        id: `new-comment-${newComment.id}`,
+                        title: `Comentario pendiente`,
+                        text: `Reseña de ${newComment.name} (${newComment.stars}★) requiere moderación.`,
+                        time: newComment.created_at || new Date().toISOString(),
+                        read: false
+                    });
                 }
             } catch(err) {
                 console.error('SSE comment parse error:', err);
@@ -347,6 +366,107 @@ function connectSSE() {
     } catch (err) {
         console.error('No SSE', err);
     }
+}
+
+let crmNotifications = [];
+
+function updateNotificationsBadge() {
+    const badge = document.getElementById('notifications-badge');
+    if (!badge) return;
+    const unreadCount = crmNotifications.filter(n => !n.read).length;
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function renderNotifications() {
+    const body = document.getElementById('notificationsDropdownBody');
+    if (!body) return;
+    if (crmNotifications.length === 0) {
+        body.innerHTML = '<div class="empty-state" style="padding: 12px; text-align: center; color: var(--a-text-dim);">No tienes notificaciones pendientes</div>';
+        return;
+    }
+    body.innerHTML = crmNotifications.map(n => `
+        <div class="notification-item ${n.read ? '' : 'unread'}" data-notif-id="${n.id}" style="border-bottom: 1px solid var(--a-border); padding: 12px; cursor: pointer;">
+            <div class="notification-item-title" style="font-weight: 700; font-size: 0.82rem; margin-bottom: 2px;">${escapeHtml(n.title)}</div>
+            <div class="notification-item-text" style="font-size: 0.78rem; color: var(--a-text-muted);">${escapeHtml(n.text)}</div>
+            <div class="notification-item-time" style="font-size: 0.7rem; color: var(--a-text-dim); margin-top: 4px;">${formatRepairDate(n.time)}</div>
+        </div>
+    `).join('');
+}
+
+function addNotification(notif) {
+    if (crmNotifications.some(n => n.id === notif.id)) return;
+    crmNotifications.unshift(notif);
+    crmNotifications = crmNotifications.slice(0, 15);
+    try {
+        localStorage.setItem('crm_notifications_v1', JSON.stringify(crmNotifications));
+    } catch (e) {}
+    renderNotifications();
+    updateNotificationsBadge();
+}
+
+function initNotifications() {
+    try {
+        const cached = localStorage.getItem('crm_notifications_v1');
+        if (cached) crmNotifications = JSON.parse(cached);
+    } catch (e) {}
+    
+    // Buscar también tickets 'new' y agregarlos si no están
+    allRepairs.forEach(r => {
+        if (r.status === 'new') {
+            const clientName = getRepairClientName(r);
+            addNotification({
+                id: `new-ticket-${r.id}`,
+                title: `Nuevo ticket #${r.ticket_code}`,
+                text: `Cliente ${clientName} solicita revisión de ${r.device_type}.`,
+                time: r.created_at,
+                read: false
+            });
+        }
+    });
+
+    renderNotifications();
+    updateNotificationsBadge();
+
+    const bell = document.getElementById('notificationsBellBtn');
+    const dropdown = document.getElementById('notificationsDropdown');
+    if (bell && dropdown) {
+        bell.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isShown = dropdown.classList.toggle('show');
+            bell.setAttribute('aria-expanded', isShown ? 'true' : 'false');
+            if (isShown) {
+                crmNotifications.forEach(n => n.read = true);
+                try {
+                    localStorage.setItem('crm_notifications_v1', JSON.stringify(crmNotifications));
+                } catch (e) {}
+                updateNotificationsBadge();
+                renderNotifications();
+            }
+        });
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && e.target !== bell && !bell.contains(e.target)) {
+                dropdown.classList.remove('show');
+                bell.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    document.getElementById('notificationsDropdownBody')?.addEventListener('click', (e) => {
+        const item = e.target.closest('.notification-item');
+        if (!item) return;
+        const notifId = item.dataset.notifId;
+        const ticketCodeMatch = notifId.match(/new-ticket-(\d+)/);
+        if (ticketCodeMatch && ticketCodeMatch[1]) {
+            openRepairTicket(ticketCodeMatch[1]);
+            dropdown.classList.remove('show');
+            bell.setAttribute('aria-expanded', 'false');
+        }
+    });
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -1325,6 +1445,7 @@ function renderRepairDetailModal(ticket) {
                         ${renderRepairField('Garantía', formatRepairDate(ticket.warranty_until))}
                     </div>
                     <label class="repair-ticket-label">Diagnóstico técnico<textarea id="repairDetailDiagnostic" class="admin-input" rows="5">${escapeHtml(ticket.diagnostic || '')}</textarea></label>
+                    <label class="repair-ticket-label">Nota para cliente (opcional, se envia por correo)<textarea id="repairDetailCustomerNote" class="admin-input" rows="4" placeholder="Escribe aqui una actualizacion clara para el cliente. Se enviara al correo registrado y se guardara en notas internas."></textarea></label>
                     <label class="repair-ticket-label">Notas internas<textarea id="repairDetailNotes" class="admin-input" rows="6">${escapeHtml(ticket.notes_internal || '')}</textarea></label>
                 </section>
                 <section class="repair-ticket-section repair-ticket-appointment-section">
@@ -1344,6 +1465,12 @@ function renderRepairDetailModal(ticket) {
                         <button class="btn-admin btn-approve" type="button" data-appointment-action="confirmada">Confirmar cita</button>
                         <button class="btn-admin" type="button" data-appointment-action="reagendada">Reagendar</button>
                         <button class="btn-admin btn-delete" type="button" data-appointment-action="cancelada">Cancelar cita</button>
+                    </div>
+                </section>
+                <section class="repair-ticket-section repair-ticket-history-section" style="margin-top: 20px;">
+                    <h3>Historial y Cronología de Auditoría</h3>
+                    <div id="repairTicketHistoryTimeline" class="timeline-list">
+                        <div class="empty-state" style="padding: 10px 0;">Cargando historial del ticket...</div>
                     </div>
                 </section>
             </div>
@@ -1371,13 +1498,59 @@ async function openRepairTicket(ticketId) {
         const ticket = data.ticket || data.repair || data;
         if (!ticket || !ticket.id) throw new Error('invalid ticket payload');
         renderRepairDetailModal(ticket);
+        loadTicketHistory(ticket.id);
     } catch (err) {
         console.error('No se pudo cargar el detalle por endpoint; usando datos ya cargados en tabla.', err);
         if (fallbackTicket) {
             renderRepairDetailModal(fallbackTicket);
+            loadTicketHistory(fallbackTicket.id);
             return;
         }
         body.innerHTML = '<div class="empty-state">No se pudo cargar la información completa del ticket. Intenta de nuevo.</div>';
+    }
+}
+
+async function loadTicketHistory(ticketId) {
+    const timelineContainer = document.getElementById('repairTicketHistoryTimeline');
+    if (!timelineContainer) return;
+    try {
+        const res = await fetch(`${API_BASE}/admin/tickets/${ticketId}/history`, INCLUDE_CREDENTIALS);
+        if (!res.ok) throw new Error('Error cargando historial');
+        const data = await res.json();
+        const history = data.history || [];
+        if (history.length === 0) {
+            timelineContainer.innerHTML = '<div class="empty-state" style="padding: 10px 0;">No hay historial registrado para este ticket.</div>';
+            return;
+        }
+        timelineContainer.innerHTML = history.map(item => {
+            const date = formatRepairDate(item.created_at);
+            let actionLabel = item.action || 'Modificación';
+            let diffDesc = '';
+            
+            // Decodificar diff si existe
+            if (item.diff) {
+                try {
+                    const diffObj = typeof item.diff === 'string' ? JSON.parse(item.diff) : item.diff;
+                    diffDesc = Object.entries(diffObj)
+                        .map(([key, val]) => `<strong>${key}:</strong> ${escapeHtml(JSON.stringify(val))}`)
+                        .join(', ');
+                } catch (e) {
+                    diffDesc = String(item.diff);
+                }
+            }
+
+            return `
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-meta">${date} — por ${escapeHtml(item.user_name || item.user_email || 'Sistema')}</div>
+                    <div class="timeline-title">${escapeHtml(actionLabel.toUpperCase())}</div>
+                    ${diffDesc ? `<div class="timeline-desc">${diffDesc}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error(err);
+        timelineContainer.innerHTML = '<div class="empty-state">No se pudo cargar el historial del ticket.</div>';
     }
 }
 
@@ -1390,6 +1563,23 @@ function closeRepairTicketModal() {
     activeRepairTicket = null;
 }
 
+function summarizeTicketNotifications(notifications) {
+    if (!Array.isArray(notifications) || notifications.length === 0) return '';
+    if (notifications.some(item => item.status === 'sent')) {
+        return ' Aviso enviado por correo.';
+    }
+    if (notifications.some(item => item.reason === 'missing_recipient')) {
+        return ' No se envio correo porque el ticket no tiene email de cliente.';
+    }
+    if (notifications.some(item => item.reason === 'email_disabled')) {
+        return ' Correo no enviado: falta configurar RESEND_API_KEY y EMAIL_FROM.';
+    }
+    if (notifications.some(item => item.status === 'failed')) {
+        return ' El ticket se guardo, pero el correo no pudo enviarse.';
+    }
+    return ' Aviso de correo omitido.';
+}
+
 async function saveRepairTicketChanges() {
     if (!activeRepairTicket) return;
     const saveMessage = document.getElementById('repairDetailSaveMessage');
@@ -1397,6 +1587,7 @@ async function saveRepairTicketChanges() {
         status: document.getElementById('repairDetailStatus')?.value,
         priority: document.getElementById('repairDetailPriority')?.value,
         diagnostic: document.getElementById('repairDetailDiagnostic')?.value || '',
+        customer_note: document.getElementById('repairDetailCustomerNote')?.value || '',
         notes_internal: document.getElementById('repairDetailNotes')?.value || '',
         estimated_cost: document.getElementById('repairDetailEstimatedCost')?.value || null,
         final_cost: document.getElementById('repairDetailFinalCost')?.value || null,
@@ -1421,7 +1612,7 @@ async function saveRepairTicketChanges() {
         if (index >= 0) allRepairs[index] = data.ticket;
         renderRepairs();
         renderRepairDetailModal(data.ticket);
-        if (saveMessage) saveMessage.textContent = 'Cambios guardados correctamente.';
+        if (saveMessage) saveMessage.textContent = 'Cambios guardados correctamente.' + summarizeTicketNotifications(data.notifications);
     } catch (err) {
         console.error(err);
         if (saveMessage) saveMessage.textContent = 'No se pudieron guardar los cambios.';
@@ -1438,18 +1629,39 @@ function renderRepairs() {
     tbody.innerHTML = '';
 
     const filteredRepairs = filterRepairs();
+    const totalCount = filteredRepairs.length;
+
+    // Calcular paginación
+    const totalPages = Math.ceil(totalCount / crmPageSize) || 1;
+    if (crmCurrentPage > totalPages) crmCurrentPage = totalPages;
+    if (crmCurrentPage < 1) crmCurrentPage = 1;
+
+    const startIndex = (crmCurrentPage - 1) * crmPageSize;
+    const endIndex = Math.min(startIndex + crmPageSize, totalCount);
+    const paginatedRepairs = filteredRepairs.slice(startIndex, endIndex);
+
     const summary = document.getElementById('repairFilterSummary');
     if (summary) {
-        summary.textContent = `Mostrando ${filteredRepairs.length} de ${allRepairs.length} ticket(s). Usa Abrir para ver la ficha completa del ticket.`;
+        summary.textContent = `Mostrando ${filteredRepairs.length} de ${allRepairs.length} ticket(s) en total.`;
     }
 
-    if (filteredRepairs.length === 0) {
+    // Actualizar controles de paginación en UI
+    const pagInfo = document.getElementById('crmPaginationInfo');
+    if (pagInfo) {
+        pagInfo.textContent = `${totalCount > 0 ? startIndex + 1 : 0} - ${endIndex} de ${totalCount}`;
+    }
+    const prevBtn = document.getElementById('crmPrevPage');
+    if (prevBtn) prevBtn.disabled = crmCurrentPage <= 1;
+    const nextBtn = document.getElementById('crmNextPage');
+    if (nextBtn) nextBtn.disabled = crmCurrentPage >= totalPages;
+
+    if (paginatedRepairs.length === 0) {
         const message = allRepairs.length === 0 ? 'Aún no hay tickets registrados.' : 'No hay tickets que coincidan con los filtros.';
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b;">${message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-row" style="text-align: center; padding: 30px; color: var(--a-text-dim);">${message}</td></tr>`;
         return;
     }
 
-    filteredRepairs.forEach(r => {
+    paginatedRepairs.forEach(r => {
         const date = formatRepairDate(r.created_at);
         const color = REPAIR_STATUS_COLORS[r.status] || '#cbd5e1';
         const clientName = getRepairClientName(r);
@@ -1458,26 +1670,41 @@ function renderRepairs() {
         const urgency = inferRepairUrgency(r);
         const urgencyColor = urgency === 'urgent' ? '#ef4444' : urgency === 'work_school' ? '#f59e0b' : urgency === 'quote' ? '#38bdf8' : '#10b981';
         const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || urgency;
+        const isChecked = crmSelectedTickets.has(r.id);
 
         const tr = document.createElement('tr');
-        tr.className = 'repair-row';
+        tr.className = `repair-row ${isChecked ? 'selected' : ''}`;
         tr.setAttribute('data-ticket-id', r.id);
         tr.setAttribute('tabindex', '0');
         tr.innerHTML = `
+            <td style="text-align: center;" onclick="event.stopPropagation()">
+                <input type="checkbox" class="crm-row-select" data-id="${r.id}" ${isChecked ? 'checked' : ''} />
+            </td>
             <td style="font-weight: 700; color: #818cf8;">#${escapeHtml(r.ticket_code)}</td>
-            <td>${escapeHtml(clientName)}</td>
-            <td>${escapeHtml(r.device_type)} ${escapeHtml(r.device_brand || '')}</td>
-            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(issueDescription)}</td>
-            <td><span class="user-role-badge" style="background: ${urgencyColor}20; color: ${urgencyColor}; border: 1px solid ${urgencyColor}40;">${escapeHtml(urgencyLabel)}</span></td>
-            <td><span class="user-role-badge" style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span></td>
-            <td>${date}</td>
             <td>
-                <button class="btn-admin repair-open-btn" type="button" data-open-ticket="${escapeHtml(r.id)}">
-                    <i class="fa-solid fa-up-right-from-square"></i> Abrir
-                </button>
-                <button class="btn-admin btn-delete repair-delete-btn" type="button" data-delete-ticket="${escapeHtml(r.id)}">
-                    <i class="fa-solid fa-trash"></i> Eliminar
-                </button>
+                <div style="font-weight:600;">${escapeHtml(clientName)}</div>
+                <div style="font-size:0.75rem; color:var(--a-text-muted);">${escapeHtml(r.contact_phone || '')}</div>
+            </td>
+            <td>
+                <div style="font-weight:600;">${escapeHtml(r.device_type)}</div>
+                <div style="font-size:0.75rem; color:var(--a-text-muted);">${escapeHtml(r.device_brand || '')} ${escapeHtml(r.device_model || '')}</div>
+            </td>
+            <td style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(issueDescription)}">
+                <div style="font-weight:500;">${escapeHtml(service)}</div>
+                <div style="font-size:0.75rem; color:var(--a-text-muted); overflow:hidden; text-overflow:ellipsis;">${escapeHtml(issueDescription)}</div>
+            </td>
+            <td><span class="badge-status" style="background: ${urgencyColor}18; color: ${urgencyColor}; border: 1px solid ${urgencyColor}30;">${escapeHtml(urgencyLabel)}</span></td>
+            <td><span class="badge-status" style="background: ${color}18; color: ${color}; border: 1px solid ${color}30;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span></td>
+            <td>
+                <div style="font-weight:500;">${date.split(',')[0] || date}</div>
+                <div style="font-size:0.75rem; color:var(--a-text-dim);">${date.split(',')[1] || ''}</div>
+            </td>
+            <td style="text-align: right;" onclick="event.stopPropagation()">
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}">
+                        <i class="fa-solid fa-folder-open"></i> Abrir
+                    </button>
+                </div>
             </td>
         `;
         tbody.appendChild(tr);
@@ -1700,9 +1927,68 @@ async function deleteRepairTicketConfirmed() {
 document.addEventListener('DOMContentLoaded', () => {
     setupRepairModalOptions();
     populateRepairFilters();
+    
+    // Iniciar notificaciones tras un pequeño delay para que repairs ya estén cargados
+    setTimeout(initNotifications, 1200);
+
+    // Controles de Paginación CRM
+    document.getElementById('crmPrevPage')?.addEventListener('click', () => {
+        if (crmCurrentPage > 1) {
+            crmCurrentPage--;
+            renderRepairs();
+        }
+    });
+
+    document.getElementById('crmNextPage')?.addEventListener('click', () => {
+        crmCurrentPage++;
+        renderRepairs();
+    });
+
+    document.getElementById('crmPageSize')?.addEventListener('change', (e) => {
+        crmPageSize = parseInt(e.target.value, 10) || 25;
+        crmCurrentPage = 1;
+        renderRepairs();
+    });
+
+    // Selección múltiple CRM
+    document.getElementById('crmSelectAll')?.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        const visibleCheckboxes = document.querySelectorAll('.crm-row-select');
+        visibleCheckboxes.forEach(cb => {
+            cb.checked = isChecked;
+            const id = parseInt(cb.dataset.id, 10);
+            if (isChecked) {
+                crmSelectedTickets.add(id);
+                cb.closest('tr')?.classList.add('selected');
+            } else {
+                crmSelectedTickets.delete(id);
+                cb.closest('tr')?.classList.remove('selected');
+            }
+        });
+    });
+
+    // Event listener delegado para selección de checkboxes individuales
+    document.getElementById('repairs-tbody')?.addEventListener('change', (e) => {
+        if (e.target.classList.contains('crm-row-select')) {
+            const cb = e.target;
+            const id = parseInt(cb.dataset.id, 10);
+            if (cb.checked) {
+                crmSelectedTickets.add(id);
+                cb.closest('tr')?.classList.add('selected');
+            } else {
+                crmSelectedTickets.delete(id);
+                cb.closest('tr')?.classList.remove('selected');
+            }
+        }
+    });
+
+    // Exportación CSV
+    document.getElementById('crmExportCsv')?.addEventListener('click', crmExportToCsv);
+
     ['repairSearchInput', 'repairStatusFilter', 'repairUrgencyFilter', 'repairDeviceFilter', 'repairServiceFilter'].forEach(id => {
         document.getElementById(id)?.addEventListener(id === 'repairSearchInput' ? 'input' : 'change', () => {
             if (id === 'repairDeviceFilter') refreshRepairServiceFilterOptions();
+            crmCurrentPage = 1; // reset a la primera página al filtrar
             renderRepairs();
         });
     });
@@ -1713,6 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
             el.value = id === 'repairSearchInput' ? '' : 'all';
         });
         refreshRepairServiceFilterOptions();
+        crmCurrentPage = 1;
         renderRepairs();
     });
     document.addEventListener('click', (event) => {
@@ -1788,6 +2075,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function crmExportToCsv() {
+    const filtered = filterRepairs();
+    if (filtered.length === 0) {
+        showAdminNotice('No hay registros para exportar', 'warning');
+        return;
+    }
+
+    const headers = ['Folio', 'Cliente', 'Celular', 'Email', 'Dispositivo', 'Marca', 'Modelo', 'Falla/Servicio', 'Prioridad', 'Estado', 'Fecha Registro', 'Costo Estimado', 'Costo Final'];
+    const rows = filtered.map(r => {
+        const details = parseRepairDetails(r);
+        return [
+            r.ticket_code,
+            getRepairClientName(r),
+            r.contact_phone || '',
+            getRepairContactEmail(r),
+            r.device_type,
+            r.device_brand || '',
+            r.device_model || '',
+            details.service,
+            r.priority,
+            r.status,
+            r.created_at,
+            r.estimated_cost || 0,
+            r.final_cost || 0
+        ];
+    });
+
+    const csvContent = "\uFEFF" + [
+        headers.join(','),
+        ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `crm_repairs_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
 window.openRepairModal = function() {
     setupRepairModalOptions();
@@ -1957,6 +2286,3 @@ window.saveBuild = async function() {
         showAdminNotice(err.message, 'error');
     }
 };
-
-
-

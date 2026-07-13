@@ -1,0 +1,217 @@
+---
+import BackToTopButton from './BackToTopButton/BackToTopButton.astro';
+import WhatsappFloat from './WhatsappFloat.astro';
+---
+
+<div
+  class="global-floating-actions"
+  id="global-floating-actions"
+  aria-label="Acciones rápidas"
+>
+  <BackToTopButton />
+  <WhatsappFloat />
+</div>
+
+<script>
+  function initFloatingActionsClearance() {
+    const actions = document.getElementById('global-floating-actions');
+    if (!actions || actions.dataset.clearanceReady === 'true') return;
+
+    actions.dataset.clearanceReady = 'true';
+    let observedBanner: HTMLElement | null = null;
+    let bannerResizeObserver: ResizeObserver | null = null;
+
+    const syncClearance = () => {
+      const banner = document.getElementById('pixon-cookie-banner');
+      const isVisible = banner instanceof HTMLElement && !banner.classList.contains('hide');
+
+      if (banner !== observedBanner) {
+        bannerResizeObserver?.disconnect();
+        observedBanner = banner instanceof HTMLElement ? banner : null;
+        if (observedBanner && 'ResizeObserver' in window) {
+          bannerResizeObserver = new ResizeObserver(syncClearance);
+          bannerResizeObserver.observe(observedBanner);
+        }
+      }
+
+      const clearance = isVisible && banner instanceof HTMLElement
+        ? Math.ceil(banner.getBoundingClientRect().height + 20)
+        : 0;
+      actions.style.setProperty('--floating-actions-clearance', `${clearance}px`);
+    };
+
+    const mutationObserver = new MutationObserver(syncClearance);
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    window.addEventListener('resize', syncClearance, { passive: true });
+    syncClearance();
+
+    document.addEventListener('astro:before-swap', () => {
+      mutationObserver.disconnect();
+      bannerResizeObserver?.disconnect();
+      window.removeEventListener('resize', syncClearance);
+    }, { once: true });
+  }
+
+  initFloatingActionsClearance();
+  document.addEventListener('astro:page-load', initFloatingActionsClearance);
+</script>
+
+<style>
+  .global-floating-actions {
+    --floating-actions-size: 52px;
+    --floating-actions-edge: 20px;
+    --floating-actions-bottom: 24px;
+    --floating-actions-clearance: 0px;
+    position: fixed;
+    right: calc(var(--floating-actions-edge) + env(safe-area-inset-right, 0px));
+    bottom: calc(
+      var(--floating-actions-bottom) +
+      var(--floating-actions-clearance) +
+      env(safe-area-inset-bottom, 0px)
+    );
+    left: calc(var(--floating-actions-edge) + env(safe-area-inset-left, 0px));
+    z-index: 980;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+    transition: bottom 220ms ease;
+  }
+
+  .global-floating-actions :global(.back-to-top-btn),
+  .global-floating-actions :global(.whatsapp-float) {
+    position: relative;
+    inset: auto;
+    width: var(--floating-actions-size);
+    height: var(--floating-actions-size);
+    min-width: var(--floating-actions-size);
+    min-height: var(--floating-actions-size);
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 28%);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff !important;
+    text-decoration: none;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 8px 24px rgb(7 31 58 / 24%);
+    transition:
+      opacity 220ms ease,
+      visibility 220ms ease,
+      transform 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .global-floating-actions :global(.back-to-top-btn) {
+    background: #146bd1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+
+  .global-floating-actions :global(.back-to-top-btn.is-visible) {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .global-floating-actions :global(.back-to-top-btn__icon) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    animation: floatingArrow 2.2s ease-in-out infinite;
+  }
+
+  .global-floating-actions :global(.whatsapp-float) {
+    background: #25d366;
+    font-size: 1.55rem;
+    animation: whatsappBreath 3.8s ease-in-out infinite;
+  }
+
+  .global-floating-actions :global(.back-to-top-btn i),
+  .global-floating-actions :global(.whatsapp-float i) {
+    color: #fff !important;
+    line-height: 1;
+  }
+
+  .global-floating-actions :global(.back-to-top-btn:focus-visible),
+  .global-floating-actions :global(.whatsapp-float:focus-visible) {
+    outline: 3px solid #f59e0b;
+    outline-offset: 3px;
+  }
+
+  .global-floating-actions :global(.back-to-top-btn:active),
+  .global-floating-actions :global(.whatsapp-float:active) {
+    transform: scale(.96);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .global-floating-actions :global(.back-to-top-btn:hover) {
+      background: #0f58b0;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgb(7 31 58 / 30%);
+    }
+
+    .global-floating-actions :global(.whatsapp-float:hover) {
+      background: #1fbd59;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgb(37 211 102 / 34%);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .global-floating-actions {
+      --floating-actions-size: 56px;
+      --floating-actions-edge: 28px;
+      --floating-actions-bottom: 28px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .global-floating-actions,
+    .global-floating-actions :global(.back-to-top-btn),
+    .global-floating-actions :global(.whatsapp-float),
+    .global-floating-actions :global(.back-to-top-btn__icon) {
+      animation: none !important;
+      transition-duration: .01ms !important;
+    }
+  }
+
+  :global(.low-end-mode) .global-floating-actions :global(.back-to-top-btn__icon),
+  :global(.low-end-mode) .global-floating-actions :global(.whatsapp-float) {
+    animation: none !important;
+  }
+
+  :global(body.admin-body) .global-floating-actions {
+    display: none;
+  }
+
+  @media print {
+    .global-floating-actions {
+      display: none;
+    }
+  }
+
+  @keyframes floatingArrow {
+    0%, 100% { transform: translateY(1px); }
+    50% { transform: translateY(-3px); }
+  }
+
+  @keyframes whatsappBreath {
+    0%, 100% { box-shadow: 0 8px 24px rgb(7 31 58 / 24%), 0 0 0 0 rgb(37 211 102 / 20%); }
+    50% { box-shadow: 0 9px 26px rgb(7 31 58 / 25%), 0 0 0 7px rgb(37 211 102 / 0%); }
+  }
+</style>

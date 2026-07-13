@@ -1,0 +1,29 @@
+---
+import LocalSpriteIcon from '../LocalSpriteIcon.astro';
+import type { HomeServiceCategory } from '../../data/home';
+
+interface Props {
+  service: HomeServiceCategory;
+  featured?: boolean;
+}
+
+const { service, featured = false } = Astro.props;
+---
+
+<article class:list={['home-service-card', { 'home-service-card--featured': featured }]}>
+  <a href={service.href} aria-label={`Ver servicios de ${service.title}`}>
+    <div class="home-service-card__media">
+      <img src={service.image} alt={service.imageAlt} width="640" height="420" loading="lazy" decoding="async" />
+    </div>
+    <div class="home-service-card__body">
+      <span class="home-icon home-icon--small" aria-hidden="true"><LocalSpriteIcon name={service.icon} /></span>
+      <h3>{service.title}</h3>
+      <p>{service.description}</p>
+      <ul aria-label={`Trabajos frecuentes de ${service.title}`}>
+        {service.examples.map((example) => <li>{example}</li>)}
+      </ul>
+      <span class="home-text-link">Ver servicios <LocalSpriteIcon name="arrow-right" /></span>
+    </div>
+  </a>
+</article>
+

@@ -108,9 +108,24 @@ import '../../styles/admin.css';
             <p class="admin-page-sub" id="admin-subtitle">Revisa, aprueba y gestiona tu plataforma.</p>
           </div>
         </div>
-        <div class="admin-topbar-right">
+        <div class="admin-topbar-right" style="display: flex; align-items: center; gap: 16px;">
           <div class="live-indicator" id="live-indicator" style="display:none;">
             <div class="live-dot"></div> En vivo
+          </div>
+          <!-- Centro de Notificaciones -->
+          <div class="notifications-wrapper" id="notifications-wrapper">
+            <button class="notifications-bell-btn" id="notificationsBellBtn" aria-label="Notificaciones" aria-expanded="false">
+              <i class="fa-solid fa-bell"></i>
+              <span class="notifications-badge" id="notifications-badge" style="display: none;">0</span>
+            </button>
+            <div class="notifications-dropdown" id="notificationsDropdown">
+              <div class="notifications-dropdown-header">
+                Notificaciones recientes
+              </div>
+              <div class="notifications-dropdown-body" id="notificationsDropdownBody">
+                <div class="empty-state">No tienes notificaciones pendientes</div>
+              </div>
+            </div>
           </div>
           <div id="admin-user-area"></div>
         </div>
@@ -123,8 +138,8 @@ import '../../styles/admin.css';
           <div class="dashboard-command">
             <div>
               <span class="dashboard-eyebrow">Centro de operaciones</span>
-              <h2>Resumen del negocio</h2>
-              <p>Prioridades, actividad del sitio y accesos frecuentes en una sola vista.</p>
+              <h2>Resumen de Taller y Negocio</h2>
+              <p>Métricas reales, agenda en vivo y rendimiento del taller técnico.</p>
             </div>
             <div class="dashboard-actions" aria-label="Acciones rápidas">
               <button type="button" class="dashboard-action dashboard-action-primary" data-view-target="repairs" data-open-repair><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-plus" /></svg><span>Nuevo ticket</span></button>
@@ -134,13 +149,69 @@ import '../../styles/admin.css';
             </div>
           </div>
 
-          <div class="dashboard-stats">
-            <div class="stat-card stat-card-attention"><div class="stat-icon"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-comments" /></svg></div><div><div class="stat-number" id="stat-comments-pending">0</div><div class="stat-label">Comentarios pendientes</div></div><span class="stat-context">Por revisar</span></div>
-            <div class="stat-card stat-card-users"><div class="stat-icon"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-users-gear" /></svg></div><div><div class="stat-number" id="stat-users">0</div><div class="stat-label">Usuarios registrados</div></div><span class="stat-context">Base total</span></div>
-            <div class="stat-card stat-card-warning"><div class="stat-icon"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-circle-question" /></svg></div><div><div class="stat-number" id="stat-faqs-unanswered">0</div><div class="stat-label">Dudas sin resolver</div></div><span class="stat-context">Requieren respuesta</span></div>
-            <div class="stat-card stat-card-traffic"><div class="stat-icon"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-magnifying-glass-chart" /></svg></div><div><div class="stat-number" id="stat-total-views">0</div><div class="stat-label">Visitas totales</div></div><span class="stat-context">Histórico</span></div>
-            <div class="stat-card stat-card-today"><div class="stat-icon"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-arrow-trend-up" /></svg></div><div><div class="stat-number" id="stat-today-views">0</div><div class="stat-label">Visitas hoy</div></div><span class="stat-context">Actividad diaria</span></div>
-            <div class="stat-card stat-card-unique"><div class="stat-icon"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-user" /></svg></div><div><div class="stat-number" id="stat-unique-today">0</div><div class="stat-label">Visitantes únicos hoy</div></div><span class="stat-context">Personas distintas</span></div>
+          <!-- KPI Cards Grid -->
+          <div class="dashboard-kpi-grid">
+            <div class="kpi-card kpi-cyan">
+              <div class="kpi-card-header">
+                <span>Tickets Activos</span>
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+              </div>
+              <div class="kpi-value" id="kpi-tickets-open">0</div>
+              <div class="kpi-trend neutral">
+                <span>En taller / revisión</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-success">
+              <div class="kpi-card-header">
+                <span>Entregados este Mes</span>
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="kpi-value" id="kpi-tickets-month">0</div>
+              <div class="kpi-trend up">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <span>Completados con éxito</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-info">
+              <div class="kpi-card-header">
+                <span>Tiempo de Resolución</span>
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <div class="kpi-value" id="kpi-resolution-time">0d</div>
+              <div class="kpi-trend">
+                <span>Promedio general</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-danger">
+              <div class="kpi-card-header">
+                <span>Tickets Urgentes</span>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div class="kpi-value" id="kpi-tickets-urgent">0</div>
+              <div class="kpi-trend down">
+                <span>Requieren atención inmediata</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-success">
+              <div class="kpi-card-header">
+                <span>Ingresos estimados</span>
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+              </div>
+              <div class="kpi-value" id="kpi-revenue">$0</div>
+              <div class="kpi-trend neutral">
+                <span>Este mes (deliv/ready)</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-warning">
+              <div class="kpi-card-header">
+                <span>Clientes Nuevos</span>
+                <i class="fa-solid fa-user-plus"></i>
+              </div>
+              <div class="kpi-value" id="kpi-new-clients">0</div>
+              <div class="kpi-trend up">
+                <span>Nuevos contactos este mes</span>
+              </div>
+            </div>
           </div>
 
           <!-- BLOQUE LIVE — actualiza cada 10s -->
@@ -148,7 +219,7 @@ import '../../styles/admin.css';
             <div class="live-card-head">
               <h3>
                 <span class="live-pulse" aria-hidden="true"></span>
-                Actividad en vivo
+                Actividad en vivo del sitio web
               </h3>
               <div class="live-card-stats">
                 <div class="live-stat">
@@ -227,63 +298,83 @@ import '../../styles/admin.css';
             </div>
           </div>
           <div id="repairTicketsPanel">
-          <div class="admin-filter-panel repair-filter-panel" aria-label="Filtros de tickets">
-            <div class="admin-filter-field admin-filter-field-wide">
-              <label for="repairSearchInput">Buscar</label>
-              <input type="search" id="repairSearchInput" class="admin-input" placeholder="Ticket, cliente, equipo, falla, telefono..." />
+            <div class="admin-filter-panel repair-filter-panel" aria-label="Filtros de tickets" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px;">
+              <div class="admin-filter-field" style="flex: 2; min-width: 200px;">
+                <label for="repairSearchInput" style="font-weight: 700; margin-bottom: 4px; display: block; font-size: 0.8rem; color: var(--a-text-muted);">Buscar por término</label>
+                <input type="search" id="repairSearchInput" class="admin-input" placeholder="Folio, cliente, teléfono, falla..." style="width: 100%;" />
+              </div>
+              <div class="admin-filter-field" style="flex: 1; min-width: 130px;">
+                <label for="repairStatusFilter" style="font-weight: 700; margin-bottom: 4px; display: block; font-size: 0.8rem; color: var(--a-text-muted);">Estado</label>
+                <select id="repairStatusFilter" class="admin-input" style="width: 100%;"></select>
+              </div>
+              <div class="admin-filter-field" style="flex: 1; min-width: 130px;">
+                <label for="repairUrgencyFilter" style="font-weight: 700; margin-bottom: 4px; display: block; font-size: 0.8rem; color: var(--a-text-muted);">Prioridad</label>
+                <select id="repairUrgencyFilter" class="admin-input" style="width: 100%;"></select>
+              </div>
+              <div class="admin-filter-field" style="flex: 1; min-width: 130px;">
+                <label for="repairDeviceFilter" style="font-weight: 700; margin-bottom: 4px; display: block; font-size: 0.8rem; color: var(--a-text-muted);">Dispositivo</label>
+                <select id="repairDeviceFilter" class="admin-input" style="width: 100%;"></select>
+              </div>
+              <div class="admin-filter-field" style="flex: 1; min-width: 130px;">
+                <label for="repairServiceFilter" style="font-weight: 700; margin-bottom: 4px; display: block; font-size: 0.8rem; color: var(--a-text-muted);">Servicio</label>
+                <select id="repairServiceFilter" class="admin-input" style="width: 100%;"></select>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn-admin admin-filter-clear" id="repairClearFilters" style="height: 38px;">
+                  <i class="fa-solid fa-rotate-left"></i> Limpiar
+                </button>
+                <button type="button" class="btn-admin" id="crmExportCsv" style="height: 38px; background: rgba(34, 211, 238, 0.1); border-color: var(--a-cyan); color: var(--a-cyan);">
+                  <i class="fa-solid fa-file-csv"></i> Exportar
+                </button>
+              </div>
             </div>
-            <div class="admin-filter-field">
-              <label for="repairStatusFilter">Estatus</label>
-              <select id="repairStatusFilter" class="admin-input">
-                <option value="all">Todos</option>
-              </select>
+
+            <div class="admin-filter-summary" id="repairFilterSummary" style="font-size: 0.85rem; color: var(--a-text-dim); margin-bottom: 12px;">Mostrando todos los tickets.</div>
+
+            <!-- CRM Table Premium Container -->
+            <div class="crm-table-container">
+              <div class="crm-table-wrapper">
+                <table class="crm-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 40px; text-align: center;"><input type="checkbox" id="crmSelectAll" /></th>
+                      <th>Folio</th>
+                      <th>Cliente</th>
+                      <th>Dispositivo</th>
+                      <th>Falla Reportada</th>
+                      <th>Prioridad</th>
+                      <th>Estatus</th>
+                      <th>Fecha</th>
+                      <th style="text-align: right;">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="repairs-tbody">
+                    <tr><td colspan="9" class="empty-row" style="text-align: center; padding: 30px; color: var(--a-text-dim);">Cargando expediente de taller...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- CRM Pagination -->
+              <div class="crm-pagination">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--a-text-muted);">
+                  <span>Mostrar</span>
+                  <select id="crmPageSize" class="admin-input" style="padding: 4px 8px; width: 70px; height: auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  <span>filas por página</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span id="crmPaginationInfo" style="font-size: 0.85rem; color: var(--a-text-muted);">0 - 0 de 0</span>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn-admin" id="crmPrevPage" style="padding: 4px 8px; height: auto;" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="btn-admin" id="crmNextPage" style="padding: 4px 8px; height: auto;" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="admin-filter-field">
-              <label for="repairUrgencyFilter">Urgencia</label>
-              <select id="repairUrgencyFilter" class="admin-input">
-                <option value="all">Todas</option>
-                <option value="normal">Normal</option>
-                <option value="urgent">Lo necesito lo antes posible</option>
-                <option value="work_school">Es para trabajo / escuela</option>
-                <option value="quote">Solo quiero cotizar</option>
-              </select>
-            </div>
-            <div class="admin-filter-field">
-              <label for="repairDeviceFilter">Dispositivo</label>
-              <select id="repairDeviceFilter" class="admin-input">
-                <option value="all">Todos</option>
-              </select>
-            </div>
-            <div class="admin-filter-field">
-              <label for="repairServiceFilter">Tipo de servicio</label>
-              <select id="repairServiceFilter" class="admin-input">
-                <option value="all">Todos</option>
-              </select>
-            </div>
-            <button type="button" class="btn-admin admin-filter-clear" id="repairClearFilters">
-              <i class="fa-solid fa-rotate-left"></i> Limpiar
-            </button>
-          </div>
-          <div class="admin-filter-summary" id="repairFilterSummary">Mostrando todos los tickets.</div>
-          <div class="users-table-wrapper">
-            <table class="users-table repairs-table">
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Cliente</th>
-                  <th>Dispositivo</th>
-                  <th>Falla Reportada</th>
-                  <th>Urgencia</th>
-                  <th>Estatus</th>
-                  <th>Fecha</th>
-                  <th>Abrir</th>
-                </tr>
-              </thead>
-              <tbody id="repairs-tbody">
-                <tr><td colspan="8" class="empty-row">Aún no hay tickets registrados.</td></tr>
-              </tbody>
-            </table>
-          </div>
           </div>
           <div id="repairAgendaPanel" class="admin-card repair-agenda-panel" style="display:none;">
             <div class="admin-section-header">
@@ -542,21 +633,21 @@ import '../../styles/admin.css';
     </div>
   </div>
 
-  <!-- Modal Detalle Ticket -->
-  <div id="repairDetailOverlay" class="admin-modal-overlay repair-ticket-overlay" aria-hidden="true">
-    <div class="admin-modal repair-ticket-modal" role="dialog" aria-modal="true" aria-labelledby="repairDetailTitle">
-      <div class="admin-modal-header repair-ticket-modal-header">
+  <!-- Drawer Detalle Ticket (Expediente CRM) -->
+  <div id="repairDetailOverlay" class="crm-drawer-overlay" aria-hidden="true">
+    <div class="crm-drawer" role="dialog" aria-modal="true" aria-labelledby="repairDetailTitle">
+      <div class="crm-drawer-header">
         <div>
-          <h2 id="repairDetailTitle">Detalle del ticket</h2>
-          <div id="repairDetailMeta" class="repair-ticket-meta"></div>
+          <h2 id="repairDetailTitle">Expediente del Ticket</h2>
+          <div id="repairDetailMeta" class="repair-ticket-meta" style="margin-top: 6px;"></div>
         </div>
-        <button class="admin-modal-close" type="button" id="repairDetailClose" aria-label="Cerrar">&times;</button>
+        <button class="crm-drawer-close" type="button" id="repairDetailClose" aria-label="Cerrar">&times;</button>
       </div>
-      <div id="repairDetailBody" class="admin-modal-body repair-ticket-body">
+      <div id="repairDetailBody" class="crm-drawer-body">
         <div class="empty-state">Selecciona un ticket para ver sus detalles.</div>
       </div>
-      <div class="admin-modal-footer repair-ticket-footer">
-        <span id="repairDetailSaveMessage" class="repair-save-message" aria-live="polite"></span>
+      <div class="crm-drawer-footer">
+        <span id="repairDetailSaveMessage" class="repair-save-message" aria-live="polite" style="font-size: 0.85rem; color: var(--a-text-muted); flex: 1; align-self: center;"></span>
         <button class="admin-btn admin-btn-delete" type="button" id="repairDetailDelete">
           <i class="fa-solid fa-trash"></i> Eliminar ticket
         </button>

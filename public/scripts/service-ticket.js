@@ -513,6 +513,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function getContactPreference(ticketData) {
+        const match = String(ticketData?.issue_description || '').match(/Contacto pref\.:\s*([^\n\r]+)/i);
+        return match?.[1]?.trim() || 'WhatsApp';
+    }
+
+    function getContactPreferenceMessage(ticketData) {
+        const preference = getContactPreference(ticketData);
+        const normalized = normalizeOptionText(preference);
+        if (normalized.includes('correo')) return 'Te contactaremos por correo electronico lo antes posible.';
+        if (normalized.includes('llamada')) return 'Te llamaremos al telefono registrado lo antes posible.';
+        if (normalized.includes('cualquiera')) return 'Te contactaremos por el medio mas rapido disponible.';
+        return 'Te contactaremos por WhatsApp lo antes posible.';
+    }
+
     function showSuccess(folio, device, service, ticketData = {}) {
         form.style.display = 'none';
         authOverlay.style.display = 'none';

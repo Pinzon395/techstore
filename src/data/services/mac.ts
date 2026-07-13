@@ -522,7 +522,7 @@ export const macCategory: ServiceCategory = {
           { question: '¿Se borran mis archivos al cambiar batería?', answer: 'No debería borrarse información en un reemplazo físico de batería. Si hay apagados, humedad, placa dañada o datos críticos, sugerimos respaldo antes de intervenir.' },
           { question: '¿Atienden MacBook Air y MacBook Pro M1, M2 o M3?', answer: 'Sí. Diagnosticamos y cotizamos MacBook Air y Pro Intel, M1, M2 y M3. Validamos compatibilidad por generación y número de modelo antes de prometer disponibilidad.' },
           { question: '¿Qué pasa si mi MacBook no carga aunque detecta el cargador?', answer: 'Puede ser batería, cable, adaptador, puerto USB-C o MagSafe, flex, sensor, circuito de carga o consumo anormal en placa. Hacemos pruebas antes de recomendar batería.' },
-          { question: '¿Dónde están ubicados para cambio de batería MacBook en Cancún?', answer: 'Pixon PC / Rentalap atiende en Cto. Hacienda Chimay, 77539 Cancún, Q.R. Puedes escribir al +52 998 669 0777 o a pixonpc@gmail.com para confirmar revisión.' },
+          { question: '¿Dónde están ubicados para cambio de batería MacBook en Cancún?', answer: 'Pixon PC atiende en Cto. Hacienda Chimay, 77539 Cancún, Q.R. Puedes escribir al +52 998 669 0777 o a pixonpc@gmail.com para confirmar revisión.' },
         ],
       },
     }),

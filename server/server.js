@@ -39,6 +39,12 @@ const {
     hasHtml
 } = require('./utils/validators');
 const { logError } = require('./utils/logger');
+const {
+    notifyOwnerTicketCreated,
+    notifyCustomerTicketCreated,
+    notifyCustomerTicketReceived,
+    notifyCustomerTicketNote
+} = require('./services/email.service');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = String(process.env.SESSION_SECRET || '').trim();
@@ -106,6 +112,9 @@ const {
     getAllBuildsPublic,
     insertBuildAdmin,
     logAdminAction,
+    getTicketKPIs,
+    getTicketHistory,
+    getRecentTickets,
     trackPageView,
     getPageViewsDaily,
     getPageViewsTop,
@@ -145,6 +154,22 @@ const trustedOrigins = new Set([
     'http://localhost:5174',
     'https://pixon.com.mx'
 ]);
+
+function appendCustomerNote(notes, note, author) {
+    const cleanNote = cleanMultilineText(note, 1000);
+    if (!cleanNote) return notes || '';
+    const stamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
+    const authorLabel = cleanText(author || 'admin', 80);
+    const block = `[${stamp}] Nota enviada al cliente por ${authorLabel}:\n${cleanNote}`;
+    return [cleanMultilineText(notes, 4000), block].filter(Boolean).join('\n\n').slice(0, 5000);
+}
+
+function notificationStatus(type, result) {
+    if (!result) return { type, status: 'not_sent' };
+    if (result.ok) return { type, status: 'sent', id: result.id || null };
+    if (result.skipped) return { type, status: 'skipped', reason: result.reason || 'unknown' };
+    return { type, status: 'failed', statusCode: result.status || null };
+}
 
 function isTrustedRequestOrigin(req) {
     const source = req.get('origin') || req.get('referer');
@@ -943,6 +968,7 @@ async function bootstrap() {
             contact_phone: cleanedPhone,
             contact_email: cleanedEmail,
             priority,
+            status: 'new',
             is_b2b: cleanBoolean(is_b2b),
             b2b_company: cleanText(b2b_company, 120),
             b2b_quantity: cleanText(b2b_quantity, 40),
@@ -956,6 +982,20 @@ async function bootstrap() {
             appointment_delivery_method: cleanedDeliveryMethod,
             appointment_note: cleanedAppointmentNote,
             appointment_status: cleanText(appointment_status || 'pendiente_confirmacion', 40)
+        });
+
+        const ticketForNotification = {
+            ...ticket,
+            user_email: req.user?.email || ticket.user_email || null,
+            user_name: ticket.user_name || cleanedName
+        };
+        Promise.allSettled([
+            notifyOwnerTicketCreated(ticketForNotification),
+            notifyCustomerTicketCreated(ticketForNotification)
+        ]).then((results) => {
+            results
+                .filter((result) => result.status === 'rejected')
+                .forEach((result) => logError(result.reason, req, 'email'));
         });
         
         res.status(201).json({ success: true, message: 'Ticket creado exitosamente.', ticket_code: ticket.ticket_code, ticket });
@@ -1059,10 +1099,37 @@ async function bootstrap() {
     app.patch(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
         const id = toPositiveInt(req.params.id);
         if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
-        const ticket = await updateRepairAdmin(id, req.body || {});
+        const previousTicket = await getRepairAdminById(id);
+        if (!previousTicket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
+
+        const payload = { ...(req.body || {}) };
+        const customerNote = cleanMultilineText(payload.customer_note, 1000);
+        delete payload.customer_note;
+        if (customerNote) {
+            const baseNotes = Object.prototype.hasOwnProperty.call(payload, 'notes_internal')
+                ? payload.notes_internal
+                : previousTicket.notes_internal;
+            payload.notes_internal = appendCustomerNote(baseNotes, customerNote, req.user?.email);
+        }
+
+        const ticket = await updateRepairAdmin(id, payload);
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
+
+        const notifications = [];
+        let sentReceivedUpdate = false;
+        const receivedTransition = previousTicket.status !== 'received' && ticket.status === 'received';
+        if (receivedTransition) {
+            const result = await notifyCustomerTicketReceived(ticket, customerNote);
+            sentReceivedUpdate = result.ok;
+            notifications.push(notificationStatus('ticket_received', result));
+        }
+        if (customerNote && !sentReceivedUpdate && !receivedTransition) {
+            const result = await notifyCustomerTicketNote(ticket, customerNote);
+            notifications.push(notificationStatus('ticket_note', result));
+        }
+
         await audit(req, 'update', 'repair', ticket?.id, { ticket_code: ticket?.ticket_code });
-        res.json({ success: true, message: 'Cambios guardados correctamente.', ticket });
+        res.json({ success: true, message: 'Cambios guardados correctamente.', ticket, notifications });
     }));
 
     app.patch('/api/admin/tickets/:id/appointment', requireAdmin, ah(async (req, res) => {
@@ -1093,7 +1160,7 @@ async function bootstrap() {
         if (payload.contact_phone && !isValidPhone(cleanPhone(payload.contact_phone))) errors.push('El telefono no tiene un formato valido.');
         if (errors.length) return res.status(400).json({ success: false, message: errors.join(' ') });
 
-        const repair = await insertRepairAdmin(payload);
+        const repair = await insertRepairAdmin({ ...payload, status: payload.status || 'received' });
         await audit(req, 'create', 'repair', repair?.id, { ticket_code: repair?.ticket_code });
         res.status(201).json({ success: true, repair });
     }));
@@ -1156,6 +1223,23 @@ async function bootstrap() {
         req.on('close', () => dbEmitter.off('admin-pending', adminPendingListener));
     });
 
+    app.get('/api/admin/kpis', requireAdmin, ah(async (_req, res) => {
+        const kpis = await getTicketKPIs();
+        res.json(kpis);
+    }));
+
+    app.get('/api/admin/tickets/:id/history', requireAdmin, ah(async (req, res) => {
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
+        const history = await getTicketHistory(id);
+        res.json({ success: true, history });
+    }));
+
+    app.get('/api/admin/tickets/recent', requireAdmin, ah(async (req, res) => {
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 8));
+        const recent = await getRecentTickets(limit);
+        res.json(recent);
+    }));
     app.post('/api/admin/faqs', requireAdmin, ah(async (req, res) => {
         const payload = req.body || {};
         const errors = [];

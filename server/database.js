@@ -547,8 +547,9 @@ async function softDeleteRepairAdmin(id, deleted_by) {
 }
 
 async function insertRepairAdmin(data) {
-    const { user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, is_b2b, b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status } = data;
+    const { user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, status, is_b2b, b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status } = data;
     const ticket_code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const allowedStatus = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled']);
     const priorityMap = {
         quote: 'low',
         normal: 'normal',
@@ -558,6 +559,7 @@ async function insertRepairAdmin(data) {
         high: 'high'
     };
     const cleanPriority = priorityMap[String(priority || 'normal')] || 'normal';
+    const cleanStatus = allowedStatus.has(String(status || 'new')) ? String(status || 'new') : 'new';
     
     let internalNotes = 'Cliente: ' + (user_name || 'Sin nombre');
     if (is_b2b) {
@@ -566,10 +568,10 @@ async function insertRepairAdmin(data) {
 
     const [info] = await pool.execute(
         `INSERT INTO repairs (ticket_code, user_id, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, notes_internal, status, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status, appointment_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'received', ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             ticket_code, user_id || null, device_type, device_brand || '', device_model || '', reported_issue,
-            contact_phone, contact_email || null, cleanPriority, internalNotes,
+            contact_phone, contact_email || null, cleanPriority, internalNotes, cleanStatus,
             appointment_type || null, appointment_date || null, appointment_time || null, appointment_datetime || null,
             appointment_delivery_method || null, appointment_note || null, appointment_status || 'pendiente_confirmacion',
             appointment_datetime || null
