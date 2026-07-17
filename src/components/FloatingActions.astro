@@ -107,7 +107,6 @@ import WhatsappFloat from './WhatsappFloat.astro';
     transition:
       opacity 220ms ease,
       visibility 220ms ease,
-      transform 180ms ease,
       background-color 180ms ease,
       box-shadow 180ms ease;
   }
@@ -116,29 +115,21 @@ import WhatsappFloat from './WhatsappFloat.astro';
     background: #146bd1;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px);
     pointer-events: none;
   }
 
   .global-floating-actions :global(.back-to-top-btn.is-visible) {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
     pointer-events: auto;
-  }
-
-  .global-floating-actions :global(.back-to-top-btn__icon) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    animation: floatingArrow 2.2s ease-in-out infinite;
   }
 
   .global-floating-actions :global(.whatsapp-float) {
     background: #25d366;
     font-size: 1.55rem;
-    animation: whatsappBreath 3.8s ease-in-out infinite;
+    animation: whatsappBreath 6s ease-in-out infinite;
+    will-change: box-shadow;
+    transform: translateZ(0);
   }
 
   .global-floating-actions :global(.back-to-top-btn i),
@@ -156,6 +147,7 @@ import WhatsappFloat from './WhatsappFloat.astro';
   .global-floating-actions :global(.back-to-top-btn:active),
   .global-floating-actions :global(.whatsapp-float:active) {
     transform: scale(.96);
+    transition: transform 50ms ease;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -163,12 +155,14 @@ import WhatsappFloat from './WhatsappFloat.astro';
       background: #0f58b0;
       transform: translateY(-2px);
       box-shadow: 0 12px 28px rgb(7 31 58 / 30%);
+      transition: transform 100ms ease, background-color 180ms ease, box-shadow 180ms ease;
     }
 
     .global-floating-actions :global(.whatsapp-float:hover) {
       background: #1fbd59;
       transform: translateY(-2px);
       box-shadow: 0 12px 28px rgb(37 211 102 / 34%);
+      transition: transform 100ms ease, background-color 180ms ease, box-shadow 180ms ease;
     }
   }
 
@@ -190,11 +184,6 @@ import WhatsappFloat from './WhatsappFloat.astro';
     }
   }
 
-  :global(.low-end-mode) .global-floating-actions :global(.back-to-top-btn__icon),
-  :global(.low-end-mode) .global-floating-actions :global(.whatsapp-float) {
-    animation: none !important;
-  }
-
   :global(body.admin-body) .global-floating-actions {
     display: none;
   }
@@ -205,13 +194,8 @@ import WhatsappFloat from './WhatsappFloat.astro';
     }
   }
 
-  @keyframes floatingArrow {
-    0%, 100% { transform: translateY(1px); }
-    50% { transform: translateY(-3px); }
-  }
-
   @keyframes whatsappBreath {
-    0%, 100% { box-shadow: 0 8px 24px rgb(7 31 58 / 24%), 0 0 0 0 rgb(37 211 102 / 20%); }
-    50% { box-shadow: 0 9px 26px rgb(7 31 58 / 25%), 0 0 0 7px rgb(37 211 102 / 0%); }
+    0%, 100% { box-shadow: 0 8px 24px rgb(7 31 58 / 20%), 0 0 0 0 rgb(37 211 102 / 0%); }
+    50% { box-shadow: 0 10px 28px rgb(7 31 58 / 24%), 0 0 0 8px rgb(37 211 102 / 0%); }
   }
 </style>

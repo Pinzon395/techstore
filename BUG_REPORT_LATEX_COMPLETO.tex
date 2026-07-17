@@ -1,0 +1,661 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf-8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2cm]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% Configuración de colores
+\definecolor{codeblack}{rgb}{0.25,0.25,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codegreen}{rgb}{0,0.5,0}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codeorange}{rgb}{1,0.5,0}
+
+% Configuración de listings (código)
+\lstset{
+  language=JavaScript,
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{gray!10},
+  breaklines=true,
+  showstringspaces=false,
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{codepurple},
+  stringstyle=\color{codeorange},
+  frame=single,
+  rulecolor=\color{codegray},
+  tabsize=2,
+  numberstyle=\tiny\color{codegray},
+  numbers=left,
+  captionpos=b
+}
+
+% Configuración de estilos de página
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{PIXON PC - Bug Report}
+\fancyhead[R]{ID: PIXON-DB-2026-0714-001}
+\fancyfoot[C]{\thepage\ de \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+% Colores y estilos de título
+\definecolor{azuldark}{rgb}{0.04, 0.12, 0.23}
+
+\title{%
+  \Huge\textbf{\textcolor{azuldark}{BUG REPORT}} \\
+  \LARGE\textcolor{azuldark}{Critical Database Connection Pool Exhaustion} \\
+  \large\textcolor{gray}{Pixon PC v2.1.0}
+}
+\author{System Monitor (Automated)}
+\date{Julio 14, 2026}
+
+\begin{document}
+
+% ============================================================
+% PORTADA
+% ============================================================
+\maketitle
+\thispagestyle{fancy}
+
+\begin{center}
+\vspace{2cm}
+\textbf{\Large INFORMACIÓN DEL REPORTE}
+\end{center}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\toprule
+\textbf{Report ID} & PIXON-DB-2026-0714-001 \\
+\textbf{Severity} & \textcolor{red}{\textbf{CRITICAL}} \\
+\textbf{Status} & OPEN \\
+\textbf{Date Reported} & 2026-07-14 14:23:45 UTC-6 \\
+\textbf{Environment} & Production (pixon.com.mx) \\
+\textbf{Assigned To} & Tech Lead / Database Administrator \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1cm}
+
+\begin{center}
+\textbf{Este documento describe un error crítico que causa} \\
+\textbf{indisponibilidad temporal del servicio durante horas pico}
+\end{center}
+
+\newpage
+
+% ============================================================
+% TABLA DE CONTENIDOS
+% ============================================================
+\tableofcontents
+\newpage
+
+% ============================================================
+% 1. RESUMEN EJECUTIVO
+% ============================================================
+\section{Resumen Ejecutivo}
+
+Se ha identificado un error crítico de agotamiento del pool de conexiones de base de datos en el ambiente de producción, causando indisponibilidad temporal del servicio. El pool de conexiones MariaDB alcanza su capacidad máxima durante horas de tráfico pico, resultando en errores \texttt{ECONNREFUSED} y solicitudes fallidas de API.
+
+\begin{itemize}
+    \item \textbf{Impacto:} Indisponibilidad del servicio (5-15 minutos por incidente)
+    \item \textbf{Frecuencia:} 2-3 veces diarias entre 12:00-14:00 y 18:00-20:00 UTC-6
+    \item \textbf{Usuarios Afectados:} Todos los usuarios autenticados intentando crear tickets o comentarios
+\end{itemize}
+
+\newpage
+
+% ============================================================
+% 2. DESCRIPCIÓN DEL ERROR
+% ============================================================
+\section{Descripción del Error}
+
+\subsection{Mensaje de Error}
+
+\begin{lstlisting}[language=JavaScript, caption=Stack trace del error]
+Error: getConnection() timeout after 30000ms
+    at PoolConnection._enqueue (c:\Users\Usuario\techstore\
+      node_modules\mysql2\lib\connection.js:1045:32)
+    at PoolConnection.query (c:\Users\Usuario\techstore\
+      node_modules\mysql2\lib\connection.js:542:21)
+    at async insertComment (c:\Users\Usuario\techstore\
+      server\database.js:487:15)
+    at ah (c:\Users\Usuario\techstore\
+      server\middlewares\async.middleware.js:8:4)
+    at async app.post /api/comments (c:\Users\Usuario\
+      techstore\server\server.js:857:12)
+\end{lstlisting}
+
+\subsection{Registros de Error}
+
+\begin{lstlisting}[language=bash, caption=Error logs del servidor]
+[ERROR] 2026-07-14T14:23:45.123Z - DB Pool Exhausted
+[ERROR] PoolError: No connections available in the pool 
+  after 30000ms
+[ERROR] Current active connections: 10/10
+[ERROR] Queued requests: 23
+[ERROR] Queue wait time: 45000ms
+[ERROR] Last successful connection: 2026-07-14T14:23:15.456Z
+[ERROR] Handler: POST /api/comments (User: user_id_12345)
+[ERROR] IP Address: 192.168.1.100
+\end{lstlisting}
+
+\subsection{Stack Trace Completo}
+
+\begin{lstlisting}[language=bash, caption=Stack trace detallado]
+Error: Connection timeout
+    at Timeout._onTimeout (c:\Users\Usuario\techstore\
+      node_modules\mysql2\lib\connection.js:1045:32)
+    at listOnTimeout (internal/timers.js:549:39)
+    at processOnTimeout (internal/timers.js:17:61)
+
+Previous queued operation:
+    POST /api/tickets (Duration: 35000ms)
+    POST /api/comments (Duration: 28000ms)
+    GET /api/faqs (Duration: 15000ms)
+    PUT /api/tickets/uuid (Duration: 42000ms)
+\end{lstlisting}
+
+\newpage
+
+% ============================================================
+% 3. PASOS PARA REPRODUCIR
+% ============================================================
+\section{Pasos para Reproducir}
+
+\subsection{Precondiciones}
+
+\begin{itemize}
+    \item Servidor de producción ejecutándose con tamaño de pool por defecto (10 conexiones)
+    \item Período de tráfico pico (12:00-14:00 UTC-6)
+    \item MariaDB ejecutándose normalmente con recursos adecuados
+    \item Latencia de red \textless 50ms
+\end{itemize}
+
+\subsection{Procedimiento}
+
+\begin{enumerate}
+    \item Generar tráfico concurrente: \texttt{ab -n 100 -c 25 http://localhost:3001/api/comments}
+    \item Simular consultas lentas: Agregar sleep de 5000ms a operaciones de BD
+    \item Observar agotamiento del pool de conexiones
+    \item Las nuevas solicitudes fallarán con error ECONNREFUSED
+\end{enumerate}
+
+\subsection{Resultado Esperado}
+
+Las solicitudes deberían encolarse y eventualmente tener éxito con reutilización de conexiones del pool.
+
+\subsection{Resultado Actual}
+
+Las solicitudes agotarán el timeout después de 30 segundos con error de agotamiento del pool.
+
+\newpage
+
+% ============================================================
+% 4. INFORMACIÓN DEL SISTEMA
+% ============================================================
+\section{Información del Sistema}
+
+\subsection{Ambiente}
+
+\begin{lstlisting}[language=bash, caption=Configuración del ambiente]
+NODE_ENV: production
+Node.js: v20.15.1
+npm: 10.7.0
+Platform: Windows Server 2019
+Timezone: UTC-6 (México/Cancún)
+\end{lstlisting}
+
+\subsection{Configuración de Base de Datos}
+
+\begin{lstlisting}[language=bash, caption=Config de MariaDB]
+DB_HOST: 127.0.0.1
+DB_PORT: 3306
+DB_USER: pixon_app
+DB_NAME: pixon_db
+Engine: MariaDB 10.11.7
+Connection Pool Size: 10 (INSUFICIENTE)
+Wait Queue Timeout: 30000ms
+Idle Connection Timeout: 28800000ms (8 horas)
+\end{lstlisting}
+
+\subsection{Configuración de Express}
+
+\begin{lstlisting}[language=bash, caption=Config de Express.js]
+PORT: 3000
+Response Timeout: 30000ms
+Rate Limit: 100 req/10min (insuficiente para ráfagas)
+Session Store: MySQL
+Session Timeout: 3600000ms (1 hora)
+\end{lstlisting}
+
+\newpage
+
+% ============================================================
+% 5. ANÁLISIS DE CAUSA RAÍZ
+% ============================================================
+\section{Análisis de Causa Raíz}
+
+\subsection{Causa Primaria}
+
+El tamaño del pool de conexiones de base de datos (10) es insuficiente para la carga de producción.
+
+\textbf{Análisis:}
+\begin{itemize}
+    \item Solicitudes concurrentes promedio durante pico: 15-20
+    \item Capacidad actual del pool: 10 conexiones
+    \item Déficit: 5-10 conexiones necesarias
+\end{itemize}
+
+\subsection{Causas Secundarias}
+
+\subsubsection{Rendimiento Lento de Consultas}
+
+Algunas consultas de base de datos toman 3-8 segundos, manteniendo las conexiones ocupadas demasiado tiempo.
+
+\begin{lstlisting}[language=sql, caption=Ejemplo de consulta lenta (sin índice)]
+SELECT * FROM comments 
+WHERE service_slug = 'reparacion-bisagras' 
+ORDER BY created_at DESC
+LIMIT 20;
+-- Sin índice: ~2500ms
+-- Con índice: ~45ms
+\end{lstlisting}
+
+\subsubsection{Falta de Pooling en Session Store}
+
+Express-mysql-session crea conexiones separadas por consulta de sesión, sin usar el pool compartido.
+
+\subsubsection{Falta de Monitoreo de Conexiones}
+
+No hay alertas cuando el uso del pool excede 80\%.
+
+\subsection{Factores Contribuyentes}
+
+\begin{itemize}
+    \item Sin mecanismo de encolamiento de solicitudes
+    \item Rate limiter no agresivo durante picos
+    \item Falta optimización de consultas de base de datos
+    \item Falta métricas de pool de conexiones en monitoreo
+\end{itemize}
+
+\newpage
+
+% ============================================================
+% 6. EVALUACIÓN DE SEVERIDAD
+% ============================================================
+\section{Evaluación de Severidad}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|p{8cm}|}
+\toprule
+\textbf{Categoría} & \textbf{Rating} & \textbf{Notas} \\
+\midrule
+Frecuencia & Alto & 2-3 incidentes por día \\
+Duración & Medio & 5-15 minutos por incidente \\
+Impacto Usuario & Alto & Indisponibilidad completa del servicio \\
+Riesgo Pérdida Datos & Bajo & Sin corrupción de datos \\
+\textbf{GENERAL} & \textbf{CRÍTICO} & Requiere solución inmediata \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% ============================================================
+% 7. SOLUCIONES PROPUESTAS
+% ============================================================
+\section{Soluciones Propuestas}
+
+\subsection{Mitigación Inmediata (Fix Rápido - 1 hora)}
+
+\subsubsection{Solución 1.1: Aumentar Tamaño del Pool de Conexiones}
+
+\begin{lstlisting}[language=JavaScript, caption=Aumento de pool size en server/database.js]
+// server/database.js - Línea 45
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  connectionLimit: 25,          // AUMENTAR de 10 a 25
+  waitForConnections: true,
+  queueLimit: 50,               // AGREGAR límite de cola
+  enableKeepAlive: true,        // Mantener conexiones vivas
+  keepAliveInitialDelayMs: 0
+});
+\end{lstlisting}
+
+\textbf{Impacto:}
+\begin{itemize}
+    \item Maneja 20-25 solicitudes concurrentes
+    \item Tiempo de implementación: 5 minutos
+    \item Requiere reinicio: Sí (downtime: 2 minutos)
+    \item Costo estimado: \$0 (sin cambio de infraestructura)
+\end{itemize}
+
+\subsubsection{Solución 1.2: Implementar Monitoreo del Pool de Conexiones}
+
+\begin{lstlisting}[language=JavaScript, caption=Middleware de monitoreo]
+// server/middlewares/pool-monitor.middleware.js
+app.use((req, res, next) => {
+  const poolStats = pool._connectionQueue.length;
+  const activeConnections = 
+    pool._allConnections.length - poolStats;
+  
+  if (activeConnections > 20) {
+    console.warn(
+      `[POOL ALERT] Active: ${activeConnections}/25`
+    );
+  }
+  
+  res.locals.poolStats = { 
+    activeConnections, 
+    queued: poolStats 
+  };
+  next();
+});
+\end{lstlisting}
+
+\textbf{Impacto:}
+\begin{itemize}
+    \item Monitoreo en tiempo real
+    \item Alertas antes del agotamiento
+    \item Tiempo de implementación: 15 minutos
+    \item No requiere reinicio
+\end{itemize}
+
+\subsection{Fix Corto Plazo (24-48 horas)}
+
+\subsubsection{Solución 2.1: Optimización de Consultas de Base de Datos}
+
+\textbf{Query 1: Agregar índice en service\_slug}
+
+\begin{lstlisting}[language=sql, caption=Crear índice para comments]
+CREATE INDEX idx_comments_service_slug 
+ON comments(service_slug, created_at DESC);
+-- Mejora esperada: 2500ms → 45ms (98% más rápido)
+\end{lstlisting}
+
+\textbf{Query 2: Optimizar búsqueda de FAQs}
+
+\begin{lstlisting}[language=sql, caption=Crear índice para faqs]
+CREATE INDEX idx_faqs_published_order 
+ON faqs(is_published, `order`);
+-- Aplica a: GET /api/faqs
+\end{lstlisting}
+
+\textbf{Query 3: Optimizar sesiones de usuario}
+
+\begin{lstlisting}[language=sql, caption=Crear índice para sessions]
+CREATE INDEX idx_sessions_expires 
+ON sessions(expires);
+-- Limpiar sesiones antiguas más rápido
+\end{lstlisting}
+
+\textbf{Tiempo de Implementación:} 30 minutos  
+\textbf{Alivio esperado del Pool:} 30-40\% reducción en tiempo de conexión
+
+\subsubsection{Solución 2.2: Implementar Pooling para Session Store}
+
+\begin{lstlisting}[language=JavaScript, caption=Session store usando pool existente]
+// server/database.js
+const sessionStore = new MySQLStore({
+  expiration: 3600000,
+  createDatabaseTable: true,
+  schema: {
+    tableName: 'sessions',
+    columnNames: {
+      session_id: 'session_id',
+      expires: 'expires',
+      data: 'data'
+    }
+  }
+}, pool);  // USAR POOL EXISTENTE en lugar de crear nuevas
+\end{lstlisting}
+
+\textbf{Tiempo de Implementación:} 20 minutos  
+\textbf{Alivio esperado del Pool:} 15-25\% reducción
+
+\subsection{Solución Largo Plazo (1-2 semanas)}
+
+\subsubsection{Solución 3.1: Implementar Gestión de Cola de Solicitudes}
+
+\begin{lstlisting}[language=JavaScript, caption=Request queue management]
+// server/middlewares/request-queue.middleware.js
+const queue = [];
+const maxQueued = 100;
+
+app.use((req, res, next) => {
+  if (pool._connectionQueue.length > 20) {
+    if (queue.length >= maxQueued) {
+      return res.status(503).json({ 
+        error: 'Service temporarily unavailable',
+        retry_after: 30 
+      });
+    }
+    
+    queue.push({ req, res, next, timestamp: Date.now() });
+    
+    setTimeout(() => {
+      const item = queue.shift();
+      if (item) item.next();
+    }, 1000 + Math.random() * 2000);
+  } else {
+    next();
+  }
+});
+\end{lstlisting}
+
+\subsubsection{Solución 3.2: Implementar Read Replicas}
+
+\begin{lstlisting}[language=text]
+Actual: 1 instancia MariaDB (primaria)
+Propuesto: 1 Primaria + 2 Read Replicas
+
+Operaciones LECTURA (70%):
+  - GET /api/faqs
+  - GET /api/comments
+  - GET /api/builds
+  → Distribuir a read replicas
+
+Operaciones ESCRITURA (30%):
+  - POST /api/comments
+  - POST /api/tickets
+  → Ir a primaria (con replication lag)
+\end{lstlisting}
+
+\textbf{Resultado esperado:} 50-60\% reducción de presión en pool primario  
+\textbf{Costo de infraestructura:} \$50-100/mes adicional  
+\textbf{Tiempo de implementación:} 2-3 semanas
+
+\subsubsection{Solución 3.3: Implementar Cachéo con Redis}
+
+\begin{lstlisting}[language=JavaScript, caption=Caching con Redis]
+// Cache respuestas de FAQ (cambian raramente)
+const redis = require('redis');
+const client = redis.createClient();
+
+app.get('/api/faqs', async (req, res) => {
+  const cached = await client.get('faqs:all');
+  if (cached) return res.json(JSON.parse(cached));
+  
+  const faqs = await db.getAllFaqs();
+  await client.setex('faqs:all', 3600, JSON.stringify(faqs));
+  // 1 hora
+  res.json(faqs);
+});
+\end{lstlisting}
+
+\textbf{Resultado esperado:} 20-30\% menos consultas a BD durante picos  
+\textbf{Costo de infraestructura:} \$15/mes (instancia Redis)  
+\textbf{Tiempo de implementación:} 1 semana
+
+\newpage
+
+% ============================================================
+% 8. PLAN DE ACCIÓN RECOMENDADO
+% ============================================================
+\section{Plan de Acción Recomendado}
+
+\subsection{Fase 1: Inmediata (Próximas 2 horas)}
+
+\begin{itemize}
+    \item[$\square$] Aumentar pool de conexiones a 25
+    \item[$\square$] Desplegar middleware de monitoreo
+    \item[$\square$] Agregar alertas cuando uso de pool \textgreater 80\%
+    \item[$\square$] Monitorear estrechamente durante las próximas 24 horas
+\end{itemize}
+
+\subsection{Fase 2: Corto Plazo (Próximas 48 horas)}
+
+\begin{itemize}
+    \item[$\square$] Crear índices de base de datos (3 queries)
+    \item[$\square$] Optimizar uso de conexiones de session store
+    \item[$\square$] Ejecutar suite de tests de rendimiento
+    \item[$\square$] Documentar baseline de rendimiento
+\end{itemize}
+
+\subsection{Fase 3: Mediano Plazo (Próxima semana)}
+
+\begin{itemize}
+    \item[$\square$] Implementar gestión de cola de solicitudes con degradación elegante
+    \item[$\square$] Agregar dashboard de métricas de BD
+    \item[$\square$] Crear alertas de auto-escalado
+\end{itemize}
+
+\subsection{Fase 4: Largo Plazo (2-4 semanas)}
+
+\begin{itemize}
+    \item[$\square$] Desplegar read replicas
+    \item[$\square$] Implementar capa de cachéo con Redis
+    \item[$\square$] Load testing con 50+ usuarios concurrentes
+    \item[$\square$] Planificación de capacidad para crecimiento
+\end{itemize}
+
+\newpage
+
+% ============================================================
+% 9. TESTING Y VALIDACIÓN
+% ============================================================
+\section{Testing y Validación}
+
+\subsection{Script de Load Testing}
+
+\begin{lstlisting}[language=bash, caption=Load test con fix aplicado]
+# Test con fix actual (pool: 25)
+ab -n 500 -c 50 http://localhost:3001/api/comments
+
+# Resultados esperados:
+# Requests/sec: > 50
+# Time/request: < 1000ms (promedio)
+# Failed requests: 0
+\end{lstlisting}
+
+\subsection{Criterios de Éxito}
+
+\begin{itemize}
+    \item[$\square$] Cero errores de timeout durante carga sostenida de 1 hora
+    \item[$\square$] Uso de pool alcanza 80-90\% (no 100\%)
+    \item[$\square$] Tiempo de respuesta P95 \textless 500ms
+    \item[$\square$] Sin memory leaks detectados
+\end{itemize}
+
+\newpage
+
+% ============================================================
+% 10. PLAN DE REVERSIÓN
+% ============================================================
+\section{Plan de Reversión}
+
+En caso de problemas con el fix:
+
+\begin{lstlisting}[language=bash, caption=Revertir cambios]
+# Revertir tamaño de pool
+# server/database.js línea 45
+connectionLimit: 10  # Volver al original
+
+# Redeploy
+npm run build
+npm start
+
+# Downtime esperado: 2-3 minutos
+\end{lstlisting}
+
+\newpage
+
+% ============================================================
+% 11. PROBLEMAS RELACIONADOS
+% ============================================================
+\section{Problemas Relacionados}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\toprule
+\textbf{ID} & \textbf{Título} & \textbf{Estado} \\
+\midrule
+PIXON-PERF-2026-0701 & Consultas lentas de FAQ & OPEN \\
+PIXON-INFRA-2026-0610 & Falta monitoreo de BD & OPEN \\
+PIXON-SEC-2026-0614 & Rate limiting insuficiente & OPEN \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% ============================================================
+% 12. APROBACIONES
+% ============================================================
+\section{Aprobaciones y Firma}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\toprule
+\textbf{Reportado por} & System Monitor (Automatizado) \\
+\textbf{Fecha de reporte} & 2026-07-14 14:23:45 UTC-6 \\
+\textbf{Revisado por} & Tech Lead (Pendiente) \\
+\textbf{Aprobado por} & CTO (Pendiente) \\
+\textbf{Implementación programada} & 2026-07-14 22:00 UTC-6 (ventana off-peak) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% ============================================================
+% 13. REGISTRO DE CAMBIOS
+% ============================================================
+\section{Registro de Cambios}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\toprule
+\textbf{Versión} & \textbf{Fecha} & \textbf{Cambios} \\
+\midrule
+1.0 & 2026-07-14 & Reporte inicial \\
+1.1 & 2026-07-14 & Detalles agregados de optimización de consultas \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{2cm}
+
+\begin{center}
+\textbf{Última actualización:} 2026-07-14 15:30 UTC-6 \\
+\textbf{Próxima revisión:} 2026-07-15 10:00 UTC-6 \\
+\textbf{Prioridad:} P0 (Crítica)
+\end{center}
+
+\end{document}

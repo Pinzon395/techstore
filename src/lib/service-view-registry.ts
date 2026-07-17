@@ -60,7 +60,7 @@ const viewRules: ViewRule[] = [
   { matches: (f) => f.useServiceDetailView, load: () => import('../components/views/ServiceDetailView.astro') },
 ];
 
-export async function resolveServiceView(flags: ServiceFlags, category: ServiceCategory, service: ServiceItem) {
+export async function resolveServiceView(flags: ServiceFlags, category: ServiceCategory, service: ServiceItem): Promise<any> {
   const rule = viewRules.find((item) => item.matches(flags, category, service));
   if (!rule) return null;
   return (await rule.load()).default;
