@@ -426,6 +426,7 @@ export const telefonoCategory: ServiceCategory = {
         navChildren: [
           { slug: 'reparacion-pantalla-iphone', label: 'Reparación de pantalla iPhone' },
           { slug: 'cambio-bateria-iphone', label: 'Cambio de batería iPhone' },
+          { slug: 'desbloqueo-icloud', label: 'Desbloqueo de iCloud', customUrl: '/desbloqueo-icloud-cancun' },
           { slug: 'reparacion-face-id-iphone', label: 'Reparación de Face ID' },
           { slug: 'reparacion-camara-iphone', label: 'Reparación de cámara iPhone' },
           { slug: 'reparacion-carga-iphone', label: 'Reparación de carga iPhone' },
@@ -460,6 +461,7 @@ export const telefonoCategory: ServiceCategory = {
           { problem: 'Batería que dura poco o se apaga', solution: 'Probamos salud de batería, consumo y carga antes de recomendar reemplazo.' },
           { problem: 'No carga o carga intermitente', solution: 'Revisamos puerto, flex, limpieza, cable, batería y circuito de carga.' },
           { problem: 'Face ID, cámara, bocina o micrófono fallan', solution: 'Probamos cada módulo para separar falla de pieza, flex, humedad o sistema.' },
+          { problem: 'Pantalla de activación o cuenta iCloud bloqueada', solution: 'Diagnóstico previo de IMEI para evaluar si requiere bypass local o desvinculación por servidor.' },
         ],
         compatibleBrands: ['iPhone'],
         faqs: [
@@ -668,6 +670,28 @@ export const telefonoCategory: ServiceCategory = {
           { question: 'Después del diagnóstico, ¿me dicen precio exacto?', answer: 'Te damos una ruta clara: pieza probable, costo, tiempo, riesgos y garantía. En fallas de placa o humedad avanzada puede haber diagnóstico por etapas porque aparecen síntomas al recuperar funciones.' },
         ],
         relatedSlugs: ['reparacion-iphone', 'reparacion-pantalla-iphone', 'cambio-bateria-iphone', 'reparacion-carga-iphone', 'reparacion-humedad-iphone', 'reparacion-camara-iphone', 'reparacion-face-id-iphone', 'reparacion-bocina-iphone'],
+      },
+      {
+        slug: 'desbloqueo-icloud',
+        label: 'Desbloqueo de iCloud',
+        customUrl: '/desbloqueo-icloud-cancun',
+        seoKeyword: 'Desbloqueo de iCloud en Cancún',
+        intro: 'Servicio técnico especializado en desbloqueo de iCloud, eliminación de cuenta Apple ID y restablecimiento de pantalla de activación para iPhone en Cancún con diagnóstico previo de IMEI.',
+        bullets: [
+          'Evaluación inicial de IMEI y estatus de seguridad (clean vs reportado)',
+          'Diagnóstico técnico para pantalla de activación y cuenta Apple ID olvidada',
+          'Atención para iPhone en Cancún Centro, Huayacán, Cumbres y Zona Hotelera',
+          'Cotización honesta y transparencia total en tiempos y factibilidad'
+        ],
+        compatibleBrands: ['iPhone', 'iPad'],
+        faqs: [
+          { question: '¿Cuánto cuesta un desbloqueo de iCloud en Cancún?', answer: 'El costo varía según el modelo de iPhone, versión de iOS y el tipo de estado (pantalla de activación, código de acceso olvidado o bloqueo de cuenta). En Pixon PC realizamos una verificación previa del IMEI para indicarte la cotización exacta.' },
+          { question: '¿Todos los iPhone se pueden desbloquear de iCloud?', answer: 'No todos los casos son iguales. Depende de la generación del procesador (A11 o anterior vs A12+), la versión de iOS y si el IMEI está limpio o con reporte. Te damos un diagnóstico honesto antes de cobrar nada.' },
+          { question: '¿Cuál es la diferencia entre bypass y eliminación de cuenta?', answer: 'El bypass deshabilita la pantalla de activación de forma local permitiendo usar el equipo, mientras que la eliminación por servidor desvincula la cuenta Apple ID de raíz. En el diagnóstico te explicamos la opción más adecuada.' },
+          { question: '¿Qué información necesitan para revisar mi iPhone?', answer: 'Requerimos conocer el modelo exacto, el código IMEI y el síntoma en pantalla (ejemplo: "iPhone bloqueado para el propietario" o código de 6 dígitos olvidado).' },
+          { question: '¿Atienden en Cancún de forma presencial?', answer: 'Sí. Atendemos en nuestra ubicación física en Cancún (Cto. Hacienda Chimay, Supermanzanas, Cancún Centro, Huayacán, Cumbres, etc.) o por cotización previa vía WhatsApp.' }
+        ],
+        relatedSlugs: ['reparacion-iphone', 'liberacion-software', 'diagnostico-iphone', 'software-iphone']
       },
       ...IPHONE_CLUSTER_SERVICES,
     ],

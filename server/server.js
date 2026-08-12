@@ -45,6 +45,10 @@ const {
     notifyCustomerTicketReceived,
     notifyCustomerTicketNote
 } = require('./services/email.service');
+const {
+    publicCatalog: getPcBuilderCatalog,
+    refreshStalePrices: refreshPcBuilderPrices
+} = require('./services/pc-pricing.service');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = String(process.env.SESSION_SECRET || '').trim();
@@ -234,7 +238,7 @@ async function bootstrap() {
                 styleSrc:   ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
                 fontSrc:    ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
                 imgSrc:     ["'self'", "data:", "https:"],
-                connectSrc: ["'self'", "https://cloudflareinsights.com", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.googletagmanager.com"],
+                connectSrc: ["'self'", "https://cloudflareinsights.com", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.googletagmanager.com", "https://analytics.google.com", "https://www.google.com", "https://stats.g.doubleclick.net"],
                 frameSrc:   ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://maps.google.com", "https://www.google.com"],
                 frameAncestors: ["'none'"],
                 baseUri:    ["'self'"],
@@ -262,6 +266,34 @@ async function bootstrap() {
             return res.redirect(302, '/en');
         }
         next();
+    });
+
+    // Alias SEO de alta intención. Se redirigen únicamente variantes conocidas
+    // hacia la landing que realmente responde esa búsqueda; no se "adivinan"
+    // rutas inexistentes para no convertir errores reales en contenido débil.
+    const serviceAliasRedirects = Object.freeze({
+        '/servicios/pc/mantenimiento-preventivo': '/mantenimiento-preventivo-computadora',
+        '/mantenimiento-preventivo': '/mantenimiento-preventivo-computadora',
+        '/mantenimiento-computadora': '/mantenimiento-preventivo-computadora',
+        '/mantenimiento-de-computadora': '/mantenimiento-preventivo-computadora',
+        '/mantenimiento-pc': '/mantenimiento-preventivo-computadora',
+        '/mantenimiento-preventivo-pc': '/mantenimiento-preventivo-computadora',
+        '/limpieza-pc': '/mantenimiento-preventivo-computadora',
+        '/limpieza-computadora': '/mantenimiento-preventivo-computadora',
+        '/limpieza-interna-pc': '/mantenimiento-preventivo-computadora',
+        '/pc-se-calienta': '/servicios/pc/refrigeracion',
+        '/cambio-pasta-termica-pc': '/servicios/pc/refrigeracion',
+        '/mantenimiento-laptop': '/limpieza-laptop',
+        '/mantenimiento-preventivo-laptop': '/limpieza-laptop',
+        '/limpieza-interna-laptop': '/limpieza-laptop',
+        '/laptop-se-calienta': '/limpieza-laptop',
+        '/ventilador-laptop-suena-fuerte': '/limpieza-laptop',
+        '/cambio-pasta-termica-laptop': '/limpieza-laptop',
+    });
+
+    app.get(Object.keys(serviceAliasRedirects), (req, res) => {
+        const normalizedPath = req.path.replace(/\/+$/, '') || '/';
+        return res.redirect(301, serviceAliasRedirects[normalizedPath]);
     });
 
     function setUtf8StaticHeaders(res, filePath) {
@@ -326,7 +358,10 @@ async function bootstrap() {
 
     function staticSkipAdmin(staticHandler) {
         return (req, res, next) => {
-            if (req._skipStatic) return next();
+            // 404.html es una plantilla de error, no una página navegable.
+            // Si express.static la entrega primero, /404 responde 200 y la
+            // ruta deja de comportarse como un error HTTP real.
+            if (req._skipStatic || req.path === '/404' || req.path === '/404.html') return next();
             return staticHandler(req, res, next);
         };
     }
@@ -362,7 +397,9 @@ async function bootstrap() {
                     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
                 } else if (/\/(sw|cache-buster)\.js$/i.test(p)) {
                     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-                } else if (/\/(manifest\.json|robots\.txt|sitemap\.xml)$/i.test(p)) {
+                } else if (/\/sitemap\.(xml|xsl)$/i.test(p)) {
+                    res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
+                } else if (/\/(manifest\.json|robots\.txt)$/i.test(p)) {
                     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
                 } else if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(p)) {
                     res.setHeader('Cache-Control', 'public, max-age=2592000, s-maxage=604800, stale-while-revalidate=2592000');
@@ -385,7 +422,7 @@ async function bootstrap() {
 
         app.get('/sitemap.xml', (_req, res) => {
             const file = path.join(distPath, 'sitemap.xml');
-            res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
             if (fs.existsSync(file)) {
                 res.type('application/xml; charset=UTF-8').sendFile(file);
             } else {
@@ -432,6 +469,11 @@ async function bootstrap() {
         windowMs: 60 * 1000,
         max: 120,
         message: 'Demasiados eventos.'
+    });
+    const pcBuilderLimiter = createLimiter({
+        windowMs: 60 * 1000,
+        max: 30,
+        message: 'Demasiadas consultas de precios. Espera un momento.'
     });
     const adminWriteLimiter = createLimiter({
         windowMs: 60 * 1000,
@@ -1030,6 +1072,16 @@ async function bootstrap() {
         res.json(builds);
     }));
 
+    app.get('/api/pc-builder/catalog', pcBuilderLimiter, ah(async (_req, res) => {
+        res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=1800');
+        res.json(getPcBuilderCatalog());
+    }));
+
+    app.post('/api/pc-builder/refresh', pcBuilderLimiter, requireAdmin, ah(async (_req, res) => {
+        const result = await refreshPcBuilderPrices({ force: true });
+        res.json({ success: result.ok, ...result });
+    }));
+
     /* ─────────────────────────────────────────────────────────
         ANALYTICS → Page View Tracking
     ───────────────────────────────────────────────────────── */
@@ -1384,6 +1436,7 @@ async function bootstrap() {
         legacyRedirects.forEach(oldPath => {
             app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
         });
+
         // M6 → canonicaliza /b2b -> /B2B (Preferencia del usuario por Mayúsculas)
         app.get('/b2b', (req, res, next) => {
             if (req.path === '/b2b') return res.redirect(301, '/B2B');
@@ -1397,6 +1450,18 @@ async function bootstrap() {
             res.sendFile(path.join(distPath, 'admin/admin.html'), {
                 headers: { 'Cache-Control': 'no-store' }
             });
+        });
+
+        // La vista de error también debe conservar el estado HTTP correcto
+        // cuando se consulta directamente como /404.
+        app.get(['/404', '/404.html'], (_req, res) => {
+            const notFoundPath = path.join(distPath, '404.html');
+            if (fs.existsSync(notFoundPath)) {
+                return res.status(404).sendFile(notFoundPath, {
+                    headers: { 'Cache-Control': 'public, max-age=300, s-maxage=3600' }
+                });
+            }
+            return res.status(404).send('Not found');
         });
 
         app.get('*', (req, res, next) => {

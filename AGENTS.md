@@ -38,7 +38,7 @@ Debe respetarse:
 - H2 y H3 con intención de búsqueda.
 - Keywords locales naturales, sin keyword stuffing.
 - NAP consistente:
-  - Pixon PC / Rentalap
+  - Pixon PC
   - Cto. Hacienda Chimay, 77539 Cancún, Q.R.
   - +52 998 669 0777
   - pixonpc@gmail.com

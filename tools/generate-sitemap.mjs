@@ -1,11 +1,13 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const SITE_URL = 'https://pixon.com.mx';
 const ROOT = process.cwd();
 const DIST_DIR = path.join(ROOT, 'dist');
 const PUBLIC_SITEMAP = path.join(ROOT, 'public', 'sitemap.xml');
 const DIST_SITEMAP = path.join(DIST_DIR, 'sitemap.xml');
+const PUBLIC_XSL = path.join(ROOT, 'public', 'sitemap.xsl');
 
 const BLOCKED_PREFIXES = [
   '/admin',
@@ -74,6 +76,8 @@ function escapeXml(value) {
 
 async function buildSitemap() {
   const files = await walk(DIST_DIR);
+  const xslContents = await fs.readFile(PUBLIC_XSL);
+  const xslVersion = createHash('sha256').update(xslContents).digest('hex').slice(0, 12);
   const urls = new Map();
 
   for (const file of files) {
@@ -105,7 +109,7 @@ async function buildSitemap() {
 
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
+    `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=${xslVersion}"?>`,
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     body,
     '</urlset>',

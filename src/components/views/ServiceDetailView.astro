@@ -6,7 +6,7 @@ import RelatedServicesSection from '../RelatedServicesSection.astro';
 import ServiceTicketSection from '../ServiceTicketSection.astro';
 import Footer from '../Footer.astro';
 
-const { service, category, description = '' } = Astro.props;
+const { service, category, description = '', faqs: providedFaqs = [] } = Astro.props;
 
 const servicePath = `/servicios/${category.slug}/${service.slug}`;
 const serviceSlugClass = service.label === 'Cambio HDMI PS5'
@@ -395,7 +395,29 @@ const warranties = service.warrantyPoints || warrantyPresets[category.slug] || [
   'Pruebas de funcionamiento antes de entregar.',
   'Diagnostico claro si la falla viene de placa, humedad o piezas externas.',
 ];
-const faqs = service.faqs || [];
+const fallbackFaqs = [
+  {
+    question: '¿Cuánto tiempo toma este servicio en Cancún?',
+    answer: 'El tiempo depende del tipo de intervención, disponibilidad de refacciones y gravedad de la falla. En servicios simples puede resolverse el mismo día; en reparaciones con piezas o pruebas extendidas puede tomar de 24 a 72 horas. Siempre te damos tiempo estimado antes de iniciar.',
+  },
+  {
+    question: '¿Mi equipo está seguro durante la reparación?',
+    answer: 'Trabajamos con área antiestática, herramienta adecuada y revisión documentada del estado del equipo. No borramos información ni cambiamos piezas sin autorización. Si el servicio implica riesgo para datos o componentes, te lo explicamos antes de continuar.',
+  },
+  {
+    question: '¿Ofrecen garantía por escrito?',
+    answer: 'Entregamos garantía por escrito según el tipo de servicio y pieza instalada. La garantía cubre la intervención realizada bajo uso normal, pero no aplica por golpes, humedad, manipulación externa, variaciones eléctricas o fallas en piezas no intervenidas.',
+  },
+  {
+    question: '¿Qué marcas atienden en Cancún?',
+    answer: 'Trabajamos con marcas comunes como HP, Dell, Lenovo, Asus, Acer, MSI, Apple, PlayStation, Xbox, Nintendo, Epson, Canon, Brother y equipos ensamblados. La compatibilidad final se confirma por modelo, síntoma y disponibilidad de refacciones.',
+  },
+  {
+    question: '¿Tienen servicio a domicilio o debo llevar el equipo?',
+    answer: 'Contamos con taller físico en Cancún para diagnósticos y reparaciones que requieren herramienta especializada. En algunos casos podemos coordinar recolección, entrega o visita según zona, disponibilidad y tipo de equipo. Te orientamos por WhatsApp antes de moverlo.',
+  },
+];
+const faqs = service.faqs?.length ? service.faqs : providedFaqs.length ? providedFaqs : fallbackFaqs;
 const ticketTitle = service.ticketTitle || `Crear ticket de ${service.label}`;
 const ticketSubtitle = service.ticketSubtitle || (
   category.slug === 'redes'

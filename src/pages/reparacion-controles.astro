@@ -1,675 +1,745 @@
 ---
 import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
-import Footer from '../components/Footer.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
+import ServiceTicketSection from '../components/ServiceTicketSection.astro';
 import FaqSection from '../components/FaqSection.astro';
 import CommentsSection from '../components/CommentsSection.astro';
-import ServiceTicketSection from '../components/ServiceTicketSection.astro';
+import ContactSection from '../components/ContactSection.astro';
+import Footer from '../components/Footer.astro';
+import Icon from '../components/LocalSpriteIcon.astro';
+
+const canonical = '/reparacion-controles';
+const whatsappMsg = encodeURIComponent('Hola Pixon PC, quiero cotizar la reparación de mi control (Drift / Botones / Puerto de carga / Batería) en Cancún.');
 
 const faqs = [
-  { question: `¿Reparan joystick drift de PS5, Xbox y Switch?`, answer: `Sí. Reparamos drift en DualSense, DualShock 4, Xbox Series, Xbox One y Joy-Con. Revisamos si el problema viene del módulo, suciedad, desgaste o placa antes de cambiar piezas, y te explicamos si conviene módulo estándar o una opción mejorada.` },
-  { question: `¿Cuánto cuesta reparar un control?`, answer: `El costo suele ir de <strong>$450 a $850 MXN</strong> según consola y daño. Joystick drift simple normalmente es más económico; reparación de placa, gatillos, botones, carga o piezas especiales puede subir. Primero diagnosticamos para cotizar exacto.` },
-  { question: `¿Cuánto tarda la reparación?`, answer: `Normalmente toma de 24 a 72 horas dependiendo de stock y tipo de falla. Joystick drift estándar puede quedar al día siguiente; reparaciones de placa, puertos, gatillos o piezas especiales pueden tomar de 5 a 7 días. Te avisamos antes de pedir piezas.` },
-  { question: `¿Hay garantía?`, answer: `Sí. Entregamos <strong>3 meses por escrito</strong> sobre la reparación realizada. Si el módulo nuevo presenta drift dentro del plazo, lo revisamos y reemplazamos sin costo cuando aplica. No cubre golpes, humedad o manipulaci?n externa.` },
+  {
+    question: '¿Reparan joystick drift de PS5, Xbox y Nintendo Switch en Cancún?',
+    answer: 'Sí. Diagnosticamos y reparamos el molesto stick drift en controles DualSense de PS5, DualShock 4 de PS4, Xbox Series X/S, Xbox One (incluyendo modelos Elite) y Joy-Con o Pro Controller de Nintendo Switch. Instalamos potenciómetros de precisión ALPS o sensores electromagnéticos de Efecto Hall.'
+  },
+  {
+    question: '¿Cuánto cuesta reparar un control de consola en Cancún?',
+    answer: 'El costo varía según el modelo de control y la falla. Una reparación estándar de joystick drift o sustitución de micro-switches RB/LB / L1/R1 suele ir de $450 a $850 MXN. Si requiere reemplazo de batería, reparación de pista o puerto USB-C, te damos cotización exacta tras el diagnóstico gratis.'
+  },
+  {
+    question: '¿Cuánto tiempo tarda la reparación de un control?',
+    answer: 'En Pixon PC Cancún realizamos el servicio en un lapso de 24 a 48 horas. Contamos con stock continuo de refacciones ALPS, botones RB/LB, membranas, resortes y conectores USB-C para que no te quedes días sin jugar.'
+  },
+  {
+    question: '¿Ofrecen garantía por la reparación del mando?',
+    answer: 'Sí, otorgamos 3 meses de garantía por escrito en todas las intervenciones de hardware. Si el módulo reemplazado presenta alguna desviación en la zona muerta durante el plazo de garantía, lo reajustamos o cambiamos sin costo.'
+  },
+  {
+    question: '¿Qué diferencia hay entre potenciómetros ALPS y sensores Effect Hall?',
+    answer: 'Los potenciómetros ALPS son los módulos analógicos originales de fábrica que utilizan carbón conductivo. Los sensores de Efecto Hall utilizan imanes magnéticos sin contacto físico, lo que elimina el desgaste mecánico y previene la aparición de drift a futuro.'
+  },
+  {
+    question: '¿Reparan controles de ediciones especiales o Elite?',
+    answer: 'Sí. Atendemos controles Xbox Elite Series 1 y 2, DualSense Edge, controles de edición especial (Halo, Zelda, Spider-Man, Starfield, etc.) cuidando minuciosamente la estética, clips y carcasas para no dejar marcas de apertura.'
+  },
+  {
+    question: '¿Qué incluye la limpieza ultrasónica y mantenimiento preventivo?',
+    answer: 'Desarmamos completamente el mando, lavamos carcasas y membranas en tina ultrasónica, desinfectamos la suciedad del sudor acumulado, aplicamos alcohol isopropílico técnico en la tarjeta lógica y lubricamos los ejes del joystick.'
+  },
+  {
+    question: '¿Es necesario llevar la consola al taller o solo el control?',
+    answer: 'Solo necesitas traer tu control. En nuestro taller contamos con consolas de prueba de cada marca (PS5, PS4, Xbox Series, Switch) y software de calibración por computadora para probar cada botón y eje analógico.'
+  }
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://pixon.com.mx${canonical}`
+    },
+    headline: 'Reparación de Controles Xbox, PlayStation y Nintendo en Cancún',
+    description: 'Servicio técnico especializado en reparación de controles en Cancún. Joystick drift, botones RB/LB L1/R1, puertos USB-C, baterías y mantenimiento preventivo.',
+    image: 'https://pixon.com.mx/assets/images/responsive/gaming_controllers_collection.webp',
+    author: {
+      '@type': 'Organization',
+      name: 'Pixon PC',
+      url: 'https://pixon.com.mx'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Pixon PC',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://pixon.com.mx/assets/images/LOGOCIRCULAR.png'
+      }
+    },
+    datePublished: '2026-08-03'
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Reparación de Controles en Cancún',
+    serviceType: 'Reparación de Joystick Drift, Botones, Puerto de Carga y Baterías de Controles',
+    url: `https://pixon.com.mx${canonical}`,
+    description: 'Taller especializado en reparación de mandos DualSense PS5, DualShock 4, Xbox Series, Xbox One, Nintendo Switch Joy-Con y Pro Controller en Cancún.',
+    provider: {
+      '@type': 'LocalBusiness',
+      name: 'Pixon PC',
+      telephone: '+529986690777',
+      email: 'pixonpc@gmail.com',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Cto. Hacienda Chimay',
+        addressLocality: 'Cancún',
+        addressRegion: 'Q.R.',
+        postalCode: '77539',
+        addressCountry: 'MX'
+      }
+    },
+    areaServed: [{ '@type': 'City', name: 'Cancún' }, { '@type': 'State', name: 'Quintana Roo' }]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer }
+    }))
+  }
 ];
 ---
 
 <Base
-  title="Reparación de Controles Xbox y PlayStation en Cancún | Pixon PC"
-  description="Servicio técnico de reparación de controles Xbox y PlayStation en Cancún. Arreglamos joystick drift, botones RB/LB L1/R1, puertos de carga y hacemos limpieza profesional. Diagnóstico gratis. Pixon PC Cancún."
-  canonical="https://pixon.com.mx/reparacion-controles"
+  title="Reparación de Controles en Cancún | Drift, Botones y Batería Pixon PC"
+  description="Servicio técnico especializado en reparación de controles Xbox, PlayStation y Nintendo en Cancún. Joystick drift ALPS/Hall Effect, botones RB/LB L1/R1, puertos USB-C y baterías."
+  canonical={canonical}
   image="/assets/images/responsive/gaming_controllers_collection.webp"
-  schema={[
-    {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": "Reparación de Controles de Consola en Cancún",
-        "provider": {
-            "@type": "LocalBusiness",
-            "name": "Pixon PC",
-            "url": "https://pixon.com.mx",
-            "telephone": "+52-998-669-0777",
-            "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Cancún",
-                "addressRegion": "Quintana Roo",
-                "addressCountry": "MX"
-            }
-        },
-        "areaServed": {
-            "@type": "City",
-            "name": "Cancún"
-        },
-        "serviceType": "Reparación de Hardware",
-        "url": "https://pixon.com.mx/reparacion-controles",
-        "description": "Reparación profesional de controles Xbox, PS4, PS5 y Nintendo Switch en Cancún. Joystick drift, botones, gatillos y limpieza profesional.",
-        "hasOfferCatalog": {
-            "@type": "OfferCatalog",
-            "name": "Servicios de Reparación de Controles",
-            "itemListElement": [
-                {
-                    "@type": "Offer",
-                    "itemOffered": {
-                        "@type": "Service",
-                        "name": "Reparación de Joystick Drift en Cancún"
-                    }
-                },
-                {
-                    "@type": "Offer",
-                    "itemOffered": {
-                        "@type": "Service",
-                        "name": "Reparación de Botones RB/LB y L1/R1"
-                    }
-                },
-                {
-                    "@type": "Offer",
-                    "itemOffered": {
-                        "@type": "Service",
-                        "name": "Limpieza Profesional de Controles"
-                    }
-                },
-                {
-                    "@type": "Offer",
-                    "itemOffered": {
-                        "@type": "Service",
-                        "name": "Reparación de Puerto de Carga de Control"
-                    }
-                },
-                {
-                    "@type": "Offer",
-                    "itemOffered": {
-                        "@type": "Service",
-                        "name": "Cambio de Batería de Control"
-                    }
-                }
-            ]
-        }
-    },
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Inicio",
-                "item": "https://pixon.com.mx/"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Reparación de Controles",
-                "item": "https://pixon.com.mx/reparacion-controles"
-            }
-        ]
-    }
-]}
+  schema={schema}
+  bodyClass="service-page ctrl-page"
 >
   <Navbar />
-  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Reparación de Controles' }]} />
-    <!-- -" HERO -" -->
-    <header class="ctrl-hero">
-        <div class="container">
-            <div class="badge-row">
-                <span class="badge"><i class="fa-solid fa-map-marker-alt"></i> Cancún, Q.Roo</span>
-                <span class="badge"><i class="fa-solid fa-gamepad"></i> Xbox · PlayStation ·
-                    Nintendo</span>
-                <span class="badge"><i class="fa-solid fa-shield-halved"></i> Garantía
-                    incluida</span>
-            </div>
-            <h1>Reparación de Controles <span>Xbox, PlayStation y Nintendo</span> en Cancún</h1>
-            <p>¿Tu control se mueve solo, los botones no responden o no carga? En <strong>Pixon PC
-                    Cancún</strong> somos
-                especialistas en reparación de joystick drift, bumpers RB/LB, gatillos y limpieza
-                profesional de mandos
-                de consola.</p>
-            <div class="cta-row">
-                <button class="btn btn-primary"
-                    onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20quiero%20cotizar%20la%20reparaci%C3%B3n%20de%20mi%20control')"><i
-                        class="fa-brands fa-whatsapp"></i> Cotizar Reparación</button>
-                <a href="#servicios-control" class="btn btn-outline"
-                    style="border-color:rgba(255,255,255,0.4);color:#fff;">Ver Servicios <i
-                        class="fa-solid fa-arrow-down"></i></a>
-            </div>
-        </div>
-    </header>
-    <!-- -" ¿QUÉ LE DUELE A TU CONTROL? -" -->
-    <section id="servicios-control" class="section-padding"
-        style="background:linear-gradient(180deg, #f4f7fb 0%, #f4f7fb calc(100% - 80px), #030719 100%); padding-bottom:100px;"
-        itemscope itemtype="https://schema.org/Service">
-        <meta itemprop="serviceType" content="Reparación de Controles">
-        <div class="container">
-            <div class="section-title text-center" style="margin-bottom:2.5rem;">
-                <span class="section-badge">SERVICIOS DE REPARACIÓN</span>
-                <h2 itemprop="name">Diagnóstico y Reparación de Controles: Fallas Comunes</h2>
-                <p itemprop="description">Los problemas y fallas de <strong>hardware</strong> más comunes que solucionamos en nuestro taller especializado de <strong>servicio
-                        técnico de controles en
-                        Cancún</strong>.</p>
-            </div>
-            <div class="card-services"
-                style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
-                <!-- Joystick Drift -->
-                <div class="svc-card wave-card">
-                    <div class="icon"><i class="fa-solid fa-gamepad"></i></div>
-                    <h3>Reparación de Joystick Drift en Cancún</h3>
-                    <p>El personaje se mueve solo o la cámara gira sin que lo toques. Es el clásico
-                        <strong>stick
-                            drift</strong>, causado por el desgaste del potenciómetro analógico. Lo
-                        reemplazamos por uno
-                        de calidad ALPS y tu control vuelve a tener precisión milimétrica.
-                    </p>
-                </div>
-                <!-- Botones RB/LB -->
-                <div class="svc-card wave-card">
-                    <div class="icon"><i class="fa-regular fa-circle-dot"></i></div>
-                    <h3>Reparación de Botones RB/LB y L1/R1</h3>
-                    <p>Los bumpers son los que más sufren el uso intenso. Si tus disparos fallan o
-                        el RB/LB de Xbox  →o
-                        L1/R1 de PlayStation → ya no registra, cambiamos los micro-switches o las
-                        piezas plásticas
-                        dañadas para que nunca más pierdas una partida por culpa del control.</p>
-                </div>
-                <!-- Puerto de carga -->
-                <div class="svc-card wave-card">
-                    <div class="icon"><i class="fa-solid fa-plug"></i></div>
-                    <h3>Reparación de Puerto de Carga USB-C / Micro-USB</h3>
-                    <p>¿Solo prende si acomodas el cable en cierto ángulo? Reparamos o sustituimos
-                        el conector USB-C o
-                        Micro-USB directamente en la placa. Solución definitiva, sin parches
-                        temporales.</p>
-                </div>
-                <!-- Batería -->
-                <div class="svc-card wave-card">
-                    <div class="icon"><i class="fa-solid fa-battery-half"></i></div>
-                    <h3>Reemplazo y Cambio de Batería de Control</h3>
-                    <p>Una batería degradada que no retiene la carga arruina la experiencia de
-                        juego. Instalamos
-                        baterías de ciclo completo compatibles con tu modelo de control para que
-                        dure toda la sesión sin
-                        interrupciones.</p>
-                </div>
-                <!-- Limpieza preventiva -->
-                <div class="svc-card wave-card">
-                    <div class="icon"><i class="fa-solid fa-broom"></i></div>
-                    <h3>Limpieza Ultrasónica y Mantenimiento Preventivo</h3>
-                    <p>El sudor, el polvo y los residuos atrapados en las membranas hacen que los
-                        botones se peguen o
-                        pierdan sensibilidad. Nuestro mantenimiento preventivo alarga
-                        significativamente la vida de tu
-                        mando.</p>
-                </div>
-                <!-- Gatillos -->
-                <div class="svc-card wave-card">
-                    <div class="icon"><i class="fa-solid fa-gun"></i></div>
-                    <h3>Reparación de Gatillos (Triggers) y Palancas</h3>
-                    <p>Gatillos con resistencia irregular, que se traban o regresan solos son un
-                        problema frecuente en
-                        controles de alto uso. Reemplazamos resortes, ejes y piezas internas para
-                        restaurar la respuesta
-                        original de los triggers.</p>
-                </div>
-            </div>
-            <!-- LIMPIEZA PROFUNDA: layout creativo imagen arriba + grid de íconos -->
-            <div class="cleaning-layout"
-                style="background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.8);">
-                <div class="text-col">
-                    <span class="section-badge">MANTENIMIENTO PREVENTIVO</span>
-                    <h2 style="font-size:1.9rem;margin-bottom:14px;">Limpieza Ultrasónica de
-                        Controles en Cancún</h2>
-                    <p style="color:#475569;font-size:1rem;line-height:1.7;margin-bottom:18px;">¿Los
-                        botones A/B/X/Y se
-                        quedan pegados o el control se siente lento y sucio? La acumulación de
-                        sudor, polvo y restos de
-                        comida deteriora las membranas internas. En Pixon PC hacemos una limpieza
-                        profunda y completa:
-                    </p>
-                    <ul class="check-list">
-                        <li><i class="fa-solid fa-check"></i> Desensamblamos completamente el mando
-                        </li>
-                        <li><i class="fa-solid fa-check"></i> Lavamos carcasas, membranas y botones
-                        </li>
-                        <li><i class="fa-solid fa-check"></i> Limpiamos la placa con alcohol
-                            isopropílico de grado
-                            técnico</li>
-                        <li><i class="fa-solid fa-check"></i> Inspeccionamos soldaduras y
-                            componentes eléctricos</li>
-                        <li><i class="fa-solid fa-check"></i> El control sale de aquí respondiendo
-                            como recién sacado de
-                            caja</li>
-                    </ul>
-                </div>
-                <div class="img-col">
-                    <img src="/assets/images/responsive/control_cleaning_service.webp" loading="lazy" decoding="async"
-                        alt="Limpieza profesional de controles de consola en Cancún - Pixon PC"
-                        style="width:100%;border-radius:16px;box-shadow:0 12px 36px rgba(0,0,0,0.12);object-fit:cover;max-height:340px;">
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- -" NUEVA SECCIÓN 1: MANTENIMIENTO PROFESIONAL - LAYOUT SPLIT PREMIUM -" -->
-    <section class="section-padding svc-full-section dark-premium-section" style="background:#030719;">
-        <!-- Añadimos un pseudo-elemento o divisor suave si es necesario, pero el fondo sólido soluciona el texto invisible -->
-        <div class="container"
-            style="display:grid; grid-template-columns: 1fr 1fr; align-items:center; padding-top:20px;">
-            <div class="svc-content" style="order:1; padding-right:20px; position:relative; z-index:2;">
-                <span
-                    style="color:#60a5fa; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:0.85rem; display:block; margin-bottom:10px;">
-                    <i class="fa-solid fa-broom" style="margin-right:6px;"></i> Limpieza y
-                    Optimización
-                </span>
-                <h2>Mantenimiento Profesional de Controles en Cancún</h2>
-                <p>Con el tiempo, los controles acumulan suciedad en las membranas y desgaste en los
-                    contactos. Un mando
-                    pegajoso o impreciso no siempre necesita una reparación mayor  → una limpieza
-                    ultrasónica profunda
-                    soluciona el problema de raíz.</p>
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: 'Consolas', href: '/servicios/consola' },
+    { label: 'Reparación de Controles' }
+  ]} />
 
-                <ul style="list-style:none; padding:0; margin:0 0 30px 0;">
-                    <li style="display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; font-size:1.05rem;">
-                        <i class="fa-solid fa-droplet-slash" style="color:#60a5fa; margin-top:4px;"></i> Solución a
-                        botones pegajosos y rígidos
-                    </li>
-                    <li style="display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; font-size:1.05rem;">
-                        <i class="fa-solid fa-circle-xmark" style="color:#60a5fa; margin-top:4px;"></i> Corrección de
-                        joysticks imprecisos por suciedad
-                    </li>
-                    <li style="display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; font-size:1.05rem;">
-                        <i class="fa-solid fa-wind" style="color:#60a5fa; margin-top:4px;"></i>
-                        Eliminación de polvo
-                        interno que afecta la placa
-                    </li>
-                    <li style="display:flex; align-items:flex-start; gap:12px; font-size:1.05rem;">
-                        <i class="fa-solid fa-star" style="color:#60a5fa; margin-top:4px;"></i>
-                        Recuperación de la
-                        sensibilidad original
-                    </li>
-                </ul>
+  <!-- HERO PRINCIPAL (H1 ÚNICO EN LA PÁGINA) -->
+  <header class="tc-hero">
+    <img src="/assets/images/responsive/gaming_controllers_collection.webp" alt="Reparación de controles Xbox PlayStation y Nintendo Switch en Cancún" width="1600" height="900" loading="eager" />
+    <div class="tc-hero__shade"></div>
+    <div class="tc-shell tc-hero__content">
+      <span class="tc-kicker"><i class="fa-solid fa-gamepad"></i> Taller Especializado en Cancún</span>
+      <h1>Reparación de Controles Xbox, PlayStation y Nintendo en Cancún</h1>
+      <p class="hero-lead">
+        ¿Tu control se mueve solo, los botones no responden o dejó de cargar? En <strong>Pixon PC Cancún</strong> solucionamos el joystick drift, botones RB/LB, L1/R1, gatillos, puertos USB-C y baterías degradadas con refacciones ALPS de alta precisión y sensores de Efecto Hall.
+      </p>
+      <div class="tc-actions">
+        <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer">
+          <Icon name="whatsapp" /> Cotizar por WhatsApp
+        </a>
+        <a class="tc-btn tc-btn--ghost" href="#ticket-control">
+          <Icon name="clipboard-list" /> Crear ticket de revisión
+        </a>
+      </div>
+      <dl class="tc-hero__facts">
+        <div><dt>Soporte</dt><dd>PS5, PS4, Xbox Series, One, Switch</dd></div>
+        <div><dt>Tecnología</dt><dd>Módulos ALPS / Efecto Hall Magnético</dd></div>
+        <div><dt>Garantía</dt><dd>3 meses por escrito en taller físico</dd></div>
+      </dl>
+    </div>
+  </header>
 
-                <button
-                    onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola,%20necesito%20limpieza%20para%20mi%20control.')"
-                    class="btn btn-primary pulse"
-                    style="font-size:1.05rem; padding:14px 32px; border-radius:30px; background:linear-gradient(135deg, #3b82f6, #1d4ed8); border-color:#1d4ed8; box-shadow:0 10px 25px rgba(37,99,235,0.4);">
-                    <i class="fa-brands fa-whatsapp"></i> Solicitar diagnóstico
-                </button>
-            </div>
+  <main class="tc-main">
 
-            <div class="svc-image" style="order:2; height:100%; position:relative; z-index:1;">
-                <div class="consolas-collage">
-                    <img loading="lazy" src="/assets/images/responsive/control_repair_workshop.webp"
-                        alt="Taller de reparación de controles Pixon PC"
-                        style="grid-row:1/3; width:100%; height:100%; object-fit:cover; border-radius:24px; box-shadow:0 20px 40px rgba(0,0,0,0.4);">
-                    <div class="consolas-dual-row" style="display:contents;">
-                        <img loading="lazy" src="/assets/images/responsive/ps5_xbox.webp" alt="Controles PS5 y Xbox"
-                            style="width: 100%; height:100%; object-fit:cover; border-radius:20px; box-shadow:0 15px 30px rgba(0,0,0,0.3);">
-                        <img loading="lazy" src="/assets/images/responsive/xbox.webp" alt="Reparación Xbox"
-                            style="width: 130%; height:90%; object-fit:cover; border-radius:20px; box-shadow:0 15px 30px rgba(0,0,0,0.3); margin-top:10%;">
-                    </div>
-                </div>
-            </div>
+    <!-- SECCIÓN DE SERVICIOS PRINCIPALES (REQUERIDA CON TEXTOS Y AZUL OSCURO #071F3A) -->
+    <section class="tc-section tc-services-overview">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="screwdriver-wrench" />
+          <div>
+            <h2>Diagnóstico y Reparación de Controles: Fallas Comunes</h2>
+            <p>Solucionamos los problemas de hardware más frecuentes en controles gamer de todas las generaciones en Cancún.</p>
+          </div>
+        </header>
+
+        <div class="ctrl-grid-cards">
+          
+          <!-- Joystick Drift -->
+          <article class="ctrl-card">
+            <div class="ctrl-card__icon"><i class="fa-solid fa-gamepad"></i></div>
+            <h3>Reparación de Joystick Drift en Cancún</h3>
+            <p>
+              El personaje se mueve solo o la cámara gira sin que lo toques. Es el clásico <strong>stick drift</strong>, causado por el desgaste del potenciómetro analógico. Lo reemplazamos por uno de calidad ALPS y tu control vuelve a tener precisión milimétrica.
+            </p>
+          </article>
+
+          <!-- Botones RB/LB y L1/R1 -->
+          <article class="ctrl-card">
+            <div class="ctrl-card__icon"><i class="fa-regular fa-circle-dot"></i></div>
+            <h3>Reparación de Botones RB/LB y L1/R1</h3>
+            <p>
+              Los bumpers son los que más sufren el uso intenso. Si tus disparos fallan o el RB/LB de Xbox o L1/R1 de PlayStation ya no registra, cambiamos los micro-switches o las piezas plásticas dañadas para que nunca más pierdas una partida por culpa del control.
+            </p>
+          </article>
+
+          <!-- Puerto de Carga -->
+          <article class="ctrl-card">
+            <div class="ctrl-card__icon"><i class="fa-solid fa-plug"></i></div>
+            <h3>Reparación de Puerto de Carga USB-C / Micro-USB</h3>
+            <p>
+              ¿Solo prende si acomodas el cable en cierto ángulo? Reparamos o sustituimos el conector USB-C o Micro-USB directamente en la placa. Solución definitiva, sin parches temporales.
+            </p>
+          </article>
+
+          <!-- Reemplazo de Batería -->
+          <article class="ctrl-card">
+            <div class="ctrl-card__icon"><i class="fa-solid fa-battery-half"></i></div>
+            <h3>Reemplazo y Cambio de Batería de Control</h3>
+            <p>
+              Una batería degradada que no retiene la carga arruina la experiencia de juego. Instalamos baterías de ciclo completo compatibles con tu modelo de control para que dure toda la sesión sin interrupciones.
+            </p>
+          </article>
+
+          <!-- Limpieza Ultrasónica -->
+          <article class="ctrl-card">
+            <div class="ctrl-card__icon"><i class="fa-solid fa-broom"></i></div>
+            <h3>Limpieza Ultrasónica y Mantenimiento Preventivo</h3>
+            <p>
+              El sudor, el polvo y los residuos atrapados en las membranas hacen que los botones se peguen o pierdan sensibilidad. Nuestro mantenimiento preventivo alarga significativamente la vida de tu mando.
+            </p>
+          </article>
+
+          <!-- Reparación de Gatillos -->
+          <article class="ctrl-card">
+            <div class="ctrl-card__icon"><i class="fa-solid fa-gun"></i></div>
+            <h3>Reparación de Gatillos (Triggers) y Palancas</h3>
+            <p>
+              Gatillos con resistencia irregular, que se traban o regresan solos son un problema frecuente en controles de alto uso. Reemplazamos resortes, ejes y piezas internas para restaurar la respuesta original de los triggers.
+            </p>
+          </article>
+
         </div>
+      </div>
     </section>
-    <!-- -" NUEVA SECCIÓN 2: POR CONSOLA - layout escalonado -" -->
-    <section class="section-padding" style="background:#030719; color:#fff;" itemscope
-        itemtype="https://schema.org/Service">
-        <meta itemprop="serviceType" content="Reparación por Consola">
-        <div class="container">
-            <div class="section-title text-center" style="margin-bottom:2.5rem;">
-                <span class="section-badge" style="background:rgba(255,255,255,0.1); color:#93c5fd;">REPARACIÓN POR
-                    CONSOLA</span>
-                <h2 itemprop="name" style="color:#b7ccf5;">Reparación de Controles de Consola en
-                    Cancún</h2>
-                <p itemprop="description" style="color:#cbd5e1;">Reparamos mandos de todas las
-                    plataformas con
-                    diagnóstico profesional y piezas de calidad.</p>
-            </div>
-            <!-- Imagen collage arriba -->
-            <div
-                style="border-radius:20px;overflow:hidden;margin-bottom:2.5rem;box-shadow:0 0px 40px rgba(0,0,0,0.4);max-height:320px;">
-                <img src="/assets/images/responsive/gaming_controllers_collection.webp" loading="lazy" decoding="async"
-                    alt="Reparación de controles Xbox PlayStation Nintendo Switch en Cancún"
-                    style="width:100%;height:320px;object-fit:cover;">
-            </div>
-            <!-- Cards escalonadas por consola -->
-            <div class="console-grid">
-                <!-- Xbox -->
-                <div class="console-card wave-card">
-                    <div class="console-card-header">
-                        <div class="console-card-icon"
-                            style="background:rgba(255,255,255,0.05);color:#60a5fa;border:1px solid rgba(255,255,255,0.1);">
-                            <i class="fa-brands fa-xbox"></i>
-                        </div>
-                        <div>
-                            <h3 style="font-size:1.1rem;color:#ffffff;margin:0;">Reparación de Controles Xbox</h3>
-                            <span style="font-size:0.82rem;color:#94a3b8;">One · Series X/S ·
-                                Elite</span>
-                        </div>
-                    </div>
-                    <div class="console-card-body">
-                        <ul>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Joystick
-                                drift analógico
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Bumpers
-                                RB/LB rotos o sin clic
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Gatillos
-                                LT/RT con falla de
-                                sensor
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Puerto de
-                                carga USB-C
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Batería que
-                                no retiene carga
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:none;"><i class="fa-solid fa-check"
-                                    style="color:#60a5fa;"></i>Limpieza y
-                                mantenimiento preventivo</li>
-                        </ul>
-                    </div>
-                </div>
-                <!-- PlayStation -->
-                <div class="console-card wave-card">
-                    <div class="console-card-header">
-                        <div class="console-card-icon"
-                            style="background:rgba(255,255,255,0.05);color:#60a5fa;border:1px solid rgba(255,255,255,0.1);">
-                            <i class="fa-brands fa-playstation"></i>
-                        </div>
-                        <div>
-                            <h3 style="font-size:1.1rem;color:#ffffff;margin:0;">Reparación de Controles PlayStation</h3>
-                            <span style="font-size:0.82rem;color:#94a3b8;">DualShock 4 · DualSense
-                                PS5</span>
-                        </div>
-                    </div>
-                    <div class="console-card-body">
-                        <ul>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Stick drift
-                                PS4 y PS5
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Botones
-                                L1/R1 y L2/R2 dañados
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Puerto USB-C
-                                o Micro-USB roto
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Vibración
-                                háptica con fallas
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#60a5fa;"></i>Batería
-                                degradada DualSense
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:none;"><i class="fa-solid fa-check"
-                                    style="color:#60a5fa;"></i>Panel
-                                táctil sin respuesta</li>
-                        </ul>
-                    </div>
-                </div>
-                <!-- Nintendo Switch -->
-                <div class="console-card wave-card">
-                    <div class="console-card-header">
-                        <div class="console-card-icon"
-                            style="background:rgba(255,255,255,0.05);color:#f87171;border:1px solid rgba(255,255,255,0.1);">
-                            <i class="fa-solid fa-n"></i>
-                        </div>
-                        <div>
-                            <h3 style="font-size:1.1rem;color:#ffffff;margin:0;">Reparación de Controles Nintendo Switch</h3>
-                            <span style="font-size:0.82rem;color:#94a3b8;">Joy-Con · Pro
-                                Controller</span>
-                        </div>
-                    </div>
-                    <div class="console-card-body">
-                        <ul>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#f87171;"></i>Drift en
-                                Joy-Con (L y R)
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#f87171;"></i>Sustitución
-                                analógico mejorado
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#f87171;"></i>Batería
-                                Joy-Con sin carga
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#f87171;"></i>Rail de
-                                conexión dañado
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <i class="fa-solid fa-check" style="color:#f87171;"></i>Botones
-                                SL/SR sin respuesta
-                            </li>
-                            <li style="color:#cbd5e1; border-bottom:none;"><i class="fa-solid fa-check"
-                                    style="color:#f87171;"></i>Diagnóstico
-                                y reparación completa</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div style="text-align:center;margin-top:2.5rem;">
-                <p style="color:#cbd5e1;margin-bottom:16px;">Diagnóstico gratuito · Presupuesto sin
-                    compromiso ·
-                    Garantía en todas las reparaciones</p>
-                <button class="btn btn-primary"
-                    onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20quiero%20cotizar%20la%20reparaci%C3%B3n%20de%20mi%20control%20de%20consola%20en%20Canc%C3%BAn')"><i
-                        class="fa-brands fa-whatsapp"></i> Cotizar mi control por WhatsApp</button>
-            </div>
+
+    <!-- TECNOLOGÍA MÓDULOS: ALPS VS HALL EFFECT -->
+    <section class="tc-section tc-tech-comparison">
+      <div class="tc-shell tc-split">
+        <div class="tc-copy">
+          <span class="tc-icon"><Icon name="microchip" /></span>
+          <h2>Innovación en Reparaciones: Sensores de Efecto Hall vs. ALPS</h2>
+          <h3>¿Por qué aparece el Stick Drift y cómo lo solucionamos?</h3>
+          <p>
+            Los controles de fábrica (DualSense, Xbox Series, Joy-Con) utilizan potenciómetros analógicos mecánicos. Con la fricción continua de las partidas, la pista de carbón interna se desgasta, dejando residuos que envían señales falsas al procesador.
+          </p>
+          <p>En Pixon PC Cancún te ofrecemos dos alternativas de reparación según tu presupuesto y nivel competitivo:</p>
+          <ul class="custom-checklist">
+            <li><i class="fa-solid fa-check"></i> <strong>Módulos Analógicos ALPS OEM:</strong> Mismas especificaciones de fábrica, ideales para restaurar el tacto y precisión original del mando.</li>
+            <li><i class="fa-solid fa-check"></i> <strong>Joysticks de Efecto Hall (Magnéticos):</strong> Tecnología sin contacto físico que utiliza sensores electromagnéticos. ¡Olvídate del drift para siempre!</li>
+          </ul>
         </div>
+        <figure class="tc-media">
+          <img src="/assets/images/responsive/control_repair_workshop.webp" alt="Taller de calibración de potenciómetros y sticks de control en Cancún" width="800" height="600" loading="lazy" />
+          <figcaption>Reemplazamos módulos con calibración por software para garantizar zona muerta de 0% a 3%.</figcaption>
+        </figure>
+      </div>
     </section>
-    <!-- -" CROSS-SELL: SERVICIOS RELACIONADOS EXPANDIDO -" -->
+
+    <!-- SECCIÓN POR CONSOLA (DESGLOSE XBOX, PLAYSTATION, NINTENDO) -->
+    <section class="tc-section tc-consoles-breakdown">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="gamepad" />
+          <div>
+            <h2>Reparación Especializada por Marca y Modelo de Consola</h2>
+            <p>Atendemos de manera específica la arquitectura electrónica de cada mando gamer en Cancún.</p>
+          </div>
+        </header>
+
+        <div class="models-grid">
+          
+          <!-- Xbox -->
+          <div class="model-card">
+            <div class="model-badge">Xbox Series X/S · One · Elite</div>
+            <h3>Reparación de Controles Xbox en Cancún</h3>
+            <p>
+              Los mandos de Xbox suelen sufrir desgaste prematuro en los micro-switches táctiles de los bumpers RB/LB y drift en el stick izquierdo por uso frecuente en juegos de disparos y carreras.
+            </p>
+            <ul class="mini-checklist">
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Cambio de potenciómetro analógico o Hall Effect.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Sustitución de micro-switches RB y LB.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Reparación de puerto USB-C / Micro-USB desoldado.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Mantenimiento a gatillos LT/RT impulsivos.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Reparación de fallas en controles Xbox Elite 1 y 2.</li>
+            </ul>
+          </div>
+
+          <!-- PlayStation -->
+          <div class="model-card">
+            <div class="model-badge">DualSense PS5 · DualShock 4</div>
+            <h3>Reparación de Controles PlayStation en Cancún</h3>
+            <p>
+              El mando DualSense de PS5 incluye motores de vibración háptica y gatillos adaptativos mecánicos muy sensibles. La acumulación de sudor o caídas puede desalinear sus engranes internos.
+            </p>
+            <ul class="mini-checklist">
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Solución a stick drift en DualSense y DualShock 4.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Reemplazo de resortes y engranes de gatillos L2/R2.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Cambio de batería interna de litio de alta duración.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Reparación de puerto USB-C que no transfiere carga.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Limpieza ultrasónica de membranas de silicona.</li>
+            </ul>
+          </div>
+
+          <!-- Nintendo Switch -->
+          <div class="model-card">
+            <div class="model-badge">Joy-Con · Switch OLED · Pro Controller</div>
+            <h3>Reparación de Controles Nintendo Switch</h3>
+            <p>
+              Los Joy-Con de la Nintendo Switch son propensos al drift debido a sus potenciómetros de bajo perfil. También reparamos rieles de acoplamiento laterales y botones SL/SR.
+            </p>
+            <ul class="mini-checklist">
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Sustitución de palancas 3D Joy-Con anti-drift.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Cambio de flex de rieles de conexión laterales.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Reparación de botones SL/SR y LED indicadores.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Solución a fallas de batería en Joy-Con (L/R).</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Reparación de joystick y botones en Switch Pro Controller.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESO DE DIAGNÓSTICO EN 5 PASOS -->
+    <section class="tc-section tc-process-section">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="list-check" />
+          <div>
+            <h2>Proceso de Diagnóstico y Calibración de Controles</h2>
+            <p>Cinco pasos técnicos rigorosos para garantizar que tu mando regrese con respuesta perfecta.</p>
+          </div>
+        </header>
+        <div class="tc-process-grid">
+          <div class="tc-step-box">
+            <span class="step-num">01</span>
+            <h3>Prueba de Zona Muerta</h3>
+            <p>Conectamos el mando a un probador de ejes por computadora para medir el porcentaje de drift y la respuesta de cada botón.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">02</span>
+            <h3>Apertura ESD Segura</h3>
+            <p>Desarmamos la carcasa utilizando palancas plásticas antiestáticas para conservar clips internos y evitar marcas en la estructura.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">03</span>
+            <h3>Desoldadura y Reemplazo</h3>
+            <p>Retiramos el módulo o micro-switch defectuoso con estación de aire caliente e instalamos el componente nuevo ALPS o Hall Effect.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">04</span>
+            <h3>Limpieza Ultrasónica</h3>
+            <p>Lavamos carcasas, membranas y botones retirando sudor, grasa y suciedad acumulada para devolver la sensibilidad táctil.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">05</span>
+            <h3>Calibración y Pruebas</h3>
+            <p>Re-calibramos el centro del analógico vía software y probamos la consola jugando durante 30 minutos continuos antes de la entrega.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLA COMPARATIVA: REPARAR VS COMPRAR CONTROL NUEVO -->
+    <section class="tc-section tc-comparison">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="scale-balanced" />
+          <div>
+            <h2>¿Conviene reparar tu control o comprar uno nuevo en Cancún?</h2>
+            <p>Compara las ventajas económicas y de durabilidad de nuestro servicio técnico especializado.</p>
+          </div>
+        </header>
+        <div class="tc-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Factor</th>
+                <th>Reparación Profesional en Pixon PC</th>
+                <th>Comprar Control Nuevo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Costo promedio</strong></td>
+                <td>$450 – $850 MXN (Ahorro del 60% al 70%)</td>
+                <td>$1,500 – $2,200 MXN (Precios de mandos originales)</td>
+              </tr>
+              <tr>
+                <td><strong>Durabilidad de Sticks</strong></td>
+                <td>Opción de instalar Efecto Hall (imanes anti-drift)</td>
+                <td>Módulos de fábrica propensos a volver a tener drift</td>
+              </tr>
+              <tr>
+                <td><strong>Ediciones Especiales</strong></td>
+                <td>Conservas tu edición limitada o mando personalizado</td>
+                <td>Diffíciles de conseguir o a sobreprecio en reventa</td>
+              </tr>
+              <tr>
+                <td><strong>Garantía</strong></td>
+                <td>3 meses por escrito directamente en Cancún</td>
+                <td>Garantía limitada de tienda que exige envíos largos</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="tc-note">
+          <strong>Recomendación Pixon PC:</strong> En el 90% de los casos, reparar tu control con un módulo nuevo de calidad ALPS o Efecto Hall es la alternativa más inteligente, duradera y económica.
+        </p>
+      </div>
+    </section>
+
+    <!-- COBERTURA LOCAL Y NAP CONSISTENTE (AZUL OSCURO #071F3A FUERA DEL HERO) -->
+    <section class="tc-section tc-b2b">
+      <div class="tc-shell tc-b2b__grid">
+        <div>
+          <span class="tc-icon tc-icon--dark"><Icon name="location-dot" /></span>
+          <h2>Servicio técnico de controles cerca de ti en Cancún</h2>
+          <h3>Atención rápida en taller físico y recolección disponible</h3>
+          <p>
+            Reparamos mandos de consolas para gamers y familias en todo Cancún: Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.
+          </p>
+          <p>
+            No dejes que un botón atascado o el drift arruinen tus partidas. Tráenos tu control o contáctanos por WhatsApp para resolverlo hoy mismo.
+          </p>
+        </div>
+        <aside>
+          <strong>Pixon PC — Taller Cancún</strong>
+          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- FORMULARIO DE TICKET DE REVISIÓN -->
     <ServiceTicketSection
-      defaultDevice="Control de consola"
-      defaultService="Reparacion de controles"
-      title="Crear Ticket de Reparacion de Control"
-      subtitle="Cuentanos si falla el joystick, botones, carga o conectividad para preparar el diagnostico."
+      id="ticket-control"
+      defaultDevice="Control de consola (PS5 / Xbox / Switch)"
+      defaultService="Reparación de joystick drift y botones"
+      title="Crear ticket de revisión para control"
+      subtitle="Escribe el modelo de tu mando y la falla que presenta (drift, botones, batería, puerto) para darte un presupuesto exacto."
     />
 
-    <section
-        style="background:linear-gradient(180deg, #030719 0%, #030719 calc(100% - 150px), #f4f7fb 100%); padding:80px 0 100px;">
-        <div class="container text-center">
-            <span class="section-badge"
-                style="background:rgba(96,165,250,0.15);color:#93c5fd;border:1px solid rgba(96,165,250,0.3);">SERVICIOS
-                RELACIONADOS</span>
-            <h2 style="color:#ffffff;font-size:2rem;margin-bottom:12px;margin-top:10px;">Reparamos
-                más que controles en
-                Cancún</h2>
-            <p style="color:#cbd5e1;font-size:1rem;max-width:600px;margin:0 auto 40px;">Somos el
-                taller tecnológico más
-                completo de Cancún. Desde laptops hasta consolas y PCs gamer, tenemos el servicio
-                que necesitas.</p>
-            <!-- Fila 1: servicios principales -->
-            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:18px;margin-bottom:18px;">
-                <a href="/reparaciones?section=laptops" class="card-servicio wave-card" style="max-width:220px;">
-                    <i class="fa-solid fa-screwdriver-wrench"
-                        style="font-size:2.2rem;color:#60a5fa;margin-bottom:10px;display:block;"></i>
-                    <h3 style="font-size:0.98rem;margin-bottom:5px;color:#ffffff;">Reparación de
-                        Laptops</h3>
-                    <p style="color:#94a3b8;font-size:0.83rem;margin:0;">Pantallas, teclados, placas
-                        madre y más.</p>
-                </a>
-                <a href="/reparacion-bisagras?section=galeria-bisagras" class="card-servicio wave-card"
-                    style="max-width:220px;">
-                    <i class="fa-solid fa-laptop-medical"
-                        style="font-size:2.2rem;color:#34d399;margin-bottom:10px;display:block;"></i>
-                    <h3 style="font-size:0.98rem;margin-bottom:5px;color:#ffffff;">Bisagras de
-                        Laptop</h3>
-                    <p style="color:#94a3b8;font-size:0.83rem;margin:0;">Reconstrucción de carcasas
-                        con resina
-                        industrial.</p>
-                </a>
-                <a href="/optimizacion?section=paquetes-optimizacion" class="card-servicio wave-card"
-                    style="max-width:220px;">
-                    <i class="fa-solid fa-rocket"
-                        style="font-size:2.2rem;color:#f59e0b;margin-bottom:10px;display:block;"></i>
-                    <h3 style="font-size:0.98rem;margin-bottom:5px;color:#ffffff;">Optimización PC
-                        Gamer</h3>
-                    <p style="color:#94a3b8;font-size:0.83rem;margin:0;">Más FPS, menos lag, mejor
-                        rendimiento.</p>
-                </a>
-            </div>
-            <!-- Fila 2: servicios secundarios -->
-            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:18px;margin-bottom:40px;">
-                <a href="/reparaciones?section=consolas" class="card-servicio wave-card" style="max-width:220px;">
-                    <i class="fa-solid fa-microchip"
-                        style="font-size:2.2rem;color:#c084fc;margin-bottom:10px;display:block;"></i>
-                    <h3 style="font-size:0.98rem;margin-bottom:5px;color:#d7dbff;">Mantenimiento de
-                        Consolas</h3>
-                    <p style="color:#94a3b8;font-size:0.83rem;margin:0;">Limpieza y reparación de
-                        PS4, PS5 y Xbox.</p>
-                </a>
-                <a href="/ensambles?section=ensamble-pc" class="card-servicio wave-card" style="max-width:220px;">
-                    <i class="fa-solid fa-desktop"
-                        style="font-size:2.2rem;color:#fb923c;margin-bottom:10px;display:block;"></i>
-                    <h3 style="font-size:0.98rem;margin-bottom:5px;color:#d9dbff;">Ensamble de PC
-                    </h3>
-                    <p style="color:#94a3b8;font-size:0.83rem;margin:0;">PCs gamer armadas a la
-                        medida en Cancún.</p>
-                </a>
-                <a href="/reparaciones?section=celulares" class="card-servicio wave-card" style="max-width:220px;">
-                    <i class="fa-solid fa-mobile-screen"
-                        style="font-size:2.2rem;color:#38bdf8;margin-bottom:10px;display:block;"></i>
-                    <h3 style="font-size:0.98rem;margin-bottom:5px;color:#d5ddff;">Reparación de
-                        Celulares</h3>
-                    <p style="color:#94a3b8;font-size:0.83rem;margin:0;">Pantallas, baterías,
-                        cámaras y conectores.</p>
-                </a>
-            </div>
-            <button class="btn"
-                onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20los%20servicios%20de%20Pixon%20PC')"
-                style="background:linear-gradient(90deg,#2563eb,#059669);color:#fff;border:none;padding:14px 36px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer; position:relative; z-index:2; box-shadow:0 8px 25px rgba(37,99,235,0.3);">
-                <i class="fa-brands fa-whatsapp"></i> Ver todos los servicios
-            </button>
-        </div>
-    </section>
+    <!-- PREGUNTAS FRECUENTES -->
     <FaqSection
-      title="Preguntas frecuentes sobre reparación de controles"
-      description="Lo más preguntado al reparar joysticks de PS5/Xbox/Switch."
+      id="faq-controles"
+      title="Preguntas frecuentes sobre reparación de controles en Cancún"
+      description="Respuestas directas a las inquietudes más comunes sobre joystick drift, piezas y tiempos de entrega."
       items={faqs}
       viewMoreHref="/preguntas-frecuentes"
-      viewMoreLabel="Ver todas las preguntas"
-      sectionClass="controller-faq-dark"
-      backgroundColor="#030719"
-      titleColor="#FFFFFF"
-      descriptionColor="#FFFFFF"
-      questionColor="#FFFFFF"
+      viewMoreLabel="Ver todas las preguntas de consolas"
+      ariaLabel="Preguntas frecuentes sobre reparación de controles en Cancún"
+      backgroundColor="#f3f8fc"
+      titleColor="#071F3A"
+      descriptionColor="#294963"
+      questionColor="#071F3A"
     />
 
+    <!-- RESEÑAS DE CLIENTES -->
+    <section class="tc-section tc-reviews">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="star" />
+          <div>
+            <h2>Gamers que repararon su control con Pixon PC en Cancún</h2>
+            <p>Opiniones reales sobre nuestro servicio técnico de mandos Xbox, PlayStation y Nintendo.</p>
+          </div>
+        </header>
+      </div>
+    </section>
     <CommentsSection viewMoreHref="/comentarios" />
 
-    <!-- -" UBICACIÓN (cargada desde componente compartido) -" -->
+    <!-- CIERRE FINAL Y CONTACTO -->
+    <section class="tc-final">
+      <div class="tc-shell tc-final__grid">
+        <div>
+          <span>Precisión milimétrica restaurada</span>
+          <h2>Recupera el control de tus juegos con Pixon PC Cancún</h2>
+          <p>No compres un mando nuevo a sobreprecio. Trae tu control y vuelve a jugar con máxima precisión y respuesta inmediata.</p>
+          <div class="tc-actions">
+            <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" /> Cotizar por WhatsApp
+            </a>
+            <a class="tc-btn tc-btn--ghost" href="#ticket-control">
+              <Icon name="clipboard-list" /> Crear ticket de revisión
+            </a>
+          </div>
+        </div>
+        <address>
+          <strong>Pixon PC</strong>
+          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+        </address>
+      </div>
+    </section>
 
-    <style>
-        :global(.controller-faq-dark .section-title h2),
-        :global(.controller-faq-dark .section-title p),
-        :global(.controller-faq-dark .faq-question),
-        :global(.controller-faq-dark .faq-question span),
-        :global(.controller-faq-dark .faq-question:hover),
-        :global(.controller-faq-dark .faq-question:focus),
-        :global(.controller-faq-dark .faq-page-content .faq-item--open .faq-question),
-        :global(.controller-faq-dark .faq-item--open .faq-question),
-        :global(.controller-faq-dark .faq-answer-inner),
-        :global(.controller-faq-dark .faq-answer-inner strong),
-        :global(.controller-faq-dark .faq-chevron) {
-            color: #FFFFFF !important;
-        }
-        :global(.controller-faq-dark .faq-item) {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.16);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-        }
-        :global(.controller-faq-dark .faq-item:hover),
-        :global(.controller-faq-dark .faq-item--open) {
-            border-color: rgba(96, 165, 250, 0.5);
-            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.18);
-        }
-        :global(.controller-faq-dark .btn-outline) {
-            border-color: #60A5FA !important;
-            color: #FFFFFF !important;
-        }
-        :global(.controller-faq-dark .btn-outline:hover) {
-            background: #2563EB !important;
-            border-color: #2563EB !important;
-        }
-        @media (max-width: 768px) {
-            .ubicacion-grid-ctrl {
-                grid-template-columns: 1fr !important;
-            }
-        }
-    </style>
-
-    <!-- -" FOOTER -" -->
+    <ContactSection />
+  </main>
   <Footer />
-
-    <script>
-        // FAQ toggle behavior
-
-        // Wave Animation Observer
-        document.addEventListener('DOMContentLoaded', () => {
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15
-            };
-
-            const waveObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const grid = entry.target;
-                        const cards = grid.querySelectorAll('.wave-card');
-                        cards.forEach((card, index) => {
-                            setTimeout(() => {
-                                card.classList.add('is-visible');
-                            }, index * 120); // 120ms staggered delay for the wave effect
-                        });
-                        observer.unobserve(grid);
-                    }
-                });
-            }, observerOptions);
-
-            const gridsToAnimate = document.querySelectorAll('.card-services, .console-grid, .rel-card, .card-servicio').forEach(el => {
-                // To animate whole groups (grids) sequentially
-                if (el.classList.contains('rel-card') || el.classList.contains('card-servicio')) {
-                    // if it's not wrapped in a specific grid container, handle the parent
-                    if (el.parentElement) waveObserver.observe(el.parentElement);
-                } else {
-                    waveObserver.observe(el);
-                }
-            });
-        });
-    </script>
 </Base>
 
-<script>
+<style is:global>
+  /* ── REGLA DE AGENTS.MD: TODOS LOS TEXTOS FUERA DEL HERO SON AZUL OSCURO #071F3A ─────── */
+  :global(.ctrl-page section[id]){content-visibility:visible!important;contain:none!important}
+  :global(.ctrl-page .tc-main>section){padding-top:20px!important;padding-bottom:20px!important}
 
-  let selectedRating = 0;
-  document.querySelectorAll('#star-rating .fa-star').forEach((star: Element) => {
-    star.addEventListener('click', () => {
-      selectedRating = parseInt((star as HTMLElement).dataset.val || '0');
-      document.querySelectorAll('#star-rating .fa-star').forEach((s: Element, i: number) => {
-        s.classList.toggle('active', i < selectedRating);
-      });
-    });
-  });
-  document.getElementById('addCommentForm')?.addEventListener('submit', async (e: Event) => {
-    e.preventDefault();
-    const name = (document.getElementById('commenterName') as HTMLInputElement)?.value;
-    const text = (document.getElementById('commenterText') as HTMLTextAreaElement)?.value;
-    if (!name || !text || selectedRating === 0) return;
-    try {
-      const res = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'include', body: JSON.stringify({ name, text, rating: selectedRating }) });
-      if (res.ok) { alert('¡Comentario enviado! Será revisado antes de publicarse.'); (e.target as HTMLFormElement).reset(); selectedRating = 0; document.querySelectorAll('#star-rating .fa-star').forEach(s => s.classList.remove('active')); }
-    } catch (err) { console.error(err); }
-  });
+  .ctrl-page .tc-main {
+    --ink:#071F3A;
+    --blue:#1479D4;
+    --muted:#294963;
+    --line:#cbdce8;
+    --ice:#eef6fc;
+    color:var(--ink);
+  }
 
-</script>
+  /* Textos en secciones principales y tarjetas (azul oscuro #071F3A) */
+  .tc-main :where(h2, h3, h4, p, li, span:not(.tc-btn *), strong, td, th) {
+    color: #071F3A;
+  }
+
+  .tc-shell { width:min(1180px,calc(100% - 32px)); margin:0 auto; }
+  .tc-section { padding:20px 0; content-visibility:visible!important; contain:none!important; }
+  .tc-svg { display:block; width:18px; height:18px; max-width:22px; max-height:22px; fill:currentColor; flex:0 0 auto; }
+
+  .tc-section h2, .tc-final h2 {
+    margin:0 0 18px;
+    font-family:var(--font-heading);
+    font-size:clamp(2rem,3.8vw,3.45rem);
+    font-style:italic;
+    font-weight:800;
+    line-height:1.08;
+    color:#071F3A;
+  }
+
+  .tc-section h3, .tc-final h3 {
+    margin:18px 0 8px;
+    font-size:1.15rem;
+    line-height:1.35;
+    color:#071F3A;
+  }
+
+  .tc-section p, .tc-final p {
+    max-width:72ch;
+    margin:0;
+    color:#294963;
+    font-weight:500;
+    line-height:1.7;
+  }
+
+  /* HERO DE CONTROLES */
+  .tc-hero {
+    position:relative;
+    min-height:680px;
+    display:grid;
+    align-items:end;
+    overflow:hidden;
+    background:#071f3a;
+  }
+
+  .tc-hero>img {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  .tc-hero__shade {
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,rgba(3,17,31,.95),rgba(3,17,31,.8) 55%,rgba(3,17,31,.35));
+  }
+
+  .tc-hero__content {
+    position:relative;
+    padding:140px 0 60px;
+  }
+
+  .tc-kicker { color:#60a5fa !important; font-weight:800; }
+  .tc-hero h1 {
+    max-width:900px;
+    margin:12px 0 18px;
+    color:#ffffff !important;
+    font-family:var(--font-heading);
+    font-size:clamp(2.4rem,5.5vw,4.8rem);
+    font-style:italic;
+    font-weight:800;
+    line-height:1.05;
+  }
+
+  .tc-hero p.hero-lead {
+    max-width:740px;
+    color:rgba(255,255,255,.9) !important;
+    font-size:1.1rem;
+    line-height:1.65;
+  }
+
+  .tc-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+  .tc-btn {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    min-height:48px;
+    padding:12px 18px;
+    border:1px solid #1479D4;
+    border-radius:8px;
+    color:#ffffff !important;
+    background:#1479D4;
+    font-weight:800;
+    text-decoration:none;
+    transition:transform 160ms cubic-bezier(.23,1,.32,1);
+  }
+
+  .tc-btn--ghost { border-color:rgba(255,255,255,.5); background:rgba(7,31,58,.6); }
+  .tc-btn:active { transform:scale(.97); }
+
+  .tc-hero__facts {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    max-width:760px;
+    margin:38px 0 0;
+    border-top:1px solid rgba(255,255,255,.2);
+  }
+
+  .tc-hero__facts div { padding:14px 16px 0 0; }
+  .tc-hero__facts dt { color:#93c5fd !important; font-size:.75rem; font-weight:800; text-transform:uppercase; }
+  .tc-hero__facts dd { margin:3px 0 0; color:#ffffff !important; font-weight:700; }
+
+  /* CARDS GRID SERVICIOS DE CONTROLES */
+  .ctrl-grid-cards {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:1.25rem;
+    margin-top:1.5rem;
+  }
+
+  .ctrl-card {
+    background:#ffffff;
+    border:1px solid #cbdce8;
+    border-radius:14px;
+    padding:1.5rem;
+    box-shadow:0 6px 20px rgba(7,31,58,0.04);
+    transition:transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .ctrl-card:hover {
+    transform:translateY(-3px);
+    box-shadow:0 12px 28px rgba(7,31,58,0.08);
+    border-color:#1479D4;
+  }
+
+  .ctrl-card__icon {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:42px;
+    border-radius:10px;
+    background:#eef6fc;
+    color:#1479D4 !important;
+    font-size:1.2rem;
+    margin-bottom:1rem;
+  }
+
+  .ctrl-card__icon i { color:#1479D4 !important; }
+
+  /* SPLIT & HEADINGS */
+  .tc-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(340px,.88fr); gap:clamp(36px,7vw,88px); align-items:center; }
+  
+  /* MEDIAS E IMÁGENES CALIBRADAS */
+  .tc-media {
+    margin: 0;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(7, 31, 58, 0.12);
+    border: 1px solid #cbdce8;
+    background: #ffffff;
+    width: 100%;
+    max-width: 520px;
+    justify-self: center;
+  }
+
+  .tc-media img {
+    width: 100%;
+    height: 340px;
+    max-height: 380px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: 15px 15px 0 0;
+    transition: transform 300ms ease;
+  }
+
+  .tc-media:hover img {
+    transform: scale(1.03);
+  }
+
+  .tc-media figcaption {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #294963 !important;
+    background: #eef6fc;
+    border-top: 1px solid #cbdce8;
+    text-align: center;
+  }
+
+  .tc-heading { display:grid; grid-template-columns:48px minmax(0,780px); gap:16px; align-items:start; margin-bottom:24px; }
+  .tc-heading>.tc-svg { box-sizing:border-box; width:42px; height:42px; max-width:42px; max-height:42px; padding:11px; border-radius:8px; color:#fff; background:#1479D4; }
+
+  .tc-icon { display:grid; width:42px; height:42px; margin-bottom:16px; place-items:center; border-radius:8px; color:#1479D4; background:#dceffc; }
+  .tc-icon--dark { color:#ffffff !important; background:#071F3A; }
+
+  .custom-checklist { list-style:none; padding:0; margin:1.25rem 0; }
+  .custom-checklist li { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; font-size:0.95rem; }
+  .custom-checklist li i { color:#22c55e !important; }
+
+  /* CARDS MODELOS POR MARCA */
+  .models-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-top:1.5rem; }
+  .model-card { background:#ffffff; border:1px solid #cbdce8; border-radius:14px; padding:1.5rem; position:relative; }
+  .model-badge { display:inline-block; background:#eff6fc; color:#1479D4 !important; font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem; border-radius:9999px; margin-bottom:0.75rem; }
+  .mini-checklist { list-style:none; padding:0; margin:1rem 0 0 0; }
+  .mini-checklist li { font-size:0.88rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem; }
+  .mini-checklist li i { color:#1479D4 !important; font-size:0.75rem; }
+
+  /* TABLA COMPARATIVA */
+  .tc-comparison { background:#dcecf7!important; }
+  .tc-table-wrap { overflow-x:auto; border-radius:8px; }
+  .tc-table-wrap table { width:100%; min-width:680px; border-collapse:collapse; background:#fff; }
+  .tc-table-wrap th, .tc-table-wrap td { padding:14px 18px; text-align:left; border-bottom:1px solid #cbdce8; }
+  .tc-table-wrap th { color:#1479D4 !important; font-size:.85rem; }
+  .tc-note { max-width:none!important; margin-top:14px!important; padding:14px 18px; border:1px solid #9fc5df; border-radius:8px; background:#fff; }
+
+  /* PASOS DIAGNÓSTICO */
+  .tc-process-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1px; background:#cbdce8; }
+  .tc-step-box { padding:20px; background:#fff; }
+  .tc-step-box .step-num { display:inline-block; font-size:0.85rem; font-weight:800; color:#1479D4 !important; margin-bottom:8px; }
+
+  /* B2B / BANNER FINAL */
+  .tc-b2b { background:#fff; }
+  .tc-b2b__grid { display:grid; grid-template-columns:1fr 330px; gap:clamp(28px,6vw,72px); }
+  .tc-b2b aside { display:grid; gap:12px; align-content:start; padding:24px; border-radius:8px; background:#dcecf7; }
+
+  .tc-final { padding:clamp(60px,8vw,100px) 0; background:#dcecf7!important; }
+  .tc-final__grid { display:grid; grid-template-columns:1fr 330px; gap:60px; align-items:center; }
+  .tc-final address { display:grid; gap:10px; padding:24px; border:1px solid #9fc5df; border-radius:8px; background:#fff; font-style:normal; }
+
+  @media(max-width:900px){
+    .tc-split, .tc-b2b__grid, .tc-final__grid { grid-template-columns:1fr; }
+  }
+</style>

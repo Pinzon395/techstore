@@ -1,0 +1,1686 @@
+---
+// DesbloqueoIcloudView.astro — Desbloqueo de iCloud y Remoción de Cuenta iPhone en Cancún
+// SEO Local | Pixon PC
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import Footer from '../Footer.astro';
+
+const waMsg = encodeURIComponent('Hola, quiero cotizar el diagnóstico y desbloqueo de iCloud / cuenta Apple ID para mi iPhone en Cancún. Puedo enviar modelo e IMEI.');
+
+// ── DATOS DE LA VISTA ─────────────────────────────────────────────────────────
+
+const stats = [
+  { num: '100%', label: 'Diagnóstico transparente', icon: 'fa-magnifying-glass', color: '#3b82f6' },
+  { num: '5.0 ★', label: 'Calificación Google', icon: 'fa-star', color: '#f59e0b' },
+  { num: 'Cancún', label: 'Taller local físico', icon: 'fa-location-dot', color: '#22c55e' },
+  { num: '100%', label: 'Privacidad y seguridad', icon: 'fa-shield-halved', color: '#8b5cf6' },
+];
+
+const casosIntencion = [
+  {
+    icon: 'fa-lock',
+    title: 'Pantalla de Activación: "iPhone bloqueado para el propietario"',
+    sub: 'Compraste un iPhone usado o restauraste y pide la cuenta del dueño anterior',
+    desc: 'Si en pantalla aparece "Solo el propietario puede desbloquear este iPhone" o "iPhone bloqueado para el propietario", evaluamos tu IMEI en laboratorio para indicar si aplica desvinculación por servidor (Clean IMEI) o bypass local en Cancún.',
+    badge: 'Bloqueo de Activación',
+    color: '#ef4444',
+    keywords: ['solo el propietario puede desbloquear este iPhone', 'iPhone bloqueado para el propietario solución', 'iPhone pide cuenta del propietario anterior', 'compré un iPhone y tiene iCloud', 'desbloquear iPhone de segunda mano']
+  },
+  {
+    icon: 'fa-key',
+    title: 'Código de Pantalla Olvidado & "iPhone No Disponible"',
+    sub: 'Intentos fallidos de contraseña de 6 dígitos o equipo deshabilitado',
+    desc: 'Si el dispositivo dice "iPhone no disponible" o se bloqueó después de actualizar o restaurar, realizamos el restablecimiento técnico del sistema para recuperar el acceso operativo de tu teléfono.',
+    badge: 'Código de Pantalla',
+    color: '#3b82f6',
+    keywords: ['iPhone no disponible solución Cancún', 'olvidé código de desbloqueo iPhone', 'iPhone bloqueado después de actualizar', 'iPhone bloqueado después de restaurar', 'eliminar código de acceso']
+  },
+  {
+    icon: 'fa-user-slash',
+    title: 'Cuenta Apple ID Propia Olvidada o Desactivada',
+    sub: 'Perdiste el correo registrado, número o clave de acceso personal',
+    desc: 'Si tu cuenta personal de iCloud quedó bloqueada o desactivada por motivos de seguridad y no recuerdas la contraseña ni tienes acceso al correo antiguo, diagnosticamos las rutas para recuperar el control de tu dispositivo.',
+    badge: 'Apple ID Inaccesible',
+    color: '#f59e0b',
+    keywords: ['olvidé mi cuenta de iCloud', 'olvidé contraseña Apple ID', 'Apple ID bloqueado o desactivado', 'recuperar acceso Apple ID Cancún', 'quitar cuenta anterior de iPhone']
+  },
+  {
+    icon: 'fa-tablet-screen-button',
+    title: 'Bloqueo de Activación en iPad & Apple Watch',
+    sub: 'Tabletas iPad Pro, Air, Mini y relojes Apple con cuenta previa',
+    desc: 'Brindamos servicio de desbloqueo de activación y remoción de cuenta en iPad Pro, iPad Air, iPad Mini y Apple Watch retenidos en la configuración inicial en Cancún con diagnóstico por modelo exacto.',
+    badge: 'iPad & Apple Watch',
+    color: '#10b981',
+    keywords: ['iPad bloqueado con cuenta anterior', 'quitar bloqueo de activación de iPad', 'desbloqueo iPad Pro Cancún', 'quitar iCloud iPad Air', 'desbloqueo iPad Mini Cancún', 'Apple Watch bloqueo de activación Cancún']
+  }
+];
+
+const comparativaMetodos = [
+  {
+    titulo: 'Restablecimiento por Olvido de Código',
+    destacado: 'Código de Pantalla',
+    color: '#3b82f6',
+    desc: 'Aplica cuando recuerdas tu cuenta Apple ID pero olvidaste el código de desbloqueo o el iPhone se deshabilitó.',
+    ventajas: ['Proceso rápido', 'Conserva la cuenta original', 'Equipo 100% funcional'],
+    requisito: 'Confirmación de Apple ID original o acceso al sistema'
+  },
+  {
+    titulo: 'Bypass Técnico de Pantalla de Activación',
+    destacado: 'Bypass Local',
+    color: '#10b981',
+    desc: 'Omitir la pantalla de activación de forma técnica para permitir el uso completo del dispositivo.',
+    ventajas: ['Permite usar el iPhone', 'Excelente alternativa económica', 'Mantiene WiFi y apps'],
+    requisito: 'Diagnóstico de procesador (A11 o compatible) y versión de iOS'
+  },
+  {
+    titulo: 'Eliminación por Servidor (Clean IMEI)',
+    destacado: 'Desvinculación Raíz',
+    color: '#8b5cf6',
+    desc: 'Proceso de desvinculación completa de la cuenta Apple ID en servidores para equipos con estatus limpio.',
+    ventajas: ['Remoción permanente', 'Permite actualización de iOS', 'Permite poner cuenta nueva'],
+    requisito: 'Verificación de IMEI limpio sin reporte de extravío'
+  }
+];
+
+const procesoPasos = [
+  {
+    step: '01',
+    icon: 'fa-barcode',
+    title: 'Verificación de IMEI y Estatus',
+    desc: 'Ingresamos el IMEI en herramientas de verificación para validar si la unidad está limpia, con reporte o en modo perdido.'
+  },
+  {
+    step: '02',
+    icon: 'fa-microchip',
+    title: 'Diagnóstico de Modelo y Versión iOS',
+    desc: 'Determinamos el chip exacto del iPhone (A11, A12, A13, A14, A15, A16, A17) y la versión instalada de iOS.'
+  },
+  {
+    step: '03',
+    icon: 'fa-file-invoice',
+    title: 'Cotización Transparente',
+    desc: 'Te indicamos con claridad qué método aplica a tu caso particular, tiempo estimado, costo exacto y alcances.'
+  },
+  {
+    step: '04',
+    icon: 'fa-bolt',
+    title: 'Ejecución del Servicio',
+    desc: 'Conectamos el equipo a nuestro software especializado de laboratorio de forma segura sin dañar hardware.'
+  },
+  {
+    step: '05',
+    icon: 'fa-circle-check',
+    title: 'Pruebas Finales y Entrega',
+    desc: 'Validamos el acceso al menú, funciones de WiFi, cámaras, pantalla y estabilidad antes de la entrega con garantía por escrito.'
+  }
+];
+
+const modelosFrasesIntencion = [
+  { modelo: 'iPhone X / 8 / 8 Plus', frase: 'desbloqueo iCloud iPhone X Cancún', icon: 'fa-mobile-screen', desc: 'Soporte con bypass directo por procesador A11.' },
+  { modelo: 'iPhone XR / XS / XS Max', frase: 'quitar iCloud iPhone XR', icon: 'fa-mobile-screen', desc: 'Diagnóstico por servidor e IMEI Clean.' },
+  { modelo: 'iPhone 11 / 11 Pro / Pro Max', frase: 'desbloquear iPhone 11 con Apple ID', icon: 'fa-mobile-screen', desc: 'Evaluación técnica para desvinculación o restablecimiento.' },
+  { modelo: 'iPhone 12 / 12 Mini / Pro Max', frase: 'quitar cuenta iCloud iPhone 12', icon: 'fa-mobile-screen', desc: 'Verificación de pantalla de activación e IMEI.' },
+  { modelo: 'iPhone 13 / 13 Mini / Pro Max', frase: 'iPhone 13 bloqueado para el propietario', icon: 'fa-mobile-screen', desc: 'Diagnóstico honesto para unidades de segunda mano.' },
+  { modelo: 'iPhone 14 / 14 Plus / Pro Max', frase: 'desbloqueo de activación iPhone 14', icon: 'fa-mobile-screen', desc: 'Revisión técnica especializada de iOS 16/17.' },
+  { modelo: 'iPhone 15 / 15 Plus / Pro Max', frase: 'recuperar Apple ID iPhone 15', icon: 'fa-mobile-screen', desc: 'Evaluación de servidor y estatus de cuenta personal.' },
+  { modelo: 'iPhone 16 / 16 Plus / Pro Max', frase: 'revisar iCloud iPhone 16', icon: 'fa-mobile-screen', desc: 'Servicio técnico Apple especializado en Cancún.' },
+  { modelo: 'iPad Pro (Todas las gens)', frase: 'desbloqueo iPad Pro Cancún', icon: 'fa-tablet-screen-button', desc: 'Atención a tabletas profesionales bloqueadas.' },
+  { modelo: 'iPad Air (Todas las gens)', frase: 'quitar iCloud iPad Air', icon: 'fa-tablet-screen-button', desc: 'Restablecimiento e integración de cuenta nueva.' },
+  { modelo: 'iPad Mini (Todas las gens)', frase: 'desbloqueo iPad Mini Cancún', icon: 'fa-tablet-screen-button', desc: 'Solución para pantallas de activación en iPadOS.' },
+  { modelo: 'Apple Watch (Series 3 - 9 / Ultra)', frase: 'Apple Watch bloqueo de activación Cancún', icon: 'fa-clock', desc: 'Revisión y desvinculación de reloj en taller.' }
+];
+
+const zonasCancunCombinadas = [
+  { zona: 'Zona Hotelera Cancún', frase: 'desbloqueo iCloud Zona Hotelera Cancún', desc: 'Atención a residentes, ejecutivos y turistas desde Km 0 al 21, Puerto Cancún y Pok Ta Pok.', icon: 'fa-hotel' },
+  { zona: 'Av. Huayacán & Cumbres', frase: 'desbloqueo iPhone Huayacán', desc: 'Servicio rápido para Residencial Cumbres, Palmaris, Arbolada, Campestre y Av. Huayacán.', icon: 'fa-tree' },
+  { zona: 'Polígono Sur & Av. 135', frase: 'quitar cuenta iCloud Polígono Sur', desc: 'Cobertura para Jardines del Sur, Santa Fe y Supermanzanas del Polígono Sur de Cancún.', icon: 'fa-city' },
+  { zona: 'Puerto Cancún & Bonampak', frase: 'servicio técnico iPhone Puerto Cancún', desc: 'Diagnóstico técnico preferente en Av. Bonampak, Nader, Tulum y marina Puerto Cancún.', icon: 'fa-anchor' },
+  { zona: 'Cumbres & SM 30-50', frase: 'reparación iPhone Cumbres Cancún', desc: 'Taller cercano para clientes de Residencial Cumbres y avenidas principales.', icon: 'fa-shield-halved' },
+  { zona: 'Alfredo V. Bonfil', frase: 'desbloqueo iPad Bonfil', desc: 'Atención especializada para negocios y particulares en la delegación de Bonfil.', icon: 'fa-map-location-dot' },
+  { zona: 'Supermanzana 200 & Centro', frase: 'técnico iPhone Supermanzana 200', desc: 'Servicio de revisión y diagnóstico para SM 200, Cancún Centro y zonas aledañas.', icon: 'fa-house-flag' },
+  { zona: 'Puerto Juárez & Haciendas', frase: 'servicio iPhone Puerto Juárez', desc: 'Ubicados físicamente en Cto. Hacienda Chimay, atendiendo Puerto Juárez y SM 210-230.', icon: 'fa-building-columns' },
+  { zona: 'Plaza Las Américas & Tulum', frase: 'desbloqueo iCloud cerca de Plaza Las Américas', desc: 'A minutos del centro comercial más importante de Cancún sobre Av. Tulum.', icon: 'fa-store' },
+  { zona: 'Servicio a Domicilio / Recolección', frase: 'recolección de iPhone a domicilio Cancún', desc: 'Ofrecemos opción de servicio a domicilio e inspección con recolección en Cancún.', icon: 'fa-truck-fast' }
+];
+
+const preguntasH3 = [
+  {
+    question: '¿Qué hago si mi iPhone dice “bloqueado para el propietario”?',
+    answer: 'La pantalla "iPhone bloqueado para el propietario" o "Bloqueo de Activación" indica que el dispositivo está vinculado a una cuenta Apple ID anterior. En Pixon PC Cancún ingresamos tu IMEI a diagnóstico técnico para determinar si aplica desvinculación por servidor (Clean IMEI) o bypass local según la versión de iOS y chip de tu iPhone.'
+  },
+  {
+    question: '¿Se puede quitar la cuenta del propietario anterior?',
+    answer: 'Sí, dependiendo del estatus del equipo y la generación del chip. Si compraste un equipo de segunda mano y está en estado limpio (Clean IMEI), evaluamos la factibilidad técnica para remover la cuenta anterior de forma definitiva o mediante bypass técnico directo en nuestro taller en Cancún.'
+  },
+  {
+    question: '¿Pueden revisar un iPhone comprado de segunda mano?',
+    answer: 'Por supuesto. Realizamos una revisión previa de IMEI para iPhone comprados en Facebook Marketplace, Mercado Libre o de segunda mano en Cancún. Verificamos que el equipo no tenga reportes y confirmamos qué método de servicio aplica antes de realizar cualquier intervención.'
+  },
+  {
+    question: '¿Cuánto cuesta revisar un iPhone bloqueado con iCloud?',
+    answer: 'La verificación inicial de IMEI y diagnóstico de factibilidad para desbloqueo de iCloud en Cancún se realiza previa a cualquier trabajo. Te entregamos una cotización transparente según el modelo (iPhone X, 11, 12, 13, 14, 15, 16) y la versión de iOS instalada.'
+  },
+  {
+    question: '¿Necesito factura o comprobante de compra?',
+    answer: 'Para procesos de desvinculación oficial en servidor o recuperaciones de acceso con soporte Apple, la documentación o comprobante de compra facilita el trámite. Para diagnósticos en taller y bypass técnico local, evaluamos físicamente el dispositivo e IMEI.'
+  },
+  {
+    question: '¿Cuál es la diferencia entre código olvidado y bloqueo de iCloud?',
+    answer: 'El código olvidado es la clave de 6 dígitos para desbloquear la pantalla inicial ("iPhone no disponible" o deshabilitado). El bloqueo de iCloud es la contraseña del Apple ID solicitada tras restaurar el equipo en la Pantalla de Activación. Son dos procesos distintos que atendemos en nuestro taller.'
+  },
+  {
+    question: '¿Se pueden recuperar las fotos de un iPhone bloqueado?',
+    answer: 'Al restaurar o bypassear un iPhone con Bloqueo de Activación o código de pantalla olvidado, la memoria interna se restablece de fábrica por seguridad de Apple. Sin embargo, si tenías respaldo automático en iCloud, podrás descargar tus fotos y contactos al ingresar tu cuenta nueva.'
+  },
+  {
+    question: '¿Puedo desbloquear mi iPhone si olvidé el correo?',
+    answer: 'Si olvidaste el correo registrado o perdiste acceso a tu autenticación de dos pasos, te orientamos para recuperar el acceso a tu Apple ID o diagnosticar opciones de bypass/desvinculación directa en Cancún.'
+  },
+  {
+    question: '¿Atienden iPad con Bloqueo de activación?',
+    answer: 'Sí. Atendemos desbloqueo de iCloud para iPad Pro, iPad Air, iPad Mini y iPad estándar, así como Apple Watch con Bloqueo de Activación retenidos en la configuración inicial en Cancún.'
+  },
+  {
+    question: '¿Ofrecen recolección a domicilio en Cancún?',
+    answer: 'Sí, ofrecemos opción de recolección de iPhone a domicilio en Cancún (Zona Hotelera, Huayacán, Cumbres, Polígono Sur, Puerto Cancún y zonas aledañas) para clientes que no puedan trasladarse a nuestro taller físico en Cto. Hacienda Chimay.'
+  },
+  {
+    question: '¿Cómo saber si el IMEI está limpio?',
+    answer: 'En Pixon PC consultamos las bases de datos técnicas oficiales del IMEI. Te explicamos de inmediato si el estatus es "Clean" (apto para servicio completo) o si cuenta con reporte que limite las funciones de red móvil.'
+  },
+  {
+    question: '¿Qué pasa si el iPhone fue comprado usado?',
+    answer: 'Es una situación muy común en Cancún. Si el vendedor anterior no cerró sesión, realizamos la lectura del IMEI y chip para decirte con total honestidad qué solución técnica (bypass o desvinculación) permitirá volver a usar el equipo.'
+  }
+];
+---
+
+<!-- VISTA PRINCIPAL DESBLOQUEO ICLOUD -->
+<div class="icloud-view-wrapper">
+  
+  <!-- HERO SECTION -->
+  <section class="hero-icloud">
+    <div class="hero-glow-1" aria-hidden="true"></div>
+    <div class="hero-glow-2" aria-hidden="true"></div>
+    
+    <div class="container hero-inner">
+      <!-- Columna Izquierda: Copy y CTAs -->
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <i class="fa-brands fa-apple"></i>
+          <span>Servicio Técnico Especializado iPhone en Cancún</span>
+        </div>
+        
+        <!-- H1 ÚNICO EN LA PÁGINA -->
+        <h1 class="hero-title">
+          Desbloqueo de iCloud y Remoción de Cuenta iPhone en Cancún
+        </h1>
+
+        <p class="hero-subtitle">
+          Diagnóstico técnico de IMEI, evaluación de cuenta Apple ID y restablecimiento seguro para iPhone y iPad en Cancún.
+        </p>
+
+        <!-- CHIPS DESTACADOS -->
+        <div class="hero-chips">
+          <div class="hero-chip"><i class="fa-solid fa-magnifying-glass"></i> Diagnóstico de IMEI</div>
+          <div class="hero-chip"><i class="fa-solid fa-shield-halved"></i> Garantía de Privacidad</div>
+          <div class="hero-chip"><i class="fa-solid fa-bolt"></i> Atención Rápida</div>
+          <div class="hero-chip"><i class="fa-solid fa-location-dot"></i> Taller Físico Cancún</div>
+        </div>
+
+        <!-- BARRA DE CONFIANZA -->
+        <div class="hero-trust-bar">
+          <span class="trust-item"><i class="fa-solid fa-star" style="color: #f59e0b;"></i> 5.0 en Google</span>
+          <span class="trust-item"><i class="fa-solid fa-location-dot" style="color: #22c55e;"></i> Cto. Hacienda Chimay, Cancún</span>
+          <span class="trust-item"><i class="fa-solid fa-user-shield" style="color: #8b5cf6;"></i> 100% Confidencial</span>
+        </div>
+
+        <!-- BOTONES CTA HERO -->
+        <div class="hero-actions">
+          <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="btn-primary-wa">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>Cotizar por WhatsApp</span>
+          </a>
+          <a href="#contacto" class="btn-secondary-ticket">
+            <i class="fa-solid fa-comments"></i>
+            <span>Solicitar Cotización</span>
+          </a>
+          <a href="#diagnostico-info" class="btn-tertiary-info">
+            <i class="fa-solid fa-stethoscope"></i>
+            <span>Solicitar Diagnóstico</span>
+          </a>
+        </div>
+
+        <p class="hero-micro">
+          <i class="fa-solid fa-circle-info"></i> Atención presencial en Cancún Centro, Huayacán, Cumbres, Zona Hotelera y Q. Roo.
+        </p>
+      </div>
+
+      <!-- Columna Derecha: Tarjeta Visual de Evaluación IMEI & Dispositivo -->
+      <div class="hero-visual-col">
+        <div class="hero-device-card">
+          <div class="device-card-header">
+            <div class="header-left">
+              <i class="fa-brands fa-apple apple-icon"></i>
+              <span class="header-title">Diagnóstico IMEI & iCloud</span>
+            </div>
+            <span class="header-badge"><i class="fa-solid fa-signal"></i> Cancún</span>
+          </div>
+
+          <!-- MOCKUP IPHONE -->
+          <div class="mock-phone-container">
+            <div class="mock-phone-frame">
+              <div class="mock-phone-notch"></div>
+              <div class="mock-phone-screen">
+                <div class="screen-shield-box">
+                  <div class="shield-pulse"></div>
+                  <i class="fa-solid fa-lock shield-icon"></i>
+                </div>
+                <div class="screen-status-title">Verificación Técnica Apple ID</div>
+                <div class="screen-status-sub">Diagnóstico en Taller Cancún</div>
+
+                <div class="screen-checks-list">
+                  <div class="check-row">
+                    <i class="fa-solid fa-circle-check check-ok"></i>
+                    <span>Verificación Estatus Clean</span>
+                    <span class="row-tag tag-green">Elegible</span>
+                  </div>
+                  <div class="check-row">
+                    <i class="fa-solid fa-microchip check-blue"></i>
+                    <span>Identificación Chip A11-A17</span>
+                    <span class="row-tag tag-blue">Procesado</span>
+                  </div>
+                  <div class="check-row">
+                    <i class="fa-solid fa-user-lock check-purple"></i>
+                    <span>Resguardo de Privacidad</span>
+                    <span class="row-tag tag-purple">Privado</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mock-phone-bar"></div>
+            </div>
+          </div>
+
+          <!-- FOOTER CARDA VISUAL -->
+          <div class="device-card-footer">
+            <div class="footer-stat">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>Revisión en Taller</span>
+            </div>
+            <div class="footer-stat">
+              <i class="fa-solid fa-file-contract"></i>
+              <span>Cotización Transparente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN AVISO DE TRANSPARENCIA Y DIAGNÓSTICO -->
+  <section id="diagnostico-info" class="section-notice">
+    <div class="container">
+      <div class="notice-box">
+        <div class="notice-header">
+          <i class="fa-solid fa-shield-halved notice-icon"></i>
+          <div>
+            <h2 class="notice-title">Política de Diagnóstico Honesto y Verificación de IMEI en Cancún</h2>
+            <p class="notice-subtitle">Sin promesas falsas: Evaluamos la factibilidad técnica de tu iPhone o iPad antes de realizar cualquier cobro.</p>
+          </div>
+        </div>
+        <div class="notice-grid">
+          <div class="notice-item">
+            <i class="fa-solid fa-circle-check item-icon"></i>
+            <div>
+              <strong>Revisión de Estatus Clean</strong>
+              <p>Comprobamos el historial del IMEI en base de datos para confirmar que la unidad es elegible para servicio técnico en Cancún.</p>
+            </div>
+          </div>
+          <div class="notice-item">
+            <i class="fa-solid fa-microchip item-icon"></i>
+            <div>
+              <strong>Diagnóstico de Procesador</strong>
+              <p>Evaluamos si tu modelo permite bypass local o si requiere gestión de desvinculación por servidor.</p>
+            </div>
+          </div>
+          <div class="notice-item">
+            <i class="fa-solid fa-user-lock item-icon"></i>
+            <div>
+              <strong>Garantía de Privacidad</strong>
+              <p>Tu información y equipo son tratados con absoluta confidencialidad en nuestro taller físico en Cancún.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESCENARIOS Y CASOS SEGÚN MENSAJE DE PANTALLA -->
+  <section class="section-scenarios">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-eyebrow">Diagnóstico por Intención y Mensaje en Pantalla</span>
+        <h2 class="section-title">¿Qué mensaje o tipo de bloqueo presenta tu iPhone o iPad?</h2>
+        <p class="section-desc">Apple diferencia el código de pantalla, la cuenta personal olvidada y el bloqueo de activación. Identifica tu caso para una asesoría exacta en Cancún.</p>
+      </div>
+
+      <div class="scenarios-grid">
+        {casosIntencion.map(sc => (
+          <div class="scenario-card">
+            <div class="card-top">
+              <div class="icon-wrapper" style={`background-color: ${sc.color}15; color: ${sc.color};`}>
+                <i class={`fa-solid ${sc.icon}`}></i>
+              </div>
+              <span class="card-badge" style={`background-color: ${sc.color}15; color: ${sc.color};`}>
+                {sc.badge}
+              </span>
+            </div>
+            <h3 class="card-title">{sc.title}</h3>
+            <h4 class="card-sub">{sc.sub}</h4>
+            <p class="card-desc">{sc.desc}</p>
+            <div class="card-kw-tags">
+              {sc.keywords.map(kw => (
+                <span class="kw-tag"><i class="fa-solid fa-tag"></i> {kw}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- TABLA COMPARATIVA DE MÉTODOS DE ATENCIÓN -->
+  <section class="section-comparison">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-eyebrow">Transparencia Técnica</span>
+        <h2 class="section-title">Opciones y Métodos de Solución para iPhone y iPad</h2>
+        <p class="section-desc">Te explicamos con claridad las opciones existentes según la causa del bloqueo de activación o código.</p>
+      </div>
+
+      <div class="comparison-grid">
+        {comparativaMetodos.map(item => (
+          <div class="method-card">
+            <div class="method-header" style={`border-top-color: ${item.color};`}>
+              <span class="method-tag" style={`color: ${item.color};`}>{item.destacado}</span>
+              <h3 class="method-title">{item.titulo}</h3>
+              <p class="method-desc">{item.desc}</p>
+            </div>
+            <div class="method-body">
+              <h4 class="sub-heading">Ventajas clave:</h4>
+              <ul class="method-advantages">
+                {item.ventajas.map(v => (
+                  <li><i class="fa-solid fa-check" style={`color: ${item.color};`}></i> {v}</li>
+                ))}
+              </ul>
+              <div class="method-req">
+                <strong>Requisito:</strong> {item.requisito}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO DE ATENCIÓN EN 5 PASOS -->
+  <section class="section-process">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-eyebrow">Paso a Paso</span>
+        <h2 class="section-title">Proceso de Diagnóstico y Servicio en Cancún</h2>
+        <p class="section-desc">Un flujo de trabajo ordenado y seguro desde la recepción hasta la entrega.</p>
+      </div>
+
+      <div class="process-timeline">
+        {procesoPasos.map(step => (
+          <div class="timeline-step">
+            <div class="step-num-badge">{step.step}</div>
+            <div class="step-icon-box">
+              <i class={`fa-solid ${step.icon}`}></i>
+            </div>
+            <h3 class="step-title">{step.title}</h3>
+            <p class="step-desc">{step.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- MODELOS CON INTENCIÓN DE BÚSQUEDA REAL -->
+  <section class="section-models">
+    <div class="container">
+      <div class="models-box">
+        <div class="models-header">
+          <i class="fa-brands fa-apple models-apple-icon"></i>
+          <div>
+            <h2 class="models-title">Servicio Técnico por Modelo de iPhone, iPad y Apple Watch</h2>
+            <p class="models-subtitle">Diagnóstico por modelo exacto para la remoción de cuenta o bypass técnico en Cancún.</p>
+          </div>
+        </div>
+        <div class="models-intent-grid">
+          {modelosFrasesIntencion.map(m => (
+            <div class="model-intent-card">
+              <div class="model-intent-top">
+                <i class={`fa-solid ${m.icon} model-icon`}></i>
+                <h3 class="model-name">{m.modelo}</h3>
+              </div>
+              <p class="model-phrase"><i class="fa-solid fa-magnifying-glass"></i> {m.frase}</p>
+              <p class="model-desc">{m.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COBERTURA LOCAL COMBINADA Y SERVICIO A DOMICILIO -->
+  <section class="section-local-coverage">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-eyebrow">SEO Local Cancún & Zonas Comerciales</span>
+        <h2 class="section-title">Desbloqueo de iCloud y Servicio Técnico en Todo Cancún</h2>
+        <p class="section-desc">Atención presencial en nuestro taller en Cto. Hacienda Chimay u opción de recolección de iPhone a domicilio en Cancún.</p>
+      </div>
+
+      <div class="zones-grid">
+        {zonasCancunCombinadas.map(zone => (
+          <div class="zone-card">
+            <div class="zone-icon">
+              <i class={`fa-solid ${zone.icon}`}></i>
+            </div>
+            <h3 class="zone-name">{zone.zona}</h3>
+            <p class="zone-phrase"><strong>Búsqueda:</strong> {zone.frase}</p>
+            <p class="zone-desc">{zone.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="nap-box">
+        <div class="nap-content">
+          <h3>Pixon PC — Taller de Servicio Técnico Apple en Cancún</h3>
+          <p><i class="fa-solid fa-location-dot"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</p>
+          <p><i class="fa-solid fa-phone"></i> +52 998 669 0777 | <i class="fa-solid fa-envelope"></i> pixonpc@gmail.com</p>
+          <p><i class="fa-solid fa-clock"></i> Lunes a Sábado | Atención presencial y por WhatsApp</p>
+        </div>
+        <a href={`https://wa.me/529986690777?text=${waMsg}`} target="_blank" rel="noopener noreferrer" class="nap-btn">
+          <i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE PREGUNTAS FRECUENTES (USANDO CONTENEDOR FAQ OFICIAL DEL PROYECTO) -->
+  <FaqSection
+    title="Preguntas Frecuentes sobre Desbloqueo de iCloud en Cancún"
+    description="Dudas Comunes sobre Desbloqueo de iCloud y Remoción de Cuenta en Cancún. Respuestas claras y directas a las situaciones más consultadas por nuestros clientes."
+    items={preguntasH3}
+  />
+
+  <!-- COMENTARIOS DE CLIENTES -->
+  <CommentsSection />
+
+  <!-- SERVICIOS RELACIONADOS -->
+  <RelatedServicesSection />
+
+  <!-- SECCIÓN DE CONTACTO FINAL -->
+  <ContactSection />
+
+  <!-- FOOTER PRINCIPAL -->
+  <Footer />
+
+</div>
+
+<style>
+  /* ── ESTILOS GLOBALES DE LA VISTA ────────────────────────────────────────── */
+  /* REGLA PROYECTO: Todos los textos fuera del hero usan azul oscuro #071F3A */
+
+  .icloud-view-wrapper {
+    color: #071F3A;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    background-color: #f8fafc;
+  }
+
+  .icloud-view-wrapper h2,
+  .icloud-view-wrapper h3,
+  .icloud-view-wrapper h4,
+  .icloud-view-wrapper p,
+  .icloud-view-wrapper span,
+  .icloud-view-wrapper li,
+  .icloud-view-wrapper strong {
+    color: #071F3A;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  /* ── HERO SECTION ───────────────────────────────────────────────────────── */
+  .hero-icloud {
+    position: relative;
+    background: linear-gradient(135deg, #071F3A 0%, #0c2b52 50%, #1e3a8a 100%);
+    padding: 3.5rem 1rem 4rem 1rem;
+    overflow: hidden;
+    color: #ffffff;
+  }
+
+  .hero-glow-1 {
+    position: absolute;
+    top: -100px;
+    right: -50px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.22), transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-glow-2 {
+    position: absolute;
+    bottom: -80px;
+    left: -50px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.18), transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 2.5rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-copy {
+    text-align: left;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-badge i, .hero-badge span {
+    color: #ffffff !important;
+  }
+
+  /* H1 REGLA PROYECTO: Único H1 en la página */
+  .hero-title {
+    font-size: clamp(2rem, 3.5vw, 3.1rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #ffffff !important;
+    margin-bottom: 1rem;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    color: rgba(255, 255, 255, 0.9) !important;
+    max-width: 650px;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* CHIPS HERO */
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.825rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  .hero-chip i {
+    color: #60a5fa !important;
+  }
+
+  /* BARRA DE CONFIANZA */
+  .hero-trust-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+
+  /* REGLA EMIL KOWALSKI: Buttons scale(0.97) on active, smooth transition */
+  .btn-primary-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: #25d366;
+    color: #ffffff !important;
+    font-weight: 700;
+    padding: 0.85rem 1.6rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+  }
+
+  .btn-primary-wa i, .btn-primary-wa span {
+    color: #ffffff !important;
+  }
+
+  .btn-primary-wa:hover {
+    background-color: #20ba59;
+    transform: translateY(-2px);
+  }
+
+  .btn-primary-wa:active {
+    transform: scale(0.97);
+  }
+
+  .btn-secondary-ticket {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: #3b82f6;
+    color: #ffffff !important;
+    font-weight: 700;
+    padding: 0.85rem 1.6rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  }
+
+  .btn-secondary-ticket i, .btn-secondary-ticket span {
+    color: #ffffff !important;
+  }
+
+  .btn-secondary-ticket:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary-ticket:active {
+    transform: scale(0.97);
+  }
+
+  .btn-tertiary-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 0.85rem 1.4rem;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background 160ms ease;
+  }
+
+  .btn-tertiary-info i, .btn-tertiary-info span {
+    color: #ffffff !important;
+  }
+
+  .btn-tertiary-info:hover {
+    background: rgba(255, 255, 255, 0.22);
+    transform: translateY(-2px);
+  }
+
+  .btn-tertiary-info:active {
+    transform: scale(0.97);
+  }
+
+  .hero-micro {
+    font-size: 0.825rem;
+    color: rgba(255, 255, 255, 0.75) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+  }
+
+  .hero-micro i {
+    color: #60a5fa !important;
+  }
+
+  /* ── COLUMNA DERECHA: TARJETA VISUAL IPHONE & IMEI ────────────────────────── */
+  .hero-visual-col {
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero-device-card {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), 0 0 30px rgba(59, 130, 246, 0.15);
+    transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .hero-device-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .device-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .apple-icon {
+    font-size: 1.2rem;
+    color: #ffffff !important;
+  }
+
+  .header-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffffff !important;
+  }
+
+  .header-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.12);
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  /* MOCKUP FRAME */
+  .mock-phone-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .mock-phone-frame {
+    background: #020617;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 28px;
+    padding: 0.75rem;
+    width: 100%;
+    max-width: 280px;
+    position: relative;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+  }
+
+  .mock-phone-notch {
+    width: 70px;
+    height: 14px;
+    background: #000000;
+    border-radius: 10px;
+    margin: 0 auto 0.85rem auto;
+  }
+
+  .mock-phone-screen {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 16px;
+    padding: 1.25rem 0.85rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .screen-shield-box {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 0.75rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .shield-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.25);
+    animation: pulseGlow 2.5s infinite ease-in-out;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+  }
+
+  .shield-icon {
+    font-size: 1.5rem;
+    color: #60a5fa !important;
+    position: relative;
+    z-index: 2;
+  }
+
+  .screen-status-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #ffffff !important;
+    margin-bottom: 0.2rem;
+  }
+
+  .screen-status-sub {
+    font-size: 0.725rem;
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin-bottom: 1rem;
+  }
+
+  .screen-checks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+  }
+
+  .check-row {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.4rem 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.725rem;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .check-row span {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .check-ok { color: #22c55e !important; }
+  .check-blue { color: #38bdf8 !important; }
+  .check-purple { color: #a855f7 !important; }
+
+  .row-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+  }
+
+  .tag-green { background: rgba(34, 197, 94, 0.18); color: #4ade80 !important; }
+  .tag-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8 !important; }
+  .tag-purple { background: rgba(168, 85, 247, 0.18); color: #c084fc !important; }
+
+  .mock-phone-bar {
+    width: 90px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    margin: 0.85rem auto 0 auto;
+  }
+
+  .device-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.775rem;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+  }
+
+  .footer-stat i {
+    color: #60a5fa !important;
+  }
+
+  @media (max-width: 992px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 2rem;
+    }
+    .hero-copy {
+      text-align: center;
+    }
+    .hero-subtitle {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-chips, .hero-trust-bar, .hero-actions {
+      justify-content: center;
+    }
+    .hero-micro {
+      justify-content: center;
+    }
+  }
+
+  /* ── SECCIÓN AVISO DE TRANSPARENCIA ────────────────────────────────────── */
+  .section-notice {
+    padding: 3rem 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .notice-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .notice-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .notice-icon {
+    font-size: 2rem;
+    color: #16a34a !important;
+    background: #dcfce7;
+    padding: 0.75rem;
+    border-radius: 12px;
+  }
+
+  .notice-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #071F3A !important;
+  }
+
+  .notice-subtitle {
+    font-size: 0.95rem;
+    color: #071F3A !important;
+    opacity: 0.9;
+  }
+
+  .notice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .notice-item {
+    display: flex;
+    gap: 0.85rem;
+    background: #ffffff;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #dcfce7;
+  }
+
+  .item-icon {
+    font-size: 1.15rem;
+    color: #16a34a !important;
+    margin-top: 0.2rem;
+  }
+
+  .notice-item strong {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    color: #071F3A !important;
+  }
+
+  .notice-item p {
+    font-size: 0.85rem;
+    margin: 0;
+    color: #071F3A !important;
+    opacity: 0.85;
+  }
+
+  /* ── SECCIONES GENERALES ────────────────────────────────────────────────── */
+  .section-scenarios,
+  .section-comparison,
+  .section-process,
+  .section-models,
+  .section-local-coverage {
+    padding: 4rem 0;
+  }
+
+  .section-header-center {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 3rem auto;
+  }
+
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #2563eb !important;
+    background: #eff6ff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+    color: #071F3A !important;
+  }
+
+  .section-desc {
+    font-size: 1rem;
+    color: #071F3A !important;
+    opacity: 0.85;
+  }
+
+  /* ── ESCENARIOS COMUNES GRID ────────────────────────────────────────────── */
+  .scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .scenario-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease;
+  }
+
+  .scenario-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -6px rgba(7, 31, 58, 0.08);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .card-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+    color: #071F3A !important;
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    color: #071F3A !important;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  /* ── COMPARATIVA DE MÉTODOS ──────────────────────────────────────────────── */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.75rem;
+  }
+
+  .method-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(7, 31, 58, 0.03);
+  }
+
+  .method-header {
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-top: 4px solid #3b82f6;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .method-tag {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .method-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #071F3A !important;
+  }
+
+  .method-desc {
+    font-size: 0.875rem;
+    color: #071F3A !important;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .method-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+  }
+
+  .sub-heading {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #071F3A !important;
+  }
+
+  .method-advantages {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .method-advantages li {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #071F3A !important;
+  }
+
+  .method-req {
+    background: #f1f5f9;
+    padding: 0.85rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: #071F3A !important;
+  }
+
+  /* ── TIMELINE PROCESO ────────────────────────────────────────────────────── */
+  .process-timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    position: relative;
+  }
+
+  .timeline-step {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    text-align: center;
+  }
+
+  .step-num-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #94a3b8 !important;
+  }
+
+  .step-icon-box {
+    width: 52px;
+    height: 52px;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    margin: 0 auto 1rem auto;
+  }
+
+  .step-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #071F3A !important;
+  }
+
+  .step-desc {
+    font-size: 0.85rem;
+    color: #071F3A !important;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  /* ── MODELOS COMPATIBLES ────────────────────────────────────────────────── */
+  .models-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 6px 20px rgba(7, 31, 58, 0.04);
+  }
+
+  .models-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .models-apple-icon {
+    font-size: 2.5rem;
+    color: #071F3A !important;
+  }
+
+  .models-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    color: #071F3A !important;
+  }
+
+  .models-subtitle {
+    font-size: 0.95rem;
+    color: #071F3A !important;
+    opacity: 0.85;
+  }
+
+  .models-chips-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .model-chip {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #071F3A !important;
+    transition: background 150ms ease, border-color 150ms ease;
+  }
+
+  .model-chip:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+  }
+
+  .model-chip i, .model-chip span {
+    color: #071F3A !important;
+  }
+
+  /* ── ZONAS CANCÚN ───────────────────────────────────────────────────────── */
+  .zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .zone-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+
+  .zone-icon {
+    color: #ef4444;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .zone-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: #071F3A !important;
+  }
+
+  .zone-desc {
+    font-size: 0.825rem;
+    color: #071F3A !important;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .nap-box {
+    background: linear-gradient(135deg, #071F3A 0%, #0d3663 100%);
+    border-radius: 18px;
+    padding: 2rem;
+    color: #ffffff;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .nap-content h3 {
+    color: #ffffff !important;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .nap-content p {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+  }
+
+  .nap-btn {
+    background: #25d366;
+    color: #ffffff !important;
+    font-weight: 700;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .nap-btn i, .nap-btn span {
+    color: #ffffff !important;
+  }
+
+  .nap-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .nap-btn:active {
+    transform: scale(0.97);
+  }
+
+  .card-sub {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #071F3A !important;
+    opacity: 0.85;
+    margin-bottom: 0.6rem;
+  }
+
+  .card-kw-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.85rem;
+  }
+
+  .kw-tag {
+    font-size: 0.725rem;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #071F3A !important;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .kw-tag i {
+    color: #3b82f6 !important;
+    font-size: 0.65rem;
+  }
+
+  /* MODELOS FRASES INTENCIÓN GRID */
+  .models-intent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .model-intent-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: transform 160ms ease, border-color 160ms ease;
+  }
+
+  .model-intent-card:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    background: #ffffff;
+  }
+
+  .model-intent-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .model-icon {
+    color: #071F3A !important;
+    font-size: 1.1rem;
+  }
+
+  .model-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #071F3A !important;
+    margin: 0;
+  }
+
+  .model-phrase {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #2563eb !important;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .model-phrase i {
+    color: #2563eb !important;
+  }
+
+  .model-desc {
+    font-size: 0.8rem;
+    color: #071F3A !important;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .zone-phrase {
+    font-size: 0.8rem;
+    color: #2563eb !important;
+    margin-bottom: 0.35rem;
+  }
+
+  .zone-phrase strong {
+    color: #071F3A !important;
+  }
+
+  /* ── SECCIÓN PREGUNTAS FRECUENTES (ESTRUCTURA H3 EN HTML) ────────────────── */
+  .section-h3-faqs {
+    padding: 4rem 1rem;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .faqs-h3-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .faq-h3-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .faq-h3-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(7, 31, 58, 0.05);
+    background: #ffffff;
+  }
+
+  .faq-h3-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .faq-num {
+    background: #eff6ff;
+    color: #2563eb !important;
+    font-weight: 800;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  /* H3 REGLA PROYECTO: H3 estructurados para intención de búsqueda */
+  .faq-h3-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #071F3A !important;
+    margin: 0;
+    line-height: 1.35;
+  }
+
+  .faq-h3-body p {
+    font-size: 0.9rem;
+    color: #071F3A !important;
+    opacity: 0.9;
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  .ticket-section-anchor {
+    scroll-margin-top: 2rem;
+  }
+
+  /* ── RESPONSIVE MEDIA QUERIES ────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .hero-icloud {
+      padding: 3.5rem 1rem 3rem 1rem;
+    }
+
+    .hero-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .btn-primary-wa, .btn-secondary-ticket, .btn-tertiary-info {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .models-box {
+      padding: 1.5rem;
+    }
+
+    .nap-box {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .nap-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

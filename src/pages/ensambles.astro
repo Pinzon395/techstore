@@ -6,12 +6,25 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import FaqSection from '../components/FaqSection.astro';
 import CommentsSection from '../components/CommentsSection.astro';
 import ServiceTicketSection from '../components/ServiceTicketSection.astro';
+import pcBuilderCatalog from '../data/pc-builder-catalog.json';
+
+const pcBuilderMarginRate = pcBuilderCatalog.pricing.marginRate;
+const pcBuilderAssemblyFee = pcBuilderCatalog.pricing.assemblyFee;
+const pcBuilderQuoteLockHours = pcBuilderCatalog.pricing.quoteLockHours;
+const pcBuilderOptions = (category: string) => pcBuilderCatalog.components.filter((item) => item.category === category);
+const pcBuilderSalePrice = (marketPrice: number) => Math.round(Number(marketPrice || 0) * (1 + pcBuilderMarginRate));
+const pcBuilderFormatPrice = (price: number) => new Intl.NumberFormat('es-MX').format(price);
+const pcBuilderOptionLabel = (item: any) => {
+  const salePrice = pcBuilderSalePrice(item.marketPrice);
+  if (item.id === 'gpu-integrated') return 'Sin gráficos dedicados (usar integrados)';
+  return `${item.name} (+ $${pcBuilderFormatPrice(salePrice)})`;
+};
 
 const faqs = [
   { question: '¿Cuánto cuesta armar una PC gamer básica?', answer: 'Una PC gamer entrada (1080p, 60fps) ronda los <strong>$12,000-15,000 MXN</strong> con componentes nuevos. Gama media (1440p): $18,000-25,000. Gama alta (1440p ultra/4K): $30,000+. Te asesoramos en presupuesto sin compromiso.' },
   { question: '¿Pueden ensamblar con componentes que yo compre?', answer: 'Sí. Si compraste tus componentes en Amazon, Cyberpuerta o DDTech, puedes traerlos a nuestro taller en Cancún. Cobramos solo el ensamble + cableado + instalación de SO + pruebas de estrés ($500-1000 MXN). También verificamos compatibilidad antes de comprar si nos pasas la lista.' },
   { question: '¿Cuánto tarda el ensamble?', answer: 'De 24 a 72 horas dependiendo del nivel de personalización. Incluye montaje, cableado limpio, instalación de Windows, drivers, pruebas de estabilidad (Furmark + Cinebench) y entrega con video del proceso.' },
-  { question: '¿Hay garantía sobre el ensamble?', answer: 'Sí, <strong>6 meses sobre el ensamble</strong>. Los componentes mantienen garantía del fabricante (1-3 años según pieza). Si algo falla por mal montaje, lo corregimos sin costo.' },
+  { question: '¿Hay garantía sobre los componentes y el ensamble?', answer: 'Sí. <strong>Cualquier pieza comprada o equipo ensamblado con Pixon PC cuenta con 3 meses de garantía directa por escrito</strong> en taller y mano de obra, además de la garantía oficial del fabricante (1 a 3 años según componente). Y si el cliente lo prefiere, puede contratar extensión de garantía (+6 meses adicionales o más).' },
   { question: '¿Instalan el sistema operativo y programas?', answer: 'Sí. Todos nuestros ensambles completos incluyen la instalación de Windows (10 u 11), actualización de BIOS a la última versión estable, configuración de perfiles XMP/EXPO para la memoria RAM, instalación de los drivers más recientes y la paquetería básica necesaria.' },
 ];
 ---
@@ -77,7 +90,7 @@ const faqs = [
                     ensamble pasa pruebas de estrés antes de entregarse.</p>
                 <div class="warranty-pill"
                     style="margin-bottom: 40px; display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.4); color: #6ee7b7; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 0.9rem;">
-                    <i class="fa-solid fa-shield-halved"></i> 3 Meses de Garantía en mano de obra
+                    <i class="fa-solid fa-shield-halved"></i> 3 Meses de Garantía directa por escrito (extensible si lo deseas)
                 </div>
                 <div class="hero-stats" style="justify-content: flex-start; margin-top: 0; gap: 30px;">
                     <div class="hero-stat">
@@ -405,6 +418,9 @@ const faqs = [
          CONFIGURADOR DE PC (CARRITO)
     ---------------------" -->
     <section id="builder" class="section-padding"
+        data-assembly-fee={pcBuilderAssemblyFee}
+        data-margin-rate={pcBuilderMarginRate}
+        data-quote-lock-hours={pcBuilderQuoteLockHours}
         style="background:#0f172a; color:#fff; position:relative; overflow:hidden;">
         <!-- Decoración de fondo -->
         <div
@@ -419,6 +435,10 @@ const faqs = [
                 </h2>
                 <p style="color:#94a3b8; max-width:600px; margin:0 auto; font-size:1.05rem;">Selecciona los componentes,
                     obtén un presupuesto estimado y envíanos tu "carrito" por WhatsApp para confirmar stock y detalles.
+                </p>
+                <p id="builder-price-status" aria-live="polite"
+                    style="color:#94a3b8; max-width:680px; margin:12px auto 0; font-size:0.9rem; line-height:1.5;">
+                    Precios de referencia del mercado mexicano. Cada componente incluye margen técnico del 30%. Todas las piezas compradas en Pixon PC cuentan con 3 meses de garantía por escrito (extensible a solicitud).
                 </p>
             </div>
 
@@ -438,15 +458,23 @@ const faqs = [
                         <select id="b-cpu" onchange="updateBuilder()"
                             style="width:100%; padding:14px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #475569; font-size:1rem; cursor:pointer;">
                             <option value="" data-name="" data-perf="0" data-igpu="0" selected disabled>Selecciona el procesador...</option>
-                            <option value="2500" data-name="AMD Ryzen 5 5600G" data-perf="35" data-igpu="1">AMD Ryzen 5 5600G (+ $2,500)</option>
-                            <option value="3200" data-name="Intel Core i5-12400F" data-perf="50" data-igpu="0">Intel Core i5-12400F (+ $3,200)
-                            </option>
-                            <option value="3800" data-name="AMD Ryzen 5 7600X" data-perf="60" data-igpu="0">AMD Ryzen 5 7600X (+ $3,800)</option>
-                            <option value="6500" data-name="Intel Core i5-13600K" data-perf="75" data-igpu="0">Intel Core i5-13600K (+ $6,500)
-                            </option>
-                            <option value="8200" data-name="AMD Ryzen 7 7800X3D" data-perf="92" data-igpu="0">AMD Ryzen 7 7800X3D (+ $8,200)</option>
-                            <option value="9500" data-name="Intel Core i7-14700K" data-perf="88" data-igpu="0">Intel Core i7-14700K (+ $9,500)
-                            </option>
+                            {pcBuilderOptions('cpu').map((item: any) => (
+                                <option
+                                    value={item.id}
+                                    data-id={item.id}
+                                    data-category={item.category}
+                                    data-name={item.name}
+                                    data-price={pcBuilderSalePrice(item.marketPrice)}
+                                    data-market-price={item.marketPrice}
+                                    data-source="catalog"
+                                    data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                                    data-perf={item.perf}
+                                    data-igpu={item.igpu ? '1' : '0'}
+                                    data-socket={item.socket || ''}
+                                >
+                                    {pcBuilderOptionLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <!-- GPU -->
@@ -460,19 +488,24 @@ const faqs = [
                         <select id="b-gpu" onchange="updateBuilder()"
                             style="width:100%; padding:14px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #475569; font-size:1rem; cursor:pointer;">
                             <option value="" data-name="" data-perf="0" data-dedicated="0" selected disabled>Selecciona la tarjeta gráfica...</option>
-                            <option value="0" data-name="Gráficos Integrados" data-perf="8" data-dedicated="0">Sin gráficos dedicados (Usar integrados)
-                            </option>
-                            <option value="5500" data-name="NVIDIA RTX 3060 12GB" data-perf="45" data-dedicated="1">NVIDIA RTX 3060 12GB (+ $5,500)
-                            </option>
-                            <option value="7800" data-name="NVIDIA RTX 4060 8GB" data-perf="55" data-dedicated="1">NVIDIA RTX 4060 8GB (+ $7,800)</option>
-                            <option value="10500" data-name="AMD Radeon RX 7700 XT" data-perf="68" data-dedicated="1">AMD Radeon RX 7700 XT (+ $10,500)
-                            </option>
-                            <option value="12500" data-name="NVIDIA RTX 4070 SUPER" data-perf="78" data-dedicated="1">NVIDIA RTX 4070 SUPER (+ $12,500)
-                            </option>
-                            <option value="18000" data-name="NVIDIA RTX 4070 Ti SUPER" data-perf="88" data-dedicated="1">NVIDIA RTX 4070 Ti SUPER (+
-                                $18,000)</option>
-                            <option value="22000" data-name="NVIDIA RTX 4080 SUPER" data-perf="95" data-dedicated="1">NVIDIA RTX 4080 SUPER (+ $22,000)
-                            </option>
+                            {pcBuilderOptions('gpu').map((item: any) => (
+                                <option
+                                    value={item.id}
+                                    data-id={item.id}
+                                    data-category={item.category}
+                                    data-name={item.name}
+                                    data-price={pcBuilderSalePrice(item.marketPrice)}
+                                    data-market-price={item.marketPrice}
+                                    data-source="catalog"
+                                    data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                                    data-perf={item.perf}
+                                    data-dedicated={item.dedicated ? '1' : '0'}
+                                    data-vram={item.vram || ''}
+                                    data-recommended-psu={item.recommendedPsu || 0}
+                                >
+                                    {pcBuilderOptionLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <!-- RAM -->
@@ -486,14 +519,23 @@ const faqs = [
                         <select id="b-ram" onchange="updateBuilder()"
                             style="width:100%; padding:14px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #475569; font-size:1rem; cursor:pointer;">
                             <option value="" data-name="" data-perf="0" data-gb="0" selected disabled>Selecciona la memoria RAM...</option>
-                            <option value="900" data-name="16GB (2x8GB) DDR4 3200MHz" data-perf="50" data-gb="16">16GB (2x8GB) DDR4 3200MHz (+ $900)
-                            </option>
-                            <option value="1500" data-name="32GB (2x16GB) DDR4 3200MHz" data-perf="70" data-gb="32">32GB (2x16GB) DDR4 3200MHz (+
-                                $1,500)</option>
-                            <option value="2200" data-name="32GB (2x16GB) DDR5 6000MHz" data-perf="85" data-gb="32">32GB (2x16GB) DDR5 6000MHz (+
-                                $2,200)</option>
-                            <option value="4000" data-name="64GB (2x32GB) DDR5 6000MHz" data-perf="95" data-gb="64">64GB (2x32GB) DDR5 6000MHz (+
-                                $4,000)</option>
+                            {pcBuilderOptions('ram').map((item: any) => (
+                                <option
+                                    value={item.id}
+                                    data-id={item.id}
+                                    data-category={item.category}
+                                    data-name={item.name}
+                                    data-price={pcBuilderSalePrice(item.marketPrice)}
+                                    data-market-price={item.marketPrice}
+                                    data-source="catalog"
+                                    data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                                    data-perf={item.perf}
+                                    data-gb={item.gb || 0}
+                                    data-memory-type={item.memoryType || ''}
+                                >
+                                    {pcBuilderOptionLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <!-- Storage -->
@@ -508,10 +550,22 @@ const faqs = [
                         <select id="b-ssd" onchange="updateBuilder()"
                             style="width:100%; padding:14px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #475569; font-size:1rem; cursor:pointer;">
                             <option value="" data-name="" data-perf="0" selected disabled>Selecciona almacenamiento...</option>
-                            <option value="800" data-name="500GB SSD NVMe M.2" data-perf="60">500GB SSD NVMe M.2 (+ $800)</option>
-                            <option value="1400" data-name="1TB SSD NVMe M.2" data-perf="80">1TB SSD NVMe M.2 (+ $1,400)</option>
-                            <option value="2600" data-name="2TB SSD NVMe M.2 Gen4" data-perf="95">2TB SSD NVMe M.2 Gen4 (+ $2,600)
-                            </option>
+                            {pcBuilderOptions('ssd').map((item: any) => (
+                                <option
+                                    value={item.id}
+                                    data-id={item.id}
+                                    data-category={item.category}
+                                    data-name={item.name}
+                                    data-price={pcBuilderSalePrice(item.marketPrice)}
+                                    data-market-price={item.marketPrice}
+                                    data-source="catalog"
+                                    data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                                    data-perf={item.perf}
+                                    data-capacity={item.capacity || ''}
+                                >
+                                    {pcBuilderOptionLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <!-- Base Assembly -->
@@ -522,12 +576,24 @@ const faqs = [
                         <select id="b-base" onchange="updateBuilder()"
                             style="width:100%; padding:14px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #475569; font-size:1rem; cursor:pointer;">
                             <option value="" data-name="" data-perf="0" data-watts="0" selected disabled>Selecciona tu kit base...</option>
-                            <option value="3500" data-name="Kit Básico (Gabinete cristal + 500W + A520/H610)" data-perf="40" data-watts="500">Kit Básico
-                                (500W + Motherboard Entry) (+ $3,500)</option>
-                            <option value="5500" data-name="Kit Intermedio (Gabinete Gamer + 650W 80+ + B550/B760)" data-perf="70" data-watts="650">Kit
-                                Intermedio (650W + Motherboard Mid) (+ $5,500)</option>
-                            <option value="8500" data-name="Kit Avanzado (Gabinete Premium + 850W Gold + X670/Z790)" data-perf="95" data-watts="850">Kit
-                                Avanzado (850W Gold + Motherboard High) (+ $8,500)</option>
+                            {pcBuilderOptions('base').map((item: any) => (
+                                <option
+                                    value={item.id}
+                                    data-id={item.id}
+                                    data-category={item.category}
+                                    data-name={item.name}
+                                    data-price={pcBuilderSalePrice(item.marketPrice)}
+                                    data-market-price={item.marketPrice}
+                                    data-source="catalog"
+                                    data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                                    data-perf={item.perf}
+                                    data-watts={item.watts || 0}
+                                    data-platform={item.platform || ''}
+                                    data-memory-type={item.memoryType || ''}
+                                >
+                                    {pcBuilderOptionLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
@@ -633,9 +699,9 @@ const faqs = [
                             </div>
                             <p
                                 style="font-size:0.7rem; color:#475569; margin:0 0 18px; text-align:right; line-height:1.5;">
-                                <i class="fa-solid fa-lock" style="margin-right:3px;"></i>Precios basados en valor de
-                                mercado actual.<br>Se bloquean por <strong style="color:#64748b;">24 horas</strong> al
-                                emitir cotización.
+                                <i class="fa-solid fa-lock" style="margin-right:3px;"></i>Componentes calculados con
+                                mercado MXN + margen del 30%. Incluye 3 meses de garantía por escrito (extensible).<br>Se bloquean por <strong style="color:#64748b;">{pcBuilderQuoteLockHours} horas</strong> al
+                                emitir cotización y confirmar stock.
                             </p>
                         </div>
 
@@ -647,6 +713,61 @@ const faqs = [
                 </div>
             </div>
         </div>
+
+        <!-- Cross-Sell Modal -->
+        <div id="cross-sell-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this) closeCrossSellModal();">
+            <div style="background:linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border-radius:20px; border:1px solid #334155; max-width:480px; width:100%; padding:32px; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.6); animation: modalIn 0.3s ease-out;">
+                <!-- Close button -->
+                <button onclick="closeCrossSellModal()" style="position:absolute; top:14px; right:14px; background:none; border:none; color:#64748b; font-size:1.3rem; cursor:pointer; padding:4px 8px; border-radius:6px; transition:color 0.2s, background 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.color='#64748b';this.style.background='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <!-- Header -->
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="width:56px; height:56px; background:linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2)); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                        <i class="fa-solid fa-gamepad" style="color:#60a5fa; font-size:1.5rem;"></i>
+                    </div>
+                    <h3 style="color:#fff; font-size:1.4rem; font-weight:800; margin:0 0 6px;">¡Tu PC está lista!</h3>
+                    <p style="color:#94a3b8; font-size:0.9rem; margin:0;">¿Quieres agregar algo más antes de enviarlo?</p>
+                </div>
+
+                <!-- Kit Gamer Addon -->
+                <div id="addon-kit-gamer" onclick="toggleAddon('kit-gamer')" style="background:#0f172a; border:2px solid #475569; border-radius:14px; padding:18px; margin-bottom:24px; cursor:pointer; transition:border-color 0.3s, background 0.3s; display:flex; align-items:center; gap:14px;">
+                    <div id="addon-kit-check" style="width:22px; height:22px; border:2px solid #64748b; border-radius:6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+                        <i class="fa-solid fa-check" style="color:#fff; font-size:0.7rem; display:none;"></i>
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">
+                            <span style="color:#e2e8f0; font-weight:700; font-size:0.95rem;">Kit Gamer RGB</span>
+                            <span style="color:#8b5cf6; font-weight:800; font-size:0.95rem; white-space:nowrap;">+$599</span>
+                        </div>
+                        <p style="color:#64748b; font-size:0.8rem; margin:0; line-height:1.4;">Teclado mecánico + mouse gaming RGB. Combo seleccionado por nuestros técnicos.</p>
+                    </div>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button onclick="finishConfigWithAddons()" style="width:100%; padding:16px; border-radius:12px; background:linear-gradient(90deg,#25D366,#128C7E); color:#fff; font-weight:800; font-size:1rem; border:none; cursor:pointer; transition:all 0.3s; box-shadow:0 8px 24px -8px rgba(37,211,102,0.4); display:flex; align-items:center; justify-content:center; gap:10px;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 30px -8px rgba(37,211,102,0.5)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 24px -8px rgba(37,211,102,0.4)'">
+                        <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> Enviar Carrito por WhatsApp
+                    </button>
+                    <button onclick="closeCrossSellModal()" style="width:100%; padding:12px; border-radius:10px; background:transparent; color:#64748b; font-weight:600; font-size:0.88rem; border:1px solid #334155; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.borderColor='#475569';this.style.color='#94a3b8'" onmouseout="this.style.borderColor='#334155';this.style.color='#64748b'">
+                        Volver a editar
+                    </button>
+                </div>
+
+                <!-- Trust badge -->
+                <p style="text-align:center; color:#475569; font-size:0.72rem; margin:16px 0 0; line-height:1.5;">
+                    <i class="fa-solid fa-lock" style="margin-right:4px;"></i>Tu configuración se envía directo a nuestro WhatsApp. No almacenamos datos de pago.
+                </p>
+            </div>
+        </div>
+
+        <style>
+            @keyframes modalIn {
+                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+        </style>
     </section>
 
     <!-- ---------------------"
@@ -937,6 +1058,117 @@ const faqs = [
         });
 
         // Lógica del Configurador de PC a la Carta
+        const builderSelects = {
+            cpu: 'b-cpu',
+            gpu: 'b-gpu',
+            ram: 'b-ram',
+            ssd: 'b-ssd',
+            base: 'b-base'
+        };
+
+        function money(value: number) {
+            return (Number(value) || 0).toLocaleString('es-MX');
+        }
+
+        function selectedOption(sel: HTMLSelectElement | null) {
+            if (!sel || sel.value === '' || sel.selectedIndex < 0) return null;
+            return sel.options[sel.selectedIndex] || null;
+        }
+
+        function selectedPrice(sel: HTMLSelectElement | null) {
+            const opt = selectedOption(sel);
+            return parseInt(opt?.getAttribute('data-price') || '0', 10) || 0;
+        }
+
+        function componentLabel(item: any) {
+            if (item.id === 'gpu-integrated') return 'Sin gráficos dedicados (usar integrados)';
+            return `${item.name} (+ $${money(item.salePrice)})`;
+        }
+
+        function applyOptionData(option: HTMLOptionElement, item: any) {
+            option.value = item.id;
+            option.textContent = componentLabel(item);
+            option.setAttribute('data-id', item.id);
+            option.setAttribute('data-category', item.category);
+            option.setAttribute('data-name', item.name);
+            option.setAttribute('data-price', String(item.salePrice || 0));
+            option.setAttribute('data-market-price', String(item.marketPrice || 0));
+            option.setAttribute('data-source', item.source || 'catalog');
+            option.setAttribute('data-price-status', item.priceStatus || 'catalog');
+            option.setAttribute('data-updated-at', item.updatedAt || '');
+            option.setAttribute('data-perf', String(item.perf || 0));
+
+            if (item.category === 'cpu') {
+                option.setAttribute('data-igpu', item.igpu ? '1' : '0');
+                option.setAttribute('data-socket', item.socket || '');
+            }
+            if (item.category === 'gpu') {
+                option.setAttribute('data-dedicated', item.dedicated ? '1' : '0');
+                option.setAttribute('data-vram', item.vram || '');
+                option.setAttribute('data-recommended-psu', String(item.recommendedPsu || 0));
+            }
+            if (item.category === 'ram') {
+                option.setAttribute('data-gb', String(item.gb || 0));
+                option.setAttribute('data-memory-type', item.memoryType || '');
+            }
+            if (item.category === 'ssd') {
+                option.setAttribute('data-capacity', item.capacity || '');
+            }
+            if (item.category === 'base') {
+                option.setAttribute('data-watts', String(item.watts || 0));
+                option.setAttribute('data-platform', item.platform || '');
+                option.setAttribute('data-memory-type', item.memoryType || '');
+            }
+        }
+
+        function hydrateBuilderSelect(category: string, items: any[]) {
+            const select = document.getElementById((builderSelects as any)[category]) as HTMLSelectElement | null;
+            if (!select) return;
+            const previous = select.value;
+            const placeholder = select.options[0]?.cloneNode(true) as HTMLOptionElement;
+            select.innerHTML = '';
+            if (placeholder) select.appendChild(placeholder);
+
+            items.forEach((item) => {
+                const option = document.createElement('option');
+                applyOptionData(option, item);
+                select.appendChild(option);
+            });
+
+            if (previous && Array.from(select.options).some((option) => option.value === previous)) {
+                select.value = previous;
+            }
+        }
+
+        async function hydratePcBuilderCatalog() {
+            const status = document.getElementById('builder-price-status');
+            try {
+                const res = await fetch('/api/pc-builder/catalog', { cache: 'no-store' });
+                if (!res.ok) throw new Error('No se pudo cargar el catálogo de precios.');
+                const payload = await res.json();
+                if (!payload?.success || !Array.isArray(payload.components)) return;
+
+                Object.keys(builderSelects).forEach((category) => {
+                    hydrateBuilderSelect(category, payload.components.filter((item: any) => item.category === category));
+                });
+
+                const liveCount = payload.components.filter((item: any) => item.priceStatus !== 'catalog').length;
+                const margin = Math.round((Number(payload.meta?.marginRate) || 0.30) * 100);
+                if (status) {
+                    status.textContent = liveCount > 0
+                        ? `Precios actualizados con datos del mercado mexicano. Margen técnico aplicado: ${margin}%.`
+                        : `Catálogo de componentes actualizado. Precios de referencia del mercado mexicano con margen técnico del ${margin}%.`;
+                }
+                updateBuilder();
+            } catch (_err) {
+                if (status) {
+                    status.textContent = 'Catálogo de componentes disponible con precios de referencia actualizados.';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', hydratePcBuilderCatalog);
+
         function updateBuilder() {
             const cpu = document.getElementById('b-cpu') as HTMLSelectElement | null;
             const gpu = document.getElementById('b-gpu') as HTMLSelectElement | null;
@@ -963,14 +1195,19 @@ const faqs = [
             slots.forEach(({ sel, id, icon, label }) => {
                 const badge = document.getElementById(id + '-badge');
                 if (sel.value !== '') {
-                    const price = parseInt(sel.value);
+                    const price = selectedPrice(sel);
                     total += price;
                     count++;
                     const name = sel.options[sel.selectedIndex].getAttribute('data-name');
+                    const marketPrice = parseInt(sel.options[sel.selectedIndex].getAttribute('data-market-price') || '0', 10) || 0;
+                    const source = sel.options[sel.selectedIndex].getAttribute('data-source') || 'catalog';
                     summaryHtml += `<li style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
-                        <span style="display:flex;align-items:center;gap:8px;color:#cbd5e1;font-size:0.88rem;"><i class="fa-solid ${icon}" style="color:#60a5fa;width:14px;"></i>${name}</span>
+                        <span style="display:flex;align-items:center;gap:8px;color:#cbd5e1;font-size:0.88rem;min-width:0;"><i class="fa-solid ${icon}" style="color:#60a5fa;width:14px;"></i><span style="overflow-wrap:anywhere;">${name}</span></span>
                         <span style="color:#fff;white-space:nowrap;font-size:0.88rem;font-weight:700;">$${price.toLocaleString('es-MX')}</span>
                     </li>`;
+                    if (marketPrice > 0 && source !== 'catalog') {
+                        summaryHtml += `<li style="margin:-6px 0 10px 22px;color:#94a3b8;font-size:0.72rem;">Mercado: $${marketPrice.toLocaleString('es-MX')} + 30%</li>`;
+                    }
                     if (badge) badge.style.display = 'inline-block';
                 } else {
                     if (badge) badge.style.display = 'none';
@@ -980,10 +1217,11 @@ const faqs = [
             // Mano de obra (cuando todo seleccionado)
             const isComplete = slots.every(({ sel }) => sel.value !== '');
             if (isComplete) {
-                total += 1000;
+                const assemblyFee = parseInt((document.getElementById('builder') as HTMLElement | null)?.getAttribute('data-assembly-fee') || '1000', 10) || 1000;
+                total += assemblyFee;
                 summaryHtml += `<li style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #334155;padding-top:10px;margin-top:5px;">
                     <span style="color:#cbd5e1;font-size:0.88rem;"><i class="fa-solid fa-screwdriver-wrench" style="color:#60a5fa;width:14px;margin-right:8px;"></i>Ensamble + Pruebas de Estrés</span>
-                    <span style="color:#fff;font-size:0.88rem;font-weight:700;">$1,000</span>
+                    <span style="color:#fff;font-size:0.88rem;font-weight:700;">$${assemblyFee.toLocaleString('es-MX')}</span>
                 </li>`;
             }
 
@@ -1056,6 +1294,9 @@ const faqs = [
                     const cpuHasIgpu   = dataAttr(cpu, 'data-igpu') === '1';
                     const ramGB        = parseInt(dataAttr(ram, 'data-gb')) || 0;
                     const psuWatts     = parseInt(dataAttr(base, 'data-watts')) || 0;
+                    const gpuPsu       = parseInt(dataAttr(gpu, 'data-recommended-psu')) || 0;
+                    const cpuSocket    = dataAttr(cpu, 'data-socket');
+                    const basePlatform = dataAttr(base, 'data-platform');
 
                     // Sin GPU dedicada Y CPU sin gráficos integrados  → no hay video posible
                     if (gpu.value !== '' && !gpuDedicated && cpu.value !== '' && !cpuHasIgpu) {
@@ -1064,6 +1305,9 @@ const faqs = [
                     // PSU 500W con GPU de gama alta (perf 0 78 = RTX 4070+)  → riesgo
                     if (psuWatts > 0 && psuWatts < 650 && gpuPerf >= 78) {
                         score *= 0.85;
+                    }
+                    if (gpuPsu > 0 && psuWatts > 0 && psuWatts < gpuPsu) {
+                        score *= 0.9;
                     }
 
                     score = Math.max(0, Math.min(100, Math.round(score)));
@@ -1123,6 +1367,27 @@ const faqs = [
                     }
                     if (psuWatts > 0 && psuWatts < 650 && gpuPerf >= 78) {
                         warns.push('La fuente de 500W puede quedarse corta con esta GPU. Sube al Kit Intermedio (650W) o Avanzado (850W).');
+                    }
+                    if (gpuPsu > 0 && psuWatts > 0 && psuWatts < gpuPsu) {
+                        warns.push('Esta GPU recomienda fuente de ' + gpuPsu + 'W o superior. Elige un kit base con más watts.');
+                    }
+                    const ramMemoryType  = dataAttr(ram, 'data-memory-type');
+                    const baseMemoryType = dataAttr(base, 'data-memory-type');
+
+                    if (cpuSocket && basePlatform && !basePlatform.includes(cpuSocket)) {
+                        warns.push('Incompatibilidad CPU / Kit Base: CPU socket ' + cpuSocket + ' no empareja con kit base ' + basePlatform + '.');
+                    }
+                    if (cpuSocket === 'AM4' && ramMemoryType === 'DDR5') {
+                        warns.push('Incompatibilidad RAM: Procesadores AM4 usan memoria DDR4 (elegiste DDR5).');
+                    }
+                    if (cpuSocket === 'AM5' && ramMemoryType === 'DDR4') {
+                        warns.push('Incompatibilidad RAM: Procesadores AM5 requieren memoria DDR5 (elegiste DDR4).');
+                    }
+                    if (cpuSocket === 'LGA1851' && ramMemoryType === 'DDR4') {
+                        warns.push('Incompatibilidad RAM: Plataforma Intel Core Ultra requiere memoria DDR5.');
+                    }
+                    if (baseMemoryType && ramMemoryType && baseMemoryType !== ramMemoryType) {
+                        warns.push('Incompatibilidad Kit Base y RAM: El kit base es para memoria ' + baseMemoryType + ' pero seleccionaste ' + ramMemoryType + '.');
                     }
 
                     let descHtml = '<strong style="color:#cbd5e1;">Score: ' + score + '/100</strong> · ' + tierDesc;
@@ -1199,12 +1464,23 @@ const faqs = [
             if (!cpu || !gpu || !ram || !ssd || !base) return;
 
             let msg = '¡Hola Pixon PC! He armado mi PC en su web y quiero verificar disponibilidad:\n\n';
-            if (cpu.value) msg += 'CPU: ' + cpu.options[cpu.selectedIndex].getAttribute('data-name') + '\n';
-            if (gpu.value) msg += 'GPU: ' + gpu.options[gpu.selectedIndex].getAttribute('data-name') + '\n';
-            if (ram.value) msg += 'RAM: ' + ram.options[ram.selectedIndex].getAttribute('data-name') + '\n';
-            if (ssd.value) msg += 'SSD: ' + ssd.options[ssd.selectedIndex].getAttribute('data-name') + '\n';
-            if (base.value) msg += 'Base: ' + base.options[base.selectedIndex].getAttribute('data-name') + '\n';
-            msg += 'Ensamble + Pruebas: $1,000\n';
+            const appendComponent = (label: string, sel: HTMLSelectElement) => {
+                if (!sel.value) return;
+                const opt = sel.options[sel.selectedIndex];
+                const name = opt.getAttribute('data-name') || '';
+                const price = parseInt(opt.getAttribute('data-price') || '0', 10) || 0;
+                const market = parseInt(opt.getAttribute('data-market-price') || '0', 10) || 0;
+                msg += `${label}: ${name} - $${price.toLocaleString('es-MX')} MXN`;
+                if (market > 0) msg += ` (mercado $${market.toLocaleString('es-MX')} + 30%)`;
+                msg += '\n';
+            };
+            appendComponent('CPU', cpu);
+            appendComponent('GPU', gpu);
+            appendComponent('RAM', ram);
+            appendComponent('SSD', ssd);
+            appendComponent('Base', base);
+            const assemblyFee = parseInt((document.getElementById('builder') as HTMLElement | null)?.getAttribute('data-assembly-fee') || '1000', 10) || 1000;
+            msg += 'Ensamble + Pruebas: $' + assemblyFee.toLocaleString('es-MX') + '\n';
             if (warranty && warranty.checked) msg += 'Garantía Extendida +6m: $800\n';
             if (windows && windows.checked) msg += 'Windows 11 Original: $500\n';
             if (crossSellSelected) msg += 'Kit Gamer (Teclado + Mouse RGB): $599\n';
@@ -1214,6 +1490,7 @@ const faqs = [
             let finalTotal = parseInt(totalText) || 0;
             if (crossSellSelected) finalTotal += 599;
             msg += '\nTotal Estimado: $' + finalTotal.toLocaleString('es-MX') + ' MXN';
+            msg += '\nRegla aplicada: componentes a precio de mercado + margen fijo del 30%. Incluye 3 meses de garantía directa en taller (extensible si lo deseas). Cotización sujeta a stock por 24 horas.';
 
             const url = 'https://wa.me/529986690777?text=' + encodeURIComponent(msg);
             if ((window as any).smartWaRedirect) (window as any).smartWaRedirect(url);

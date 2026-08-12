@@ -12,7 +12,7 @@ Antes de proponer o modificar código, lee `AGENTS.md`, `PRODUCT.md`, `README.md
 
 ### 1. Identidad y propósito del producto
 
-El producto se llama **Pixon PC** y es operado por **Rentalap / Pixon PC**. Es el sitio público y sistema de captación, atención y seguimiento de servicios técnicos en Cancún, Quintana Roo. Atiende personas y negocios que necesitan diagnóstico, reparación, mantenimiento o actualización de computadoras, laptops, Mac, celulares, consolas, impresoras y redes, además de soporte B2B.
+El producto se llama **Pixon PC**. Es el sitio público y sistema de captación, atención y seguimiento de servicios técnicos en Cancún, Quintana Roo. Atiende personas y negocios que necesitan diagnóstico, reparación, mantenimiento o actualización de computadoras, laptops, Mac, celulares, consolas, impresoras y redes, además de soporte B2B.
 
 Objetivos de negocio, en orden:
 
@@ -33,7 +33,7 @@ Personalidad de marca: **técnica, confiable y directa**. El sitio no debe parec
 
 Datos públicos y NAP que deben mantenerse consistentes:
 
-- Nombre: Pixon PC / Rentalap.
+- Nombre: Pixon PC.
 - Dirección: Cto. Hacienda Chimay, C.P. 77539, Cancún, Quintana Roo.
 - Teléfono y WhatsApp: +52 998 669 0777.
 - Correo: pixonpc@gmail.com.

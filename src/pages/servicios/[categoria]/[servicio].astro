@@ -15,7 +15,12 @@ import { getServiceSeoMeta } from '../../../lib/service-seo';
 import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
 
 export function getStaticPaths() {
-  return SERVICE_ROUTES.map(({ params, props }) => ({ params, props }));
+  return SERVICE_ROUTES
+    // Esta intención comercial tiene una landing pilar propia. La URL
+    // histórica se atiende con una redirección permanente, no con una segunda
+    // página indexable que compita por las mismas búsquedas.
+    .filter(({ params }) => !(params.categoria === 'pc' && params.servicio === 'mantenimiento-preventivo'))
+    .map(({ params, props }) => ({ params, props }));
 }
 
 const { category, service } = Astro.props;
@@ -443,7 +448,7 @@ const pageSchema = [
   )}
 
   {CustomView ? (
-    <CustomView service={service} category={category} description={finalDescription} />
+    <CustomView service={service} category={category} description={finalDescription} faqs={visibleFaqs} />
   ) : (
     <div class={`theme-premium-dark ${isPrinterService ? 'printer-service-shell' : ''} ${isPcFormat ? 'pc-format-shell' : ''}`}>
       <!-- 1. HERO SECTION (Dark Premium) -->
@@ -463,8 +468,8 @@ const pageSchema = [
               <h2>Windows limpio, respaldo de archivos, drivers y optimización en pocas horas</h2>
               <p>¿Tu PC está lenta, llena de virus, con errores constantes o quieres empezar desde cero? Realizamos formateo seguro, instalación limpia de Windows, drivers, paquetería básica y optimización para que tu equipo vuelva a trabajar rápido y estable.</p>
               <p>Antes de borrar cualquier información, revisamos tus archivos importantes y te explicamos qué se puede respaldar. El servicio incluye Windows limpio, drivers correctos, navegador, lector PDF, antivirus básico y configuración inicial.</p>
-            </div>
-          )}
+    </div>
+  )}
 
           {isLaptopThermalPaste && (
             <div class="thermal-hero-copy">
@@ -4225,6 +4230,19 @@ const pageSchema = [
         descriptionColor="#E2E8F0"
         itemGap="8px"
         questionPadding="16px 18px"
+      />
+    )}
+
+    {isPhoneDiagnostic && (
+      <FaqSection
+        id="faq-diagnostico-celular"
+        title="Preguntas frecuentes sobre diagnóstico de celulares en Cancún"
+        description="Resolvemos dudas sobre revisión de pantalla, batería, carga, audio, cámaras, humedad, software y placa antes de cambiar piezas."
+        items={visibleFaqs}
+        ariaLabel="Preguntas frecuentes sobre diagnóstico de celulares en Cancún"
+        sectionClass="phone-diagnostic-faq"
+        backgroundColor="#F8F9FC"
+        questionColor="#071F3A"
       />
     )}
 

@@ -18,7 +18,7 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 // Configuración
 const CONFIG = {
@@ -116,39 +116,72 @@ function restartServer() {
 // Backup de la base de datos MariaDB
 async function backupDatabase() {
     if (!process.env.DB_HOST) {
-        console.log('[Monitor] ⚠️ No hay config de DB, saltando backup');
+        console.log('[Monitor] No hay config de DB, saltando backup');
         return;
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `pixon_backup_${timestamp}.sql`;
-    const filepath = path.join(CONFIG.dbBackupPath, filename);
-
-    const cmd = `mysqldump -h ${process.env.DB_HOST} -P ${process.env.DB_PORT || 3306} -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > "${filepath}"`;
+    const gzipPath = path.join(CONFIG.dbBackupPath, filename + '.gz');
 
     return new Promise((resolve) => {
-        exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-                console.log(`[Monitor] ❌ Backup falló: ${error.message}`);
+        const zlib = require('zlib');
+        const dump = spawn('mysqldump', [
+            '-h', String(process.env.DB_HOST),
+            '-P', String(process.env.DB_PORT || 3306),
+            '-u', String(process.env.DB_USER || 'pixon_app'),
+            String(process.env.DB_NAME)
+        ], {
+            env: {
+                ...process.env,
+                MYSQL_PWD: String(process.env.DB_PASSWORD || '')
+            },
+            stdio: ['ignore', 'pipe', 'pipe']
+        });
+        const gzip = zlib.createGzip();
+        const output = fs.createWriteStream(gzipPath);
+        let stderr = '';
+        let settled = false;
+        let dumpFinished = false;
+        let outputFinished = false;
+
+        function finish(ok, message) {
+            if (settled) return;
+            settled = true;
+            if (!ok) {
+                console.log(`[Monitor] Backup fallo: ${message || 'error desconocido'}`);
+                try { fs.unlinkSync(gzipPath); } catch (_error) {}
                 resolve(false);
-            } else {
-                // Comprimir archivo
-                const zlib = require('zlib');
-                const input = fs.createReadStream(filepath);
-                const output = fs.createWriteStream(filepath + '.gz');
+                return;
+            }
+            console.log(`[Monitor] Backup guardado: ${filename}.gz`);
+            cleanupOldBackups();
+            resolve(true);
+        }
 
-                input.pipe(zlib.createGzip()).pipe(output);
-                output.on('close', () => {
-                    fs.unlinkSync(filepath); // Borrar original
-                    console.log(`[Monitor] ✅ Backup guardado: ${filename}.gz`);
+        function finishIfComplete() {
+            if (dumpFinished && outputFinished) finish(true);
+        }
 
-                    // Limpiar backups viejos (mantener solo los ultimos 7 dias)
-                    cleanupOldBackups();
-
-                    resolve(true);
-                });
+        dump.stderr.on('data', (chunk) => {
+            stderr += chunk.toString();
+        });
+        dump.on('error', (error) => finish(false, error.message));
+        dump.on('close', (code) => {
+            if (code !== 0) finish(false, stderr.trim() || `mysqldump salio con codigo ${code}`);
+            else {
+                dumpFinished = true;
+                finishIfComplete();
             }
         });
+        dump.stdout.on('error', (error) => finish(false, error.message));
+        gzip.on('error', (error) => finish(false, error.message));
+        output.on('error', (error) => finish(false, error.message));
+        output.on('finish', () => {
+            outputFinished = true;
+            finishIfComplete();
+        });
+        dump.stdout.pipe(gzip).pipe(output);
     });
 }
 

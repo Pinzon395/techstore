@@ -44,6 +44,7 @@ const viewRules: ViewRule[] = [
   { matches: (f) => f.isIphoneDiagnostic, load: () => import('../components/views/IphoneDiagnosticView.astro') },
   { matches: (f) => f.isIphoneButtonsRepair, load: () => import('../components/views/IphoneButtonsRepairView.astro') },
   { matches: (f) => f.isIphoneMicrophoneRepair, load: () => import('../components/views/IphoneMicrophoneRepairView.astro') },
+  { matches: (f) => f.isDesbloqueoIcloud, load: () => import('../components/views/DesbloqueoIcloudView.astro') },
   { matches: (f) => f.isPhoneNoPower, load: () => import('../components/views/PhoneNoPowerView.astro') },
   {
     matches: (_f, category, service) => category.slug === 'laptop' && service.slug === 'cambio-bateria',

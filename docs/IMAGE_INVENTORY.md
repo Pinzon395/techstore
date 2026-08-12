@@ -1,6 +1,6 @@
 # Image Inventory
 
-Generated: 2026-06-20T16:02:58.408Z
+Generated: 2026-07-17T05:24:15.397Z
 Images scanned: 233
 Heavy threshold: 300 KB
 
@@ -36,9 +36,9 @@ Heavy threshold: 300 KB
 | 209 | /assets/images/microscopio-flexor.jpg | yes | 0 |
 | 201 | /assets/images/iphone-desarmado-2.jpg | yes | 0 |
 | 193 | /assets/images/optimizacion-pc-cancun.png | yes | 0 |
-| 189 | /assets/images/mantenimiento-pc-escritorio.webp | yes | 20 |
-| 187 | /assets/images/cambio-pantalla-laptop.webp | yes | 4 |
-| 185 | /assets/images/mantenimiento-pastaternima-thermalpads.webp | yes | 11 |
+| 189 | /assets/images/mantenimiento-pc-escritorio.webp | yes | 22 |
+| 187 | /assets/images/cambio-pantalla-laptop.webp | yes | 5 |
+| 185 | /assets/images/mantenimiento-pastaternima-thermalpads.webp | yes | 12 |
 | 170 | /assets/images/microscopio-flexor.webp | yes | 7 |
 | 165 | /assets/images/cambio-ssd.jpg | yes | 0 |
 | 164 | /assets/images/pc-gamer-entrada.png | yes | 0 |

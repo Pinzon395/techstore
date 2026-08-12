@@ -1,0 +1,1033 @@
+---
+import Base from '../layouts/Base.astro';
+import Navbar from '../components/Navbar.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import ServiceTicketSection from '../components/ServiceTicketSection.astro';
+import FaqSection from '../components/FaqSection.astro';
+import CommentsSection from '../components/CommentsSection.astro';
+import ContactSection from '../components/ContactSection.astro';
+import Footer from '../components/Footer.astro';
+import Icon from '../components/LocalSpriteIcon.astro';
+
+const whatsappText = encodeURIComponent('Hola Pixon PC, quiero pedir información o cotizar un proyecto de desarrollo de software o página web en Cancún.');
+
+const faqs = [
+  {
+    question: '¿Cuánto cuesta crear una página web?',
+    answer: 'El precio depende de la cantidad de secciones, diseño, funciones, contenido, integraciones y nivel de optimización requerido. Después de analizar el proyecto se entrega una cotización detallada con alcance claro.',
+  },
+  {
+    question: '¿Cuánto tiempo tarda el desarrollo?',
+    answer: 'Una página informativa o landing page de alta conversión se entrega habitualmente en pocos días, mientras que un sistema administrativo personalizado puede requerir más tiempo. El plazo se define tras establecer el alcance completo.',
+  },
+  {
+    question: '¿Puedo solicitar cambios durante el desarrollo?',
+    answer: 'Sí. Las revisiones y cambios incluidos se especifican en la cotización inicial. Las funciones nuevas que no estaban contempladas en la propuesta original se cotizan de forma transparente por separado.',
+  },
+  {
+    question: '¿Mi página aparecerá en Google?',
+    answer: 'El sitio se entrega técnicamente preparado para ser rastreado e indexado. El posicionamiento depende de la competencia, antigüedad del dominio, contenido, autoridad, reseñas y estrategia de SEO local aplicada.',
+  },
+  {
+    question: '¿Garantizan aparecer en primer lugar en Google?',
+    answer: 'No es responsable garantizar una posición específica porque los algoritmos de Google cambian constantemente. Lo que sí garantizamos es aplicar las mejores prácticas de ingeniería web, código limpio y SEO enfocado en máxima visibilidad.',
+  },
+  {
+    question: '¿La página funcionará en celulares?',
+    answer: 'Sí. Todo el desarrollo se trabaja bajo un enfoque Mobile First estricto y se valida minuciosamente en diferentes tamaños de pantalla, navegadores y dispositivos.',
+  },
+  {
+    question: '¿Pueden mejorar una página que ya existe?',
+    answer: 'Sí. Realizamos auditorías de rendimiento, diseño UI/UX, SEO técnico, contenido, seguridad y conversión antes de recomendar una reconstrucción completa o una mejora técnica por fases.',
+  },
+  {
+    question: '¿Trabajan con WordPress?',
+    answer: 'Podemos auditar o dar mantenimiento a proyectos existentes en WordPress, pero nuestra especialidad principal es el desarrollo personalizado desde cero con tecnologías modernas y arquitecturas ultrarrápidas.',
+  },
+  {
+    question: '¿Pueden crear un sistema interno para mi empresa en Cancún?',
+    answer: 'Sí. Desarrollamos plataformas y sistemas a la medida para gestión de clientes, control de pagos, inventarios, seguimiento de servicios, reportes, agendas y paneles administrativos.',
+  },
+  {
+    question: '¿Incluyen dominio y hosting?',
+    answer: 'Podemos asesorarte, configurar o administrar ambos servicios. Los costos, proveedores y renovaciones se detallan claramente en la propuesta técnica sin cobros ocultos.',
+  },
+  {
+    question: '¿Puedo administrar el contenido de mi sitio?',
+    answer: 'Sí. Cuando el proyecto lo requiere, integramos o desarrollamos un panel de administración para que puedas actualizar productos, servicios, publicaciones o datos fácilmente.',
+  },
+  {
+    question: '¿Emiten factura CFDI por el servicio?',
+    answer: 'Sí. Contamos con RFC disponible para facturación fiscal CFDI al momento de contratar cualquier servicio de software o desarrollo.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': 'https://pixon.com.mx/#business',
+    name: 'Pixon PC',
+    url: 'https://pixon.com.mx/desarrollo-software-paginas-web-cancun',
+    telephone: '+52 998 669 0777',
+    email: 'pixonpc@gmail.com',
+    image: 'https://pixon.com.mx/assets/images/desarrollo-software-cancun.png',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Cto. Hacienda Chimay',
+      addressLocality: 'Cancún',
+      addressRegion: 'Quintana Roo',
+      postalCode: '77539',
+      addressCountry: 'MX',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '21.1619',
+      longitude: '-86.8515',
+    },
+    areaServed: [
+      { '@type': 'City', name: 'Cancún' },
+      { '@type': 'State', name: 'Quintana Roo' },
+    ],
+    description: 'Desarrollo de páginas web, software a la medida, diseño UI/UX y posicionamiento SEO local en Cancún por Pixon PC.',
+    priceRange: '$$',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+    })),
+  },
+];
+
+const features = [
+  {
+    icon: 'code',
+    title: 'Código profesional',
+    desc: 'Desarrollo limpio, modular y preparado para futuras mejoras y escalabilidad.',
+  },
+  {
+    icon: 'magnifying-glass-chart',
+    title: 'SEO local en Cancún',
+    desc: 'Estructura optimizada para competir en búsquedas clave de clientes en Cancún.',
+  },
+  {
+    icon: 'mobile-screen-button',
+    title: 'Diseño Mobile First',
+    desc: 'Experiencia rápida, cómoda y táctil en celulares, tabletas y computadoras.',
+  },
+  {
+    icon: 'gear',
+    title: 'Soluciones personalizadas',
+    desc: 'Cada proyecto se adapta al funcionamiento, procesos y objetivos de tu negocio.',
+  },
+];
+
+const engineeringAreas = [
+  'Ingeniería de requerimientos',
+  'Arquitectura de software',
+  'Desarrollo frontend y backend',
+  'Diseño de bases de datos',
+  'Diseño de interfaces UI',
+  'Experiencia de usuario UX',
+  'SEO técnico y SEO local',
+  'Análisis de competencia',
+  'Optimización de conversiones',
+  'Seguridad web básica',
+  'Pruebas de funcionamiento',
+  'Documentación y mantenimiento',
+];
+
+const customVsTemplate = {
+  template: [
+    'Diseño similar a miles de páginas.',
+    'Funciones pesadas que posiblemente nunca utilizarás.',
+    'Dependencia de plugins propensos a fallas.',
+    'Mayor riesgo de incompatibilidades y vulnerabilidades.',
+    'Rendimiento variable e inestable.',
+    'Limitaciones para modificar procesos de negocio.',
+    'Costos adicionales por licencias y extensiones.',
+    'Estructura SEO difícil de controlar e indexar.',
+  ],
+  custom: [
+    'Diseño 100% adaptado a la identidad de tu marca.',
+    'Funciones seleccionadas según tu negocio real.',
+    'Código organizado, ligero y mantenible.',
+    'Máximo control del rendimiento y velocidad de carga.',
+    'Arquitectura preparada para crecer sin restricciones.',
+    'SEO integrado desde la primera línea de código.',
+    'Experiencia móvil fluida y personalizada.',
+    'Integraciones desarrolladas a la medida del proyecto.',
+  ],
+};
+
+const projectTypes = [
+  {
+    title: 'Página informativa',
+    desc: 'Ideal para presentar tu negocio, servicios, contacto, ubicación y ventajas principales.',
+    icon: 'desktop',
+  },
+  {
+    title: 'Página para conseguir clientes',
+    desc: 'Diseñada con botones de WhatsApp, formularios, llamadas, reseñas y CTAs estratégicos.',
+    icon: 'bullhorn',
+  },
+  {
+    title: 'Catálogo digital',
+    desc: 'Muestra productos, categorías, precios y características sin la complejidad de una tienda completa.',
+    icon: 'table-columns',
+  },
+  {
+    title: 'Tienda en línea',
+    desc: 'Permite exhibir catálogo completo, recibir pedidos e integrar pasarelas de pago seguras.',
+    icon: 'bag-shopping',
+  },
+  {
+    title: 'Sistema administrativo',
+    desc: 'Centraliza clientes, pagos, inventario, servicios, empleados, reportes u operaciones internas.',
+    icon: 'gears',
+  },
+  {
+    title: 'Landing page de alta conversión',
+    desc: 'Página enfocada en promocionar un servicio, producto, evento o campaña específica.',
+    icon: 'bullseye',
+  },
+  {
+    title: 'Plataforma personalizada',
+    desc: 'Proyecto desarrollado según una necesidad particular que no puede resolverse con software genérico.',
+    icon: 'wand-magic-sparkles',
+  },
+];
+
+const workProcess = [
+  ['Primera consulta', 'Nos explicas qué necesita tu negocio, qué problema deseas solucionar y cuáles son tus objetivos.'],
+  ['Análisis de requerimientos', 'Definimos funciones, usuarios, secciones, integraciones, prioridades y alcance del proyecto.'],
+  ['Estudio de mercado', 'Revisamos competidores directos, búsquedas de clientes en Cancún y referencias visuales clave.'],
+  ['Arquitectura y estrategia', 'Planeamos la estructura del contenido, navegación, base de datos y componentes técnicos.'],
+  ['Diseño UI/UX', 'Creamos la propuesta visual y organizamos la experiencia del usuario para máxima claridad.'],
+  ['Desarrollo', 'Programamos las funciones aprobadas utilizando una estructura de código organizada y escalable.'],
+  ['Optimización SEO', 'Configuramos títulos, metadatos, datos estructurados, rendimiento e indexación en Google.'],
+  ['Pruebas de calidad', 'Revisamos celulares, computadoras, navegadores, formularios, enlaces y funciones principales.'],
+  ['Publicación', 'Configuramos dominio, hosting, seguridad SSL y herramientas de análisis como Search Console.'],
+  ['Soporte y mantenimiento', 'Podemos continuar con actualizaciones, mejoras, respaldos, contenido y seguimiento técnico.'],
+];
+
+const deliverables = [
+  'Diseño personalizado',
+  'Página adaptable a celulares',
+  'Configuración de dominio',
+  'Certificado de seguridad SSL',
+  'Optimización inicial para Google',
+  'Integración directa con WhatsApp',
+  'Formularios de contacto',
+  'Configuración de correo profesional',
+  'Google Analytics',
+  'Google Search Console',
+  'Sitemap XML',
+  'Datos estructurados Schema.org',
+  'Capacitación básica de uso',
+  'Documentación del proyecto',
+  'Respaldo completo del sitio',
+  'Periodo de garantía técnica',
+  'Plan de mantenimiento opcional',
+];
+
+const localSectors = [
+  'Restaurantes y cafeterías',
+  'Hoteles y alojamientos',
+  'Tours y agencias de viajes',
+  'Transportadoras y shuttles',
+  'Inmobiliarias y bienes raíces',
+  'Talleres y servicios técnicos',
+  'Tiendas y comercios locales',
+  'Constructoras y arquitectura',
+  'Profesionistas independientes',
+  'Consultorios y clínicas',
+  'Escuelas y academias',
+  'Proveedores empresariales',
+  'Emprendedores de Cancún',
+  'Empresas B2B',
+  'Negocios con domicilio',
+];
+
+const cancunZones = [
+  'Cancún Centro',
+  'Zona Hotelera',
+  'Avenida Huayacán',
+  'Cumbres',
+  'Bonfil',
+  'Polígono Sur',
+  'Puerto Cancún',
+  'Avenida Tulum',
+  'Avenida Bonampak',
+  'Puerto Juárez',
+  'Supermanzanas',
+  'Haciendas',
+  'Alfredo V. Bonfil',
+  'Puerto Morelos',
+  'Riviera Maya',
+];
+---
+
+<Base
+  title="Desarrollo de Software y Páginas Web en Cancún | Pixon PC"
+  description="Creamos páginas web, sistemas a la medida y estrategias SEO local en Cancún. Desarrollo rápido, diseño UI/UX, marketing y soporte profesional."
+  canonical="https://pixon.com.mx/desarrollo-software-paginas-web-cancun"
+  image="/assets/images/desarrollo-software-cancun.png"
+  schema={schema}
+  bodyClass="service-page software-service-page"
+>
+  <Navbar />
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: 'Desarrollo de Software y Páginas Web en Cancún' }
+  ]} />
+
+  <!-- HERO SECTION -->
+  <section class="sw-hero" aria-labelledby="sw-h1">
+    <div class="sw-hero__bg" aria-hidden="true">
+      <img src="/assets/images/desarrollo-software-cancun.png" alt="Desarrollo de Software y Páginas Web en Cancún por Pixon PC" width="1200" height="900" loading="eager" decoding="async" />
+    </div>
+    <div class="sw-hero__shade"></div>
+    <div class="sw-shell sw-hero__content">
+      <span class="sw-hero__badge">Ingeniería de Software · SEO Local · Cancún</span>
+      <h1 id="sw-h1">Desarrollo de software y páginas web en Cancún</h1>
+      <p class="sw-hero__sub">Convierte tu idea en una solución digital rápida, profesional y preparada para crecer</p>
+      <p class="sw-hero__lead">
+        En Pixon PC desarrollamos páginas web, sistemas administrativos, catálogos digitales y plataformas personalizadas para negocios y empresas en Cancún.
+        Combinamos desarrollo de software, diseño UI/UX, SEO local y estrategias de conversión para ayudarte a conseguir clientes y modernizar tus procesos.
+      </p>
+      <div class="sw-actions">
+        <a class="sw-btn sw-btn--primary" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+          <Icon name="whatsapp" /> Cotizar por WhatsApp
+        </a>
+        <a class="sw-btn sw-btn--secondary" href="#ticket-software">
+          <Icon name="clipboard-list" /> Solicitar cotización
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <main class="sw-main">
+
+    <!-- CARACTERÍSTICAS PRINCIPALES -->
+    <section class="sw-section sw-features-sec" aria-label="Beneficios del servicio">
+      <div class="sw-shell">
+        <div class="sw-features-grid">
+          {features.map((item) => (
+            <article class="sw-feature-card">
+              <span class="sw-feature-icon"><Icon name={item.icon} /></span>
+              <h3>{item.title}</h3>
+              <p>{item.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: HERRAMIENTA DE VENTAS -->
+    <section class="sw-section sw-sales-sec">
+      <div class="sw-shell sw-split">
+        <div class="sw-copy">
+          <h2>Tu página web debe ser una herramienta de ventas</h2>
+          <p>Tener una página web no sirve de mucho si tarda demasiado en cargar, se ve mal en celulares, no aparece en Google o no explica claramente por qué deberían contratarte.</p>
+          <p class="sw-strong-intro">Nuestro objetivo es desarrollar una plataforma que ayude a tu negocio a:</p>
+          <ul class="sw-check-list">
+            <li><Icon name="circle-check" /> <span>Generar confianza desde la primera visita.</span></li>
+            <li><Icon name="circle-check" /> <span>Aparecer en búsquedas locales relevantes en Cancún.</span></li>
+            <li><Icon name="circle-check" /> <span>Recibir contactos directos mediante WhatsApp, llamadas o formularios.</span></li>
+            <li><Icon name="circle-check" /> <span>Mostrar claramente tus servicios, productos y ventajas competitivas.</span></li>
+            <li><Icon name="circle-check" /> <span>Automatizar procesos repetitivos y ahorrar tiempo operativo.</span></li>
+            <li><Icon name="circle-check" /> <span>Medir resultados y mejorar el rendimiento con datos reales.</span></li>
+            <li><Icon name="circle-check" /> <span>Diferenciarse activamente de otros negocios de Cancún.</span></li>
+          </ul>
+          <p class="sw-callout-text">No utilizamos una misma plantilla para todos. Analizamos tu negocio, tus clientes y tus objetivos antes de definir la estructura del proyecto.</p>
+        </div>
+        <aside class="sw-card-panel">
+          <div class="sw-panel-inner">
+            <span class="sw-panel-badge"><Icon name="shield-halved" /> Garantía de Calidad Pixon PC</span>
+            <h3>Código a la medida para negocios en Cancún</h3>
+            <p>Desarrollamos soluciones web pensando en el mercado de Quintana Roo: carga instantánea, conversión rápida y estructura optimizada para motores de búsqueda.</p>
+            <div class="sw-panel-cta">
+              <a href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" class="sw-btn sw-btn--primary">
+                <Icon name="whatsapp" /> Consultar por WhatsApp
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: INGENIERÍA DE SOFTWARE -->
+    <section class="sw-section sw-engineering-sec">
+      <div class="sw-shell">
+        <header class="sw-heading">
+          <h2>Desarrollo profesional con formación en Ingeniería de Software</h2>
+          <p>Los proyectos son liderados por un desarrollador en la etapa final de la carrera de Ingeniería en Software, con formación en programación web, bases de datos, diseño de interfaces, ingeniería de requerimientos, procesos de desarrollo, experiencia de usuario y arquitectura de sistemas.</p>
+          <p>Esta preparación permite trabajar cada proyecto desde una perspectiva técnica y comercial, considerando no solamente la apariencia visual, sino también el funcionamiento, rendimiento, mantenimiento, seguridad y crecimiento futuro de la plataforma.</p>
+        </header>
+
+        <div class="sw-eng-box">
+          <h3>Áreas aplicadas en cada proyecto</h3>
+          <div class="sw-chips-grid">
+            {engineeringAreas.map((area) => (
+              <span class="sw-chip"><Icon name="circle-check" /> {area}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 4: SERVICIOS DIGITALES -->
+    <section class="sw-section sw-services-sec">
+      <div class="sw-shell">
+        <header class="sw-heading">
+          <h2>Servicios de desarrollo digital en Cancún</h2>
+          <p>Soluciones personalizadas abarcando desde el sitio web corporativo hasta aplicaciones web y marketing enfocado en conversión.</p>
+        </header>
+
+        <div class="sw-services-grid">
+
+          <!-- 4.1 Páginas Web -->
+          <article class="sw-service-card">
+            <span class="sw-service-icon"><Icon name="desktop" /></span>
+            <h3>Desarrollo de páginas web profesionales</h3>
+            <p>Creamos sitios web personalizados para empresas, técnicos, restaurantes, hoteles, inmobiliarias, profesionistas, comercios y proveedores de servicios en Cancún.</p>
+            <h4>Cada sitio puede incluir:</h4>
+            <ul class="sw-mini-list">
+              <li>Página de inicio profesional.</li>
+              <li>Secciones de servicios detalladas.</li>
+              <li>Catálogo de productos.</li>
+              <li>Formularios de contacto inteligentes.</li>
+              <li>Integración directa con WhatsApp.</li>
+              <li>Botones para llamadas y ubicación.</li>
+              <li>Galería de trabajos y portafolio.</li>
+              <li>Testimonios y reseñas integradas.</li>
+              <li>Preguntas frecuentes optimizadas.</li>
+              <li>Blog optimizado para Google.</li>
+              <li>Políticas de privacidad y garantía.</li>
+              <li>Panel de administración personalizado.</li>
+            </ul>
+          </article>
+
+          <!-- 4.2 Software a la Medida -->
+          <article class="sw-service-card">
+            <span class="sw-service-icon"><Icon name="code" /></span>
+            <h3>Desarrollo de software a la medida</h3>
+            <p>Diseñamos herramientas y sistemas personalizados para mejorar la operación interna de tu negocio en Cancún.</p>
+            <h4>Podemos desarrollar:</h4>
+            <ul class="sw-mini-list">
+              <li>Sistemas de clientes (CRM).</li>
+              <li>Control de pagos y adeudos.</li>
+              <li>Gestión de inventarios.</li>
+              <li>Sistemas de cotizaciones automáticas.</li>
+              <li>Registro y seguimiento de servicios.</li>
+              <li>Paneles administrativos a la medida.</li>
+              <li>Sistemas de tickets de soporte.</li>
+              <li>Agendas y reservaciones en línea.</li>
+              <li>Catálogos interactivos.</li>
+              <li>Gestión de proveedores.</li>
+              <li>Reportes y estadísticas de venta.</li>
+              <li>Automatización de procesos internos.</li>
+            </ul>
+            <p class="sw-card-foot">Antes de programar, analizamos cómo trabaja actualmente tu negocio y definimos qué funciones realmente necesitas.</p>
+          </article>
+
+          <!-- 4.3 Diseño UI/UX -->
+          <article class="sw-service-card">
+            <span class="sw-service-icon"><Icon name="mobile-screen-button" /></span>
+            <h3>Diseño UI/UX fácil de usar</h3>
+            <p>Una plataforma profesional debe ser fácil de entender y usar. Trabamos la interfaz y experiencia de usuario para que tus clientes encuentren la información sin confundirse.</p>
+            <h4>Nuestro enfoque UI/UX incluye:</h4>
+            <ul class="sw-mini-list">
+              <li>Diseño claro y ordenado.</li>
+              <li>Navegación sencilla e intuitiva.</li>
+              <li>Jerarquía visual estratégica.</li>
+              <li>Botones de acción fáciles de identificar.</li>
+              <li>Formularios cortos y ágiles.</li>
+              <li>Tipografía legible y bien espaciada.</li>
+              <li>Contraste visual adecuado (WCAG).</li>
+              <li>Diseño táctil cómodo para celulares.</li>
+              <li>Reducción de pasos innecesarios.</li>
+              <li>Experiencia adaptada al cliente ideal.</li>
+            </ul>
+            <p class="sw-card-foot">También podemos crear prototipos previos para validar la estructura antes de comenzar la programación completa.</p>
+          </article>
+
+          <!-- 4.4 SEO Local -->
+          <article class="sw-service-card">
+            <span class="sw-service-icon"><Icon name="magnifying-glass-chart" /></span>
+            <h3>SEO local en Cancún</h3>
+            <p>Optimizamos la página para ayudar a que Google entienda qué servicios ofrece tu negocio, dónde se encuentra y a qué tipo de clientes atiende en Cancún.</p>
+            <h4>El trabajo SEO puede incluir:</h4>
+            <ul class="sw-mini-list">
+              <li>Investigación de palabras clave locales.</li>
+              <li>Análisis de búsquedas en Cancún.</li>
+              <li>Optimización de títulos y metadatos.</li>
+              <li>Estructura correcta de encabezados.</li>
+              <li>URLs claras y descriptivas.</li>
+              <li>Contenido enfocado en intención de búsqueda.</li>
+              <li>Optimización técnica de imágenes.</li>
+              <li>Enlaces internos estratégicos.</li>
+              <li>Sitemap XML y robots.txt.</li>
+              <li>Datos estructurados Schema.org.</li>
+              <li>Integración con Google Search Console.</li>
+              <li>Integración con Google Analytics.</li>
+              <li>Optimización de Perfil de Empresa en Google.</li>
+              <li>Páginas por servicio y ubicación en Cancún.</li>
+            </ul>
+            <p class="sw-card-foot">El posicionamiento no se basa en repetir palabras sin sentido. Creamos contenido útil, estructurado y enfocado en generar oportunidades reales.</p>
+          </article>
+
+          <!-- 4.5 Estudio de Mercado -->
+          <article class="sw-service-card">
+            <span class="sw-service-icon"><Icon name="table-columns" /></span>
+            <h3>Estudio de mercado y competencia</h3>
+            <p>Antes de diseñar la estrategia digital, podemos analizar el mercado local en Cancún para entender cómo se presentan otros negocios y qué oportunidades existen.</p>
+            <h4>El análisis puede considerar:</h4>
+            <ul class="sw-mini-list">
+              <li>Competidores directos en Cancún.</li>
+              <li>Servicios más ofrecidos en la zona.</li>
+              <li>Precios visibles del mercado.</li>
+              <li>Palabras clave utilizadas por la competencia.</li>
+              <li>Calidad de las páginas competidoras.</li>
+              <li>Experiencia de usuario móvil.</li>
+              <li>Posicionamiento en Google.</li>
+              <li>Opiniones y reseñas de clientes.</li>
+              <li>Diferenciadores comerciales clave.</li>
+              <li>Oportunidades de contenido desaprovechadas.</li>
+              <li>Zonas con mayor demanda en Cancún.</li>
+              <li>Errores frecuentes de la competencia.</li>
+            </ul>
+            <p class="sw-card-foot">Con esta información definimos cómo presentar tu marca de una manera más clara y competitiva.</p>
+          </article>
+
+          <!-- 4.6 Estrategia de Marketing & Rendimiento -->
+          <article class="sw-service-card">
+            <span class="sw-service-icon"><Icon name="arrow-trend-up" /></span>
+            <h3>Estrategia de marketing y rendimiento</h3>
+            <p>Una página web es la base, pero necesita una estrategia para atraer visitantes y convertirlos en clientes reales.</p>
+            <h4>Podemos ayudarte a preparar:</h4>
+            <ul class="sw-mini-list">
+              <li>Propuesta de valor clara.</li>
+              <li>Mensajes comerciales convincentes.</li>
+              <li>Llamadas a la acción (CTA) directas.</li>
+              <li>Embudos sencillos de contacto.</li>
+              <li>Campañas dirigidas a WhatsApp.</li>
+              <li>Landing pages promocionales.</li>
+              <li>Compresión WebP/AVIF e imágenes.</li>
+              <li>Optimización para Core Web Vitals.</li>
+              <li>Carga diferida y minificación de código.</li>
+              <li>Estrategias de reseñas y confianza.</li>
+            </ul>
+            <p class="sw-card-foot">No se trata solamente de recibir visitas. La meta es que las personas entiendan tu servicio, confíen en tu negocio y se comuniquen contigo.</p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 5: ¿QUÉ TIPO DE PROYECTO NECESITAS? -->
+    <section class="sw-section sw-project-types-sec">
+      <div class="sw-shell">
+        <header class="sw-heading">
+          <h2>¿Qué tipo de proyecto necesitas?</h2>
+          <p>Adaptamos el desarrollo según el tamaño, objetivos y momento en el que se encuentra tu negocio.</p>
+        </header>
+
+        <div class="sw-types-grid">
+          {projectTypes.map((pt) => (
+            <article class="sw-type-card">
+              <span class="sw-type-icon"><Icon name={pt.icon} /></span>
+              <h3>{pt.title}</h3>
+              <p>{pt.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 6: CÓDIGO PERSONALIZADO VS PLANTILLAS -->
+    <section class="sw-section sw-versus-sec">
+      <div class="sw-shell">
+        <header class="sw-heading">
+          <h2>Código personalizado frente a plantillas genéricas</h2>
+          <p>Comparamos los aspectos clave para que elijas la mejor opción técnica y financiera para tu empresa en Cancún.</p>
+        </header>
+
+        <div class="sw-versus-grid">
+          <!-- Plantilla Tradicional -->
+          <article class="sw-versus-card sw-versus-card--bad">
+            <div class="sw-versus-head">
+              <Icon name="circle-xmark" />
+              <h3>Plantilla tradicional</h3>
+            </div>
+            <ul>
+              {customVsTemplate.template.map((item) => (
+                <li><Icon name="ban" /> <span>{item}</span></li>
+              ))}
+            </ul>
+          </article>
+
+          <!-- Desarrollo Personalizado Pixon PC -->
+          <article class="sw-versus-card sw-versus-card--good">
+            <div class="sw-versus-head">
+              <Icon name="circle-check" />
+              <h3>Desarrollo personalizado con Pixon PC</h3>
+            </div>
+            <ul>
+              {customVsTemplate.custom.map((item) => (
+                <li><Icon name="circle-check" /> <span>{item}</span></li>
+              ))}
+            </ul>
+          </article>
+        </div>
+
+        <p class="sw-versus-foot">
+          No todas las plantillas son malas y no todos los proyectos necesitan un sistema completamente personalizado. Analizamos cada caso para recomendar la opción con mejor relación entre costo, tiempo y resultados.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 7: TECNOLOGÍAS -->
+    <section class="sw-section sw-tech-sec">
+      <div class="sw-shell">
+        <header class="sw-heading">
+          <h2>Tecnologías que podemos utilizar</h2>
+          <p>Seleccionamos las tecnologías según las necesidades, presupuesto y crecimiento esperado del proyecto sin obligar a herramientas innecesarias.</p>
+        </header>
+
+        <div class="sw-tech-grid">
+          <article class="sw-tech-card">
+            <h3>Frontend</h3>
+            <div class="sw-tech-tags">
+              <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>TypeScript</span><span>Astro</span><span>React</span><span>Next.js</span><span>Tailwind CSS</span>
+            </div>
+          </article>
+
+          <article class="sw-tech-card">
+            <h3>Backend</h3>
+            <div class="sw-tech-tags">
+              <span>Node.js</span><span>Express</span><span>APIs REST</span><span>Autenticación</span><span>Gestión de sesiones</span><span>Integraciones externas</span>
+            </div>
+          </article>
+
+          <article class="sw-tech-card">
+            <h3>Bases de datos</h3>
+            <div class="sw-tech-tags">
+              <span>MySQL</span><span>PostgreSQL</span><span>SQLite</span><span>Sistemas relacionales</span>
+            </div>
+          </article>
+
+          <article class="sw-tech-card">
+            <h3>Infraestructura</h3>
+            <div class="sw-tech-tags">
+              <span>Cloudflare</span><span>Dominios personalizados</span><span>SSL</span><span>Hosting web</span><span>VPS</span><span>Git</span><span>Backups</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 8: PROCESO DE TRABAJO -->
+    <section class="sw-section sw-process-sec">
+      <div class="sw-shell">
+        <header class="sw-heading">
+          <h2>Nuestro proceso de trabajo</h2>
+          <p>Flujo transparente, ordenado y estructurado para entregar sistemas y páginas web con máxima calidad.</p>
+        </header>
+
+        <ol class="sw-process-steps">
+          {workProcess.map(([title, text], idx) => (
+            <li class="sw-step-item">
+              <span class="sw-step-num">{String(idx + 1).padStart(2, '0')}</span>
+              <div class="sw-step-body">
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 9: ¿QUÉ RECIBIRÁS? -->
+    <section class="sw-section sw-deliverables-sec">
+      <div class="sw-shell">
+        <header class="sw-heading">
+          <h2>¿Qué recibirás con tu proyecto?</h2>
+          <p>Transparencia total. Todo el alcance se especifica previamente en la cotización para evitar cargos inesperados.</p>
+        </header>
+
+        <div class="sw-deliverables-grid">
+          {deliverables.map((item) => (
+            <div class="sw-deliv-item">
+              <Icon name="circle-check" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 10 & 11: PROYECTOS LOCALES Y ZONAS EN CANCÚN -->
+    <section class="sw-section sw-local-sec">
+      <div class="sw-shell">
+        <div class="sw-split sw-local-split">
+          <div>
+            <h2>Proyectos para negocios de Cancún</h2>
+            <p>Atendemos diferentes sectores comerciales en Cancún, adaptando la estrategia al giro específico de cada empresa:</p>
+            <div class="sw-chips-grid">
+              {localSectors.map((sector) => (
+                <span class="sw-chip sw-chip--sector"><Icon name="building" /> {sector}</span>
+              ))}
+            </div>
+
+            <h2 class="sw-sub-local-title">Desarrollo web con enfoque local en Cancún</h2>
+            <p>Creamos contenido y estructuras digitales para negocios ubicados en todas las zonas de Cancún y la Riviera Maya:</p>
+            <div class="sw-zones-grid">
+              {cancunZones.map((zone) => (
+                <span class="sw-zone-tag"><Icon name="location-dot" /> {zone}</span>
+              ))}
+            </div>
+            <p class="sw-remote-note">También podemos desarrollar proyectos para clientes de otras ciudades de México mediante atención remota.</p>
+          </div>
+
+          <aside class="sw-card-panel">
+            <div class="sw-panel-inner">
+              <span class="sw-panel-badge"><Icon name="shield-halved" /> Mantenimiento & Seguridad</span>
+              <h3>Seguridad y soporte continuo</h3>
+              <p>Toda plataforma requiere atención periódica para conservar rendimiento y protección contra vulnerabilidades.</p>
+              <ul class="sw-mini-list sw-mini-list--dark">
+                <li>Actualización de dependencias y scripts.</li>
+                <li>Revisión constante de vulnerabilidades.</li>
+                <li>Copias de seguridad programadas.</li>
+                <li>Monitoreo básico de disponibilidad.</li>
+                <li>Corrección de errores y parches.</li>
+                <li>Renovación de dominio, SSL y hosting.</li>
+                <li>Nuevas secciones y optimización de imágenes.</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 13: PLANES ADAPTADOS -->
+    <section class="sw-section sw-plans-sec">
+      <div class="sw-shell sw-plans-box">
+        <header class="sw-heading">
+          <h2>Planes adaptados al proyecto</h2>
+          <p>No todos los negocios necesitan la misma página ni el mismo sistema. El precio se determina considerando secciones, funciones, diseño, SEO y soporte posterior.</p>
+        </header>
+
+        <p class="sw-plans-lead">Después de la primera consulta recibirás una propuesta clara con alcance, etapas, precio y tiempo estimado.</p>
+
+        <div class="sw-actions sw-actions--center">
+          <a class="sw-btn sw-btn--primary" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+            <Icon name="whatsapp" /> Hablar por WhatsApp
+          </a>
+          <a class="sw-btn sw-btn--secondary" href="#ticket-software">
+            <Icon name="clipboard-list" /> Solicitar cotización
+          </a>
+          <a class="sw-btn sw-btn--ghost" href="#ticket-software">
+            <Icon name="file-contract" /> Crear ticket de proyecto
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 14: FAQS -->
+    <FaqSection
+      id="faq-desarrollo-cancun"
+      title="Preguntas frecuentes sobre desarrollo web en Cancún"
+      description="Respuestas directas sobre precios, tiempos de entrega, posicionamiento en Google, garantía, facturación y soporte técnico."
+      items={faqs}
+      viewMoreHref="/preguntas-frecuentes"
+      viewMoreLabel="Ver más preguntas frecuentes"
+      ariaLabel="Preguntas frecuentes sobre desarrollo de software y páginas web en Cancún"
+      backgroundColor="#f0f7fd"
+      titleColor="#071F3A"
+      descriptionColor="#294963"
+      questionColor="#071F3A"
+    />
+
+    <!-- SECCIÓN 15: DIAGNÓSTICO DE SITUACIÓN DE PROYECTO -->
+    <section class="sw-section sw-audit-sec">
+      <div class="sw-shell sw-audit-inner">
+        <div>
+          <h2>Conoce primero la situación de tu proyecto</h2>
+          <p>Antes de venderte una página o sistema, queremos entender qué necesita realmente tu negocio. Revisamos tu plataforma actual, presencia en Google, competidores en Cancún y oportunidades de automatización.</p>
+          <p class="sw-audit-foot">
+            Después de esta revisión podremos recomendarte una solución adecuada y evitar que gastes en herramientas que no necesitas.
+          </p>
+        </div>
+        <div class="sw-audit-cta">
+          <a class="sw-btn sw-btn--primary" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+            <Icon name="whatsapp" /> Solicitar evaluación inicial
+          </a>
+          <a class="sw-btn sw-btn--ghost-dark" href="#ticket-software">
+            <Icon name="clipboard-list" /> Crear ticket de proyecto
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMULARIO TICKET DE PROYECTO -->
+    <ServiceTicketSection
+      id="ticket-software"
+      defaultDevice="Proyecto Web / Sistema a la medida"
+      defaultService="Desarrollo de Software y Páginas Web en Cancún"
+      title="Crear ticket para cotización de desarrollo"
+      subtitle="Cuéntanos modelo de negocio, funciones necesarias, referencias visuales o requerimientos para enviarte una propuesta detallada."
+    />
+
+    <!-- SECCIÓN 16: CTA FINAL -->
+    <section class="sw-final">
+      <div class="sw-shell sw-final__grid">
+        <div>
+          <span>Desarrolla una plataforma profesional, rápida y preparada para crecer</span>
+          <h2>Lleva tu negocio al siguiente nivel digital</h2>
+          <p>Cuéntanos qué deseas crear, qué problema quieres resolver y cuáles son los objetivos de tu negocio. En Pixon PC diseñaremos una propuesta personalizada combinando desarrollo de software, diseño UI/UX, SEO local, análisis de mercado y estrategia digital.</p>
+          <div class="sw-actions">
+            <a class="sw-btn sw-btn--primary" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" /> Cotizar por WhatsApp
+            </a>
+            <a class="sw-btn sw-btn--secondary" href="#ticket-software">
+              <Icon name="clipboard-list" /> Solicitar análisis del proyecto
+            </a>
+            <a class="sw-btn sw-btn--ghost-dark" href="#ticket-software">
+              <Icon name="file-contract" /> Crear ticket de desarrollo
+            </a>
+          </div>
+        </div>
+        <figure>
+          <img src="/assets/images/desarrollo-software-cancun.png" alt="Desarrollo de software y páginas web en Cancún por Pixon PC" width="1200" height="900" loading="lazy" decoding="async" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 17: SOBRE PIXON PC + NAP -->
+    <section class="sw-section sw-about-sec">
+      <div class="sw-shell sw-local__grid">
+        <div>
+          <h2>Sobre Pixon PC</h2>
+          <p>Pixon PC es un servicio técnico y de desarrollo digital ubicado en Cancún, Quintana Roo. Además de reparación y soporte tecnológico, desarrollamos páginas web, sistemas personalizados y soluciones digitales para negocios que necesitan mejorar su presencia en internet o modernizar sus procesos.</p>
+          <p>Trabajamos mediante cita previa, atención personalizada y seguimiento durante cada etapa del proyecto.</p>
+        </div>
+        <address class="sw-address-box">
+          <strong>Pixon PC</strong>
+          <span><i class="fa-solid fa-location-dot"></i> Cto. Hacienda Chimay, 77539 Cancún, Quintana Roo.</span>
+          <a href="tel:+529986690777"><i class="fa-solid fa-phone"></i> +52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com"><i class="fa-solid fa-envelope"></i> pixonpc@gmail.com</a>
+          <div class="sw-info-pills">
+            <span><strong>Horario:</strong> Lunes a domingo (cita previa)</span>
+            <span><strong>Facturación:</strong> RFC disponible para CFDI</span>
+          </div>
+        </address>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 18: RESEÑAS Y CONTACTO -->
+    <CommentsSection viewMoreHref="/comentarios" />
+    <ContactSection />
+
+  </main>
+  <Footer />
+</Base>
+
+<style is:global>
+  .software-service-page :where(.sw-main, .sw-section, .sw-final){--ink:#071F3A;--muted:#294963;--blue:#1479D4;--green:#0f9f6e;--ice:#eef6fc;--line:#cbdce8;color:var(--ink)}
+  .software-service-page .sw-shell{width:min(1180px,calc(100% - 32px));margin:0 auto}
+  .software-service-page .sw-main :where(h2,h3,h4,p,li,span,strong,a,dt,dd,address,td,th){color:var(--ink)}
+  .software-service-page .tc-svg{display:block;width:18px;height:18px;fill:currentColor;flex:0 0 auto}
+
+  /* HERO */
+  .sw-hero{position:relative;min-height:clamp(560px,64vh,700px);display:grid;align-items:end;overflow:hidden;background:#071F3A}
+  .sw-hero__bg{position:absolute;inset:0}
+  .sw-hero__bg img{width:100%;height:100%;object-fit:cover;object-position:center}
+  .sw-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,31,58,.97),rgba(7,31,58,.82) 58%,rgba(7,31,58,.28))}
+  .sw-hero__content{position:relative;padding:130px 0 52px}
+  .sw-hero__badge{display:inline-block;color:#bce0fb!important;font-size:.78rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .sw-hero h1{max-width:920px;margin:10px 0 14px;color:#fff!important;font-family:var(--font-heading);font-size:clamp(2.3rem,5.3vw,4.8rem);font-style:italic;font-weight:850;line-height:1.02;text-wrap:balance}
+  .sw-hero__sub{max-width:760px;margin:0 0 14px;color:#e1f1ff!important;font-size:clamp(1.1rem,1.7vw,1.35rem);font-weight:750;line-height:1.35}
+  .sw-hero__lead{max-width:720px;margin:0;color:rgba(255,255,255,.88)!important;font-size:clamp(.95rem,1.35vw,1.08rem);font-weight:550;line-height:1.68}
+
+  /* ACTIONS */
+  .sw-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .sw-actions--center{justify-content:center}
+  .sw-btn{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:9px;padding:12px 20px;border-radius:8px;font-weight:850;text-decoration:none;transition:transform 160ms cubic-bezier(0.23,1,0.32,1),box-shadow 160ms cubic-bezier(0.23,1,0.32,1)}
+  .sw-btn--primary{background:var(--blue);color:#fff!important;box-shadow:0 4px 14px rgba(20,121,212,.25)}
+  .sw-btn--secondary{border:1px solid rgba(255,255,255,.45);background:rgba(7,31,58,.6);color:#fff!important}
+  .sw-btn--ghost{border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff!important}
+  .sw-btn--ghost-dark{border:1px solid var(--line);background:transparent;color:var(--ink)!important}
+  .sw-btn:active{transform:scale(.97)}
+
+  /* SECTIONS GLOBAL */
+  .sw-section{padding:clamp(44px,5.5vw,72px) 0;background:#fff}
+  .sw-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--blue)!important;font-size:.78rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+  .sw-heading{max-width:840px;margin-bottom:32px}
+  .sw-heading h2{margin:0 0 12px;font-family:var(--font-heading);font-size:clamp(1.9rem,3.6vw,3.1rem);font-style:italic;font-weight:850;line-height:1.06;text-wrap:balance}
+  .sw-heading p{margin:0 0 10px;color:var(--muted);font-weight:560;line-height:1.7}
+
+  /* FEATURES */
+  .sw-features-sec{background:var(--ice);border-bottom:1px solid var(--line)}
+  .sw-features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .sw-feature-card{padding:22px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:transform 200ms cubic-bezier(0.23,1,0.32,1)}
+  .sw-feature-icon{display:grid;width:42px;height:42px;margin-bottom:14px;place-items:center;border-radius:8px;background:#dff2fb;color:var(--blue)}
+  .sw-feature-card h3{margin:0 0 8px;font-size:1.05rem;font-weight:850}
+  .sw-feature-card p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.58}
+
+  /* SALES SECTION */
+  .sw-split{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:clamp(28px,5vw,64px);align-items:start}
+  .sw-copy p{color:var(--muted);line-height:1.72;margin:0 0 14px}
+  .sw-strong-intro{font-weight:750;color:var(--ink)!important}
+  .sw-check-list{list-style:none;padding:0;margin:0 0 20px;display:grid;gap:12px}
+  .sw-check-list li{display:flex;align-items:flex-start;gap:10px;font-weight:600}
+  .sw-check-list .tc-svg{color:var(--green);margin-top:4px}
+  .sw-callout-text{padding:16px 20px;border-left:3px solid var(--blue);background:#f0f7fd;border-radius:0 8px 8px 0;font-weight:650}
+
+  .sw-card-panel{padding:26px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(135deg,#f8fcff,#e5f3fc)}
+  .sw-panel-badge{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:850;color:var(--blue)!important;text-transform:uppercase;margin-bottom:12px}
+  .sw-panel-inner h3{margin:0 0 10px;font-size:1.25rem;font-weight:850}
+  .sw-panel-inner p{color:var(--muted);font-size:.92rem;line-height:1.6}
+  .sw-panel-cta{margin-top:20px}
+
+  /* ENGINEERING */
+  .sw-engineering-sec{background:#fff}
+  .sw-eng-box{padding:26px;border:1px solid var(--line);border-radius:12px;background:var(--ice)}
+  .sw-eng-box h3{margin:0 0 18px;font-size:1.1rem;font-weight:850}
+  .sw-chips-grid{display:flex;flex-wrap:wrap;gap:10px}
+  .sw-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #c0d8e8;border-radius:20px;background:#fff;font-size:.86rem;font-weight:700;color:var(--ink)}
+  .sw-chip .tc-svg{color:var(--green)}
+  .sw-chip--sector{border-color:#b5d2e6;background:#f0f7fd}
+  .sw-chip--sector .tc-svg{color:var(--blue)}
+
+  /* SERVICES GRID */
+  .sw-services-sec{background:var(--ice)}
+  .sw-services-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .sw-service-card{padding:26px;border:1px solid var(--line);border-radius:12px;background:#fff;display:flex;flex-direction:column;transition:transform 200ms cubic-bezier(0.23,1,0.32,1)}
+  .sw-service-icon{display:grid;width:44px;height:44px;margin-bottom:16px;place-items:center;border-radius:8px;background:#dff2fb;color:var(--blue)}
+  .sw-service-card h3{margin:0 0 10px;font-size:1.18rem;font-weight:850}
+  .sw-service-card h4{margin:14px 0 8px;font-size:.95rem;font-weight:800}
+  .sw-service-card p{color:var(--muted);font-size:.92rem;line-height:1.65;margin:0 0 12px}
+  .sw-mini-list{padding-left:18px;margin:0 0 14px;color:var(--muted);display:grid;gap:6px;font-size:.88rem;font-weight:550}
+  .sw-mini-list--dark{color:var(--ink);font-weight:600}
+  .sw-card-foot{margin-top:auto!important;padding-top:12px;border-top:1px solid var(--line);font-size:.85rem!important;font-weight:650;color:var(--blue)!important}
+
+  /* PROJECT TYPES */
+  .sw-project-types-sec{background:#fff}
+  .sw-types-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .sw-type-card{padding:22px;border:1px solid var(--line);border-radius:12px;background:var(--ice);transition:transform 200ms cubic-bezier(0.23,1,0.32,1)}
+  .sw-type-icon{display:grid;width:40px;height:40px;margin-bottom:12px;place-items:center;border-radius:8px;background:#fff;color:var(--blue);border:1px solid var(--line)}
+  .sw-type-card h3{margin:0 0 8px;font-size:1.05rem;font-weight:850}
+  .sw-type-card p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.55}
+
+  /* VERSUS */
+  .sw-versus-sec{background:var(--ice)}
+  .sw-versus-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .sw-versus-card{padding:26px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+  .sw-versus-card--bad{border-top:4px solid #d93838}
+  .sw-versus-card--good{border-top:4px solid var(--green)}
+  .sw-versus-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .sw-versus-card--bad .sw-versus-head .tc-svg{color:#d93838;width:24px;height:24px}
+  .sw-versus-card--good .sw-versus-head .tc-svg{color:var(--green);width:24px;height:24px}
+  .sw-versus-head h3{margin:0;font-size:1.15rem;font-weight:850}
+  .sw-versus-card ul{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+  .sw-versus-card li{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;font-weight:600}
+  .sw-versus-card--bad li .tc-svg{color:#d93838;margin-top:3px}
+  .sw-versus-card--good li .tc-svg{color:var(--green);margin-top:3px}
+  .sw-versus-foot{margin-top:22px;padding:16px 20px;border-radius:8px;background:#fff;border:1px solid var(--line);text-align:center;font-weight:650;color:var(--muted)}
+
+  /* TECH STACK */
+  .sw-tech-sec{background:#fff}
+  .sw-tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .sw-tech-card{padding:22px;border:1px solid var(--line);border-radius:12px;background:var(--ice)}
+  .sw-tech-card h3{margin:0 0 14px;font-size:1rem;font-weight:850;color:var(--blue)!important}
+  .sw-tech-tags{display:flex;flex-wrap:wrap;gap:8px}
+  .sw-tech-tags span{padding:6px 12px;border-radius:6px;background:#fff;border:1px solid #c4dcee;font-size:.82rem;font-weight:750;color:var(--ink)}
+
+  /* PROCESS STEPS */
+  .sw-process-sec{background:var(--ice)}
+  .sw-process-steps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .sw-step-item{display:flex;gap:14px;padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .sw-step-num{flex:0 0 auto;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:var(--blue);color:#fff!important;font-size:.78rem;font-weight:900;line-height:1;margin-top:2px}
+  .sw-step-body h3{margin:0 0 5px;font-size:.97rem;font-weight:850}
+  .sw-step-body p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.55}
+
+  /* DELIVERABLES */
+  .sw-deliverables-sec{background:#fff}
+  .sw-deliverables-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .sw-deliv-item{display:flex;align-items:center;gap:10px;padding:14px 18px;border:1px solid var(--line);border-radius:8px;background:var(--ice);font-weight:700;font-size:.9rem}
+  .sw-deliv-item .tc-svg{color:var(--green)}
+
+  /* LOCAL SECTORS & ZONES */
+  .sw-local-sec{background:var(--ice)}
+  .sw-sub-local-title{margin-top:28px!important;margin-bottom:10px!important}
+  .sw-zones-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .sw-zone-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #b5d2e6;border-radius:6px;background:#fff;font-size:.82rem;font-weight:750;color:var(--ink)}
+  .sw-zone-tag .tc-svg{color:var(--blue)}
+  .sw-remote-note{margin-top:16px;font-size:.88rem;font-weight:650;color:var(--muted)}
+
+  /* PLANS BOX */
+  .sw-plans-sec{background:#fff}
+  .sw-plans-box{padding:36px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,#f0f7fd,#e1f1fc);text-align:center}
+  .sw-plans-box .sw-heading{margin:0 auto 20px}
+  .sw-plans-lead{max-width:680px;margin:0 auto 24px;font-size:1.05rem;font-weight:750;color:var(--ink)}
+
+  /* AUDIT SECTION */
+  .sw-audit-sec{background:var(--ice)}
+  .sw-audit-inner{display:grid;grid-template-columns:1fr auto;gap:clamp(24px,5vw,56px);align-items:center}
+  .sw-audit-cta{display:flex;flex-direction:column;gap:10px;flex:0 0 auto}
+  .sw-audit-foot{font-weight:650;color:var(--muted);font-size:.95rem;max-width:680px;margin:12px 0 0}
+
+  /* FINAL CTA */
+  .sw-final{padding:clamp(44px,5.5vw,72px) 0;background:#dcecf7}
+  .sw-final__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.86fr);gap:clamp(24px,5vw,56px);align-items:center}
+  .sw-final span{color:var(--blue)!important;font-weight:850;text-transform:uppercase;font-size:.78rem;letter-spacing:.08em;display:block;margin-bottom:10px}
+  .sw-final figure{margin:0;overflow:hidden;border-radius:12px;background:#d6e8f2}
+  .sw-final img{display:block;width:100%;aspect-ratio:16/10;max-height:260px;object-fit:cover;object-position:center}
+
+  /* ABOUT SECTION & ADDRESS */
+  .sw-about-sec{background:#fff}
+  .sw-local__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.86fr);gap:clamp(24px,5vw,56px);align-items:start}
+  .sw-address-box{display:grid;gap:12px;padding:26px;border-radius:12px;background:var(--ice);border:1px solid var(--line);font-style:normal}
+  .sw-address-box strong{font-size:1.15rem}
+  .sw-address-box a{color:var(--blue)!important;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;gap:8px}
+  .sw-info-pills{display:grid;gap:6px;margin-top:8px;padding-top:12px;border-top:1px solid var(--line);font-size:.85rem}
+
+  /* HOVER: only real pointer devices */
+  @media(hover:hover) and (pointer:fine){
+    .sw-feature-card:hover{transform:translateY(-4px)}
+    .sw-service-card:hover{transform:translateY(-3px)}
+    .sw-type-card:hover{transform:translateY(-3px);background:#e6f3fc}
+    .sw-btn--primary:hover{box-shadow:0 8px 22px rgba(20,121,212,.35)}
+    .sw-btn--secondary:hover{background:rgba(7,31,58,.78)}
+    .sw-btn--ghost:hover{background:rgba(255,255,255,.08)}
+    .sw-btn--ghost-dark:hover{background:var(--ice)}
+  }
+
+  /* RESPONSIVE MEDIA QUERIES */
+  @media(max-width:980px){
+    .sw-features-grid,.sw-tech-grid,.sw-types-grid{grid-template-columns:repeat(2,1fr)}
+    .sw-services-grid,.sw-versus-grid,.sw-process-steps,.sw-deliverables-grid{grid-template-columns:1fr}
+    .sw-split,.sw-local__grid,.sw-final__grid{grid-template-columns:1fr;gap:28px}
+    .sw-audit-inner{grid-template-columns:1fr;gap:20px}
+    .sw-audit-cta{flex-direction:row;flex-wrap:wrap}
+  }
+  @media(max-width:640px){
+    .sw-hero{min-height:600px}
+    .sw-hero__content{padding-top:110px}
+    .sw-features-grid,.sw-tech-grid,.sw-types-grid{grid-template-columns:1fr}
+    .sw-actions{gap:10px}
+    .sw-actions .sw-btn,.sw-audit-cta .sw-btn{width:100%}
+    .software-service-page .sw-section{padding:32px 0}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .sw-btn,.sw-feature-card,.sw-service-card,.sw-type-card{transition:none}
+  }
+</style>

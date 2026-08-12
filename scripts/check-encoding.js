@@ -134,11 +134,14 @@ function charsetIssues(relative, content) {
   if (!inspectHeads.has(extension) && relative !== 'server/server.js') return [];
 
   const issues = [];
+  const requiredCharsetLine = extension === '.xsl'
+    ? '<meta charset="UTF-8"/>'
+    : '<meta charset="UTF-8">';
   const headPattern = /<head(?:\s[^>]*)?>/gi;
   let match;
   while ((match = headPattern.exec(content)) !== null) {
     const firstLine = firstLineAfterHead(content, match.index + match[0].length);
-    if (firstLine !== '<meta charset="UTF-8">') {
+    if (firstLine !== requiredCharsetLine) {
       const line = content.slice(0, match.index).split(/\r?\n/).length;
       issues.push({ line, text: `La primera línea de <head> es: ${firstLine || '(vacía)'}` });
     }

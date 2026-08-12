@@ -1,0 +1,562 @@
+---
+import Base from '../../layouts/Base.astro';
+import Navbar from '../../components/Navbar.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ServiceTicketSection from '../../components/ServiceTicketSection.astro';
+import FaqSection from '../../components/FaqSection.astro';
+import CommentsSection from '../../components/CommentsSection.astro';
+import ContactSection from '../../components/ContactSection.astro';
+import Footer from '../../components/Footer.astro';
+import Icon from '../../components/LocalSpriteIcon.astro';
+
+const canonical = '/blogs/mantenimiento-preventivo-equipos-cancun';
+const whatsappText = encodeURIComponent('Hola, quiero cotizar el mantenimiento preventivo y limpieza profunda para mi laptop, PC o consola en Cancún.');
+
+const faqs = [
+  {
+    question: '¿Cuánto cuesta un mantenimiento preventivo en Cancún?',
+    answer: 'El precio depende del tipo de equipo, dificultad de desarmado, cantidad de ventiladores y material térmico utilizado. Una laptop básica, una PC gamer y una PlayStation 5 requieren procedimientos diferentes. Te entregamos cotización clara antes de iniciar.'
+  },
+  {
+    question: '¿El mantenimiento incluye cambio de pasta térmica?',
+    answer: 'Depende del paquete y del estado del equipo. Antes de aplicar pasta térmica nueva se retira correctamente el compuesto seco anterior y se limpian las superficies del procesador y disipador.'
+  },
+  {
+    question: '¿El mantenimiento elimina el sobrecalentamiento?',
+    answer: 'Puede solucionarlo cuando la causa es acumulación de polvo, pasta térmica deteriorada o mala ventilación. Si existe un ventilador dañado, disipador defectuoso o falla electrónica en la tarjeta madre, será necesario reparar o reemplazar el componente.'
+  },
+  {
+    question: '¿Por qué mi laptop hace mucho ruido?',
+    answer: 'El ventilador puede estar trabajando a máxima velocidad debido a temperaturas elevadas en CPU/GPU, polvo acumulado en el radiador o rejillas, programas pesados o desgaste mecánico de las aspas.'
+  },
+  {
+    question: '¿Por qué mi consola se apaga cuando juego?',
+    answer: 'Puede apagarse por sobrecalentamiento (protección térmica de la consola), problemas de ventilación, fuente de poder dañada, polvo acumulado en el disipador o una falla interna en el procesador gráfico.'
+  },
+  {
+    question: '¿Limpian ventiladores de laptop y computadora?',
+    answer: 'Sí. La limpieza profunda incluye desarmado seguro, retiro de polvo en aspas, carcasa del ventilador, rejillas de radiador, disipadores, filtros antipolvo y zonas internas del gabinete.'
+  },
+  {
+    question: '¿Realizan mantenimiento a equipos gamer?',
+    answer: 'Sí. Atendemos laptops gamer (ROG, Alienware, Legion, MSI, Predator), PC gamer ensambladas, tarjetas gráficas dedicadas y consolas de videojuegos expuestas a sesiones intensas de juego.'
+  },
+  {
+    question: '¿Realizan mantenimiento a computadoras de oficina?',
+    answer: 'Sí. Atendemos computadoras de escritorio y laptops de oficina para empresas, hoteles, escuelas y negocios en Cancún, previniendo fallas que puedan detener la operación.'
+  },
+  {
+    question: '¿Realizan mantenimiento de Steam Deck y ROG Ally?',
+    answer: 'Sí, brindamos servicio térmico y limpieza interna para consolas portátiles como Steam Deck, ASUS ROG Ally, Lenovo Legion Go y Nintendo Switch previa revisión del modelo.'
+  },
+  {
+    question: '¿Pueden recoger mi equipo a domicilio?',
+    answer: 'Sí, ofrecemos opciones de recolección y entrega a domicilio en Cancún (Zona Hotelera, Huayacán, Cumbres, Polígono Sur, Puerto Cancún y zonas aledañas) para mayor comodidad.'
+  }
+];
+
+const compareTable = [
+  ['Objetivo', 'Evitar fallas futuras y mantener temperatura óptima', 'Reparar una avería o pieza dañada'],
+  ['Estado del equipo', 'El equipo enciende y funciona', 'El equipo no prende o falla constantemente'],
+  ['Intervención', 'Limpieza profunda, pasta térmica y lubricación', 'Reemplazo de componentes o micro-soldadura'],
+  ['Costo y tiempo', 'Servicio preventivo rápido y accesible', 'Mayor costo por refacciones y tiempo de taller'],
+  ['Frecuencia', 'Cada 12 a 18 meses en el clima de Cancún', 'Solo cuando se presenta una falla física'],
+];
+
+const serviceLinks = [
+  ['/servicios/laptop/mantenimiento-preventivo', 'fa-laptop', 'Mantenimiento de Laptop Gamer', 'Servicio térmico y limpieza profunda para laptops de alto consumo.'],
+  ['/servicios/pc/limpieza-profunda', 'fa-fan', 'Limpieza Interna de PC Gamer', 'Retiro de polvo en radiadores, filtros, ventiladores y gabinete.'],
+  ['/servicios/laptop/pasta-termica', 'fa-temperature-half', 'Cambio de Pasta Térmica', 'Reemplazo de compuesto térmico en CPU, GPU y tarjetas de video.'],
+  ['/servicios/consola/mantenimiento-preventivo', 'fa-gamepad', 'Mantenimiento de Consolas', 'Limpieza interna y prevención térmica para PS4, PS5, Xbox y Switch.'],
+  ['/servicios/pc/refrigeracion', 'fa-wind', 'Revisión de Enfriamiento Líquido', 'Diagnóstico de bombas, RPM, mangueras y flujo de aire.'],
+  ['/optimizacion', 'fa-chart-line', 'Diagnóstico de Rendimiento', 'Medición de temperaturas, frecuencia y consumo bajo carga.'],
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://pixon.com.mx${canonical}`
+    },
+    headline: 'Mantenimiento preventivo en Cancún para laptops, PC y consolas',
+    description: '¿Tu laptop, PC o consola se calienta, hace mucho ruido o se apaga? Conoce cuándo necesita limpieza, pasta térmica y mantenimiento preventivo en Cancún.',
+    image: 'https://pixon.com.mx/assets/images/mantenimiento-pc-escritorio.webp',
+    author: {
+      '@type': 'Organization',
+      name: 'Pixon PC',
+      url: 'https://pixon.com.mx'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Pixon PC',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://pixon.com.mx/assets/images/LOGOCIRCULAR.png'
+      }
+    },
+    datePublished: '2026-08-03'
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Mantenimiento preventivo en Cancún',
+    serviceType: 'Limpieza interna, cambio de pasta térmica y mantenimiento técnico para laptops, PC y consolas',
+    url: `https://pixon.com.mx${canonical}`,
+    description: 'Servicio técnico especializado de limpieza profunda, cambio de pasta térmica e inspección preventiva en Cancún.',
+    provider: {
+      '@type': 'LocalBusiness',
+      name: 'Pixon PC',
+      telephone: '+529986690777',
+      email: 'pixonpc@gmail.com',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Cto. Hacienda Chimay',
+        addressLocality: 'Cancún',
+        addressRegion: 'Q.R.',
+        postalCode: '77539',
+        addressCountry: 'MX'
+      }
+    },
+    areaServed: [{ '@type': 'City', name: 'Cancún' }, { '@type': 'State', name: 'Quintana Roo' }]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer }
+    }))
+  }
+];
+---
+
+<Base
+  title="Mantenimiento preventivo en Cancún | Laptop, PC y consolas"
+  description="¿Tu laptop, PC o consola se calienta, hace mucho ruido o se apaga? Conoce cuándo necesita limpieza, pasta térmica y mantenimiento preventivo en Cancún."
+  canonical={canonical}
+  image="/assets/images/mantenimiento-pc-escritorio.webp"
+  schema={schema}
+  bodyClass="service-page preventivo-blog-page"
+>
+  <Navbar />
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Blogs', href: '/blogs' }, { label: 'Mantenimiento preventivo en Cancún' }]} />
+
+  <!-- HERO DEL ARTÍCULO (DISEÑO BASE DEL PROYECTO) -->
+  <header class="tc-hero">
+    <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento preventivo en Cancún para laptop, PC y consolas por Pixon PC" width="1600" height="900" loading="eager" />
+    <div class="tc-hero__shade"></div>
+    <div class="tc-shell tc-hero__content">
+      <span class="tc-kicker">Servicio Técnico Especializado en Cancún</span>
+      <h1>Mantenimiento preventivo en Cancún para laptops, PC y consolas</h1>
+      <p>¿Tu laptop se calienta demasiado, tu computadora hace mucho ruido, el ventilador trabaja a máxima velocidad o tu consola se apaga mientras juegas? Conoce cuándo necesita limpieza interna, pasta térmica y mantenimiento preventivo.</p>
+      <div class="tc-actions">
+        <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+          <Icon name="whatsapp" /> Cotizar por WhatsApp
+        </a>
+        <a class="tc-btn tc-btn--ghost" href="#ticket-preventivo">
+          <Icon name="clipboard-list" /> Crear ticket de revisión
+        </a>
+      </div>
+      <dl class="tc-hero__facts">
+        <div><dt>Equipos</dt><dd>Laptop, PC Gamer, Oficina y Consolas</dd></div>
+        <div><dt>Criterio</dt><dd>Limpieza profunda e inspección térmica</dd></div>
+        <div><dt>Ubicación</dt><dd>Cto. Hacienda Chimay, Cancún Q. Roo</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL DEL ARTÍCULO CON EL DISEÑO DE PIXON PC -->
+  <main class="tc-main">
+
+    <!-- SECCIÓN INTRODUCCIÓN -->
+    <section class="tc-section tc-intro">
+      <div class="tc-shell tc-split">
+        <div class="tc-copy">
+          <span class="tc-icon"><Icon name="screwdriver-wrench" /></span>
+          <h2>¿Qué es el mantenimiento preventivo de un equipo electrónico?</h2>
+          <h3>Servicio técnico antes de que aparezca una falla grave</h3>
+          <p>
+            El mantenimiento preventivo en Cancún es un servicio de limpieza, inspección técnica y renovación térmica que se realiza antes de que el equipo presente daños irreparables en la tarjeta madre o componentes principales.
+          </p>
+          <p>
+            No es necesario esperar hasta que el equipo deje de encender. Cuando una computadora o consola comienza a calentarse, perder rendimiento o hacer ruido excesivo, ya está mostrando señales claras de que necesita revisión.
+          </p>
+        </div>
+        <figure class="tc-media">
+          <img src="/assets/images/laptop-feliz-limpia.webp" alt="Mantenimiento preventivo de laptop en taller Pixon PC Cancún" width="800" height="600" loading="lazy" />
+          <figcaption>El mantenimiento preventivo extiende la vida útil de laptops, PC y consolas.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- LISTA DE PUNTOS TÉCNICOS -->
+    <section class="tc-section tc-checklist-sec">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="list-check" />
+          <div>
+            <h2>¿Qué incluye un mantenimiento preventivo profesional?</h2>
+            <p>Procedimiento completo realizado paso a paso por técnicos calificados en nuestro taller físico en Cancún.</p>
+          </div>
+        </header>
+        <div class="tc-process-grid">
+          <div class="tc-step-box">
+            <span class="step-num">01</span>
+            <h3>Desarmado seguro</h3>
+            <p>Apertura cuidadosa respetando tornillería, flexes y componentes delicados.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">02</span>
+            <h3>Limpieza de polvo</h3>
+            <p>Retiro de suciedad acumulada en gabinete, placa, ductos y tarjetas.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">03</span>
+            <h3>Ventiladores y radiador</h3>
+            <p>Limpieza profunda de aspas, carcasa del ventilador y disipador de cobre.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">04</span>
+            <h3>Pasta térmica nueva</h3>
+            <p>Retiro del compuesto viejo y aplicación de pasta térmica de alto rendimiento.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">05</span>
+            <h3>Thermal pads y conectores</h3>
+            <p>Revisión de gomas térmicas en memorias VRM e inspección de cables.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">06</span>
+            <h3>Pruebas de temperatura</h3>
+            <p>Comprobación de estabilidad, ruido y flujo de aire bajo carga de trabajo.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN CLIMA CANCÚN -->
+    <section class="tc-section tc-difference">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="sun" />
+          <div>
+            <h2>¿Por qué es importante el mantenimiento preventivo en Cancún?</h2>
+            <p>El clima tropical, la humedad relativa y la salitre aceleran la acumulación de suciedad y el deterioro térmico.</p>
+          </div>
+        </header>
+        <div class="tc-dual">
+          <article>
+            <span class="tc-material"><Icon name="cloud-rain" /></span>
+            <h3>Humedad, salitre y calor ambiental</h3>
+            <p>En Cancún, el polvo fino se mezcla con la humedad ambiental y crea una capa pastosa dentro del equipo que bloquea la salida del aire caliente y acelera el sobrecalentamiento.</p>
+          </article>
+          <article>
+            <span class="tc-material tc-material--metal"><Icon name="temperature-arrow-up" /></span>
+            <h3>Estrangulamiento térmico y caídas de FPS</h3>
+            <p>Cuando el disipador se tapa, el procesador (CPU) o la tarjeta de video (GPU) bajan automáticamente su velocidad para no quemarse, provocando tirones, lentitud y apagados repentinos.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN SEÑALES DE ALERTA -->
+    <section class="tc-section tc-signals">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="triangle-exclamation" />
+          <div>
+            <h2>Señales de que tu laptop, PC o consola necesita mantenimiento</h2>
+            <p>No esperes a que el equipo se apague definitivamente. Identifica estos síntomas a tiempo.</p>
+          </div>
+        </header>
+        <div class="tc-signal-list">
+          <article>
+            <Icon name="temperature-arrow-up" />
+            <div>
+              <h3>Mi equipo se calienta demasiado</h3>
+              <p>Disipador bloqueado por polvo, pasta térmica reseca o ventilación insuficiente en el chasis.</p>
+            </div>
+          </article>
+          <article>
+            <Icon name="fan" />
+            <div>
+              <h3>Mi equipo hace mucho ruido</h3>
+              <p>El ventilador trabaja al 100% intentando disipar el calor sofocado dentro del equipo.</p>
+            </div>
+          </article>
+          <article>
+            <Icon name="power-off" />
+            <div>
+              <h3>Mi equipo se apaga solo</h3>
+              <p>Se activa la protección térmica automática de la tarjeta madre para prevenir daños fatales.</p>
+            </div>
+          </article>
+          <article>
+            <Icon name="chart-line" />
+            <div>
+              <h3>Mi equipo pierde rendimiento</h3>
+              <p>Bajones de FPS en juegos, stuttering, programas congelados y respuesta lenta del sistema.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PASTA TÉRMICA EN CANCÚN -->
+    <section class="tc-section tc-metal">
+      <div class="tc-shell tc-metal__grid">
+        <div class="tc-copy">
+          <span class="tc-icon tc-icon--dark"><Icon name="droplet" /></span>
+          <h2>Cambio de pasta térmica en Cancún</h2>
+          <h3>Compuestos térmicos de alta conductividad para CPU y GPU</h3>
+          <p>
+            La pasta térmica transfiere el calor desde el procesador hacia el disipador. Con el uso continuo y las temperaturas de Cancún, se seca y pierde su efectividad.
+          </p>
+          <p>
+            Realizamos cambio de pasta térmica en laptops, computadoras de escritorio, PC gamer, tarjetas gráficas dedicadas, consolas de videojuegos y consolas portátiles.
+          </p>
+        </div>
+        <figure class="tc-media tc-media--dark">
+          <img src="/assets/images/mantenimiento-pastaternima-thermalpads.webp" alt="Aplicación de pasta térmica y pads térmicos en Cancún por Pixon PC" width="800" height="600" loading="lazy" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- MANTENIMIENTO DE LAPTOP GAMER Y OFICINA -->
+    <section class="tc-section tc-gaming">
+      <div class="tc-shell tc-feature-grid">
+        <div class="tc-copy">
+          <span class="tc-icon"><Icon name="laptop" /></span>
+          <h2>Mantenimiento preventivo de laptops y laptop gamer</h2>
+          <h3>Limpieza técnica para ASUS ROG, Alienware, Lenovo Legion, MSI y HP</h3>
+          <p>
+            Las laptops integran procesador y tarjeta gráfica en un espacio muy reducido. Un ventilador con polvo puede provocar sobrecalentamiento en teclado y zonas de apoyo.
+          </p>
+          <h3>Servicio para laptops de oficina y escolares</h3>
+          <p>
+            Las computadoras de trabajo también sufren acumulación de suciedad en zonas de uso continuo. Realizamos limpieza de ductos, cambio de pasta y comprobación general.
+          </p>
+        </div>
+        <figure class="tc-media tc-media--tall">
+          <img src="/assets/images/laptop-gamer-rogstrix.webp" alt="Mantenimiento preventivo de laptop gamer en Cancún" width="800" height="1000" loading="lazy" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- MANTENIMIENTO PC GAMER Y ESCRITORIO -->
+    <section class="tc-section tc-desktop">
+      <div class="tc-shell tc-split tc-split--reverse">
+        <figure class="tc-media">
+          <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento de PC gamer y gabinete en Cancún" width="800" height="600" loading="lazy" />
+        </figure>
+        <div class="tc-copy">
+          <span class="tc-icon"><Icon name="computer" /></span>
+          <h2>Mantenimiento preventivo de PC gamer en Cancún</h2>
+          <h3>Flujo de aire, filtros antipolvo, radiadores y gabinete</h3>
+          <p>
+            Limpiamos gabinetes, filtros de aire, ventiladores ARGB, disipadores por aire y radiadores de refrigeración líquida. Organizamos cableado para optimizar la circulación interna.
+          </p>
+          <h3>Revisión de tarjetas de video (GPU)</h3>
+          <p>
+            Desmontamos y limpiamos GPUs dedicadas (NVIDIA / AMD), renovando pasta térmica y comprobando el estado de los thermal pads de las memorias VRAM.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONSOLAS DE VIDEOJUEGOS -->
+    <section class="tc-section tc-consoles">
+      <div class="tc-shell tc-feature-grid">
+        <div class="tc-copy">
+          <span class="tc-icon"><Icon name="gamepad" /></span>
+          <h2>Mantenimiento preventivo de consolas en Cancún</h2>
+          <h3>PlayStation 4, PlayStation 5, Xbox y Nintendo Switch</h3>
+          <p>
+            Las consolas de videojuegos aspiran aire continuamente y acumulan polvo en la turbina interna y fuente de poder.
+          </p>
+          <p>
+            Realizamos mantenimiento preventivo especializado para PS4, PS4 Pro, PS5, PS5 Slim, Xbox One, Xbox Series S/X, Nintendo Switch, Steam Deck y ASUS ROG Ally.
+          </p>
+        </div>
+        <figure class="tc-media">
+          <img src="/assets/images/ps5_xbox.webp" alt="Mantenimiento de consolas PlayStation y Xbox en Cancún" width="800" height="600" loading="lazy" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- TABLA COMPARATIVA PREVENTIVO VS CORRECTIVO -->
+    <section class="tc-section tc-comparison" id="comparativa">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="scale-balanced" />
+          <div>
+            <h2>Diferencia entre mantenimiento preventivo y correctivo</h2>
+            <p>Prevenir cuesta una fracción de lo que representa reparar una tarjeta madre o procesador dañado por calor.</p>
+          </div>
+        </header>
+        <div class="tc-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Punto clave</th>
+                <th><Icon name="shield-halved" /> Mantenimiento Preventivo</th>
+                <th><Icon name="wrench" /> Mantenimiento Correctivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {compareTable.map((row) => (
+                <tr>
+                  <td>{row[0]}</td>
+                  <td>{row[1]}</td>
+                  <td>{row[2]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="tc-note">
+          <strong>Recomendación técnica:</strong> Realizar un mantenimiento preventivo cada 12 a 18 meses previene fallas mayores por temperatura en el clima de Cancún.
+        </p>
+      </div>
+    </section>
+
+    <!-- SERVICIOS RELACIONADOS -->
+    <section class="tc-section tc-related">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="toolbox" />
+          <div>
+            <h2>Servicios relacionados con mantenimiento y enfriamiento</h2>
+            <p>Combina limpieza interna con diagnóstico térmico, pasta térmica y optimización del equipo.</p>
+          </div>
+        </header>
+        <div class="tc-related__grid">
+          {serviceLinks.map(([href, icon, title, text]) => (
+            <a href={href}>
+              <Icon name={icon.replace('fa-', '')} />
+              <div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+                <span>Ver servicio <Icon name="arrow-right" /></span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ATENCIÓN A EMPRESAS Y OFICINAS -->
+    <section class="tc-section tc-b2b">
+      <div class="tc-shell tc-b2b__grid">
+        <div>
+          <span class="tc-icon tc-icon--dark"><Icon name="building" /></span>
+          <h2>Mantenimiento preventivo para empresas en Cancún</h2>
+          <h3>Polizas y servicio por lote para oficinas, hoteles y escuelas</h3>
+          <p>
+            Evita interrupciones operativas en tu negocio. Programamos servicios de mantenimiento preventivo para flotillas de computadoras y laptops de trabajo en Cancún.
+          </p>
+          <p>
+            Atendemos Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.
+          </p>
+        </div>
+        <aside>
+          <strong>Pixon PC Cancún</strong>
+          <span>Cto. Hacienda Chimay<br />77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- COMPONENTE TICKET DE REVISIÓN -->
+    <ServiceTicketSection
+      id="ticket-preventivo"
+      defaultDevice="Laptop / PC / Consola"
+      defaultService="Mantenimiento preventivo y limpieza profunda"
+      title="Crear ticket de mantenimiento preventivo"
+      subtitle="Cuéntanos qué equipo necesitas limpiar (laptop, PC gamer, consola) y coordinaremos tu cita o recolección en Cancún."
+    />
+
+    <!-- PREGUNTAS FRECUENTES (OFICIAL DEL SITIO) -->
+    <FaqSection
+      id="faq-preventivo"
+      title="Preguntas frecuentes sobre mantenimiento preventivo en Cancún"
+      description="Respuestas directas sobre limpieza, pasta térmica, consolas, laptops gamer y prevención de sobrecalentamiento."
+      items={faqs}
+      viewMoreHref="/preguntas-frecuentes"
+      viewMoreLabel="Ver más preguntas"
+      ariaLabel="Preguntas frecuentes sobre mantenimiento preventivo en Cancún"
+      backgroundColor="#f3f8fc"
+      titleColor="#071F3A"
+      descriptionColor="#294963"
+      questionColor="#071F3A"
+    />
+
+    <!-- RESEÑAS Y COMENTARIOS -->
+    <section class="tc-section tc-reviews">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="star" />
+          <div>
+            <h2>Clientes que confían en Pixon PC para mantenimiento técnico</h2>
+            <p>Reseñas reales sobre nuestra atención, transparencia y calidad de servicio en Cancún.</p>
+          </div>
+        </header>
+      </div>
+    </section>
+    <CommentsSection viewMoreHref="/comentarios" />
+
+    <!-- CIERRE Y DIRECCIÓN Y CONTACTO -->
+    <section class="tc-final">
+      <div class="tc-shell tc-final__grid">
+        <div>
+          <span>Atención presencial en taller o recolección</span>
+          <h2>Agenda el mantenimiento de tu equipo en Cancún con Pixon PC</h2>
+          <p>No esperes a que el sobrecalentamiento dañe componentes costosos. Mantén tu laptop, PC o consola limpia y fresca.</p>
+          <div class="tc-actions">
+            <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" /> Cotizar por WhatsApp
+            </a>
+            <a class="tc-btn tc-btn--ghost" href="#ticket-preventivo">
+              <Icon name="clipboard-list" /> Crear ticket de mantenimiento
+            </a>
+          </div>
+        </div>
+        <address>
+          <strong>Pixon PC</strong>
+          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+        </address>
+      </div>
+    </section>
+
+    <ContactSection />
+  </main>
+  <Footer />
+</Base>
+
+<style is:global>
+  :global(.preventivo-blog-page section[id]){content-visibility:visible!important;contain:none!important}
+  :global(.preventivo-blog-page .tc-main>section){padding-top:20px!important;padding-bottom:20px!important}
+  .tc-main,.tc-hero,.tc-final{--ink:#071F3A;--blue:#1479D4;--muted:#294963;--line:#cbdce8;--ice:#eef6fc;color:var(--ink)}
+  .tc-shell{width:min(1180px,calc(100% - 32px));margin:0 auto}.tc-section{padding:20px 0;content-visibility:visible!important;contain:none!important}.tc-section :where(h2,h3,p,li,span,strong,a,td,th){color:var(--ink)}.tc-svg{display:block;width:18px;height:18px;max-width:22px;max-height:22px;fill:currentColor;flex:0 0 auto}
+  .tc-section h2,.tc-final h2{margin:0 0 18px;font-family:var(--font-heading);font-size:clamp(2rem,3.8vw,3.45rem);font-style:italic;font-weight:800;line-height:1.08;text-wrap:balance}.tc-section h3,.tc-final h3{margin:22px 0 8px;font-size:1.08rem;line-height:1.3;text-wrap:balance}.tc-section p,.tc-final p{max-width:72ch;margin:0;color:var(--muted);font-weight:500;line-height:1.72}.tc-split,.tc-feature-grid,.tc-metal__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.88fr);gap:clamp(36px,7vw,88px);align-items:center}.tc-split--reverse>figure{grid-column:1;grid-row:1}.tc-split--reverse>.tc-copy{grid-column:2;grid-row:1}.tc-icon{display:grid;width:42px;height:42px;margin-bottom:16px;place-items:center;border-radius:8px;color:var(--blue);background:#dceffc}.tc-icon>.tc-svg{width:18px;height:18px}.tc-icon--dark{color:#fff;background:var(--ink)}
+  .tc-media{margin:0;overflow:hidden;border-radius:8px;background:#dce8f1}.tc-media img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}.tc-media--tall img{aspect-ratio:4/5}.tc-media figcaption{padding:12px 15px;color:var(--muted);font-size:.82rem;font-weight:650}.tc-heading{display:grid;grid-template-columns:48px minmax(0,780px);gap:16px;align-items:start;margin-bottom:24px}.tc-heading>.tc-svg{box-sizing:border-box;width:42px;height:42px;max-width:42px;max-height:42px;padding:11px;border-radius:8px;color:#fff;background:var(--blue)}.tc-heading h2{margin-top:0}
+  .tc-hero{position:relative;min-height:760px;display:grid;align-items:end;overflow:hidden;background:#071f3a}.tc-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.tc-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,17,31,.95),rgba(3,17,31,.78) 53%,rgba(3,17,31,.2))}.tc-hero__content{position:relative;padding:150px 0 60px}.tc-kicker,.tc-final>div>div>span{color:#bce0fb;font-weight:800}.tc-hero h1{max-width:900px;margin:12px 0 18px;color:#fff;font-family:var(--font-heading);font-size:clamp(2.45rem,5.7vw,5.2rem);font-style:italic;font-weight:800;line-height:1.02;text-wrap:balance}.tc-hero p{max-width:700px;color:rgba(255,255,255,.84);font-size:1.08rem;line-height:1.7}.tc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.tc-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:12px 17px;border:1px solid var(--blue);border-radius:8px;color:#fff!important;background:var(--blue);font-weight:800;text-decoration:none;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 160ms ease}.tc-btn--ghost{border-color:rgba(255,255,255,.5);background:rgba(7,31,58,.58)}.tc-btn:active{transform:scale(.97)}.tc-hero__facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:760px;margin:42px 0 0;border-top:1px solid rgba(255,255,255,.25)}.tc-hero__facts div{padding:16px 18px 0 0}.tc-hero__facts dt{color:#92c9f1;font-size:.75rem;font-weight:800}.tc-hero__facts dd{margin:3px 0 0;color:#fff;font-weight:700}
+  .tc-intro,.tc-paste,.tc-desktop,.tc-mac{background:#fff}.tc-difference,.tc-gaming,.tc-consoles,.tc-related,.tc-reviews{background:var(--ice)}.tc-dual{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.tc-dual article{padding:clamp(26px,4vw,46px);background:#fff}.tc-material{display:grid;width:42px;height:42px;margin-bottom:22px;place-items:center;border-radius:50%;color:#fff;background:var(--blue)}.tc-material>.tc-svg{width:17px;height:17px}.tc-material--metal{background:var(--ink)}.tc-dual h3{margin-top:0;font-size:1.3rem}
+  .tc-metal{background:#dcecf7}.tc-metal__grid{grid-template-columns:minmax(0,1fr) minmax(320px,.75fr)}.tc-media--dark{padding:12px;background:var(--ink)}.tc-risks{background:#fff}.tc-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.tc-risk-grid article{padding:22px;border-radius:8px;background:#f3f7fa}.tc-risk-grid .tc-svg{width:25px;height:25px;color:#b42318}.tc-risk-grid h3{font-size:1.2rem}
+  .tc-comparison{background:#dcecf7!important}.tc-comparison .tc-heading>.tc-svg{color:#fff;background:var(--ink)}.tc-table-wrap{overflow-x:auto;border-radius:8px}.tc-table-wrap table{width:100%;min-width:720px;border-collapse:collapse;background:#fff}.tc-table-wrap th,.tc-table-wrap td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line)}.tc-table-wrap th{color:var(--blue);font-size:.85rem}.tc-table-wrap td:first-child{font-weight:800}.tc-note{max-width:none!important;margin-top:14px!important;padding:14px 18px;border:1px solid #9fc5df;border-radius:8px;background:#fff}
+  .tc-process-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}.tc-step-box{padding:20px;background:#fff}.tc-step-box .step-num{display:inline-block;font-size:0.85rem;font-weight:800;color:var(--blue);margin-bottom:8px}.tc-step-box h3{margin:0 0 6px;font-size:1.1rem;color:var(--ink)}.tc-step-box p{margin:0;font-size:0.9rem;color:var(--muted)}
+  .tc-gpu{background:#eef6fc!important}.tc-gpu__layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:clamp(28px,5vw,64px)}.tc-gpu__points{border-top:1px solid var(--line)}.tc-gpu__points article{padding:18px 0;border-bottom:1px solid var(--line)}.tc-gpu__points h3{margin-top:0}.tc-signals{background:#fff}.tc-signal-list{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.tc-signal-list article{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:20px;background:#fff}.tc-signal-list .tc-svg{width:22px;height:22px;color:var(--blue)}.tc-signal-list h3{margin-top:0}
+  .tc-diagnostic{background:#dcecf7}.tc-diagnostic__grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,5vw,64px);align-items:center}.tc-gauges{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tc-gauges span{display:grid;min-height:120px;padding:18px;align-content:space-between;border-radius:8px;background:#fff}.tc-gauges .tc-svg{width:27px;height:27px;color:var(--blue)}.tc-process{background:#fff}.tc-process__list{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0;padding:0;background:var(--line);list-style:none}.tc-process__list li{display:grid;grid-template-columns:36px 1fr;gap:15px;min-height:160px;padding:20px;background:#fff}.tc-process__list>li>strong{color:var(--blue)}.tc-process__list h3{margin-top:0}
+  .tc-related__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.tc-related__grid>a{display:grid;grid-template-columns:38px 1fr;gap:14px;padding:20px;border-radius:8px;color:inherit;background:#fff;text-decoration:none}.tc-related__grid>a>.tc-svg{width:22px;height:22px;color:var(--blue)}.tc-related__grid h3{margin-top:0}.tc-related__grid span{display:inline-flex;gap:8px;margin-top:12px;color:var(--blue)!important;font-weight:800}.tc-b2b{background:#fff}.tc-b2b__grid{display:grid;grid-template-columns:1fr 330px;gap:clamp(28px,6vw,72px)}.tc-b2b aside{display:grid;gap:12px;align-content:start;padding:24px;border-radius:8px;background:#dcecf7}.tc-b2b aside a{color:var(--blue)!important}.tc-errors{background:#dcecf7}.tc-errors__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.tc-errors__grid article{padding:20px;border-radius:8px;background:#fff}.tc-errors__grid b{color:var(--blue)}
+  .tc-final{padding:clamp(72px,9vw,110px) 0;background:#dcecf7!important}.tc-final__grid{display:grid;grid-template-columns:1fr 330px;gap:60px;align-items:center}.tc-final>div>div>span{color:var(--blue)}.tc-final address{display:grid;gap:10px;padding:26px;border:1px solid #9fc5df;border-radius:8px;background:#fff;font-style:normal}.tc-final address a{color:var(--blue)!important;text-decoration:none}.tc-final .tc-btn--ghost{border-color:var(--ink);color:var(--ink)!important;background:transparent}
+  @media(hover:hover) and (pointer:fine){.tc-btn:hover{transform:translateY(-2px);background:#0e68b8}.tc-related__grid>a{transition:transform 180ms cubic-bezier(.23,1,.32,1),background-color 180ms ease}.tc-related__grid>a:hover{transform:translateY(-3px);background:#e2f1fc}}
+  @media(max-width:900px){.tc-split,.tc-feature-grid,.tc-metal__grid,.tc-gpu__layout,.tc-diagnostic__grid,.tc-b2b__grid,.tc-final__grid{grid-template-columns:1fr}.tc-split--reverse>figure,.tc-split--reverse>.tc-copy{grid-column:auto;grid-row:auto}.tc-risk-grid,.tc-process__list,.tc-related__grid,.tc-process-grid{grid-template-columns:repeat(2,1fr)}.tc-errors__grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){.tc-hero{min-height:720px}.tc-hero__content{padding-top:130px}.tc-hero__facts,.tc-dual,.tc-risk-grid,.tc-signal-list,.tc-gauges,.tc-process__list,.tc-related__grid,.tc-errors__grid,.tc-process-grid{grid-template-columns:1fr}.tc-heading{grid-template-columns:42px 1fr;gap:12px}.tc-heading>.tc-svg{width:38px;height:38px;max-width:38px;max-height:38px;padding:10px}.tc-section{padding:20px 0}.tc-actions,.tc-actions .tc-btn{width:100%}.tc-table-wrap{margin-inline:-16px;border-radius:0}.tc-hero__facts div{padding-top:12px}.tc-hero__facts{gap:8px}.tc-b2b aside,.tc-final address{width:100%}}
+  @media(prefers-reduced-motion:reduce){.tc-btn,.tc-related__grid>a{transition:none}}
+</style>

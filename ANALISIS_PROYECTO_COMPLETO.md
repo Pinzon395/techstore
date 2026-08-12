@@ -826,7 +826,7 @@ npm run db:snapshot
 - Haciendas
 
 ### Datos Consistentes (NAP)
-- **Nombre:** Pixon PC / Rentalap
+- **Nombre:** Pixon PC
 - **Dirección:** Cto. Hacienda Chimay, 77539 Cancún, Q.R.
 - **Teléfono:** +52 998 669 0777
 - **Email:** pixonpc@gmail.com

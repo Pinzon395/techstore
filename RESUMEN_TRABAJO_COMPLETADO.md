@@ -359,7 +359,7 @@ CREATE TABLE sessions (
    - Breadcrumb: schema.org BreadcrumbList
 
 3. **Datos NAP Consistentes**
-   - Name: Pixon PC / Rentalap
+   - Name: Pixon PC
    - Address: Cto. Hacienda Chimay, 77539 Cancún, Q.R.
    - Phone: +52 998 669 0777
    - Email: pixonpc@gmail.com

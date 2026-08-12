@@ -10,4 +10,3 @@ Coloca aquí tus logotipos en formato SVG.
 ## Archivos sugeridos:
 - `pixon-logo.svg` — Logo principal de Pixon PC
 - `pixon-logo-blanco.svg` — Logo en blanco (para fondos oscuros)
-- `rentalap-logo.svg` — Logo Rentalap (si aplica)

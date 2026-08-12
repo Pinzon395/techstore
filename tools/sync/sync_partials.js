@@ -40,7 +40,7 @@ const unifiedFooter = `    <footer class="light-footer">
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; <span id="year"></span> Pixon PC / Rentalap. Todos los derechos reservados. |
+            <p>&copy; <span id="year"></span> Pixon PC. Todos los derechos reservados. |
                 <a href="/privacidad" style="color:var(--text-muted);">Privacidad</a> ·
                 <a href="/garantia" style="color:var(--text-muted);">Garantía</a>
             </p>

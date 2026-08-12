@@ -65,6 +65,7 @@ export interface ServiceFlags {
   isIphoneDiagnostic: boolean;
   isIphoneButtonsRepair: boolean;
   isIphoneMicrophoneRepair: boolean;
+  isDesbloqueoIcloud: boolean;
   isLaptopLocalReplacement: boolean;
   usesLegacyInlineServiceView: boolean;
   useServiceDetailView: boolean;
@@ -136,6 +137,7 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
   const isIphoneDiagnostic = category.slug === 'telefono' && service.slug === 'diagnostico-iphone';
   const isIphoneButtonsRepair = category.slug === 'telefono' && service.slug === 'reparacion-botones-iphone';
   const isIphoneMicrophoneRepair = category.slug === 'telefono' && service.slug === 'reparacion-microfono-iphone';
+  const isDesbloqueoIcloud = (category.slug === 'telefono' || category.slug === 'iphone') && (service.slug === 'desbloqueo-icloud' || service.slug === 'quitar-cuenta-iphone');
   const isLaptopLocalReplacement = isLaptopScreenReplacement || isLaptopKeyboardReplacement;
   const usesLegacyInlineServiceView =
     isLaptopScreenReplacement ||
@@ -216,6 +218,7 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
     isIphoneDiagnostic,
     isIphoneButtonsRepair,
     isIphoneMicrophoneRepair,
+    isDesbloqueoIcloud,
     isLaptopLocalReplacement,
     usesLegacyInlineServiceView,
     useServiceDetailView: !usesLegacyInlineServiceView,

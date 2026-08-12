@@ -3,6 +3,7 @@ import globalCss from '../styles/global.css?url';
 import { cleanSchemaList } from '../lib/schema';
 import WhatsappFloat from '../components/WhatsappFloat.astro';
 import BackToTopButton from '../components/BackToTopButton/BackToTopButton.astro';
+import RegistrationDiscount from '../components/RegistrationDiscount.astro';
 
 interface Props {
   title: string;
@@ -38,6 +39,7 @@ const siteUrl = 'https://pixon.com.mx';
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 const normalizedPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const shouldShowRegistrationDiscount = normalizedPath !== '/404' && !normalizedPath.startsWith('/admin');
 const isEnglishLanding = lang === 'en' && normalizedPath === '/en';
 const effectiveRobots = lang === 'en' && !isEnglishLanding && robots === 'index, follow'
   ? 'noindex, follow'
@@ -113,13 +115,6 @@ const defaultSchema = [
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Reparación de celular en Cancún"}},
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Soporte técnico para empresas en Cancún"}}
       ]
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "5.0",
-      "reviewCount": "9",
-      "bestRating": "5",
-      "worstRating": "1"
     },
     "sameAs": [
       "https://www.facebook.com/people/Pixon-PC/61556271364935/",
@@ -297,6 +292,15 @@ const allSchema = cleanSchemaList(mergeSchemaList(defaultSchema, schema)).filter
   <a class="skip-to-content" href="#main-content">Saltar al contenido principal</a>
   <div id="main-content" tabindex="-1">
     <slot />
+    {shouldShowRegistrationDiscount && (
+      <RegistrationDiscount
+        discount="30%"
+        loginHref="/auth/google?returnTo=%2Ftickets"
+        guestHref="/tickets"
+        placement="after-hero"
+      />
+    )}
+    <script defer src="/scripts/faq-accordion.js?v=20260804-1"></script>
   </div>
   <WhatsappFloat />
   <BackToTopButton />

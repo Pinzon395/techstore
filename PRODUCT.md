@@ -10,7 +10,7 @@ Personas y negocios en Cancún que necesitan diagnóstico, reparación, mantenim
 
 ## Product Purpose
 
-Pixon PC es el sitio público y sistema de captación de servicios técnicos de Rentalap / Pixon PC en Cancún. Su objetivo es posicionar servicios locales con SEO real, explicar cada reparación de forma clara, generar confianza técnica y convertir visitas en solicitudes por WhatsApp, ticket o revisión.
+Pixon PC es el sitio público y sistema de captación de servicios técnicos de Pixon PC en Cancún. Su objetivo es posicionar servicios locales con SEO real, explicar cada reparación de forma clara, generar confianza técnica y convertir visitas en solicitudes por WhatsApp, ticket o revisión.
 
 ## Brand Personality
 

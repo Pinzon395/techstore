@@ -150,18 +150,18 @@ PORT=3001
 
 # ────── SESIONES ──────
 # Generar con: node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-SESSION_SECRET=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9
+SESSION_SECRET=<generar_con_crypto_randomBytes>
 
 # ────── GOOGLE OAUTH ──────
-GOOGLE_CLIENT_ID=123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx
+GOOGLE_CLIENT_ID=<google_client_id>
+GOOGLE_CLIENT_SECRET=<google_client_secret>
 GOOGLE_CALLBACK_URL=/auth/google/callback
 
 # ────── ADMIN ──────
 ADMIN_EMAIL=tuEmail@gmail.com
 
 # ────── CORREOS (RESEND) ──────
-RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+RESEND_API_KEY=<resend_api_key>
 EMAIL_FROM="Pixon PC <tickets@pixon.com.mx>"
 EMAIL_REPLY_TO=pixonpc@gmail.com
 NOTIFICATION_EMAIL=pixonpc@gmail.com
@@ -171,7 +171,7 @@ PUBLIC_SITE_URL=https://pixon.com.mx
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=pixon_app
-DB_PASSWORD=tu_contraseña_segura
+DB_PASSWORD=<password_seguro>
 DB_NAME=pixon
 ```
 

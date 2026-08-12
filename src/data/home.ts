@@ -121,7 +121,7 @@ export const processSteps = [
 export const packageGroups = [
   { icon: 'house-laptop', title: 'Hogar y trabajo', text: 'Mantenimiento para laptops y computadoras de uso cotidiano.', href: '/paquetes' },
   { icon: 'gamepad', title: 'Gaming', text: 'Limpieza y revisión térmica para PC Gamer, laptops gaming y consolas.', href: '/paquetes' },
-  { icon: 'building', title: 'Empresas', text: 'Planes por lote y mantenimiento programado según operación y cantidad de equipos.', href: '/servicios/b2b/mantenimiento-preventivo-pc-empresas' },
+  { icon: 'building', title: 'Empresas', text: 'Planes por lote y mantenimiento programado según operación y cantidad de equipos.', href: '/servicios/mantenimiento-preventivo-pc-empresas' },
 ];
 
 export const buildProfiles = [
@@ -159,4 +159,3 @@ export const homeFaqs = [
   { question: '¿Por qué la humedad y el salitre dañan los equipos?', answer: 'La humedad, el calor y el salitre aceleran corrosión, suciedad conductiva y problemas térmicos. La frecuencia preventiva correcta depende del ambiente y del uso del equipo.' },
   { question: '¿Aceptan tarjeta, transferencia o facturación?', answer: 'Consulta los métodos disponibles y los requisitos de facturación al cotizar. Así confirmamos la opción adecuada antes de iniciar el servicio.' },
 ];
-

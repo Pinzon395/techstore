@@ -9,8 +9,9 @@ import Footer from '../../../components/Footer.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
 import CommentsSection from '../../../components/CommentsSection.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
+import FaqSection from '../../../components/FaqSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
-import { buildBreadcrumbSchema, buildServiceSchema } from '../../../lib/schema';
+import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
 
 export function getStaticPaths() {
   return SERVICE_CATEGORIES.map((category) => ({
@@ -20,7 +21,10 @@ export function getStaticPaths() {
 }
 
 const { category } = Astro.props;
-const canonical = `https://pixon.com.mx/servicios/${category.slug}`;
+const isB2bAlias = category.slug === 'b2b';
+const canonical = isB2bAlias
+  ? 'https://pixon.com.mx/empresas'
+  : `https://pixon.com.mx/servicios/${category.slug}`;
 const title = `Reparación de ${category.title} en Cancún | Pixon PC`;
 const description = `Servicios profesionales de reparación de ${category.title.toLowerCase()} en Cancún. ${category.services.length} servicios disponibles, garantía por escrito y diagnóstico gratis.`;
 const waMessage = encodeURIComponent(`Hola, quiero información sobre los servicios de ${category.title}`);
@@ -34,6 +38,24 @@ const orderedServices = category.slug === 'laptop'
 const featured = orderedServices.slice(0, 3);
 const remaining = orderedServices.slice(3);
 const hideServicePrices = true;
+const categoryFaqs = [
+  {
+    question: `¿Qué servicios de ${category.title.toLowerCase()} atienden en Cancún?`,
+    answer: `Atendemos fallas comunes y específicas de ${category.title.toLowerCase()} según el equipo, síntoma y disponibilidad de refacciones. En este catálogo puedes elegir el servicio más cercano a tu caso o crear un ticket para que Pixon PC te oriente antes de cotizar.`,
+  },
+  {
+    question: `¿Cómo sé qué servicio de ${category.title.toLowerCase()} necesito?`,
+    answer: `Descríbenos qué ocurre, desde cuándo empezó y si hubo golpe, humedad, actualización, sobrecalentamiento o reparación previa. Con esos datos confirmamos si conviene diagnóstico, mantenimiento, reparación puntual o revisión de una pieza.`,
+  },
+  {
+    question: `¿El diagnóstico de ${category.title.toLowerCase()} tiene costo?`,
+    answer: `Primero revisamos el síntoma y te explicamos el alcance del diagnóstico antes de intervenir. La cotización final depende de la falla confirmada, el modelo y la disponibilidad de refacciones; no iniciamos un trabajo sin tu autorización.`,
+  },
+  {
+    question: `¿Dónde puedo llevar mi ${category.title.toLowerCase()} en Cancún?`,
+    answer: `Puedes coordinar la revisión con Pixon PC en Cto. Hacienda Chimay, 77539 Cancún, Q.R. También te orientamos por WhatsApp sobre recolección, entrega o visita según el tipo de equipo, zona y disponibilidad.`,
+  },
+];
 
 const schema = [
   buildBreadcrumbSchema([
@@ -51,6 +73,7 @@ const schema = [
     url: canonical,
     description,
   }),
+  buildFAQSchema(categoryFaqs),
 ].filter(Boolean) as object[];
 ---
 
@@ -58,6 +81,7 @@ const schema = [
   title={title}
   description={description}
   canonical={canonical}
+  robots={isB2bAlias ? 'noindex, follow' : 'index, follow'}
   image="/LOGOCIRCULAR.png"
   schema={schema}
 >
@@ -226,6 +250,16 @@ const schema = [
       </div>
     </div>
   </section>
+
+  <FaqSection
+    id={`faq-${category.slug}`}
+    title={`Preguntas frecuentes sobre reparación de ${category.title.toLowerCase()} en Cancún`}
+    description={`Resolvemos dudas antes de revisar tu ${category.title.toLowerCase()}: servicio adecuado, diagnóstico, cotización, tiempos y atención local en Cancún.`}
+    items={categoryFaqs}
+    ariaLabel={`Preguntas frecuentes de servicios de ${category.title} en Cancún`}
+    backgroundColor="#f8fbff"
+    questionColor="#071F3A"
+  />
 
   <ServiceTicketSection
     defaultDevice={category.title}

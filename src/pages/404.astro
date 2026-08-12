@@ -2,39 +2,473 @@
 import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+
 ---
 
 <Base
-  title="404 — Página no encontrada | Pixon PC"
-  description="Página no encontrada — Pixon PC Cancún. Vuelve al inicio o contáctanos por WhatsApp."
+  title="Página no encontrada | Pixon PC Cancún"
+  description="La página solicitada no está disponible. Explora los servicios de Pixon PC en Cancún o recibe ayuda por WhatsApp."
+  canonical="/404"
   image="/LOGOCIRCULAR.png"
   robots="noindex, follow"
 >
   <Navbar />
-<main class="error-page" id="main-content">
-        <div class="error-page__inner">
-            <span class="error-emoji" role="img" aria-label="PC en problemas">🖥️</span>
-            <div class="error-code" aria-hidden="true">404</div>
-            <h1 class="error-title">Esta página se cayó del sistema</h1>
-            <p class="error-subtitle">
-                Como una PC sin pasta térmica... esto no está bien.<br>
-                La página que buscas no existe o fue movida.<br>
-                <strong>¿Te ayudamos a encontrar lo que necesitas?</strong>
-            </p>
-            <div class="error-actions">
-                <a href="/" class="btn btn-primary" id="btn-404-inicio">
-                    <i class="fa-solid fa-house"></i> Volver al Inicio
-                </a>
-                <button onclick="smartWaRedirect('https://wa.me/529986690777?text=Hola%2C%20no%20encontr%C3%A9%20lo%20que%20buscaba%20en%20la%20web')"
-                    class="btn btn-outline" id="btn-404-whatsapp">
-                    <i class="fa-brands fa-whatsapp"></i> Contactar por WhatsApp
-                </button>
-            </div>
+
+  <main class="not-found" aria-labelledby="not-found-title">
+    <section class="not-found__hero">
+      <div class="not-found__shell">
+        <div class="not-found__copy">
+          <p class="not-found__eyebrow">Página no disponible</p>
+          <h1 id="not-found-title">Esta ruta ya no existe.</h1>
+          <p class="not-found__lead">
+            Puede que la dirección haya cambiado, el enlace esté incompleto o la página ya no esté disponible.
+            Tu equipo no tiene ningún problema: volvamos a una ruta segura.
+          </p>
+          <div class="not-found__actions" aria-label="Opciones para continuar">
+            <a class="not-found__button not-found__button--primary" href="/">
+              <i class="fa-solid fa-house" aria-hidden="true"></i>
+              Ir al inicio
+            </a>
+            <a class="not-found__button not-found__button--secondary" href="/servicios">
+              Ver servicios
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
         </div>
-    </main>
+
+        <aside class="not-found__signal" aria-label="Error 404: página no encontrada">
+          <img src="/LOGOCIRCULAR.png" alt="Pixon PC" width="112" height="112" loading="eager" />
+          <p class="not-found__signal-number" aria-hidden="true">404</p>
+          <p class="not-found__signal-copy">No afecta tu equipo ni tu solicitud.</p>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
   <Footer />
-
-
-    <!-- ═══ Cookie Banner ═══ -->
 </Base>
 
+<style>
+  :global(body) {
+    background: #f5f8fc;
+  }
+
+  .not-found {
+    --navy: #071f3a;
+    --blue: #1769d2;
+    --blue-light: #eaf3ff;
+    --line: #d8e3f0;
+    color: var(--navy);
+    overflow: hidden;
+    padding-top: 66px;
+  }
+
+  .not-found__hero {
+    /* Evita que la regla global section:not([style*=background]) le imponga
+       el fondo claro del sitio sobre el hero. */
+    background-color: #071f3a !important;
+    color: #ffffff;
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .not-found__hero::before,
+  .not-found__hero::after {
+    content: '';
+    border: 1px solid rgb(125 188 255 / 20%);
+    border-radius: 50%;
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+  }
+
+  .not-found__hero::before {
+    height: 34rem;
+    right: -16rem;
+    top: -21rem;
+    width: 34rem;
+  }
+
+  .not-found__hero::after {
+    bottom: -25rem;
+    height: 37rem;
+    left: -23rem;
+    width: 37rem;
+  }
+
+  .not-found__shell,
+  .not-found__routes,
+  .not-found__help {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding-left: clamp(20px, 4vw, 42px);
+    padding-right: clamp(20px, 4vw, 42px);
+  }
+
+  .not-found__shell {
+    align-items: center;
+    display: grid;
+    gap: 3rem;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: min(590px, calc(100dvh - 66px));
+    padding-bottom: 4rem;
+    padding-top: 4.5rem;
+  }
+
+  .not-found__copy {
+    max-width: 680px;
+  }
+
+  .not-found__eyebrow,
+  .not-found__routes > .not-found__section-heading > p,
+  .not-found__help p {
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    line-height: 1.2;
+    margin: 0 0 .85rem;
+    text-transform: uppercase;
+  }
+
+  .not-found__eyebrow {
+    color: #b7dcff;
+  }
+
+  .not-found h1,
+  .not-found h2,
+  .not-found p,
+  .not-found strong,
+  .not-found small,
+  .not-found address,
+  .not-found dt,
+  .not-found dd {
+    font-family: var(--font-main);
+  }
+
+  .not-found h1 {
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: clamp(2.55rem, 5vw, 4.5rem);
+    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: .98;
+    margin: 0;
+    max-width: 12ch;
+  }
+
+  .not-found__lead {
+    color: rgb(255 255 255 / 83%);
+    font-size: clamp(1rem, 1.6vw, 1.14rem);
+    line-height: 1.7;
+    margin: 1.35rem 0 0;
+    max-width: 57ch;
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-top: 2rem;
+  }
+
+  .not-found__button,
+  .not-found__whatsapp {
+    align-items: center;
+    border-radius: 11px;
+    display: inline-flex;
+    font-family: var(--font-main);
+    font-size: .96rem;
+    font-weight: 800;
+    gap: .65rem;
+    justify-content: center;
+    min-height: 50px;
+    padding: .78rem 1.15rem;
+    text-decoration: none;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+  }
+
+  .not-found__button:focus-visible,
+  .not-found__route:focus-visible,
+  .not-found__whatsapp:focus-visible {
+    outline: 3px solid #f4bd4f;
+    outline-offset: 3px;
+  }
+
+  .not-found__button:active,
+  .not-found__route:active,
+  .not-found__whatsapp:active {
+    transform: translateY(1px) scale(.985);
+  }
+
+  .not-found__button--primary {
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgb(0 0 0 / 16%);
+    color: #071f3a !important;
+  }
+
+  .not-found__button--primary i {
+    color: #071f3a !important;
+  }
+
+  .not-found__button--secondary {
+    border: 1px solid rgb(214 235 255 / 48%);
+    color: #ffffff;
+  }
+
+  .not-found__signal {
+    align-items: center;
+    background: linear-gradient(145deg, rgb(36 123 214 / 43%), rgb(255 255 255 / 7%));
+    border: 1px solid rgb(172 217 255 / 32%);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 365px;
+    min-height: 310px;
+    padding: 2rem;
+    width: 100%;
+  }
+
+  .not-found__signal img {
+    border: 5px solid rgb(255 255 255 / 16%);
+    border-radius: 50%;
+    box-shadow: 0 16px 30px rgb(0 0 0 / 16%);
+    height: 112px;
+    object-fit: cover;
+    width: 112px;
+  }
+
+  .not-found__signal-number {
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: clamp(4.6rem, 9vw, 7rem);
+    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -.08em;
+    line-height: .8;
+    margin: 1.35rem 0 .9rem -.08em;
+  }
+
+  .not-found__signal-copy {
+    color: rgb(255 255 255 / 78%);
+    font-size: .88rem;
+    line-height: 1.55;
+    margin: 0;
+    max-width: 25ch;
+    text-align: center;
+  }
+
+  .not-found__routes {
+    background: #f5f8fc;
+    color: #071f3a !important;
+    padding-bottom: clamp(3.5rem, 8vw, 6.5rem);
+    padding-top: clamp(3.5rem, 8vw, 6.5rem);
+  }
+
+  .not-found__section-heading {
+    max-width: 570px;
+  }
+
+  .not-found__routes > .not-found__section-heading > p,
+  .not-found__help p {
+    color: #1769d2;
+  }
+
+  .not-found h2 {
+    color: #071f3a !important;
+    font-family: var(--font-heading);
+    font-size: clamp(1.85rem, 3.3vw, 2.75rem);
+    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -.035em;
+    line-height: 1.06;
+    margin: 0;
+  }
+
+  .not-found__route-grid {
+    display: grid;
+    gap: .85rem;
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+
+  .not-found__route {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: #071f3a !important;
+    display: flex;
+    gap: .9rem;
+    min-height: 106px;
+    padding: 1rem;
+    text-decoration: none;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+
+  .not-found__route-icon {
+    align-items: center;
+    background: var(--blue-light);
+    border-radius: 10px;
+    color: #1769d2;
+    display: inline-flex;
+    flex: 0 0 43px;
+    height: 43px;
+    justify-content: center;
+  }
+
+  .not-found__route-content {
+    display: grid;
+    gap: .2rem;
+    min-width: 0;
+  }
+
+  .not-found__route-content strong {
+    color: #071f3a !important;
+    font-size: .98rem;
+    line-height: 1.25;
+  }
+
+  .not-found__route-content small {
+    color: #071f3a !important;
+    font-size: .79rem;
+    line-height: 1.45;
+    opacity: .76;
+  }
+
+  .not-found__route-arrow {
+    color: #1769d2;
+    font-size: .84rem;
+    margin-left: auto;
+  }
+
+  .not-found__help {
+    align-items: flex-start;
+    background-color: #ffffff !important;
+    border-top: 1px solid var(--line);
+    color: #071f3a !important;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: clamp(3rem, 6vw, 4.75rem);
+    padding-top: clamp(2.75rem, 6vw, 4.25rem);
+  }
+
+  .not-found__help address {
+    color: #071f3a !important;
+    font-size: .9rem;
+    font-style: normal;
+    line-height: 1.6;
+    margin-top: .75rem;
+    opacity: .78;
+  }
+
+  .not-found__whatsapp {
+    background: #1769d2;
+    box-shadow: 0 8px 19px rgb(23 105 210 / 20%);
+    color: #ffffff;
+    width: 100%;
+  }
+
+  /* Aislamiento frente a estilos heredados del sitio: en estas superficies
+     claras ningún texto puede heredar blanco. */
+  .not-found__routes :is(h2, h3, p, strong, small, span, address),
+  .not-found__help :is(h2, h3, p, strong, small, span, address) {
+    color: #071f3a !important;
+  }
+
+  .not-found__routes .not-found__section-heading > p,
+  .not-found__help > div > p {
+    color: #1769d2 !important;
+  }
+
+  .not-found__help .not-found__whatsapp,
+  .not-found__help .not-found__whatsapp :is(i, span) {
+    color: #ffffff !important;
+  }
+
+  @media (hover: hover) {
+    .not-found__button--primary:hover {
+      background: #ddecff;
+      box-shadow: 0 11px 26px rgb(0 0 0 / 20%);
+      transform: translateY(-2px);
+    }
+
+    .not-found__button--secondary:hover {
+      background: rgb(255 255 255 / 10%);
+      border-color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .not-found__route:hover {
+      border-color: #9cc9f9;
+      box-shadow: 0 10px 22px rgb(7 31 58 / 8%);
+      transform: translateY(-3px);
+    }
+
+    .not-found__route:hover .not-found__route-arrow {
+      transform: translateX(3px);
+    }
+
+    .not-found__whatsapp:hover {
+      background: #0f59b5;
+      box-shadow: 0 11px 24px rgb(23 105 210 / 27%);
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (min-width: 640px) {
+    .not-found__actions {
+      align-items: center;
+      flex-direction: row;
+    }
+
+    .not-found__button {
+      min-width: 160px;
+    }
+
+    .not-found__help {
+      align-items: center;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .not-found__whatsapp {
+      width: auto;
+    }
+  }
+
+  @media (min-width: 800px) {
+    .not-found__shell {
+      gap: 4rem;
+      grid-template-columns: minmax(0, 1fr) minmax(285px, .54fr);
+    }
+
+    .not-found__signal {
+      justify-self: end;
+    }
+
+    .not-found__route-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .not-found__route {
+      align-items: flex-start;
+      min-height: 158px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .not-found *,
+    .not-found *::before,
+    .not-found *::after {
+      animation-duration: .01ms !important;
+      scroll-behavior: auto !important;
+      transition-duration: .01ms !important;
+    }
+  }
+
+</style>

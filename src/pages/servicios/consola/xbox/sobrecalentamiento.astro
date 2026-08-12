@@ -1,0 +1,777 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Navbar from '../../../../components/Navbar.astro';
+import Breadcrumb from '../../../../components/Breadcrumb.astro';
+import ServiceTicketSection from '../../../../components/ServiceTicketSection.astro';
+import FaqSection from '../../../../components/FaqSection.astro';
+import CommentsSection from '../../../../components/CommentsSection.astro';
+import ContactSection from '../../../../components/ContactSection.astro';
+import Footer from '../../../../components/Footer.astro';
+import Icon from '../../../../components/LocalSpriteIcon.astro';
+
+const canonical = '/servicios/consola/xbox/sobrecalentamiento';
+const whatsappMsg = encodeURIComponent('Hola, mi consola Xbox se sobrecalienta / hace mucho ruido / se apaga sola. Quiero agendar una revisión o cotizar limpieza y cambio de pasta térmica en Cancún.');
+
+const faqs = [
+  {
+    question: '¿Cuánto cuesta reparar una Xbox que se sobrecalienta?',
+    answer: 'El precio depende del modelo (Xbox Series X, Series S, One, One S, One X) y de la causa exacta. Una limpieza interna con cambio de pasta térmica no cuesta lo mismo que reemplazar un ventilador mecánico o reparar una fuente de alimentación. Primero realizamos el diagnóstico para darte cotización transparente.'
+  },
+  {
+    question: '¿Por qué mi Xbox se apaga cuando comienzo un juego?',
+    answer: 'Los juegos más exigentes aumentan el consumo de energía y la generación de calor. Si la consola detecta temperaturas críticas, activa el apagado de seguridad. Puede ocurrir por disipador bloqueado por polvo, pasta térmica reseca, ventilador detenido o fuente de alimentación defectuosa.'
+  },
+  {
+    question: '¿El cambio de pasta térmica solucionará el problema?',
+    answer: 'Solucionará el problema cuando la causa sea mala transferencia de calor entre el procesador y el disipador. No resolverá un ventilador mecánico quemado, una fuente de poder con capacitores dañados o un cortocircuito en placa. Por eso primero medimos temperatura y consumo.'
+  },
+  {
+    question: '¿Es normal que la Xbox Series S esté caliente?',
+    answer: 'Es normal que la Xbox Series S se sienta tibia o caliente cerca del círculo negro superior, ya que esa es su salida de ventilación principal. No es normal que la consola se apague sola, cierre juegos de forma repentina, emita ruidos fuertes o despida olor a plástico caliente.'
+  },
+  {
+    question: '¿Es normal que la Xbox Series X expulse aire caliente?',
+    answer: 'Sí, significa que la turbina vertical está retirando eficientemente el calor del procesador. Sin embargo, si la consola presenta apagados automáticos, avisos de sobrecalentamiento en pantalla, caídas severas de rendimiento o ruido constante de ventilador, requiere revisión técnica.'
+  },
+  {
+    question: '¿Cada cuánto conviene limpiar una Xbox?',
+    answer: 'En el clima de Cancún (con alta humedad relativa, salitre y polvo), recomendamos realizar mantenimiento preventivo cada 12 a 18 meses. Si la consola se ubica cerca del suelo, dentro de muebles cerrados o en hogares con mascotas, conviene hacerlo con mayor frecuencia.'
+  },
+  {
+    question: '¿Reparan ventiladores de Xbox?',
+    answer: 'Sí. Revisamos si el ventilador solo requiere limpieza de aspas y lubricación técnica de eje, o si los rodamientos magnéticos están desgastados produciendo matraca, en cuyo caso instalamos un reemplazo directo idéntico al original (Nidec/Delta).'
+  },
+  {
+    question: '¿Puedo seguir jugando si mi Xbox se apaga por calor?',
+    answer: 'No es recomendable. Los apagados repetidos son una medida extrema de protección. Continuar forzando la consola sin atender la causa puede dañar permanentemente el procesador gráfico (APU), la tarjeta madre o la fuente de alimentación.'
+  }
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://pixon.com.mx${canonical}`
+    },
+    headline: 'Solución al sobrecalentamiento de Xbox en Cancún',
+    description: '¿Tu Xbox se calienta, hace mucho ruido o se apaga al jugar? Diagnosticamos ventilador, polvo, pasta térmica, fuente y disipador en Cancún.',
+    image: 'https://pixon.com.mx/assets/images/ps5_xbox.webp',
+    author: {
+      '@type': 'Organization',
+      name: 'Pixon PC',
+      url: 'https://pixon.com.mx'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Pixon PC',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://pixon.com.mx/assets/images/LOGOCIRCULAR.png'
+      }
+    },
+    datePublished: '2026-08-03'
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Sobrecalentamiento de Xbox en Cancún',
+    serviceType: 'Diagnóstico, limpieza interna, cambio de pasta térmica y reparación de ventilador de Xbox Series X, Series S y Xbox One',
+    url: `https://pixon.com.mx${canonical}`,
+    description: 'Servicio técnico especializado para consolas Xbox con sobrecalentamiento, apagados automáticos y ruido excesivo en Cancún.',
+    provider: {
+      '@type': 'LocalBusiness',
+      name: 'Pixon PC',
+      telephone: '+529986690777',
+      email: 'pixonpc@gmail.com',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Cto. Hacienda Chimay',
+        addressLocality: 'Cancún',
+        addressRegion: 'Q.R.',
+        postalCode: '77539',
+        addressCountry: 'MX'
+      }
+    },
+    areaServed: [{ '@type': 'City', name: 'Cancún' }, { '@type': 'State', name: 'Quintana Roo' }]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Servicios', item: 'https://pixon.com.mx/servicios' },
+      { '@type': 'ListItem', position: 3, name: 'Consolas', item: 'https://pixon.com.mx/servicios/consola' },
+      { '@type': 'ListItem', position: 4, name: 'Xbox', item: 'https://pixon.com.mx/servicios/consola/reparacion-xbox' },
+      { '@type': 'ListItem', position: 5, name: 'Sobrecalentamiento de Xbox', item: `https://pixon.com.mx${canonical}` },
+    ]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer }
+    }))
+  }
+];
+---
+
+<Base
+  title="Sobrecalentamiento de Xbox en Cancún | Series X, S y One"
+  description="¿Tu Xbox se calienta, hace mucho ruido o se apaga al jugar? Diagnosticamos ventilador, polvo, pasta térmica, fuente y disipador en Cancún."
+  canonical={canonical}
+  image="/assets/images/ps5_xbox.webp"
+  schema={schema}
+  bodyClass="service-page xbox-heating-page"
+>
+  <Navbar />
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: 'Consolas', href: '/servicios/consola' },
+    { label: 'Xbox', href: '/servicios/consola/reparacion-xbox' },
+    { label: 'Sobrecalentamiento' }
+  ]} />
+
+  <!-- HERO PRINCIPAL (H1 ÚNICO EN LA PÁGINA) -->
+  <header class="tc-hero">
+    <img src="/assets/images/ps5_xbox.webp" alt="Servicio técnico de sobrecalentamiento de Xbox Series X, Series S y Xbox One en Cancún" width="1600" height="900" loading="eager" />
+    <div class="tc-hero__shade"></div>
+    <div class="tc-shell tc-hero__content">
+      <span class="tc-kicker"><i class="fa-brands fa-xbox"></i> Servicio Técnico Especializado Xbox en Cancún</span>
+      <h1>Solución al sobrecalentamiento de Xbox en Cancún</h1>
+      <p class="hero-lead">
+        ¿Tu Xbox se calienta demasiado, hace mucho ruido, pierde rendimiento o se apaga mientras juegas? Diagnosticamos ventilador, polvo, pasta térmica, disipador y fuente para Xbox Series X, Series S, Xbox One, One S y One X.
+      </p>
+      <div class="tc-actions">
+        <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer">
+          <Icon name="whatsapp" /> Cotizar por WhatsApp
+        </a>
+        <a class="tc-btn tc-btn--ghost" href="#ticket-xbox">
+          <Icon name="clipboard-list" /> Crear ticket de revisión
+        </a>
+      </div>
+      <dl class="tc-hero__facts">
+        <div><dt>Modelos</dt><dd>Series X, Series S, One, One S, One X</dd></div>
+        <div><dt>Diagnóstico</dt><dd>Flujo de aire, fuente y pasta térmica</dd></div>
+        <div><dt>Ubicación</dt><dd>Cto. Hacienda Chimay, Cancún Q. Roo</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <main class="tc-main">
+
+    <!-- INTRODUCCIÓN Y CAUSAS DE SOBRECALENTAMIENTO -->
+    <section class="tc-section tc-intro">
+      <div class="tc-shell tc-split">
+        <div class="tc-copy">
+          <span class="tc-icon"><Icon name="temperature-arrow-up" /></span>
+          <h2>¿Por qué mi Xbox se calienta demasiado?</h2>
+          <h3>Diagnóstico térmico antes de cambiar cualquier pieza</h3>
+          <p>
+            Las consolas Xbox producen calor de manera normal mientras ejecutan videojuegos exigentes, descargan contenido o utilizan aplicaciones. El problema verdadero comienza cuando el sistema de enfriamiento ya no logra expulsar correctamente ese calor hacia el exterior.
+          </p>
+          <p>Las causas más frecuentes de sobrecalentamiento de Xbox en Cancún son:</p>
+          <ul class="custom-checklist">
+            <li><i class="fa-solid fa-check"></i> Acumulación de polvo denso dentro de la consola.</li>
+            <li><i class="fa-solid fa-check"></i> Disipador bloqueado por suciedad o salitre ambiental.</li>
+            <li><i class="fa-solid fa-check"></i> Ventilador trabajando al 100% de forma constante.</li>
+            <li><i class="fa-solid fa-check"></i> Ventilador desgastado, desbalanceado o mecánico quemado.</li>
+            <li><i class="fa-solid fa-check"></i> Pasta térmica totalmente seca o cristalizada por el tiempo.</li>
+            <li><i class="fa-solid fa-check"></i> Rejillas de ventilación superiores o laterales obstruidas.</li>
+            <li><i class="fa-solid fa-check"></i> Consola colocada dentro de muebles cerrados o sin espacio.</li>
+            <li><i class="fa-solid fa-check"></i> Fuente de alimentación sobrecalentada por capacitores degradados.</li>
+            <li><i class="fa-solid fa-check"></i> Temperatura ambiental elevada en Cancún sin aire acondicionado.</li>
+            <li><i class="fa-solid fa-check"></i> Falla electrónica en el circuito de control de la tarjeta madre.</li>
+          </ul>
+        </div>
+        <figure class="tc-media">
+          <img src="/assets/images/xbox.webp" alt="Diagnóstico técnico de disipador y ventilación de Xbox en Cancún" width="800" height="600" loading="lazy" />
+          <figcaption>Revisamos la causa real del calor en Xbox Series X, Series S y Xbox One antes de cotizar.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- SEÑALES DE SOBRECALENTAMIENTO (CARDS 2x2) -->
+    <section class="tc-section tc-signals">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="triangle-exclamation" />
+          <div>
+            <h2>Señales de sobrecalentamiento en Xbox</h2>
+            <p>Síntomas característicos que indican que la consola requiere revisión térmica o reparación urgente.</p>
+          </div>
+        </header>
+        <div class="tc-signal-list">
+          <article>
+            <Icon name="power-off" />
+            <div>
+              <h3>Xbox se apaga sola mientras juego</h3>
+              <p>
+                Cuando una Xbox Series X, Series S o Xbox One se apaga a la mitad de una partida, activa un mecanismo de protección para evitar que el chip APU se queme. También puede deberse a la fuente de poder o cortocircuitos.
+              </p>
+            </div>
+          </article>
+          <article>
+            <Icon name="fan" />
+            <div>
+              <h3>Xbox hace mucho ruido</h3>
+              <p>
+                Si el ventilador suena como turbina de avión o emite clics mecánicos, está forzando sus RPM para expulsar el calor atrapado por polvo o pasta térmica reseca.
+              </p>
+            </div>
+          </article>
+          <article>
+            <Icon name="temperature-high" />
+            <div>
+              <h3>Xbox expulsa aire muy caliente</h3>
+              <p>
+                Es normal que expulse aire tibio, pero si el calor es extremo y viene acompañado de olor extraño, reinicios o mensajes de advertencia, el disipador o las rejillas necesitan limpieza profunda.
+              </p>
+            </div>
+          </article>
+          <article>
+            <Icon name="gauge-simple-high" />
+            <div>
+              <h3>Xbox pierde rendimiento o se traba</h3>
+              <p>
+                El procesador activa el estrangulamiento térmico (thermal throttling), lo que se traduce en juegos congelados, cierres de aplicaciones, caídas de FPS o menús lentos.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESGLOSE POR MODELOS (SERIES X, SERIES S, ONE) -->
+    <section class="tc-section tc-models-breakdown">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="gamepad" />
+          <div>
+            <h2>Atención por modelo de Xbox en Cancún</h2>
+            <p>Cada arquitectura de consola Xbox posee un sistema de disipación y flujo de aire distinto.</p>
+          </div>
+        </header>
+        <div class="models-grid">
+          
+          <div class="model-card">
+            <div class="model-badge">Series X</div>
+            <h3>Sobrecalentamiento de Xbox Series X</h3>
+            <p>
+              La Xbox Series X utiliza un flujo de aire vertical ascendente. La acumulación de polvo en las rejillas inferiores o en la rejilla superior verde bloquea la extracción del calor.
+            </p>
+            <ul class="mini-checklist">
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Se apaga a los pocos minutos de iniciar un juego pesados.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> El ventilador superior suena demasiado fuerte.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Muestra pantalla de advertencia térmica.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Rejilla superior con pelusa visible.</li>
+            </ul>
+          </div>
+
+          <div class="model-card">
+            <div class="model-badge">Series S</div>
+            <h3>Sobrecalentamiento de Xbox Series S</h3>
+            <p>
+              Su diseño ultra compacto depende al 100% del círculo negro de ventilación superior. Si se coloca en espacios reducidos o acumula polvo, la temperatura sube rápidamente.
+            </p>
+            <ul class="mini-checklist">
+              <li><i class="fa-solid fa-circle-chevron-right"></i> La consola Series S se apaga de repente.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> El círculo negro expulsa calor extremo.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Zumbido o ruido metálico al jugar.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Cierre inesperado de partidas online.</li>
+            </ul>
+          </div>
+
+          <div class="model-card">
+            <div class="model-badge">Xbox One / S / X</div>
+            <h3>Sobrecalentamiento de Xbox One</h3>
+            <p>
+              Las consolas Xbox One (Fat), Xbox One S y Xbox One X suelen acumular capas de polvo de años, además de contar con pasta térmica de fábrica completamente petrificada.
+            </p>
+            <ul class="mini-checklist">
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Xbox One se apaga con luz parpadeante.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> La fuente externa o interna se calienta en exceso.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Ruido molesto de turbina desbalanceada.</li>
+              <li><i class="fa-solid fa-circle-chevron-right"></i> Pasta térmica que jamás ha sido reemplazada.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- LIMPIEZA INTERNA, PASTA TÉRMICA Y VENTILADOR -->
+    <section class="tc-section tc-services-deep">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="screwdriver-wrench" />
+          <div>
+            <h2>Servicios para resolver el sobrecalentamiento de Xbox</h2>
+            <p>Soluciones técnicas aplicadas según el diagnóstico de tu consola en nuestro taller en Cancún.</p>
+          </div>
+        </header>
+
+        <div class="service-cards-row">
+          <article class="service-block">
+            <h3><i class="fa-solid fa-broom"></i> Limpieza interna de Xbox en Cancún</h3>
+            <p>
+              Desarmamos la consola de forma segura, retirando la capa de polvo en aspas del ventilador, disipador de cobre, tarjetas, fuentes de alimentación y ductos de aire. El aire comprimido externo no basta porque empuja el polvo al interior.
+            </p>
+          </article>
+
+          <article class="service-block">
+            <h3><i class="fa-solid fa-flask"></i> Cambio de pasta térmica para Xbox</h3>
+            <p>
+              Retiramos la pasta vieja endurecida en la APU y aplicamos compuesto térmico premium de alta conductividad (Arctic MX-4). Esto restablece la transferencia directa de calor al disipador reduciendo hasta 20°C en uso pesado.
+            </p>
+          </article>
+
+          <article class="service-block">
+            <h3><i class="fa-solid fa-fan"></i> Reparación o cambio de ventilador Xbox</h3>
+            <p>
+              Si el ventilador produce ruido de centrífuga/matraca, roza internamente o de plano no gira, reemplazamos el módulo por un ventilador nuevo de especificación original para restaurar el flujo silencioso de fábrica.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLA COMPARATIVA: ¿SOBRECALENTAMIENTO O FALLA ELÉCTRICA? -->
+    <section class="tc-section tc-comparison" id="comparativa-xbox">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="scale-balanced" />
+          <div>
+            <h2>¿Una Xbox que se apaga siempre necesita mantenimiento?</h2>
+            <p>No todo apagado es por temperatura. Te explicamos las diferencias para evitar gastos innecesarios.</p>
+          </div>
+        </header>
+        <div class="tc-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Característica</th>
+                <th>Causa Térmica (Sobrecalentamiento)</th>
+                <th>Causa Eléctrica o de Fuente</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Comportamiento del apagado</strong></td>
+                <td>Ocurre tras 15-45 minutos de juego pesado</td>
+                <td>Se apaga de inmediato o al encender la consola</td>
+              </tr>
+              <tr>
+                <td><strong>Ruido del ventilador</strong></td>
+                <td>Ventilador a máxima velocidad antes de apagarse</td>
+                <td>Silencioso o sin cambio previo en la aceleración</td>
+              </tr>
+              <tr>
+                <td><strong>Temperatura al tacto</strong></td>
+                <td>Carcasa o aire despedido extremadamente caliente</td>
+                <td>Carcasa fría o temperatura normal</td>
+              </tr>
+              <tr>
+                <td><strong>Solución requerida</strong></td>
+                <td>Limpieza interna, pasta térmica o ventilador nuevo</td>
+                <td>Reparación/cambio de fuente de poder o tarjeta madre</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="tc-note">
+          <strong>En Pixon PC Cancún:</strong> Primero diagnosticamos con pruebas eléctricas y térmicas para confirmarte de forma honesta qué requiere tu Xbox.
+        </p>
+      </div>
+    </section>
+
+    <!-- PASOS DEL PROCESO DE DIAGNÓSTICO -->
+    <section class="tc-section tc-process-section">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="list-check" />
+          <div>
+            <h2>Proceso de diagnóstico de Xbox en Pixon PC</h2>
+            <p>Metodología transparente para detectar la falla exacta de tu consola en Cancún.</p>
+          </div>
+        </header>
+        <div class="tc-process-grid">
+          <div class="tc-step-box">
+            <span class="step-num">01</span>
+            <h3>Revisión del síntoma</h3>
+            <p>Analizamos cuándo ocurren los apagados, ruido, mensajes o congelamientos.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">02</span>
+            <h3>Inspección física</h3>
+            <p>Revisamos rejillas, polvo, humedad, salitre, golpes y estado del ventilador.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">03</span>
+            <h3>Revisión térmica</h3>
+            <p>Comprobamos flujo de aire, disipador, pasta térmica y comportamiento en uso.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">04</span>
+            <h3>Revisión de alimentación</h3>
+            <p>Verificamos fuente de poder, consumos y descartamos cortocircuitos.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">05</span>
+            <h3>Cotización y servicio</h3>
+            <p>Te explicamos qué requiere la Xbox antes de realizar cualquier trabajo.</p>
+          </div>
+          <div class="tc-step-box">
+            <span class="step-num">06</span>
+            <h3>Prueba bajo carga</h3>
+            <p>Probamos estabilidad, ruido y temperatura durante 45 minutos antes de entregar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONSEJOS DE PREVENCIÓN Y HÁBITOS -->
+    <section class="tc-section tc-tips-section">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="shield-halved" />
+          <div>
+            <h2>Cómo evitar que tu Xbox se sobrecaliente</h2>
+            <p>Hábitos sencillos para prolongar la vida útil de tu consola Xbox en el clima de Cancún.</p>
+          </div>
+        </header>
+        <div class="tips-grid">
+          <div class="tip-card"><i class="fa-solid fa-ban"></i> No cubras las rejillas de ventilación.</div>
+          <div class="tip-card"><i class="fa-solid fa-box-open"></i> Evita colocar objetos sobre la consola.</div>
+          <div class="tip-card"><i class="fa-solid fa-door-open"></i> Evita guardar la Xbox en muebles cerrados.</div>
+          <div class="tip-card"><i class="fa-solid fa-arrows-up-down-left-right"></i> Deja al menos 10 cm libres alrededor.</div>
+          <div class="tip-card"><i class="fa-solid fa-rug"></i> No coloques la Xbox directamente en alfombras.</div>
+          <div class="tip-card"><i class="fa-solid fa-broom"></i> Limpia el polvo exterior periódicamente.</div>
+          <div class="tip-card"><i class="fa-solid fa-smoking-ban"></i> Evita fumar o vapear cerca de la consola.</div>
+          <div class="tip-card"><i class="fa-solid fa-cloud-sun-rain"></i> Aléjala de zonas húmedas o ventanas con salitre.</div>
+          <div class="tip-card"><i class="fa-solid fa-stethoscope"></i> Agenda revisión si el ventilador cambia de sonido.</div>
+          <div class="tip-card"><i class="fa-solid fa-circle-exclamation"></i> No sigas jugando si la Xbox se apaga por calor.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INFORMACIÓN LOCAL Y NAP (REGLA DE AGENTS.MD: TEXTOS FUERA DE HERO EN AZUL OSCURO #071F3A) -->
+    <section class="tc-section tc-b2b">
+      <div class="tc-shell tc-b2b__grid">
+        <div>
+          <span class="tc-icon tc-icon--dark"><Icon name="location-dot" /></span>
+          <h2>Servicio técnico de Xbox cerca de ti en Cancún</h2>
+          <h3>Atención presencial en taller y opción de recolección a domicilio</h3>
+          <p>
+            Brindamos soporte para Xbox Series X, Series S y Xbox One en todo Cancún: Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.
+          </p>
+          <p>
+            Si tu consola se apaga al jugar o suena demasiado fuerte, tráela a nuestro taller o solicita recolección a domicilio.
+          </p>
+        </div>
+        <aside>
+          <strong>Pixon PC — Taller Cancún</strong>
+          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- FORMULARIO DE TICKET DE REVISIÓN -->
+    <ServiceTicketSection
+      id="ticket-xbox"
+      defaultDevice="Xbox Series X / Series S / Xbox One"
+      defaultService="Sobrecalentamiento y limpieza de Xbox"
+      title="Crear ticket de revisión para Xbox"
+      subtitle="Cuéntanos el modelo de tu Xbox, si se apaga al jugar o si el ventilador hace mucho ruido para enviarte cotización previa."
+    />
+
+    <!-- PREGUNTAS FRECUENTES (8 FAQs CON ETIQUETAS H3 COMPATIBLES) -->
+    <FaqSection
+      id="faq-xbox-heating"
+      title="Preguntas frecuentes sobre sobrecalentamiento de Xbox en Cancún"
+      description="Respuestas claras a las dudas más comunes sobre apagados, ruido de ventilador y cambio de pasta térmica en Xbox."
+      items={faqs}
+      viewMoreHref="/preguntas-frecuentes"
+      viewMoreLabel="Ver más preguntas de consolas"
+      ariaLabel="Preguntas frecuentes sobre sobrecalentamiento de Xbox en Cancún"
+      backgroundColor="#f3f8fc"
+      titleColor="#071F3A"
+      descriptionColor="#294963"
+      questionColor="#071F3A"
+    />
+
+    <!-- COMENTARIOS DE CLIENTES -->
+    <section class="tc-section tc-reviews">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="star" />
+          <div>
+            <h2>Clientes que confiaron en Pixon PC para su Xbox</h2>
+            <p>Reseñas reales sobre nuestra atención, transparencia y reparación de consolas en Cancún.</p>
+          </div>
+        </header>
+      </div>
+    </section>
+    <CommentsSection viewMoreHref="/comentarios" />
+
+    <!-- CIERRE FINAL Y CONTACTO -->
+    <section class="tc-final">
+      <div class="tc-shell tc-final__grid">
+        <div>
+          <span>Diagnóstico profesional sin engaños</span>
+          <h2>Agenda una revisión para tu Xbox en Cancún con Pixon PC</h2>
+          <p>Revisamos la causa real antes de cambiar piezas. Vuelve a jugar sin ruido de turbina ni apagados inesperados.</p>
+          <div class="tc-actions">
+            <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" /> Cotizar por WhatsApp
+            </a>
+            <a class="tc-btn tc-btn--ghost" href="#ticket-xbox">
+              <Icon name="clipboard-list" /> Crear ticket de revisión
+            </a>
+          </div>
+        </div>
+        <address>
+          <strong>Pixon PC</strong>
+          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+        </address>
+      </div>
+    </section>
+
+    <ContactSection />
+  </main>
+  <Footer />
+</Base>
+
+<style is:global>
+  /* ── ESTILOS SOBRECALENTAMIENTO DE XBOX (SISTEMA DE DISEÑO PIXON PC) ─────── */
+  :global(.xbox-heating-page section[id]){content-visibility:visible!important;contain:none!important}
+  :global(.xbox-heating-page .tc-main>section){padding-top:20px!important;padding-bottom:20px!important}
+  
+  .xbox-heating-page .tc-main, .xbox-heating-page .tc-hero, .xbox-heating-page .tc-final {
+    --ink:#071F3A;
+    --blue:#1479D4;
+    --muted:#294963;
+    --line:#cbdce8;
+    --ice:#eef6fc;
+    color:var(--ink);
+  }
+
+  .xbox-heating-page :where(h2, h3, h4, p, li, span, strong, a, td, th) {
+    color: #071F3A !important;
+  }
+
+  .tc-shell { width:min(1180px,calc(100% - 32px)); margin:0 auto; }
+  .tc-section { padding:20px 0; content-visibility:visible!important; contain:none!important; }
+  .tc-svg { display:block; width:18px; height:18px; max-width:22px; max-height:22px; fill:currentColor; flex:0 0 auto; }
+
+  .tc-section h2, .tc-final h2 {
+    margin:0 0 18px;
+    font-family:var(--font-heading);
+    font-size:clamp(2rem,3.8vw,3.45rem);
+    font-style:italic;
+    font-weight:800;
+    line-height:1.08;
+    color:#071F3A !important;
+  }
+
+  .tc-section h3, .tc-final h3 {
+    margin:18px 0 8px;
+    font-size:1.1rem;
+    line-height:1.35;
+    color:#071F3A !important;
+  }
+
+  .tc-section p, .tc-final p {
+    max-width:72ch;
+    margin:0;
+    color:#071F3A !important;
+    opacity: 0.9;
+    font-weight:500;
+    line-height:1.7;
+  }
+
+  /* HERO DE XBOX */
+  .tc-hero {
+    position:relative;
+    min-height:720px;
+    display:grid;
+    align-items:end;
+    overflow:hidden;
+    background:#071f3a;
+  }
+
+  .tc-hero>img {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  .tc-hero__shade {
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,rgba(3,17,31,.95),rgba(3,17,31,.82) 55%,rgba(3,17,31,.3));
+  }
+
+  .tc-hero__content {
+    position:relative;
+    padding:140px 0 60px;
+  }
+
+  .tc-kicker { color:#60a5fa !important; font-weight:800; }
+  .tc-hero h1 {
+    max-width:900px;
+    margin:12px 0 18px;
+    color:#ffffff !important;
+    font-family:var(--font-heading);
+    font-size:clamp(2.4rem,5.5vw,5rem);
+    font-style:italic;
+    font-weight:800;
+    line-height:1.05;
+  }
+
+  .tc-hero p.hero-lead {
+    max-width:720px;
+    color:rgba(255,255,255,.9) !important;
+    font-size:1.1rem;
+    line-height:1.65;
+  }
+
+  .tc-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+  .tc-btn {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    min-height:48px;
+    padding:12px 18px;
+    border:1px solid #1479D4;
+    border-radius:8px;
+    color:#ffffff !important;
+    background:#1479D4;
+    font-weight:800;
+    text-decoration:none;
+    transition:transform 160ms cubic-bezier(.23,1,.32,1);
+  }
+
+  .tc-btn--ghost { border-color:rgba(255,255,255,.5); background:rgba(7,31,58,.6); }
+  .tc-btn:active { transform:scale(.97); }
+
+  .tc-hero__facts {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    max-width:760px;
+    margin:38px 0 0;
+    border-top:1px solid rgba(255,255,255,.2);
+  }
+
+  .tc-hero__facts div { padding:14px 16px 0 0; }
+  .tc-hero__facts dt { color:#93c5fd !important; font-size:.75rem; font-weight:800; text-transform:uppercase; }
+  .tc-hero__facts dd { margin:3px 0 0; color:#ffffff !important; font-weight:700; }
+
+  /* SPLIT & HEADINGS */
+  .tc-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(340px,.88fr); gap:clamp(36px,7vw,88px); align-items:center; }
+  
+  /* MEDIAS E IMÁGENES CALIBRADAS */
+  .tc-media {
+    margin: 0;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(7, 31, 58, 0.12);
+    border: 1px solid #cbdce8;
+    background: #ffffff;
+    width: 100%;
+    max-width: 520px;
+    justify-self: center;
+  }
+
+  .tc-media img {
+    width: 100%;
+    height: 340px;
+    max-height: 380px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: 15px 15px 0 0;
+    transition: transform 300ms ease;
+  }
+
+  .tc-media:hover img {
+    transform: scale(1.03);
+  }
+
+  .tc-media figcaption {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #294963 !important;
+    background: #eef6fc;
+    border-top: 1px solid #cbdce8;
+    text-align: center;
+  }
+
+  .tc-heading { display:grid; grid-template-columns:48px minmax(0,780px); gap:16px; align-items:start; margin-bottom:24px; }
+  .tc-heading>.tc-svg { box-sizing:border-box; width:42px; height:42px; max-width:42px; max-height:42px; padding:11px; border-radius:8px; color:#fff; background:#1479D4; }
+
+  .tc-icon { display:grid; width:42px; height:42px; margin-bottom:16px; place-items:center; border-radius:8px; color:#1479D4; background:#dceffc; }
+  .tc-icon--dark { color:#ffffff !important; background:#071F3A; }
+
+  .custom-checklist { list-style:none; padding:0; margin:1.25rem 0; }
+  .custom-checklist li { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; font-size:0.95rem; }
+  .custom-checklist li i { color:#22c55e !important; }
+
+  /* CARDS XBOX MODELOS */
+  .models-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-top:1.5rem; }
+  .model-card { background:#ffffff; border:1px solid #cbdce8; border-radius:14px; padding:1.5rem; position:relative; }
+  .model-badge { display:inline-block; background:#eff6fc; color:#1479D4 !important; font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem; border-radius:9999px; margin-bottom:0.75rem; }
+  .mini-checklist { list-style:none; padding:0; margin:1rem 0 0 0; }
+  .mini-checklist li { font-size:0.85rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem; }
+  .mini-checklist li i { color:#1479D4 !important; font-size:0.75rem; }
+
+  /* SERVICIOS ROW */
+  .service-cards-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; }
+  .service-block { background:#f8fafc; border:1px solid #cbdce8; border-radius:12px; padding:1.35rem; }
+  .service-block h3 { margin-top:0; font-size:1.15rem; display:flex; align-items:center; gap:0.5rem; }
+  .service-block h3 i { color:#1479D4 !important; }
+
+  /* TABLA COMPARATIVA */
+  .tc-comparison { background:#dcecf7!important; }
+  .tc-table-wrap { overflow-x:auto; border-radius:8px; }
+  .tc-table-wrap table { width:100%; min-width:680px; border-collapse:collapse; background:#fff; }
+  .tc-table-wrap th, .tc-table-wrap td { padding:14px 18px; text-align:left; border-bottom:1px solid #cbdce8; }
+  .tc-table-wrap th { color:#1479D4 !important; font-size:.85rem; }
+  .tc-note { max-width:none!important; margin-top:14px!important; padding:14px 18px; border:1px solid #9fc5df; border-radius:8px; background:#fff; }
+
+  /* PASOS DIAGNÓSTICO */
+  .tc-process-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1px; background:#cbdce8; }
+  .tc-step-box { padding:20px; background:#fff; }
+  .tc-step-box .step-num { display:inline-block; font-size:0.85rem; font-weight:800; color:#1479D4 !important; margin-bottom:8px; }
+
+  /* TIPS PREVENCIÓN */
+  .tips-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:0.85rem; }
+  .tip-card { background:#ffffff; border:1px solid #cbdce8; border-radius:10px; padding:1rem; font-size:0.9rem; font-weight:600; display:flex; align-items:center; gap:0.6rem; }
+  .tip-card i { color:#1479D4 !important; font-size:1rem; }
+
+  /* B2B / BANNER FINAL */
+  .tc-b2b { background:#fff; }
+  .tc-b2b__grid { display:grid; grid-template-columns:1fr 330px; gap:clamp(28px,6vw,72px); }
+  .tc-b2b aside { display:grid; gap:12px; align-content:start; padding:24px; border-radius:8px; background:#dcecf7; }
+
+  .tc-final { padding:clamp(60px,8vw,100px) 0; background:#dcecf7!important; }
+  .tc-final__grid { display:grid; grid-template-columns:1fr 330px; gap:60px; align-items:center; }
+  .tc-final address { display:grid; gap:10px; padding:24px; border:1px solid #9fc5df; border-radius:8px; background:#fff; font-style:normal; }
+
+  @media(max-width:900px){
+    .tc-split, .tc-b2b__grid, .tc-final__grid { grid-template-columns:1fr; }
+  }
+</style>

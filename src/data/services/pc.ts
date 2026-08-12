@@ -308,6 +308,7 @@ export const pcCategory: ServiceCategory = {
       {
         slug: 'mantenimiento-preventivo',
         label: 'Mantenimiento preventivo',
+        customUrl: '/mantenimiento-preventivo-computadora',
         seoKeyword: 'Mantenimiento preventivo de PC en Cancún',
         hook: 'Mantenimiento para PC de escritorio, oficina y gamer antes de que el polvo, la temperatura o una fuente sucia se conviertan en apagados y reparaciones caras.',
         intro: 'Limpieza interna, revisión térmica, organización básica de cableado y pruebas de fuente, ventiladores, disco, RAM y Windows para PC en Cancún.',
