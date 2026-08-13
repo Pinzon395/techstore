@@ -1,0 +1,684 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Navbar from '../../../components/Navbar.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import FaqSection from '../../../components/FaqSection.astro';
+import SwitchCaseStudies from '../../../components/SwitchCaseStudies.astro';
+import CommentsSection from '../../../components/CommentsSection.astro';
+import ContactSection from '../../../components/ContactSection.astro';
+import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
+import Footer from '../../../components/Footer.astro';
+
+const canonicalPath = '/servicios/consola/mantenimiento-nintendo-switch';
+const canonicalUrl = `https://pixon.com.mx${canonicalPath}`;
+const whatsappText = encodeURIComponent(
+  'Hola Pixon PC, quiero cotizar el mantenimiento de mi Nintendo Switch. Mi modelo es [Switch / OLED / Lite / Switch 2] y presenta [calor / ruido / trabas / otro síntoma].'
+);
+const whatsappHref = `https://wa.me/529986690777?text=${whatsappText}`;
+
+const symptoms = [
+  {
+    icon: 'fa-temperature-high',
+    tag: 'Temperatura',
+    title: 'Nintendo Switch se calienta demasiado',
+    text: 'Revisamos ubicación, rejillas, ventilador, disipador y comportamiento bajo uso antes de atribuir el calor a la pasta térmica.',
+  },
+  {
+    icon: 'fa-volume-high',
+    tag: 'Ventilación',
+    title: 'El ventilador hace mucho ruido',
+    text: 'Un sonido fuerte, roce o cambio repentino de revoluciones puede venir de polvo, obstrucción o desgaste mecánico.',
+  },
+  {
+    icon: 'fa-pause',
+    tag: 'Estabilidad',
+    title: 'Nintendo Switch se congela o se traba',
+    text: 'Separamos fallas de software, microSD y almacenamiento de un posible problema térmico acompañado de calor o ventilación anormal.',
+  },
+  {
+    icon: 'fa-power-off',
+    tag: 'Apagados',
+    title: 'Se apaga mientras juegas',
+    text: 'Detén el uso si hay apagados, olor extraño o ventilador detenido. Puede requerir mantenimiento o una reparación adicional.',
+  },
+];
+
+const included = [
+  ['01', 'Recepción y diagnóstico inicial', 'Registramos modelo, número de serie, síntoma, uso en dock, historial de caídas, humedad e intervenciones anteriores.'],
+  ['02', 'Desmontaje controlado', 'Abrimos la consola con herramienta adecuada y control de tornillos, flex, blindajes y conectores.'],
+  ['03', 'Limpieza interna', 'Retiramos polvo y residuos de rejillas, carcasa, ventilador y zonas accesibles sin empujarlos hacia la placa.'],
+  ['04', 'Ventilador y disipador', 'Revisamos giro, ruido, obstrucciones y continuidad de la ruta de aire.'],
+  ['05', 'Revisión térmica', 'Inspeccionamos el contacto térmico y determinamos si el compuesto necesita conservarse, corregirse o renovarse.'],
+  ['06', 'Inspección visual', 'Buscamos humedad, corrosión, batería deformada, conectores flojos o señales que cambien el alcance.'],
+  ['07', 'Reensamble técnico', 'Colocamos blindajes, conectores, tornillería y carcasa respetando el orden del modelo.'],
+  ['08', 'Pruebas funcionales', 'Validamos encendido, carga, ventilación, controles, juego y dock cuando el modelo y los accesorios lo permiten.'],
+  ['09', 'Evidencia y garantía', 'Documentamos hallazgos relevantes y entregamos por escrito el alcance del mantenimiento realizado.'],
+];
+
+const layers = [
+  ['Entrada', 'Rejillas y carcasa', 'Retiramos polvo visible sin introducirlo hacia el ventilador o la tarjeta.'],
+  ['Movimiento', 'Ventilador compacto', 'Revisamos aspas, giro, ruido mecánico, conector y acumulación adherida.'],
+  ['Transferencia', 'Disipador y heatpipe', 'Liberamos la ruta de aire y observamos el estado del conjunto que transporta el calor.'],
+  ['Salida', 'Flujo de aire', 'Comprobamos que la consola pueda tomar y expulsar aire sin una obstrucción evidente.'],
+];
+
+const models = [
+  {
+    model: 'Nintendo Switch',
+    code: 'Estándar · V1 / V2',
+    title: 'Mantenimiento de Switch estándar',
+    text: 'Confirmamos la revisión de hardware porque cambia consumo, distribución interna y acceso. Probamos modo portátil y dock cuando está disponible.',
+    check: 'Ventilación y uso híbrido',
+  },
+  {
+    model: 'Switch OLED',
+    code: 'Pantalla OLED · dock',
+    title: 'Mantenimiento de Nintendo Switch OLED',
+    text: 'Protegemos el panel y revisamos ventilación, estructura interna, conectores y comportamiento en dock sin tratarla como una Switch estándar.',
+    check: 'Cuidado específico del panel',
+  },
+  {
+    model: 'Switch Lite',
+    code: 'Portátil integrada',
+    title: 'Mantenimiento de Nintendo Switch Lite',
+    text: 'Al no usar Joy-Con desmontables ni dock de TV, enfocamos las pruebas en controles integrados, carga, ventilador y estabilidad portátil.',
+    check: 'Prueba de controles integrados',
+  },
+  {
+    model: 'Nintendo Switch 2',
+    code: 'Evaluación por versión',
+    title: 'Mantenimiento de Nintendo Switch 2',
+    text: 'La recibimos para evaluación y confirmamos el alcance según versión, condición y acceso. No asumimos que su procedimiento sea igual al de generaciones anteriores.',
+    check: 'Proceso confirmado al recibir',
+  },
+];
+
+const process = [
+  ['Recepción', 'Modelo, síntoma y accesorios'],
+  ['Prueba inicial', 'Carga, controles, ruido y juego'],
+  ['Apertura', 'Flex, blindajes y tornillería'],
+  ['Limpieza', 'Rejillas, ventilador y disipador'],
+  ['Revisión térmica', 'Contacto y compuesto si corresponde'],
+  ['Reensamble', 'Conectores, estructura y carcasa'],
+  ['Validación', 'Juego, ventilación y entrega'],
+];
+
+const areas = [
+  'Cancún Centro',
+  'Zona Hotelera',
+  'Huayacán',
+  'Cumbres',
+  'Bonfil',
+  'Polígono Sur',
+  'Puerto Cancún',
+  'Av. Tulum',
+  'Bonampak',
+  'Puerto Juárez',
+  'Supermanzanas',
+  'Haciendas',
+];
+
+const relatedGuides = [
+  {
+    href: '/servicios/consola/reparacion-nintendo-switch',
+    label: 'Reparación Nintendo Switch',
+    text: 'Para fallas de encendido, carga USB-C, batería, pantalla, dock, lector o tarjeta.',
+  },
+  {
+    href: '/reparacion-controles',
+    label: 'Reparación de Joy-Con',
+    text: 'Diagnóstico de drift, joystick, rieles, botones, conexión y carga del control.',
+  },
+  {
+    href: '/servicios/consola/limpieza-interna',
+    label: 'Limpieza de consolas',
+    text: 'Página general para mantenimiento de PlayStation, Xbox y consolas portátiles.',
+  },
+  {
+    href: '/servicios/consola',
+    label: 'Servicios para consolas',
+    text: 'Explora diagnóstico, HDMI, fuente, ventilación y otros servicios del taller.',
+  },
+];
+
+const faqItems = [
+  {
+    question: '¿Cuánto cuesta un mantenimiento de Nintendo Switch?',
+    answer: 'El precio se confirma después de identificar el modelo y revisar la condición de la consola. No publicamos una cifra inventada: antes de intervenir te indicamos alcance, materiales, costo y si existe una falla que deba cotizarse como reparación.',
+  },
+  {
+    question: '¿Cuánto tarda el mantenimiento de una Nintendo Switch?',
+    answer: 'El tiempo se confirma al recibirla porque depende del modelo, hora de entrega, nivel de suciedad, historial de apertura y pruebas necesarias. Si encontramos humedad, batería deformada, ventilador dañado o una falla adicional, te avisamos antes de cambiar el plazo.',
+  },
+  {
+    question: '¿Cada cuánto debe limpiarse una Nintendo Switch?',
+    answer: 'No existe un intervalo universal. Conviene revisarla según horas de uso, polvo del entorno, mascotas, almacenamiento, uso frecuente en dock y cambios de ruido o temperatura. Si funciona estable y ventila normalmente, no recomendamos abrirla sólo por calendario.',
+  },
+  {
+    question: '¿Es normal que una Nintendo Switch se caliente?',
+    answer: 'Puede aumentar de temperatura durante juegos, carga o uso en dock. Lo que justifica una revisión es calor fuera de lo habitual acompañado de ventilador anormal, aviso de temperatura, congelamientos, apagados u olor extraño.',
+  },
+  {
+    question: '¿Por qué hace ruido el ventilador de mi Switch?',
+    answer: 'Puede acelerar por carga de juego, temperatura del ambiente, rejillas obstruidas o polvo. Si hay roce, golpeteo, vibración o el ventilador deja de girar, también puede existir desgaste mecánico y requerir reparación.',
+  },
+  {
+    question: '¿Por qué mi Nintendo Switch se traba o congela?',
+    answer: 'Puede relacionarse con software, juego, microSD, almacenamiento o hardware. Cuando también hay calor excesivo, ventilador anormal o apagados, agregamos diagnóstico térmico; no asumimos que toda traba se resuelva con limpieza.',
+  },
+  {
+    question: '¿El mantenimiento elimina el lag de Nintendo Switch?',
+    answer: 'No necesariamente. El lag online suele relacionarse con red, señal Wi-Fi o latencia. El mantenimiento sólo corresponde si las pruebas muestran suciedad, ventilación deficiente o comportamiento térmico anormal; primero diferenciamos la causa.',
+  },
+  {
+    question: '¿Cambian la pasta térmica de Nintendo Switch?',
+    answer: 'La revisamos y la renovamos únicamente cuando el estado del contacto y el alcance autorizado lo justifican. No toda consola caliente necesita cambio de pasta: también evaluamos ventilador, disipador, rejillas, ambiente y uso en dock.',
+  },
+  {
+    question: '¿Dan mantenimiento a Nintendo Switch OLED?',
+    answer: 'Sí. Identificamos el modelo antes de abrir y ajustamos el desmontaje, protección del panel, revisión térmica y pruebas a la arquitectura de Switch OLED.',
+  },
+  {
+    question: '¿Atienden Nintendo Switch Lite?',
+    answer: 'Sí. En Switch Lite revisamos ventilación, carga, controles integrados y estabilidad portátil. Si la falla está en joystick, pantalla o centro de carga, puede requerir una reparación separada.',
+  },
+  {
+    question: '¿Atienden Nintendo Switch 2?',
+    answer: 'Podemos recibir Nintendo Switch 2 para evaluación de mantenimiento. Confirmamos el procedimiento y alcance después de identificar la versión y condición, porque no la tratamos como si tuviera la misma arquitectura de una Switch anterior.',
+  },
+  {
+    question: '¿Qué pasa si mi Nintendo Switch no carga?',
+    answer: 'Una consola que no carga puede tener una falla en adaptador, batería, puerto USB-C, circuito de carga o tarjeta. Ese síntoma se atiende como diagnóstico y posible reparación, no como mantenimiento preventivo.',
+  },
+  {
+    question: '¿Reparan Joy-Con con drift?',
+    answer: 'Sí. La revisión de drift, joystick, botones, rieles o sincronización se realiza en el servicio de controles. Puede coordinarse junto con el mantenimiento de la consola, pero se cotiza como una intervención distinta.',
+  },
+  {
+    question: '¿El mantenimiento tiene garantía?',
+    answer: 'Sí. Entregamos garantía por escrito sobre la intervención realizada y explicamos qué cubre. No cubre fallas no intervenidas, golpes, humedad posterior, variaciones eléctricas, accesorios externos o manipulación de terceros.',
+  },
+  {
+    question: '¿Dónde hacen mantenimiento de Nintendo Switch en Cancún?',
+    answer: 'Pixon PC atiende con cita en Cto. Hacienda Chimay, 77539 Cancún, Q.R. Puedes enviar modelo y síntoma por WhatsApp al +52 998 669 0777 o crear un ticket desde esta página.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${canonicalUrl}#service`,
+    name: 'Mantenimiento Nintendo Switch en Cancún',
+    alternateName: ['Limpieza Nintendo Switch en Cancún', 'Mantenimiento térmico Nintendo Switch'],
+    serviceType: 'Mantenimiento preventivo y térmico de Nintendo Switch',
+    description: 'Limpieza interna, ventilador, disipador y revisión térmica para Nintendo Switch, OLED, Lite y Switch 2 en Cancún.',
+    url: canonicalUrl,
+    image: 'https://pixon.com.mx/assets/images/gaming_controllers_collection.webp',
+    provider: { '@id': 'https://pixon.com.mx/#business' },
+    areaServed: areas.map((name) => ({ '@type': 'Place', name })),
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Mantenimiento y limpieza de Nintendo Switch',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          url: canonicalUrl,
+          description: 'Cotización previa según modelo, condición y alcance autorizado.',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Mantenimiento de Nintendo Switch',
+          },
+        },
+      ],
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Consolas', item: 'https://pixon.com.mx/servicios/consola' },
+      { '@type': 'ListItem', position: 3, name: 'Nintendo Switch', item: 'https://pixon.com.mx/servicios/consola/reparacion-nintendo-switch' },
+      { '@type': 'ListItem', position: 4, name: 'Mantenimiento', item: canonicalUrl },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  },
+];
+---
+
+<Base
+  title="Mantenimiento Nintendo Switch en Cancún | Limpieza y Pasta Térmica | Pixon PC"
+  description="Mantenimiento Nintendo Switch en Cancún: limpieza profunda, ventilador, disipador y revisión térmica para Switch, OLED, Lite y Switch 2 con garantía."
+  canonical={canonicalPath}
+  image="/assets/images/gaming_controllers_collection.webp"
+  schema={schema}
+  bodyClass="service-page ps5-maintenance-body switch-maintenance-body"
+  extraStyles={['/styles/mantenimiento-ps5.css', '/styles/mantenimiento-nintendo-switch.css']}
+>
+  <Navbar />
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Consolas', href: '/servicios/consola' },
+    { label: 'Nintendo Switch', href: '/servicios/consola/reparacion-nintendo-switch' },
+    { label: 'Mantenimiento' },
+  ]} />
+
+  <div class="ps5m-page switchm-page">
+    <header class="ps5m-hero switchm-hero" aria-labelledby="switchm-title">
+      <div class="ps5m-hero-grid" aria-hidden="true"></div>
+      <div class="container ps5m-hero-layout">
+        <div class="ps5m-hero-copy">
+          <span class="ps5m-kicker"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Servicio especializado en Cancún</span>
+          <h1 id="switchm-title">Mantenimiento Nintendo Switch en Cancún</h1>
+          <p class="ps5m-lead">Limpieza profunda, ventilador, disipador y revisión térmica para Nintendo Switch, OLED, Lite y Switch 2. Si se calienta, hace ruido o se traba, diagnosticamos antes de intervenir.</p>
+          <div class="ps5m-hero-actions">
+            <a class="ps5m-btn ps5m-btn--primary" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar mantenimiento de mi Switch
+            </a>
+            <a class="ps5m-btn ps5m-btn--secondary" href="#ticket-switch">
+              <i class="fa-solid fa-stethoscope" aria-hidden="true"></i> Diagnosticar mi Switch
+            </a>
+          </div>
+          <ul class="ps5m-hero-trust" aria-label="Resumen del servicio">
+            <li><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Switch · OLED · Lite · Switch 2</li>
+            <li><i class="fa-solid fa-fan" aria-hidden="true"></i> Ventilador + disipador</li>
+            <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Garantía por escrito</li>
+          </ul>
+        </div>
+
+        <figure class="ps5m-hero-visual switchm-console-stage">
+          <div class="switchm-device" aria-hidden="true">
+            <div class="switchm-joy switchm-joy--left"><span></span><i></i><b></b></div>
+            <div class="switchm-screen">
+              <div class="switchm-screen-ui">
+                <span>DIAGNÓSTICO TÉRMICO</span>
+                <strong>Flujo de aire</strong>
+                <div><i></i><i></i><i></i><i></i><i></i></div>
+                <small>VENTILADOR · DISIPADOR · PRUEBA</small>
+              </div>
+            </div>
+            <div class="switchm-joy switchm-joy--right"><span></span><i></i><b></b></div>
+          </div>
+          <figcaption>
+            <span>Diagnóstico antes de intervenir</span>
+            <strong>Calor · ruido · congelamientos · apagados</strong>
+          </figcaption>
+        </figure>
+      </div>
+    </header>
+
+    <nav class="ps5m-section-nav" aria-label="Contenido de mantenimiento Nintendo Switch">
+      <div class="container">
+        <a href="#sintomas-switch">Síntomas</a>
+        <a href="#incluye-switch">Qué incluye</a>
+        <a href="#pasta-termica-switch">Pasta térmica</a>
+        <a href="#modelos-switch">Modelos</a>
+        <a href="#precio-switch">Cotización</a>
+        <a href="#preguntas-switch">Preguntas</a>
+      </div>
+    </nav>
+
+    <main class="ps5m-main">
+      <section class="ps5m-section ps5m-symptoms" id="sintomas-switch" aria-labelledby="symptoms-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div>
+              <span class="ps5m-eyebrow">Síntomas que orientan la revisión</span>
+              <h2 id="symptoms-title">¿Tu Nintendo Switch se calienta, hace ruido o se traba?</h2>
+            </div>
+            <p>El síntoma indica qué probar, pero no demuestra la causa. Separamos mantenimiento térmico, software, microSD, red y fallas eléctricas antes de recomendar una intervención.</p>
+          </div>
+          <div class="ps5m-symptom-grid switchm-symptom-grid">
+            {symptoms.map((item, index) => (
+              <article class:list={['ps5m-symptom-card', index === 0 && 'ps5m-symptom-card--feature']}>
+                <div class="ps5m-card-icon"><i class={`fa-solid ${item.icon}`} aria-hidden="true"></i></div>
+                <span>{item.tag}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+          <aside class="ps5m-note" aria-label="Recomendación de seguridad">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <p><strong>Si se apaga, huele extraño o el ventilador no gira, deja de usarla.</strong> Continuar jugando puede agravar una falla térmica, de batería o de alimentación.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-included" id="incluye-switch" aria-labelledby="included-title">
+        <div class="container">
+          <div class="ps5m-heading">
+            <span class="ps5m-eyebrow">Mantenimiento profesional en Cancún</span>
+            <h2 id="included-title">¿Qué incluye el mantenimiento de Nintendo Switch?</h2>
+            <p>Trabajamos la ventilación como un sistema completo: entrada de aire, ventilador, disipador, contacto térmico, reensamble y prueba funcional.</p>
+          </div>
+          <div class="ps5m-included-layout">
+            <ol class="ps5m-included-list">
+              {included.map(([number, title, text]) => (
+                <li>
+                  <span>{number}</span>
+                  <div><h3>{title}</h3><p>{text}</p></div>
+                </li>
+              ))}
+            </ol>
+            <aside class="ps5m-scope-card switchm-scope-card">
+              <span class="ps5m-scope-label">Alcance confirmado al recibir</span>
+              <h3>Mantenimiento preventivo, no una reparación disfrazada</h3>
+              <p>Si encontramos batería deformada, ventilador dañado, humedad, falla de carga o daño en placa, te enviamos diagnóstico y cotización antes de reparar.</p>
+              <dl>
+                <div><dt>Modelos</dt><dd>Switch, OLED, Lite y Switch 2</dd></div>
+                <div><dt>Precio</dt><dd>Cotización previa</dd></div>
+                <div><dt>Tiempo</dt><dd>Confirmado al recibir</dd></div>
+                <div><dt>Seguimiento</dt><dd>WhatsApp o ticket</dd></div>
+              </dl>
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer">Solicitar revisión <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-deep-clean" aria-labelledby="cleaning-title">
+        <div class="container ps5m-media-layout switchm-cleaning-layout">
+          <div class="ps5m-media-copy">
+            <span class="ps5m-eyebrow">Limpieza interna de Nintendo Switch</span>
+            <h2 id="cleaning-title">Quitar polvo de las rejillas no limpia el sistema completo</h2>
+            <p class="ps5m-intro">El ventilador y el disipador están dentro de un chasis compacto. Una limpieza superficial no permite comprobar obstrucciones, ruido mecánico ni el estado del contacto térmico.</p>
+            <div class="ps5m-layer-list">
+              {layers.map(([label, title, text]) => (
+                <article><span>{label}</span><h3>{title}</h3><p>{text}</p></article>
+              ))}
+            </div>
+          </div>
+          <div class="switchm-airflow-card" aria-label="Ruta de aire revisada durante el mantenimiento">
+            <div class="switchm-airflow-head">
+              <span>Ruta térmica</span>
+              <strong>Entrada → ventilador → disipador → salida</strong>
+            </div>
+            <div class="switchm-airflow-map" aria-hidden="true">
+              <span><i class="fa-solid fa-arrow-right"></i></span>
+              <div class="switchm-airflow-fan"><i class="fa-solid fa-fan"></i></div>
+              <span><i class="fa-solid fa-arrow-right"></i></span>
+              <div class="switchm-airflow-fins"></div>
+              <span><i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            <p>Revisamos la secuencia completa porque una sola obstrucción puede alterar el flujo, el ruido y la forma en que la consola expulsa calor.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-liquid" id="pasta-termica-switch" aria-labelledby="thermal-title">
+        <div class="container ps5m-liquid-layout">
+          <div>
+            <span class="ps5m-eyebrow">Cambio y revisión de pasta térmica</span>
+            <h2 id="thermal-title">La pasta térmica se decide después de revisar ventilador y disipador</h2>
+            <p class="ps5m-intro">No cambiamos compuesto por rutina ni asumimos que toda Switch caliente tiene pasta degradada. Primero observamos el contacto térmico, la ventilación y el comportamiento real del equipo.</p>
+            <a class="ps5m-text-link" href={whatsappHref} target="_blank" rel="noopener noreferrer">Consultar mi caso <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+          <div class="ps5m-liquid-decisions">
+            <article>
+              <span>01 · Cuándo revisar</span>
+              <h3>Calor anormal acompañado de otros síntomas</h3>
+              <p>Ruido fuerte, flujo reducido, aviso de temperatura, congelamientos o apagados justifican una revisión técnica.</p>
+            </article>
+            <article>
+              <span>02 · Antes de cambiar</span>
+              <h3>Ventilador, disipador y ambiente</h3>
+              <p>Comprobamos suciedad, giro, rejillas, espacio alrededor, uso en dock y temperatura ambiental antes de tocar el compuesto.</p>
+            </article>
+            <article>
+              <span>03 · Si corresponde</span>
+              <h3>Renovación controlada del contacto térmico</h3>
+              <p>Cuando el estado lo justifica y el cliente lo autoriza, limpiamos la superficie y aplicamos el material adecuado al modelo.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section switchm-lag" aria-labelledby="lag-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div><span class="ps5m-eyebrow">Diagnóstico sin atajos</span><h2 id="lag-title">¿Tu Nintendo Switch tiene lag? Lag, congelamientos y bajo rendimiento no son lo mismo</h2></div>
+            <p>Usar la palabra “lag” no basta para vender una limpieza. Primero identificamos si el problema ocurre online, en un juego específico o junto con calor y ventilador anormal.</p>
+          </div>
+          <div class="switchm-lag-grid">
+            <article>
+              <span class="switchm-lag-number">01</span>
+              <i class="fa-solid fa-wifi" aria-hidden="true"></i>
+              <h3>Lag online</h3>
+              <p>Suele apuntar a conexión, señal Wi-Fi, interferencia o latencia. Una limpieza interna no corrige por sí sola una red lenta.</p>
+              <small>Revisar: red y conexión</small>
+            </article>
+            <article>
+              <span class="switchm-lag-number">02</span>
+              <i class="fa-solid fa-memory" aria-hidden="true"></i>
+              <h3>Congelamientos o trabas</h3>
+              <p>Pueden relacionarse con software, juego, microSD, almacenamiento o hardware. Se prueba antes de abrir.</p>
+              <small>Revisar: sistema y almacenamiento</small>
+            </article>
+            <article class="switchm-lag-card--thermal">
+              <span class="switchm-lag-number">03</span>
+              <i class="fa-solid fa-temperature-half" aria-hidden="true"></i>
+              <h3>Calor + ruido + apagados</h3>
+              <p>Cuando aparecen juntos, sí conviene revisar ventilador, disipador, pasta térmica y flujo de aire.</p>
+              <small>Revisar: sistema térmico</small>
+            </article>
+          </div>
+          <div class="ps5m-inline-cta switchm-inline-cta">
+            <div><strong>Cuéntanos exactamente cuándo ocurre.</strong><span>Indica juego, modo portátil o dock, si sucede online, cuánto tarda en aparecer y qué hace el ventilador.</span></div>
+            <a href="#ticket-switch">Diagnosticar mi Switch <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section switchm-normal-heat" aria-labelledby="normal-heat-title">
+        <div class="container switchm-normal-heat-layout">
+          <div>
+            <span class="ps5m-eyebrow">Temperatura sin alarmismo</span>
+            <h2 id="normal-heat-title">¿Es normal que una Nintendo Switch se caliente?</h2>
+            <p class="ps5m-intro">Una subida moderada de temperatura durante un juego, mientras carga o dentro del dock puede ser parte del funcionamiento. La diferencia está en los síntomas que acompañan el calor.</p>
+          </div>
+          <div class="switchm-temperature-scale">
+            <article>
+              <span class="switchm-temp-dot switchm-temp-dot--normal"></span>
+              <div><h3>Puede ser normal</h3><p>Calor moderado, ventilador estable, juego fluido y ausencia de avisos o apagados.</p></div>
+            </article>
+            <article>
+              <span class="switchm-temp-dot switchm-temp-dot--watch"></span>
+              <div><h3>Conviene observar</h3><p>Más ruido que antes, rejillas con polvo o calentamiento creciente durante sesiones largas.</p></div>
+            </article>
+            <article>
+              <span class="switchm-temp-dot switchm-temp-dot--stop"></span>
+              <div><h3>Detén el uso y solicita diagnóstico</h3><p>Aviso de temperatura, ventilador detenido, olor extraño, congelamientos o apagados.</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-models" id="modelos-switch" aria-labelledby="models-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div><span class="ps5m-eyebrow">Compatibilidad por arquitectura</span><h2 id="models-title">Nintendo Switch, OLED, Lite y Switch 2</h2></div>
+            <p>Identificamos modelo y revisión antes de abrir. El diseño, los conectores, las pruebas y el acceso cambian; por eso cada tarjeta explica un criterio diferente.</p>
+          </div>
+          <div class="ps5m-model-grid switchm-model-grid">
+            {models.map((item) => (
+              <article>
+                <div><span>{item.model}</span><small>{item.code}</small></div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+                <span class="ps5m-model-check"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> {item.check}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-price" id="precio-switch" aria-labelledby="price-title">
+        <div class="container ps5m-price-layout">
+          <div class="ps5m-price-card switchm-price-card">
+            <span class="ps5m-eyebrow">Precio sin sorpresas</span>
+            <h2 id="price-title">¿Cuánto cuesta el mantenimiento de Nintendo Switch en Cancún?</h2>
+            <div class="switchm-quote-value"><span>Cotización</span><strong>Según modelo y condición</strong></div>
+            <p>El precio se confirma antes de intervenir. Revisamos modelo, suciedad, ruido, antecedentes de apertura y si el compuesto térmico realmente necesita servicio. Las reparaciones y refacciones se cotizan por separado.</p>
+            <a class="ps5m-btn ps5m-btn--dark" href={whatsappHref} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar mi Nintendo Switch</a>
+          </div>
+          <div class="ps5m-price-details">
+            <article>
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              <div><h3>Alcance explicado antes de abrir</h3><p>Confirmamos qué incluye el mantenimiento y qué señales podrían requerir diagnóstico adicional.</p></div>
+            </article>
+            <article>
+              <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
+              <div><h3>Precio autorizado</h3><p>No instalamos piezas ni ampliamos el trabajo sin explicar costo, riesgo y garantía.</p></div>
+            </article>
+            <article>
+              <i class="fa-solid fa-clock" aria-hidden="true"></i>
+              <div><h3>Tiempo confirmado al recibir</h3><p>Depende del modelo, hora de entrega, condición interna y pruebas necesarias para validar estabilidad.</p></div>
+            </article>
+            <article>
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+              <div><h3>Garantía con alcance escrito</h3><p>Documentamos el mantenimiento realizado y las condiciones que aplican después de la entrega.</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-decision" aria-labelledby="decision-title">
+        <div class="container">
+          <div class="ps5m-heading">
+            <span class="ps5m-eyebrow">La ruta correcta para cada falla</span>
+            <h2 id="decision-title">Mantenimiento vs. reparación de Nintendo Switch</h2>
+            <p>Separar prevención de falla evita pagar una limpieza cuando el problema real está en USB-C, batería, pantalla, dock, lector o tarjeta.</p>
+          </div>
+          <div class="ps5m-decision-grid">
+            <article class="ps5m-decision-card ps5m-decision-card--maintenance">
+              <span><i class="fa-solid fa-broom" aria-hidden="true"></i> Probablemente mantenimiento</span>
+              <h3>La consola funciona, pero la ventilación muestra señales de acumulación</h3>
+              <ul>
+                <li>Polvo visible o rejillas obstruidas</li>
+                <li>Ventilador más ruidoso que antes</li>
+                <li>Flujo de aire reducido</li>
+                <li>Nunca se ha limpiado y tiene uso frecuente</li>
+                <li>Calor alto sin una falla eléctrica activa</li>
+              </ul>
+            </article>
+            <article class="ps5m-decision-card ps5m-decision-card--repair">
+              <span><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Puede requerir reparación</span>
+              <h3>Hay una falla activa en alimentación, imagen, control o componentes</h3>
+              <ul>
+                <li>No enciende o no carga por USB-C</li>
+                <li>Batería deformada o duración anormal</li>
+                <li>Pantalla, lector o dock sin funcionar</li>
+                <li>Ventilador detenido o dañado</li>
+                <li>Falla en Joy-Con, rieles o tarjeta</li>
+              </ul>
+            </article>
+          </div>
+          <div class="ps5m-inline-cta">
+            <div><strong>¿Tu Switch no carga, no prende o no da imagen?</strong><span>Esos síntomas necesitan diagnóstico correctivo. La página de reparación concentra USB-C, batería, pantalla, dock, lector y tarjeta.</span></div>
+            <a href="/servicios/consola/reparacion-nintendo-switch">Ver reparación de Nintendo Switch en Cancún <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-process" aria-labelledby="process-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div><span class="ps5m-eyebrow">Proceso técnico de principio a fin</span><h2 id="process-title">Así realizamos el mantenimiento de tu Nintendo Switch</h2></div>
+            <p>Cada paso reduce riesgos de flex dañados, tornillos fuera de lugar, diagnósticos apresurados o una entrega sin pruebas funcionales.</p>
+          </div>
+          <ol class="ps5m-process-list">
+            {process.map(([title, text], index) => (
+              <li><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3><p>{text}</p></li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section class="ps5m-section switchm-cases" aria-labelledby="cases-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div><span class="ps5m-eyebrow">Evidencia verificable</span><h2 id="cases-title">Trabajos reales de Nintendo Switch en Cancún</h2></div>
+            <p>El componente está preparado para publicar casos documentados. Mientras no haya fotografías y mediciones verificables, mostramos el método de evidencia que recibe cada equipo.</p>
+          </div>
+          <SwitchCaseStudies whatsappHref={whatsappHref} />
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-local" aria-labelledby="local-title">
+        <div class="container ps5m-local-layout">
+          <div>
+            <span class="ps5m-eyebrow">Servicio técnico local</span>
+            <h2 id="local-title">Mantenimiento Nintendo Switch en Cancún con atención en taller</h2>
+            <p>Atendemos consolas de uso personal, familiar, rentas vacacionales y negocios. El polvo fino, la humedad, el calor y los muebles cerrados pueden afectar la ventilación, pero el mantenimiento se recomienda según condición real.</p>
+            <address>
+              <strong>Pixon PC</strong>
+              <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+              <a href="tel:+529986690777"><i class="fa-solid fa-phone" aria-hidden="true"></i> +52 998 669 0777</a>
+              <a href="mailto:pixonpc@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> pixonpc@gmail.com</a>
+            </address>
+          </div>
+          <div class="ps5m-area-card">
+            <h3>Zonas de atención en Cancún</h3>
+            <div>{areas.map((area) => <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i>{area}</span>)}</div>
+            <p>Recolección o entrega sujetas a zona, horario y tipo de servicio. Confirma disponibilidad antes de mover la consola.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-related" aria-labelledby="related-title">
+        <div class="container">
+          <div class="ps5m-heading"><span class="ps5m-eyebrow">Arquitectura Nintendo Switch</span><h2 id="related-title">Continúa según el síntoma de tu consola</h2><p>Mantenimiento, reparación y controles conservan intenciones separadas para llevarte al diagnóstico correcto.</p></div>
+          <div class="ps5m-related-grid">
+            {relatedGuides.map((item) => (
+              <a href={item.href}><h3>{item.label}</h3><p>{item.text}</p><span>Ver servicio <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <FaqSection
+        id="preguntas-switch"
+        title="Preguntas frecuentes sobre mantenimiento Nintendo Switch en Cancún"
+        description="Respuestas claras sobre limpieza, temperatura, ventilador, pasta térmica, lag, modelos, cotización, tiempos y garantía."
+        items={faqItems}
+        ariaLabel="Preguntas frecuentes sobre mantenimiento Nintendo Switch en Cancún"
+        backgroundColor="#F4F7FB"
+        questionColor="#071F3A"
+        titleColor="#071F3A"
+        descriptionColor="#071F3A"
+        itemGap="9px"
+        questionPadding="17px 19px"
+      />
+
+      <ServiceTicketSection
+        id="ticket-switch"
+        defaultDevice="Nintendo Switch"
+        defaultService="Mantenimiento Nintendo Switch en Cancún"
+        sourcePage={canonicalPath}
+        title="Crear ticket para mantenimiento de Nintendo Switch"
+        subtitle="Indica si es Switch estándar, OLED, Lite o Switch 2; describe el calor, ruido, traba o apagado y si ocurre en modo portátil o dock."
+      />
+
+      <CommentsSection
+        id="comentarios-switch"
+        dark={false}
+        title="Experiencias de clientes de Pixon PC"
+        description="Consulta reseñas del taller o comparte cómo fue la atención de tu consola."
+        viewMoreHref="/comentarios"
+        viewMoreLabel="Ver todas las reseñas"
+      />
+      <ContactSection id="ubicacion-switch" />
+    </main>
+  </div>
+  <Footer />
+</Base>

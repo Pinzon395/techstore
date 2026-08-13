@@ -1,0 +1,112 @@
+---
+import Base from '../../layouts/Base.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import CartDrawer from '../../components/store/CartDrawer.astro';
+import storeCss from '../../styles/store.css?url';
+import { getPublishedCommerceItems } from '../../lib/commerce-build';
+
+export async function getStaticPaths() {
+  const items = await getPublishedCommerceItems();
+  return items.map((item) => ({
+    params: { slug: item.slug },
+    props: {
+      item,
+      complements: items.filter((candidate) => candidate.item_type === 'SERVICE' && candidate.status === 'ACTIVE' && candidate.allow_purchase && candidate.id !== item.id).slice(0, 3),
+      similar: items.filter((candidate) => candidate.item_type === item.item_type && candidate.status === 'ACTIVE' && candidate.allow_purchase && (!candidate.track_stock || Number(candidate.stock_quantity) > Number(candidate.reserved_quantity)) && candidate.id !== item.id).slice(0, 4),
+    },
+  }));
+}
+
+const { item, complements = [], similar = [] } = Astro.props as any;
+const currentPrice = String(item.sale_price ?? item.base_price);
+const hasSale = item.sale_price != null && Number(item.sale_price) < Number(item.base_price);
+const available = item.status === 'ACTIVE' && Boolean(item.allow_purchase) && (!item.track_stock || Number(item.stock_quantity) > Number(item.reserved_quantity));
+const sold = item.status === 'SOLD';
+const image = item.image_url || '/assets/images/tienda-hero-pixon.webp';
+const canonical = item.seo_canonical_url || `https://pixon.com.mx/tienda/${item.slug}`;
+const title = item.seo_title || `${item.name} en Cancún | Pixon PC`;
+const description = item.seo_description || item.short_description || `${item.name} disponible en Pixon PC Cancún. Consulta condición, garantía y disponibilidad real.`;
+const money = (value: any) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: item.currency || 'MXN' }).format(Number(value || 0));
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': item.item_type === 'SERVICE' ? 'Service' : 'Product',
+  name: item.name,
+  description,
+  image: image.startsWith('http') ? image : `https://pixon.com.mx${image}`,
+  sku: item.sku || undefined,
+  brand: item.brand ? { '@type': 'Brand', name: item.brand } : undefined,
+  offers: {
+    '@type': 'Offer',
+    url: canonical,
+    priceCurrency: item.currency,
+    price: currentPrice,
+    availability: available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    itemCondition: item.condition_code === 'NEW' ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition',
+    seller: { '@id': 'https://pixon.com.mx/#business' },
+  },
+};
+---
+
+<Base title={title} description={description} canonical={canonical} image={image} schema={[productSchema]} extraStyles={[storeCss]} preloadSprite={true}>
+  <Navbar />
+  <main class="store-page store-detail-page">
+    <div class="store-shell"><Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Tienda', href: '/tienda' }, { label: item.name }]} /></div>
+    <section class:list={["product-detail", sold && "is-sold"]} aria-labelledby="product-title">
+      <div class="store-shell product-detail-grid">
+        <div class="product-gallery">
+          <div class="product-main-image">
+            <img src={image} alt={item.media?.[0]?.alt_text || item.name} width="900" height="700" fetchpriority="high" decoding="async" />
+            {sold && <span class="product-sold-stamp">VENDIDO</span>}
+          </div>
+          {item.media?.length > 1 && <div class="product-thumbnails" aria-label="Galería del producto">
+            {item.media.map((media: any, index: number) => <button type="button" class:list={[index === 0 && 'is-active']} data-product-image={media.url} data-product-alt={media.alt_text || item.name}><img src={media.url} alt="" width="96" height="72" loading="lazy" /></button>)}
+          </div>}
+        </div>
+        <div class="product-buy-panel">
+          <div class="product-badges">
+            {item.badges?.map((badge: any) => <span>{badge.label}</span>)}
+            <span>{item.condition_code === 'NEW' ? 'Nuevo' : item.condition_code === 'REFURBISHED' ? 'Reacondicionado' : item.condition_code === 'USED' ? 'Usado' : 'Pixon PC'}</span>
+          </div>
+          <h1 id="product-title">{item.name} en Cancún</h1>
+          <p class="product-lead">{item.short_description}</p>
+          <div class="product-price-block">
+            {hasSale && <del>{money(item.base_price)}</del>}
+            <strong>{money(currentPrice)}</strong>
+            {hasSale && <span>Ahorras {money(Number(item.base_price) - Number(currentPrice))}</span>}
+          </div>
+          <dl class="product-quick-facts">
+            <div><dt>Disponibilidad</dt><dd>{sold ? 'Vendido' : available ? 'Disponible' : 'No disponible'}</dd></div>
+            <div><dt>Condición</dt><dd>{item.condition_code?.replaceAll('_', ' ')}</dd></div>
+            <div><dt>Garantía</dt><dd>{item.warranty_text || 'Consulta cobertura según el artículo'}</dd></div>
+          </dl>
+          {sold ? (
+            <div class="product-sold-message"><h2>Esta oferta ya encontró dueño.</h2><p>La publicación permanece visible como referencia real. Revisa equipos disponibles o solicita uno similar.</p><a class="store-action store-action-primary" href="/tienda">Ver equipos disponibles</a></div>
+          ) : (
+            <div class="product-buy-actions">
+              <button class="store-action store-action-primary" type="button" data-add-to-cart data-item-id={item.id} data-item-slug={item.slug} data-item-name={item.name} data-item-price={currentPrice} data-item-currency={item.currency} data-item-image={image} disabled={!available}>{available ? 'Agregar al carrito' : 'No disponible'}</button>
+              <a class="store-action store-action-secondary" href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola Pixon PC, quiero consultar ${item.name} (${item.slug}).`)}`} target="_blank" rel="noopener noreferrer">Consultar antes de comprar</a>
+            </div>
+          )}
+          <ul class="product-trust-list"><li>Precio y stock revalidados al confirmar</li><li>Atención local de Pixon PC en Cancún</li><li>Garantía documentada cuando corresponda</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="store-shell product-information" aria-labelledby="product-specs-title">
+      <article><h2 id="product-specs-title">Especificaciones y estado</h2><p>{item.description || item.short_description}</p>
+        {item.attributes?.length ? <dl class="product-spec-table">{item.attributes.map((attribute: any) => <div><dt>{attribute.label}</dt><dd>{typeof attribute.value === 'object' ? JSON.stringify(attribute.value) : String(attribute.value ?? '')}{attribute.unit ? ` ${attribute.unit}` : ''}</dd></div>)}</dl> : <p>Solicita la ficha completa si necesitas validar compatibilidad o detalles técnicos.</p>}
+      </article>
+      <aside><h2>Qué incluye</h2><p>La entrega incluye únicamente lo descrito en esta publicación. Confirma accesorios, instalación y alcance del servicio antes de pagar.</p><a href="/tickets">Crear ticket de consulta</a></aside>
+    </section>
+
+    {complements.length > 0 && !sold && <section class="store-shell product-complements" aria-labelledby="complements-title"><header><h2 id="complements-title">Servicios complementarios</h2><p>Agrega soporte profesional; el total definitivo se valida en checkout.</p></header><div class="product-complement-grid">{complements.map((service: any) => <label><input type="checkbox" data-complement-id={service.id} data-complement-slug={service.slug} data-complement-name={service.name} data-complement-price={service.sale_price ?? service.base_price} data-complement-currency={service.currency} /><span><strong>{service.name}</strong><small>{money(service.sale_price ?? service.base_price)}</small></span></label>)}</div><p class="product-complement-total">Total visual: <strong id="product-visual-total">{money(currentPrice)}</strong></p></section>}
+
+    {similar.length > 0 && <section class="store-shell product-similar" aria-labelledby="similar-title"><header><h2 id="similar-title">Alternativas disponibles</h2><a href="/tienda">Ver todo el catálogo →</a></header><div class="home-store-grid">{similar.map((candidate: any) => <article class="home-store-card"><a class="home-store-card-media" href={`/tienda/${candidate.slug}`}><img src={candidate.image_url || '/assets/images/tienda-hero-pixon.webp'} alt={candidate.name} width="420" height="300" loading="lazy" /></a><div class="home-store-card-body"><h3><a href={`/tienda/${candidate.slug}`}>{candidate.name}</a></h3><strong>{money(candidate.sale_price ?? candidate.base_price)}</strong></div></article>)}</div></section>}
+  </main>
+  <CartDrawer />
+  <Footer />
+  <script src="/scripts/store-cart.js?v=20260812-1" is:inline defer></script>
+  <script src="/scripts/store-product.js?v=20260812-1" is:inline defer></script>
+</Base>

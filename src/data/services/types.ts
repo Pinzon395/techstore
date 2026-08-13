@@ -46,6 +46,8 @@ export interface ServiceItem {
   faqs?: { question: string; answer: string }[];
   /** Slugs de servicios relacionados de la MISMA categoría a destacar */
   relatedSlugs?: string[];
+  /** Texto breve para la tarjeta de servicio relacionado. */
+  relatedCardDesc?: string;
   /** Links externos a otras vistas relacionadas (paquetes, FAQ general, etc.) */
   relatedExternal?: { label: string; href: string; icon: string; desc: string }[];
   /** Titulo especifico para la seccion de servicios relacionados */

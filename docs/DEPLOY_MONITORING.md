@@ -14,9 +14,10 @@
 
 En produccion no deben correr migraciones runtime de forma silenciosa.
 
-- Recomendado: ejecutar scripts SQL controlados y respaldar antes.
-- Temporal: usar `ALLOW_RUNTIME_MIGRATIONS=true` solo durante una ventana de mantenimiento.
-- Despues de migrar, volver a `ALLOW_RUNTIME_MIGRATIONS=false`.
+- Ejecutar `npm run db:migrate:plan` durante la revision del despliegue.
+- Crear y verificar un backup cifrado antes de aplicar.
+- Ejecutar `npm run db:migrate -- --backup RUTA` en una ventana de mantenimiento.
+- Cerrar con `npm run db:migrate:verify`.
 
 Antes de cualquier cambio de base de datos:
 
@@ -24,6 +25,8 @@ Antes de cualquier cambio de base de datos:
 - Verificar que el backup abre.
 - Probar la migracion en local/staging.
 - Documentar rollback.
+
+El procedimiento detallado, incluidos checksum, advisory lock y tratamiento de DDL parcial, esta en `docs/DATABASE_MIGRATIONS_AND_BACKUPS.md`.
 
 ## Arranque
 
@@ -71,4 +74,3 @@ No inventar IDs de herramientas externas. Cuando exista GA4/Search Console real,
 4. Ejecutar `npm run build`.
 5. Reiniciar servidor.
 6. Confirmar `/api/health`, Home, Servicios, Contacto y Admin.
-

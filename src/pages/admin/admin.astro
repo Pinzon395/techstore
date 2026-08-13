@@ -6,6 +6,9 @@
  * - body sin .light-theme (sin preload sprite, ya que el admin no lo usa)
  */
 import Base from '../../layouts/Base.astro';
+import CommerceHubView from '../../components/admin/CommerceHubView.astro';
+import CommerceCatalogView from '../../components/admin/CommerceCatalogView.astro';
+import CommerceOperationsView from '../../components/admin/CommerceOperationsView.astro';
 import '../../styles/admin.css';
 ---
 
@@ -50,6 +53,17 @@ import '../../styles/admin.css';
             <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-screwdriver-wrench" /></svg>
             <span class="nav-link-label">Taller (Tickets)</span>
           </button>
+          <button class="nav-link" type="button" data-view="commerce" title="Commerce" aria-controls="view-commerce">
+            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-cart-shopping" /></svg>
+            <span class="nav-link-label">Commerce</span>
+          </button>
+          <button class="nav-link" type="button" data-view="commerce-store" title="Tienda" aria-controls="view-commerce-store"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-store" /></svg><span class="nav-link-label">Tienda</span></button>
+          <button class="nav-link" type="button" data-view="commerce-dashboard" title="Ventas" aria-controls="view-commerce-dashboard"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-chart-line" /></svg><span class="nav-link-label">Ventas</span></button>
+          <button class="nav-link" type="button" data-view="commerce-orders" title="Pedidos" aria-controls="view-commerce-orders"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bag-shopping" /></svg><span class="nav-link-label">Pedidos</span><span class="badge warn" id="nav-badge-orders" style="display:none;">0</span></button>
+          <button class="nav-link" type="button" data-view="commerce-payments" title="Pagos" aria-controls="view-commerce-payments"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg><span class="nav-link-label">Pagos</span></button>
+          <button class="nav-link" type="button" data-view="commerce-inventory" title="Inventario" aria-controls="view-commerce-inventory"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-boxes-stacked" /></svg><span class="nav-link-label">Inventario</span></button>
+          <button class="nav-link" type="button" data-view="commerce-promotions" title="Promociones" aria-controls="view-commerce-promotions"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-tags" /></svg><span class="nav-link-label">Promociones</span></button>
+          <button class="nav-link" type="button" data-view="commerce-settings" title="Métodos de pago" aria-controls="view-commerce-settings"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg><span class="nav-link-label">Métodos de pago</span></button>
           <button class="nav-link" type="button" data-view="builds" title="Ensambles" aria-controls="view-builds">
             <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-microchip" /></svg>
             <span class="nav-link-label">Ensambles</span>
@@ -430,6 +444,10 @@ import '../../styles/admin.css';
           </div>
         </section>
 
+        <CommerceHubView />
+        <CommerceCatalogView />
+        <CommerceOperationsView />
+
         <!-- ═══ VISTA ENSAMBLES (BUILDS) ═══ -->
         <section id="view-builds" class="admin-section" style="display:none;">
           <div class="admin-section-header">
@@ -764,18 +782,43 @@ import '../../styles/admin.css';
       const VIEW_TITLES = {
         dashboard: { title: 'Dashboard',            sub: 'Revisa, aprueba y gestiona tu plataforma.' },
         repairs:   { title: 'Taller (Tickets)',     sub: 'Tickets de reparación activos y completados.' },
+        commerce:  { title: 'Commerce',             sub: 'Centro de operaciones comerciales de Pixon PC.' },
+        'commerce-store': { title: 'Tienda',        sub: 'Catálogo central, publicación y contenido comercial.' },
+        'commerce-dashboard': { title: 'Ventas', sub: 'Métricas comerciales y actividad confirmada.' },
+        'commerce-orders': { title: 'Pedidos', sub: 'Pagos, seguimiento y estados de pedidos.' },
+        'commerce-payments': { title: 'Pagos', sub: 'Comprobantes pendientes, revisados y rechazados.' },
+        'commerce-inventory': { title: 'Inventario', sub: 'Existencias, reservas y movimientos.' },
+        'commerce-promotions': { title: 'Promociones', sub: 'Descuentos activos, programados y finalizados.' },
+        'commerce-settings': { title: 'Métodos de pago', sub: 'Configuración bancaria y opciones de cobro.' },
         builds:    { title: 'Ensambles',            sub: 'Catálogo de ensambles y paquetes ofertados.' },
         comments:  { title: 'Comentarios',          sub: 'Modera reseñas pendientes y aprobadas.' },
         users:     { title: 'Usuarios',             sub: 'Lista de usuarios registrados y roles.' },
         faqs:      { title: 'Preguntas Frecuentes', sub: 'Gestiona FAQs y revisa búsquedas sin respuesta.' },
       };
 
-      function switchView(view) {
+      const COMMERCE_ROUTES = {
+        commerce: '/admin/commerce',
+        'commerce-store': '/admin/commerce/store',
+        'commerce-dashboard': '/admin/commerce/sales',
+        'commerce-orders': '/admin/commerce/orders',
+        'commerce-payments': '/admin/commerce/payments',
+        'commerce-inventory': '/admin/commerce/inventory',
+        'commerce-promotions': '/admin/commerce/promotions',
+        'commerce-settings': '/admin/commerce/payment-methods',
+      };
+      const ROUTE_VIEWS = Object.fromEntries(Object.entries(COMMERCE_ROUTES).map(([view, path]) => [path, view]));
+
+      function switchView(view, options = {}) {
+        if (!VIEW_TITLES[view]) return;
         document.querySelectorAll('.nav-link[data-view]').forEach(l => {
           const isActive = l.dataset.view === view;
           l.classList.toggle('active', isActive);
           if (isActive) l.setAttribute('aria-current', 'page');
           else l.removeAttribute('aria-current');
+        });
+        document.querySelectorAll('.commerce-module-card[data-view-target]').forEach(card => {
+          if (card.dataset.viewTarget === view) card.setAttribute('aria-current', 'page');
+          else card.removeAttribute('aria-current');
         });
         document.querySelectorAll('.admin-section').forEach(s => {
           s.style.display = (s.id === 'view-' + view) ? '' : 'none';
@@ -787,7 +830,11 @@ import '../../styles/admin.css';
         }
         if (window.innerWidth < 1024) shell.classList.remove('sb-open');
         try { sessionStorage.setItem('admin_view', view); } catch (_) {}
-        if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view);
+        const nextUrl = COMMERCE_ROUTES[view] || ('/admin#' + view);
+        if (location.pathname + location.hash !== nextUrl) {
+          const method = options.replace ? 'replaceState' : 'pushState';
+          history[method]({ adminView: view }, '', nextUrl);
+        }
         window.dispatchEvent(new CustomEvent('admin:switch-view', { detail: { view } }));
       }
 
@@ -799,7 +846,8 @@ import '../../styles/admin.css';
       });
 
       document.querySelectorAll('[data-view-target]').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
           switchView(button.dataset.viewTarget);
           if (button.hasAttribute('data-open-repair')) {
             window.setTimeout(() => window.openRepairModal?.(), 0);
@@ -809,11 +857,18 @@ import '../../styles/admin.css';
 
       // Restaurar última vista
       try {
+        const routeView = ROUTE_VIEWS[location.pathname.replace(/\/$/, '') || '/admin'];
         const hashView = location.hash.slice(1);
         const saved = sessionStorage.getItem('admin_view');
-        if (VIEW_TITLES[hashView]) switchView(hashView);
-        else if (saved && VIEW_TITLES[saved]) switchView(saved);
+        if (routeView) switchView(routeView, { replace: true });
+        else if (VIEW_TITLES[hashView]) switchView(hashView, { replace: true });
+        else if (saved && VIEW_TITLES[saved]) switchView(saved, { replace: true });
       } catch (_) {}
+
+      window.addEventListener('popstate', () => {
+        const view = ROUTE_VIEWS[location.pathname.replace(/\/$/, '')] || location.hash.slice(1) || 'dashboard';
+        switchView(VIEW_TITLES[view] ? view : 'dashboard', { replace: true });
+      });
 
       // Mobile toggle
       mobileToggle?.addEventListener('click', (e) => {
@@ -1022,5 +1077,7 @@ import '../../styles/admin.css';
 
   <script src="/scripts/ticket-options.js" is:inline defer></script>
   <script src="/scripts/admin.js?v=20260525-admin-session-1" is:inline defer></script>
+  <script src="/scripts/admin-commerce.js?v=20260812-5" is:inline defer></script>
+  <script src="/scripts/admin-marketplace.js?v=20260812-1" is:inline defer></script>
   <script src="/scripts/user-menu.js?v=20260525-admin-link-1" is:inline defer></script>
 </Base>

@@ -12,6 +12,9 @@ const PUBLIC_XSL = path.join(ROOT, 'public', 'sitemap.xsl');
 const BLOCKED_PREFIXES = [
   '/admin',
   '/cuenta',
+  '/carrito',
+  '/checkout',
+  '/pedido',
 ];
 
 const BLOCKED_PATHS = new Set([

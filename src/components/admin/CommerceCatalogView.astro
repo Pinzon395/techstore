@@ -1,0 +1,323 @@
+---
+import '../../styles/admin-commerce.css';
+---
+
+<section id="view-commerce-store" class="admin-section commerce-admin" style="display:none;" aria-labelledby="commerce-heading">
+  <a class="commerce-back-link" href="/admin/commerce" data-view-target="commerce"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Commerce</a>
+  <div class="commerce-command">
+    <div>
+      <p class="commerce-kicker">Motor comercial central</p>
+      <h2 id="commerce-heading">Tienda y catálogo</h2>
+      <p>Publica equipos, hardware, productos, servicios y paquetes sin modificar código.</p>
+    </div>
+    <div class="commerce-command-actions">
+      <a class="commerce-button commerce-button-secondary" href="/tienda" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        Ver tienda
+      </a>
+      <button class="commerce-button commerce-button-secondary" id="commerce-open-settings" type="button">
+        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+        Configurar catálogo
+      </button>
+      <button class="commerce-button commerce-button-primary" id="commerce-create-item" type="button">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        Crear publicación
+      </button>
+    </div>
+  </div>
+
+  <div class="commerce-metrics" aria-label="Resumen del catálogo">
+    <article>
+      <span>Total</span>
+      <strong id="commerce-metric-total">—</strong>
+      <small>Publicaciones sin eliminar</small>
+    </article>
+    <article>
+      <span>Publicadas</span>
+      <strong id="commerce-metric-active">—</strong>
+      <small>Visibles en la tienda</small>
+    </article>
+    <article>
+      <span>Borradores</span>
+      <strong id="commerce-metric-draft">—</strong>
+      <small>Pendientes de publicar</small>
+    </article>
+    <article>
+      <span>Sin disponibilidad</span>
+      <strong id="commerce-metric-unavailable">—</strong>
+      <small>Agotados, reservados o vendidos</small>
+    </article>
+  </div>
+
+  <div class="commerce-panel">
+    <div class="commerce-panel-head">
+      <div>
+        <h3>Publicaciones</h3>
+        <p id="commerce-list-summary" aria-live="polite">Preparando catálogo…</p>
+      </div>
+      <button class="commerce-icon-button" id="commerce-refresh" type="button" aria-label="Actualizar publicaciones" title="Actualizar">
+        <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <form class="commerce-filters" id="commerce-filters" role="search" novalidate>
+      <label class="commerce-search">
+        <span>Buscar</span>
+        <input id="commerce-search" name="q" type="search" maxlength="120" autocomplete="off" placeholder="Nombre, SKU o marca" />
+      </label>
+      <label>
+        <span>Tipo</span>
+        <select id="commerce-filter-type" name="type">
+          <option value="">Todos</option>
+          <option value="EQUIPMENT">Equipos</option>
+          <option value="HARDWARE">Hardware</option>
+          <option value="PRODUCT">Productos</option>
+          <option value="SERVICE">Servicios</option>
+          <option value="BUNDLE">Paquetes</option>
+        </select>
+      </label>
+      <label>
+        <span>Producto</span>
+        <select id="commerce-filter-kind" name="productKind"><option value="">Todos</option></select>
+      </label>
+      <label>
+        <span>Estado</span>
+        <select id="commerce-filter-status" name="status">
+          <option value="">Todos</option>
+          <option value="DRAFT">Borrador</option>
+          <option value="ACTIVE">Publicado</option>
+          <option value="RESERVED">Reservado</option>
+          <option value="SOLD">Vendido</option>
+          <option value="OUT_OF_STOCK">Agotado</option>
+          <option value="HIDDEN">Oculto</option>
+          <option value="ARCHIVED">Archivado</option>
+        </select>
+      </label>
+      <label>
+        <span>Categoría</span>
+        <select id="commerce-filter-category" name="category">
+          <option value="">Todas</option>
+        </select>
+      </label>
+      <label><span>Marca</span><input id="commerce-filter-brand" name="brand" maxlength="100" placeholder="Todas" /></label>
+      <label><span>Disponibilidad</span><select id="commerce-filter-availability" name="availability"><option value="">Todas</option><option value="AVAILABLE">Disponible</option><option value="LOW_STOCK">Stock bajo</option><option value="OUT_OF_STOCK">Sin stock</option><option value="RESERVED">Reservado</option><option value="SOLD">Vendido</option></select></label>
+      <label><span>Precio mínimo</span><input id="commerce-filter-min-price" name="minPrice" type="number" min="0" step="0.01" /></label>
+      <label><span>Precio máximo</span><input id="commerce-filter-max-price" name="maxPrice" type="number" min="0" step="0.01" /></label>
+      <label><span>Ordenar</span><select id="commerce-filter-sort" name="sort"><option value="newest">Más recientes</option><option value="oldest">Más antiguos</option><option value="name">Nombre</option><option value="price_asc">Menor precio</option><option value="price_desc">Mayor precio</option><option value="stock_asc">Menor stock</option><option value="stock_desc">Mayor stock</option></select></label>
+      <button class="commerce-button commerce-button-secondary" id="commerce-clear-filters" type="button">Limpiar</button>
+    </form>
+
+    <div class="commerce-table-wrap">
+      <table class="commerce-table">
+        <thead>
+          <tr>
+            <th scope="col">Publicación</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Existencia</th>
+            <th scope="col">Estado</th>
+            <th scope="col"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody id="commerce-items-body">
+          <tr><td colspan="6" class="commerce-table-state">Cargando publicaciones…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="commerce-mobile-list" id="commerce-mobile-list" aria-live="polite"></div>
+
+    <nav class="commerce-pagination" id="commerce-pagination" aria-label="Paginación del catálogo" hidden>
+      <button type="button" id="commerce-page-prev"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Anterior</button>
+      <span id="commerce-page-label">Página 1</span>
+      <button type="button" id="commerce-page-next">Siguiente <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+    </nav>
+  </div>
+
+  <div class="commerce-notice" id="commerce-notice" role="status" aria-live="polite" hidden></div>
+
+  <div class="commerce-modal" id="commerce-item-modal" hidden>
+    <div class="commerce-modal-backdrop" data-commerce-close="item"></div>
+    <section class="commerce-modal-card commerce-modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="commerce-item-modal-title">
+      <header class="commerce-modal-head">
+        <div>
+          <p class="commerce-kicker" id="commerce-item-mode">Nueva publicación</p>
+          <h2 id="commerce-item-modal-title">¿Qué deseas publicar?</h2>
+        </div>
+        <button class="commerce-icon-button" type="button" data-commerce-close="item" aria-label="Cerrar formulario"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </header>
+
+      <ol class="commerce-steps" aria-label="Pasos de la publicación">
+        <li class="is-active" data-commerce-step-indicator="1"><span>1</span> Tipo</li>
+        <li data-commerce-step-indicator="2"><span>2</span> Información</li>
+        <li data-commerce-step-indicator="3"><span>3</span> Precio</li>
+        <li data-commerce-step-indicator="4"><span>4</span> Inventario</li>
+        <li data-commerce-step-indicator="5"><span>5</span> Multimedia</li>
+        <li data-commerce-step-indicator="6"><span>6</span> Preview</li>
+      </ol>
+
+      <form id="commerce-item-form" novalidate>
+        <input type="hidden" id="commerce-item-id" name="id" />
+        <input type="hidden" id="commerce-item-version" name="version" />
+        <input type="hidden" id="commerce-item-type" name="item_type" />
+        <input type="hidden" id="commerce-product-kind-code" name="product_kind_code" />
+
+        <div class="commerce-form-step is-active" data-commerce-step="1">
+          <div class="commerce-kind-selector">
+            <label><span>Tipo de producto *</span><select id="commerce-product-kind" required disabled><option value="">Cargando tipos de producto…</option></select></label>
+            <div id="commerce-product-kind-options" class="commerce-kind-options" role="listbox" aria-label="Tipos de producto disponibles"></div>
+            <p id="commerce-kind-description">El formulario mostrará únicamente las especificaciones relacionadas con el producto.</p>
+          </div>
+          <p class="commerce-field-error" id="commerce-type-error" hidden>Selecciona un tipo para continuar.</p>
+        </div>
+
+        <div class="commerce-form-step" data-commerce-step="2" hidden>
+          <div class="commerce-form-grid">
+            <label class="commerce-span-2"><span>Nombre *</span><input id="commerce-name" name="name" maxlength="180" required /></label>
+            <label><span>SKU</span><input id="commerce-sku" name="sku" maxlength="64" placeholder="PIX-LAP-001" /></label>
+            <label><span>Código interno</span><input id="commerce-internal-code" name="internal_code" maxlength="64" placeholder="ALM-0001" /></label>
+            <label><span>Marca</span><input id="commerce-brand" name="brand" maxlength="100" /></label>
+            <label><span>Modelo</span><input id="commerce-model" name="model" maxlength="120" /></label>
+            <label class="commerce-span-2"><span>Descripción corta</span><textarea id="commerce-short-description" name="short_description" maxlength="320" rows="2"></textarea></label>
+            <label class="commerce-span-2"><span>Descripción completa</span><textarea id="commerce-description" name="description" maxlength="20000" rows="5"></textarea></label>
+            <label><span>Condición</span><select id="commerce-condition" name="condition_code"><option value="NOT_APPLICABLE">No aplica</option><option value="NEW">Nuevo</option><option value="USED">Usado</option><option value="REFURBISHED">Reacondicionado</option><option value="OPEN_BOX">Caja abierta</option><option value="FOR_PARTS">Para refacciones</option></select></label>
+            <label><span>Moneda</span><select id="commerce-currency" name="currency"><option value="MXN">MXN</option><option value="USD">USD</option></select></label>
+            <label><span>IVA aplicable</span><input id="commerce-tax-rate" name="tax_rate" type="number" min="0" max="100" step="0.01" value="0" /></label>
+            <label><span>Garantía</span><input id="commerce-warranty" name="warranty_text" maxlength="500" /></label>
+          </div>
+          <div class="commerce-relation-grid">
+            <fieldset>
+              <legend>Categorías *</legend>
+              <p>La primera selección se utilizará como categoría principal.</p>
+              <div class="commerce-check-list" id="commerce-category-options"></div>
+            </fieldset>
+            <fieldset>
+              <legend>Etiquetas visuales</legend>
+              <p>Se muestran solo si están activas y asignadas.</p>
+              <div class="commerce-check-list" id="commerce-badge-options"></div>
+            </fieldset>
+          </div>
+          <fieldset class="commerce-attributes-fieldset">
+            <legend>Especificaciones dinámicas</legend>
+            <p>Completa únicamente los atributos que correspondan a esta publicación.</p>
+            <div class="commerce-attribute-grid" id="commerce-attribute-fields"></div>
+          </fieldset>
+        </div>
+
+        <div class="commerce-form-step" data-commerce-step="3" hidden>
+          <div class="commerce-form-grid">
+            <label><span>Precio normal *</span><input id="commerce-base-price" name="base_price" type="number" min="0" step="0.01" required /></label>
+            <label><span>Precio promocional</span><input id="commerce-sale-price" name="sale_price" type="number" min="0" step="0.01" /></label>
+            <label><span>Costo de referencia</span><input id="commerce-cost" name="cost_reference" type="number" min="0" step="0.01" /><small>Solo administración.</small></label>
+          </div>
+          <aside class="commerce-profit-preview" id="commerce-profit-preview" aria-live="polite">
+            <div><span>Costo real</span><strong id="commerce-profit-cost">—</strong></div>
+            <div><span>Venta</span><strong id="commerce-profit-sale">—</strong></div>
+            <div><span>Ganancia</span><strong id="commerce-profit-amount">—</strong></div>
+            <div><span>Margen</span><strong id="commerce-profit-margin">—</strong></div>
+          </aside>
+        </div>
+
+        <div class="commerce-form-step" data-commerce-step="4" hidden>
+          <fieldset class="commerce-switches">
+            <legend>Disponibilidad</legend>
+            <label><input id="commerce-track-stock" name="track_stock" type="checkbox" checked /> Controlar inventario</label>
+            <label><input id="commerce-allow-purchase" name="allow_purchase" type="checkbox" checked /> Permitir compra cuando el checkout esté activo</label>
+            <label><input id="commerce-allow-quote" name="allow_quote" type="checkbox" checked /> Permitir cotización</label>
+            <label><input id="commerce-featured" name="featured" type="checkbox" /> Destacar en tienda</label>
+          </fieldset>
+          <div class="commerce-form-grid commerce-stock-fields" id="commerce-stock-fields">
+            <label><span>Existencia</span><input id="commerce-stock" name="stock_quantity" type="number" min="0" step="1" value="0" /></label>
+            <label><span>Stock mínimo</span><input id="commerce-minimum-stock" name="minimum_stock" type="number" min="0" step="1" value="0" /></label>
+            <label><span>Ubicación física</span><input id="commerce-location" name="physical_location" maxlength="120" placeholder="Almacén / anaquel" /></label>
+            <label><span>Proveedor</span><input id="commerce-supplier" name="supplier_name" maxlength="180" /></label>
+          </div>
+          <fieldset class="commerce-bundle-builder" id="commerce-bundle-builder" hidden>
+            <legend>Composición del paquete</legend>
+            <p>Agrega productos, hardware o servicios. Las cantidades y el precio quedan validados por el servidor.</p>
+            <div class="commerce-bundle-add"><select id="commerce-bundle-component"><option value="">Selecciona un componente</option></select><input id="commerce-bundle-quantity" type="number" min="1" max="100" value="1" aria-label="Cantidad del componente" /><button class="commerce-button commerce-button-secondary" id="commerce-bundle-add" type="button">Agregar</button></div>
+            <div class="commerce-bundle-list" id="commerce-bundle-list"></div>
+            <div class="commerce-bundle-summary"><span>Precio normal calculado <strong id="commerce-bundle-normal">$0.00</strong></span><span>Precio paquete <strong id="commerce-bundle-price">$0.00</strong></span><span>Ahorro <strong id="commerce-bundle-saving">$0.00</strong></span></div>
+          </fieldset>
+        </div>
+
+        <div class="commerce-form-step" data-commerce-step="5" hidden>
+          <div class="commerce-upload-zone">
+            <i class="fa-solid fa-images" aria-hidden="true"></i>
+            <div><strong>Galería de imágenes</strong><p>JPEG, PNG o WebP. Máximo 8 MB por archivo.</p></div>
+            <label class="commerce-button commerce-button-secondary" for="commerce-media">Seleccionar</label>
+            <input id="commerce-media" type="file" accept="image/jpeg,image/png,image/webp" multiple />
+          </div>
+          <ul class="commerce-file-list" id="commerce-file-list"></ul>
+          <div class="commerce-existing-media" id="commerce-existing-media"></div>
+          <div class="commerce-form-grid">
+            <label class="commerce-span-2"><span>Título SEO</span><input id="commerce-seo-title" name="seo_title" maxlength="180" /></label>
+            <label class="commerce-span-2"><span>Descripción SEO</span><textarea id="commerce-seo-description" name="seo_description" maxlength="320" rows="3"></textarea></label>
+            <label class="commerce-span-2"><span>Palabras clave</span><input id="commerce-seo-keywords" name="seo_keywords" maxlength="500" /></label>
+            <label class="commerce-span-2"><span>Video opcional (HTTPS)</span><input id="commerce-video-url" name="video_url" type="url" maxlength="512" /></label>
+            <label class="commerce-span-2"><span>URL canónica opcional</span><input id="commerce-seo-canonical" name="seo_canonical_url" type="url" maxlength="512" placeholder="https://pixon.com.mx/tienda/..." /></label>
+            <label><span>Después de vender</span><select id="commerce-sold-display" name="sold_display_mode"><option value="KEEP_VISIBLE">Mantener visible</option><option value="HIDE">Ocultar automáticamente</option><option value="REDIRECT">Redirigir a similares</option></select></label>
+          </div>
+          <div class="commerce-publish-note">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <p>La publicación se guarda como borrador. Podrás revisarla y publicarla desde el listado.</p>
+          </div>
+        </div>
+
+        <div class="commerce-form-step" data-commerce-step="6" hidden>
+          <article class="commerce-item-preview" id="commerce-item-preview" aria-live="polite">
+            <p class="commerce-kicker">Vista previa antes de guardar</p>
+            <h3 id="commerce-preview-name">Nueva publicación</h3>
+            <dl>
+              <div><dt>Tipo</dt><dd id="commerce-preview-type">—</dd></div>
+              <div><dt>Precio público</dt><dd id="commerce-preview-price">—</dd></div>
+              <div><dt>Inventario</dt><dd id="commerce-preview-stock">—</dd></div>
+              <div><dt>Compra</dt><dd id="commerce-preview-purchase">—</dd></div>
+            </dl>
+            <p id="commerce-preview-description">Completa la información para revisar cómo se presentará.</p>
+          </article>
+          <div class="commerce-publish-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><p>Se guardará como borrador. Después podrás revisar la URL pública y publicar desde el listado.</p></div>
+        </div>
+
+        <div class="commerce-form-message" id="commerce-form-message" role="alert" hidden></div>
+        <div class="commerce-modal-actions">
+          <button class="commerce-button commerce-button-secondary" type="button" data-commerce-close="item">Cancelar</button>
+          <span class="commerce-action-spacer"></span>
+          <button class="commerce-button commerce-button-secondary" id="commerce-step-back" type="button" hidden>Anterior</button>
+          <button class="commerce-button commerce-button-primary" id="commerce-step-next" type="button">Continuar</button>
+          <button class="commerce-button commerce-button-primary" id="commerce-save-item" type="submit" hidden>Guardar borrador</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="commerce-modal" id="commerce-settings-modal" hidden>
+    <div class="commerce-modal-backdrop" data-commerce-close="settings"></div>
+    <section class="commerce-modal-card commerce-settings-card" role="dialog" aria-modal="true" aria-labelledby="commerce-settings-title">
+      <header class="commerce-modal-head">
+        <div><p class="commerce-kicker">Datos reutilizables</p><h2 id="commerce-settings-title">Configurar catálogo</h2></div>
+        <button class="commerce-icon-button" type="button" data-commerce-close="settings" aria-label="Cerrar configuración"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </header>
+      <div class="commerce-resource-tabs" role="tablist" aria-label="Recursos del catálogo">
+        <button class="is-active" type="button" role="tab" aria-selected="true" data-commerce-resource="categories">Categorías</button>
+        <button type="button" role="tab" aria-selected="false" data-commerce-resource="badges">Etiquetas</button>
+        <button type="button" role="tab" aria-selected="false" data-commerce-resource="attributes">Atributos</button>
+      </div>
+      <div class="commerce-resource-layout">
+        <div>
+          <div class="commerce-resource-list" id="commerce-resource-list"></div>
+        </div>
+        <form class="commerce-resource-form" id="commerce-resource-form" novalidate>
+          <input type="hidden" id="commerce-resource-id" />
+          <h3 id="commerce-resource-form-title">Nueva categoría</h3>
+          <div id="commerce-resource-fields"></div>
+          <div class="commerce-form-message" id="commerce-resource-message" role="alert" hidden></div>
+          <div class="commerce-resource-actions">
+            <button class="commerce-button commerce-button-secondary" id="commerce-resource-reset" type="button">Nuevo</button>
+            <button class="commerce-button commerce-button-primary" type="submit">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</section>

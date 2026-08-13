@@ -1,0 +1,286 @@
+---
+import Base from '../layouts/Base.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import CartDrawer from '../components/store/CartDrawer.astro';
+import storeCss from '../styles/store.css?url';
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': 'https://pixon.com.mx/tienda#webpage',
+    name: 'Tienda de tecnología y servicios técnicos en Cancún | Pixon PC',
+    description: 'Catálogo de equipos, hardware, servicios técnicos y paquetes de Pixon PC en Cancún.',
+    url: 'https://pixon.com.mx/tienda',
+    isPartOf: { '@id': 'https://pixon.com.mx/#website' },
+    about: { '@id': 'https://pixon.com.mx/#business' },
+    mainEntity: {
+      '@type': 'OfferCatalog',
+      name: 'Catálogo comercial Pixon PC',
+      itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Tienda', item: 'https://pixon.com.mx/tienda' },
+    ],
+  },
+];
+---
+
+<Base
+  title="Tienda de computadoras, hardware y servicios en Cancún | Pixon PC"
+  description="Explora equipos, hardware, servicios técnicos y paquetes publicados por Pixon PC en Cancún. Consulta disponibilidad, condición y precio desde un catálogo actualizado."
+  canonical="https://pixon.com.mx/tienda"
+  image="/assets/images/tienda-hero-pixon.webp"
+  ogTitle="Tienda Pixon PC | Equipos, hardware y servicios en Cancún"
+  ogDescription="Publicaciones reales de tecnología y servicio técnico en Cancún, con precio, condición y disponibilidad visibles."
+  schema={schema}
+  extraStyles={[storeCss]}
+  preloadSprite={true}
+>
+  <Navbar />
+
+  <main class="store-page" aria-labelledby="store-title">
+    <section class="store-hero" aria-labelledby="store-title">
+      <div class="store-shell store-hero-grid">
+        <div class="store-hero-copy">
+          <p class="store-hero-kicker">Tecnología seleccionada y servicio técnico local</p>
+          <h1 id="store-title">Equipos, hardware y servicios Pixon PC en Cancún</h1>
+          <p class="store-hero-lead">Revisa publicaciones reales, compara su condición y consulta disponibilidad con atención directa en Cancún.</p>
+          <div class="store-hero-actions" aria-label="Acciones principales de la tienda">
+            <a class="store-action store-action-primary" href="#catalogo-tienda">Explorar catálogo</a>
+            <a class="store-action store-action-secondary" href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20busco%20un%20equipo%20o%20servicio%20espec%C3%ADfico." target="_blank" rel="noopener noreferrer">Pedir orientación</a>
+          </div>
+          <ul class="store-hero-points" aria-label="Ventajas de comprar con Pixon PC">
+            <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Atención local en Cancún</li>
+            <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Condición y estado visibles</li>
+            <li><i class="fa-solid fa-comments" aria-hidden="true"></i> Soporte humano antes de comprar</li>
+          </ul>
+        </div>
+        <figure class="store-hero-media">
+          <picture>
+            <source srcset="/assets/images/tienda-hero-pixon.webp" type="image/webp" />
+            <img
+              src="/assets/images/tienda-hero-pixon.webp"
+              alt="Mesa de trabajo con laptop, computadora compacta, memoria RAM y almacenamiento en el taller de Pixon PC"
+              width="1536"
+              height="1024"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
+          <figcaption>Equipos y componentes se publican con información administrada por Pixon PC.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="store-trust" aria-label="Información de compra">
+      <div class="store-shell store-trust-grid">
+        <p><strong>Publicaciones administradas</strong><span>Precio, estado y disponibilidad desde un solo catálogo.</span></p>
+        <p><strong>Compra informada</strong><span>Pregunta por garantía, compatibilidad y entrega antes de decidir.</span></p>
+        <p><strong>Cobertura local</strong><span>Atención con cita en Cancún y coordinación según cada pedido.</span></p>
+      </div>
+    </section>
+
+    <section class="store-catalog" id="catalogo-tienda" aria-labelledby="catalog-title">
+      <div class="store-shell">
+        <header class="store-section-heading">
+          <div>
+            <p class="store-section-label">Catálogo en línea</p>
+            <h2 id="catalog-title" tabindex="-1">Encuentra lo que necesitas</h2>
+            <p>Filtra equipos, componentes, servicios y paquetes sin perder de vista su disponibilidad.</p>
+          </div>
+          <button class="store-filter-toggle" id="store-filter-toggle" type="button" aria-expanded="false" aria-controls="store-filters">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+            Filtros
+          </button>
+        </header>
+
+        <form class="store-filters" id="store-filters" role="search" novalidate>
+          <label class="store-search-field">
+            <span>Buscar en la tienda</span>
+            <span class="store-input-wrap">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <input id="store-search" name="q" type="search" autocomplete="off" maxlength="120" placeholder="Buscar laptops, SSD, mantenimientos..." aria-autocomplete="list" aria-controls="store-suggestions" aria-expanded="false" />
+              <div class="store-suggestions" id="store-suggestions" role="listbox" hidden></div>
+            </span>
+          </label>
+          <label>
+            <span>Tipo</span>
+            <select id="store-type" name="type">
+              <option value="">Todos</option>
+              <option value="EQUIPMENT">Equipos</option>
+              <option value="HARDWARE">Hardware</option>
+              <option value="PRODUCT">Productos</option>
+              <option value="SERVICE">Servicios</option>
+              <option value="BUNDLE">Paquetes</option>
+            </select>
+          </label>
+          <label>
+            <span>Condición</span>
+            <select id="store-condition" name="condition">
+              <option value="">Cualquiera</option>
+              <option value="NEW">Nuevo</option>
+              <option value="USED">Usado</option>
+              <option value="REFURBISHED">Reacondicionado</option>
+              <option value="OPEN_BOX">Caja abierta</option>
+              <option value="FOR_PARTS">Para refacciones</option>
+              <option value="NOT_APPLICABLE">No aplica</option>
+            </select>
+          </label>
+          <label>
+            <span>Marca</span>
+            <input id="store-brand" name="brand" type="text" maxlength="100" placeholder="Ej. Lenovo" />
+          </label>
+          <label>
+            <span>Precio mínimo</span>
+            <input id="store-min-price" name="minPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0" />
+          </label>
+          <label>
+            <span>Precio máximo</span>
+            <input id="store-max-price" name="maxPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Sin límite" />
+          </label>
+          <label>
+            <span>Disponibilidad</span>
+            <select id="store-availability" name="availability">
+              <option value="">Todas</option>
+              <option value="AVAILABLE">Disponible</option>
+              <option value="UNAVAILABLE">No disponible</option>
+            </select>
+          </label>
+          <label>
+            <span>Ordenar</span>
+            <select id="store-sort" name="sort">
+              <option value="newest">Más recientes</option>
+              <option value="price_asc">Menor precio</option>
+              <option value="price_desc">Mayor precio</option>
+              <option value="name">Nombre A–Z</option>
+            </select>
+          </label>
+          <button class="store-clear-filters" id="store-clear-filters" type="button">Limpiar filtros</button>
+        </form>
+
+        <div class="store-category-row" id="store-category-row" aria-label="Categorías del catálogo">
+          <button type="button" class="store-category-chip is-active" data-category="" aria-pressed="true">Todas las categorías</button>
+        </div>
+
+        <aside class="store-promotion-banner" id="store-promotion-banner" hidden>
+          <div><span>Promoción vigente</span><strong id="store-promotion-title"></strong><p id="store-promotion-text"></p></div>
+          <a href="/tienda/promociones">Ver promociones</a>
+        </aside>
+
+        <div class="store-results-bar">
+          <p id="store-result-summary" aria-live="polite">Preparando catálogo…</p>
+          <p class="store-live-note"><span aria-hidden="true"></span> Información consultada desde el catálogo</p>
+        </div>
+
+        <div class="store-state" id="store-loading" role="status" hidden>
+          <span class="store-spinner" aria-hidden="true"></span>
+          <p>Cargando publicaciones…</p>
+        </div>
+
+        <div class="store-state store-state-error" id="store-error" role="alert" hidden>
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          <h3>No pudimos consultar el catálogo</h3>
+          <p>La información no está disponible en este momento. Intenta de nuevo o escríbenos para confirmar existencias.</p>
+          <button type="button" id="store-retry">Intentar de nuevo</button>
+        </div>
+
+        <div class="store-state" id="store-empty" hidden>
+          <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+          <h3>No hay publicaciones con esos filtros</h3>
+          <p>Prueba otra búsqueda o cuéntanos qué equipo, componente o servicio necesitas.</p>
+          <div class="store-empty-actions">
+            <button type="button" id="store-empty-clear">Ver todo el catálogo</button>
+            <a href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20no%20encontr%C3%A9%20lo%20que%20busco%20en%20la%20tienda." target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>
+          </div>
+        </div>
+
+        <div class="store-product-grid" id="store-product-grid" aria-live="polite"></div>
+
+        <noscript>
+          <div class="store-state">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <h3>Activa JavaScript para consultar el catálogo actualizado</h3>
+            <p>También puedes confirmar publicaciones y disponibilidad directamente con Pixon PC.</p>
+            <div class="store-empty-actions">
+              <a href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20quiero%20consultar%20el%20cat%C3%A1logo%20de%20la%20tienda." target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>
+              <a href="/contacto">Ir a contacto</a>
+            </div>
+          </div>
+        </noscript>
+
+        <nav class="store-pagination" id="store-pagination" aria-label="Paginación del catálogo" hidden>
+          <button type="button" id="store-prev-page"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Anterior</button>
+          <span id="store-page-label">Página 1</span>
+          <button type="button" id="store-next-page">Siguiente <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        </nav>
+      </div>
+    </section>
+
+    <section class="store-guidance" aria-labelledby="guidance-title">
+      <div class="store-shell store-guidance-grid">
+        <div>
+          <p class="store-section-label">Decide con contexto</p>
+          <h2 id="guidance-title">¿No sabes qué equipo o servicio elegir?</h2>
+          <p>Cuéntanos para qué lo necesitas, tu presupuesto y el equipo que ya utilizas. Te orientamos sin prometer resultados antes de revisar el caso.</p>
+        </div>
+        <div class="store-guidance-actions">
+          <a href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20necesito%20orientaci%C3%B3n%20para%20elegir%20un%20equipo%20o%20servicio." target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Hablar por WhatsApp</a>
+          <a href="/tickets"><i class="fa-solid fa-ticket" aria-hidden="true"></i> Crear ticket de revisión</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="store-sold" id="ofertas-vendidas" aria-labelledby="sold-title" hidden>
+      <div class="store-shell">
+        <header class="store-section-heading">
+          <div>
+            <p class="store-section-label">Historial real</p>
+            <h2 id="sold-title">Ofertas que ya volaron</h2>
+            <p>Equipos vendidos recientemente que permanecen visibles como referencia.</p>
+          </div>
+          <button type="button" id="store-show-available">Ver disponibles</button>
+        </header>
+        <div class="store-product-grid store-sold-grid" id="store-sold-grid"></div>
+      </div>
+    </section>
+
+    <section class="store-local" aria-labelledby="store-local-title">
+      <div class="store-shell store-local-grid">
+        <div>
+          <p class="store-section-label">Pixon PC en Cancún</p>
+          <h2 id="store-local-title">Consulta disponibilidad y coordina tu entrega</h2>
+          <p>Atendemos desde Cto. Hacienda Chimay, 77539 Cancún, Q.R. Podemos coordinar casos en Cancún Centro, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Zona Hotelera, Supermanzanas y Haciendas.</p>
+        </div>
+        <address>
+          <strong>Pixon PC</strong>
+          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <a href="tel:+529986690777">+52 998 669 0777</a>
+          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+          <a class="store-local-cta" href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20quiero%20consultar%20una%20publicaci%C3%B3n%20de%20la%20tienda." target="_blank" rel="noopener noreferrer">Consultar ahora</a>
+        </address>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="store-detail-dialog" id="store-detail-dialog" aria-labelledby="store-dialog-title">
+    <div class="store-dialog-shell">
+      <button class="store-dialog-close" id="store-dialog-close" type="button" aria-label="Cerrar detalle"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <h2 class="store-dialog-status-title" id="store-dialog-title">Detalle de la publicación</h2>
+      <div id="store-dialog-content">
+        <div class="store-state" role="status"><span class="store-spinner" aria-hidden="true"></span><p>Cargando detalle…</p></div>
+      </div>
+    </div>
+  </dialog>
+
+  <CartDrawer />
+  <Footer />
+  <script src="/scripts/store-cart.js?v=20260812-1" is:inline defer></script>
+  <script src="/scripts/store.js?v=20260812-2" is:inline defer></script>
+</Base>

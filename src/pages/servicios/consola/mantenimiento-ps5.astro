@@ -1,0 +1,596 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Navbar from '../../../components/Navbar.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import FaqSection from '../../../components/FaqSection.astro';
+import CommentsSection from '../../../components/CommentsSection.astro';
+import ContactSection from '../../../components/ContactSection.astro';
+import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
+import Footer from '../../../components/Footer.astro';
+
+const canonicalPath = '/servicios/consola/mantenimiento-ps5';
+const canonicalUrl = `https://pixon.com.mx${canonicalPath}`;
+const whatsappText = encodeURIComponent(
+  'Hola Pixon PC, quiero cotizar el mantenimiento completo premium de PS5 de $2,000 a $2,500 MXN con entrega estimada en 6 horas. Mi modelo es [Fat / Slim / Pro] y la llevaría aproximadamente a las [hora].'
+);
+const whatsappHref = `https://wa.me/529986690777?text=${whatsappText}`;
+
+const symptoms = [
+  {
+    icon: 'fa-power-off',
+    title: 'PS5 se apaga mientras juegas',
+    text: 'Si falla con juegos exigentes, revisamos temperatura, fuente, consumo y sistema térmico antes de atribuirlo sólo al polvo.',
+    tag: 'Prueba bajo carga',
+  },
+  {
+    icon: 'fa-temperature-high',
+    title: 'PS5 se sobrecalienta',
+    text: 'Un aviso de temperatura o calor fuera de lo habitual puede relacionarse con flujo de aire, disipador o contacto térmico.',
+    tag: 'Revisión térmica',
+  },
+  {
+    icon: 'fa-volume-high',
+    title: 'PS5 hace mucho ruido',
+    text: 'El ventilador puede acelerar por suciedad, poco espacio alrededor de la consola o una obstrucción interna.',
+    tag: 'Ruido y ventilador',
+  },
+  {
+    icon: 'fa-fan',
+    title: 'El ventilador no gira bien',
+    text: 'Un ventilador detenido, intermitente o con roce mecánico puede requerir reparación; una limpieza no siempre basta.',
+    tag: 'Diagnóstico mecánico',
+  },
+  {
+    icon: 'fa-wind',
+    title: 'Nunca ha recibido limpieza',
+    text: 'Polvo, pelusa y humedad pueden acumularse en rejillas, ventilador, disipador y entrada de la fuente aunque por fuera se vea limpia.',
+    tag: 'Mantenimiento preventivo',
+  },
+];
+
+const included = [
+  ['01', 'Inspección inicial', 'Registramos modelo CFI, síntoma, ruido, apagados, ubicación e historial de intervenciones.'],
+  ['02', 'Lavado técnico de tarjeta', 'Desmontamos y limpiamos la tarjeta de forma controlada para retirar polvo adherido, grasa y residuos que una limpieza superficial no elimina.'],
+  ['03', 'Ventilador y rejillas', 'Limpiamos aspas, entradas, salidas y revisamos giro, vibración o ruido mecánico.'],
+  ['04', 'Disipador y conductos', 'Liberamos la ruta de aire y revisamos obstrucciones que reducen la transferencia de calor.'],
+  ['05', 'Pulido de contacto térmico', 'Preparamos y pulimos cuidadosamente la superficie de contacto para retirar residuos y dejar una base uniforme antes del compuesto térmico.'],
+  ['06', 'Renovación de metal líquido', 'Retiramos el material anterior, revisamos la contención y aplicamos metal líquido de forma controlada sobre el APU.'],
+  ['07', 'Masilla térmica de 13.5 W/m·K', 'Renovamos el material moldeable de alta transferencia térmica en las zonas internas donde corresponde según el modelo.'],
+  ['08', 'Reensamble y pruebas', 'Cerramos la consola y validamos encendido, video, ventilación, ruido y estabilidad antes de la entrega.'],
+];
+
+const models = [
+  {
+    model: 'PS5 Fat',
+    code: 'CFI-10xx · 11xx · 12xx',
+    title: 'Mantenimiento de PS5 Fat',
+    text: 'Revisamos ventilador, disipador, entradas de polvo, fuente y distribución térmica según la revisión del chasis.',
+  },
+  {
+    model: 'PS5 Slim',
+    code: 'CFI-20xx',
+    title: 'Mantenimiento de PS5 Slim',
+    text: 'Su arquitectura interna y acceso cambian frente a la PS5 original; confirmamos variante y lector antes de abrir.',
+  },
+  {
+    model: 'PS5 Pro',
+    code: 'CFI-70xx',
+    title: 'Mantenimiento de PS5 Pro',
+    text: 'Aplicamos un proceso específico para el modelo y documentamos cualquier condición que requiera una intervención adicional.',
+  },
+];
+
+const process = [
+  ['Recepción', 'Modelo, síntoma e historial'],
+  ['Prueba', 'Ruido, video y comportamiento'],
+  ['Apertura', 'Desarmado con control de piezas'],
+  ['Limpieza', 'Ventilador, disipador y conductos'],
+  ['Servicio térmico', 'Pulido, metal líquido y masilla'],
+  ['Reensamble', 'Flex, tornillos y carcasa'],
+  ['Validación', 'Estabilidad y entrega documentada'],
+];
+
+const areas = [
+  'Cancún Centro',
+  'Zona Hotelera',
+  'Huayacán',
+  'Cumbres',
+  'Bonfil',
+  'Polígono Sur',
+  'Puerto Cancún',
+  'Av. Tulum',
+  'Bonampak',
+  'Puerto Juárez',
+  'Supermanzanas',
+  'Haciendas',
+];
+
+const relatedGuides = [
+  {
+    href: '/servicios/consola/ps5-se-apaga',
+    label: 'PS5 se apaga sola',
+    text: 'Diagnóstico bajo carga cuando la consola pierde energía durante juegos exigentes.',
+  },
+  {
+    href: '/servicios/consola/limpieza-metal-liquido-ps5',
+    label: 'Metal líquido de PS5',
+    text: 'Revisión específica cuando hay evidencia de un problema de transferencia térmica.',
+  },
+  {
+    href: '/servicios/consola/reparacion-ps5',
+    label: 'Reparación de PS5',
+    text: 'Ruta general para fallas de encendido, HDMI, lector, fuente, ventilador o placa.',
+  },
+  {
+    href: '/servicios/consola/limpieza-interna',
+    label: 'Limpieza de consolas',
+    text: 'Página general para PlayStation, Xbox, Nintendo Switch y consolas portátiles.',
+  },
+];
+
+const faqItems = [
+  {
+    question: '¿Cuánto cuesta un mantenimiento de PS5 en Cancún?',
+    answer: 'El mantenimiento completo de PS5 cuesta entre $2,000 y $2,500 MXN. El rango depende del modelo, nivel de suciedad, condición de la tarjeta y antecedentes de apertura. Incluye lavado técnico de tarjeta, pulido y preparación del contacto térmico, renovación de metal líquido y masilla térmica moldeable de 13.5 W/m·K. Las reparaciones de ventilador, fuente o placa se cotizan por separado.',
+  },
+  {
+    question: '¿Qué incluye el mantenimiento de PS5?',
+    answer: 'Incluye recepción técnica, apertura controlada, limpieza de ventilador, rejillas, disipador y conductos, lavado técnico de tarjeta, pulido y preparación del contacto térmico, renovación de metal líquido, aplicación de masilla térmica moldeable de 13.5 W/m·K, reensamble y pruebas finales.',
+  },
+  {
+    question: '¿Cuánto tarda el mantenimiento de una PS5?',
+    answer: 'El servicio rápido premium tiene una entrega estimada de 6 horas. El horario se confirma al recibir la consola porque depende de la hora de entrega, la carga del taller y su condición inicial. Si detectamos humedad, una intervención previa, una falla adicional o la necesidad de una prueba prolongada, te informamos antes de cambiar el tiempo acordado.',
+  },
+  {
+    question: '¿Cada cuánto debo limpiar mi PS5?',
+    answer: 'Como referencia, conviene revisarla cada 12 a 18 meses en Cancún. Puede necesitarse antes si está cerca del piso, dentro de un mueble, se usa muchas horas, hay mascotas, aparece ruido fuerte o ya muestra temperatura alta.',
+  },
+  {
+    question: '¿Por qué mi PS5 se apaga cuando juego?',
+    answer: 'Puede deberse a polvo en el disipador, ventilación deficiente, metal líquido mal distribuido, fuente fatigada, ventilador con bajo flujo o una falla en placa. Por eso probamos el equipo y no prometemos que una limpieza resolverá todos los apagados.',
+  },
+  {
+    question: '¿Por qué mi PS5 hace mucho ruido?',
+    answer: 'El ventilador puede elevar sus revoluciones por calor, suciedad o poco espacio para expulsar aire. Si hay roce, vibración o golpeteo, también puede existir desgaste mecánico y requerir cambio de ventilador.',
+  },
+  {
+    question: '¿PS5 utiliza pasta térmica o metal líquido?',
+    answer: 'La PlayStation 5 utiliza metal líquido como material de interfaz térmica sobre el procesador principal. Otros componentes pueden usar materiales térmicos distintos; por eso no se trata como una consola con pasta térmica convencional.',
+  },
+  {
+    question: '¿Siempre se cambia el metal líquido durante el mantenimiento?',
+    answer: 'En el mantenimiento completo de $2,000 a $2,500 MXN sí se realiza el servicio del metal líquido. Retiramos residuos, revisamos el sello y la superficie de contacto, y hacemos una aplicación controlada porque el material conduce electricidad y no debe quedar fuera del área protegida.',
+  },
+  {
+    question: '¿Qué masilla térmica utilizan en el mantenimiento de PS5?',
+    answer: 'Utilizamos masilla térmica moldeable de alta transferencia de calor, con conductividad declarada de 13.5 W/m·K. Se coloca en las zonas donde corresponde según la revisión y el modelo, respetando el espesor y contacto necesarios para no alterar la presión del sistema térmico.',
+  },
+  {
+    question: '¿Qué significa lavado técnico de la tarjeta de PS5?',
+    answer: 'Es una limpieza controlada de la tarjeta fuera del chasis para retirar polvo adherido, grasa y residuos en áreas que no se alcanzan con una limpieza superficial. Antes de energizar la consola verificamos que la tarjeta esté correctamente limpia y seca.',
+  },
+  {
+    question: '¿Trabajan PS5 Fat, PS5 Slim y PS5 Pro?',
+    answer: 'Sí, atendemos PS5 Fat, Slim y Pro. Confirmamos el número de modelo CFI y la versión con lector o digital porque el desarmado, acceso y alcance pueden cambiar.',
+  },
+  {
+    question: '¿Qué pasa si el ventilador de mi PS5 no gira?',
+    answer: 'Conviene dejar de usarla y solicitar revisión. Se inspeccionan conexión, bloqueo, aspas, cableado y funcionamiento del módulo. Si está dañado, la limpieza por sí sola no lo reparará.',
+  },
+  {
+    question: '¿El mantenimiento borra mis juegos o partidas?',
+    answer: 'No debería borrar juegos, cuentas ni partidas porque es una intervención física de limpieza y revisión. Aun así, recomendamos tener datos sincronizados o respaldados cuando sea posible antes de cualquier servicio técnico.',
+  },
+  {
+    question: '¿El mantenimiento de PS5 tiene garantía?',
+    answer: 'Sí. Antes de entregar comprobamos encendido, video, ventilación, ruido y estabilidad, y damos garantía por escrito sobre el mantenimiento realizado. Si la consola presenta una falla previa o requiere reparar ventilador, fuente o tarjeta, la diagnosticamos y solicitamos autorización antes de prometer su funcionamiento. La garantía no cubre fallas no intervenidas, golpes, humedad posterior, variaciones eléctricas o manipulación externa.',
+  },
+  {
+    question: '¿Dónde puedo llevar mi PS5 a mantenimiento en Cancún?',
+    answer: 'Pixon PC atiende con cita en Cto. Hacienda Chimay, 77539 Cancún, Q.R. Puedes solicitar revisión por WhatsApp al +52 998 669 0777 o crear un ticket desde esta página.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${canonicalUrl}#service`,
+    name: 'Mantenimiento de PS5 en Cancún',
+    alternateName: ['Limpieza de PS5 en Cancún', 'Mantenimiento PlayStation 5'],
+    serviceType: 'Mantenimiento completo de PlayStation 5 con lavado técnico de tarjeta y renovación del sistema térmico',
+    description: 'Mantenimiento completo de PS5 Fat, Slim y Pro en Cancún con lavado técnico de tarjeta, limpieza interna, pulido térmico, metal líquido y masilla moldeable de 13.5 W/m·K.',
+    url: canonicalUrl,
+    image: 'https://pixon.com.mx/assets/images/ps5_xbox.webp',
+    provider: { '@id': 'https://pixon.com.mx/#business' },
+    areaServed: areas.map((name) => ({ '@type': 'Place', name })),
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Mantenimiento completo y servicio térmico PS5',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          priceCurrency: 'MXN',
+          url: canonicalUrl,
+          description: 'Mantenimiento completo de PS5 con precio entre $2,000 y $2,500 MXN según modelo y condición.',
+          priceSpecification: {
+            '@type': 'PriceSpecification',
+            minPrice: '2000',
+            maxPrice: '2500',
+            priceCurrency: 'MXN',
+          },
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Mantenimiento completo de PS5',
+          },
+        },
+      ],
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Consolas', item: 'https://pixon.com.mx/servicios/consola' },
+      { '@type': 'ListItem', position: 3, name: 'Mantenimiento PS5', item: canonicalUrl },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  },
+];
+---
+
+<Base
+  title="Mantenimiento PS5 en Cancún | Limpieza + Metal Líquido | Pixon PC"
+  description="Mantenimiento completo de PS5 en Cancún por $2,000–$2,500 MXN: lavado de tarjeta, metal líquido y masilla térmica de 13.5 W/m·K."
+  canonical={canonicalPath}
+  image="/assets/images/ps5_xbox.webp"
+  schema={schema}
+  bodyClass="service-page ps5-maintenance-body"
+  extraStyles={['/styles/mantenimiento-ps5.css']}
+>
+  <Navbar />
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Consolas', href: '/servicios/consola' },
+    { label: 'Mantenimiento PS5' },
+  ]} />
+
+  <div class="ps5m-page">
+    <header class="ps5m-hero" aria-labelledby="ps5m-title">
+      <div class="ps5m-hero-grid" aria-hidden="true"></div>
+      <div class="container ps5m-hero-layout">
+        <div class="ps5m-hero-copy">
+          <span class="ps5m-kicker"><i class="fa-brands fa-playstation" aria-hidden="true"></i> Servicio especializado en Cancún</span>
+          <h1 id="ps5m-title">Mantenimiento de PS5 en Cancún: limpieza profunda y revisión térmica</h1>
+          <p class="ps5m-lead">Servicio completo para PlayStation 5 Fat, Slim y Pro: lavado técnico de tarjeta, limpieza del sistema de ventilación, pulido del contacto térmico, renovación de metal líquido y masilla térmica moldeable de 13.5 W/m·K.</p>
+          <div class="ps5m-hero-actions">
+            <a class="ps5m-btn ps5m-btn--primary" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar mantenimiento de PS5
+            </a>
+            <a class="ps5m-btn ps5m-btn--secondary" href="#ticket-ps5">
+              <i class="fa-solid fa-ticket" aria-hidden="true"></i> Crear ticket
+            </a>
+          </div>
+          <ul class="ps5m-hero-trust" aria-label="Resumen del servicio">
+            <li><i class="fa-solid fa-gamepad" aria-hidden="true"></i> PS5 Fat / Slim / Pro</li>
+            <li><i class="fa-solid fa-droplet" aria-hidden="true"></i> Metal líquido + masilla 13.5 W/m·K</li>
+            <li><i class="fa-solid fa-bolt" aria-hidden="true"></i> Servicio premium · entrega estimada en 6 h</li>
+            <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Entrega probada + garantía escrita</li>
+          </ul>
+        </div>
+
+        <figure class="ps5m-hero-visual">
+          <picture>
+            <source media="(max-width: 640px)" srcset="/assets/images/responsive/ps5_xbox-sm.webp" />
+            <source media="(max-width: 1024px)" srcset="/assets/images/responsive/ps5_xbox-md.webp" />
+            <img src="/assets/images/ps5_xbox.webp" alt="Consolas PlayStation 5 listas para mantenimiento en Pixon PC Cancún" width="1115" height="1086" loading="eager" fetchpriority="high" />
+          </picture>
+          <figcaption>
+            <span>Evaluación inicial</span>
+            <strong>Ruido · temperatura · ventilación · estabilidad</strong>
+          </figcaption>
+        </figure>
+      </div>
+    </header>
+
+    <nav class="ps5m-section-nav" aria-label="Contenido de mantenimiento PS5">
+      <div class="container">
+        <a href="#sintomas-ps5">Síntomas</a>
+        <a href="#incluye-mantenimiento">Qué incluye</a>
+        <a href="#metal-liquido-ps5">Metal líquido</a>
+        <a href="#precio-mantenimiento-ps5">Precio</a>
+        <a href="#preguntas-ps5">Preguntas</a>
+      </div>
+    </nav>
+
+    <main class="ps5m-main">
+      <section class="ps5m-section ps5m-symptoms" id="sintomas-ps5" aria-labelledby="symptoms-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div>
+              <span class="ps5m-eyebrow">Señales que orientan el diagnóstico</span>
+              <h2 id="symptoms-title">¿Tu PS5 se calienta, se apaga o hace mucho ruido?</h2>
+            </div>
+            <p>El síntoma ayuda a decidir qué probar, pero no confirma por sí solo la causa. Una PS5 que se apaga puede necesitar mantenimiento, reparación de fuente o una revisión más profunda.</p>
+          </div>
+          <div class="ps5m-symptom-grid">
+            {symptoms.map((item, index) => (
+              <article class:list={['ps5m-symptom-card', index === 0 && 'ps5m-symptom-card--feature']}>
+                <div class="ps5m-card-icon"><i class={`fa-solid ${item.icon}`} aria-hidden="true"></i></div>
+                <span>{item.tag}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+          <aside class="ps5m-note" aria-label="Recomendación de seguridad">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <p><strong>Si se apaga, huele a quemado o el ventilador no gira, deja de usarla.</strong> Continuar jugando puede agravar una falla térmica o eléctrica.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-included" id="incluye-mantenimiento" aria-labelledby="included-title">
+        <div class="container">
+          <div class="ps5m-heading">
+            <span class="ps5m-eyebrow">Alcance técnico, sin atajos</span>
+            <h2 id="included-title">¿Qué incluye nuestro mantenimiento de PS5?</h2>
+            <p>El servicio se trabaja como un sistema completo: lavado de tarjeta, entrada de aire, ventilador, disipador, pulido del contacto, metal líquido, masilla térmica y comportamiento final.</p>
+          </div>
+          <div class="ps5m-included-layout">
+            <ol class="ps5m-included-list">
+              {included.map(([number, title, text]) => (
+                <li>
+                  <span>{number}</span>
+                  <div><h3>{title}</h3><p>{text}</p></div>
+                </li>
+              ))}
+            </ol>
+            <aside class="ps5m-scope-card">
+              <span class="ps5m-scope-label">Alcance confirmado al recibir</span>
+              <h3>Un mantenimiento completo, no una limpieza superficial</h3>
+              <p>El rango incluye el servicio térmico y lavado de tarjeta. Si encontramos ventilador dañado, fuente inestable, humedad severa o falla de placa, te enviamos diagnóstico y cotización antes de reparar componentes.</p>
+              <dl>
+                <div><dt>Servicio rápido</dt><dd>Entrega estimada en 6 h</dd></div>
+                <div><dt>Precio completo</dt><dd>$2,000–$2,500 MXN</dd></div>
+                <div><dt>Seguimiento</dt><dd>WhatsApp o ticket</dd></div>
+              </dl>
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer">Solicitar revisión <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-deep-clean" aria-labelledby="deep-clean-title">
+        <div class="container ps5m-media-layout">
+          <div class="ps5m-media-copy">
+            <span class="ps5m-eyebrow">Limpieza profunda PS5</span>
+            <h2 id="deep-clean-title">No es solamente quitar polvo de las rejillas</h2>
+            <p class="ps5m-intro">Limpiar por fuera o acercar una aspiradora a la carcasa no permite saber cómo están el disipador, el ventilador, los conductos o la entrada de la fuente.</p>
+            <div class="ps5m-layer-list">
+              <article><span>Exterior</span><h3>Rejillas y entradas</h3><p>Retiramos suciedad accesible sin enviarla hacia el interior.</p></article>
+              <article><span>Flujo</span><h3>Ventilador y disipador</h3><p>Eliminamos obstrucciones y revisamos ruido, giro y ruta de aire.</p></article>
+              <article><span>Térmico</span><h3>Pulido, metal líquido y masilla</h3><p>Preparamos la superficie, renovamos el metal líquido y aplicamos masilla térmica moldeable de 13.5 W/m·K.</p></article>
+              <article><span>Validación</span><h3>Prueba después del servicio</h3><p>La consola debe encender, ventilar y mantenerse estable antes de entregar.</p></article>
+            </div>
+          </div>
+          <figure class="ps5m-image-card">
+            <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Detalle técnico de aplicación de metal líquido en un procesador de alto rendimiento" width="596" height="598" loading="lazy" />
+            <figcaption><strong>Trabajo de precisión</strong><span>El compuesto conductor exige limpieza, contención y una cantidad controlada.</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-liquid" id="metal-liquido-ps5" aria-labelledby="liquid-title">
+        <div class="container ps5m-liquid-layout">
+          <div>
+            <span class="ps5m-eyebrow">Metal líquido de PlayStation 5</span>
+            <h2 id="liquid-title">Renovación controlada del metal líquido y materiales térmicos</h2>
+            <p class="ps5m-intro">PS5 utiliza metal líquido sobre el procesador principal. En el mantenimiento completo limpiamos y preparamos el contacto, renovamos el compuesto dentro de su zona protegida y reemplazamos la masilla térmica moldeable donde corresponde.</p>
+            <a class="ps5m-text-link" href="/servicios/consola/limpieza-metal-liquido-ps5">Ver servicio específico de metal líquido <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+          <div class="ps5m-liquid-decisions">
+            <article>
+              <span>01 · Inspeccionar</span>
+              <h3>Distribución, sello y señales previas</h3>
+              <p>Buscamos zonas sin cobertura, contaminación, intervención anterior o indicios compatibles con mala transferencia.</p>
+            </article>
+            <article>
+              <span>02 · Preparar</span>
+              <h3>Limpieza y pulido del contacto</h3>
+              <p>Retiramos residuos y preparamos cuidadosamente la superficie antes de colocar el nuevo material térmico.</p>
+            </article>
+            <article>
+              <span>03 · Renovar</span>
+              <h3>Metal líquido y masilla de 13.5 W/m·K</h3>
+              <p>Aplicamos el metal líquido de forma controlada y renovamos la masilla térmica moldeable en las zonas correspondientes.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-models" aria-labelledby="models-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div><span class="ps5m-eyebrow">Compatibilidad por modelo</span><h2 id="models-title">Mantenimiento para PS5 Fat, PS5 Slim y PS5 Pro</h2></div>
+            <p>El número CFI identifica la revisión de hardware. Lo confirmamos antes de cotizar porque el acceso, la arquitectura y el tiempo de trabajo pueden variar.</p>
+          </div>
+          <div class="ps5m-model-grid">
+            {models.map((item) => (
+              <article>
+                <div><span>{item.model}</span><small>{item.code}</small></div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+                <span class="ps5m-model-check"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Con lector o edición digital</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-price" id="precio-mantenimiento-ps5" aria-labelledby="price-title">
+        <div class="container ps5m-price-layout">
+          <div class="ps5m-price-card">
+            <span class="ps5m-eyebrow">Precio de referencia</span>
+            <h2 id="price-title">¿Cuánto cuesta el mantenimiento de una PS5 en Cancún?</h2>
+            <div class="ps5m-price-value ps5m-price-value--range"><span>Servicio completo</span><strong>$2,000–$2,500</strong><small>MXN</small></div>
+            <p>El rango se confirma según modelo, suciedad y condición previa. Incluye lavado técnico de tarjeta, limpieza profunda, pulido térmico, renovación de metal líquido, masilla térmica moldeable de 13.5 W/m·K, reensamble y pruebas.</p>
+            <a class="ps5m-btn ps5m-btn--dark" href={whatsappHref} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar mi modelo</a>
+          </div>
+          <div class="ps5m-price-details">
+            <article>
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              <div><h3>Lavado técnico y limpieza completa</h3><p>Apertura, lavado de tarjeta, ventilador, disipador, rejillas, conductos, reensamble y pruebas.</p></div>
+            </article>
+            <article>
+              <i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i>
+              <div><h3>Servicio térmico incluido</h3><p>Pulido y preparación del contacto, renovación de metal líquido y masilla moldeable de 13.5 W/m·K.</p></div>
+            </article>
+            <article>
+              <i class="fa-solid fa-clock" aria-hidden="true"></i>
+              <div><h3>Servicio rápido premium: entrega estimada en 6 horas</h3><p>Depende de la hora de recepción y de la revisión inicial. Confirmamos el horario al recibir; si aparece una falla adicional o se requiere una prueba extendida, te avisamos antes.</p></div>
+            </article>
+            <article>
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+              <div><h3>Funcionamiento comprobado y garantía escrita</h3><p>Garantizamos la entrega funcionando dentro del alcance del mantenimiento, con encendido, video, ventilación, ruido y estabilidad validados. Cualquier reparación adicional se diagnostica y autoriza por separado.</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-decision" aria-labelledby="decision-title">
+        <div class="container">
+          <div class="ps5m-heading">
+            <span class="ps5m-eyebrow">La ruta correcta desde el inicio</span>
+            <h2 id="decision-title">¿Tu PS5 necesita mantenimiento o reparación?</h2>
+            <p>Separar prevención de falla evita promesas incorrectas y gastos en una limpieza que no resolvería el problema.</p>
+          </div>
+          <div class="ps5m-decision-grid">
+            <article class="ps5m-decision-card ps5m-decision-card--maintenance">
+              <span><i class="fa-solid fa-broom" aria-hidden="true"></i> Probablemente mantenimiento</span>
+              <h3>La consola funciona, pero muestra señales de acumulación</h3>
+              <ul>
+                <li>Ruido mayor después de varias horas</li>
+                <li>Polvo visible o nunca se ha limpiado</li>
+                <li>Flujo de aire reducido por ubicación</li>
+                <li>Temperatura alta sin apagado inmediato</li>
+              </ul>
+            </article>
+            <article class="ps5m-decision-card ps5m-decision-card--repair">
+              <span><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Puede requerir reparación</span>
+              <h3>Hay una falla activa o un riesgo eléctrico</h3>
+              <ul>
+                <li>No enciende o se apaga inmediatamente</li>
+                <li>Ventilador detenido o con ruido mecánico</li>
+                <li>Olor a quemado, humedad o fuente inestable</li>
+                <li>Falla de HDMI, lector o placa</li>
+              </ul>
+            </article>
+          </div>
+          <div class="ps5m-inline-cta">
+            <div><strong>¿No sabes en cuál caso está tu PS5?</strong><span>Envíanos el modelo y el síntoma. Te indicamos el siguiente paso sin prometer un resultado antes de revisar.</span></div>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">Solicitar revisión <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-process" aria-labelledby="process-title">
+        <div class="container">
+          <div class="ps5m-heading ps5m-heading--split">
+            <div><span class="ps5m-eyebrow">Trazabilidad de principio a fin</span><h2 id="process-title">Así realizamos el mantenimiento de tu PS5</h2></div>
+            <p>El proceso mantiene una secuencia clara para no perder piezas, evitar intervenciones innecesarias y comprobar el funcionamiento antes de entregar.</p>
+          </div>
+          <ol class="ps5m-process-list">
+            {process.map(([title, text], index) => (
+              <li><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3><p>{text}</p></li>
+            ))}
+          </ol>
+          <div class="ps5m-evidence">
+            <figure><img src="/assets/images/ps5_xbox.webp" alt="Modelos de consola en área de servicio técnico de Pixon PC" width="1115" height="1086" loading="lazy" /></figure>
+            <div>
+              <span class="ps5m-eyebrow">Evidencia del servicio</span>
+              <h3>Documentamos lo que encontramos, no un resultado inventado</h3>
+              <p>Cuando el acceso y la condición lo permiten, registramos polvo, obstrucciones, estado del ventilador y trabajo realizado. Si aparece una falla adicional, recibes la explicación antes de autorizarla.</p>
+              <ul><li>Estado de recepción</li><li>Hallazgos relevantes</li><li>Trabajo autorizado</li><li>Recomendación de uso</li></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-local" aria-labelledby="local-title">
+        <div class="container ps5m-local-layout">
+          <div>
+            <span class="ps5m-eyebrow">Servicio local para PlayStation 5</span>
+            <h2 id="local-title">Mantenimiento de PS5 en Cancún con atención en taller</h2>
+            <p>Atendemos jugadores, familias, departamentos, rentas vacacionales y negocios. El calor, el polvo fino, la humedad y los muebles cerrados pueden acelerar la acumulación, pero la frecuencia correcta se define por uso y condición.</p>
+            <address>
+              <strong>Pixon PC</strong>
+              <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+              <a href="tel:+529986690777"><i class="fa-solid fa-phone" aria-hidden="true"></i> +52 998 669 0777</a>
+              <a href="mailto:pixonpc@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> pixonpc@gmail.com</a>
+            </address>
+          </div>
+          <div class="ps5m-area-card">
+            <h3>Zonas de atención en Cancún</h3>
+            <div>{areas.map((area) => <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i>{area}</span>)}</div>
+            <p>Recolección o entrega sujetas a zona, horario y tipo de servicio. Confirma disponibilidad antes de mover la consola.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps5m-section ps5m-related" aria-labelledby="related-title">
+        <div class="container">
+          <div class="ps5m-heading"><span class="ps5m-eyebrow">Cluster técnico PS5</span><h2 id="related-title">Continúa según el síntoma de tu PlayStation 5</h2><p>Estas páginas separan intenciones específicas para que encuentres el diagnóstico adecuado.</p></div>
+          <div class="ps5m-related-grid">
+            {relatedGuides.map((item) => (
+              <a href={item.href}><h3>{item.label}</h3><p>{item.text}</p><span>Ver servicio <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <FaqSection
+        id="preguntas-ps5"
+        title="Preguntas frecuentes sobre mantenimiento de PS5 en Cancún"
+        description="Respuestas sobre el precio completo, lavado técnico de tarjeta, pulido, metal líquido, masilla térmica de 13.5 W/m·K, tiempos y garantía."
+        items={faqItems}
+        ariaLabel="Preguntas frecuentes sobre mantenimiento de PS5 en Cancún"
+        backgroundColor="#F4F7FB"
+        questionColor="#071F3A"
+        titleColor="#071F3A"
+        descriptionColor="#071F3A"
+        itemGap="9px"
+        questionPadding="17px 19px"
+      />
+
+      <ServiceTicketSection
+        id="ticket-ps5"
+        defaultDevice="PlayStation 5"
+        defaultService="Mantenimiento de PS5 en Cancún"
+        sourcePage={canonicalPath}
+        title="Crear ticket para mantenimiento de PS5"
+        subtitle="Indica si es PS5 Fat, Slim o Pro, qué síntoma presenta y cuándo recibió su última limpieza."
+      />
+
+      <CommentsSection
+        id="comentarios-ps5"
+        dark={false}
+        title="Experiencias de clientes de Pixon PC"
+        description="Consulta reseñas del taller o comparte cómo fue la atención de tu consola."
+        viewMoreHref="/comentarios"
+        viewMoreLabel="Ver todas las reseñas"
+      />
+      <ContactSection id="ubicacion-ps5" />
+    </main>
+  </div>
+  <Footer />
+</Base>

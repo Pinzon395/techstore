@@ -119,8 +119,11 @@ npm run dev:astro   # Astro dev server en puerto 4321
 npm run setup:local # npm ci + build
 npm run db:snapshot # actualiza datos no sensibles versionados
 npm run db:restore -- --force # fusiona el snapshot en MariaDB
-npm run db:migrate  # aplica migraciones SQL pendientes
-npm run db:backup:encrypted # backup completo cifrado en backups/
+npm run db:migrate:plan # muestra el plan sin escrituras
+npm run db:migrate:verify # verifica esquema de control y checksums sin escrituras
+npm run db:migrate -- --backup backups/archivo.pixonbak # aplica con backup validado y lock
+npm run db:backup:encrypted # backup logico cifrado en backups/
+npm run db:backup:verify -- backups/archivo.pixonbak # autentica backup y manifiesto
 npm run db:backup:restore -- backups/archivo.pixonbak --force # restaura backup cifrado
 ```
 
@@ -130,6 +133,8 @@ Documentacion operativa:
 
 - `docs/QA_CHECKLIST.md`: checklist antes de deploy.
 - `docs/DEPLOY_MONITORING.md`: pasos de produccion, health check, migraciones, backups y rollback.
+- `docs/DATABASE_MIGRATIONS_AND_BACKUPS.md`: checksums, lock, preflight de backup y recuperacion de DDL.
+- `docs/MARKETPLACE.md`: pedidos, pagos, inventario, promociones, endpoints y QA del marketplace.
 - `docs/SEO_LOCAL_AVANZADO.md`: pendientes SEO local que requieren datos reales.
 
 Validacion minima antes de subir:

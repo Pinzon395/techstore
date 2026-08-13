@@ -25,6 +25,7 @@ const { ah } = require('./middlewares/async.middleware');
 const { createLimiter } = require('./middlewares/rateLimit.middleware');
 const { errorHandler } = require('./middlewares/error.middleware');
 const createHealthRoutes = require('./routes/health.routes');
+const createCommerceModule = require('./modules/commerce');
 const {
     cleanText,
     cleanMultilineText,
@@ -338,6 +339,8 @@ async function bootstrap() {
     }));
 
     app.use('/api/track/view', express.text({ type: '*/*', limit: '10kb' }));
+    // Los proveedores firman los bytes exactos; debe ejecutarse antes de express.json.
+    app.use('/api/commerce/webhooks', express.raw({ type: 'application/json', limit: '1mb' }));
     app.use(express.json({ limit: '10kb' }));
 
     // SECURITY-2 → bloquear /admin* a no-admins ANTES de cualquier static.
@@ -349,7 +352,7 @@ async function bootstrap() {
     // se montan después de passport y bloquean la entrada.
     app.use((req, res, next) => {
         const p = req.path;
-        if (p === '/admin' || p === '/admin/' || p === '/admin/admin.html') {
+        if (p === '/admin' || p === '/admin/' || p === '/admin/admin.html' || p.startsWith('/admin/commerce')) {
             // Marcar para que el static middleware lo deje pasar al handler con gate.
             req._skipStatic = true;
         }
@@ -434,7 +437,16 @@ async function bootstrap() {
     app.use(cors({
         origin: Array.from(trustedOrigins),
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'X-Requested-With'],
+        allowedHeaders: [
+            'Content-Type',
+            'X-Requested-With',
+            'X-Alt-Text',
+            'X-File-Name',
+            'X-Customer-Email',
+            'X-Idempotency-Key',
+            'X-Sort-Order',
+            'X-Is-Primary'
+        ],
         credentials: true
     }));
 
@@ -568,6 +580,9 @@ async function bootstrap() {
         // permite setear headers custom. Es lectura-pasiva (no muta cuentas
         // ni privilegios), por lo que no necesita CSRF.
         if (req.path === '/api/track/view') return next();
+        // Los webhooks no usan sesion/cookie: su autenticidad se verifica con la
+        // firma criptografica propia del proveedor y el evento es idempotente.
+        if (req.path.startsWith('/api/commerce/webhooks/')) return next();
         if (!isTrustedRequestOrigin(req)) {
             return res.status(403).json({ error: 'CSRF: origen no permitido' });
         }
@@ -589,6 +604,19 @@ async function bootstrap() {
         if (req.isAuthenticated() && req.user?.role === 'admin') return next();
         res.status(403).json({ error: 'Prohibido' });
     }
+
+    // Commerce vive fuera del controlador monolitico. El modulo conserva el
+    // bypass del rol admin legado, pero para el resto resuelve permisos RBAC
+    // desde permissions/role_permissions y user_permissions.
+    const commerce = createCommerceModule({
+        pool: getDB(),
+        mediaDirectory: path.join(__dirname, 'storage', 'commerce-media'),
+        mediaMaxBytes: Number(process.env.COMMERCE_MEDIA_MAX_BYTES || 8 * 1024 * 1024),
+        proofDirectory: path.join(__dirname, 'storage', 'commerce-payment-proofs'),
+        proofMaxBytes: Number(process.env.COMMERCE_PROOF_MAX_BYTES || 10 * 1024 * 1024),
+        legacyAdminBypass: true
+    });
+    commerce.mount(app);
 
     // SECURITY-2 (M2) → gate del HTML del panel admin a nivel servidor.
     // Antes la proteccion era solo client-side (admin.js mostraba "Acceso
@@ -1446,10 +1474,24 @@ async function bootstrap() {
         // SECURITY-2 (M2) → gate del HTML admin antes del catch-all.
         // Acepta /admin y /admin/ (con trailing slash) y bloquea acceso directo
         // a /admin/admin.html (que el static middleware serviría sin gate).
-        app.get(['/admin', '/admin/', '/admin/admin.html'], gateAdminPage, (_req, res) => {
-            res.sendFile(path.join(distPath, 'admin/admin.html'), {
-                headers: { 'Cache-Control': 'no-store' }
+        app.get(
+            ['/admin', '/admin/', '/admin/admin.html', '/admin/commerce', '/admin/commerce/store',
+                '/admin/commerce/sales', '/admin/commerce/orders', '/admin/commerce/payments',
+                '/admin/commerce/inventory', '/admin/commerce/promotions', '/admin/commerce/payment-methods'],
+            gateAdminPage,
+            (_req, res) => {
+                res.sendFile(path.join(distPath, 'admin/admin.html'), {
+                    headers: { 'Cache-Control': 'no-store' }
+                });
             });
+
+        // Astro es estatico; todos los folios usan la misma plantilla noindex y
+        // el cliente obtiene el pedido mediante la API protegida por email/sesion.
+        app.get('/pedido/:folio', (req, res, next) => {
+            if (!/^PIX-\d{4}-\d{6}$/i.test(req.params.folio)) return next();
+            const orderTemplate = path.join(distPath, 'pedido/seguimiento.html');
+            if (!fs.existsSync(orderTemplate)) return next();
+            return res.sendFile(orderTemplate, { headers: { 'Cache-Control': 'private, no-store' } });
         });
 
         // La vista de error también debe conservar el estado HTTP correcto

@@ -335,9 +335,144 @@ async function notifyCustomerTicketNote(ticket, note) {
     });
 }
 
+function moneyLabel(amount, currency = 'MXN') {
+    const numeric = Number(amount || 0);
+    return new Intl.NumberFormat('es-MX', { style: 'currency', currency }).format(Number.isFinite(numeric) ? numeric : 0);
+}
+
+function orderUrl(order, config = getEmailConfig()) {
+    return `${config.siteUrl}/pedido/${encodeURIComponent(order?.folio || '')}`;
+}
+
+function orderItemsTable(order) {
+    const rows = (order?.items || []).map((item) => `
+      <tr>
+        <td style="padding:10px 0;color:#0f172a;font-weight:700;">${escapeHtml(item.title)}</td>
+        <td style="padding:10px 8px;color:#64748b;text-align:center;">${escapeHtml(item.quantity)}</td>
+        <td style="padding:10px 0;color:#0f172a;text-align:right;">${escapeHtml(moneyLabel(item.line_total, order?.pricing?.currency))}</td>
+      </tr>`).join('');
+    return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;margin:18px 0;">
+      <tr><th style="padding:8px 0;text-align:left;color:#64748b;font-size:12px;">ARTICULO</th><th style="padding:8px;text-align:center;color:#64748b;font-size:12px;">CANT.</th><th style="padding:8px 0;text-align:right;color:#64748b;font-size:12px;">IMPORTE</th></tr>
+      ${rows}
+      <tr><td colspan="2" style="padding:9px 0;color:#64748b;">Subtotal</td><td style="padding:9px 0;text-align:right;">${escapeHtml(moneyLabel(order?.pricing?.subtotal, order?.pricing?.currency))}</td></tr>
+      <tr><td colspan="2" style="padding:9px 0;color:#64748b;">Descuento</td><td style="padding:9px 0;text-align:right;">-${escapeHtml(moneyLabel(order?.pricing?.discount_total, order?.pricing?.currency))}</td></tr>
+      <tr><td colspan="2" style="padding:12px 0;color:#071F3A;font-weight:800;">Total</td><td style="padding:12px 0;text-align:right;color:#0b5ed7;font-size:18px;font-weight:800;">${escapeHtml(moneyLabel(order?.pricing?.total, order?.pricing?.currency))}</td></tr>
+    </table>`;
+}
+
+function transferBlock(order) {
+    if (!order?.transfer) return '';
+    const transfer = order.transfer;
+    const rows = [
+        ['Beneficiario', transfer.beneficiary],
+        ['Banco', transfer.bank],
+        ['CLABE', transfer.clabe],
+        ['Cuenta', transfer.account],
+        ['Referencia', order.folio],
+        ['Monto exacto', moneyLabel(order?.pricing?.total, order?.pricing?.currency)]
+    ].filter(([, value]) => value);
+    return `<div style="margin:20px 0;padding:18px;background:#eaf8fc;border:1px solid #b9e8f2;border-radius:10px;">
+      <p style="margin:0 0 10px;color:#071F3A;font-weight:800;">Datos para transferencia</p>
+      ${rows.map(([label, value]) => `<p style="margin:6px 0;color:#334155;"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`).join('')}
+      ${transfer.instructions ? `<p style="margin:12px 0 0;color:#334155;white-space:pre-line;">${escapeHtml(transfer.instructions)}</p>` : ''}
+    </div>`;
+}
+
+async function notifyOwnerOrderCreated(order) {
+    const config = getEmailConfig();
+    return sendTransactionalEmail({
+        to: config.ownerEmail,
+        subject: `Nuevo pedido ${order?.folio || ''} - ${order?.customer?.name || ''}`,
+        html: layout({
+            title: 'Nuevo pedido recibido', eyebrow: 'Marketplace Pixon PC',
+            body: `<p>Se creo el pedido <strong>${escapeHtml(order?.folio)}</strong> para ${escapeHtml(order?.customer?.name)}.</p>${orderItemsTable(order)}<p>Metodo: <strong>${escapeHtml(order?.payment?.method)}</strong></p>`,
+            ctaUrl: `${config.siteUrl}/admin#commerce-orders`, ctaLabel: 'Abrir pedidos'
+        }),
+        text: `Nuevo pedido ${order?.folio}\nCliente: ${order?.customer?.name}\nTotal: ${moneyLabel(order?.pricing?.total, order?.pricing?.currency)}`,
+        tags: [{ name: 'event', value: 'commerce_order_created_owner' }]
+    });
+}
+
+async function notifyCustomerOrderCreated(order) {
+    const config = getEmailConfig();
+    return sendTransactionalEmail({
+        to: order?.customer?.email,
+        subject: `Pedido recibido ${order?.folio || ''} - Pixon PC`,
+        html: layout({
+            title: 'Pedido recibido', eyebrow: 'Confirmacion de compra',
+            body: `<p>Hola <strong>${escapeHtml(order?.customer?.name)}</strong>, recibimos tu pedido.</p><p>Folio: <strong style="color:#0b5ed7;font-size:18px;">${escapeHtml(order?.folio)}</strong></p>${orderItemsTable(order)}<p>Metodo: <strong>${escapeHtml(order?.payment?.method)}</strong></p>${transferBlock(order)}`,
+            ctaUrl: orderUrl(order, config), ctaLabel: 'Ver mi pedido'
+        }),
+        text: `Pedido recibido\nFolio: ${order?.folio}\nTotal: ${moneyLabel(order?.pricing?.total, order?.pricing?.currency)}\nMetodo: ${order?.payment?.method}`,
+        tags: [{ name: 'event', value: 'commerce_order_created_customer' }]
+    });
+}
+
+async function notifyCustomerPaymentReview(order) {
+    const config = getEmailConfig();
+    return sendTransactionalEmail({
+        to: order?.customer?.email,
+        subject: `Comprobante recibido ${order?.folio || ''} - Pixon PC`,
+        html: layout({ title: 'Comprobante recibido', eyebrow: 'Pago en revision', body: `<p>Recibimos el comprobante del pedido <strong>${escapeHtml(order?.folio)}</strong>. Lo verificaremos antes de confirmar el pago.</p>`, ctaUrl: orderUrl(order, config), ctaLabel: 'Ver mi pedido' }),
+        text: `Comprobante recibido para ${order?.folio}. Tu pago esta en revision.`,
+        tags: [{ name: 'event', value: 'commerce_payment_review' }]
+    });
+}
+
+async function notifyCustomerPaymentApproved(order) {
+    const config = getEmailConfig();
+    return sendTransactionalEmail({
+        to: order?.customer?.email,
+        subject: `Pago confirmado ${order?.folio || ''} - Pixon PC`,
+        html: layout({ title: 'Pago confirmado', eyebrow: 'Pedido pagado', body: `<p>Confirmamos el pago de <strong>${escapeHtml(moneyLabel(order?.pricing?.total, order?.pricing?.currency))}</strong> para el pedido <strong>${escapeHtml(order?.folio)}</strong>.</p><p>Te avisaremos cuando el pedido este listo.</p>`, ctaUrl: orderUrl(order, config), ctaLabel: 'Ver mi pedido' }),
+        text: `Pago confirmado para ${order?.folio}. Total: ${moneyLabel(order?.pricing?.total, order?.pricing?.currency)}.`,
+        tags: [{ name: 'event', value: 'commerce_payment_approved' }]
+    });
+}
+
+async function notifyCustomerPaymentRejected(order, reason) {
+    const config = getEmailConfig();
+    return sendTransactionalEmail({
+        to: order?.customer?.email,
+        subject: `Necesitamos otro comprobante para ${order?.folio || ''}`,
+        html: layout({ title: 'Comprobante no aprobado', eyebrow: 'Accion requerida', body: `<p>No pudimos aprobar el comprobante del pedido <strong>${escapeHtml(order?.folio)}</strong>.</p><p><strong>Motivo:</strong> ${escapeHtml(reason)}</p><p>Puedes abrir tu pedido y subir otro archivo.</p>`, ctaUrl: orderUrl(order, config), ctaLabel: 'Subir otro comprobante' }),
+        text: `Comprobante rechazado para ${order?.folio}. Motivo: ${reason}`,
+        tags: [{ name: 'event', value: 'commerce_payment_rejected' }]
+    });
+}
+
+async function notifyCustomerOrderReady(order) {
+    const config = getEmailConfig();
+    return sendTransactionalEmail({
+        to: order?.customer?.email,
+        subject: `Tu pedido ${order?.folio || ''} esta listo`,
+        html: layout({ title: 'Tu pedido esta listo', eyebrow: 'Pedido listo', body: `<p>El pedido <strong>${escapeHtml(order?.folio)}</strong> ya esta listo. Revisa el seguimiento y contactanos si necesitas coordinar la entrega.</p>`, ctaUrl: orderUrl(order, config), ctaLabel: 'Ver mi pedido' }),
+        text: `Tu pedido ${order?.folio} esta listo.`,
+        tags: [{ name: 'event', value: 'commerce_order_ready' }]
+    });
+}
+
+async function notifyCustomerOrderCompleted(order) {
+    const config = getEmailConfig();
+    return sendTransactionalEmail({
+        to: order?.customer?.email,
+        subject: `Pedido completado ${order?.folio || ''} - Pixon PC`,
+        html: layout({ title: 'Pedido completado', eyebrow: 'Compra finalizada', body: `<p>El pedido <strong>${escapeHtml(order?.folio)}</strong> fue marcado como completado. Gracias por elegir Pixon PC.</p>`, ctaUrl: orderUrl(order, config), ctaLabel: 'Ver pedido' }),
+        text: `Pedido ${order?.folio} completado. Gracias por elegir Pixon PC.`,
+        tags: [{ name: 'event', value: 'commerce_order_completed' }]
+    });
+}
+
 module.exports = {
     notifyOwnerTicketCreated,
     notifyCustomerTicketCreated,
     notifyCustomerTicketReceived,
-    notifyCustomerTicketNote
+    notifyCustomerTicketNote,
+    notifyOwnerOrderCreated,
+    notifyCustomerOrderCreated,
+    notifyCustomerPaymentReview,
+    notifyCustomerPaymentApproved,
+    notifyCustomerPaymentRejected,
+    notifyCustomerOrderReady,
+    notifyCustomerOrderCompleted
 };
