@@ -8,8 +8,9 @@ const { Money } = require('../money');
 const { canTransition, assertTransition } = require('../orders/order-state');
 const { validateCreateOrder } = require('../orders/order-validation');
 const { inspectPaymentProof } = require('../orders/payment-proof-inspector');
-const { priceAfterPromotion, applyPromotionRules } = require('../orders/promotion.service');
-const { configured, StripeAdapter } = require('../orders/payment-provider.service');
+const { priceAfterPromotion, applyPromotionRules, validatePromotion } = require('../orders/promotion.service');
+const { configured, StripeAdapter, PaymentProviderService, PROVIDER_IMPLEMENTATION } = require('../orders/payment-provider.service');
+const { cleanPaymentMethods, validClabe } = require('../orders/settings.service');
 const { buildInventoryDemand } = require('../orders/order.service');
 
 const root = path.resolve(__dirname, '..', '..', '..', '..');
@@ -60,6 +61,21 @@ test('promociones PERCENT, FIXED, SALE_PRICE y BUNDLE_PRICE calculan importe seg
     assert.equal(priceAfterPromotion('7750.00', { promotion_type: 'BUNDLE_PRICE', promotion_value: '6000.00' }, 'MXN').toDecimal(), '6000.00');
 });
 
+test('constructor de promociones exige objetivo, beneficio y limites consistentes', () => {
+    const base = {
+        name: 'Regreso a clases', coupon_code: ' pixon_10 ', promotion_type: 'PERCENT',
+        promotion_value: '10.00', scope: 'ITEM', badge_id: null, status: 'DRAFT',
+        starts_at: null, ends_at: null, presentation: { title: 'Oferta', text: null, banner: null },
+        minimum_quantity: 1, minimum_subtotal: '0.00', max_redemptions: 100,
+        max_redemptions_per_customer: 1, priority: 0, stackable: false,
+        stop_processing: true, item_ids: [7], category_ids: [], brands: []
+    };
+    assert.equal(validatePromotion(base).coupon_code, 'PIXON_10');
+    assert.throws(() => validatePromotion({ ...base, item_ids: [] }), /Selecciona al menos un producto/);
+    assert.throws(() => validatePromotion({ ...base, promotion_value: '0.00' }), /mayor a cero/);
+    assert.throws(() => validatePromotion({ ...base, max_redemptions: 2, max_redemptions_per_customer: 3 }), /limite por cliente/);
+});
+
 test('cupones se normalizan y reglas acumulables respetan prioridad y stop_processing', () => {
     const input = validateCreateOrder({
         items: [{ catalog_item_id: 7, quantity: 2 }],
@@ -95,6 +111,37 @@ test('proveedores externos permanecen bloqueados sin secretos y Stripe valida HM
         .update(`${timestamp}.${raw.toString('utf8')}`).digest('hex');
     assert.equal(adapter.verifyWebhook(raw, { 'stripe-signature': `t=${timestamp},v1=${signature}` }), true);
     assert.equal(adapter.verifyWebhook(raw, { 'stripe-signature': `t=${timestamp},v1=bad` }), false);
+});
+
+test('credenciales no convierten por si solas un proveedor en cobro operativo', async () => {
+    assert.equal(PROVIDER_IMPLEMENTATION.STRIPE.checkout_session, false);
+    const service = new PaymentProviderService({
+        pool: null, runTransaction: null, audit: null,
+        env: { STRIPE_SECRET_KEY: 'sk_test_x', STRIPE_WEBHOOK_SECRET: 'whsec_test' }
+    });
+    const executor = { execute: async () => [[{
+        provider: 'STRIPE', enabled: 1, mode: 'TEST', display_name: 'Stripe', public_config: null, sort_order: 100
+    }]] };
+    const [state] = await service.readiness(executor);
+    assert.equal(state.configured, true);
+    assert.equal(state.capabilities.webhook_ingest, true);
+    assert.equal(state.capabilities.checkout_session, false);
+    assert.equal(state.operational, false);
+    assert.deepEqual(state.issues, ['checkout_session', 'automatic_reconciliation']);
+});
+
+test('transferencia exige identidad bancaria y valida CLABE en frontend y servidor', () => {
+    const clabe = '012180001234567899';
+    assert.equal(validClabe(clabe), true);
+    assert.equal(validClabe(clabe.slice(0, -1) + '8'), false);
+    const clean = cleanPaymentMethods({
+        BANK_TRANSFER: { enabled: true, beneficiary: 'Pixon PC', bank: 'Banco', clabe, instructions: 'Usa tu folio.' }
+    });
+    assert.equal(clean.BANK_TRANSFER.clabe, clabe);
+    assert.equal(Object.hasOwn(clean.BANK_TRANSFER, 'card'), false);
+    assert.throws(() => cleanPaymentMethods({
+        BANK_TRANSFER: { enabled: true, beneficiary: 'Pixon PC', bank: 'Banco', clabe: clabe.slice(0, -1) + '8' }
+    }), /CLABE/);
 });
 
 test('bundle multiplica componentes físicos y no reserva servicios sin inventario', () => {

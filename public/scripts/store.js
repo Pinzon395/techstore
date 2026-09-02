@@ -55,6 +55,8 @@
 
   if (!elements.form || !elements.grid) return;
 
+  const filterCheckInputs = Array.from(document.querySelectorAll('[data-filter-group]'));
+
   const state = {
     category: '',
     page: 1,
@@ -193,7 +195,11 @@
   }
 
   function createMedia(item) {
-    const media = element('div', 'store-card-media');
+    const media = element(item.slug ? 'a' : 'div', 'store-card-media');
+    if (item.slug) {
+      media.href = '/tienda/' + encodeURIComponent(item.slug);
+      media.setAttribute('aria-label', 'Abrir ficha de ' + item.name);
+    }
     if (item.image) {
       const image = document.createElement('img');
       image.src = item.image;
@@ -226,7 +232,15 @@
     meta.appendChild(element('span', '', TYPE_LABELS[item.type] || item.type));
     meta.appendChild(element('span', '', CONDITION_LABELS[item.condition] || item.condition));
     body.appendChild(meta);
-    body.appendChild(element('h3', '', item.name));
+    const heading = element('h3');
+    if (item.slug) {
+      const headingLink = element('a', '', item.name);
+      headingLink.href = '/tienda/' + encodeURIComponent(item.slug);
+      heading.appendChild(headingLink);
+    } else {
+      heading.textContent = item.name;
+    }
+    body.appendChild(heading);
     body.appendChild(element('p', 'store-card-description', item.shortDescription));
 
     const priceRow = element('div', 'store-card-price-row');
@@ -257,6 +271,8 @@
       add.dataset.itemPrice = String(item.currentPrice || '');
       add.dataset.itemCurrency = item.currency;
       add.dataset.itemImage = item.image;
+      add.dataset.itemType = item.type;
+      add.dataset.itemMax = String(item.trackStock && item.stock !== null ? Math.max(1, item.stock) : 100);
       add.setAttribute('aria-label', 'Agregar ' + item.name + ' al carrito');
       actions.appendChild(add);
     }
@@ -464,6 +480,7 @@
   }
 
   async function loadSold() {
+    if (!elements.soldGrid || !elements.soldSection) return;
     try {
       const query = new URLSearchParams({ status: 'SOLD', sort: 'newest', page: '1', pageSize: '4' });
       const payload = await fetchJson(API_ROOT + '?' + query.toString());
@@ -478,6 +495,8 @@
 
   function resetFilters() {
     elements.form.reset();
+    elements.search.value = '';
+    closeSuggestions();
     state.category = '';
     state.page = 1;
     elements.categories.querySelectorAll('[data-category]').forEach((button) => {
@@ -485,6 +504,7 @@
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    syncFilterChecks();
     loadCatalog({ focus: true });
   }
 
@@ -593,6 +613,14 @@
     if (maxPrice && /^\d+(?:\.\d{1,2})?$/.test(maxPrice)) elements.maxPrice.value = maxPrice;
     state.category = (params.get('category') || '').slice(0, 100);
     state.page = Math.max(1, Math.min(10000, Number.parseInt(params.get('page') || '1', 10) || 1));
+    syncFilterChecks();
+  }
+
+  function syncFilterChecks() {
+    filterCheckInputs.forEach((input) => {
+      const select = elements[input.dataset.filterGroup];
+      input.checked = Boolean(select && select.value === input.value);
+    });
   }
 
   elements.filterToggle?.addEventListener('click', () => {
@@ -601,6 +629,18 @@
     elements.filterToggle.setAttribute('aria-expanded', String(open));
   });
   elements.form.addEventListener('submit', (event) => event.preventDefault());
+  filterCheckInputs.forEach((input) => {
+    input.addEventListener('change', () => {
+      const group = input.dataset.filterGroup;
+      const select = elements[group];
+      filterCheckInputs.forEach((candidate) => {
+        if (candidate.dataset.filterGroup === group && candidate !== input) candidate.checked = false;
+      });
+      if (select) select.value = input.checked ? input.value : '';
+      state.page = 1;
+      loadCatalog();
+    });
+  });
   [elements.type, elements.condition, elements.availability, elements.sort].forEach((control) => {
     control.addEventListener('change', () => {
       state.page = 1;

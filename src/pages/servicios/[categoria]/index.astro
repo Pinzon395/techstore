@@ -22,11 +22,16 @@ export function getStaticPaths() {
 
 const { category } = Astro.props;
 const isB2bAlias = category.slug === 'b2b';
+const isPhoneCategory = category.slug === 'telefono';
 const canonical = isB2bAlias
   ? 'https://pixon.com.mx/empresas'
   : `https://pixon.com.mx/servicios/${category.slug}`;
-const title = `Reparación de ${category.title} en Cancún | Pixon PC`;
-const description = `Servicios profesionales de reparación de ${category.title.toLowerCase()} en Cancún. ${category.services.length} servicios disponibles, garantía por escrito y diagnóstico gratis.`;
+const title = isPhoneCategory
+  ? 'Reparación de Celulares en Cancún | Pantallas, Baterías y Diagnóstico | Pixon PC'
+  : `Reparación de ${category.title} en Cancún | Pixon PC`;
+const description = isPhoneCategory
+  ? 'Reparación de celulares en Cancún para pantallas, baterías, carga, cámaras, audio y fallas por humedad. Solicita revisión por WhatsApp o ticket.'
+  : `Servicios profesionales de reparación de ${category.title.toLowerCase()} en Cancún. ${category.services.length} servicios disponibles, garantía por escrito y diagnóstico gratis.`;
 const waMessage = encodeURIComponent(`Hola, quiero información sobre los servicios de ${category.title}`);
 
 const orderedServices = category.slug === 'laptop'
@@ -34,6 +39,11 @@ const orderedServices = category.slug === 'laptop'
       ...category.services.filter((service) => service.slug === 'laptop-mojada'),
       ...category.services.filter((service) => service.slug !== 'laptop-mojada'),
     ]
+  : isPhoneCategory
+    ? [
+        ...category.services.filter((service) => ['diagnostico', 'cambio-pantalla', 'cambio-bateria'].includes(service.slug)),
+        ...category.services.filter((service) => !['diagnostico', 'cambio-pantalla', 'cambio-bateria'].includes(service.slug)),
+      ]
   : category.services;
 const featured = orderedServices.slice(0, 3);
 const remaining = orderedServices.slice(3);
@@ -104,12 +114,12 @@ const schema = [
             Catálogo {category.title}
           </span>
           <h1>
-            Reparación de <span>{category.title}</span>
-            <small>en Cancún</small>
+            {isPhoneCategory ? <>Reparación de <span>celulares</span><small>en Cancún</small></> : <>Reparación de <span>{category.title}</span><small>en Cancún</small></>}
           </h1>
           <p>
-            {category.services.length} servicios profesionales para tu {category.title.toLowerCase()}.
-            Diagnóstico siempre gratis y garantía por escrito.
+            {isPhoneCategory
+              ? 'Revisamos pantallas rotas, baterías agotadas, fallas de carga, cámaras, audio, humedad y equipos que no encienden. Te orientamos antes de cotizar.'
+              : `${category.services.length} servicios profesionales para tu ${category.title.toLowerCase()}. Diagnóstico siempre gratis y garantía por escrito.`}
           </p>
           <div class="cat-actions">
             <a

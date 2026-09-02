@@ -65,7 +65,57 @@ function validatePromotion(payload, { partial = false } = {}) {
     if (out.promotion_type === 'PERCENT' && Money.fromDecimal(out.promotion_value).compare('100.00') > 0) {
         throw new ValidationError('El porcentaje no puede superar 100');
     }
+    if (out.promotion_value !== undefined && Money.fromDecimal(out.promotion_value).compare('0.00') <= 0) {
+        throw new ValidationError('El valor de la promocion debe ser mayor a cero');
+    }
+    if (out.max_redemptions !== undefined && out.max_redemptions !== null
+        && out.max_redemptions_per_customer !== undefined && out.max_redemptions_per_customer !== null
+        && out.max_redemptions_per_customer > out.max_redemptions) {
+        throw new ValidationError('El limite por cliente no puede superar el limite total');
+    }
+    if (!partial) assertTargetSelection(out);
     return out;
+}
+
+function assertTargetSelection(input) {
+    if (input.scope === 'ITEM' && !input.item_ids?.length) {
+        throw new ValidationError('Selecciona al menos un producto para la promocion');
+    }
+    if (input.scope === 'CATEGORY' && !input.category_ids?.length) {
+        throw new ValidationError('Selecciona al menos una categoria para la promocion');
+    }
+    if (input.scope === 'BRAND' && !input.brands?.length) {
+        throw new ValidationError('Selecciona al menos una marca para la promocion');
+    }
+}
+
+function targetCondition(input, alias = 'ci') {
+    if (input.scope === 'ITEM') {
+        return { sql: `${alias}.id IN (${input.item_ids.map(() => '?').join(',')})`, params: input.item_ids };
+    }
+    if (input.scope === 'CATEGORY') {
+        return {
+            sql: `EXISTS (SELECT 1 FROM catalog_item_categories selected_category
+                         WHERE selected_category.catalog_item_id = ${alias}.id
+                           AND selected_category.category_id IN (${input.category_ids.map(() => '?').join(',')}))`,
+            params: input.category_ids
+        };
+    }
+    return {
+        sql: `${alias}.brand IN (${input.brands.map(() => '?').join(',')})`,
+        params: input.brands
+    };
+}
+
+function promotionPriceExpression(input, alias = 'ci') {
+    const baseline = `COALESCE(${alias}.sale_price, ${alias}.base_price)`;
+    if (input.promotion_type === 'PERCENT') {
+        return { sql: `ROUND(${baseline} * (100 - ?) / 100, 2)`, params: [input.promotion_value] };
+    }
+    if (input.promotion_type === 'FIXED') {
+        return { sql: `GREATEST(0, ${baseline} - ?)`, params: [input.promotion_value] };
+    }
+    return { sql: `LEAST(${baseline}, ?)`, params: [input.promotion_value] };
 }
 
 function applyPromotionRules(listPrice, baselinePrice, promotions, currency) {
@@ -207,21 +257,65 @@ class PromotionService {
         return rows.map((row) => ({ ...row, promotion_value: String(row.promotion_value), presentation: typeof row.presentation === 'string' ? JSON.parse(row.presentation) : row.presentation }));
     }
 
-    async listAdmin({ page = 1, pageSize = 25, status = null } = {}) {
+    async listAdmin({ page = 1, pageSize = 25, status = null, q = null, type = null, scope = null } = {}) {
         const safePage = Math.max(1, Number.parseInt(page, 10) || 1);
         const safeSize = Math.min(100, Math.max(1, Number.parseInt(pageSize, 10) || 25));
         const params = [];
-        const where = status ? `WHERE ${EFFECTIVE_STATUS_SQL} = ?` : '';
-        if (status) params.push(enumValue(status, PROMOTION_STATUSES, { field: 'status' }));
+        const conditions = [];
+        if (status) { conditions.push(`${EFFECTIVE_STATUS_SQL} = ?`); params.push(enumValue(status, PROMOTION_STATUSES, { field: 'status' })); }
+        if (type) { conditions.push('p.promotion_type = ?'); params.push(enumValue(type, PROMOTION_TYPES, { field: 'type' })); }
+        if (scope) { conditions.push('p.scope = ?'); params.push(enumValue(scope, PROMOTION_SCOPES, { field: 'scope' })); }
+        if (q) {
+            const search = `%${String(q).trim().replace(/[!%_]/g, (character) => `!${character}`).slice(0, 120)}%`;
+            conditions.push("(p.name LIKE ? ESCAPE '!' OR p.coupon_code LIKE ? ESCAPE '!')");
+            params.push(search, search);
+        }
+        const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
         const [[count]] = await this.pool.execute(`SELECT COUNT(*) total FROM commerce_promotions p ${where}`, params);
+        const [[summary]] = await this.pool.execute(
+            `SELECT COUNT(*) total,
+                    SUM(${EFFECTIVE_STATUS_SQL} = 'ACTIVE') active,
+                    SUM(${EFFECTIVE_STATUS_SQL} = 'SCHEDULED') scheduled,
+                    SUM(${EFFECTIVE_STATUS_SQL} = 'DRAFT') draft,
+                    SUM(${EFFECTIVE_STATUS_SQL} = 'ENDED') ended,
+                    COALESCE(SUM(p.redemptions_count), 0) redemptions,
+                    (SELECT COALESCE(SUM(usage_record.discount_amount), 0) FROM commerce_promotion_usage usage_record) discount_granted
+             FROM commerce_promotions p`
+        );
         const [rows] = await this.pool.execute(
             `SELECT p.*, ${EFFECTIVE_STATUS_SQL} AS status, b.label AS badge_label,
-                    (SELECT COUNT(*) FROM commerce_promotion_items t WHERE t.promotion_id = p.id) AS target_count
+                    CASE WHEN p.scope = 'BRAND'
+                         THEN (SELECT COUNT(*) FROM commerce_promotion_brands target_brand WHERE target_brand.promotion_id = p.id)
+                         ELSE (SELECT COUNT(*) FROM commerce_promotion_items target_item WHERE target_item.promotion_id = p.id)
+                    END AS target_count,
+                    CASE WHEN p.scope = 'ITEM' THEN
+                        (SELECT COUNT(*) FROM commerce_promotion_items target_item WHERE target_item.promotion_id = p.id AND target_item.catalog_item_id IS NOT NULL)
+                         WHEN p.scope = 'CATEGORY' THEN
+                        (SELECT COUNT(DISTINCT item_category.catalog_item_id)
+                           FROM commerce_promotion_items target_category
+                           JOIN catalog_item_categories item_category ON item_category.category_id = target_category.category_id
+                           JOIN catalog_items affected_item ON affected_item.id = item_category.catalog_item_id AND affected_item.deleted_at IS NULL
+                          WHERE target_category.promotion_id = p.id)
+                         ELSE
+                        (SELECT COUNT(DISTINCT affected_item.id)
+                           FROM commerce_promotion_brands target_brand
+                           JOIN catalog_items affected_item ON affected_item.brand = target_brand.brand AND affected_item.deleted_at IS NULL
+                          WHERE target_brand.promotion_id = p.id)
+                    END AS affected_count,
+                    (SELECT COALESCE(SUM(usage_record.discount_amount), 0)
+                       FROM commerce_promotion_usage usage_record WHERE usage_record.promotion_id = p.id) AS discount_granted
              FROM commerce_promotions p LEFT JOIN catalog_badges b ON b.id = p.badge_id
              ${where} ORDER BY p.created_at DESC LIMIT ? OFFSET ?`,
             [...params, safeSize, (safePage - 1) * safeSize]
         );
-        return { rows, total: Number(count.total || 0), page: safePage, pageSize: safeSize };
+        return {
+            rows, total: Number(count.total || 0), page: safePage, pageSize: safeSize,
+            summary: {
+                total: Number(summary.total || 0), active: Number(summary.active || 0), scheduled: Number(summary.scheduled || 0),
+                draft: Number(summary.draft || 0), ended: Number(summary.ended || 0), redemptions: Number(summary.redemptions || 0),
+                discount_granted: String(summary.discount_granted || '0.00')
+            }
+        };
     }
 
     async getAdmin(id, executor = this.pool) {
@@ -230,18 +324,225 @@ class PromotionService {
         if (!promotion) throw new NotFoundError('Promocion');
         const [targets] = await executor.execute('SELECT catalog_item_id, category_id FROM commerce_promotion_items WHERE promotion_id = ?', [promotionId]);
         const [brands] = await executor.execute('SELECT brand FROM commerce_promotion_brands WHERE promotion_id = ? ORDER BY brand', [promotionId]);
-        return { ...promotion, item_ids: targets.map((t) => t.catalog_item_id).filter(Boolean), category_ids: targets.map((t) => t.category_id).filter(Boolean), brands: brands.map((row) => row.brand) };
+        let presentation = promotion.presentation;
+        if (typeof presentation === 'string') { try { presentation = JSON.parse(presentation); } catch { presentation = null; } }
+        return { ...promotion, presentation, item_ids: targets.map((t) => t.catalog_item_id).filter(Boolean), category_ids: targets.map((t) => t.category_id).filter(Boolean), brands: brands.map((row) => row.brand) };
+    }
+
+    async listTargets({ scope = 'ITEM', q = null, page = 1, pageSize = 100, selected = [] } = {}) {
+        const targetScope = enumValue(scope, PROMOTION_SCOPES, { field: 'scope' });
+        const safePage = Math.max(1, Number.parseInt(page, 10) || 1);
+        const safeSize = Math.min(100, Math.max(1, Number.parseInt(pageSize, 10) || 100));
+        const search = q ? plainText(q, { field: 'q', max: 100, nullable: true }) : null;
+        const rawSelected = (Array.isArray(selected) ? selected : selected ? [selected] : []).slice(0, 100);
+        const offset = (safePage - 1) * safeSize;
+
+        if (targetScope === 'ITEM') {
+            const selectedIds = validateIdList(rawSelected, 'selected');
+            const query = search ? `%${search.replace(/[!%_]/g, (character) => `!${character}`)}%` : null;
+            const searchClause = query ? "(ci.name LIKE ? ESCAPE '!' OR ci.sku LIKE ? ESCAPE '!' OR ci.brand LIKE ? ESCAPE '!')" : null;
+            const selectedClause = selectedIds.length ? `ci.id IN (${selectedIds.map(() => '?').join(',')})` : null;
+            const choiceClause = [searchClause, selectedClause].filter(Boolean).join(' OR ');
+            const where = `ci.deleted_at IS NULL${choiceClause ? ` AND (${choiceClause})` : ''}`;
+            const whereParams = [...(query ? [query, query, query] : []), ...selectedIds];
+            const order = selectedIds.length ? `ci.id IN (${selectedIds.map(() => '?').join(',')}) DESC, ` : '';
+            const [[count]] = await this.pool.execute(`SELECT COUNT(*) total FROM catalog_items ci WHERE ${where}`, whereParams);
+            const [rows] = await this.pool.execute(
+                `SELECT ci.id, ci.name, ci.sku, ci.brand, ci.status, ci.currency,
+                        COALESCE(ci.sale_price, ci.base_price) effective_price
+                   FROM catalog_items ci WHERE ${where}
+                  ORDER BY ${order}ci.name, ci.id LIMIT ? OFFSET ?`,
+                [...whereParams, ...selectedIds, safeSize, offset]
+            );
+            return { rows: rows.map((row) => ({ value: String(row.id), title: row.name, detail: [row.sku || 'Sin SKU', row.brand || 'Sin marca', `${row.currency} ${row.effective_price}`].join(' · ') })), total: Number(count.total || 0), page: safePage, pageSize: safeSize };
+        }
+
+        if (targetScope === 'CATEGORY') {
+            const selectedIds = validateIdList(rawSelected, 'selected');
+            const query = search ? `%${search.replace(/[!%_]/g, (character) => `!${character}`)}%` : null;
+            const searchClause = query ? "c.name LIKE ? ESCAPE '!'" : null;
+            const selectedClause = selectedIds.length ? `c.id IN (${selectedIds.map(() => '?').join(',')})` : null;
+            const choiceClause = [searchClause, selectedClause].filter(Boolean).join(' OR ');
+            const where = `c.deleted_at IS NULL AND c.status <> 'ARCHIVED'${choiceClause ? ` AND (${choiceClause})` : ''}`;
+            const whereParams = [...(query ? [query] : []), ...selectedIds];
+            const order = selectedIds.length ? `c.id IN (${selectedIds.map(() => '?').join(',')}) DESC, ` : '';
+            const [[count]] = await this.pool.execute(`SELECT COUNT(*) total FROM catalog_categories c WHERE ${where}`, whereParams);
+            const [rows] = await this.pool.execute(
+                `SELECT c.id, c.name, COUNT(DISTINCT ci.id) item_count
+                   FROM catalog_categories c
+                   LEFT JOIN catalog_item_categories relation ON relation.category_id = c.id
+                   LEFT JOIN catalog_items ci ON ci.id = relation.catalog_item_id AND ci.deleted_at IS NULL
+                  WHERE ${where}
+                  GROUP BY c.id, c.name
+                  ORDER BY ${order}c.name, c.id LIMIT ? OFFSET ?`,
+                [...whereParams, ...selectedIds, safeSize, offset]
+            );
+            return { rows: rows.map((row) => ({ value: String(row.id), title: row.name, detail: `${Number(row.item_count || 0)} productos` })), total: Number(count.total || 0), page: safePage, pageSize: safeSize };
+        }
+
+        const selectedBrands = [...new Set(rawSelected.map((value, index) => plainText(value, { field: `selected[${index}]`, max: 100, required: true })))];
+        const query = search ? `%${search.replace(/[!%_]/g, (character) => `!${character}`)}%` : null;
+        const searchClause = query ? "ci.brand LIKE ? ESCAPE '!'" : null;
+        const selectedClause = selectedBrands.length ? `ci.brand IN (${selectedBrands.map(() => '?').join(',')})` : null;
+        const choiceClause = [searchClause, selectedClause].filter(Boolean).join(' OR ');
+        const where = `ci.deleted_at IS NULL AND ci.brand IS NOT NULL AND TRIM(ci.brand) <> ''${choiceClause ? ` AND (${choiceClause})` : ''}`;
+        const whereParams = [...(query ? [query] : []), ...selectedBrands];
+        const order = selectedBrands.length ? `ci.brand IN (${selectedBrands.map(() => '?').join(',')}) DESC, ` : '';
+        const [[count]] = await this.pool.execute(`SELECT COUNT(DISTINCT ci.brand) total FROM catalog_items ci WHERE ${where}`, whereParams);
+        const [rows] = await this.pool.execute(
+            `SELECT ci.brand, COUNT(*) item_count FROM catalog_items ci WHERE ${where}
+              GROUP BY ci.brand ORDER BY ${order}ci.brand LIMIT ? OFFSET ?`,
+            [...whereParams, ...selectedBrands, safeSize, offset]
+        );
+        return { rows: rows.map((row) => ({ value: row.brand, title: row.brand, detail: `${Number(row.item_count || 0)} productos` })), total: Number(count.total || 0), page: safePage, pageSize: safeSize };
+    }
+
+    async assertTargetsExist(executor, input) {
+        if (input.scope === 'ITEM') {
+            const [[row]] = await executor.execute(
+                `SELECT COUNT(*) total FROM catalog_items
+                  WHERE deleted_at IS NULL AND id IN (${input.item_ids.map(() => '?').join(',')})`, input.item_ids
+            );
+            if (Number(row.total) !== input.item_ids.length) throw new ValidationError('Uno o mas productos seleccionados ya no existen');
+        } else if (input.scope === 'CATEGORY') {
+            const [[row]] = await executor.execute(
+                `SELECT COUNT(*) total FROM catalog_categories
+                  WHERE status <> 'ARCHIVED' AND id IN (${input.category_ids.map(() => '?').join(',')})`, input.category_ids
+            );
+            if (Number(row.total) !== input.category_ids.length) throw new ValidationError('Una o mas categorias seleccionadas ya no existen');
+        } else {
+            const [[row]] = await executor.execute(
+                `SELECT COUNT(DISTINCT brand) total FROM catalog_items
+                  WHERE deleted_at IS NULL AND brand IN (${input.brands.map(() => '?').join(',')})`, input.brands
+            );
+            if (Number(row.total) !== input.brands.length) throw new ValidationError('Una o mas marcas seleccionadas ya no tienen productos');
+        }
+    }
+
+    async preview(payload, { excludeId = null } = {}) {
+        const input = validatePromotion(payload);
+        await this.assertTargetsExist(this.pool, input);
+        const target = targetCondition(input);
+        const price = promotionPriceExpression(input);
+        const [sample] = await this.pool.execute(
+            `SELECT priced.id, priced.name, priced.sku, priced.brand, priced.currency,
+                    priced.baseline_price, priced.final_price, priced.cost_reference,
+                    (priced.baseline_price - priced.final_price) discount_amount,
+                    (priced.cost_reference IS NOT NULL AND priced.final_price < priced.cost_reference) below_cost
+               FROM (
+                    SELECT ci.id, ci.name, ci.sku, ci.brand, ci.currency, ci.cost_reference,
+                           COALESCE(ci.sale_price, ci.base_price) baseline_price,
+                           ${price.sql} final_price
+                      FROM catalog_items ci
+                     WHERE ci.deleted_at IS NULL AND ${target.sql}
+               ) priced
+              ORDER BY (priced.baseline_price - priced.final_price) DESC, priced.name
+              LIMIT 12`,
+            [...price.params, ...target.params]
+        );
+        const [[impact]] = await this.pool.execute(
+            `SELECT COUNT(*) target_count,
+                    SUM(priced.final_price < priced.baseline_price) discounted_count,
+                    SUM(priced.cost_reference IS NOT NULL AND priced.final_price < priced.cost_reference) below_cost_count,
+                    COALESCE(SUM(priced.baseline_price - priced.final_price), 0) sample_unit_savings
+               FROM (
+                    SELECT ci.cost_reference, COALESCE(ci.sale_price, ci.base_price) baseline_price,
+                           ${price.sql} final_price
+                      FROM catalog_items ci
+                     WHERE ci.deleted_at IS NULL AND ${target.sql}
+               ) priced`,
+            [...price.params, ...target.params]
+        );
+        const overlapTarget = targetCondition(input, 'conflict_item');
+        const conflictParams = [];
+        const conflictWhere = [];
+        if (excludeId) { conflictWhere.push('p.id <> ?'); conflictParams.push(positiveId(excludeId, 'exclude_id')); }
+        conflictWhere.push("p.status IN ('ACTIVE','SCHEDULED')");
+        conflictWhere.push('(p.ends_at IS NULL OR ? IS NULL OR p.ends_at > ?)');
+        conflictParams.push(input.starts_at, input.starts_at);
+        conflictWhere.push('(? IS NULL OR p.starts_at IS NULL OR p.starts_at < ?)');
+        conflictParams.push(input.ends_at, input.ends_at);
+        conflictParams.push(...overlapTarget.params);
+        const [conflicts] = await this.pool.execute(
+            `SELECT p.id, p.name, p.promotion_type, p.promotion_value, p.priority, p.stackable,
+                    ${EFFECTIVE_STATUS_SQL} status
+               FROM commerce_promotions p
+              WHERE ${conflictWhere.join(' AND ')}
+                AND EXISTS (
+                    SELECT 1 FROM catalog_items conflict_item
+                     WHERE conflict_item.deleted_at IS NULL
+                       AND ${overlapTarget.sql}
+                       AND (
+                            (p.scope = 'ITEM' AND EXISTS (
+                                SELECT 1 FROM commerce_promotion_items item_target
+                                 WHERE item_target.promotion_id = p.id
+                                   AND item_target.catalog_item_id = conflict_item.id
+                            ))
+                            OR (p.scope = 'CATEGORY' AND EXISTS (
+                                SELECT 1 FROM commerce_promotion_items category_target
+                                JOIN catalog_item_categories item_category
+                                  ON item_category.category_id = category_target.category_id
+                                 AND item_category.catalog_item_id = conflict_item.id
+                                 WHERE category_target.promotion_id = p.id
+                            ))
+                            OR (p.scope = 'BRAND' AND EXISTS (
+                                SELECT 1 FROM commerce_promotion_brands brand_target
+                                 WHERE brand_target.promotion_id = p.id
+                                   AND brand_target.brand = conflict_item.brand
+                            ))
+                       )
+                )
+              ORDER BY p.priority DESC, p.id DESC LIMIT 10`, conflictParams
+        );
+        return {
+            target_count: Number(impact.target_count || 0), discounted_count: Number(impact.discounted_count || 0),
+            below_cost_count: Number(impact.below_cost_count || 0), sample_unit_savings: String(impact.sample_unit_savings || '0.00'),
+            conflicts: conflicts.map((row) => ({ ...row, promotion_value: String(row.promotion_value), stackable: Boolean(row.stackable) })),
+            sample: sample.map((row) => ({ ...row, baseline_price: String(row.baseline_price), final_price: String(row.final_price),
+                cost_reference: row.cost_reference === null ? null : String(row.cost_reference), discount_amount: String(row.discount_amount), below_cost: Boolean(row.below_cost) }))
+        };
     }
 
     async save(id, payload, actor) {
         const partial = id !== null && id !== undefined;
         const input = validatePromotion(payload, { partial });
         return this.runTransaction(this.pool, async (connection) => {
-            let promotionId;
+            let promotionId = partial ? positiveId(id, 'id') : null;
             let before = null;
             if (partial) {
-                promotionId = positiveId(id, 'id');
                 before = await this.getAdmin(promotionId, connection);
+            }
+            const effective = {
+                ...(before || {}), ...input,
+                item_ids: input.item_ids !== undefined ? input.item_ids : (before?.item_ids || []),
+                category_ids: input.category_ids !== undefined ? input.category_ids : (before?.category_ids || []),
+                brands: input.brands !== undefined ? input.brands : (before?.brands || [])
+            };
+            assertTargetSelection(effective);
+            if (effective.starts_at && effective.ends_at && effective.ends_at <= effective.starts_at) {
+                throw new ValidationError('La fecha final debe ser posterior a la fecha de inicio');
+            }
+            if (['ACTIVE', 'SCHEDULED'].includes(effective.status) && effective.ends_at) {
+                const [[clock]] = await connection.execute('SELECT ? <= UTC_TIMESTAMP() AS already_ended', [effective.ends_at]);
+                if (Boolean(clock.already_ended)) throw new ValidationError('Una promocion publicada no puede finalizar en el pasado');
+            }
+            if (effective.max_redemptions !== null && effective.max_redemptions_per_customer !== null
+                && Number(effective.max_redemptions_per_customer) > Number(effective.max_redemptions)) {
+                throw new ValidationError('El limite por cliente no puede superar el limite total');
+            }
+            if (before && effective.max_redemptions !== null
+                && Number(effective.max_redemptions) < Number(before.redemptions_count || 0)) {
+                throw new ValidationError('El limite total no puede ser menor a los usos ya registrados');
+            }
+            await this.assertTargetsExist(connection, effective);
+            if (effective.coupon_code) {
+                const [[duplicate]] = await connection.execute(
+                    'SELECT id FROM commerce_promotions WHERE coupon_code = ? AND (? IS NULL OR id <> ?) LIMIT 1',
+                    [effective.coupon_code, promotionId, promotionId]
+                );
+                if (duplicate) throw new ValidationError('Ese codigo de cupon ya pertenece a otra promocion');
+            }
+            if (partial) {
                 const allowed = ['name','coupon_code','promotion_type','promotion_value','scope','minimum_quantity','minimum_subtotal','max_redemptions','max_redemptions_per_customer','priority','stackable','stop_processing','badge_id','status','starts_at','ends_at','presentation'];
                 const entries = allowed.filter((key) => input[key] !== undefined);
                 if (entries.length) {
@@ -262,21 +563,17 @@ class PromotionService {
                 );
                 promotionId = result.insertId;
             }
-            if (input.brands !== undefined) {
+            const targetsChanged = !partial || input.scope !== undefined || input.item_ids !== undefined
+                || input.category_ids !== undefined || input.brands !== undefined;
+            if (targetsChanged) {
                 await connection.execute('DELETE FROM commerce_promotion_brands WHERE promotion_id = ?', [promotionId]);
-                if ((input.scope || before?.scope) === 'BRAND' && input.brands.length) {
-                    await connection.query('INSERT INTO commerce_promotion_brands (promotion_id, brand) VALUES ?', [input.brands.map((brand) => [promotionId, brand])]);
-                }
-            }
-            if (input.item_ids !== undefined || input.category_ids !== undefined) {
                 await connection.execute('DELETE FROM commerce_promotion_items WHERE promotion_id = ?', [promotionId]);
-                const itemIds = input.item_ids || [];
-                const categoryIds = input.category_ids || [];
-                if ((input.scope || before?.scope) === 'ITEM' && itemIds.length) {
-                    await connection.query('INSERT INTO commerce_promotion_items (promotion_id, catalog_item_id) VALUES ?', [itemIds.map((target) => [promotionId, target])]);
-                }
-                if ((input.scope || before?.scope) === 'CATEGORY' && categoryIds.length) {
-                    await connection.query('INSERT INTO commerce_promotion_items (promotion_id, category_id) VALUES ?', [categoryIds.map((target) => [promotionId, target])]);
+                if (effective.scope === 'BRAND') {
+                    await connection.query('INSERT INTO commerce_promotion_brands (promotion_id, brand) VALUES ?', [effective.brands.map((brand) => [promotionId, brand])]);
+                } else if (effective.scope === 'ITEM') {
+                    await connection.query('INSERT INTO commerce_promotion_items (promotion_id, catalog_item_id) VALUES ?', [effective.item_ids.map((target) => [promotionId, target])]);
+                } else {
+                    await connection.query('INSERT INTO commerce_promotion_items (promotion_id, category_id) VALUES ?', [effective.category_ids.map((target) => [promotionId, target])]);
                 }
             }
             const after = await this.getAdmin(promotionId, connection);

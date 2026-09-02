@@ -6,495 +6,1017 @@ import ServiceTicketSection from '../ServiceTicketSection.astro';
 import Footer from '../Footer.astro';
 
 const waMessage = encodeURIComponent(
-  'Hola, quiero cotizar reparación de tarjeta de video GPU en Cancún. Mi PC no da imagen, muestra artefactos, se calienta o quiero instalar una GPU nueva.'
+  'Hola Pixon PC. Quiero cotizar la reparación/diagnóstico de mi tarjeta gráfica GPU en Cancún.\nMarca y modelo:\nSíntoma:'
 );
+const whatsappUrl = `https://wa.me/529986690777?text=${waMessage}`;
 
 const zones = [
   'Cancún Centro',
-  'Huayacán',
   'Zona Hotelera',
-  'Cumbres',
-  'Av. Tulum',
-  'Bonampak',
   'Puerto Cancún',
-  'Polígono Sur',
-  'Bonfil',
+  'Huayacán',
+  'Cumbres',
+  'Bonampak',
+  'Av. Tulum',
   'Puerto Juárez',
+  'Polígono Sur',
   'Supermanzanas',
   'Haciendas',
+  'Bonfil',
+  'Costa Mujeres',
+  'Playa Mujeres',
+  'Punta Sam',
 ];
 
-const heroFacts = [
-  { label: 'Diagnóstico desde', value: '$650 MXN' },
-  { label: 'Prueba bajo carga', value: 'Benchmark, temperatura y voltajes' },
-  { label: 'Tiempo típico', value: '24 a 72 h según falla' },
-  { label: 'Garantía', value: 'Por escrito sobre lo intervenido' },
-];
-
-const symptoms = [
+const gpuFaqs = [
   {
-    icon: 'fa-image',
-    title: 'Artefactos, líneas o cuadros en pantalla',
-    what: 'La imagen se distorsiona, aparecen bloques de color o líneas al jugar o iniciar Windows.',
-    cause: 'Puede venir de VRAM, temperatura alta, driver dañado o una falla física en la tarjeta.',
-    check: 'Probamos la GPU bajo carga, salidas HDMI/DisplayPort, temperatura y estabilidad de memoria.',
+    question: '¿Cuánto cuesta revisar una tarjeta gráfica en Cancún?',
+    answer: 'El diagnóstico técnico de tarjeta de video inicia desde $650 MXN. Incluye pruebas bajo carga, medición de voltajes, temperaturas de núcleo y hotspot, estabilidad de VRAM e inspección visual. Antes de cualquier reparación o intervención te entregamos un presupuesto claro por escrito.'
   },
   {
-    icon: 'fa-display',
-    title: 'PC enciende pero no da imagen',
-    what: 'Los ventiladores giran y la PC prende, pero el monitor queda negro o sin señal.',
-    cause: 'Puede ser GPU, fuente de poder, ranura PCIe, cable, monitor, BIOS o RAM.',
-    check: 'Descartamos monitor, cable, RAM, fuente, ranura PCIe y salida de video antes de culpar la GPU.',
+    question: '¿Cómo saber si mi GPU está dañada?',
+    answer: 'Los síntomas más comunes son artefactos visuales (líneas, cuadros de colores), pantalla negra al abrir juegos, reinicios repentinos, ventiladores girando al 100% con ruido excesivo, errores de drivers NVIDIA/AMD o que la PC encienda pero no dé señal de video.'
   },
   {
-    icon: 'fa-gamepad',
-    title: 'Juegos se cierran solos',
-    what: 'El juego se congela, se cierra o Windows regresa al escritorio sin explicación clara.',
-    cause: 'Suele relacionarse con temperatura, drivers NVIDIA/AMD, fuente insuficiente o inestabilidad de GPU.',
-    check: 'Revisamos visor de eventos, drivers, stress test, consumo y voltajes bajo carga.',
+    question: '¿Por qué mi PC enciende pero no da imagen?',
+    answer: 'No siempre es la tarjeta gráfica. La falta de señal puede deberse a la fuente de poder, un módulo de memoria RAM inestable, la ranura PCIe, el cable HDMI/DisplayPort o la BIOS de la placa madre. En nuestro taller aislamos cada componente para confirmar el origen real.'
   },
   {
-    icon: 'fa-moon',
-    title: 'Pantalla negra al jugar',
-    what: 'La PC sigue encendida, pero la pantalla se apaga al abrir juegos o renderizar.',
-    cause: 'Puede ser protección térmica, fuente degradada, cable PCIe flojo o fallo de alimentación.',
-    check: 'Probamos fuente, conectores 8 pines o 12VHPWR, temperatura y carga real de la tarjeta.',
+    question: '¿La fuente puede provocar fallas que parecen de GPU?',
+    answer: 'Sí. Una fuente de poder fatigada o con riel de 12V inestable puede apagarse bajo carga, provocar pantallas negras en juegos o reinicios que aparentan ser fallas de la tarjeta gráfica. Por ello siempre probamos la entrega de energía antes de intervenir la GPU.'
   },
   {
-    icon: 'fa-gauge-high',
-    title: 'FPS bajos o bajo rendimiento',
-    what: 'La tarjeta no rinde como debería o cae mucho el rendimiento después de unos minutos.',
-    cause: 'Puede ser thermal throttling, driver incorrecto, cuello de botella o mala configuración.',
-    check: 'Comparamos benchmark, uso de GPU, temperatura, drivers, CPU, RAM y configuración de energía.',
+    question: '¿Reparan tarjetas NVIDIA RTX y GTX?',
+    answer: 'Sí. Diagnosticamos y damos servicio a tarjetas gráficas NVIDIA GeForce RTX series 50, 40, 30 y 20, así como modelos GTX, atendiendo problemas de temperatura, ventiladores, pasta térmica, thermal pads, alimentación y estabilidad gráfica.'
   },
   {
-    icon: 'fa-fan',
-    title: 'Ventiladores de GPU al máximo',
-    what: 'Los ventiladores suben al 100%, hacen ruido o cambian de velocidad de forma brusca.',
-    cause: 'Pasta térmica seca, polvo, thermal pads vencidos, sensor alterado o mala ventilación.',
-    check: 'Inspeccionamos disipador, ventiladores, pasta térmica, pads, curva térmica y flujo de aire.',
+    question: '¿Reparan tarjetas AMD Radeon?',
+    answer: 'Sí. Atendemos tarjetas AMD Radeon RX (series 7000, 6000, 5000 y anteriores), diagnosticando crashes, tiempos de espera del controlador, temperaturas de unión (junction temp) y mantenimiento térmico integral.'
   },
   {
-    icon: 'fa-triangle-exclamation',
-    title: 'Pantalla azul o errores de drivers',
-    what: 'Aparecen errores de video, reinicios o mensajes relacionados con NVIDIA o AMD.',
-    cause: 'Puede ser driver corrupto, Windows inestable, GPU dañada, RAM o almacenamiento.',
-    check: 'Reinstalamos drivers de forma limpia, revisamos Windows y probamos hardware por separado.',
+    question: '¿Cambian pasta térmica y thermal pads de GPU?',
+    answer: 'Sí. Realizamos mantenimiento térmico especializado utilizando pastas de alta conductividad y thermal pads de los espesores milimétricos exactos (0.5mm, 1.0mm, 1.5mm, 2.0mm) requeridos por el fabricante para VRAM y etapas de poder VRM.'
   },
   {
-    icon: 'fa-temperature-high',
-    title: 'Temperatura alta',
-    what: 'La GPU supera temperaturas normales, baja frecuencia o se apaga al exigirla.',
-    cause: 'El calor de Cancún, polvo, humedad y pasta térmica seca aceleran el desgaste térmico.',
-    check: 'Medimos temperatura en reposo y bajo carga, hotspot, ventilación y condición del disipador.',
-  },
-];
-
-const diagnosticChecks = [
-  'Temperatura en reposo y bajo carga.',
-  'Benchmark y stress test para reproducir fallas.',
-  'Revisión de drivers NVIDIA o AMD.',
-  'Prueba de fuente de poder y consumo bajo carga.',
-  'Medición de voltajes principales.',
-  'Revisión de ranura PCIe y montaje físico.',
-  'Inspección de VRAM, VRM, capacitores y conectores.',
-  'Prueba de HDMI, DisplayPort y alimentación de GPU.',
-  'Recomendación honesta: reparar, dar mantenimiento, cambiar o no invertir.',
-];
-
-const serviceBlocks = [
-  {
-    title: 'Diagnóstico técnico de GPU en Cancún',
-    text: 'Antes de cotizar revisamos si la falla realmente viene de la tarjeta de video o si el origen está en fuente, drivers, RAM, monitor, cableado o ranura PCIe.',
+    question: '¿Por qué mi GPU se calienta demasiado?',
+    answer: 'Puede deberse a acumulación de polvo en el disipador, pasta térmica original seca o cristalizada, thermal pads degradados, ventiladores con rodamientos desgastados o flujo de aire deficiente dentro del gabinete de la PC.'
   },
   {
-    title: 'Reparación, mantenimiento e instalación de GPU',
-    text: 'Atendemos fallas de video, temperatura, ventiladores, conectores, drivers e instalación de tarjetas nuevas en PC gamer o estaciones de trabajo.',
+    question: '¿Por qué aparecen artefactos en pantalla?',
+    answer: 'Los artefactos (glitches, líneas o puntos de colores) suelen indicar inestabilidad en los chips de memoria VRAM, sobrecalentamiento extremo, soldaduras de BGA fatigadas o fallas en el controlador gráfico bajo estrés.'
   },
   {
-    title: 'Cambio de pasta térmica y thermal pads de GPU',
-    text: 'Conviene cuando la tarjeta se calienta, baja rendimiento, hace mucho ruido o no recibe mantenimiento desde hace tiempo. Se revisa antes y después.',
+    question: '¿Una GPU con VRAM dañada se puede reparar?',
+    answer: 'Depende del modelo y la disponibilidad de componentes. Tras el diagnóstico técnico evaluamos si la intervención es económicamente viable o si resulta más conveniente reemplazar la tarjeta gráfica.'
   },
   {
-    title: 'Instalación de tarjeta de video para PC gamer',
-    text: 'Validamos fuente, gabinete, conectores, drivers oficiales, benchmark final, temperatura, FPS y estabilidad para que la actualización tenga sentido.',
-  },
-];
-
-const gamerChecks = [
-  'Compatibilidad con gabinete y placa madre.',
-  'Validación de fuente de poder y watts disponibles.',
-  'Revisión de conectores 8 pines, 12VHPWR o PCIe 5.0.',
-  'Instalación limpia de drivers oficiales.',
-  'Benchmark final y prueba de temperatura.',
-  'Revisión de FPS, estabilidad y ruido bajo carga.',
-];
-
-const localFactors = [
-  'Calor ambiental que eleva la temperatura base del gabinete.',
-  'Humedad y salitre que pueden afectar conectores, VRM y soldaduras.',
-  'Polvo acumulado en ventiladores, disipador y filtros.',
-  'Variaciones eléctricas que castigan fuente de poder y GPU.',
-  'Pasta térmica y thermal pads secos por uso prolongado.',
-];
-
-const decisionRoutes = [
-  {
-    label: 'Reparar',
-    title: 'Cuando la falla es localizada',
-    text: 'Conectores, ventiladores, alimentación o intervención viable después de pruebas. Se cotiza antes de abrir reparación.',
+    question: '¿Atienden en Zona Hotelera de Cancún?',
+    answer: 'Sí. Atendemos a residentes, creadores de contenido, gamers y huéspedes en la Zona Hotelera de Cancún mediante cita previa en taller o coordinando recolección del equipo según disponibilidad.'
   },
   {
-    label: 'Mantener',
-    title: 'Cuando el problema es térmico',
-    text: 'Pasta seca, pads vencidos, polvo o hotspot alto. Se valida con temperatura antes y después, sin prometer resultados fijos.',
-  },
-  {
-    label: 'Cambiar',
-    title: 'Cuando el costo ya no conviene',
-    text: 'Si el daño supera el valor útil de la tarjeta, recomendamos reemplazo compatible con fuente, gabinete y procesador.',
-  },
-  {
-    label: 'No invertir',
-    title: 'Cuando el riesgo es alto',
-    text: 'Si hay daño severo, humedad o falla intermitente costosa, te explicamos por qué conviene detener gasto.',
-  },
+    question: '¿Trabajan mediante cita previa?',
+    answer: 'Sí. Todos nuestros servicios y recepciones se gestionan mediante cita previa para dedicar el tiempo y las pruebas necesarias a cada equipo sin demoras.'
+  }
 ];
 
 const relatedServices = [
   { href: '/servicios/pc/fuente-poder', title: 'Fuente de poder PC', text: 'Revisión de voltajes, watts disponibles, conectores PCIe y estabilidad bajo carga.' },
   { href: '/servicios/pc/diagnostico', title: 'Diagnóstico profesional de PC', text: 'Pruebas por componente para ubicar si la falla es GPU, RAM, fuente, placa o Windows.' },
-  { href: '/servicios/pc/limpieza-profunda', title: 'Limpieza profunda de PC', text: 'Limpieza interna, flujo de aire, polvo acumulado y revisión térmica general.' },
-  { href: '/servicios/pc/mantenimiento-correctivo', title: 'Mantenimiento correctivo', text: 'Corrección de fallas de hardware o software después de identificar la causa real.' },
-  { href: '/servicios/pc/refrigeracion', title: 'Refrigeración y temperatura', text: 'Mejora de ventilación, pasta térmica, ventiladores y estabilidad térmica.' },
-  { href: '/servicios/pc/upgrade', title: 'Upgrade SSD y RAM', text: 'Actualización de almacenamiento y memoria para balancear rendimiento de la PC.' },
-  { href: '/ensambles', title: 'Ensambles PC Gamer', text: 'Armado y actualización de equipos gamer con compatibilidad de componentes.' },
-];
-
-const gpuFaqs = [
-  {
-    question: '¿Cuánto cuesta revisar una tarjeta de video en Cancún?',
-    answer: 'La revisión inicia desde $650 MXN cuando requiere pruebas técnicas, mantenimiento o intervención. Antes de reparar se confirma la falla y se envía cotización clara.',
-  },
-  {
-    question: '¿Cómo sé si mi GPU está fallando?',
-    answer: 'Los síntomas más comunes son artefactos, pantalla negra, cierres de juegos, temperatura alta, ventiladores al máximo, errores de drivers o PC sin imagen.',
-  },
-  {
-    question: '¿Qué pasa si mi PC prende pero no da imagen?',
-    answer: 'No siempre es la tarjeta de video. Revisamos monitor, cable, RAM, fuente, ranura PCIe, BIOS y GPU antes de recomendar reparación o cambio.',
-  },
-  {
-    question: '¿Puede ser la fuente de poder y no la GPU?',
-    answer: 'Sí. Una fuente degradada o insuficiente puede causar pantalla negra, reinicios y cierres al jugar. Por eso medimos voltajes y consumo bajo carga.',
-  },
-  {
-    question: '¿Reparan tarjetas NVIDIA y AMD?',
-    answer: 'Diagnosticamos tarjetas NVIDIA GeForce, RTX, GTX y AMD Radeon. Si la reparación no conviene, te lo decimos antes de invertir.',
-  },
-  {
-    question: '¿Hacen cambio de pasta térmica y thermal pads?',
-    answer: 'Sí. Se realiza cuando la temperatura, ruido o mantenimiento pendiente lo justifican. No se prometen milagros: la mejora depende del estado de la tarjeta.',
-  },
-  {
-    question: '¿Pueden instalar una GPU nueva?',
-    answer: 'Sí. Revisamos fuente, espacio del gabinete, conectores, drivers, temperatura y estabilidad final para instalarla correctamente.',
-  },
-  {
-    question: '¿El calor de Cancún afecta la GPU?',
-    answer: 'Sí. El calor, humedad, polvo y salitre pueden acelerar problemas térmicos, corrosión en conectores y fallas de estabilidad en PC gamer.',
-  },
-  {
-    question: '¿Dan garantía?',
-    answer: 'Sí, la garantía se entrega por escrito según la reparación o instalación realizada. No cubre humedad posterior, descargas eléctricas o piezas no intervenidas.',
-  },
-  {
-    question: '¿Conviene reparar o cambiar la tarjeta de video?',
-    answer: 'Depende del daño, costo de pieza, antigüedad y uso. Después del diagnóstico recomendamos reparar, dar mantenimiento, cambiar o no invertir.',
-  },
+  { href: '/servicios/pc/instalacion-componentes', title: 'Instalación de componentes', text: 'Montaje de tarjetas de video, SSD, RAM, fuentes y refrigeración en Cancún.' },
+  { href: '/mantenimiento-preventivo-computadora', title: 'Mantenimiento preventivo PC', text: 'Limpieza interna de gabinete, ventiladores, filtros y flujo de aire.' },
+  { href: '/servicios/pc/refrigeracion', title: 'Refrigeración y temperatura', text: 'Optimización de airflow, disipadores por aire y sistemas AIO de PC.' },
+  { href: '/servicios/pc/upgrade', title: 'Upgrade SSD y RAM', text: 'Actualización de almacenamiento y memoria para balancear el rendimiento gamer.' },
 ];
 ---
 
 <div class="gpu-page">
-  <section class="gpu-hero">
+  <!-- ==================== 1. HERO SECTION WITH 3-FAN GPU MOTION DESIGN ==================== -->
+  <header class="gpu-hero" aria-labelledby="gpu-hero-title">
     <div class="gpu-hero-grid" aria-hidden="true"></div>
     <div class="container gpu-hero-inner">
       <div class="gpu-hero-copy">
-        <span class="gpu-kicker">Servicio técnico PC gamer en Cancún</span>
-        <h1>Reparación de tarjeta de video GPU en Cancún</h1>
-        <p>
-          Diagnóstico técnico para GPU sin imagen, artefactos en pantalla, temperatura alta, crashes en juegos
-          o instalación de tarjeta de video para PC gamer. Primero aislamos la causa, después te decimos si conviene reparar, mantener o cambiar.
+        <p class="gpu-kicker">
+          <i class="fa-solid fa-microchip" aria-hidden="true"></i> SERVICIO TÉCNICO DE GPU · PC GAMER · CANCÚN
         </p>
+        <h1 id="gpu-hero-title">Reparación de Tarjeta Gráfica GPU en Cancún</h1>
+        <p class="gpu-lead">
+          Diagnosticamos tarjetas NVIDIA y AMD con artefactos, pantalla negra, crashes, temperatura alta o pérdida de rendimiento. Primero aislamos si la falla viene de GPU, fuente, drivers o sistema térmico.
+        </p>
+
         <div class="gpu-hero-actions">
-          <a class="gpu-btn gpu-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
-            <i class="fa-brands fa-whatsapp"></i>
-            Cotizar por WhatsApp
+          <a class="gpu-btn gpu-btn-primary" href="#ticket-gpu">
+            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i> Diagnosticar mi GPU
           </a>
-          <a class="gpu-btn gpu-btn-secondary" href="#ticket-gpu">
-            <i class="fa-solid fa-clipboard-list"></i>
-            Generar ticket
+          <a class="gpu-btn gpu-btn-secondary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link>
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar por WhatsApp
           </a>
         </div>
-        <div class="gpu-zone-list" aria-label="Zonas de atención en Cancún">
-          {zones.map((zone) => <span>{zone}</span>)}
-        </div>
+
+        <ul class="gpu-badges" aria-label="Garantías del servicio técnico de GPU">
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> NVIDIA y AMD</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Prueba bajo carga</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Cita previa</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Garantía según intervención</li>
+        </ul>
       </div>
 
-      <aside class="gpu-hero-card" aria-label="Resumen técnico del diagnóstico de GPU">
-        <div class="gpu-visual" aria-hidden="true">
-          <div class="gpu-board">
-            <span class="gpu-chip"></span>
-            <span class="gpu-fan gpu-fan-a"></span>
-            <span class="gpu-fan gpu-fan-b"></span>
-            <span class="gpu-connector"></span>
-            <span class="gpu-scan gpu-scan-a"></span>
-            <span class="gpu-scan gpu-scan-b"></span>
+      <!-- Right Visual Container: 3-Fan High-End GPU Motion Design -->
+      <div class="gpu-hero__visual-container">
+        <figure class="gpu-visual-stage" aria-hidden="true">
+          <svg viewBox="0 0 680 400" focusable="false" class="gpu-story-svg">
+            <defs>
+              <linearGradient id="gpu-shroud-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#182d44" />
+                <stop offset="50%" stop-color="#0e1f32" />
+                <stop offset="100%" stop-color="#081422" />
+              </linearGradient>
+              <linearGradient id="gpu-pcb-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#0b2c4d" />
+                <stop offset="100%" stop-color="#06182a" />
+              </linearGradient>
+              <linearGradient id="gpu-copper-pipe" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#f59e0b" />
+                <stop offset="50%" stop-color="#d97706" />
+                <stop offset="100%" stop-color="#b45309" />
+              </linearGradient>
+              <linearGradient id="gpu-metal-shine" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
+                <stop offset="50%" stop-color="#ffffff" stop-opacity="0.45" />
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+              </linearGradient>
+
+              <filter id="gpu-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#020b14" flood-opacity="0.75" />
+              </filter>
+              <filter id="gpu-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#38bdf8" flood-opacity="0.9" />
+              </filter>
+              <filter id="gpu-glow-amber" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#f59e0b" flood-opacity="0.85" />
+              </filter>
+              <filter id="gpu-glow-green" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#10b981" flood-opacity="0.95" />
+              </filter>
+            </defs>
+
+            <!-- Card Background Frame -->
+            <rect class="gpu-canvas" x="10" y="10" width="660" height="380" rx="20" fill="#06192d" stroke="#1d4d77" stroke-width="1.5" stroke-opacity="0.7" />
+
+            <!-- Technical Workbench Backdrop Grid -->
+            <g class="gpu-grid-decor" opacity="0.15">
+              <line x1="10" y1="100" x2="670" y2="100" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+              <line x1="10" y1="200" x2="670" y2="200" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+              <line x1="10" y1="300" x2="670" y2="300" stroke="#38bdf8" stroke-width="1" />
+              <circle cx="340" cy="200" r="180" stroke="#38bdf8" stroke-width="0.5" stroke-dasharray="4 8" fill="none" />
+            </g>
+
+            <!-- Background Monitor Glitch Silhouette (Disappears after diagnosis) -->
+            <g class="gpu-glitch-monitor" transform="translate(340, 100)" opacity="0.25">
+              <rect x="-140" y="-70" width="280" height="140" rx="10" fill="#041220" stroke="#f59e0b" stroke-width="1" />
+              <path class="gpu-glitch-line gpu-glitch-line--1" d="M -120 -20 L -40 -20 L -20 -40 L 40 -10 L 120 -10" fill="none" stroke="#f59e0b" stroke-width="2" />
+              <path class="gpu-glitch-line gpu-glitch-line--2" d="M -100 15 L -20 15 L 0 -5 L 60 25 L 100 25" fill="none" stroke="#ef4444" stroke-width="2" />
+            </g>
+
+            <!-- Main High-End GPU Assembly (Perspective 3/4) -->
+            <g class="gpu-assembly" transform="translate(340, 205)" filter="url(#gpu-shadow)">
+              
+              <!-- Thermal Halo Glow (15% - 27%) -->
+              <ellipse class="gpu-thermal-halo" cx="0" cy="0" rx="270" ry="110" fill="url(#gpu-copper-pipe)" opacity="0" filter="url(#gpu-glow-amber)" />
+
+              <!-- Base Shadow -->
+              <ellipse cx="0" cy="115" rx="280" ry="26" fill="#01070e" opacity="0.8" />
+
+              <!-- Layer 1: PCB Backplate & Board Assembly -->
+              <g class="gpu-layer-pcb">
+                <!-- Main Heavy PCB -->
+                <path d="M -260 -75 L 260 -75 L 250 85 L -250 85 Z" fill="url(#gpu-pcb-grad)" stroke="#1e5a8d" stroke-width="1.5" />
+                <!-- Gold PCIe 16x Interface Fingers -->
+                <path d="M -160 85 L 60 85 L 55 102 L -155 102 Z" fill="#d97706" stroke="#fbbf24" stroke-width="1" />
+                <!-- PCIe Retention Notch -->
+                <rect x="-60" y="85" width="8" height="17" fill="#06182a" />
+                <!-- Metal Rear I/O Bracket -->
+                <path d="M -260 -95 L -245 -95 L -235 95 L -250 95 Z" fill="#64748b" stroke="#94a3b8" stroke-width="1.2" />
+                <circle cx="-252" cy="-40" r="4" fill="#030b14" />
+                <circle cx="-250" cy="20" r="4" fill="#030b14" />
+                <!-- 8-Pin / 12VHPWR Power Sockets -->
+                <rect x="200" y="-85" width="45" height="14" rx="2" fill="#030b14" stroke="#38bdf8" stroke-width="1.2" />
+              </g>
+
+              <!-- Layer 2: Core Components on PCB (Visible during Exploded View 44% - 78%) -->
+              <g class="gpu-layer-components">
+                <!-- Central GPU Core Silicon Die -->
+                <rect class="gpu-die-core" x="-32" y="-18" width="64" height="42" rx="4" fill="#0c3c66" stroke="#f59e0b" stroke-width="2" />
+                <rect x="-24" y="-12" width="48" height="30" rx="2" fill="#072037" stroke="#22d3ee" stroke-width="1" />
+
+                <!-- Surrounding VRAM Chips (8 Memory Modules) -->
+                <g class="gpu-vram-chips" fill="#08233d" stroke="#f59e0b" stroke-width="1.2">
+                  <rect x="-80" y="-22" width="26" height="18" rx="2" />
+                  <rect x="-80" y="4" width="26" height="18" rx="2" />
+                  <rect x="54" y="-22" width="26" height="18" rx="2" />
+                  <rect x="54" y="4" width="26" height="18" rx="2" />
+                  <rect x="-36" y="-56" width="30" height="18" rx="2" />
+                  <rect x="6" y="-56" width="30" height="18" rx="2" />
+                  <rect x="-36" y="38" width="30" height="18" rx="2" />
+                  <rect x="6" y="38" width="30" height="18" rx="2" />
+                </g>
+
+                <!-- VRM Power Delivery Stages (MOSFETs & Inductor Chokes) -->
+                <g class="gpu-vrm-stages" fill="#0a2a47" stroke="#f59e0b" stroke-width="1.2">
+                  <rect x="110" y="-45" width="16" height="14" rx="2" />
+                  <rect x="110" y="-25" width="16" height="14" rx="2" />
+                  <rect x="110" y="-5" width="16" height="14" rx="2" />
+                  <rect x="110" y="15" width="16" height="14" rx="2" />
+                  <rect x="110" y="35" width="16" height="14" rx="2" />
+                  <!-- Choke row -->
+                  <rect x="135" y="-45" width="18" height="14" rx="2" fill="#031424" stroke="#38bdf8" />
+                  <rect x="135" y="-25" width="18" height="14" rx="2" fill="#031424" stroke="#38bdf8" />
+                  <rect x="135" y="-5" width="18" height="14" rx="2" fill="#031424" stroke="#38bdf8" />
+                  <rect x="135" y="15" width="18" height="14" rx="2" fill="#031424" stroke="#38bdf8" />
+                  <rect x="135" y="35" width="18" height="14" rx="2" fill="#031424" stroke="#38bdf8" />
+                </g>
+              </g>
+
+              <!-- Layer 3: Heatsink & Copper Heatpipes Assembly -->
+              <g class="gpu-layer-heatsink">
+                <!-- Dense Aluminum/Copper Fin Array Base -->
+                <rect class="gpu-heatsink-fins" x="-240" y="-65" width="480" height="135" rx="6" fill="#0a243d" stroke="#f59e0b" stroke-width="1.2" />
+                <!-- 4 Heavy Heatpipes Transiting Cooler -->
+                <g class="gpu-heatpipes">
+                  <path d="M -220 -40 C -120 -50 120 -50 220 -40" fill="none" stroke="url(#gpu-copper-pipe)" stroke-width="7" stroke-linecap="round" />
+                  <path d="M -210 -15 C -100 -25 100 -25 210 -15" fill="none" stroke="url(#gpu-copper-pipe)" stroke-width="6.5" stroke-linecap="round" />
+                  <path d="M -210 15 C -100 25 100 25 210 15" fill="none" stroke="url(#gpu-copper-pipe)" stroke-width="6.5" stroke-linecap="round" />
+                  <path d="M -220 40 C -120 50 120 50 220 40" fill="none" stroke="url(#gpu-copper-pipe)" stroke-width="7" stroke-linecap="round" />
+                </g>
+              </g>
+
+              <!-- Layer 4: Outer Shroud with 3 TRIPLE COOLING FANS -->
+              <g class="gpu-layer-shroud">
+                <!-- Geometric Angular Shroud Structure -->
+                <path d="M -255 -75 L 255 -75 L 240 75 L -240 75 Z" fill="url(#gpu-shroud-grad)" stroke="#22d3ee" stroke-width="1.8" />
+                
+                <!-- Shroud Accent Wings and Geometric Chamfers -->
+                <polygon points="-255,-75 -220,-75 -210,-55 -245,-55" fill="#0b3254" stroke="#38bdf8" stroke-width="1" />
+                <polygon points="255,-75 220,-75 210,-55 245,-55" fill="#0b3254" stroke="#38bdf8" stroke-width="1" />
+                <polygon points="-240,75 -205,75 -195,55 -230,55" fill="#0b3254" stroke="#38bdf8" stroke-width="1" />
+                <polygon points="240,75 205,75 195,55 230,55" fill="#0b3254" stroke="#38bdf8" stroke-width="1" />
+
+                <!-- FAN 1: LEFT COOLING FAN (x: -160, y: 0, r: 62) -->
+                <g class="gpu-fan-unit gpu-fan-unit--1" transform="translate(-160, 0)">
+                  <circle cx="0" cy="0" r="62" fill="#041220" stroke="#1d5583" stroke-width="2" />
+                  <circle cx="0" cy="0" r="56" fill="none" stroke="#0e2e4a" stroke-width="1" />
+                  <!-- 9 Aerodynamic Fan Blades -->
+                  <g class="gpu-fan-rotor gpu-fan-rotor--1">
+                    <line x1="0" y1="-54" x2="0" y2="54" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-54" y1="0" x2="54" y2="0" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-38" y1="-38" x2="38" y2="38" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-38" y1="38" x2="38" y2="-38" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-18" y1="-50" x2="18" y2="50" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                  </g>
+                  <circle cx="0" cy="0" r="16" fill="#0c3558" stroke="#38bdf8" stroke-width="1.8" />
+                  <circle cx="0" cy="0" r="6" fill="#22d3ee" />
+                </g>
+
+                <!-- FAN 2: CENTER COOLING FAN (x: 0, y: 0, r: 62) -->
+                <g class="gpu-fan-unit gpu-fan-unit--2" transform="translate(0, 0)">
+                  <circle cx="0" cy="0" r="62" fill="#041220" stroke="#1d5583" stroke-width="2" />
+                  <circle cx="0" cy="0" r="56" fill="none" stroke="#0e2e4a" stroke-width="1" />
+                  <!-- 9 Aerodynamic Fan Blades -->
+                  <g class="gpu-fan-rotor gpu-fan-rotor--2">
+                    <line x1="0" y1="-54" x2="0" y2="54" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-54" y1="0" x2="54" y2="0" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-38" y1="-38" x2="38" y2="38" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-38" y1="38" x2="38" y2="-38" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-18" y1="-50" x2="18" y2="50" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                  </g>
+                  <circle cx="0" cy="0" r="16" fill="#0c3558" stroke="#38bdf8" stroke-width="1.8" />
+                  <circle cx="0" cy="0" r="6" fill="#22d3ee" />
+                </g>
+
+                <!-- FAN 3: RIGHT COOLING FAN (x: 160, y: 0, r: 62) -->
+                <g class="gpu-fan-unit gpu-fan-unit--3" transform="translate(160, 0)">
+                  <circle cx="0" cy="0" r="62" fill="#041220" stroke="#1d5583" stroke-width="2" />
+                  <circle cx="0" cy="0" r="56" fill="none" stroke="#0e2e4a" stroke-width="1" />
+                  <!-- 9 Aerodynamic Fan Blades -->
+                  <g class="gpu-fan-rotor gpu-fan-rotor--3">
+                    <line x1="0" y1="-54" x2="0" y2="54" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-54" y1="0" x2="54" y2="0" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-38" y1="-38" x2="38" y2="38" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-38" y1="38" x2="38" y2="-38" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" />
+                    <line x1="-18" y1="-50" x2="18" y2="50" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                  </g>
+                  <circle cx="0" cy="0" r="16" fill="#0c3558" stroke="#38bdf8" stroke-width="1.8" />
+                  <circle cx="0" cy="0" r="6" fill="#22d3ee" />
+                </g>
+              </g>
+
+              <!-- Diagnostic Scanner Line Beam (36% - 44%) -->
+              <line class="gpu-scanner-beam" x1="-270" y1="0" x2="270" y2="0" stroke="#22d3ee" stroke-width="3.5" filter="url(#gpu-glow-cyan)" opacity="0" />
+
+              <!-- Dust Flecks Accumulated (0% - 15% dirty, 55% - 70% dissipate) -->
+              <g class="gpu-dust-particles" fill="#f59e0b">
+                <circle class="gpu-dust gpu-dust--1" cx="-180" cy="-20" r="3" />
+                <circle class="gpu-dust gpu-dust--2" cx="-140" cy="25" r="2.6" />
+                <circle class="gpu-dust gpu-dust--3" cx="-210" cy="10" r="2.4" />
+                <circle class="gpu-dust gpu-dust--4" cx="-20" cy="-35" r="2.8" />
+                <circle class="gpu-dust gpu-dust--5" cx="25" cy="30" r="2.6" />
+                <circle class="gpu-dust gpu-dust--6" cx="-5" cy="15" r="2.2" />
+                <circle class="gpu-dust gpu-dust--7" cx="140" cy="-25" r="2.8" />
+                <circle class="gpu-dust gpu-dust--8" cx="185" cy="20" r="2.5" />
+                <circle class="gpu-dust gpu-dust--9" cx="210" cy="-10" r="2.3" />
+                <circle class="gpu-dust gpu-dust--10" cx="-90" cy="-45" r="2.5" />
+                <circle class="gpu-dust gpu-dust--11" cx="85" cy="-45" r="2.5" />
+                <circle class="gpu-dust gpu-dust--12" cx="0" cy="-55" r="2.7" />
+              </g>
+
+              <!-- 3 Clean Airflow Paths (85% - 94%) -->
+              <g class="gpu-airflow-paths">
+                <path class="gpu-air-stream gpu-air-stream--1" d="M -160 -90 C -180 -50 -180 50 -160 90" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" />
+                <path class="gpu-air-stream gpu-air-stream--2" d="M 0 -90 C -20 -50 -20 50 0 90" fill="none" stroke="#22d3ee" stroke-width="3.5" stroke-linecap="round" />
+                <path class="gpu-air-stream gpu-air-stream--3" d="M 160 -90 C 140 -50 140 50 160 90" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" />
+              </g>
+
+              <!-- Light Sheen Sweep across Entire GPU (97% - 100%) -->
+              <rect class="gpu-sheen-rect" x="-300" y="-120" width="600" height="240" fill="url(#gpu-metal-shine)" opacity="0" />
+
+              <!-- Corner Sparkles (97% - 100%) -->
+              <g class="gpu-sparkles">
+                <path class="gpu-sparkle gpu-sparkle--1" d="M -230 -80 Q -230 -85 -235 -85 Q -230 -85 -230 -90 Q -230 -85 -225 -85 Q -230 -85 -230 -80 Z" fill="#ffffff" filter="url(#gpu-glow-cyan)" />
+                <path class="gpu-sparkle gpu-sparkle--2" d="M 230 70 Q 230 65 225 65 Q 230 65 230 60 Q 230 65 235 65 Q 230 65 230 70 Z" fill="#ffffff" filter="url(#gpu-glow-cyan)" />
+              </g>
+
+              <!-- Success Ready Check Badge (97% - 100%) -->
+              <g class="gpu-success-badge" filter="url(#gpu-glow-green)">
+                <circle cx="235" cy="-55" r="20" fill="#10b981" stroke="#ffffff" stroke-width="2.5" />
+                <path d="M 226 -55 L 232 -48 L 246 -62" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </g>
+            </g>
+          </svg>
+        </figure>
+
+        <!-- 5-Step Process Timeline Container Below Hero SVG -->
+        <ol class="service-process" aria-label="Fases del servicio de tarjeta gráfica">
+          <li class="process-step process-step--1">
+            <div class="process-step__indicator">
+              <span class="process-step__dot"></span>
+              <span class="process-step__num">01</span>
+            </div>
+            <div class="process-step__info">
+              <strong>Diagnóstico</strong>
+              <p>Escaneo y pruebas de hardware.</p>
+            </div>
+          </li>
+
+          <li class="process-step process-step--2">
+            <div class="process-step__indicator">
+              <span class="process-step__dot"></span>
+              <span class="process-step__num">02</span>
+            </div>
+            <div class="process-step__info">
+              <strong>Temperatura</strong>
+              <p>Hotspot y comportamiento térmico.</p>
+            </div>
+          </li>
+
+          <li class="process-step process-step--3">
+            <div class="process-step__indicator">
+              <span class="process-step__dot"></span>
+              <span class="process-step__num">03</span>
+            </div>
+            <div class="process-step__info">
+              <strong>Limpieza</strong>
+              <p>Despeje de 3 ventiladores y disipador.</p>
+            </div>
+          </li>
+
+          <li class="process-step process-step--4">
+            <div class="process-step__indicator">
+              <span class="process-step__dot"></span>
+              <span class="process-step__num">04</span>
+            </div>
+            <div class="process-step__info">
+              <strong>Revisión térmica</strong>
+              <p>Pasta y pads cuando corresponde.</p>
+            </div>
+          </li>
+
+          <li class="process-step process-step--5">
+            <div class="process-step__indicator">
+              <span class="process-step__dot"></span>
+              <span class="process-step__num">05</span>
+            </div>
+            <div class="process-step__info">
+              <strong>Prueba de estrés</strong>
+              <p>Estabilidad y rendimiento balanceado.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 2. REPARACIÓN Y DIAGNÓSTICO DE GPU EN CANCÚN ==================== -->
+  <section class="gpu-section" aria-labelledby="reparacion-diagnostico-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Fallas Frecuentes</p>
+        <h2 id="reparacion-diagnostico-title">Reparación y diagnóstico de GPU en Cancún</h2>
+        <p>
+          Las fallas en tarjetas gráficas pueden originarse por sobrecalentamiento, soldaduras fatigadas, inestabilidad de memoria VRAM, drivers corruptos o problemas en la fuente de poder. Identificamos la causa exacta antes de cualquier presupuesto.
+        </p>
+      </div>
+
+      <div class="gpu-grid-two">
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-shapes" aria-hidden="true"></i></div>
+          <h3>Tarjeta gráfica con artefactos en pantalla</h3>
+          <p>Aparición de patrones geométricos, distorsiones visuales, líneas verdes o cuadros de colores durante el juego o al iniciar Windows.</p>
+          <h4>Líneas, cuadros y colores extraños</h4>
+          <p class="gpu-card__sub">Suelen manifestarse cuando la tarjeta entra en 3D o alcanza ciertas frecuencias de reloj.</p>
+          <h4>Fallas de VRAM o estabilidad gráfica</h4>
+          <p class="gpu-card__sub">Evaluamos la integridad de los módulos de memoria y el contacto del procesador gráfico.</p>
+        </article>
+
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-tv" aria-hidden="true"></i></div>
+          <h3>PC enciende pero la GPU no da imagen</h3>
+          <p>La computadora enciende sus luces y ventiladores, pero la pantalla permanece en negro o con mensaje de "sin señal".</p>
+          <h4>HDMI y DisplayPort sin señal</h4>
+          <p class="gpu-card__sub">Probamos salidas digitales de video, cables y resoluciones de forma individual.</p>
+          <h4>GPU, fuente, RAM o PCIe: primero aislamos la causa</h4>
+          <p class="gpu-card__sub">Descartamos ranura de la tarjeta madre, fuente y memoria antes de determinar daño en la GPU.</p>
+        </article>
+
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-gamepad" aria-hidden="true"></i></div>
+          <h3>Pantalla negra y crashes al jugar</h3>
+          <p>La sesión de juego se interrumpe de golpe, el monitor pierde señal o la computadora se reinicia de manera forzada bajo carga gráfica.</p>
+          <h4>Juegos que se cierran</h4>
+          <p class="gpu-card__sub">Cierres súbitos al escritorio generados por inestabilidad de voltaje o picos de temperatura.</p>
+          <h4>Reinicios y pérdida de señal bajo carga</h4>
+          <p class="gpu-card__sub">Comprobamos si la fuente de poder entrega los watts requeridos por los rieles de 12V.</p>
+        </article>
+
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div>
+          <h3>Errores de drivers NVIDIA y AMD</h3>
+          <p>Mensajes de "el controlador de pantalla dejó de responder y se recuperó", pantallas azules BSOD o parpadeos intermitentes.</p>
+          <h4>Drivers corruptos o inestables</h4>
+          <p class="gpu-card__sub">Realizamos limpieza profunda de controladores con herramientas DDU e instalación limpia oficial.</p>
+          <h4>Falla de hardware que parece problema de software</h4>
+          <p class="gpu-card__sub">Si el error persiste con drivers limpios, probamos estabilidad eléctrica del chip gráfico.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 3. ¿CÓMO SABER SI TU TARJETA GRÁFICA ESTÁ DAÑADA? ==================== -->
+  <section class="gpu-section gpu-section--alt" aria-labelledby="como-saber-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Señales de Alerta</p>
+        <h2 id="como-saber-title">¿Cómo saber si tu tarjeta gráfica está dañada?</h2>
+        <p>
+          Reconocer estos síntomas a tiempo permite intervenir el equipo antes de que una falla térmica o eléctrica afecte componentes mayores.
+        </p>
+      </div>
+
+      <div class="gpu-grid-three">
+        <div class="gpu-signal-card">
+          <div class="gpu-signal-card__icon"><i class="fa-solid fa-image" aria-hidden="true"></i></div>
+          <h3>Artefactos gráficos</h3>
+          <p>Texturas rotas en juegos, pixeles parpadeantes y líneas horizontales en el escritorio.</p>
+        </div>
+
+        <div class="gpu-signal-card">
+          <div class="gpu-signal-card__icon"><i class="fa-solid fa-desktop" aria-hidden="true"></i></div>
+          <h3>Pantalla negra</h3>
+          <p>Pérdida de señal de video repentina mientras el audio del juego o de Discord sigue sonando.</p>
+        </div>
+
+        <div class="gpu-signal-card">
+          <div class="gpu-signal-card__icon"><i class="fa-solid fa-fan" aria-hidden="true"></i></div>
+          <h3>Ventiladores al máximo</h3>
+          <p>Las turbinas se aceleran al 100% de inmediato por lecturas térmicas críticas de hotspot.</p>
+        </div>
+
+        <div class="gpu-signal-card">
+          <div class="gpu-signal-card__icon"><i class="fa-solid fa-temperature-arrow-up" aria-hidden="true"></i></div>
+          <h3>Temperatura o hotspot elevado</h3>
+          <p>Diferenciales de más de 20°C a 25°C entre la temperatura global del core y el punto más caliente (hotspot).</p>
+        </div>
+
+        <div class="gpu-signal-card">
+          <div class="gpu-signal-card__icon"><i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i></div>
+          <h3>Caídas de FPS y thermal throttling</h3>
+          <p>La tarjeta gráfica baja frecuencias de reloj para protegerse, provocando tirones y congelamientos.</p>
+        </div>
+
+        <div class="gpu-signal-card">
+          <div class="gpu-signal-card__icon"><i class="fa-solid fa-power-off" aria-hidden="true"></i></div>
+          <h3>Pantallazos azules o reinicios</h3>
+          <p>Errores como VIDEO_TDR_FAILURE o DPC_WATCHDOG_VIOLATION al exigir potencia 3D.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 4. DIAGNÓSTICO TÉCNICO DE TARJETA GRÁFICA EN CANCÚN ==================== -->
+  <section class="gpu-section" aria-labelledby="diagnostico-tecnico-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Metodología de Laboratorio</p>
+        <h2 id="diagnostico-tecnico-title">Diagnóstico técnico de tarjeta gráfica en Cancún</h2>
+        <p>
+          Utilizamos bancos de prueba independientes con instrumental de medición eléctrica y software de estrés profesional para aislar la falla con precisión.
+        </p>
+      </div>
+
+      <div class="gpu-grid-two">
+        <article class="gpu-card">
+          <h3>Prueba de GPU bajo carga</h3>
+          <p>Sometemos la tarjeta a pruebas controladas para comprobar estabilidad gráfica y consumo real.</p>
+          <h4>Benchmark y stress test</h4>
+          <p class="gpu-card__sub">Pruebas en FurMark, 3DMark y Unigine para reproducir fallas intermitentes bajo demanda.</p>
+          <h4>Estabilidad gráfica</h4>
+          <p class="gpu-card__sub">Monitoreo de cuadros por segundo, consistencia de frametimes y renderizado de texturas.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>Temperatura, hotspot y ventiladores</h3>
+          <p>Medición exhaustiva de sensores térmicos internos y comportamiento de las curvas de ventilación.</p>
+          <h4>GPU core</h4>
+          <p class="gpu-card__sub">Comprobación del rango térmico operativo del procesador gráfico bajo carga sostenida.</p>
+          <h4>Memoria VRAM</h4>
+          <p class="gpu-card__sub">Verificación de temperaturas en módulos GDDR6 / GDDR6X y su disipación pasiva.</p>
+          <h4>Sistema de refrigeración</h4>
+          <p class="gpu-card__sub">Revisión de aspas, rodamientos, flujo de aire y conductividad de heatpipes de cobre.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>Fuente de poder y alimentación de la GPU</h3>
+          <p>Medición de entrega de corriente y estabilidad en las líneas de alimentación primaria.</p>
+          <h4>Voltajes y conectores PCIe</h4>
+          <p class="gpu-card__sub">Revisión de caídas de tensión en conectores de 8 pines, 12VHPWR y 12V-2x6.</p>
+          <h4>Fuente insuficiente o degradada</h4>
+          <p class="gpu-card__sub">Validamos si la fuente instalada soporta los transitorios de consumo de la tarjeta.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>VRAM, VRM y componentes de la tarjeta gráfica</h3>
+          <p>Inspección microscópica y electrónica de la placa de circuito impreso (PCB).</p>
+          <h4>Memoria gráfica</h4>
+          <p class="gpu-card__sub">Diagnóstico de comunicación y direccionamiento en bancos de memoria VRAM.</p>
+          <h4>Fases de alimentación</h4>
+          <p class="gpu-card__sub">Revisión de MOSFETs, etapas DrMOS y controladores PWM del circuito VRM.</p>
+          <h4>Capacitores y componentes visibles</h4>
+          <p class="gpu-card__sub">Detección de capacitores desvalorizados, fusibles SMD abiertos o sulfatación por humedad.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 5. NVIDIA GEFORCE RTX Y GTX ==================== -->
+  <section class="gpu-section gpu-section--alt" aria-labelledby="nvidia-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Especialidad por Fabricante</p>
+        <h2 id="nvidia-title">Reparación de tarjetas NVIDIA GeForce RTX y GTX en Cancún</h2>
+        <p>
+          Servicio técnico para tarjetas NVIDIA de ensambladores líderes (ASUS ROG, MSI, EVGA, Gigabyte, Zotac, PNY, Palit, Galax y Founders Edition).
+        </p>
+      </div>
+
+      <div class="gpu-grid-three">
+        <div class="gpu-brand-box">
+          <div class="gpu-brand-box__badge"><i class="fa-solid fa-microchip" aria-hidden="true"></i> NVIDIA</div>
+          <h3>Diagnóstico de NVIDIA RTX</h3>
+          <p>Atención a modelos GeForce RTX 50, RTX 40 (4090, 4080, 4070, 4060), RTX 30 (3090, 3080, 3070, 3060), RTX 20 y series GTX.</p>
+        </div>
+
+        <div class="gpu-brand-box">
+          <div class="gpu-brand-box__badge"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Video</div>
+          <h3>Fallas de video y artefactos en GeForce</h3>
+          <p>Corrección de artefactos espaciales, errores de bus PCIe, fallas de conector 12VHPWR y pérdida de señal en puertos DisplayPort y HDMI.</p>
+        </div>
+
+        <div class="gpu-brand-box">
+          <div class="gpu-brand-box__badge"><i class="fa-solid fa-temperature-half" aria-hidden="true"></i> Térmico</div>
+          <h3>Temperatura y ventiladores de RTX</h3>
+          <p>Mantenimiento térmico de memorias GDDR6X de alto calor, sustitución de thermal pads con espesores OEM y calibración de ventiladores.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 6. AMD RADEON RX ==================== -->
+  <section class="gpu-section" aria-labelledby="amd-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Especialidad por Fabricante</p>
+        <h2 id="amd-title">Reparación de tarjetas AMD Radeon RX en Cancún</h2>
+        <p>
+          Diagnóstico y mantenimiento para tarjetas AMD Radeon de fabricantes como Sapphire, PowerColor, XFX, ASUS, ASRock y Gigabyte.
+        </p>
+      </div>
+
+      <div class="gpu-grid-three">
+        <div class="gpu-brand-box">
+          <div class="gpu-brand-box__badge"><i class="fa-solid fa-microchip" aria-hidden="true"></i> AMD</div>
+          <h3>Diagnóstico de AMD Radeon</h3>
+          <p>Pruebas para series Radeon RX 7000 (7900 XTX, 7800 XT, 7700 XT, 7600), RX 6000 (6900 XT, 6800, 6700 XT, 6600), RX 5000 y series RX 500.</p>
+        </div>
+
+        <div class="gpu-brand-box">
+          <div class="gpu-brand-box__badge"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Estabilidad</div>
+          <h3>Pantalla negra y crashes</h3>
+          <p>Aislamiento de problemas de timeout de drivers (Adrenalin Driver Timeout), inestabilidad de frecuencias y caídas de voltaje.</p>
+        </div>
+
+        <div class="gpu-brand-box">
+          <div class="gpu-brand-box__badge"><i class="fa-solid fa-wind" aria-hidden="true"></i> Refrigeración</div>
+          <h3>Temperatura y estabilidad bajo carga</h3>
+          <p>Control de Junction Temperature (temperatura de unión), desobstrucción de cámaras de vapor y renovación de compuestos térmicos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 7. MANTENIMIENTO Y LIMPIEZA DE GPU EN CANCÚN ==================== -->
+  <section class="gpu-section gpu-section--alt" aria-labelledby="mantenimiento-gpu-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Servicio Térmico Profesional</p>
+        <h2 id="mantenimiento-gpu-title">Mantenimiento y limpieza de GPU en Cancún</h2>
+        <p>
+          Una limpieza adecuada y la renovación del material térmico permiten que el disipador transfiera el calor eficientemente, evitando thermal throttling bajo carga.
+        </p>
+      </div>
+
+      <div class="gpu-grid-two">
+        <article class="gpu-card">
+          <h3>Limpieza de una tarjeta gráfica</h3>
+          <p>Desarme técnico del shroud plástico y disipador metálico para retirar suciedad incrustada sin dañar el PCB ni los componentes SMD.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>Limpieza de ventiladores y disipador</h3>
+          <p>Limpieza profunda de cada aspa y aleta del bloque disipador, verificando que los rodamientos giren sin vibraciones ni ruidos extraños.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>Cambio de pasta térmica de GPU</h3>
+          <p>Aplicación de pasta térmica no conductora de alta gama (viscosidad y conductividad adecuadas para contacto directo con el die de silicio desnudo).</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>Revisión y cambio de thermal pads</h3>
+          <p>Inspección de almohadillas térmicas en memorias y VRM. No afirmamos que todos deban cambiarse: solo se sustituyen cuando están secos o rotos.</p>
+          <h4>Thermal pads de VRAM</h4>
+          <p class="gpu-card__sub">Uso estricto de grosores OEM para asegurar contacto uniforme sin levantar el disipador.</p>
+          <h4>Thermal pads de VRM</h4>
+          <p class="gpu-card__sub">Disipación de MOSFETs y bobinas para mantener voltajes limpios y estables.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 8. ¿TU GPU SE CALIENTA Y PIERDE RENDIMIENTO? ==================== -->
+  <section class="gpu-section" aria-labelledby="throttling-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Comportamiento Térmico</p>
+        <h2 id="throttling-title">¿Tu GPU se calienta y pierde rendimiento?</h2>
+        <p>
+          Cuando la tarjeta gráfica supera los límites térmicos programados por el fabricante, activa mecanismos de protección que reducen el rendimiento.
+        </p>
+      </div>
+
+      <div class="gpu-grid-two">
+        <article class="gpu-card">
+          <h3>Thermal throttling en tarjeta gráfica</h3>
+          <p>El procesador gráfico reduce automáticamente sus megahercios (MHz) para evitar daños por temperatura, lo que se percibe como caídas bruscas de FPS.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>Hotspot elevado</h3>
+          <p>Si el sensor más caliente de la GPU sobrepasa los 100°C - 105°C, la tarjeta fuerza los ventiladores al 100% y corta frecuencias de forma agresiva.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>Ventiladores trabajando al máximo</h3>
+          <p>Un sistema de ventilación que opera permanentemente al tope de RPM indica que el disipador no logra evacuar el calor acumulado.</p>
+        </article>
+
+        <article class="gpu-card">
+          <h3>FPS que caen después de varios minutos</h3>
+          <p>El juego inicia fluido, pero tras 10 o 15 minutos la tasa de cuadros disminuye por saturación térmica en el gabinete.</p>
+          <h4>Antes del mantenimiento</h4>
+          <p class="gpu-card__sub">Temperaturas elevadas, curvas de ventilación forzadas y thermal throttling continuo.</p>
+          <h4>Después del mantenimiento</h4>
+          <p class="gpu-card__sub">Temperaturas estables que permiten sostener las frecuencias de boost normales cuando el problema era térmico.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 9. ¿REPARAR, DAR MANTENIMIENTO O CAMBIAR LA TARJETA GRÁFICA? ==================== -->
+  <section class="gpu-section gpu-section--alt" aria-labelledby="decision-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Asesoría Honesta</p>
+        <h2 id="decision-title">¿Reparar, dar mantenimiento o cambiar la tarjeta gráfica?</h2>
+        <p>
+          Te explicamos con claridad las opciones viables para que no realices gastos innecesarios en refacciones que no tengan sentido económico.
+        </p>
+      </div>
+
+      <div class="gpu-decision-grid">
+        <article class="gpu-decision-card">
+          <span class="gpu-decision-card__tag">Reparar</span>
+          <h3>Cuándo conviene reparar una GPU</h3>
+          <p>Fallas localizadas en conectores de alimentación, fusibles SMD, ventiladores dañados, puertos HDMI/DP o componentes de bajo costo relativo.</p>
+        </article>
+
+        <article class="gpu-decision-card">
+          <span class="gpu-decision-card__tag">Mantener</span>
+          <h3>Cuándo el problema es térmico</h3>
+          <p>Pasta térmica seca, thermal pads degradados, polvo compactado o hotspot alto. Se valida con mediciones antes y después del servicio.</p>
+        </article>
+
+        <article class="gpu-decision-card">
+          <span class="gpu-decision-card__tag">Cambiar</span>
+          <h3>Cuándo conviene reemplazar la GPU</h3>
+          <p>Si el costo de intervención supera el valor de mercado de la tarjeta o si el procesador gráfico (core) tiene un corto interno irreversible.</p>
+        </article>
+
+        <article class="gpu-decision-card">
+          <span class="gpu-decision-card__tag">No invertir</span>
+          <h3>Cuándo no vale la pena seguir invirtiendo</h3>
+          <p>Tarjetas antiguas con fallas múltiples o daño severo por sulfatación donde el riesgo de reincidencia sea alto. Te lo decimos con total transparencia.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 10. INSTALACIÓN DE TARJETA GRÁFICA PARA PC GAMER EN CANCÚN ==================== -->
+  <section class="gpu-section" aria-labelledby="instalacion-gpu-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Upgrades y Compatibilidad</p>
+        <h2 id="instalacion-gpu-title">Instalación de tarjeta gráfica para PC Gamer en Cancún</h2>
+        <p>
+          Si compraste una GPU nueva o quieres actualizar tu equipo gamer, validamos la compatibilidad integral de tu ensamble antes de instalar.
+        </p>
+      </div>
+
+      <div class="gpu-grid-three">
+        <div class="gpu-feature-box">
+          <i class="fa-solid fa-plug" aria-hidden="true"></i>
+          <h3>Compatibilidad con fuente de poder</h3>
+          <p>Verificamos que la fuente cuente con los watts reales y los rieles de 12V necesarios para alimentar la tarjeta sin caídas de voltaje.</p>
+        </div>
+
+        <div class="gpu-feature-box">
+          <i class="fa-solid fa-arrows-left-right-to-line" aria-hidden="true"></i>
+          <h3>Espacio y airflow del gabinete</h3>
+          <p>Validamos longitud en milímetros (clearance), cantidad de slots ocupados y que el flujo de aire sea suficiente para disipar el calor.</p>
+        </div>
+
+        <div class="gpu-feature-box">
+          <i class="fa-solid fa-network-wired" aria-hidden="true"></i>
+          <h3>Conectores PCIe y alimentación</h3>
+          <p>Instalación segura con cables dedicados de 8 pines, conectores 12VHPWR o 12V-2x6 asegurando un acople firme sin dobleces peligrosos.</p>
+        </div>
+
+        <div class="gpu-feature-box">
+          <i class="fa-solid fa-code" aria-hidden="true"></i>
+          <h3>Drivers NVIDIA o AMD</h3>
+          <p>Instalación limpia de controladores oficiales actualizados y configuración de perfiles de rendimiento óptimos.</p>
+        </div>
+
+        <div class="gpu-feature-box">
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+          <h3>Benchmark después de instalar</h3>
+          <p>Prueba de estrés final para comprobar temperaturas, frecuencias de boost, consumo en watts y estabilidad en juegos reales.</p>
+        </div>
+
+        <div class="gpu-feature-box gpu-feature-box--cta">
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+          <h3>¿Quieres actualizar tu GPU?</h3>
+          <p>Escríbenos las especificaciones de tu PC actual y la tarjeta que deseas instalar para orientarte.</p>
+          <a class="gpu-btn gpu-btn-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link>
+            Consultar instalación
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 11. ¿CUÁNTO CUESTA REPARAR UNA TARJETA GRÁFICA EN CANCÚN? ==================== -->
+  <section class="gpu-section gpu-section--alt" aria-labelledby="costo-reparacion-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Presupuesto y Precios</p>
+        <h2 id="costo-reparacion-title">¿Cuánto cuesta reparar una tarjeta gráfica en Cancún?</h2>
+        <p>
+          Manejamos un esquema de costos claro y transparente. El diagnóstico inicial permite definir el trabajo requerido antes de autorizar cualquier reparación.
+        </p>
+      </div>
+
+      <div class="gpu-grid-two">
+        <article class="gpu-pricing-card">
+          <div class="gpu-pricing-card__head">
+            <h3>Precio del diagnóstico de GPU</h3>
+            <span class="gpu-price">Desde $650 MXN</span>
+          </div>
+          <p>Pruebas técnicas bajo carga en banco de laboratorio, medición de voltajes, temperaturas y revisión de estabilidad para identificar la causa real.</p>
+        </article>
+
+        <article class="gpu-pricing-card">
+          <div class="gpu-pricing-card__head">
+            <h3>Precio según la falla</h3>
+            <span class="gpu-price">Cotización previa</span>
+          </div>
+          <p>El costo varía según la dificultad del modelo, los componentes a intervenir (conectores, ventiladores, VRM) y la disponibilidad de refacciones.</p>
+        </article>
+
+        <article class="gpu-pricing-card">
+          <div class="gpu-pricing-card__head">
+            <h3>Mantenimiento térmico vs reparación electrónica</h3>
+            <span class="gpu-price">Según procedimiento</span>
+          </div>
+          <p>Una limpieza profunda y cambio de pastas/pads tiene un costo diferente a una reparación a nivel componente. Te explicamos exactamente qué requiere tu equipo.</p>
+        </article>
+
+        <article class="gpu-pricing-card">
+          <div class="gpu-pricing-card__head">
+            <h3>Cotización antes de intervenir</h3>
+            <span class="gpu-price">Sin sorpresas</span>
+          </div>
+          <p>Ningún trabajo ni compra de piezas se realiza sin tu autorización previa por escrito vía WhatsApp o correo electrónico.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 12. REPARACIÓN DE GPU PARA PC GAMER EN CANCÚN ==================== -->
+  <section class="gpu-section" aria-labelledby="pc-gamer-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Gaming y Alto Rendimiento</p>
+        <h2 id="pc-gamer-title">Reparación de GPU para PC Gamer en Cancún</h2>
+        <p>
+          Las tarjetas gráficas gamer trabajan bajo exigencias extremas de energía y temperatura. Atendemos problemas específicos de equipos de juego.
+        </p>
+      </div>
+
+      <div class="gpu-grid-two">
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></div>
+          <h3>PC Gamer que pierde FPS</h3>
+          <p>Revisión de caídas de rendimiento por estrangulamiento térmico, configuración de energía de Windows o desbalance con el procesador.</p>
+        </article>
+
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-moon" aria-hidden="true"></i></div>
+          <h3>Pantalla negra durante juegos</h3>
+          <p>Diagnóstico de cortes de señal originados por picos transitorios de consumo de la GPU que sobrepasan la protección de la fuente.</p>
+        </article>
+
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-power-off" aria-hidden="true"></i></div>
+          <h3>GPU que se apaga bajo carga</h3>
+          <p>Pruebas de entrega de corriente en rieles de 12V, calentamiento de cables y estabilidad de fases de poder en la tarjeta gráfica.</p>
+        </article>
+
+        <article class="gpu-card">
+          <div class="gpu-card__icon"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></div>
+          <h3>Tarjeta gráfica con ruido o temperatura alta</h3>
+          <p>Inspección de ventiladores desbalanceados, coil whine (zumbido de bobinas) y optimización de curvas de ventilación.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 13. ZONA HOTELERA, COSTA MUJERES Y PLAYA MUJERES ==================== -->
+  <section class="gpu-section gpu-section--alt" aria-labelledby="zona-hotelera-title">
+    <div class="container">
+      <div class="gpu-heading">
+        <p class="gpu-section-kicker">Cobertura Turística y Residencial</p>
+        <h2 id="zona-hotelera-title">Servicio de tarjeta gráfica en Zona Hotelera de Cancún</h2>
+        <p>
+          Atención técnica para turistas, nómadas digitales, creadores de contenido y residentes en la franja turística y residencial de Cancún.
+        </p>
+      </div>
+
+      <div class="gpu-grid-two">
+        <div class="gpu-zone-box">
+          <h3>Diagnóstico de GPU para PC Gamer en Zona Hotelera</h3>
+          <p>Atendemos equipos de juego y estaciones de trabajo en condominios, hoteles y desarrollos residenciales de la Zona Hotelera (Km 0 a Km 22).</p>
+          <h4>Hotel, departamento o residencia</h4>
+          <p class="gpu-card__sub">Coordinamos la logística de entrega o recepción de tu equipo con atención personalizada.</p>
+          <h4>Coordinación por WhatsApp</h4>
+          <p class="gpu-card__sub">Seguimiento continuo de pruebas y diagnóstico en tiempo real con evidencia fotográfica.</p>
+          <div class="gpu-zone-box__meta">
+            <strong>Recolección de PC o GPU según el caso:</strong> Servicio con cita previa para recepciones puntuales.
           </div>
         </div>
-        <div class="gpu-hero-card-head">
-          <span>Ruta de diagnóstico</span>
-          <strong>GPU, fuente, drivers y temperatura</strong>
+
+        <div class="gpu-zone-box">
+          <h3>Servicio de GPU en Costa Mujeres y Playa Mujeres</h3>
+          <p>Cobertura especializada para hoteles, resorts y complejos residenciales en la zona continental norte:</p>
+          <h4>Reparación de tarjeta gráfica en Costa Mujeres</h4>
+          <p class="gpu-card__sub">Diagnóstico técnico en taller para equipos gamer y computadoras de diseño.</p>
+          <h4>Diagnóstico de GPU en Playa Mujeres</h4>
+          <p class="gpu-card__sub">Revisión de problemas térmicos y fallas de video en equipos de trabajo y entretenimiento.</p>
+          <div class="gpu-zone-box__meta">
+            <strong>Recepción y recolección mediante cita previa:</strong> Programación anticipada para traslados seguros.
+          </div>
         </div>
-        <div class="gpu-fact-list">
-          {heroFacts.map((fact) => (
-            <div>
-              <span>{fact.label}</span>
-              <strong>{fact.value}</strong>
-            </div>
-          ))}
-        </div>
-      </aside>
+      </div>
     </div>
   </section>
 
-  <section id="sintomas-gpu" class="gpu-section">
+  <!-- ==================== 14. ZONAS DE CANCÚN DONDE ATENDEMOS ==================== -->
+  <section class="gpu-section" aria-labelledby="cobertura-cancun-title">
     <div class="container">
       <div class="gpu-heading">
-        <span>Síntomas reales</span>
-        <h2>Síntomas de una tarjeta de video dañada</h2>
-        <p>Estos signos no siempre significan que la GPU murió. En Pixon PC se revisa la causa antes de cambiar piezas.</p>
+        <p class="gpu-section-kicker">Ubicación Local</p>
+        <h2 id="cobertura-cancun-title">Zonas de Cancún donde atendemos tarjetas gráficas</h2>
+        <p>
+          Brindamos atención técnica especializada en nuestro taller físico en Cancún mediante cita previa, con cobertura en las zonas principales de la ciudad:
+        </p>
       </div>
-      <div class="symptom-grid">
-        {symptoms.map((item, index) => (
-          <article class={`symptom-card ${index < 2 ? 'symptom-card-priority' : ''}`}>
-            <div class="symptom-icon"><i class={`fa-solid ${item.icon}`}></i></div>
-            <h3>{item.title}</h3>
-            <p><strong>Qué pasa:</strong> {item.what}</p>
-            <p><strong>Posible causa:</strong> {item.cause}</p>
-            <p><strong>Qué revisamos:</strong> {item.check}</p>
-          </article>
+
+      <div class="gpu-zones-grid">
+        {zones.map((zone) => (
+          <div class="gpu-zone-pill">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            <span>{zone}</span>
+          </div>
         ))}
       </div>
     </div>
   </section>
 
-  <section id="diagnostico-gpu" class="gpu-section gpu-section-soft">
-    <div class="container split-layout">
-      <div>
-        <span class="section-label">Diagnóstico técnico de GPU en Cancún</span>
-        <h2>Cómo saber si el problema es la GPU, la fuente o los drivers</h2>
-        <p>
-          No cambiamos la tarjeta de video por intuición. Una PC gamer puede fallar por fuente de poder,
-          drivers, RAM, BIOS, cable, monitor, ranura PCIe o temperatura. El diagnóstico separa cada causa
-          para darte una recomendación honesta.
-        </p>
-        <div class="diagnostic-note">
-          <i class="fa-solid fa-circle-info"></i>
-          <p>Si no conviene reparar o invertir en esa GPU, se informa antes de hacer gasto en refacciones. La recomendación puede ser mantenimiento, cambio de fuente, cambio de GPU o no invertir.</p>
-        </div>
-      </div>
-      <div class="check-panel">
-        <h3>Pruebas que realizamos</h3>
-        <ul>
-          {diagnosticChecks.map((check) => (
-            <li><i class="fa-solid fa-check"></i>{check}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="gpu-section">
-    <div class="container">
-      <div class="gpu-heading">
-        <span>Servicio completo</span>
-        <h2>Reparación, mantenimiento e instalación de GPU</h2>
-        <p>La vista está pensada para que entiendas qué se revisa, qué se puede corregir y cuándo conviene cambiar la tarjeta.</p>
-      </div>
-      <div class="service-grid">
-        {serviceBlocks.map((item) => (
-          <article>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="gpu-section decision-section">
-    <div class="container">
-      <div class="gpu-heading">
-        <span>Decisión técnica antes de gastar</span>
-        <h2>Te decimos si conviene reparar, mantener, cambiar o no invertir</h2>
-        <p>Una GPU puede fallar por daño real, temperatura, fuente insuficiente, drivers o mala instalación. El objetivo es evitar compras innecesarias.</p>
-      </div>
-      <div class="decision-grid">
-        {decisionRoutes.map((item) => (
-          <article>
-            <span>{item.label}</span>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-          </article>
-        ))}
-      </div>
-      <div class="mid-cta">
-        <p>¿Tu PC prende pero no da imagen o se apaga al jugar?</p>
-        <a class="gpu-btn gpu-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
-          <i class="fa-brands fa-whatsapp"></i>
-          Enviar síntomas por WhatsApp
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section id="mantenimiento-gpu" class="gpu-section gpu-section-soft">
-    <div class="container split-layout">
-      <div class="check-panel">
-        <h3>Cuándo conviene mantenimiento térmico</h3>
-        <ul>
-          <li><i class="fa-solid fa-check"></i>Temperatura alta o hotspot elevado.</li>
-          <li><i class="fa-solid fa-check"></i>Ventiladores al máximo o ruido excesivo.</li>
-          <li><i class="fa-solid fa-check"></i>Rendimiento que cae después de jugar unos minutos.</li>
-          <li><i class="fa-solid fa-check"></i>Pasta térmica seca o thermal pads deteriorados.</li>
-        </ul>
-      </div>
-      <div>
-        <span class="section-label">Cambio de pasta térmica y thermal pads de GPU</span>
-        <h2>Mantenimiento de GPU sin prometer milagros</h2>
-        <p>
-          Antes de abrir la tarjeta medimos temperatura y revisamos si el mantenimiento tiene sentido.
-          Después se valida con prueba de carga. La mejora depende del estado del chip, disipador, pads,
-          ventiladores y uso previo.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section id="instalacion-gpu" class="gpu-section">
-    <div class="container split-layout">
-      <div>
-        <span class="section-label">Instalación de tarjeta de video Cancún</span>
-        <h2>Instalación de tarjeta de video para PC gamer</h2>
-        <p>
-          Si compraste una GPU nueva o quieres actualizar tu PC gamer en Cancún, validamos compatibilidad
-          antes de instalar. No basta con que la tarjeta entre en el gabinete: también debe soportarla la fuente,
-          el cableado, la ventilación y la plataforma.
-        </p>
-        <a class="text-link" href="#ticket-gpu">Agendar diagnóstico</a>
-      </div>
-      <div class="check-panel">
-        <h3>Validación de instalación</h3>
-        <ul>
-          {gamerChecks.map((check) => (
-            <li><i class="fa-solid fa-check"></i>{check}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="gpu-section gpu-section-soft">
-    <div class="container split-layout">
-      <div>
-        <span class="section-label">Fallas comunes de GPU por calor, polvo y humedad en Cancún</span>
-        <h2>Servicio local para PC gamer en Cancún</h2>
-        <p>
-          En Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonampak, Puerto Cancún, Polígono Sur,
-          Bonfil, Puerto Juárez, Av. Tulum, Haciendas, Supermanzanas y alrededores, el calor y la humedad pueden
-          afectar GPU, fuente, conectores, ventiladores, pasta térmica y estabilidad del equipo.
-        </p>
-      </div>
-      <div class="check-panel">
-        <h3>Factores que revisamos</h3>
-        <ul>
-          {localFactors.map((factor) => (
-            <li><i class="fa-solid fa-check"></i>{factor}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section id="ticket-gpu-intro" class="gpu-section ticket-intro">
-    <div class="container ticket-callout">
-      <div>
-        <span class="section-label">Crear ticket para diagnóstico de GPU</span>
-        <h2>Solicita revisión con datos claros</h2>
-        <p>
-          Cuéntanos si tu PC no da imagen, muestra artefactos, se apaga al jugar, tiene temperatura alta,
-          ventiladores al máximo o si quieres instalar una GPU nueva. Con esa información preparamos el diagnóstico.
-        </p>
-        <p class="example-text">
-          Ejemplo: mi PC gamer prende, pero al abrir juegos la pantalla se pone negra y los ventiladores de la GPU suben al máximo.
-        </p>
-      </div>
-      <a class="gpu-btn gpu-btn-primary" href="#ticket-gpu">Solicitar revisión y cotización</a>
-    </div>
-  </section>
-
+  <!-- ==================== 15. TICKET DE SERVICIO SERVICE TICKET ==================== -->
   <ServiceTicketSection
     id="ticket-gpu"
     defaultDevice="PC de escritorio"
     defaultService="Diagnóstico tarjeta de video GPU"
     sourcePage="/servicios/pc/tarjeta-video-gpu"
-    title="Crear ticket para diagnóstico de GPU"
-    subtitle="Cuéntanos si tu PC no da imagen, muestra artefactos, se apaga al jugar, tiene temperatura alta, ventiladores al máximo o si quieres instalar una GPU nueva. Ejemplo: mi PC gamer prende, pero al abrir juegos la pantalla se pone negra y los ventiladores de la GPU suben al máximo."
+    title="Crear ticket para diagnóstico de GPU en Cancún"
+    subtitle="Cuéntanos si tu tarjeta gráfica no da imagen, muestra artefactos, se apaga al jugar, tiene temperatura alta o ventiladores al 100%. Te contactaremos con la información para tu cita técnica."
   />
 
-  <section id="relacionados" class="gpu-section">
+  <!-- ==================== 16. SERVICIOS RELACIONADOS ==================== -->
+  <section id="relacionados" class="gpu-section gpu-section--alt">
     <div class="container">
       <div class="gpu-heading">
-        <span>Servicios relacionados para PC gamer en Cancún</span>
+        <p class="gpu-section-kicker">Especialización de Servicios</p>
         <h2>Servicios relacionados para PC gamer en Cancún</h2>
-        <p>Servicios internos que suelen cruzarse con fallas de GPU, instalación o bajo rendimiento.</p>
+        <p>Servicios de hardware que se complementan con el diagnóstico y reparación de tarjetas de video:</p>
       </div>
-      <div class="related-grid">
+      <div class="gpu-related-grid">
         {relatedServices.map((item) => (
-          <a class="related-card" href={item.href}>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-            <span>Ver servicio relacionado</span>
+          <a class="gpu-related-card" href={item.href}>
+            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+            <span class="gpu-related-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         ))}
       </div>
     </div>
   </section>
 
-  <section id="contacto-gpu" class="gpu-section gpu-section-soft contact-nap">
-    <div class="container split-layout">
+  <!-- ==================== 17. NAP LOCAL Y CONTACTO ==================== -->
+  <section id="contacto-gpu" class="gpu-section contact-nap">
+    <div class="container gpu-split-nap">
       <div>
-        <span class="section-label">Taller técnico de computadoras en Cancún</span>
+        <p class="gpu-section-kicker">Taller Físico en Cancún</p>
         <h2>Taller técnico de computadoras en Cancún</h2>
         <p>
-          Atención local para diagnóstico de GPU, reparación de computadoras en Cancún, PC gamer y servicio técnico PC con cita previa.
+          Atención local para diagnóstico de GPU, reparación de computadoras en Cancún, PC gamer y servicio técnico especializado con cita previa.
         </p>
       </div>
-      <address>
+      <address class="gpu-address-box">
         <strong>Pixon PC</strong>
-        <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
-        <span>WhatsApp: <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">+52 998 669 0777</a></span>
-        <span>Correo: <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></span>
-        <span>Horario: Lunes a Domingo con cita previa</span>
+        <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+        <span><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp: <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">+52 998 669 0777</a></span>
+        <span><i class="fa-solid fa-envelope" aria-hidden="true"></i> Correo: <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></span>
+        <span><i class="fa-solid fa-clock" aria-hidden="true"></i> Horario: Lunes a Domingo con cita previa</span>
       </address>
     </div>
   </section>
 
+  <!-- ==================== 18. PREGUNTAS FRECUENTES FAQ ==================== -->
   <FaqSection
     id="faq-gpu"
-    title="Preguntas frecuentes sobre tarjeta de video GPU en Cancún"
-    description="Respuestas directas para decidir si necesitas diagnóstico, mantenimiento, instalación o cambio de GPU."
+    title="Preguntas frecuentes sobre reparación de GPU en Cancún"
+    description="Respuestas directas sobre diagnóstico, artefactos, pantalla negra, temperatura, pasta térmica y reparación de tarjetas gráficas en Cancún."
     items={gpuFaqs}
     titleColor="#071F3A"
     descriptionColor="#071F3A"
@@ -507,678 +1029,989 @@ const gpuFaqs = [
 </div>
 
 <style is:global>
+  /* ==================== GLOBAL PAGE VARIABLES & TYPOGRAPHY ==================== */
   .gpu-page {
     --azul-oscuro: #071F3A;
-    --gpu-blue: #2563eb;
     --gpu-cyan: #38bdf8;
-    --gpu-border: #dbe5f0;
-    --gpu-soft: #f6f9fd;
-    --gpu-ease: cubic-bezier(.23, 1, .32, 1);
-    background: #ffffff;
+    --gpu-blue: #0284c7;
+    background: #f8fafc;
     color: var(--azul-oscuro);
   }
 
   .gpu-page section:not(.gpu-hero),
   .gpu-page section:not(.gpu-hero) h2,
   .gpu-page section:not(.gpu-hero) h3,
+  .gpu-page section:not(.gpu-hero) h4,
   .gpu-page section:not(.gpu-hero) p,
   .gpu-page section:not(.gpu-hero) li,
   .gpu-page section:not(.gpu-hero) span,
-  .gpu-page section:not(.gpu-hero) label,
-  .gpu-page section:not(.gpu-hero) small,
   .gpu-page section:not(.gpu-hero) strong,
-  .gpu-page section:not(.gpu-hero) address,
-  .gpu-page section:not(.gpu-hero) a:not(.gpu-btn):not(.related-card):not(.text-link) {
+  .gpu-page section:not(.gpu-hero) address {
     color: var(--azul-oscuro) !important;
   }
 
+  /* ==================== 1. HERO SECTION ==================== */
   .gpu-hero {
     position: relative;
     overflow: hidden;
-    padding: 112px 0 66px;
-    background:
-      radial-gradient(circle at 18% 18%, rgba(56, 189, 248, .24), transparent 32%),
-      radial-gradient(circle at 88% 24%, rgba(37, 99, 235, .22), transparent 30%),
-      linear-gradient(135deg, #06172c 0%, #082848 50%, #071f3a 100%);
+    padding: clamp(56px, 7.5vw, 92px) 0 68px;
+    background-color: #071F3A !important;
     color: #ffffff;
+    isolation: isolate;
+  }
+  .gpu-hero::before {
+    position: absolute;
+    top: -240px;
+    right: -240px;
+    width: 680px;
+    height: 680px;
+    content: "";
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    border-radius: 50%;
+    box-shadow: 0 0 0 64px rgba(14, 116, 144, 0.1), 0 0 0 128px rgba(14, 116, 144, 0.05);
+    pointer-events: none;
+    z-index: -1;
   }
 
   .gpu-hero-grid {
     position: absolute;
     inset: 0;
-    background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
-    background-size: 44px 44px;
-    opacity: .34;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.35;
+    pointer-events: none;
   }
 
   .gpu-hero-inner {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(330px, .92fr);
-    gap: clamp(28px, 5vw, 58px);
+    grid-template-columns: minmax(0, 1.05fr) minmax(330px, 0.95fr);
+    gap: clamp(28px, 4.5vw, 56px);
     align-items: center;
-  }
-
-  .gpu-kicker,
-  .section-label,
-  .gpu-heading span {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: .78rem;
-    font-weight: 800;
-    letter-spacing: 0;
-    text-transform: uppercase;
   }
 
   .gpu-kicker {
-    color: #bfdbfe;
-    margin-bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #38bdf8 !important;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
   }
 
   .gpu-hero h1 {
-    max-width: 760px;
     margin: 0 0 18px;
-    font-size: clamp(2.2rem, 4.5vw, 4.05rem);
-    font-style: normal;
-    line-height: 1.03;
-    letter-spacing: 0;
-    color: #ffffff;
-    text-wrap: balance;
+    color: #ffffff !important;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.3rem, 4.5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
   }
 
-  .gpu-hero p {
-    max-width: 760px;
-    margin: 0;
-    color: #dbeafe;
-    font-size: clamp(1rem, 2vw, 1.22rem);
-    line-height: 1.65;
+  .gpu-lead {
+    margin: 0 0 24px;
+    color: #dbeafe !important;
+    font-size: clamp(1.02rem, 1.8vw, 1.2rem);
+    line-height: 1.6;
+    max-width: 620px;
   }
 
   .gpu-hero-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin: 28px 0 22px;
+    margin-bottom: 24px;
   }
 
   .gpu-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 9px;
     min-height: 48px;
-    padding: 0 20px;
-    border-radius: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
     font-weight: 800;
+    font-size: 0.92rem;
     text-decoration: none;
-    transition: transform .18s var(--gpu-ease), box-shadow .18s var(--gpu-ease), background .18s var(--gpu-ease);
+    transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
   }
-
-  .gpu-btn:active {
-    transform: scale(.98);
+  .gpu-btn:hover {
+    transform: translateY(-2px);
   }
-
-  @media (hover: hover) and (pointer: fine) {
-    .gpu-btn:hover {
-      transform: translateY(-1px);
-    }
-  }
-
   .gpu-btn-primary {
-    background: #25d366;
-    color: #06172c !important;
-    box-shadow: 0 16px 30px rgba(37, 211, 102, .24);
-  }
-
-  .gpu-btn-secondary {
-    background: rgba(255,255,255,.12);
+    background: #16a34a;
     color: #ffffff !important;
-    border: 1px solid rgba(255,255,255,.28);
+    box-shadow: 0 10px 22px rgba(22, 163, 74, 0.28);
+  }
+  .gpu-btn-primary:hover {
+    background: #15803d;
+  }
+  .gpu-btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff !important;
+  }
+  .gpu-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.16);
   }
 
-  .gpu-zone-list {
+  .gpu-badges {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-  }
-
-  .gpu-zone-list span {
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 999px;
-    padding: 7px 10px;
-    background: rgba(255,255,255,.08);
-    color: #e0f2fe;
-    font-size: .86rem;
-    font-weight: 700;
-  }
-
-  .gpu-hero-card {
-    display: grid;
-    gap: 16px;
-    padding: 18px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,.18);
-    background: rgba(6, 23, 44, .72);
-    box-shadow: 0 22px 60px rgba(0, 0, 0, .28);
-  }
-
-  .gpu-visual {
-    min-height: 220px;
-    display: grid;
-    place-items: center;
-    border-radius: 10px;
-    overflow: hidden;
-    background:
-      linear-gradient(90deg, rgba(56,189,248,.1) 1px, transparent 1px),
-      linear-gradient(0deg, rgba(56,189,248,.1) 1px, transparent 1px),
-      radial-gradient(circle at center, rgba(37,99,235,.26), transparent 48%);
-    background-size: 34px 34px, 34px 34px, auto;
-  }
-
-  .gpu-board {
-    position: relative;
-    width: min(100%, 320px);
-    aspect-ratio: 1.6;
-    border-radius: 14px;
-    border: 1px solid rgba(191, 219, 254, .28);
-    background:
-      linear-gradient(135deg, rgba(15, 42, 74, .96), rgba(8, 40, 72, .98)),
-      #082848;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 24px 48px rgba(0,0,0,.28);
-  }
-
-  .gpu-chip,
-  .gpu-fan,
-  .gpu-connector,
-  .gpu-scan {
-    position: absolute;
-  }
-
-  .gpu-chip {
-    left: 38%;
-    top: 34%;
-    width: 24%;
-    aspect-ratio: 1;
-    border-radius: 10px;
-    border: 1px solid rgba(56,189,248,.45);
-    background: #0f2a4a;
-    box-shadow: 0 0 24px rgba(56,189,248,.22);
-  }
-
-  .gpu-fan {
-    top: 28%;
-    width: 25%;
-    aspect-ratio: 1;
-    border-radius: 999px;
-    border: 12px solid rgba(219,234,254,.18);
-    background: radial-gradient(circle, rgba(219,234,254,.8) 0 10%, rgba(56,189,248,.18) 11% 100%);
-  }
-
-  .gpu-fan-a { left: 8%; }
-  .gpu-fan-b { right: 8%; }
-
-  .gpu-connector {
-    right: -2px;
-    top: 34%;
-    width: 10px;
-    height: 34%;
-    border-radius: 4px 0 0 4px;
-    background: #dbeafe;
-  }
-
-  .gpu-scan {
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gpu-cyan), transparent);
-    box-shadow: 0 0 18px rgba(56,189,248,.75);
-  }
-
-  .gpu-scan-a { top: 24%; }
-  .gpu-scan-b { bottom: 24%; }
-
-  .gpu-hero-card-head {
-    display: grid;
-    gap: 6px;
-  }
-
-  .gpu-hero-card-head span,
-  .gpu-fact-list span {
-    color: #bfdbfe;
-    font-size: .84rem;
-    font-weight: 760;
-  }
-
-  .gpu-hero-card-head strong {
-    color: #ffffff;
-    font-size: 1.18rem;
-    line-height: 1.2;
-  }
-
-  .gpu-fact-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .gpu-fact-list div {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-    padding: 12px;
-    border-radius: 10px;
-    background: rgba(255,255,255,.08);
-  }
-
-  .gpu-fact-list strong {
-    color: #ffffff;
-    font-size: .96rem;
-    line-height: 1.28;
-  }
-
-  .gpu-section {
-    padding: 72px 0;
-    background: #ffffff;
-  }
-
-  .gpu-section-soft {
-    background: var(--gpu-soft);
-  }
-
-  .gpu-heading {
-    max-width: 860px;
-    margin: 0 auto 30px;
-    text-align: center;
-  }
-
-  .gpu-heading h2,
-  .split-layout h2,
-  .ticket-callout h2 {
-    margin: 8px 0 12px;
-    color: var(--azul-oscuro);
-    font-size: clamp(1.75rem, 3vw, 2.65rem);
-    font-style: normal;
-    line-height: 1.12;
-    letter-spacing: 0;
-    text-wrap: balance;
-  }
-
-  .gpu-heading p,
-  .split-layout p,
-  .ticket-callout p {
-    margin: 0;
-    color: var(--azul-oscuro);
-    line-height: 1.68;
-  }
-
-  .symptom-grid,
-  .service-grid,
-  .related-grid,
-  .decision-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .symptom-card,
-  .service-grid article,
-  .related-card,
-  .check-panel,
-  .decision-grid article,
-  .ticket-callout,
-  .contact-nap address {
-    border: 1px solid var(--gpu-border);
-    border-radius: 8px;
-    background: #ffffff;
-    box-shadow: 0 14px 34px rgba(7, 31, 58, .06);
-  }
-
-  .symptom-card {
-    padding: 18px;
-  }
-
-  .symptom-card-priority {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    column-gap: 14px;
-    align-content: start;
-    background: #f8fbff;
-  }
-
-  .symptom-card-priority h3 {
-    margin-top: 0;
-  }
-
-  .symptom-card-priority p {
-    grid-column: 2;
-  }
-
-  .symptom-icon {
-    width: 38px;
-    height: 38px;
-    display: grid;
-    place-items: center;
-    border-radius: 8px;
-    background: #eaf2ff;
-    color: var(--gpu-blue);
-    margin-bottom: 12px;
-  }
-
-  .symptom-card h3,
-  .service-grid h3,
-  .decision-grid h3,
-  .related-card h3,
-  .check-panel h3 {
-    margin: 0 0 10px;
-    color: var(--azul-oscuro);
-    font-size: 1.05rem;
-    font-style: normal;
-    line-height: 1.25;
-  }
-
-  .symptom-card p {
-    margin: 10px 0 0;
-    line-height: 1.55;
-    font-size: .94rem;
-  }
-
-  .split-layout {
-    display: grid;
-    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
-    gap: 28px;
-    align-items: center;
-  }
-
-  .check-panel {
-    padding: 22px;
-    text-align: left;
-  }
-
-  .check-panel ul {
-    display: grid;
-    gap: 11px;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-
-  .check-panel li {
-    display: grid;
-    grid-template-columns: 20px 1fr;
-    gap: 10px;
-    align-items: start;
-    line-height: 1.5;
-  }
-
-  .check-panel i,
-  .diagnostic-note i {
-    color: var(--gpu-blue);
-  }
-
-  .diagnostic-note {
-    display: grid;
-    grid-template-columns: 22px 1fr;
-    gap: 12px;
-    align-items: start;
-    margin-top: 20px;
-    padding: 14px;
-    border: 1px solid #bfdbfe;
-    border-radius: 8px;
-    background: #eef6ff;
-  }
-
-  .service-grid article {
-    padding: 20px;
-  }
-
-  .decision-section {
-    background: #ffffff;
-  }
-
-  .decision-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .decision-grid article {
-    padding: 20px;
-    min-width: 0;
-  }
-
-  .decision-grid article > span {
+  .gpu-badges li {
     display: inline-flex;
-    margin-bottom: 12px;
-    padding: 6px 10px;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid rgba(186, 230, 253, 0.24);
     border-radius: 999px;
-    background: #eaf2ff;
-    color: var(--gpu-blue) !important;
-    font-size: .78rem;
-    font-weight: 900;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e0f2fe !important;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .gpu-badges i {
+    color: #38bdf8;
+    font-size: 0.72rem;
   }
 
-  .decision-grid p {
-    margin: 0;
-    line-height: 1.58;
-  }
-
-  .mid-cta {
+  /* ==================== 3-FAN GPU MOTION DESIGN ==================== */
+  .gpu-hero__visual-container {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    margin-top: 22px;
-    padding: 18px 20px;
-    border-radius: 8px;
-    background: #071F3A;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
   }
 
-  .mid-cta p {
+  .gpu-visual-stage {
+    width: 100%;
     margin: 0;
-    color: #ffffff !important;
-    font-weight: 850;
+  }
+  .gpu-visual-stage svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 14px 30px rgba(2, 11, 20, 0.5));
   }
 
-  .text-link {
-    display: inline-flex;
-    margin-top: 18px;
-    color: var(--gpu-blue) !important;
+  /* Motion Graphic Elements (13.5s narrative loop) */
+  .gpu-glitch-monitor {
+    animation: gpu-glitch-monitor-fx 13.5s ease-in-out infinite;
+  }
+  .gpu-thermal-halo {
+    animation: gpu-thermal-halo-fx 13.5s ease-in-out infinite;
+  }
+  .gpu-layer-shroud {
+    transform-origin: center bottom;
+    animation: gpu-shroud-explode-fx 13.5s cubic-bezier(0.3, 0.05, 0.2, 1) infinite;
+  }
+  .gpu-layer-heatsink {
+    transform-origin: center bottom;
+    animation: gpu-heatsink-explode-fx 13.5s cubic-bezier(0.3, 0.05, 0.2, 1) infinite;
+  }
+  .gpu-die-core {
+    animation: gpu-die-thermal-fx 13.5s ease-in-out infinite;
+  }
+  .gpu-heatsink-fins {
+    animation: gpu-fins-contrast-fx 13.5s ease-in-out infinite;
+  }
+  .gpu-heatpipes path {
+    animation: gpu-heatpipes-color-fx 13.5s ease-in-out infinite;
+  }
+
+  .gpu-fan-rotor {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gpu-triple-fans-spin 13.5s linear infinite;
+  }
+  .gpu-fan-rotor--2 { animation-delay: 40ms; }
+  .gpu-fan-rotor--3 { animation-delay: 80ms; }
+
+  .gpu-scanner-beam {
+    animation: gpu-scan-beam-fx 13.5s ease-in-out infinite;
+  }
+  .gpu-dust-particles {
+    animation: gpu-dust-dissipate-fx 13.5s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+  }
+
+  .gpu-air-stream {
+    stroke-dasharray: 40 80;
+    stroke-dashoffset: 120;
+    animation: gpu-airflow-flow-fx 13.5s linear infinite;
+  }
+  .gpu-air-stream--2 { animation-delay: 90ms; }
+  .gpu-air-stream--3 { animation-delay: 180ms; }
+
+  .gpu-sheen-rect {
+    animation: gpu-metal-sheen-fx 13.5s ease-in-out infinite;
+  }
+  .gpu-sparkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gpu-sparkle-pop-fx 13.5s ease-in-out infinite;
+  }
+  .gpu-sparkle--2 { animation-delay: 140ms; }
+
+  .gpu-success-badge {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gpu-success-check-fx 13.5s cubic-bezier(0.18, 0.9, 0.32, 1.25) infinite;
+  }
+
+  /* 13.5-Second Animation Keyframes */
+  @keyframes gpu-glitch-monitor-fx {
+    0%, 35% { opacity: 0.25; }
+    36%, 100% { opacity: 0; }
+  }
+
+  @keyframes gpu-thermal-halo-fx {
+    0%, 14% { opacity: 0; transform: scale(0.85); }
+    18%, 26% { opacity: 0.75; transform: scale(1.05); }
+    30%, 100% { opacity: 0; transform: scale(0.85); }
+  }
+
+  /* Triple Fans Rotation */
+  @keyframes gpu-triple-fans-spin {
+    0%, 14% { transform: rotate(0deg); }
+    15%, 27% { transform: rotate(1800deg); }
+    28%, 43% { transform: rotate(2340deg); }
+    44%, 77% { transform: rotate(2340deg); } /* Stoppage during exploded view */
+    78%, 84% { transform: rotate(2520deg); }
+    85%, 96% { transform: rotate(4320deg); } /* Smooth stable cooling */
+    97%, 100% { transform: rotate(4500deg); }
+  }
+
+  /* Exploded View Separation (44% - 55% separates, 78% - 85% reassembles) */
+  @keyframes gpu-shroud-explode-fx {
+    0%, 43% { transform: translateY(0); opacity: 0.95; }
+    48%, 77% { transform: translateY(-38px); opacity: 0.25; }
+    84%, 100% { transform: translateY(0); opacity: 0.95; }
+  }
+  @keyframes gpu-heatsink-explode-fx {
+    0%, 43% { transform: translateY(0); opacity: 0.95; }
+    48%, 77% { transform: translateY(-16px); opacity: 0.65; }
+    84%, 100% { transform: translateY(0); opacity: 0.95; }
+  }
+
+  /* Diagnostic Scanner Beam (36% - 44%) */
+  @keyframes gpu-scan-beam-fx {
+    0%, 35% { opacity: 0; transform: translateY(-50px); }
+    37% { opacity: 0.95; }
+    42% { opacity: 0.95; transform: translateY(50px); }
+    44%, 100% { opacity: 0; transform: translateY(55px); }
+  }
+
+  /* Dust Particles Blowout (55% - 70%) */
+  @keyframes gpu-dust-dissipate-fx {
+    0%, 54% { opacity: 0.95; transform: translate(0, 0) scale(1); }
+    60% { opacity: 0.7; transform: translate(24px, -24px) scale(0.8); }
+    67% { opacity: 0.2; transform: translate(50px, -45px) scale(0.4); }
+    70%, 100% { opacity: 0; transform: translate(65px, -55px) scale(0); }
+  }
+
+  /* Thermal Die Compounds Highlight (70% - 78%) */
+  @keyframes gpu-die-thermal-fx {
+    0%, 68% { stroke: #f59e0b; fill: #0c3c66; }
+    71%, 77% { stroke: #10b981; fill: #064e3b; }
+    80%, 96% { stroke: #22d3ee; fill: #07355c; }
+    98%, 100% { stroke: #f59e0b; fill: #0c3c66; }
+  }
+
+  /* Heatsink Fins Contrast */
+  @keyframes gpu-fins-contrast-fx {
+    0%, 54% { stroke: #f59e0b; fill: #0a243d; }
+    65%, 96% { stroke: #38bdf8; fill: #0d3152; }
+    98%, 100% { stroke: #f59e0b; fill: #0a243d; }
+  }
+
+  /* Heatpipes Shift from Amber (Hot) to Metallic Cyan (Cool) */
+  @keyframes gpu-heatpipes-color-fx {
+    0%, 14% { stroke: url(#gpu-copper-pipe); }
+    16%, 27% { stroke: #ea580c; }
+    55%, 96% { stroke: url(#gpu-copper-pipe); }
+    98%, 100% { stroke: url(#gpu-copper-pipe); }
+  }
+
+  /* Airflow Flow (85% - 94%) */
+  @keyframes gpu-airflow-flow-fx {
+    0%, 84% { opacity: 0; stroke-dashoffset: 120; }
+    86% { opacity: 0.95; }
+    93% { opacity: 0.95; stroke-dashoffset: -120; }
+    95%, 100% { opacity: 0; stroke-dashoffset: -160; }
+  }
+
+  /* Sheen & Sparkles */
+  @keyframes gpu-metal-sheen-fx {
+    0%, 96% { opacity: 0; transform: translateX(-240px) skewX(-20deg); }
+    97% { opacity: 0.85; }
+    99% { opacity: 0.85; transform: translateX(240px) skewX(-20deg); }
+    100% { opacity: 0; transform: translateX(260px) skewX(-20deg); }
+  }
+  @keyframes gpu-sparkle-pop-fx {
+    0%, 96% { opacity: 0; transform: scale(0.2); }
+    97%, 99% { opacity: 1; transform: scale(1.3) rotate(15deg); }
+    100% { opacity: 0; transform: scale(0.2); }
+  }
+  @keyframes gpu-success-check-fx {
+    0%, 96% { opacity: 0; transform: translateY(8px) scale(0.4); }
+    97% { opacity: 1; transform: translateY(-3px) scale(1.15); }
+    98%, 99% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-3px) scale(0.85); }
+  }
+
+  /* 5-Step Process Timeline Container */
+  .service-process {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin: 4px 0 0;
+    padding: 14px 10px 12px;
+    list-style: none;
+    background: rgba(6, 26, 48, 0.65);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  .service-process::before {
+    position: absolute;
+    top: 22px;
+    left: 36px;
+    right: 36px;
+    height: 3px;
+    content: '';
+    background: rgba(14, 61, 102, 0.85);
+    border-radius: 2px;
+    z-index: 1;
+  }
+
+  .service-process::after {
+    position: absolute;
+    top: 22px;
+    left: 36px;
+    right: 36px;
+    height: 3px;
+    content: '';
+    background: linear-gradient(90deg, #38bdf8, #22d3ee, #10b981);
+    border-radius: 2px;
+    z-index: 1;
+    transform-origin: left;
+    animation: gpu-line-progress 13.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .process-step {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 2px;
+    opacity: 0.55;
+    transform: translateY(2px);
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+
+  .process-step__indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+
+  .process-step__dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #092644;
+    border: 2.5px solid #1a517e;
+    box-shadow: 0 0 0 3px rgba(6, 26, 48, 0.9);
+  }
+
+  .process-step__num {
+    color: #7dd3fc;
+    font-family: monospace;
+    font-size: 0.68rem;
     font-weight: 800;
-    text-decoration: none;
   }
 
-  .ticket-intro {
-    padding-bottom: 30px;
+  .process-step__info {
+    min-width: 0;
+    width: 100%;
+  }
+  .process-step__info strong {
+    display: block;
+    color: #ffffff;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .process-step__info p {
+    margin: 2px 0 0;
+    color: #cbe9f4;
+    font-size: 0.66rem;
+    line-height: 1.25;
   }
 
-  .ticket-callout {
+  @keyframes gpu-line-progress {
+    0%, 14% { transform: scaleX(0); }
+    15%, 35% { transform: scaleX(0.25); }
+    36%, 54% { transform: scaleX(0.5); }
+    55%, 77% { transform: scaleX(0.75); }
+    78%, 96% { transform: scaleX(1); }
+    98%, 100% { transform: scaleX(0); }
+  }
+
+  .process-step--1 { animation: gpu-step1-sync 13.5s ease-in-out infinite; }
+  .process-step--2 { animation: gpu-step2-sync 13.5s ease-in-out infinite; }
+  .process-step--3 { animation: gpu-step3-sync 13.5s ease-in-out infinite; }
+  .process-step--4 { animation: gpu-step4-sync 13.5s ease-in-out infinite; }
+  .process-step--5 { animation: gpu-step5-sync 13.5s ease-in-out infinite; }
+
+  @keyframes gpu-step1-sync {
+    0%, 14% { opacity: 1; transform: translateY(0); }
+    16%, 96% { opacity: 0.55; transform: translateY(2px); }
+    98%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes gpu-step2-sync {
+    0%, 14% { opacity: 0.55; transform: translateY(2px); }
+    16%, 35% { opacity: 1; transform: translateY(0); }
+    37%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes gpu-step3-sync {
+    0%, 35% { opacity: 0.55; transform: translateY(2px); }
+    37%, 54% { opacity: 1; transform: translateY(0); }
+    56%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes gpu-step4-sync {
+    0%, 54% { opacity: 0.55; transform: translateY(2px); }
+    56%, 77% { opacity: 1; transform: translateY(0); }
+    79%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes gpu-step5-sync {
+    0%, 77% { opacity: 0.55; transform: translateY(2px); }
+    79%, 96% { opacity: 1; transform: translateY(0); }
+    98%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+
+  /* ==================== COMMON SECTIONS ==================== */
+  .gpu-section {
+    padding: clamp(52px, 7vw, 84px) 0;
+  }
+  .gpu-section--alt {
+    background: #f1f5f9;
+  }
+
+  .gpu-heading {
+    max-width: 780px;
+    margin-bottom: 34px;
+  }
+  .gpu-section-kicker {
+    display: inline-block;
+    color: #0284c7;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .gpu-heading h2 {
+    margin: 0 0 12px;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+  .gpu-heading p {
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.62;
+    color: #1e3a5f;
+  }
+
+  /* Grids */
+  .gpu-grid-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .gpu-grid-three {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  /* Cards */
+  .gpu-card {
+    padding: 24px 22px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.04);
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .gpu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(7, 31, 58, 0.08);
+    border-color: #94a3b8;
+  }
+
+  .gpu-card__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .gpu-card h3 {
+    margin: 0 0 8px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.12rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+  .gpu-card p {
+    margin: 0 0 10px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #1e3a5f;
+  }
+  .gpu-card h4 {
+    margin: 12px 0 4px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0284c7;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .gpu-card__sub {
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
+    color: #475569 !important;
+    margin-bottom: 6px !important;
+  }
+
+  /* Signal Cards */
+  .gpu-signal-card {
+    padding: 22px 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+  }
+  .gpu-signal-card__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+  .gpu-signal-card h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .gpu-signal-card p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  /* Brand Boxes (NVIDIA & AMD) */
+  .gpu-brand-box {
+    padding: 24px 22px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+  }
+  .gpu-brand-box__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 0.76rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .gpu-brand-box h3 {
+    margin: 0 0 8px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+  .gpu-brand-box p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: #334155;
+  }
+
+  /* Decision Cards (4-Grid) */
+  .gpu-decision-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .gpu-decision-card {
+    padding: 22px 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+  }
+  .gpu-decision-card__tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: #0284c7;
+    color: #ffffff !important;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .gpu-decision-card h3 {
+    margin: 0 0 8px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .gpu-decision-card p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  /* Feature Boxes (Installation) */
+  .gpu-feature-box {
+    padding: 22px 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+  }
+  .gpu-feature-box i {
+    font-size: 1.4rem;
+    color: #0284c7;
+    margin-bottom: 12px;
+  }
+  .gpu-feature-box h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .gpu-feature-box p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+  .gpu-feature-box--cta {
+    background: #e0f2fe;
+    border-color: #bae6fd;
+  }
+  .gpu-feature-box--cta .gpu-btn {
+    margin-top: 14px;
+    width: 100%;
+  }
+
+  /* Pricing Cards */
+  .gpu-pricing-card {
+    padding: 24px 22px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+  }
+  .gpu-pricing-card__head {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .gpu-pricing-card__head h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+  .gpu-price {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: #e0f2fe;
+    color: #0284c7 !important;
+    font-weight: 900;
+    font-size: 0.86rem;
+  }
+  .gpu-pricing-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #334155;
+  }
+
+  /* Zone Boxes */
+  .gpu-zone-box {
+    padding: 26px 24px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+  }
+  .gpu-zone-box h3 {
+    margin: 0 0 10px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+  .gpu-zone-box h4 {
+    margin: 12px 0 4px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #0284c7;
+    text-transform: uppercase;
+  }
+  .gpu-zone-box__meta {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  /* Zones Grid Pills */
+  .gpu-zones-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .gpu-zone-pill {
+    display: inline-flex;
     align-items: center;
-    gap: 22px;
-    padding: 24px;
-    background: #f9fbff;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+  .gpu-zone-pill i {
+    color: #0284c7;
+    font-size: 0.85rem;
   }
 
-  .ticket-callout .gpu-btn {
-    flex: 0 0 auto;
-    white-space: nowrap;
+  /* Cross Linking Grid */
+  .gpu-related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .gpu-related-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .gpu-related-card:hover {
+    transform: translateY(-2px);
+    border-color: #0284c7;
+    box-shadow: 0 10px 22px rgba(7, 31, 58, 0.06);
+  }
+  .gpu-related-card i {
+    font-size: 1.4rem;
+    color: #0284c7;
+    margin-top: 2px;
+  }
+  .gpu-related-card h3 {
+    margin: 0 0 4px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #071F3A;
+  }
+  .gpu-related-card p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #475569;
+  }
+  .gpu-related-arrow {
+    margin-left: auto;
+    color: #94a3b8;
+  }
+  .gpu-related-card:hover .gpu-related-arrow {
+    color: #0284c7;
   }
 
-  .example-text {
-    margin-top: 12px !important;
+  /* NAP Block */
+  .gpu-split-nap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+  }
+  .gpu-address-box {
+    padding: 22px 24px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    display: grid;
+    gap: 8px;
+    font-style: normal;
+  }
+  .gpu-address-box strong {
+    font-size: 1.15rem;
+    font-family: 'Kanit', sans-serif;
+  }
+  .gpu-address-box span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+  }
+  .gpu-address-box a {
+    color: #0284c7;
+    text-decoration: none;
     font-weight: 700;
   }
 
-  .related-grid {
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  }
-
-  .related-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-height: 190px;
-    padding: 18px;
-    color: var(--azul-oscuro) !important;
-    text-decoration: none;
-  }
-
-  .related-card p {
-    margin: 0;
-    line-height: 1.55;
-    font-size: .92rem;
-  }
-
-  .related-card span {
-    margin-top: auto;
-    color: var(--gpu-blue) !important;
-    font-weight: 800;
-  }
-
-  .contact-nap address {
-    display: grid;
-    gap: 8px;
-    padding: 22px;
-    font-style: normal;
-  }
-
-  .contact-nap a {
-    color: var(--gpu-blue) !important;
-    font-weight: 800;
-  }
-
-  .gpu-page #ticket-gpu.service-ticket-section,
-  .gpu-page #ticket-gpu.service-ticket-section .container {
-    color: var(--azul-oscuro) !important;
-  }
-
-  .gpu-page #ticket-gpu.service-ticket-section h2,
-  .gpu-page #ticket-gpu.service-ticket-section h3,
-  .gpu-page #ticket-gpu.service-ticket-section p,
-  .gpu-page #ticket-gpu.service-ticket-section label,
-  .gpu-page #ticket-gpu.service-ticket-section span,
-  .gpu-page #ticket-gpu.service-ticket-section strong,
-  .gpu-page #ticket-gpu.service-ticket-section input,
-  .gpu-page #ticket-gpu.service-ticket-section select,
-  .gpu-page #ticket-gpu.service-ticket-section textarea {
-    color: var(--azul-oscuro) !important;
-  }
-
-  .gpu-page #ticket-gpu.service-ticket-section h2,
-  .gpu-page #ticket-gpu.service-ticket-section h3 {
-    font-style: normal !important;
-  }
-
-  .gpu-page #ticket-gpu.service-ticket-section button[type="submit"],
-  .gpu-page #ticket-gpu.service-ticket-section button[type="submit"] i,
-  .gpu-page #ticket-gpu.service-ticket-section #st_wa_link,
-  .gpu-page #ticket-gpu.service-ticket-section #st_wa_link i {
-    color: #ffffff !important;
-  }
-
-  .gpu-page #faq-gpu,
-  .gpu-page #faq-gpu *,
-  .gpu-page .comments,
-  .gpu-page .comments *,
-  .gpu-page .contact,
-  .gpu-page .contact *,
-  .gpu-page footer,
-  .gpu-page footer * {
-    color: var(--azul-oscuro) !important;
-  }
-
-  .gpu-page footer {
-    background: #f6f9fd !important;
-  }
-
-  .gpu-page .btn,
-  .gpu-page .btn *,
-  .gpu-page button[type="submit"],
-  .gpu-page button[type="submit"] *,
-  .gpu-page [data-wa-url],
-  .gpu-page [data-wa-url] * {
-    color: inherit;
-  }
-
-  @media (max-width: 1120px) {
-    .symptom-grid,
-    .service-grid,
-    .decision-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .related-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+  @media (max-width: 1080px) {
+    .gpu-decision-grid { grid-template-columns: repeat(2, 1fr); }
+    .gpu-related-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 860px) {
-    .gpu-hero {
-      padding: 96px 0 54px;
-    }
-
     .gpu-hero-inner,
-    .split-layout {
+    .gpu-grid-two,
+    .gpu-split-nap { grid-template-columns: 1fr; }
+    .gpu-grid-three { grid-template-columns: repeat(2, 1fr); }
+    .gpu-hero__visual-container { max-width: 520px; }
+  }
+
+  @media (max-width: 768px) {
+    /* Switch Timeline to Vertical on Mobile */
+    .service-process {
       grid-template-columns: 1fr;
+      gap: 11px;
+      padding: 14px 14px 12px;
+    }
+    .service-process::before {
+      top: 18px;
+      bottom: 18px;
+      left: 17px;
+      right: auto;
+      width: 3px;
+      height: auto;
+    }
+    .service-process::after {
+      top: 18px;
+      bottom: 18px;
+      left: 17px;
+      right: auto;
+      width: 3px;
+      height: auto;
+      transform-origin: top;
+      animation: gpu-line-progress-vert 13.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .process-step {
+      flex-direction: row;
+      align-items: flex-start;
+      text-align: left;
+      gap: 12px;
+      transform: translateX(0);
+    }
+    .process-step__indicator {
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    .process-step__dot {
+      margin-top: 3px;
+    }
+    .process-step__num {
+      min-width: 18px;
+      margin-top: 1px;
+    }
+    .process-step__info strong {
+      font-size: 0.86rem;
+    }
+    .process-step__info p {
+      font-size: 0.74rem;
     }
 
-    .ticket-callout {
-      align-items: stretch;
-      flex-direction: column;
-    }
-
-    .mid-cta {
-      align-items: stretch;
-      flex-direction: column;
-    }
-
-    .ticket-callout .gpu-btn,
-    .mid-cta .gpu-btn {
-      width: 100%;
+    @keyframes gpu-line-progress-vert {
+      0%, 14% { transform: scaleY(0); }
+      15%, 35% { transform: scaleY(0.25); }
+      36%, 54% { transform: scaleY(0.5); }
+      55%, 77% { transform: scaleY(0.75); }
+      78%, 96% { transform: scaleY(1); }
+      98%, 100% { transform: scaleY(0); }
     }
   }
 
   @media (max-width: 640px) {
-    .gpu-section {
-      padding: 50px 0;
-    }
-
-    .symptom-grid,
-    .service-grid,
-    .decision-grid,
-    .related-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .symptom-card-priority {
-      grid-column: auto;
-      grid-template-columns: 1fr;
-    }
-
-    .symptom-card-priority p {
-      grid-column: auto;
-    }
-
-    .gpu-hero-actions .gpu-btn {
-      width: 100%;
-    }
-
-    .gpu-fact-list {
-      grid-template-columns: 1fr;
-    }
-
-    .gpu-zone-list span {
-      font-size: .8rem;
-    }
+    .gpu-hero { padding-top: 40px; }
+    .gpu-hero h1 { font-size: clamp(2rem, 7.5vw, 2.6rem); }
+    .gpu-hero-actions { flex-direction: column; }
+    .gpu-btn { width: 100%; }
+    .gpu-hero__visual-container { max-width: 100%; }
+    .gpu-grid-three,
+    .gpu-decision-grid,
+    .gpu-related-grid { grid-template-columns: 1fr; }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .gpu-visual-stage * { animation: none !important; }
+    .gpu-layer-shroud,
+    .gpu-layer-heatsink { transform: none !important; opacity: 0.95 !important; }
+    .gpu-scanner-beam { opacity: 0 !important; }
+    .gpu-dust-particles { opacity: 0 !important; }
+    .gpu-thermal-halo { opacity: 0 !important; }
+    .gpu-success-badge { opacity: 1 !important; transform: none !important; }
+    .service-process::after { transform: none !important; animation: none !important; }
+    .process-step { opacity: 1 !important; transform: none !important; animation: none !important; }
     .gpu-btn,
-    .gpu-btn:hover,
-    .gpu-btn:active {
-      transition: none;
-      transform: none;
-    }
+    .gpu-card,
+    .gpu-related-card { transition: none; }
   }
 </style>

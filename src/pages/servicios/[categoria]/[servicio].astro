@@ -80,6 +80,7 @@ const {
   isPhoneFlexButtons,
   isPhoneDiagnostic,
   isPhoneNoPower,
+  isPhoneLiquidDamage,
   isIphoneService,
   isIphoneScreenRepair,
   isIphoneBatteryReplacement,
@@ -400,7 +401,12 @@ const pageSchema = [
     category,
     url: canonical,
     description: finalDescription,
-    image: isLaptopPreventiveMaintenance ? service.featuredImage : undefined,
+    image: isLaptopPreventiveMaintenance || isPhoneLiquidDamage ? service.featuredImage : undefined,
+    areaServed: isPhoneLiquidDamage ? [
+      { '@type': 'City', name: 'Cancún' },
+      { '@type': 'Place', name: 'Zona Hotelera de Cancún' },
+      { '@type': 'AdministrativeArea', name: 'Benito Juárez' },
+    ] : undefined,
   }),
   buildBreadcrumbSchema([
     { label: 'Inicio', href: '/' },
@@ -416,7 +422,16 @@ const pageSchema = [
   title={finalSeoTitle}
   description={finalDescription}
   canonical={canonical}
-  image={isLaptopPreventiveMaintenance ? '/assets/images/laptop-feliz-limpia.webp' : undefined}
+  alternateLinks={isPhoneLiquidDamage ? [
+    { hreflang: 'es-MX', href: canonical },
+    { hreflang: 'en', href: 'https://pixon.com.mx/en/liquid-damage' },
+    { hreflang: 'x-default', href: canonical },
+  ] : isIphoneBatteryReplacement ? [
+    { hreflang: 'es-MX', href: canonical },
+    { hreflang: 'en', href: 'https://pixon.com.mx/en/iphone-battery-replacement' },
+    { hreflang: 'x-default', href: canonical },
+  ] : undefined}
+  image={isLaptopPreventiveMaintenance ? '/assets/images/laptop-feliz-limpia.webp' : isPhoneLiquidDamage ? service.featuredImage : undefined}
   schema={pageSchema}
   bodyClass="service-page"
   ogTitle={isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún | Pixon PC' : finalSeoTitle}

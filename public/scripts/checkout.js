@@ -9,7 +9,7 @@
   var submit = document.getElementById('checkout-submit');
   var validated = [];
   var submitting = false;
-  var methodLabels = { BANK_TRANSFER: 'Transferencia bancaria', CASH: 'Efectivo', TERMINAL: 'Terminal bancaria' };
+  var methodLabels = { BANK_TRANSFER: 'Transferencia bancaria', CASH: 'Efectivo', TERMINAL: 'Terminal bancaria', STRIPE: 'Tarjeta en línea', MERCADO_PAGO: 'Mercado Pago', PAYPAL: 'PayPal' };
 
   function showMessage(text) { message.textContent = text; message.hidden = false; }
   function row(result) {
@@ -54,7 +54,7 @@
     message.hidden = true;
     if (!form.reportValidity()) return;
     if (!validated.length || !validated.every(function (result) { return result.available; })) { showMessage('Revalida tu carrito antes de continuar.'); return; }
-    submitting = true; submit.disabled = true; submit.textContent = 'Creando pedido…';
+    submitting = true; submit.disabled = true; submit.textContent = 'Reservando y creando pedido…';
     var data = new FormData(form);
     var pendingKey = 'pixon.checkout.pending';
     var idempotencyKey = sessionStorage.getItem(pendingKey) || crypto.randomUUID();
@@ -79,7 +79,7 @@
       window.location.assign('/pedido/' + encodeURIComponent(order.folio));
     } catch (error) {
       showMessage(error.message || 'Error al completar la operación');
-      submitting = false; submit.disabled = false; submit.textContent = 'Crear pedido';
+      submitting = false; submit.disabled = false; submit.textContent = 'Crear pedido y recibir instrucciones';
     }
   });
   init().catch(function (error) { showMessage(error.message || 'No pudimos preparar el checkout.'); submit.disabled = true; });

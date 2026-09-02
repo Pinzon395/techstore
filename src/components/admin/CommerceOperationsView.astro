@@ -33,22 +33,141 @@ import '../../styles/admin-commerce.css';
   <div class="commerce-panel"><div class="commerce-table-wrap"><table class="commerce-table"><thead><tr><th>Artículo</th><th>Anterior</th><th>Movimiento</th><th>Nuevo</th><th>Razón</th><th>Referencia</th><th>Usuario</th><th>Fecha</th></tr></thead><tbody id="inventory-body"><tr><td colspan="8" class="commerce-table-state">Cargando movimientos…</td></tr></tbody></table></div></div>
 </section>
 
-<section id="view-commerce-promotions" class="admin-section commerce-admin" style="display:none;" aria-labelledby="commerce-promotions-title">
+<section id="view-commerce-promotions" class="admin-section commerce-admin promotion-admin-page" style="display:none;" aria-labelledby="commerce-promotions-title">
   <a class="commerce-back-link" href="/admin/commerce" data-view-target="commerce"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Commerce</a>
-  <div class="commerce-command"><div><p class="commerce-kicker">Precio y presentación</p><h2 id="commerce-promotions-title">Promociones</h2><p>Descuentos por artículo o categoría con fechas reales.</p></div><button class="commerce-button commerce-button-primary" id="promotion-create" type="button">Crear promoción</button></div>
-  <div class="commerce-resource-tabs" id="promotion-tabs"><button class="is-active" data-promotion-status="" type="button">Todas</button><button data-promotion-status="ACTIVE" type="button">Activas</button><button data-promotion-status="SCHEDULED" type="button">Programadas</button><button data-promotion-status="ENDED" type="button">Finalizadas</button></div>
-  <div class="commerce-panel"><div class="commerce-table-wrap"><table class="commerce-table"><thead><tr><th>Promoción</th><th>Tipo</th><th>Valor</th><th>Scope</th><th>Vigencia</th><th>Estado</th></tr></thead><tbody id="promotions-body"><tr><td colspan="6" class="commerce-table-state">Cargando promociones…</td></tr></tbody></table></div></div>
+  <div class="commerce-command promotion-command"><div><p class="commerce-kicker">Commerce → Crecimiento</p><h2 id="commerce-promotions-title">Promociones</h2><p>Diseña descuentos con alcance, vigencia y límites verificables antes de publicarlos.</p></div><button class="commerce-button commerce-button-primary" id="promotion-create" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Crear promoción</button></div>
+  <div class="promotion-metrics" aria-label="Resumen de promociones">
+    <article><span class="promotion-metric-icon is-active"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span><div><small>Activas</small><strong id="promotion-metric-active">—</strong><p>Aplicando ahora</p></div></article>
+    <article><span class="promotion-metric-icon is-scheduled"><i class="fa-solid fa-clock" aria-hidden="true"></i></span><div><small>Programadas</small><strong id="promotion-metric-scheduled">—</strong><p>Próximos lanzamientos</p></div></article>
+    <article><span class="promotion-metric-icon is-usage"><i class="fa-solid fa-ticket" aria-hidden="true"></i></span><div><small>Redenciones</small><strong id="promotion-metric-redemptions">—</strong><p>Usos confirmados</p></div></article>
+    <article><span class="promotion-metric-icon is-savings"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i></span><div><small>Descuento otorgado</small><strong id="promotion-metric-discount">—</strong><p>Pedidos confirmados</p></div></article>
+  </div>
+  <div class="promotion-workspace">
+    <div class="promotion-toolbar">
+      <div class="promotion-tabs" id="promotion-tabs" role="tablist" aria-label="Filtrar por estado">
+        <button class="is-active" data-promotion-status="" type="button" role="tab" aria-selected="true">Todas <span id="promotion-count-all">0</span></button>
+        <button data-promotion-status="ACTIVE" type="button" role="tab" aria-selected="false">Activas <span id="promotion-count-active">0</span></button>
+        <button data-promotion-status="SCHEDULED" type="button" role="tab" aria-selected="false">Programadas <span id="promotion-count-scheduled">0</span></button>
+        <button data-promotion-status="DRAFT" type="button" role="tab" aria-selected="false">Borradores <span id="promotion-count-draft">0</span></button>
+        <button data-promotion-status="ENDED" type="button" role="tab" aria-selected="false">Finalizadas <span id="promotion-count-ended">0</span></button>
+      </div>
+      <form class="promotion-filters" id="promotion-filters" role="search">
+        <label class="promotion-search"><span class="sr-only">Buscar promociones</span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input name="q" type="search" maxlength="120" autocomplete="off" placeholder="Nombre o código de cupón" /></label>
+        <label><span class="sr-only">Tipo de descuento</span><select name="type"><option value="">Todos los descuentos</option><option value="PERCENT">Porcentaje</option><option value="FIXED">Monto fijo</option><option value="SALE_PRICE">Precio especial</option><option value="BUNDLE_PRICE">Precio de paquete</option></select></label>
+        <label><span class="sr-only">Alcance</span><select name="scope"><option value="">Todos los alcances</option><option value="ITEM">Productos</option><option value="CATEGORY">Categorías</option><option value="BRAND">Marcas</option></select></label>
+        <button class="commerce-icon-button" id="promotion-refresh" type="button" aria-label="Actualizar promociones" title="Actualizar"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>
+      </form>
+    </div>
+    <div class="commerce-table-wrap promotion-table-wrap">
+      <table class="commerce-table promotion-table"><thead><tr><th>Promoción</th><th>Beneficio</th><th>Se aplica a</th><th>Condiciones</th><th>Rendimiento</th><th>Vigencia</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead><tbody id="promotions-body"><tr><td colspan="8" class="commerce-table-state">Cargando promociones…</td></tr></tbody></table>
+    </div>
+    <div class="promotion-mobile-list" id="promotion-mobile-list" aria-live="polite"></div>
+    <div class="promotion-empty" id="promotion-empty" hidden><span><i class="fa-solid fa-tags" aria-hidden="true"></i></span><h3>Aún no hay promociones</h3><p>Crea la primera regla y revisa su impacto antes de mostrarla en la tienda.</p><button class="commerce-button commerce-button-primary" id="promotion-empty-create" type="button">Crear primera promoción</button></div>
+    <nav class="commerce-pagination promotion-pagination" id="promotion-pagination" aria-label="Paginación de promociones" hidden><button id="promotion-prev" type="button">Anterior</button><span id="promotion-page">Página 1</span><button id="promotion-next" type="button">Siguiente</button></nav>
+  </div>
 </section>
 
-<section id="view-commerce-settings" class="admin-section commerce-admin" style="display:none;" aria-labelledby="commerce-settings-payment-title">
+<section id="view-commerce-settings" class="admin-section commerce-admin payment-settings-page" style="display:none;" aria-labelledby="commerce-settings-payment-title">
   <a class="commerce-back-link" href="/admin/commerce" data-view-target="commerce"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Commerce</a>
-  <div class="commerce-command"><div><p class="commerce-kicker">Configuración → Ventas</p><h2 id="commerce-settings-payment-title">Métodos de pago</h2><p>Los datos guardados aquí son los únicos que verá el cliente y recibirá por correo.</p></div></div>
-  <form class="commerce-panel payment-settings-form" id="payment-settings-form">
-    <fieldset><legend>Transferencia bancaria</legend><label class="commerce-switch"><input name="BANK_TRANSFER.enabled" type="checkbox" /> Activa</label><div class="commerce-form-grid"><label><span>Beneficiario</span><input name="BANK_TRANSFER.beneficiary" maxlength="160" /></label><label><span>Banco</span><input name="BANK_TRANSFER.bank" maxlength="120" /></label><label><span>Cuenta</span><input name="BANK_TRANSFER.account" maxlength="40" inputmode="numeric" /></label><label><span>CLABE</span><input name="BANK_TRANSFER.clabe" maxlength="24" inputmode="numeric" /></label><label><span>Tarjeta opcional</span><input name="BANK_TRANSFER.card" maxlength="24" inputmode="numeric" /></label><label class="commerce-span-2"><span>Instrucciones</span><textarea name="BANK_TRANSFER.instructions" rows="3" maxlength="1000"></textarea></label></div></fieldset>
-    <fieldset><legend>Pago al recoger</legend><label class="commerce-switch"><input name="CASH.enabled" type="checkbox" /> Efectivo activo</label><label><span>Instrucciones</span><textarea name="CASH.instructions" rows="2" maxlength="1000"></textarea></label><label class="commerce-switch"><input name="TERMINAL.enabled" type="checkbox" /> Terminal activa</label><label><span>Instrucciones</span><textarea name="TERMINAL.instructions" rows="2" maxlength="1000"></textarea></label></fieldset>
-    <fieldset><legend>Proveedores externos</legend><p class="commerce-field-help">Las credenciales y secretos de webhook se configuran únicamente mediante variables de entorno. Nunca se muestran aquí.</p><label class="commerce-switch"><input name="STRIPE.enabled" type="checkbox" /> Stripe <small data-provider-status="STRIPE">Comprobando configuración…</small></label><label><span>Instrucciones</span><textarea name="STRIPE.instructions" rows="2" maxlength="1000"></textarea></label><label class="commerce-switch"><input name="PAYPAL.enabled" type="checkbox" /> PayPal <small data-provider-status="PAYPAL">Comprobando configuración…</small></label><label><span>Instrucciones</span><textarea name="PAYPAL.instructions" rows="2" maxlength="1000"></textarea></label><label class="commerce-switch"><input name="MERCADO_PAGO.enabled" type="checkbox" /> Mercado Pago <small data-provider-status="MERCADO_PAGO">Comprobando configuración…</small></label><label><span>Instrucciones</span><textarea name="MERCADO_PAGO.instructions" rows="2" maxlength="1000"></textarea></label></fieldset>
-    <aside class="payment-settings-preview"><span>Vista cliente</span><h3 id="payment-preview-title">Realiza tu transferencia</h3><div id="payment-settings-preview"></div></aside>
-    <div class="commerce-form-message" id="payment-settings-message" hidden></div><button class="commerce-button commerce-button-primary" type="submit">Guardar métodos</button>
+  <div class="commerce-command payment-settings-command">
+    <div>
+      <p class="commerce-kicker">Configuración → Cobros</p>
+      <h2 id="commerce-settings-payment-title">Métodos de pago</h2>
+      <p>Controla qué opciones puede elegir el cliente y verifica si cada canal está listo para operar.</p>
+    </div>
+    <button class="commerce-button commerce-button-secondary" id="payment-settings-refresh" type="button"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Actualizar diagnóstico</button>
+  </div>
+
+  <div class="payment-health-grid" aria-label="Resumen de métodos de pago">
+    <article><span class="payment-health-icon is-success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span><div><small>Métodos activos</small><strong id="payment-active-count">—</strong><p>Visibles en checkout</p></div></article>
+    <article><span class="payment-health-icon is-info"><i class="fa-solid fa-store" aria-hidden="true"></i></span><div><small>Pago al recoger</small><strong id="payment-onsite-count">—</strong><p>Efectivo y terminal</p></div></article>
+    <article><span class="payment-health-icon is-online"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span><div><small>Cobro online</small><strong id="payment-online-status">—</strong><p>Proveedores operativos</p></div></article>
+    <article><span class="payment-health-icon is-warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span><div><small>Atención requerida</small><strong id="payment-warning-count">—</strong><p>Configuraciones pendientes</p></div></article>
+  </div>
+
+  <div class="payment-readiness-banner" id="payment-readiness-banner" role="status" aria-live="polite">
+    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+    <div><strong>Comprobando seguridad de cobro…</strong><p>Solo se publicarán métodos activos y técnicamente operativos.</p></div>
+  </div>
+
+  <form class="payment-settings-form" id="payment-settings-form" novalidate>
+    <div class="payment-settings-main">
+      <fieldset class="payment-method-section" data-method-section="BANK_TRANSFER">
+        <legend class="sr-only">Transferencia bancaria</legend>
+        <header class="payment-method-head">
+          <span class="payment-method-brand is-transfer"><i class="fa-solid fa-building-columns" aria-hidden="true"></i></span>
+          <div><h3>Transferencia bancaria</h3><p>El cliente recibe los datos y sube su comprobante para revisión.</p></div>
+          <label class="payment-toggle"><span class="sr-only">Activar transferencia bancaria</span><input name="BANK_TRANSFER.enabled" type="checkbox" role="switch" /><span aria-hidden="true"></span></label>
+        </header>
+        <div class="payment-method-body" data-method-panel="BANK_TRANSFER">
+          <div class="payment-field-grid">
+            <label><span>Beneficiario <b aria-hidden="true">*</b></span><input name="BANK_TRANSFER.beneficiary" maxlength="160" autocomplete="off" placeholder="Nombre o razón social" /></label>
+            <label><span>Banco <b aria-hidden="true">*</b></span><input name="BANK_TRANSFER.bank" maxlength="120" autocomplete="off" placeholder="Ej. BBVA" /></label>
+            <label><span>CLABE interbancaria</span><input name="BANK_TRANSFER.clabe" maxlength="18" minlength="18" inputmode="numeric" pattern="[0-9]{18}" autocomplete="off" placeholder="18 dígitos" aria-describedby="payment-clabe-help" /><small id="payment-clabe-help">Recomendada para transferencias SPEI.</small></label>
+            <label><span>Número de cuenta</span><input name="BANK_TRANSFER.account" maxlength="20" inputmode="numeric" pattern="[0-9]{4,20}" autocomplete="off" placeholder="Solo números" /><small>Opcional si ya registraste una CLABE.</small></label>
+            <label class="commerce-span-2"><span>Instrucciones para el cliente</span><textarea name="BANK_TRANSFER.instructions" rows="3" maxlength="1000" placeholder="Ej. Usa el folio del pedido como concepto y conserva tu comprobante."></textarea><small>No solicites contraseñas, NIP, CVV ni fotografías de tarjetas.</small></label>
+          </div>
+        </div>
+      </fieldset>
+
+      <section class="payment-method-section" aria-labelledby="payment-onsite-title">
+        <header class="payment-section-title"><div><p class="commerce-kicker">Cobro presencial</p><h3 id="payment-onsite-title">Pago al recoger</h3><p>Opciones confirmadas por el personal cuando el cliente acude al negocio.</p></div><span class="payment-status-pill is-ready">Disponible hoy</span></header>
+        <div class="payment-onsite-grid">
+          <article class="payment-compact-card" data-method-section="CASH">
+            <header><span class="payment-method-brand is-cash"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i></span><div><h4>Efectivo</h4><p>Pago en sucursal</p></div><label class="payment-toggle"><span class="sr-only">Activar efectivo</span><input name="CASH.enabled" type="checkbox" role="switch" /><span aria-hidden="true"></span></label></header>
+            <label><span>Mensaje para el cliente</span><textarea name="CASH.instructions" rows="2" maxlength="1000"></textarea></label>
+          </article>
+          <article class="payment-compact-card" data-method-section="TERMINAL">
+            <header><span class="payment-method-brand is-terminal"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span><div><h4>Terminal</h4><p>Tarjeta en sucursal</p></div><label class="payment-toggle"><span class="sr-only">Activar terminal</span><input name="TERMINAL.enabled" type="checkbox" role="switch" /><span aria-hidden="true"></span></label></header>
+            <label><span>Mensaje para el cliente</span><textarea name="TERMINAL.instructions" rows="2" maxlength="1000"></textarea></label>
+          </article>
+        </div>
+      </section>
+
+      <section class="payment-method-section" aria-labelledby="payment-online-title">
+        <header class="payment-section-title"><div><p class="commerce-kicker">Cobro con tarjeta en línea</p><h3 id="payment-online-title">Proveedores de pago</h3><p>Una opción online solo puede activarse cuando creación de pago, webhook y conciliación estén completos.</p></div><span class="payment-status-pill is-blocked" id="payment-online-pill">No operativo</span></header>
+        <div class="payment-security-note"><i class="fa-solid fa-lock" aria-hidden="true"></i><p>Las llaves privadas se administran únicamente en el servidor. Pixon nunca debe capturar ni almacenar números de tarjeta, CVV o NIP.</p></div>
+        <div class="payment-provider-grid">
+          <article class="payment-provider-card" data-provider-card="STRIPE">
+            <header><span class="payment-provider-logo">S</span><div><h4>Stripe</h4><p>Tarjetas y wallets</p></div><span class="payment-status-pill" data-provider-status="STRIPE">Comprobando…</span></header>
+            <ul class="payment-readiness-list"><li data-provider-check="credentials"><i></i>Credenciales y webhook</li><li data-provider-check="checkout"><i></i>Sesión de pago</li><li data-provider-check="reconciliation"><i></i>Conciliación automática</li></ul>
+            <label class="payment-provider-enable"><span><strong>Mostrar en checkout</strong><small>Se desbloquea al completar la integración</small></span><span class="payment-toggle"><input name="STRIPE.enabled" type="checkbox" role="switch" aria-label="Activar Stripe" /><span aria-hidden="true"></span></span></label>
+            <label class="payment-provider-message"><span>Mensaje para el cliente</span><textarea name="STRIPE.instructions" rows="2" maxlength="1000"></textarea></label>
+          </article>
+          <article class="payment-provider-card" data-provider-card="PAYPAL">
+            <header><span class="payment-provider-logo is-paypal">P</span><div><h4>PayPal</h4><p>Cuenta y tarjeta</p></div><span class="payment-status-pill" data-provider-status="PAYPAL">Comprobando…</span></header>
+            <ul class="payment-readiness-list"><li data-provider-check="credentials"><i></i>Credenciales y webhook</li><li data-provider-check="checkout"><i></i>Sesión de pago</li><li data-provider-check="reconciliation"><i></i>Conciliación automática</li></ul>
+            <label class="payment-provider-enable"><span><strong>Mostrar en checkout</strong><small>Se desbloquea al completar la integración</small></span><span class="payment-toggle"><input name="PAYPAL.enabled" type="checkbox" role="switch" aria-label="Activar PayPal" /><span aria-hidden="true"></span></span></label>
+            <label class="payment-provider-message"><span>Mensaje para el cliente</span><textarea name="PAYPAL.instructions" rows="2" maxlength="1000"></textarea></label>
+          </article>
+          <article class="payment-provider-card" data-provider-card="MERCADO_PAGO">
+            <header><span class="payment-provider-logo is-mercado">M</span><div><h4>Mercado Pago</h4><p>Tarjetas y saldo</p></div><span class="payment-status-pill" data-provider-status="MERCADO_PAGO">Comprobando…</span></header>
+            <ul class="payment-readiness-list"><li data-provider-check="credentials"><i></i>Credenciales y webhook</li><li data-provider-check="checkout"><i></i>Sesión de pago</li><li data-provider-check="reconciliation"><i></i>Conciliación automática</li></ul>
+            <label class="payment-provider-enable"><span><strong>Mostrar en checkout</strong><small>Se desbloquea al completar la integración</small></span><span class="payment-toggle"><input name="MERCADO_PAGO.enabled" type="checkbox" role="switch" aria-label="Activar Mercado Pago" /><span aria-hidden="true"></span></span></label>
+            <label class="payment-provider-message"><span>Mensaje para el cliente</span><textarea name="MERCADO_PAGO.instructions" rows="2" maxlength="1000"></textarea></label>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <aside class="payment-settings-preview" aria-labelledby="payment-preview-title">
+      <div class="payment-preview-sticky">
+        <header><span><i class="fa-solid fa-eye" aria-hidden="true"></i> Vista del cliente</span><small>Checkout</small></header>
+        <div class="payment-preview-window">
+          <p class="payment-preview-eyebrow">Forma de pago</p>
+          <h3 id="payment-preview-title">¿Cómo deseas pagar?</h3>
+          <p>Estas son las opciones que aparecerán al terminar la compra.</p>
+          <div id="payment-settings-preview" class="payment-preview-methods" aria-live="polite"></div>
+        </div>
+        <div class="payment-preview-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><p>La vista previa no realiza cargos. Refleja disponibilidad e instrucciones públicas.</p></div>
+      </div>
+    </aside>
+
+    <div class="payment-save-bar" role="group" aria-label="Guardar configuración de pagos">
+      <div><span class="payment-save-dot" aria-hidden="true"></span><p><strong id="payment-save-state">Sin cambios pendientes</strong><small id="payment-last-updated">Configuración cargada</small></p></div>
+      <div class="payment-save-actions"><button class="commerce-button commerce-button-secondary" id="payment-settings-reset" type="button" disabled>Descartar cambios</button><button class="commerce-button commerce-button-primary" id="payment-settings-submit" type="submit" disabled><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar cambios</button></div>
+      <div class="commerce-form-message" id="payment-settings-message" role="status" aria-live="polite" hidden></div>
+    </div>
   </form>
 </section>
 
@@ -56,6 +175,81 @@ import '../../styles/admin-commerce.css';
 
 <div class="commerce-modal" id="inventory-adjust-modal" hidden><div class="commerce-modal-backdrop" data-market-close="adjust"></div><section class="commerce-modal-card" role="dialog" aria-modal="true" aria-labelledby="inventory-adjust-title"><header class="commerce-modal-head"><h2 id="inventory-adjust-title">Ajustar inventario</h2><button class="commerce-icon-button" type="button" data-market-close="adjust">×</button></header><form id="inventory-adjust-form" class="commerce-form-grid"><label><span>ID de artículo</span><input name="catalog_item_id" type="number" min="1" required /></label><label><span>Delta</span><input name="delta" type="number" required /></label><label class="commerce-span-2"><span>Motivo obligatorio</span><textarea name="reason" maxlength="500" required></textarea></label><button class="commerce-button commerce-button-primary" type="submit">Registrar ajuste</button></form></section></div>
 
-<div class="commerce-modal" id="promotion-modal" hidden><div class="commerce-modal-backdrop" data-market-close="promotion"></div><section class="commerce-modal-card commerce-modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="promotion-modal-title"><header class="commerce-modal-head"><h2 id="promotion-modal-title">Crear promoción</h2><button class="commerce-icon-button" type="button" data-market-close="promotion">×</button></header><form id="promotion-form" class="commerce-form-grid"><input name="id" type="hidden" /><label class="commerce-span-2"><span>Nombre</span><input name="name" maxlength="160" required /></label><label><span>Tipo</span><select name="promotion_type"><option>PERCENT</option><option>FIXED</option><option>SALE_PRICE</option><option>BUNDLE_PRICE</option></select></label><label><span>Valor</span><input name="promotion_value" type="number" min="0" step="0.01" required /></label><label><span>Alcance</span><select name="scope"><option>ITEM</option><option>CATEGORY</option></select></label><label><span>Estado</span><select name="status"><option>DRAFT</option><option>ACTIVE</option><option>SCHEDULED</option><option>ENDED</option></select></label><label><span>Inicia</span><input name="starts_at" type="datetime-local" /></label><label><span>Termina</span><input name="ends_at" type="datetime-local" /></label><label class="commerce-span-2"><span>IDs objetivo separados por coma</span><input name="targets" placeholder="12, 18, 24" /></label><label class="commerce-span-2"><span>Título público</span><input name="presentation_title" maxlength="180" /></label><label class="commerce-span-2"><span>Texto público</span><textarea name="presentation_text" maxlength="500"></textarea></label><button class="commerce-button commerce-button-primary" type="submit">Guardar promoción</button></form></section></div>
+<div class="commerce-modal promotion-modal" id="promotion-modal" hidden>
+  <div class="commerce-modal-backdrop" data-market-close="promotion"></div>
+  <section class="commerce-modal-card promotion-builder-modal" role="dialog" aria-modal="true" aria-labelledby="promotion-modal-title">
+    <header class="commerce-modal-head promotion-modal-head"><div><p class="commerce-kicker" id="promotion-modal-mode">Nueva regla comercial</p><h2 id="promotion-modal-title">Crear promoción</h2></div><div><span class="promotion-status-pill is-draft" id="promotion-editor-status">Borrador</span><button class="commerce-icon-button" type="button" data-market-close="promotion" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></header>
+    <form id="promotion-form" novalidate>
+      <input name="id" type="hidden" />
+      <div class="promotion-builder-layout">
+        <div class="promotion-builder-main">
+          <section class="promotion-form-card" aria-labelledby="promotion-identity-title">
+            <header><span>1</span><div><h3 id="promotion-identity-title">Identidad y publicación</h3><p>Nombre interno, cupón y estado de la regla.</p></div></header>
+            <div class="promotion-form-grid">
+              <label class="promotion-span-2"><span>Nombre interno <b>*</b></span><input name="name" maxlength="160" autocomplete="off" placeholder="Ej. Regreso a clases · Laptops 10%" required /></label>
+              <label><span>Código de cupón</span><input name="coupon_code" maxlength="64" autocomplete="off" placeholder="Opcional, ej. PIXON10" /><small>Si queda vacío, el descuento es automático.</small></label>
+              <label><span>Estado de publicación</span><select name="status"><option value="DRAFT">Guardar como borrador</option><option value="ACTIVE">Publicar / programar</option><option value="ENDED" hidden>Finalizada</option></select><small>Una fecha futura la convierte en programada.</small></label>
+            </div>
+          </section>
+
+          <section class="promotion-form-card" aria-labelledby="promotion-benefit-title">
+            <header><span>2</span><div><h3 id="promotion-benefit-title">Beneficio</h3><p>Define qué cambia en el precio.</p></div></header>
+            <fieldset class="promotion-type-picker"><legend class="sr-only">Tipo de descuento</legend>
+              <label><input type="radio" name="promotion_type" value="PERCENT" checked /><span><i class="fa-solid fa-percent" aria-hidden="true"></i><strong>Porcentaje</strong><small>Reduce un porcentaje</small></span></label>
+              <label><input type="radio" name="promotion_type" value="FIXED" /><span><i class="fa-solid fa-minus" aria-hidden="true"></i><strong>Monto fijo</strong><small>Resta una cantidad</small></span></label>
+              <label><input type="radio" name="promotion_type" value="SALE_PRICE" /><span><i class="fa-solid fa-tag" aria-hidden="true"></i><strong>Precio especial</strong><small>Fija el precio final</small></span></label>
+              <label><input type="radio" name="promotion_type" value="BUNDLE_PRICE" /><span><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i><strong>Precio paquete</strong><small>Precio final de bundle</small></span></label>
+            </fieldset>
+            <div class="promotion-value-row"><label><span id="promotion-value-label">Porcentaje de descuento <b>*</b></span><span class="promotion-value-input"><b id="promotion-value-prefix" hidden>$</b><input name="promotion_value" type="number" min="0.01" max="100" step="0.01" inputmode="decimal" placeholder="10" required /><b id="promotion-value-suffix">%</b></span></label><div><span>Ejemplo</span><strong id="promotion-value-example">$1,000 → $900</strong><small id="promotion-value-help">El porcentaje máximo permitido es 100%.</small></div></div>
+          </section>
+
+          <section class="promotion-form-card" aria-labelledby="promotion-target-title">
+            <header><span>3</span><div><h3 id="promotion-target-title">¿A qué se aplica?</h3><p>Selecciona objetivos reales; no es necesario conocer IDs.</p></div><strong id="promotion-target-count">0 seleccionados</strong></header>
+            <fieldset class="promotion-scope-picker"><legend class="sr-only">Alcance de la promoción</legend>
+              <label><input type="radio" name="scope" value="ITEM" checked /><span><i class="fa-solid fa-box" aria-hidden="true"></i> Productos</span></label>
+              <label><input type="radio" name="scope" value="CATEGORY" /><span><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Categorías</span></label>
+              <label><input type="radio" name="scope" value="BRAND" /><span><i class="fa-solid fa-certificate" aria-hidden="true"></i> Marcas</span></label>
+            </fieldset>
+            <label class="promotion-target-search"><span class="sr-only">Buscar objetivos</span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="promotion-target-search" type="search" autocomplete="off" placeholder="Buscar producto, SKU o marca" /></label>
+            <div class="promotion-target-list" id="promotion-target-list" role="group" aria-label="Objetivos disponibles"><p class="commerce-table-state">Cargando catálogo…</p></div>
+            <p class="promotion-field-error" id="promotion-target-error" hidden>Selecciona al menos un objetivo.</p>
+          </section>
+
+          <details class="promotion-form-card promotion-advanced">
+            <summary><span><i class="fa-solid fa-sliders" aria-hidden="true"></i></span><div><strong>Condiciones, límites y prioridad</strong><small>Opcional · controla cuándo aplica y cómo se combina.</small></div><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+            <div class="promotion-form-grid">
+              <label><span>Cantidad mínima</span><input name="minimum_quantity" type="number" min="1" max="100" value="1" /></label>
+              <label><span>Compra mínima</span><input name="minimum_subtotal" type="number" min="0" step="0.01" value="0.00" /></label>
+              <label><span>Usos totales máximos</span><input name="max_redemptions" type="number" min="1" placeholder="Sin límite" /></label>
+              <label><span>Usos máximos por cliente</span><input name="max_redemptions_per_customer" type="number" min="1" placeholder="Sin límite" /></label>
+              <label><span>Prioridad</span><input name="priority" type="number" min="-32768" max="32767" value="0" /><small>Un número mayor se evalúa primero.</small></label>
+              <div class="promotion-rule-switches"><label><input name="stackable" type="checkbox" /><span><strong>Permitir acumulación</strong><small>Puede combinarse con otras reglas compatibles.</small></span></label><label><input name="stop_processing" type="checkbox" checked /><span><strong>Detener reglas posteriores</strong><small>No evaluar promociones con menor prioridad.</small></span></label></div>
+            </div>
+          </details>
+
+          <section class="promotion-form-card" aria-labelledby="promotion-schedule-title">
+            <header><span>4</span><div><h3 id="promotion-schedule-title">Vigencia</h3><p>Las fechas se capturan en horario de Cancún y se guardan de forma normalizada.</p></div></header>
+            <div class="promotion-form-grid"><label><span>Inicia</span><input name="starts_at" type="datetime-local" /><small>Vacío: inicia al publicar.</small></label><label><span>Finaliza</span><input name="ends_at" type="datetime-local" /><small>Vacío: no tiene vencimiento.</small></label></div>
+          </section>
+
+          <section class="promotion-form-card" aria-labelledby="promotion-presentation-title">
+            <header><span>5</span><div><h3 id="promotion-presentation-title">Presentación al cliente</h3><p>Contenido visible en tienda y materiales promocionales.</p></div></header>
+            <div class="promotion-form-grid"><label><span>Título público</span><input name="presentation_title" maxlength="180" placeholder="Oferta especial por tiempo limitado" /></label><label><span>Insignia</span><select name="badge_id" id="promotion-badge"><option value="">Sin insignia</option></select></label><label class="promotion-span-2"><span>Descripción pública</span><textarea name="presentation_text" rows="3" maxlength="500" placeholder="Explica el beneficio y sus condiciones principales."></textarea></label><label class="promotion-span-2"><span>Imagen o banner opcional</span><input name="presentation_banner" maxlength="512" placeholder="/assets/images/promociones/banner.webp" /></label></div>
+          </section>
+        </div>
+
+        <aside class="promotion-preview-panel" aria-labelledby="promotion-preview-heading">
+          <div class="promotion-preview-sticky">
+            <header><span><i class="fa-solid fa-eye" aria-hidden="true"></i> Resumen antes de publicar</span><small id="promotion-preview-state">Borrador</small></header>
+            <div class="promotion-preview-card"><span class="promotion-preview-badge" id="promotion-preview-badge">Promoción</span><h3 id="promotion-preview-heading">Nueva promoción</h3><strong id="promotion-preview-value">10% menos</strong><p id="promotion-preview-description">Agrega un título y una descripción para el cliente.</p><dl><div><dt>Alcance</dt><dd id="promotion-preview-target">Sin objetivos</dd></div><div><dt>Vigencia</dt><dd id="promotion-preview-dates">Sin límite</dd></div><div><dt>Condición</dt><dd id="promotion-preview-condition">Sin mínimo</dd></div><div><dt>Cupón</dt><dd id="promotion-preview-coupon">Automática</dd></div></dl></div>
+            <div class="promotion-impact" id="promotion-impact"><header><div><strong>Impacto estimado</strong><small>Calculado por el servidor</small></div><button id="promotion-impact-refresh" type="button" aria-label="Recalcular impacto"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button></header><div class="promotion-impact-metrics"><div><span>Productos</span><strong id="promotion-impact-products">—</strong></div><div><span>Con descuento</span><strong id="promotion-impact-discounted">—</strong></div><div><span>Bajo costo</span><strong id="promotion-impact-risk">—</strong></div></div><div id="promotion-impact-message" class="promotion-impact-message">Completa valor y objetivos para calcular.</div><div class="promotion-impact-sample" id="promotion-impact-sample"></div></div>
+          </div>
+        </aside>
+      </div>
+      <div class="commerce-form-message promotion-form-message" id="promotion-form-message" role="status" aria-live="polite" hidden></div>
+      <div class="promotion-modal-actions" role="group" aria-label="Acciones de la promoción"><button class="commerce-button promotion-end-button" id="promotion-delete" type="button" hidden><i class="fa-solid fa-circle-stop" aria-hidden="true"></i> Finalizar promoción</button><span></span><button class="commerce-button commerce-button-secondary" type="button" data-market-close="promotion">Cancelar</button><button class="commerce-button commerce-button-primary" id="promotion-submit" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar promoción</button></div>
+    </form>
+  </section>
+</div>
 
 <div class="commerce-modal" id="market-confirm-modal" hidden><div class="commerce-modal-backdrop"></div><section class="commerce-modal-card commerce-confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="market-confirm-title" aria-describedby="market-confirm-text"><header class="commerce-modal-head"><h2 id="market-confirm-title">Confirmar operación</h2></header><p id="market-confirm-text"></p><div class="commerce-modal-actions"><button class="commerce-button commerce-button-secondary" id="market-confirm-cancel" type="button">Cancelar</button><button class="commerce-button commerce-button-primary" id="market-confirm-accept" type="button">Confirmar</button></div></section></div>

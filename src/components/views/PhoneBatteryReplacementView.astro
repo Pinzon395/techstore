@@ -1,0 +1,2327 @@
+---
+// PhoneBatteryReplacementView.astro - Cambio de batería de celular en Cancún (Multimarca / General)
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import Footer from '../Footer.astro';
+
+const waMessage = encodeURIComponent('Hola, quiero cotizar cambio de batería de celular en Cancún. Mi equipo se descarga rápido, se apaga, se calienta o tiene batería inflada. ¿Me podrían asesorar?');
+
+const heroTrust = [
+  'Diagnóstico primero',
+  'Cotización antes de instalar',
+  'Pruebas de carga y temperatura',
+];
+
+const symptoms = [
+  {
+    title: 'La batería dura pocas horas',
+    text: 'El porcentaje disminuye rápidamente incluso con poco uso, pierde energía durante la noche o exige conectarlo varias veces al día.',
+    icon: 'fa-battery-quarter',
+  },
+  {
+    title: 'El celular se apaga con porcentaje',
+    text: 'Marca 20%, 30% o más y se apaga de golpe al abrir la cámara, usar datos móviles, GPS o reproducir contenido de alto consumo.',
+    icon: 'fa-power-off',
+  },
+  {
+    title: 'Se calienta al cargar o al usarlo',
+    text: 'Sube de temperatura de forma anormal durante la carga rápida, llamadas o navegación, provocando alertas térmicas o lentitud.',
+    icon: 'fa-temperature-half',
+  },
+  {
+    title: 'El porcentaje sube o baja de golpe',
+    text: 'La lectura de batería brinca descontroladamente (por ejemplo, de 50% a 15% en minutos) o se reinicia de manera imprevista.',
+    icon: 'fa-chart-line',
+  },
+  {
+    title: 'El celular carga lento o no llega al 100%',
+    text: 'Tarda horas en avanzar, se queda congelado en un porcentaje o el indicador de carga parpadea sin retener energía adecuadamente.',
+    icon: 'fa-plug-circle-exclamation',
+  },
+  {
+    title: 'El teléfono se pone lento cuando se calienta',
+    text: 'La degradación química o el calor extremo inducen limitación energética en el procesador (thermal throttling), trabando el sistema.',
+    icon: 'fa-gauge-simple-high',
+  },
+];
+
+const diagnosticPoints = [
+  {
+    title: 'Estado y salud de batería',
+    desc: 'Medimos ciclos de recarga acumulados, retención de miliamperios hora (mAh) y estabilidad de voltaje nominal.',
+  },
+  {
+    title: 'Prueba de carga',
+    desc: 'Verificamos protocolo de carga (amperaje y voltios reales) con analizador USB digital para descartar fallas de cargador.',
+  },
+  {
+    title: 'Consumo interno',
+    desc: 'Medimos consumos en reposo y bajo carga para comprobar que no exista una fuga de corriente o corto circuito en placa.',
+  },
+  {
+    title: 'Temperatura',
+    desc: 'Monitoreamos disipación térmica durante la carga para diferenciar sobrecalentamiento de celda vs. procesador o circuito PMIC.',
+  },
+  {
+    title: 'Puerto y centro de carga',
+    desc: 'Revisamos si el puerto USB-C presenta suciedad, pines sulfatados o juego mecánico antes de atribuir la falla a la batería.',
+  },
+  {
+    title: 'Humedad y condición física',
+    desc: 'Inspeccionamos sellos reactivos de humedad, sulfatación interna y presión mecánica en el chasis.',
+  },
+];
+
+const androidBrands = [
+  {
+    brand: 'Xiaomi, Redmi y POCO',
+    models: 'Series Redmi Note 13/12/11, Xiaomi 14/13/12, POCO X6/X5/F5/M6, Black Shark y modelos compatibles.',
+    tag: 'Android Xiaomi',
+  },
+  {
+    brand: 'Motorola',
+    models: 'Familia Moto G (G84, G54, G23, G14), Moto Edge 50/40/30, Moto E y series Razr compatibles.',
+    tag: 'Android Motorola',
+  },
+  {
+    brand: 'Huawei y Honor',
+    models: 'Huawei P60/P50/P40, Nova, Mate, Honor Magic, Honor X8/X7, Honor 90/70 y líneas móviles.',
+    tag: 'Huawei & Honor',
+  },
+  {
+    brand: 'OPPO y Realme',
+    models: 'OPPO Reno series, OPPO A78/A58, Realme 12/11/C67/GT series y equipos con carga rápida.',
+    tag: 'OPPO & Realme',
+  },
+  {
+    brand: 'Google Pixel',
+    models: 'Pixel 8, Pixel 7, Pixel 6, Pixel 5a y variantes compatibles según disponibilidad de módulo.',
+    tag: 'Google Pixel',
+  },
+  {
+    brand: 'Otras marcas compatibles',
+    models: 'OnePlus, ZTE, Vivo, TCL y smartphones Android con refacciones disponibles en el mercado.',
+    tag: 'Multimarca',
+  },
+];
+
+const processSteps = [
+  {
+    step: '01',
+    title: 'Recepción y síntomas',
+    desc: 'Registramos marca, modelo exacto, historial de caídas, exposición a humedad y cargadores habituales.',
+  },
+  {
+    step: '02',
+    title: 'Diagnóstico',
+    desc: 'Medimos voltaje, consumo en reposo, amperaje de entrada y descartamos fallas en centro de carga o software.',
+  },
+  {
+    step: '03',
+    title: 'Cotización',
+    desc: 'Te confirmamos la disponibilidad de la batería compatible, costo exacto y tiempo estimado antes de abrir el equipo.',
+  },
+  {
+    step: '04',
+    title: 'Apertura controlada',
+    desc: 'Desensamblamos tapa trasera o pantalla con estación de temperatura regulada, protegiendo flexores y cámaras.',
+  },
+  {
+    step: '05',
+    title: 'Instalación de batería',
+    desc: 'Retiramos adhesivos desgastados, montamos la celda nueva con adhesivo térmico y conectamos el flex de batería.',
+  },
+  {
+    step: '06',
+    title: 'Pruebas de carga y temperatura',
+    desc: 'Probamos ciclo de carga, estabilidad al 100%, temperatura en reposo y encendido general antes de la entrega.',
+  },
+];
+
+const zones = [
+  'Cancún Centro',
+  'Zona Hotelera',
+  'Huayacán',
+  'Cumbres',
+  'Puerto Cancún',
+  'Bonfil',
+  'Polígono Sur',
+  'Av. Tulum',
+  'Bonampak',
+  'Puerto Juárez',
+  'Costa Mujeres',
+  'Playa Mujeres',
+  'Supermanzanas',
+  'Haciendas',
+];
+
+const faqItems = [
+  {
+    question: '¿Cuánto cuesta cambiar la batería de un celular en Cancún?',
+    answer: 'El precio depende del modelo exacto, tipo de adhesivo, disponibilidad de la refacción y condición del equipo. No manejamos precios genéricos engañosos: diagnosticamos primero y te damos una cotización transparente antes de realizar cualquier cambio.',
+  },
+  {
+    question: '¿Cuánto tarda el cambio de batería de celular?',
+    answer: 'En modelos comunes con refacción disponible en taller puede realizarse en pocas horas o el mismo día. Si el modelo requiere pedido especial o presenta problemas agregados como centro de carga o humedad, te informamos el tiempo estimado con total claridad.',
+  },
+  {
+    question: '¿Cómo sé si la batería de mi celular está dañada?',
+    answer: 'Las señales más frecuentes son: descarga acelerada en pocas horas, apagados repentinos con 20% o 30% de carga, porcentaje que brinca de golpe, calentamiento excesivo durante el uso o deformación física de la tapa o pantalla (batería inflada).',
+  },
+  {
+    question: '¿Por qué mi celular se descarga tan rápido?',
+    answer: 'Las celdas de iones de litio sufren degradación química natural tras 500 a 800 ciclos de carga (1.5 a 2 años de uso). También influyen cargadores genéricos de mala calidad, aplicaciones en segundo plano, sobreconsumo en placa y el calor ambiental característico de Cancún.',
+  },
+  {
+    question: '¿Por qué mi celular se calienta al cargar o al usarlo?',
+    answer: 'El calor puede deberse a una batería con resistencia interna elevada, cargador inadecuado, centro de carga con sulfato, brillo alto bajo el sol de Cancún o esfuerzo del procesador. Diagnosticamos el origen real para no cambiar la batería si la causa es externa.',
+  },
+  {
+    question: '¿Por qué el celular se apaga con 20% o 30% de carga?',
+    answer: 'Ocurre cuando la batería pierde la capacidad de sostener picos de voltaje bajo demanda (al abrir la cámara, usar 5G o encender el flash). El sistema detecta una caída crítica de tensión y se apaga de forma preventiva para proteger la memoria y circuitos.',
+  },
+  {
+    question: '¿Qué pasa si la batería de mi celular está inflada?',
+    answer: 'Una batería inflada acumula gases por degradación electrolítica, sobrecarga o calor. Genera presión interna que puede quebrar la pantalla, despegar la tapa trasera o dañar flexores. Es una condición de riesgo físico que debe atenderse a la brevedad.',
+  },
+  {
+    question: '¿Debo seguir cargando un celular con batería inflada?',
+    answer: 'No. No lo sigas conectando, no intentes presionar la tapa ni la pantalla para cerrarla y jamás perfores el dispositivo. Tráelo a revisión técnica para una extracción segura y controlada.',
+  },
+  {
+    question: '¿Cambiar la batería hace que el celular vaya más rápido?',
+    answer: 'Una batería nueva no acelera mágicamente el software, pero sí elimina las caídas de rendimiento forzadas (thermal y power throttling) que el sistema aplica cuando detecta una celda inestable o sobrecalentada.',
+  },
+  {
+    question: '¿Se borran mis fotos o datos al cambiar la batería?',
+    answer: 'No. El reemplazo físico de batería no altera la memoria de almacenamiento ni borra tus fotos, aplicaciones o chats. Como buena práctica técnica, siempre recomendamos tener respaldo activo de tu información.',
+  },
+  {
+    question: '¿Tiene garantía el cambio de batería?',
+    answer: 'Sí. Entregamos garantía por escrito sobre la refacción instalada y la mano de obra. La garantía cubre defectos de celda bajo uso normal y no aplica por golpes, caídas posteriores, humedad o manipulación de terceros.',
+  },
+  {
+    question: '¿Qué marcas y modelos atienden en Cancún?',
+    answer: 'Atendemos smartphones Xiaomi, Redmi, POCO, Motorola, Huawei, Honor, OPPO, Realme, Google Pixel, OnePlus y más. Para búsquedas exclusivas de iPhone y Samsung contamos con páginas y refacciones dedicadas.',
+  },
+];
+---
+
+<div class="phone-battery-page">
+  <!-- HERO PRINCIPAL RESUMIDO CON ANIMACIÓN SVG PREMIUM -->
+  <section class="pb-hero" aria-label="Cambio de batería de celular en Cancún">
+    <div class="container pb-hero-grid">
+      <div class="pb-hero-copy">
+        <span class="pb-eyebrow">
+          <i class="fa-solid fa-bolt-lightning"></i> DIAGNÓSTICO DE BATERÍA · CANCÚN
+        </span>
+        <h1>Cambio de batería de celular en Cancún</h1>
+        <p class="pb-hero-sub">
+          Si tu celular se descarga rápido, se apaga, se calienta o la batería está inflada, primero revisamos carga, consumo y temperatura para confirmar si realmente necesita batería nueva.
+        </p>
+
+        <div class="pb-hero-actions">
+          <a
+            class="pb-btn pb-btn-primary"
+            href={`https://wa.me/529986690777?text=${waMessage}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fa-brands fa-whatsapp"></i> Cotizar cambio de batería
+          </a>
+          <a
+            class="pb-btn pb-btn-secondary"
+            href={`https://wa.me/529986690777?text=${encodeURIComponent('Hola Pixon PC, quiero explicar el síntoma de batería de mi celular por WhatsApp.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Explicar mi caso por WhatsApp <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <div class="pb-hero-trust" aria-label="Ventajas del servicio">
+          {heroTrust.map((item) => (
+            <span class="pb-trust-chip">
+              <i class="fa-solid fa-circle-check"></i> {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <!-- ANIMACIÓN SVG + CSS PREMIUM V2: VISUAL DETALLADO CINEMATOGRÁFICO -->
+      <div class="pb-hero-visual" aria-label="Animación técnica de diagnóstico y cambio de batería">
+        <div class="pb-stage" role="region" aria-label="Simulación de ciclo de batería">
+
+          <!-- Ambient glow orbs behind phone -->
+          <div class="pb-ambient-orb pb-orb-1" aria-hidden="true"></div>
+          <div class="pb-ambient-orb pb-orb-2" aria-hidden="true"></div>
+
+          <!-- ====== BARRA SUPERIOR DE ESTADO (encima del teléfono) ====== -->
+          <div class="pb-state-badges" aria-label="Estado actual de la batería">
+            <span class="pb-badge-state pb-state-1">
+              <span class="pb-badge-dot" style="background:#ef4444"></span>
+              <i class="fa-solid fa-battery-quarter"></i> Se descarga rápido
+            </span>
+            <span class="pb-badge-state pb-state-2">
+              <span class="pb-badge-dot" style="background:#f97316"></span>
+              <i class="fa-solid fa-power-off"></i> Se apaga con porcentaje
+            </span>
+            <span class="pb-badge-state pb-state-3">
+              <span class="pb-badge-dot" style="background:#f59e0b"></span>
+              <i class="fa-solid fa-temperature-arrow-up"></i> Temperatura alta
+            </span>
+            <span class="pb-badge-state pb-state-4">
+              <span class="pb-badge-dot" style="background:#dc2626"></span>
+              <i class="fa-solid fa-triangle-exclamation"></i> Batería inflada
+            </span>
+            <span class="pb-badge-state pb-state-5">
+              <span class="pb-badge-dot" style="background:#0ea5e9"></span>
+              <i class="fa-solid fa-magnifying-glass-chart"></i> Diagnóstico técnico
+            </span>
+            <span class="pb-badge-state pb-state-6">
+              <span class="pb-badge-dot" style="background:#3b82f6"></span>
+              <i class="fa-solid fa-wrench"></i> Reemplazo de celda
+            </span>
+            <span class="pb-badge-state pb-state-7">
+              <span class="pb-badge-dot" style="background:#22c55e"></span>
+              <i class="fa-solid fa-circle-check"></i> BATERÍA ESTABLE
+            </span>
+          </div>
+
+          <!-- Smartphone SVG Frame -->
+          <svg class="pb-phone-svg" viewBox="0 0 340 600" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <!-- Frame gradients -->
+              <linearGradient id="pb-frame-grad" x1="0" y1="0" x2="340" y2="600" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1a2540" />
+                <stop offset="0.5" stop-color="#0d1b2e" />
+                <stop offset="1" stop-color="#071326" />
+              </linearGradient>
+              <linearGradient id="pb-frame-edge" x1="0" y1="0" x2="340" y2="0" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#334155" />
+                <stop offset="0.3" stop-color="#64748b" />
+                <stop offset="0.5" stop-color="#94a3b8" />
+                <stop offset="0.7" stop-color="#64748b" />
+                <stop offset="1" stop-color="#334155" />
+              </linearGradient>
+              <linearGradient id="pb-screen-grad" x1="170" y1="50" x2="170" y2="550" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0c1a2e" />
+                <stop offset="0.4" stop-color="#081422" />
+                <stop offset="1" stop-color="#040c18" />
+              </linearGradient>
+              <linearGradient id="pb-screen-reflect" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="rgba(255,255,255,0.06)" />
+                <stop offset="0.5" stop-color="rgba(255,255,255,0)" />
+                <stop offset="1" stop-color="rgba(255,255,255,0.03)" />
+              </linearGradient>
+
+              <!-- Battery gradients -->
+              <linearGradient id="pb-batt-healthy" x1="0" y1="0" x2="0" y2="1">
+                <stop stop-color="#34d399" />
+                <stop offset="1" stop-color="#06b6d4" />
+              </linearGradient>
+              <linearGradient id="pb-batt-danger" x1="0" y1="0" x2="0" y2="1">
+                <stop stop-color="#ef4444" />
+                <stop offset="1" stop-color="#b91c1c" />
+              </linearGradient>
+              <linearGradient id="pb-batt-warn" x1="0" y1="0" x2="0" y2="1">
+                <stop stop-color="#f59e0b" />
+                <stop offset="1" stop-color="#d97706" />
+              </linearGradient>
+              <linearGradient id="pb-pcb-trace" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#1e3a5f" />
+                <stop offset="1" stop-color="#0c2035" />
+              </linearGradient>
+
+              <!-- Glow filters -->
+              <filter id="pb-glow-cyan" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="8" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+              <filter id="pb-glow-amber" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="8" result="blur" />
+                <feFlood flood-color="#f59e0b" flood-opacity="0.4" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="shadow" />
+                <feComposite in="SourceGraphic" in2="shadow" operator="over" />
+              </filter>
+
+              <!-- Scan line gradient -->
+              <linearGradient id="pb-scan-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="rgba(56,189,248,0)" />
+                <stop offset="0.2" stop-color="rgba(56,189,248,0.9)" />
+                <stop offset="0.5" stop-color="rgba(14,165,233,1)" />
+                <stop offset="0.8" stop-color="rgba(56,189,248,0.9)" />
+                <stop offset="1" stop-color="rgba(56,189,248,0)" />
+              </linearGradient>
+
+              <!-- Clip for screen -->
+              <clipPath id="pb-screen-clip">
+                <rect x="30" y="48" width="280" height="504" rx="22" />
+              </clipPath>
+            </defs>
+
+            <!-- ============ PHONE BODY ============ -->
+            <rect x="16" y="22" width="308" height="558" rx="42" fill="rgba(0,0,0,0.4)" />
+            <rect x="18" y="18" width="304" height="564" rx="40" fill="url(#pb-frame-grad)" stroke="url(#pb-frame-edge)" stroke-width="1.5" />
+            <rect x="24" y="24" width="292" height="552" rx="38" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="3" />
+
+            <!-- Side buttons -->
+            <rect x="8" y="155" width="5" height="38" rx="2.5" fill="#475569" />
+            <rect x="8" y="210" width="5" height="38" rx="2.5" fill="#475569" />
+            <rect x="327" y="190" width="5" height="50" rx="2.5" fill="#475569" />
+
+            <!-- ============ SCREEN ============ -->
+            <rect x="30" y="48" width="280" height="504" rx="22" fill="url(#pb-screen-grad)" />
+            <rect x="30" y="48" width="280" height="504" rx="22" fill="url(#pb-screen-reflect)" />
+
+            <!-- Clipped screen content -->
+            <g clip-path="url(#pb-screen-clip)">
+
+              <!-- ======= STATUS BAR UI ======= -->
+              <g class="pb-ui-statusbar">
+                <text x="50" y="72" fill="rgba(255,255,255,0.75)" font-size="12" font-weight="700" font-family="'Inter',system-ui,sans-serif">10:42</text>
+                <g transform="translate(265, 60)">
+                  <rect x="0" y="8" width="3" height="4" rx="0.5" fill="rgba(255,255,255,0.4)" />
+                  <rect x="5" y="5" width="3" height="7" rx="0.5" fill="rgba(255,255,255,0.5)" />
+                  <rect x="10" y="2" width="3" height="10" rx="0.5" fill="rgba(255,255,255,0.6)" />
+                  <rect x="15" y="0" width="3" height="12" rx="0.5" fill="rgba(255,255,255,0.7)" />
+                </g>
+                <g transform="translate(245, 61)">
+                  <path d="M6 11 L6 11" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" />
+                  <path d="M2 7 Q6 3 10 7" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none" />
+                  <path d="M-1 4 Q6 -2 13 4" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" fill="none" />
+                </g>
+                <g class="pb-ui-batt-icon" transform="translate(290, 60)">
+                  <rect x="0" y="1" width="16" height="10" rx="2" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1" />
+                  <rect x="16" y="3.5" width="2.5" height="5" rx="1" fill="rgba(255,255,255,0.4)" />
+                  <rect class="pb-ui-batt-fill" x="1.5" y="2.5" width="13" height="7" rx="1" fill="#ef4444" />
+                </g>
+              </g>
+
+              <!-- ======= DYNAMIC ISLAND / NOTCH ======= -->
+              <rect x="130" y="50" width="80" height="24" rx="12" fill="#000000" />
+              <circle cx="195" cy="62" r="4.5" fill="#0a0f1a" stroke="rgba(56,189,248,0.3)" stroke-width="1" />
+              <circle cx="195" cy="62" r="1.8" fill="rgba(56,189,248,0.5)" />
+
+              <!-- ======= SCREEN UI: Battery info display (top portion) ======= -->
+              <g class="pb-screen-ui">
+                <!-- Battery percentage circle (large, in upper screen) -->
+                <circle cx="170" cy="155" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" />
+                <circle class="pb-pct-ring" cx="170" cy="155" r="52" fill="none" stroke="#ef4444" stroke-width="6" stroke-dasharray="33 294" stroke-linecap="round" transform="rotate(-90 170 155)" />
+                <text class="pb-screen-pct" x="170" y="163" fill="#ffffff" font-size="28" font-weight="900" font-family="'Kanit',sans-serif" text-anchor="middle">12%</text>
+                <text class="pb-screen-label" x="170" y="182" fill="rgba(255,255,255,0.5)" font-size="9" font-weight="600" font-family="'Inter',system-ui,sans-serif" text-anchor="middle" text-transform="uppercase" letter-spacing="1.5">BATERÍA</text>
+
+                <!-- Status info rows -->
+                <g class="pb-screen-stats">
+                  <rect x="52" y="218" width="236" height="1" fill="rgba(255,255,255,0.06)" rx="0.5" />
+                  <text x="62" y="245" fill="rgba(255,255,255,0.4)" font-size="9" font-family="'Inter',system-ui,sans-serif">Estado de salud</text>
+                  <text class="pb-stat-health" x="278" y="245" fill="#ef4444" font-size="9" font-weight="800" font-family="'Inter',system-ui,sans-serif" text-anchor="end">Degradada</text>
+                  <rect x="52" y="258" width="236" height="1" fill="rgba(255,255,255,0.06)" rx="0.5" />
+                  <text x="62" y="280" fill="rgba(255,255,255,0.4)" font-size="9" font-family="'Inter',system-ui,sans-serif">Temperatura</text>
+                  <text class="pb-stat-temp" x="278" y="280" fill="rgba(255,255,255,0.6)" font-size="9" font-weight="700" font-family="'Inter',system-ui,sans-serif" text-anchor="end">38.2°C</text>
+                  <rect x="52" y="293" width="236" height="1" fill="rgba(255,255,255,0.06)" rx="0.5" />
+                </g>
+              </g>
+
+              <!-- ======= BATTERY MODULE (lower half of phone screen) ======= -->
+              <g class="pb-batt-chamber" transform="translate(55, 290)">
+
+                <!-- PCB Background & Traces (compact) -->
+                <rect x="10" y="0" width="220" height="210" rx="14" fill="url(#pb-pcb-trace)" stroke="rgba(56,189,248,0.12)" stroke-width="1" />
+                <g class="pb-pcb-traces" opacity="0.18">
+                  <line x1="15" y1="30" x2="225" y2="30" stroke="#38bdf8" stroke-width="0.5" />
+                  <line x1="15" y1="70" x2="225" y2="70" stroke="#38bdf8" stroke-width="0.5" />
+                  <line x1="15" y1="110" x2="225" y2="110" stroke="#38bdf8" stroke-width="0.5" />
+                  <line x1="15" y1="150" x2="225" y2="150" stroke="#38bdf8" stroke-width="0.5" />
+                  <line x1="15" y1="190" x2="225" y2="190" stroke="#38bdf8" stroke-width="0.5" />
+                  <line x1="60" y1="5" x2="60" y2="205" stroke="#38bdf8" stroke-width="0.5" />
+                  <line x1="120" y1="5" x2="120" y2="205" stroke="#38bdf8" stroke-width="0.5" />
+                  <line x1="180" y1="5" x2="180" y2="205" stroke="#38bdf8" stroke-width="0.5" />
+                </g>
+
+                <!-- PCB micro-components -->
+                <g class="pb-pcb-chips" opacity="0.3">
+                  <rect x="25" y="15" width="14" height="8" rx="2" fill="#1e3a5f" stroke="#38bdf8" stroke-width="0.5" />
+                  <rect x="195" y="15" width="14" height="8" rx="2" fill="#1e3a5f" stroke="#38bdf8" stroke-width="0.5" />
+                  <rect x="195" y="190" width="14" height="8" rx="2" fill="#1e3a5f" stroke="#38bdf8" stroke-width="0.5" />
+                  <rect x="25" y="190" width="14" height="8" rx="2" fill="#1e3a5f" stroke="#38bdf8" stroke-width="0.5" />
+                </g>
+
+                <!-- THERMAL WAVES (State 3) -->
+                <circle class="pb-thermal-wave wave-1" cx="120" cy="105" r="65" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="8 5" />
+                <circle class="pb-thermal-wave wave-2" cx="120" cy="105" r="90" fill="none" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="10 8" />
+                <circle class="pb-thermal-wave wave-3" cx="120" cy="105" r="115" fill="none" stroke="rgba(245,158,11,0.4)" stroke-width="1" stroke-dasharray="12 10" />
+
+                <!-- ELECTRICAL SPARKS (State 4) -->
+                <g class="pb-sparks">
+                  <path d="M 200 20 L 212 8 L 207 2 L 220 -10" stroke="#fef08a" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                  <circle cx="220" cy="-10" r="3" fill="#fef08a" opacity="0.8" />
+                  <path d="M 20 180 L 8 192 L 16 198 L 2 210" stroke="#38bdf8" stroke-width="2" fill="none" stroke-linecap="round" />
+                  <circle cx="2" cy="210" r="2.5" fill="#38bdf8" opacity="0.7" />
+                  <path d="M 215 105 L 228 98 L 224 90 L 236 82" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-linecap="round" />
+                </g>
+
+                <!-- ======= BATTERY CELL (compact, lower half) ======= -->
+                <g class="pb-batt-module" transform="translate(25, 18)">
+                  <!-- Battery shell -->
+                  <rect class="pb-batt-shell" x="0" y="0" width="190" height="175" rx="12" fill="#0a1929" stroke="rgba(56,189,248,0.35)" stroke-width="1.5" />
+                  <rect x="5" y="5" width="180" height="165" rx="8" fill="none" stroke="rgba(56,189,248,0.08)" stroke-width="0.5" stroke-dasharray="4 3" />
+
+                  <!-- Terminal connector (top) -->
+                  <g class="pb-terminal-group">
+                    <rect x="70" y="-14" width="50" height="18" rx="4" fill="#334155" stroke="#475569" stroke-width="1" />
+                    <rect x="78" y="-10" width="12" height="10" rx="2" fill="#f59e0b" opacity="0.6" />
+                    <rect x="98" y="-10" width="12" height="10" rx="2" fill="#ef4444" opacity="0.6" />
+                  </g>
+
+                  <!-- LED indicator -->
+                  <circle class="pb-led-indicator" cx="172" cy="16" r="3.5" fill="#ef4444" />
+                  <circle class="pb-led-glow" cx="172" cy="16" r="7" fill="rgba(239,68,68,0.25)" />
+
+                  <!-- ======= DAMAGED CELL (States 1-4) ======= -->
+                  <g class="pb-cell-problematic">
+                    <rect class="pb-problem-fill" x="10" y="18" width="170" height="145" rx="8" fill="url(#pb-batt-danger)" />
+                    <g opacity="0.15">
+                      <line x1="18" y1="50" x2="172" y2="50" stroke="#fff" stroke-width="0.5" />
+                      <line x1="18" y1="85" x2="172" y2="85" stroke="#fff" stroke-width="0.5" />
+                      <line x1="18" y1="120" x2="172" y2="120" stroke="#fff" stroke-width="0.5" />
+                    </g>
+                    <rect class="pb-level-low" x="10" y="140" width="170" height="23" fill="rgba(239,68,68,0.8)" />
+                    <text x="95" y="95" class="pb-batt-pct" text-anchor="middle">12%</text>
+                    <g class="pb-bolt-icon" transform="translate(77, 100)">
+                      <path d="M18 0 L6 14 H14 L10 26 L24 10 H15 Z" fill="rgba(255,255,255,0.85)" />
+                    </g>
+                  </g>
+
+                  <!-- ======= HEALTHY CELL (States 6-7) ======= -->
+                  <g class="pb-cell-healthy">
+                    <rect class="pb-healthy-fill" x="10" y="18" width="170" height="145" rx="8" fill="url(#pb-batt-healthy)" />
+                    <g opacity="0.12">
+                      <line x1="18" y1="50" x2="172" y2="50" stroke="#fff" stroke-width="0.5" />
+                      <line x1="18" y1="85" x2="172" y2="85" stroke="#fff" stroke-width="0.5" />
+                      <line x1="18" y1="120" x2="172" y2="120" stroke="#fff" stroke-width="0.5" />
+                    </g>
+                    <rect x="10" y="18" width="170" height="145" rx="8" fill="url(#pb-batt-healthy)" opacity="0.3" />
+                    <text x="95" y="95" class="pb-healthy-pct" text-anchor="middle">100%</text>
+                    <g class="pb-check-icon" transform="translate(72, 100)">
+                      <circle cx="18" cy="12" r="12" fill="rgba(255,255,255,0.2)" />
+                      <path d="M10 12 L16 18 L26 6" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                    </g>
+                    <rect class="pb-shimmer" x="10" y="18" width="35" height="145" rx="8" fill="rgba(255,255,255,0.15)" />
+                  </g>
+                </g>
+
+                <!-- ======= DIAGNOSTIC GRID (State 5) ======= -->
+                <g class="pb-diag-grid">
+                  <line x1="15" y1="35" x2="225" y2="35" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <line x1="15" y1="70" x2="225" y2="70" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <line x1="15" y1="105" x2="225" y2="105" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <line x1="15" y1="140" x2="225" y2="140" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <line x1="15" y1="175" x2="225" y2="175" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <line x1="50" y1="5" x2="50" y2="205" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <line x1="120" y1="5" x2="120" y2="205" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <line x1="190" y1="5" x2="190" y2="205" stroke="rgba(56,189,248,0.3)" stroke-width="0.5" />
+                  <g stroke="#38bdf8" stroke-width="1.5" fill="none">
+                    <path d="M 18 12 L 18 5 L 25 5" />
+                    <path d="M 222 12 L 222 5 L 215 5" />
+                    <path d="M 18 198 L 18 205 L 25 205" />
+                    <path d="M 222 198 L 222 205 L 215 205" />
+                  </g>
+                  <text x="30" y="48" fill="#38bdf8" font-size="7" font-family="'Courier New',monospace" font-weight="700" opacity="0.8">VOLT: 3.82V</text>
+                  <text x="135" y="48" fill="#38bdf8" font-size="7" font-family="'Courier New',monospace" font-weight="700" opacity="0.8">mAh: 2840</text>
+                  <text x="30" y="188" fill="#f59e0b" font-size="7" font-family="'Courier New',monospace" font-weight="700" opacity="0.8">TEMP: 38.2°C</text>
+                  <text x="135" y="188" fill="#22c55e" font-size="7" font-family="'Courier New',monospace" font-weight="700" opacity="0.8">CICLOS: 847</text>
+                </g>
+              </g>
+
+              <!-- ======= SCAN BEAM (State 5) ======= -->
+              <g class="pb-scan-beam">
+                <rect class="pb-scan-line" x="30" y="290" width="280" height="4" fill="url(#pb-scan-grad)" rx="2" />
+                <rect class="pb-scan-trail" x="30" y="290" width="280" height="30" fill="rgba(56,189,248,0.06)" rx="4" />
+              </g>
+
+              <!-- ======= ENERGY PARTICLES ======= -->
+              <g class="pb-particles">
+                <circle class="pb-particle p1" cx="80" cy="350" r="2" fill="#38bdf8" />
+                <circle class="pb-particle p2" cx="260" cy="420" r="1.5" fill="#22c55e" />
+                <circle class="pb-particle p3" cx="150" cy="310" r="2.5" fill="#f59e0b" />
+                <circle class="pb-particle p4" cx="200" cy="480" r="1.8" fill="#38bdf8" />
+                <circle class="pb-particle p5" cx="100" cy="500" r="2" fill="#22c55e" />
+                <circle class="pb-particle p6" cx="250" cy="340" r="1.5" fill="#f59e0b" />
+              </g>
+
+            </g>
+
+            <!-- ======= TAPA SEPARATION LINE (State 4) ======= -->
+            <path class="pb-tapa-borde" d="M 316 200 Q 334 350 316 500" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#pb-glow-amber)" />
+
+            <!-- ======= BOTTOM SPEAKER GRILL ======= -->
+            <g transform="translate(140, 560)">
+              <circle cx="0" cy="0" r="2" fill="#334155" />
+              <circle cx="8" cy="0" r="2" fill="#334155" />
+              <circle cx="16" cy="0" r="2" fill="#334155" />
+              <circle cx="24" cy="0" r="2" fill="#334155" />
+              <circle cx="32" cy="0" r="2" fill="#334155" />
+              <circle cx="40" cy="0" r="2" fill="#334155" />
+              <circle cx="48" cy="0" r="2" fill="#334155" />
+              <circle cx="56" cy="0" r="2" fill="#334155" />
+            </g>
+
+            <!-- USB-C port -->
+            <rect x="155" y="573" width="30" height="6" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5" />
+
+          </svg>
+
+          <!-- Telemetría Técnica de Diagnóstico -->
+          <div class="pb-diag-telemetry" aria-label="Indicadores de diagnóstico">
+            <div class="pb-telem-item"><small>VOLTAJE</small><span class="pb-telem-val">3.82V</span></div>
+            <div class="pb-telem-item"><small>TEMP</small><span class="pb-telem-val">38.2°C</span></div>
+            <div class="pb-telem-item"><small>CONSUMO</small><span class="pb-telem-val">0.02A</span></div>
+            <div class="pb-telem-item"><small>SALUD</small><span class="pb-telem-val pb-telem-ok">OK</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTRODUCCIÓN Y DATOS DE CONTACTO LOCAL -->
+  <section class="pb-section pb-intro">
+    <div class="container pb-intro-grid">
+      <div class="pb-intro-copy">
+        <span class="pb-section-kicker">Servicio Local Cancún</span>
+        <h2>Servicio profesional de batería para smartphones</h2>
+        <p>
+          En <strong>Pixon PC</strong> diagnosticamos el comportamiento energético de tu teléfono antes de reemplazar refacciones. Una pérdida de carga no siempre significa que la batería esté inservible; puede tratarse de consumo en placa, un centro de carga sucio, cables deteriorados o anomalías de software en Android.
+        </p>
+        <p>
+          Revisamos minuciosamente cada parámetro en nuestro taller local en Cancún para que tu equipo recupere autonomía segura y sin riesgos.
+        </p>
+      </div>
+      <aside class="pb-nap-card" aria-label="Datos de contacto Pixon PC Cancún">
+        <div class="pb-nap-badge"><i class="fa-solid fa-shield-halved"></i> Taller Oficial</div>
+        <h3>Pixon PC</h3>
+        <p><i class="fa-solid fa-location-dot"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</p>
+        <p><i class="fa-solid fa-phone"></i> <a href="tel:+529986690777">+52 998 669 0777</a></p>
+        <p><i class="fa-solid fa-envelope"></i> <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></p>
+        <span class="pb-nap-schedule"><i class="fa-solid fa-clock"></i> Lunes a Sábado · Atención con cita previa</span>
+      </aside>
+    </div>
+  </section>
+
+  <!-- H2: ¿Tu celular se descarga rápido, se apaga o se calienta? -->
+  <section class="pb-section pb-symptoms-section">
+    <div class="container">
+      <div class="pb-section-head">
+        <span class="pb-section-kicker">Síntomas Frecuentes</span>
+        <h2>¿Tu celular se descarga rápido, se apaga o se calienta?</h2>
+        <p>
+          Identifica las señales más comunes de fatiga energética. Cada síntoma aporta información clave para determinar si el problema radica en la celda de litio o en componentes aledaños.
+        </p>
+      </div>
+
+      <div class="pb-symptoms-grid">
+        {symptoms.map((s) => (
+          <article class="pb-card">
+            <div class="pb-card-icon"><i class={`fa-solid ${s.icon}`}></i></div>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: ¿Cómo saber si la batería de tu celular está dañada? -->
+  <section class="pb-section pb-how-to-know">
+    <div class="container">
+      <div class="pb-section-head">
+        <span class="pb-section-kicker">Evaluación Técnica</span>
+        <h2>¿Cómo saber si la batería de tu celular está dañada?</h2>
+        <p>
+          Las baterías modernas de iones de litio tienen una vida útil finita. A continuación te explicamos los 4 factores determinantes para saber si ha llegado el momento de reemplazarla.
+        </p>
+      </div>
+
+      <div class="pb-knowledge-grid">
+        <article class="pb-know-card">
+          <span class="pb-know-num">01</span>
+          <h3>Batería degradada por ciclos de carga</h3>
+          <p>
+            Cada recarga completa desgasta químicamente los electrodos internos. Al superar los 500 ciclos, la capacidad efectiva puede descender a menos del 80%, haciendo que la carga se agote con rapidez.
+          </p>
+        </article>
+
+        <article class="pb-know-card">
+          <span class="pb-know-num">02</span>
+          <h3>Pérdida de autonomía</h3>
+          <p>
+            Si antes el equipo rendía todo el día y ahora requiere conectarse dos o tres veces, las celdas ya no pueden retener la densidad energética nominal de fábrica.
+          </p>
+        </article>
+
+        <article class="pb-know-card">
+          <span class="pb-know-num">03</span>
+          <h3>Apagados y reinicios inesperados</h3>
+          <p>
+            Cuando el teléfono exige corriente para una tarea pesada y la celda vieja no suministra el voltaje necesario, el procesador se reinicia o apaga para evitar corrupción de datos.
+          </p>
+        </article>
+
+        <article class="pb-know-card">
+          <span class="pb-know-num">04</span>
+          <h3>Temperatura y consumo anormal</h3>
+          <p>
+            El aumento desproporcionado de calor al cargar o en reposo suele indicar un incremento severo en la resistencia interna de la celda de litio.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: ¿Tu celular tiene la batería inflada o está levantando la pantalla? (CLÚSTER PRIORITARIO) -->
+  <section class="pb-section pb-swollen-warning">
+    <div class="container">
+      <div class="pb-warning-box">
+        <div class="pb-warning-header">
+          <div class="pb-warning-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div>
+            <span class="pb-warning-tag">Atención Prioritaria de Seguridad</span>
+            <h2>¿Tu celular tiene la batería inflada o está levantando la pantalla?</h2>
+          </div>
+        </div>
+
+        <p class="pb-warning-intro">
+          La acumulación de gas por descomposición electrolítica expande la celda y ejerce una presión mecánica violenta dentro del chasis. Si notas alguna de estas señales, atiende el equipo con calma pero de forma inmediata:
+        </p>
+
+        <div class="pb-warning-grid">
+          <article class="pb-warn-item">
+            <h3>Tapa trasera levantada</h3>
+            <p>El adhesivo original cede y se observa una separación perimetral de 2 a 5 mm en la cubierta posterior del celular.</p>
+          </article>
+          <article class="pb-warn-item">
+            <h3>Pantalla separándose del marco</h3>
+            <p>La batería empuja la pantalla desde adentro hacia afuera, generando manchas de presión, deformación táctil o despegado.</p>
+          </article>
+          <article class="pb-warn-item">
+            <h3>Teléfono más grueso de lo normal</h3>
+            <p>El dispositivo pierde su curvatura plana y se siente abombado al tacto o tambalea al apoyarlo en una mesa lisa.</p>
+          </article>
+          <article class="pb-warn-item is-critical">
+            <h3>Qué no hacer con una batería hinchada</h3>
+            <p><strong>NO presiones la tapa</strong> para forzarla, <strong>NO apliques pegamento casero</strong>, <strong>NO perfores</strong> la batería y <strong>NO sigas cargando</strong> el celular.</p>
+          </article>
+        </div>
+
+        <div class="pb-warning-cta">
+          <a class="pb-btn pb-btn-urgent" href={`https://wa.me/529986690777?text=${encodeURIComponent('Hola Pixon PC, mi celular tiene la batería inflada o está levantando la pantalla. Necesito revisión urgente.')}`} target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-whatsapp"></i> Reportar batería inflada por WhatsApp
+          </a>
+          <a class="pb-btn pb-btn-light" href="#ticket-bateria-celular">Crear ticket de revisión <i class="fa-solid fa-arrow-down"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: ¿Cuánto cuesta cambiar la batería de un celular en Cancún? -->
+  <section class="pb-section pb-pricing-clarity">
+    <div class="container pb-pricing-grid">
+      <div class="pb-pricing-copy">
+        <span class="pb-section-kicker">Transparencia en Costos</span>
+        <h2>¿Cuánto cuesta cambiar la batería de un celular en Cancún?</h2>
+        <p>
+          En Pixon PC no publicamos precios ficticios ni tarifas genéricas porque cada teléfono posee un diseño, capacidad y protocolo de desensamble diferente. El precio final se determina con honestidad técnica:
+        </p>
+      </div>
+
+      <div class="pb-pricing-cards">
+        <article class="pb-price-point">
+          <div class="pb-price-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+          <div>
+            <h3>El precio depende del modelo</h3>
+            <p>La capacidad en mAh, el tipo de conector flexor y la complejidad de apertura varían según la marca y gama del dispositivo.</p>
+          </div>
+        </article>
+
+        <article class="pb-price-point">
+          <div class="pb-price-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <div>
+            <h3>Disponibilidad de batería</h3>
+            <p>Verificamos refacciones disponibles en almacén local o bajo pedido directo con proveedores certificados para entregarte la mejor cotización.</p>
+          </div>
+        </article>
+
+        <article class="pb-price-point">
+          <div class="pb-price-icon"><i class="fa-solid fa-microchip"></i></div>
+          <div>
+            <h3>Batería vs. centro de carga o falla de placa</h3>
+            <p>Si durante el diagnóstico detectamos que la falla es solo suciedad en el puerto USB o un flexor suelto, te cobramos solo el ajuste correspondiente.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: ¿Qué revisamos antes de cambiar la batería? -->
+  <section class="pb-section pb-diagnostic-checks">
+    <div class="container">
+      <div class="pb-section-head">
+        <span class="pb-section-kicker">Metodología de Diagnóstico</span>
+        <h2>¿Qué revisamos antes de cambiar la batería?</h2>
+        <p>
+          No cambiamos piezas a ciegas. Nuestro protocolo de 6 puntos descarta falsos diagnósticos para que tu inversión sea 100% efectiva.
+        </p>
+      </div>
+
+      <div class="pb-checks-grid">
+        {diagnosticPoints.map((item, idx) => (
+          <article class="pb-check-card">
+            <span class="pb-check-idx">Punto {idx + 1}</span>
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: Proceso de cambio de batería de celular -->
+  <section class="pb-section pb-process-section" id="proceso">
+    <div class="container">
+      <div class="pb-section-head">
+        <span class="pb-section-kicker">Paso a Paso</span>
+        <h2>Proceso de cambio de batería de celular</h2>
+        <p>
+          Un procedimiento limpio, ordenado y respaldado con pruebas de carga y temperatura antes de la entrega final.
+        </p>
+      </div>
+
+      <div class="pb-process-grid">
+        {processSteps.map((step) => (
+          <article class="pb-process-card">
+            <span class="pb-step-badge">{step.step}</span>
+            <h3>{step.title}</h3>
+            <p>{step.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: Cambio de batería para Android en Cancún -->
+  <section class="pb-section pb-android-brands">
+    <div class="container">
+      <div class="pb-section-head">
+        <span class="pb-section-kicker">Compatibilidad Multimarca</span>
+        <h2>Cambio de batería para Android en Cancún</h2>
+        <p>
+          Trabajamos con las principales marcas del ecosistema Android, empleando adhesivos especiales y calibración para cada fabricante.
+        </p>
+      </div>
+
+      <div class="pb-brands-grid">
+        {androidBrands.map((b) => (
+          <article class="pb-brand-card">
+            <span class="pb-brand-pill">{b.tag}</span>
+            <h3>{b.brand}</h3>
+            <p>{b.models}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: ¿Necesitas batería para iPhone o Samsung? (PREVENCIÓN DE CANIBALIZACIÓN) -->
+  <section class="pb-section pb-brand-bridge">
+    <div class="container">
+      <div class="pb-bridge-box">
+        <div class="pb-bridge-header">
+          <span class="pb-section-kicker">Páginas Especializadas por Marca</span>
+          <h2>¿Necesitas batería para iPhone o Samsung?</h2>
+          <p>
+            Para garantizar la máxima relevancia técnica y compatibilidad por modelo, contamos con servicios especializados dedicados a Apple y Samsung Galaxy con diagnósticos específicos de salud de batería y refacciones por línea.
+          </p>
+        </div>
+
+        <div class="pb-bridge-grid">
+          <article class="pb-bridge-card">
+            <div class="pb-bridge-icon"><i class="fa-brands fa-apple"></i></div>
+            <h3>Cambio de batería iPhone</h3>
+            <p>Modelos iPhone 11 al 16, diagnóstico de salud en iOS, ciclos de carga y reemplazo profesional en Cancún.</p>
+            <a class="pb-bridge-link" href="/servicios/telefono/cambio-bateria-iphone">
+              Ver servicio para iPhone <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </article>
+
+          <article class="pb-bridge-card">
+            <div class="pb-bridge-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+            <h3>Cambio de batería Samsung</h3>
+            <p>Líneas Galaxy S, A, M, Note, Z Flip y Z Fold con diagnóstico de carga USB-C, temperatura y consumo en Cancún.</p>
+            <a class="pb-bridge-link" href="/servicios/telefono/cambio-bateria-samsung">
+              Ver servicio para Samsung <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- H2: Cambio de batería de celular en Zona Hotelera y Cancún -->
+  <section class="pb-section pb-local-coverage">
+    <div class="container pb-local-grid">
+      <div class="pb-local-copy">
+        <span class="pb-section-kicker">Cobertura Local en Quintana Roo</span>
+        <h2>Cambio de batería de celular en Zona Hotelera y Cancún</h2>
+        <p>
+          Atendemos a residentes, trabajadores y turistas que necesitan recuperar su teléfono celular con urgencia. El clima cálido y húmedo de Cancún puede acelerar el sobrecalentamiento y la degradación de celdas de litio; por ello ofrecemos recepción directa en taller y coordinación de recolección en hoteles o condominios cuando está disponible.
+        </p>
+        <p>
+          Zonas con cobertura técnica frecuente:
+        </p>
+      </div>
+
+      <div class="pb-zones-grid" aria-label="Zonas atendidas en Cancún">
+        {zones.map((zone) => (
+          <span class="pb-zone-tag">
+            <i class="fa-solid fa-location-dot"></i> {zone}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULARIO / TICKET DE SERVICIO -->
+  <ServiceTicketSection
+    id="ticket-bateria-celular"
+    defaultDevice="Celular"
+    defaultService="Cambio de batería"
+    sourcePage="/servicios/telefono/cambio-bateria"
+    title="Crear ticket para cambio de batería de celular"
+    subtitle="Cuéntanos la marca, modelo exacto, síntomas de descarga o si la batería está inflada. Te responderemos rápidamente con opciones y cotización por WhatsApp."
+  />
+
+  <!-- CTA INTERMEDIO / FINAL -->
+  <section class="pb-section pb-cta-banner">
+    <div class="container pb-cta-grid">
+      <div>
+        <h2>Recupera la autonomía de tu celular hoy mismo</h2>
+        <p>Escríbenos por WhatsApp con tu modelo y síntomas para darte una asesoría clara sin compromiso.</p>
+      </div>
+      <div class="pb-cta-actions">
+        <a class="pb-btn pb-btn-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener noreferrer">
+          <i class="fa-brands fa-whatsapp"></i> WhatsApp directo
+        </a>
+        <a class="pb-btn pb-btn-secondary" href="#ticket-bateria-celular">
+          Crear ticket <i class="fa-solid fa-ticket"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS RELACIONADOS -->
+  <section class="pb-related-shell">
+    <RelatedServicesSection
+      category={category}
+      service={service}
+      eyebrow="Servicios complementarios"
+      title="Otros servicios de reparación de celular que podrían interesarte"
+      compact={true}
+      includeCategoryServices={true}
+      initialLimit={4}
+    />
+  </section>
+
+  <!-- H2: Preguntas frecuentes sobre cambio de batería de celular -->
+  <FaqSection
+    id="faq-bateria-celular"
+    title="Preguntas frecuentes sobre cambio de batería de celular"
+    description="Respuestas directas sobre costos, tiempos de entrega, baterías infladas, calentamiento y garantías en Cancún."
+    items={faqItems}
+    backgroundColor="#f8fbff"
+    questionColor="#071F3A"
+    titleColor="#071F3A"
+    descriptionColor="#071F3A"
+    faqAccent="#0ea5e9"
+    sectionClass="pb-faq-light"
+  />
+
+  <!-- COMENTARIOS Y TESTIMONIOS -->
+  <section class="pb-comments-shell">
+    <CommentsSection
+      title="Opiniones de clientes que cambiaron su batería en Pixon PC"
+      description="Experiencias reales de clientes en Cancún con diagnósticos de carga, sobrecalentamiento y baterías nuevas."
+      dark={false}
+    />
+  </section>
+
+  <!-- UBICACIÓN Y CONTACTO -->
+  <section class="pb-contact-shell">
+    <ContactSection id="ubicacion" />
+  </section>
+</div>
+
+<Footer />
+
+<style is:global>
+/* VARIABLES Y SISTEMA DE COLOR */
+.phone-battery-page {
+  --azul-oscuro: #071F3A;
+  --pb-ink: #071F3A;
+  --pb-blue: #0f5ea8;
+  --pb-cyan: #0ea5e9;
+  --pb-green: #16a34a;
+  --pb-amber: #f59e0b;
+  --pb-red: #ef4444;
+  --pb-soft: #f8fbff;
+  --pb-card-bg: #ffffff;
+  --pb-border: rgba(7, 31, 58, 0.12);
+  --pb-border-focus: #0ea5e9;
+  color: var(--pb-ink);
+  background: var(--pb-soft);
+  overflow-x: hidden;
+}
+
+.phone-battery-page h1,
+.phone-battery-page h2,
+.phone-battery-page h3 {
+  font-family: 'Kanit', sans-serif;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* REGLA AGENTS.MD: Todo texto fuera del hero debe usar --azul-oscuro: #071F3A */
+.phone-battery-page section:not(.pb-hero),
+.phone-battery-page section:not(.pb-hero) h2,
+.phone-battery-page section:not(.pb-hero) h3,
+.phone-battery-page section:not(.pb-hero) p,
+.phone-battery-page section:not(.pb-hero) span,
+.phone-battery-page section:not(.pb-hero) strong,
+.phone-battery-page section:not(.pb-hero) li,
+.phone-battery-page section:not(.pb-hero) small {
+  color: var(--azul-oscuro);
+}
+
+/* HERO SECTION */
+.pb-hero {
+  position: relative;
+  min-height: 640px;
+  display: grid;
+  align-items: center;
+  padding: 56px 0 48px;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.32), transparent 35%),
+    radial-gradient(circle at 90% 80%, rgba(22, 163, 74, 0.22), transparent 30%),
+    linear-gradient(135deg, #050e1a 0%, #071F3A 55%, #0a294d 100%);
+}
+
+.pb-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+}
+
+.pb-hero-copy {
+  max-width: 720px;
+}
+
+.pb-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pb-hero h1 {
+  margin: 0 0 14px;
+  color: #ffffff;
+  font-size: clamp(2.2rem, 4.5vw, 4.2rem);
+  line-height: 1.02;
+}
+
+.pb-hero-sub {
+  margin: 0 0 24px;
+  color: #dbeafe;
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.pb-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.pb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.pb-btn:active {
+  transform: scale(0.97);
+}
+
+.pb-btn-primary {
+  background: var(--pb-green);
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(22, 163, 74, 0.28);
+}
+
+.pb-btn-primary:hover {
+  background: #15803d;
+}
+
+.pb-btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+}
+
+.pb-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pb-btn-urgent {
+  background: #dc2626;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.3);
+}
+
+.pb-btn-light {
+  background: #ffffff;
+  border-color: rgba(7, 31, 58, 0.2);
+  color: var(--azul-oscuro) !important;
+}
+
+.pb-hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pb-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.pb-trust-chip i {
+  color: #4ade80;
+}
+
+/* ANIMACIÓN SVG + CSS DEL HERO — V2 CINEMATOGRÁFICO */
+.pb-hero-visual {
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+}
+
+.pb-stage {
+  position: relative;
+  width: min(100%, 360px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ambient glow orbs behind the phone */
+.pb-ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: -1;
+}
+.pb-orb-1 {
+  width: 220px;
+  height: 220px;
+  background: rgba(14, 165, 233, 0.25);
+  top: 10%;
+  left: -20%;
+  animation: pbOrbFloat1 13s infinite ease-in-out;
+}
+.pb-orb-2 {
+  width: 180px;
+  height: 180px;
+  background: rgba(239, 68, 68, 0.18);
+  bottom: 15%;
+  right: -15%;
+  animation: pbOrbFloat2 13s infinite ease-in-out;
+}
+
+@keyframes pbOrbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); background: rgba(239, 68, 68, 0.2); }
+  30% { background: rgba(245, 158, 11, 0.25); }
+  58% { transform: translate(20px, -15px) scale(1.15); background: rgba(14, 165, 233, 0.3); }
+  82% { transform: translate(-10px, 10px) scale(1.05); background: rgba(34, 197, 94, 0.25); }
+}
+@keyframes pbOrbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); background: rgba(239, 68, 68, 0.15); }
+  45% { transform: translate(-15px, 10px) scale(1.2); background: rgba(220, 38, 38, 0.25); }
+  68% { background: rgba(59, 130, 246, 0.2); }
+  82% { transform: translate(10px, -8px) scale(0.95); background: rgba(34, 197, 94, 0.2); }
+}
+
+.pb-phone-svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55)) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+  animation: pbPhoneFloat 6s infinite ease-in-out;
+}
+
+@keyframes pbPhoneFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Badge dots */
+.pb-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  animation: pbDotPulse 2s infinite ease-in-out;
+}
+@keyframes pbDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+/* Badges dinámicos — barra ENCIMA del teléfono */
+.pb-state-badges {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.pb-badge-state {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  letter-spacing: 0.01em;
+}
+
+.pb-state-1 {
+  background: rgba(239, 68, 68, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  animation: pbState1 13s infinite cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pb-state-2 {
+  background: rgba(249, 115, 22, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  animation: pbState2 13s infinite cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pb-state-3 {
+  background: rgba(245, 158, 11, 0.92);
+  color: #071f3a;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  animation: pbState3 13s infinite cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pb-state-4 {
+  background: rgba(220, 38, 38, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  animation: pbState4 13s infinite cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pb-state-5 {
+  background: rgba(14, 165, 233, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(14, 165, 233, 0.5);
+  animation: pbState5 13s infinite cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pb-state-6 {
+  background: rgba(59, 130, 246, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  animation: pbState6 13s infinite cubic-bezier(0.23, 1, 0.32, 1);
+}
+.pb-state-7 {
+  background: rgba(22, 163, 74, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 24px rgba(34, 197, 94, 0.45), 0 4px 20px rgba(0,0,0,0.2);
+  animation: pbState7 13s infinite cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Telemetría — Glassmorphism upgrade */
+.pb-diag-telemetry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  width: 100%;
+  margin-top: -24px;
+  padding: 12px 10px;
+  border-radius: 14px;
+  background: rgba(7, 19, 38, 0.88);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(56, 189, 248, 0.1);
+  z-index: 2;
+  animation: pbTelemFade 13s infinite;
+}
+
+@keyframes pbTelemFade {
+  0%, 56% { opacity: 0.5; border-color: rgba(56, 189, 248, 0.1); }
+  58%, 67% { opacity: 1; border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 20px rgba(14, 165, 233, 0.15), inset 0 1px 0 rgba(56, 189, 248, 0.2); }
+  68%, 100% { opacity: 0.6; border-color: rgba(56, 189, 248, 0.15); }
+}
+
+.pb-telem-item {
+  text-align: center;
+  padding: 4px 2px;
+}
+
+.pb-telem-item small {
+  display: block;
+  font-size: 0.6rem;
+  color: #64748b;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.pb-telem-val {
+  display: block;
+  font-size: 0.78rem;
+  color: #38bdf8;
+  font-weight: 800;
+  font-family: 'Courier New', monospace;
+}
+
+.pb-telem-ok {
+  color: #4ade80 !important;
+}
+
+/* ============ SVG ELEMENT ANIMATIONS (15s loop) ============ */
+
+/* --- Status bar battery icon color sync --- */
+.pb-ui-batt-fill {
+  animation: pbUIBatt 15s infinite;
+}
+@keyframes pbUIBatt {
+  0%, 14% { fill: #ef4444; width: 4px; }
+  15%, 29% { fill: #f97316; width: 6px; }
+  30%, 44% { fill: #f59e0b; width: 5px; }
+  45%, 57% { fill: #dc2626; width: 3px; }
+  58%, 67% { fill: #38bdf8; width: 8px; }
+  68%, 81% { fill: #3b82f6; width: 10px; }
+  82%, 96% { fill: #22c55e; width: 13px; }
+  97%, 100% { fill: #ef4444; width: 4px; }
+}
+
+/* --- Damaged cell --- */
+.pb-cell-problematic {
+  animation: pbProblemCell 15s infinite ease-in-out;
+}
+.pb-batt-pct {
+  fill: #ffffff;
+  font-size: 36px;
+  font-weight: 900;
+  font-family: 'Kanit', sans-serif;
+  animation: pbProblemPct 15s infinite;
+}
+.pb-bolt-icon {
+  animation: pbBoltPulse 2s infinite ease-in-out;
+}
+@keyframes pbBoltPulse {
+  0%, 100% { opacity: 0.85; transform: translate(77px, 100px) scale(1); }
+  50% { opacity: 0.5; transform: translate(77px, 100px) scale(0.9); }
+}
+
+/* --- Screen UI elements --- */
+.pb-screen-ui {
+  animation: pbScreenUI 15s infinite;
+}
+.pb-pct-ring {
+  animation: pbPctRing 15s infinite;
+  transition: stroke 0.5s ease;
+}
+.pb-screen-pct {
+  animation: pbScreenPctText 15s infinite;
+}
+@keyframes pbScreenUI {
+  0%, 67% { opacity: 1; }
+  68%, 81% { opacity: 0.3; }
+  82%, 96% { opacity: 1; }
+  97%, 100% { opacity: 1; }
+}
+@keyframes pbPctRing {
+  0%, 14% { stroke: #ef4444; stroke-dasharray: 33 294; }
+  15%, 29% { stroke: #f97316; stroke-dasharray: 33 294; }
+  30%, 44% { stroke: #f59e0b; stroke-dasharray: 33 294; }
+  45%, 57% { stroke: #dc2626; stroke-dasharray: 20 307; }
+  58%, 67% { stroke: #38bdf8; stroke-dasharray: 164 163; }
+  68%, 81% { stroke: #3b82f6; stroke-dasharray: 260 67; }
+  82%, 96% { stroke: #22c55e; stroke-dasharray: 327 0; }
+  97%, 100% { stroke: #ef4444; stroke-dasharray: 33 294; }
+}
+@keyframes pbScreenPctText {
+  0%, 14% { fill: #ffffff; }
+  58%, 67% { fill: #38bdf8; }
+  82%, 96% { fill: #4ade80; }
+  97%, 100% { fill: #ffffff; }
+}
+.pb-stat-health {
+  animation: pbStatHealth 15s infinite;
+}
+@keyframes pbStatHealth {
+  0%, 57% { fill: #ef4444; }
+  58%, 67% { fill: #38bdf8; }
+  68%, 81% { fill: #3b82f6; }
+  82%, 96% { fill: #22c55e; }
+  97%, 100% { fill: #ef4444; }
+}
+
+/* --- Healthy cell --- */
+.pb-cell-healthy {
+  opacity: 0;
+  animation: pbHealthyCell 15s infinite ease-in-out;
+}
+.pb-healthy-pct {
+  fill: #ffffff;
+  font-size: 36px;
+  font-weight: 900;
+  font-family: 'Kanit', sans-serif;
+}
+
+/* Shimmer sweep on healthy cell */
+.pb-shimmer {
+  opacity: 0;
+  animation: pbShimmerSweep 15s infinite linear;
+}
+@keyframes pbShimmerSweep {
+  0%, 67% { opacity: 0; transform: translateX(-50px); }
+  72% { opacity: 1; transform: translateX(0); }
+  78% { opacity: 1; transform: translateX(140px); }
+  82%, 100% { opacity: 0; transform: translateX(180px); }
+}
+
+/* --- LED indicator --- */
+.pb-led-indicator {
+  animation: pbLedColor 15s infinite;
+}
+.pb-led-glow {
+  animation: pbLedGlow 15s infinite;
+}
+@keyframes pbLedColor {
+  0%, 57% { fill: #ef4444; }
+  58%, 67% { fill: #38bdf8; }
+  68%, 81% { fill: #3b82f6; }
+  82%, 96% { fill: #22c55e; }
+  97%, 100% { fill: #ef4444; }
+}
+@keyframes pbLedGlow {
+  0%, 57% { fill: rgba(239,68,68,0.25); r: 8; }
+  58%, 67% { fill: rgba(56,189,248,0.3); r: 10; }
+  68%, 81% { fill: rgba(59,130,246,0.25); r: 9; }
+  82%, 96% { fill: rgba(34,197,94,0.35); r: 12; }
+  97%, 100% { fill: rgba(239,68,68,0.25); r: 8; }
+}
+
+/* --- Thermal waves (State 3) --- */
+.pb-thermal-wave {
+  opacity: 0;
+  transform-origin: 120px 105px;
+  animation: pbThermalPulse 15s infinite;
+}
+.pb-thermal-wave.wave-2 {
+  animation-delay: 0.3s;
+}
+.pb-thermal-wave.wave-3 {
+  animation-delay: 0.6s;
+}
+
+/* --- Tapa separation (State 4) --- */
+.pb-tapa-borde {
+  opacity: 0;
+  animation: pbTapaSeparation 15s infinite;
+}
+
+/* --- Electrical sparks (State 4) --- */
+.pb-sparks {
+  opacity: 0;
+  animation: pbSparksFlashes 15s infinite;
+}
+
+/* --- Diagnostic grid (State 5) --- */
+.pb-diag-grid {
+  opacity: 0;
+  animation: pbDiagGrid 15s infinite;
+}
+
+/* --- Scan beam (State 5) --- */
+.pb-scan-beam {
+  opacity: 0;
+  animation: pbScanBeam 15s infinite linear;
+}
+.pb-scan-line {
+  animation: pbScanMove 15s infinite linear;
+}
+.pb-scan-trail {
+  animation: pbScanTrail 15s infinite linear;
+}
+
+/* --- Energy particles --- */
+.pb-particle {
+  opacity: 0;
+}
+.pb-particle.p1 {
+  animation: pbParticle1 15s infinite ease-in-out;
+}
+.pb-particle.p2 {
+  animation: pbParticle2 15s infinite ease-in-out 0.5s;
+}
+.pb-particle.p3 {
+  animation: pbParticle3 15s infinite ease-in-out 1s;
+}
+.pb-particle.p4 {
+  animation: pbParticle4 15s infinite ease-in-out 0.3s;
+}
+.pb-particle.p5 {
+  animation: pbParticle5 15s infinite ease-in-out 0.7s;
+}
+.pb-particle.p6 {
+  animation: pbParticle6 15s infinite ease-in-out 1.2s;
+}
+
+/* --- PCB trace pulse --- */
+.pb-pcb-traces {
+  animation: pbPCBPulse 4s infinite ease-in-out;
+}
+@keyframes pbPCBPulse {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.25; }
+}
+
+/* ============ KEYFRAMES — 15s MASTER TIMELINE ============ */
+
+/* Badge state visibility */
+@keyframes pbState1 {
+  0% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  1% { opacity: 1; transform: translateY(0) scale(1); }
+  13% { opacity: 1; transform: translateY(0) scale(1); }
+  14% { opacity: 0; transform: translateY(8px) scale(0.92); }
+  15%, 100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+@keyframes pbState2 {
+  0%, 14% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  28% { opacity: 1; transform: translateY(0) scale(1); }
+  29% { opacity: 0; transform: translateY(8px) scale(0.92); }
+  30%, 100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+@keyframes pbState3 {
+  0%, 29% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  30% { opacity: 1; transform: translateY(0) scale(1); }
+  43% { opacity: 1; transform: translateY(0) scale(1); }
+  44% { opacity: 0; transform: translateY(8px) scale(0.92); }
+  45%, 100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+@keyframes pbState4 {
+  0%, 44% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  45% { opacity: 1; transform: translateY(0) scale(1); }
+  56% { opacity: 1; transform: translateY(0) scale(1); }
+  57% { opacity: 0; transform: translateY(8px) scale(0.92); }
+  58%, 100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+@keyframes pbState5 {
+  0%, 57% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  58% { opacity: 1; transform: translateY(0) scale(1); }
+  67% { opacity: 1; transform: translateY(0) scale(1); }
+  68% { opacity: 0; transform: translateY(8px) scale(0.92); }
+  69%, 100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+@keyframes pbState6 {
+  0%, 68% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  69% { opacity: 1; transform: translateY(0) scale(1); }
+  80% { opacity: 1; transform: translateY(0) scale(1); }
+  81% { opacity: 0; transform: translateY(8px) scale(0.92); }
+  82%, 100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+@keyframes pbState7 {
+  0%, 81% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  82% { opacity: 1; transform: translateY(0) scale(1); }
+  95% { opacity: 1; transform: translateY(0) scale(1); }
+  96% { opacity: 0; transform: translateY(8px) scale(0.92); }
+  97%, 100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+
+/* Damaged cell lifecycle */
+@keyframes pbProblemCell {
+  0%, 43% { opacity: 1; transform: scale(1); }
+  44% { opacity: 1; transform: scale(1); }
+  45%, 56% { opacity: 1; transform: scale(1.06); }
+  57% { opacity: 0.9; transform: scale(1.02); }
+  58%, 67% { opacity: 0.7; transform: scale(1); }
+  68% { opacity: 0.5; transform: translateY(12px) scale(0.95); }
+  72%, 95% { opacity: 0; transform: translateY(25px) scale(0.9); }
+  96% { opacity: 0; }
+  97%, 100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pbProblemPct {
+  0%, 14% { fill: #ef4444; }
+  15%, 29% { fill: #f97316; }
+  30%, 44% { fill: #f59e0b; }
+  45%, 57% { fill: #dc2626; }
+  58%, 100% { opacity: 0; }
+}
+
+/* Healthy cell entrance */
+@keyframes pbHealthyCell {
+  0%, 68% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+  72% { opacity: 1; transform: translateY(0) scale(1); }
+  95% { opacity: 1; transform: translateY(0) scale(1); }
+  97%, 100% { opacity: 0; transform: translateY(0) scale(0.95); }
+}
+
+/* Thermal pulse waves */
+@keyframes pbThermalPulse {
+  0%, 29% { opacity: 0; transform: scale(0.6); }
+  31% { opacity: 0.6; transform: scale(0.8); }
+  37% { opacity: 0.9; transform: scale(1.15); }
+  43% { opacity: 0.6; transform: scale(1.25); }
+  44% { opacity: 0; transform: scale(1.3); }
+  45%, 100% { opacity: 0; transform: scale(0.6); }
+}
+
+/* Tapa separation */
+@keyframes pbTapaSeparation {
+  0%, 44% { opacity: 0; stroke-dashoffset: 100; }
+  46% { opacity: 0.8; stroke-dashoffset: 0; }
+  55% { opacity: 1; stroke-dashoffset: 0; }
+  57% { opacity: 0; }
+  58%, 100% { opacity: 0; }
+}
+
+/* Sparks flashing */
+@keyframes pbSparksFlashes {
+  0%, 44% { opacity: 0; }
+  45% { opacity: 0; }
+  46% { opacity: 1; }
+  47% { opacity: 0.2; }
+  48% { opacity: 1; }
+  49% { opacity: 0.1; }
+  50% { opacity: 0.9; }
+  51% { opacity: 0.3; }
+  52% { opacity: 1; }
+  53% { opacity: 0; }
+  54% { opacity: 0.8; }
+  55% { opacity: 0.2; }
+  56% { opacity: 1; }
+  57% { opacity: 0; }
+  58%, 100% { opacity: 0; }
+}
+
+/* Diagnostic grid */
+@keyframes pbDiagGrid {
+  0%, 57% { opacity: 0; }
+  58% { opacity: 0; }
+  59% { opacity: 1; }
+  67% { opacity: 1; }
+  68% { opacity: 0; }
+  69%, 100% { opacity: 0; }
+}
+
+/* Scan beam visibility & movement */
+@keyframes pbScanBeam {
+  0%, 57% { opacity: 0; }
+  58% { opacity: 1; }
+  67% { opacity: 1; }
+  68%, 100% { opacity: 0; }
+}
+@keyframes pbScanMove {
+  0%, 57% { y: 115; }
+  58% { y: 115; }
+  67% { y: 430; }
+  68%, 100% { y: 430; }
+}
+@keyframes pbScanTrail {
+  0%, 57% { y: 115; }
+  58% { y: 115; }
+  67% { y: 430; }
+  68%, 100% { y: 430; }
+}
+
+/* Energy particles — each with unique orbit */
+@keyframes pbParticle1 {
+  0%, 57% { opacity: 0; }
+  58% { opacity: 0.7; cx: 80; cy: 200; }
+  65% { opacity: 0.9; cx: 120; cy: 180; }
+  80% { opacity: 0.6; cx: 200; cy: 250; }
+  95% { opacity: 0; cx: 260; cy: 200; }
+  100% { opacity: 0; }
+}
+@keyframes pbParticle2 {
+  0%, 57% { opacity: 0; }
+  60% { opacity: 0.8; cx: 260; cy: 300; }
+  75% { opacity: 0.6; cx: 200; cy: 350; }
+  90% { opacity: 0; cx: 150; cy: 400; }
+  100% { opacity: 0; }
+}
+@keyframes pbParticle3 {
+  0%, 57% { opacity: 0; }
+  62% { opacity: 0.7; cx: 150; cy: 150; }
+  72% { opacity: 0.9; cx: 170; cy: 200; }
+  85% { opacity: 0.4; cx: 190; cy: 300; }
+  95% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes pbParticle4 {
+  0%, 68% { opacity: 0; }
+  70% { opacity: 0.8; cx: 200; cy: 400; }
+  82% { opacity: 0.6; cx: 180; cy: 350; }
+  92% { opacity: 0; cx: 160; cy: 300; }
+  100% { opacity: 0; }
+}
+@keyframes pbParticle5 {
+  0%, 68% { opacity: 0; }
+  72% { opacity: 0.7; cx: 100; cy: 450; }
+  85% { opacity: 0.5; cx: 140; cy: 380; }
+  95% { opacity: 0; cx: 170; cy: 300; }
+  100% { opacity: 0; }
+}
+@keyframes pbParticle6 {
+  0%, 68% { opacity: 0; }
+  74% { opacity: 0.6; cx: 250; cy: 180; }
+  88% { opacity: 0.8; cx: 220; cy: 250; }
+  95% { opacity: 0; cx: 190; cy: 320; }
+  100% { opacity: 0; }
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+  .pb-state-1, .pb-state-2, .pb-state-3, .pb-state-4, .pb-state-5, .pb-state-6, .pb-state-7,
+  .pb-cell-problematic, .pb-cell-healthy, .pb-thermal-wave, .pb-tapa-borde,
+  .pb-sparks, .pb-scan-beam, .pb-scan-line, .pb-scan-trail, .pb-diag-grid,
+  .pb-particle, .pb-ambient-orb, .pb-shimmer, .pb-led-indicator, .pb-led-glow,
+  .pb-ui-batt-fill, .pb-badge-dot, .pb-screen-ui, .pb-pct-ring, .pb-screen-pct,
+  .pb-stat-health, .pb-bolt-icon {
+    animation: none !important;
+  }
+  .pb-phone-svg {
+    animation: none !important;
+  }
+  .pb-cell-problematic {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .pb-state-5 {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .pb-diag-grid {
+    opacity: 1 !important;
+  }
+  .pb-diag-telemetry {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .pb-screen-ui {
+    opacity: 1 !important;
+  }
+}
+
+/* SECCIONES COMUNES */
+.pb-section {
+  padding: clamp(48px, 6vw, 84px) 0;
+  background: var(--pb-soft);
+}
+
+.pb-section-kicker {
+  display: inline-block;
+  color: var(--pb-blue);
+  font-size: 0.8rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.pb-section-head {
+  max-width: 820px;
+  margin-bottom: 32px;
+}
+
+.pb-section-head h2,
+.pb-intro-copy h2,
+.pb-pricing-copy h2,
+.pb-bridge-header h2,
+.pb-local-copy h2,
+.pb-cta-banner h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.6rem, 3.2vw, 2.45rem);
+  line-height: 1.12;
+}
+
+.pb-section-head p,
+.pb-intro-copy p,
+.pb-pricing-copy p,
+.pb-bridge-header p,
+.pb-local-copy p,
+.pb-cta-banner p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.68;
+}
+
+/* INTRO GRID */
+.pb-intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 32px;
+  align-items: stretch;
+}
+
+.pb-nap-card {
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--pb-card-bg);
+  border: 1px solid var(--pb-border);
+  box-shadow: 0 10px 30px rgba(7, 31, 58, 0.05);
+}
+
+.pb-nap-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pb-blue);
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.pb-nap-card h3 {
+  margin: 0 0 12px;
+  font-size: 1.3rem;
+}
+
+.pb-nap-card p {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+}
+
+.pb-nap-card a {
+  color: var(--pb-blue);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.pb-nap-schedule {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+/* SYMPTOMS GRID */
+.pb-symptoms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pb-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--pb-card-bg);
+  border: 1px solid var(--pb-border);
+  box-shadow: 0 6px 20px rgba(7, 31, 58, 0.04);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.pb-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(7, 31, 58, 0.08);
+}
+
+.pb-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #e0f2fe;
+  color: var(--pb-blue);
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  margin-bottom: 14px;
+}
+
+.pb-card h3,
+.pb-know-card h3,
+.pb-warn-item h3,
+.pb-price-point h3,
+.pb-check-card h3,
+.pb-process-card h3,
+.pb-brand-card h3,
+.pb-bridge-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.pb-card p,
+.pb-know-card p,
+.pb-warn-item p,
+.pb-price-point p,
+.pb-check-card p,
+.pb-process-card p,
+.pb-brand-card p,
+.pb-bridge-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* EVALUACIÓN TÉCNICA */
+.pb-knowledge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pb-know-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--pb-card-bg);
+  border: 1px solid var(--pb-border);
+}
+
+.pb-know-num {
+  display: inline-block;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--pb-blue);
+  line-height: 1;
+  margin-bottom: 12px;
+  opacity: 0.85;
+}
+
+/* BATERÍA INFLADA (WARNING) */
+.pb-warning-box {
+  padding: clamp(24px, 4vw, 42px);
+  border-radius: 20px;
+  background: #fff8f8;
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 14px 36px rgba(220, 38, 38, 0.08);
+}
+
+.pb-warning-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.pb-warning-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #fee2e2;
+  color: #dc2626;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.pb-warning-tag {
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pb-warning-intro {
+  max-width: 820px;
+  margin-bottom: 24px;
+}
+
+.pb-warning-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.pb-warn-item {
+  padding: 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(220, 38, 38, 0.15);
+}
+
+.pb-warn-item.is-critical {
+  background: #fef2f2;
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+.pb-warn-item.is-critical h3 {
+  color: #b91c1c;
+}
+
+.pb-warning-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* TRANSPARENCIA PRECIOS */
+.pb-pricing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 36px;
+  align-items: start;
+}
+
+.pb-pricing-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.pb-price-point {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--pb-card-bg);
+  border: 1px solid var(--pb-border);
+}
+
+.pb-price-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: var(--pb-green);
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+}
+
+/* DIAGNOSTIC CHECKS GRID */
+.pb-checks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pb-check-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--pb-card-bg);
+  border: 1px solid var(--pb-border);
+}
+
+.pb-check-idx {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #e0f2fe;
+  color: var(--pb-blue);
+  font-size: 0.74rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+/* PROCESO */
+.pb-process-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pb-process-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--pb-card-bg);
+  border: 1px solid var(--pb-border);
+  position: relative;
+}
+
+.pb-step-badge {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--azul-oscuro);
+  color: #ffffff !important;
+  font-weight: 900;
+  font-size: 0.95rem;
+  margin-bottom: 14px;
+}
+
+/* BRANDS ANDROID */
+.pb-brands-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pb-brand-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--pb-card-bg);
+  border: 1px solid var(--pb-border);
+}
+
+.pb-brand-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  font-size: 0.74rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+/* PUENTE DE MARCAS (CANIBALIZACIÓN) */
+.pb-bridge-box {
+  padding: clamp(24px, 4vw, 36px);
+  border-radius: 20px;
+  background: #eef8ff;
+  border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.pb-bridge-header {
+  max-width: 780px;
+  margin-bottom: 24px;
+}
+
+.pb-bridge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.pb-bridge-card {
+  padding: 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--pb-border);
+  box-shadow: 0 8px 24px rgba(7, 31, 58, 0.04);
+}
+
+.pb-bridge-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #071F3A;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  margin-bottom: 14px;
+}
+
+.pb-bridge-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--pb-blue);
+  font-weight: 850;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.pb-bridge-link:hover {
+  text-decoration: underline;
+}
+
+/* COBERTURA LOCAL */
+.pb-local-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+
+.pb-zones-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pb-zone-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--pb-border);
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.pb-zone-tag i {
+  color: var(--pb-blue);
+}
+
+/* CTA BANNER */
+.pb-cta-banner {
+  background:
+    radial-gradient(circle at 85% 50%, rgba(14, 165, 233, 0.25), transparent 40%),
+    linear-gradient(135deg, #071F3A 0%, #0c2d52 100%);
+  color: #ffffff;
+}
+
+.pb-cta-banner h2 {
+  color: #ffffff !important;
+}
+
+.pb-cta-banner p {
+  color: #dbeafe !important;
+}
+
+.pb-cta-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.pb-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* SHELLS COMPONENTES ESTÁNDAR */
+.pb-related-shell,
+.pb-comments-shell,
+.pb-contact-shell {
+  background: var(--pb-soft);
+}
+
+/* RESPONSIVE DESIGN (MOBILE FIRST) */
+@media (max-width: 992px) {
+  .pb-hero-grid,
+  .pb-intro-grid,
+  .pb-pricing-grid,
+  .pb-local-grid,
+  .pb-cta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pb-symptoms-grid,
+  .pb-checks-grid,
+  .pb-process-grid,
+  .pb-brands-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pb-knowledge-grid,
+  .pb-warning-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pb-bridge-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .pb-symptoms-grid,
+  .pb-knowledge-grid,
+  .pb-warning-grid,
+  .pb-checks-grid,
+  .pb-process-grid,
+  .pb-brands-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pb-hero {
+    padding: 36px 0 40px;
+  }
+
+  .pb-hero h1 {
+    font-size: 2.15rem;
+  }
+
+  .pb-hero-actions,
+  .pb-warning-cta,
+  .pb-cta-actions {
+    flex-direction: column;
+  }
+
+  .pb-btn {
+    width: 100%;
+  }
+
+  .pb-stage {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .pb-diag-telemetry {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+</style>

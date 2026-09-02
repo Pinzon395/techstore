@@ -7,8 +7,8 @@ const { assertTransition } = require('./order-state');
 function escapeLike(value) { return String(value).replace(/!/g, '!!').replace(/%/g, '!%').replace(/_/g, '!_'); }
 
 class AdminOrderService {
-    constructor({ pool, runTransaction, orderService, inventoryService, notifications, settingsService, audit, emails }) {
-        Object.assign(this, { pool, runTransaction, orderService, inventoryService, notifications, settingsService, audit, emails });
+    constructor({ pool, runTransaction, orderService, inventoryService, notifications, settingsService, audit, emails, dashboardService }) {
+        Object.assign(this, { pool, runTransaction, orderService, inventoryService, notifications, settingsService, audit, emails, dashboardService });
     }
 
     async list(query = {}) {
@@ -257,40 +257,8 @@ class AdminOrderService {
     }
 
     async dashboard(query = {}) {
-        const period = ['today','7d','30d','year'].includes(query.period) ? query.period : '30d';
-        const interval = period === 'today' ? 'DATE(UTC_TIMESTAMP())' : period === '7d' ? 'DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY)'
-            : period === 'year' ? 'MAKEDATE(YEAR(UTC_TIMESTAMP()), 1)' : 'DATE_SUB(UTC_TIMESTAMP(), INTERVAL 30 DAY)';
-        const [[metrics]] = await this.pool.execute(
-            `SELECT COALESCE(SUM(CASE WHEN o.status IN ('PAID','PREPARING','READY','COMPLETED') THEN o.total ELSE 0 END),0) sales,
-                    COALESCE(SUM(CASE WHEN o.status IN ('PAID','PREPARING','READY','COMPLETED')
-                      THEN o.total - (SELECT COALESCE(SUM(COALESCE(oi.cost_unit_snapshot,0) * oi.quantity),0) FROM commerce_order_items oi WHERE oi.order_id = o.id)
-                      ELSE 0 END),0) gross_profit,
-                    COUNT(*) orders,
-                    COALESCE(AVG(CASE WHEN o.status IN ('PAID','PREPARING','READY','COMPLETED') THEN o.total END),0) average_ticket,
-                    SUM(o.status = 'PAYMENT_REVIEW') payment_review
-             FROM commerce_orders o WHERE o.created_at >= ${interval}`
-        );
-        const [[inventory]] = await this.pool.execute(
-            `SELECT SUM(item_type = 'EQUIPMENT' AND status = 'ACTIVE') available,
-                    SUM(track_stock = 1 AND stock_quantity <= minimum_stock) low_stock
-             FROM catalog_items WHERE deleted_at IS NULL`
-        );
-        const [series] = await this.pool.execute(
-            `SELECT DATE(created_at) day, SUM(total) amount FROM commerce_orders
-             WHERE created_at >= ${interval} AND status IN ('PAID','PREPARING','READY','COMPLETED')
-            GROUP BY DATE(created_at) ORDER BY day`
-        );
-        const [recent] = await this.pool.execute(
-            `SELECT id, folio, customer_name, total, currency, status, created_at
-             FROM commerce_orders ORDER BY created_at DESC, id DESC LIMIT 8`
-        );
-        const [topProducts] = await this.pool.execute(
-            `SELECT oi.title_snapshot name, SUM(oi.quantity) quantity, SUM(oi.line_total) amount
-             FROM commerce_order_items oi JOIN commerce_orders o ON o.id = oi.order_id
-             WHERE o.created_at >= ${interval} AND o.status IN ('PAID','PREPARING','READY','COMPLETED')
-             GROUP BY oi.title_snapshot ORDER BY quantity DESC, amount DESC LIMIT 5`
-        );
-        return { period, metrics: { ...metrics, ...inventory }, series, recent, top_products: topProducts };
+        if (!this.dashboardService) throw new Error('DashboardService no configurado');
+        return this.dashboardService.getCommerceReport(query);
     }
 }
 

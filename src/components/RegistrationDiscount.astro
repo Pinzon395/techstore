@@ -8,6 +8,7 @@ interface Props {
   description?: string;
   terms?: string;
   placement?: 'inline' | 'after-hero';
+  lang?: 'es' | 'en';
 }
 
 const {
@@ -17,50 +18,74 @@ const {
   description = 'Inicia sesión antes de registrar tu equipo y el descuento se aplica automáticamente a la mano de obra del servicio elegible.',
   terms = 'Válido únicamente en mano de obra del servicio técnico autorizado. No incluye refacciones, traslados fuera de la cobertura base ni servicios de terceros.',
   placement = 'inline',
+  lang = 'es',
 } = Astro.props;
+
+const copy = lang === 'en' ? {
+  title: `Pixon PC registration offer: ${discount} off eligible labor`,
+  coupon: 'Digital offer',
+  registration: 'Online registration',
+  code: 'PIXON REGISTRATION',
+  discountLabel: 'off eligible labor',
+  description: 'Sign in before registering your device to apply the discount automatically to eligible service labor.',
+  benefits: ['Device details saved', 'Service updates in your account', 'Written quote before repair'],
+  login: 'Sign in and create ticket',
+  guest: 'Create ticket without signing in',
+  terms: 'Valid only for eligible authorized service labor. Parts, transportation outside the base coverage area and third-party services are excluded. The benefit is confirmed after diagnosis.',
+  includes: 'Includes',
+} : {
+  title: `Cupón de registro Pixon PC: ${discount} de descuento en mano de obra`,
+  coupon: 'Cupón digital',
+  registration: 'Registro en línea',
+  code: 'PIXON REGISTRO',
+  discountLabel: 'de descuento',
+  description,
+  benefits: ['Datos del equipo guardados', 'Seguimiento técnico desde tu cuenta', 'Cotización antes de reparar'],
+  login: 'Iniciar sesión y crear ticket',
+  guest: 'Crear ticket sin iniciar sesión',
+  terms: `${terms} El beneficio se valida después del diagnóstico.`,
+  includes: 'Incluye',
+};
 ---
 
 <section class="registration-offer" aria-labelledby="registration-offer-title" data-registration-placement={placement === 'after-hero' ? placement : undefined}>
-  <h2 id="registration-offer-title" class="registration-offer__title">Cupón de registro Pixon PC: {discount} de descuento en mano de obra</h2>
+  <h2 id="registration-offer-title" class="registration-offer__title">{copy.title}</h2>
   <div class="registration-offer__inner">
     <div class="coupon" aria-label={`${discount} de descuento en mano de obra`}>
       <div class="coupon__saving">
         <span class="coupon__brand">PIXON PC</span>
-        <span class="coupon__caption">Cupón digital</span>
+        <span class="coupon__caption">{copy.coupon}</span>
         <strong>{discount}</strong>
-        <span class="coupon__label">de descuento</span>
-        <span class="coupon__scope">en mano de obra</span>
+        <span class="coupon__label">{copy.discountLabel}</span>
       </div>
 
       <div class="coupon__details">
         <div class="coupon__heading">
           <span class="coupon__ticket-mark"><Icon name="ticket" /></span>
           <div>
-            <span>Registro en línea</span>
-            <strong>PIXON REGISTRO</strong>
+            <span>{copy.registration}</span>
+            <strong>{copy.code}</strong>
           </div>
         </div>
 
-        <p>{description}</p>
+        <p>{copy.description}</p>
 
-        <ul class="coupon__benefits" aria-label="Incluye">
-          <li><Icon name="circle-check" /> Datos del equipo guardados</li>
-          <li><Icon name="circle-check" /> Seguimiento técnico desde tu cuenta</li>
-          <li><Icon name="circle-check" /> Cotización antes de reparar</li>
+        <ul class="coupon__benefits" aria-label={copy.includes}>
+          {copy.benefits.map((benefit) => <li><Icon name="circle-check" /> {benefit}</li>)}
         </ul>
 
         <div class="coupon__actions">
           <a class="coupon__button coupon__button--primary" href={loginHref} aria-describedby="registration-offer-terms">
-            <Icon name="user" /> Iniciar sesión y crear ticket
+            <Icon name="user" /> {copy.login}
           </a>
           <a class="coupon__button coupon__button--secondary" href={guestHref} aria-describedby="registration-offer-terms">
-            Crear ticket sin iniciar sesión <Icon name="arrow-right" />
+            {copy.guest} <Icon name="arrow-right" />
           </a>
         </div>
 
         <p id="registration-offer-terms" class="registration-offer__terms">
           <Icon name="circle-info" />
-          <span>{terms} El beneficio se valida después del diagnóstico.</span>
+          <span>{copy.terms}</span>
         </p>
       </div>
     </div>

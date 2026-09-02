@@ -1,0 +1,966 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Navbar from '../../../../components/Navbar.astro';
+import Footer from '../../../../components/Footer.astro';
+import Breadcrumb from '../../../../components/Breadcrumb.astro';
+import FaqSection from '../../../../components/FaqSection.astro';
+import ServiceTicketSection from '../../../../components/ServiceTicketSection.astro';
+import XboxLiquidRequestForm from '../../../../components/XboxLiquidRequestForm.astro';
+import { buildBreadcrumbSchema } from '../../../../lib/schema';
+
+const canonical = 'https://pixon.com.mx/servicios/consola/xbox/dano-liquido';
+const title = 'Reparación de Xbox Mojado en Cancún | Daño por Líquido | Pixon PC';
+const description = 'Reparación de Xbox mojado en Cancún. Revisamos daño por agua, humedad, corrosión y sulfatación en Xbox Series X, Series S y Xbox One antes de cotizar.';
+const whatsappMessage = `Hola Pixon PC. Necesito revisión para un Xbox mojado.
+
+Modelo:
+Qué líquido fue:
+Síntoma:
+Cuándo ocurrió:
+Zona:
+¿Sigue encendiendo?:`;
+const whatsappUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappMessage)}`;
+
+const immediateSteps = [
+  ['No la enciendas ni la conectes', 'La energía puede agravar un corto o mover residuos de líquido hacia zonas sensibles. Déjala desconectada.'],
+  ['No intentes probarla “solo para ver si prende”', 'Un encendido breve no confirma que esté bien y puede empeorar una condición de humedad o corrosión.'],
+  ['No uses calor directo ni secadora', 'El calor directo puede desplazar residuos o afectar plásticos, adhesivos y componentes; no sustituye una revisión técnica.'],
+  ['Solicita revisión lo antes posible', 'Agua, bebida, humedad o salitre no se comportan igual. El tipo de exposición y el tiempo importan para definir el siguiente paso.'],
+];
+const models = [
+  ['Xbox Series X mojado', 'Revisamos el caso según el tipo de líquido, encendido, video, consumo y señales internas de humedad o residuos.'],
+  ['Xbox Series S mojado', 'Una Series S expuesta a agua, bebida o humedad requiere diagnóstico antes de volver a conectarla, incluso si parece seca por fuera.'],
+  ['Xbox One mojado', 'En Xbox One, One S u One X se valora el estado de fuente, placa, conectores, almacenamiento y zonas afectadas antes de cotizar.'],
+];
+const noPower = [
+  ['Sin encendido', 'Puede existir protección, consumo anormal, daño en alimentación, residuos o corrosión. No se asume una sola causa.'],
+  ['Prende y se apaga', 'Puede reaccionar a humedad, corto parcial, fuente o placa. Se revisa antes de seguir intentándolo.'],
+  ['No da imagen', 'El líquido puede afectar más que el video; se revisa el contexto, puertos, alimentación y placa antes de atribuirlo a HDMI.'],
+  ['No da señales de vida', 'Que no haya luz, sonido o respuesta no determina por sí solo el alcance del daño. Requiere inspección técnica.'],
+];
+const liquidTypes = [
+  ['Agua dulce', 'Puede dejar humedad y minerales. La respuesta depende de cuánto entró, dónde llegó y si la consola se encendió después.'],
+  ['Agua salada', 'El salitre puede acelerar corrosión y dejar residuos conductivos. Indica si el incidente fue cerca del mar, playa o una superficie costera.'],
+  ['Bebidas', 'Refresco, café u otras bebidas pueden dejar residuos pegajosos aun cuando la carcasa parezca seca.'],
+  ['Humedad ambiental', 'La exposición prolongada no es igual a un derrame, pero puede favorecer oxidación superficial o falsos contactos.'],
+  ['Sulfatación y corrosión', 'Se revisan rastros, conectores y zonas afectadas para determinar si corresponde limpieza técnica, reparación adicional o detener el proceso.'],
+];
+const process = [['Inspección inicial', 'Modelo, líquido, tiempo transcurrido, síntomas y si se intentó encender.'], ['Desarmado y revisión interna', 'Se revisan zonas accesibles, conectores, placa y residuos cuando el caso lo requiere.'], ['Evaluación de corrosión', 'Se identifica si hay oxidación, sulfatación o evidencia que pueda afectar el alcance.'], ['Limpieza técnica', 'Se define únicamente cuando corresponde al diagnóstico y al estado de la consola.'], ['Pruebas y cotización', 'Explicamos hallazgos, riesgos, alcance y costo antes de avanzar con una reparación.']];
+const price = [['Depende del modelo', 'Series X, Series S y Xbox One tienen diseños, componentes y accesos distintos.'], ['Depende del nivel de corrosión', 'El residuo, la humedad activa y las zonas alcanzadas cambian la complejidad.'], ['Depende del daño en placa o componentes', 'Un daño superficial no tiene el mismo alcance que un corto, conector o componente afectado.'], ['Depende de si fue agua, salitre o bebida', 'Cada líquido deja residuos y riesgos diferentes; por eso el incidente se documenta antes de cotizar.']];
+const recovery = [['Qué factores ayudan', 'Desconectarla, evitar encendidos y pedir revisión pronto puede reducir el tiempo en que la humedad o los residuos permanecen en el interior.'], ['Qué factores empeoran el daño', 'Energía, calor directo, varios intentos de encendido, bebida azucarada, agua salada y retrasar la revisión pueden aumentar el riesgo.'], ['Qué pasa si lo siguieron usando', 'El uso posterior puede convertir un problema localizado en una falla de alimentación, video, placa o conectores. Se revisa el caso real, sin prometer recuperación.']];
+const faqs = [
+  { question: '¿Se puede reparar un Xbox mojado?', answer: 'Depende del modelo, el líquido, el tiempo, el estado interno y si se intentó encender. Primero revisamos evidencia de humedad, residuos, corrosión y componentes afectados antes de cotizar.' },
+  { question: '¿Qué hago si mi Xbox se mojó?', answer: 'Desconéctala y no la enciendas para probarla. No uses secadora ni calor directo. Envía el modelo, el líquido involucrado, cuándo ocurrió y el síntoma para orientar la revisión.' },
+  { question: '¿Qué pasa si mi Xbox se mojó y ya no prende?', answer: 'Puede haber humedad, corrosión, un corto o un problema de alimentación. No conecta la consola nuevamente: el diagnóstico permite conocer el alcance antes de decidir una reparación.' },
+  { question: '¿Puedo conectarlo para probarlo?', answer: 'No es recomendable. Un intento de encendido puede agravar un corto o mover residuos en zonas sensibles.' },
+  { question: '¿Qué pasa si le cayó refresco?', answer: 'Las bebidas pueden dejar residuos pegajosos y conductivos. Indica qué bebida fue y dónde cayó para que la revisión considere el tipo de residuo.' },
+  { question: '¿Es diferente si fue agua salada?', answer: 'Sí. El salitre puede acelerar corrosión y dejar residuos que requieren revisión cuidadosa. No intentes limpiarla por fuera y volver a conectarla.' },
+  { question: '¿Qué es la sulfatación?', answer: 'Es corrosión o residuo que puede aparecer en zonas metálicas, conectores o placa después de humedad o líquido. Su gravedad solo se define tras inspección.' },
+  { question: '¿Qué tan rápido debo llevarlo?', answer: 'Conviene solicitar orientación lo antes posible, sin encenderla ni aplicarle calor. El tiempo y los intentos de uso son parte del diagnóstico.' },
+  { question: '¿Cuánto cuesta reparar un Xbox mojado?', answer: 'El costo depende del modelo, líquido, corrosión, componentes afectados y si hubo corto. Se confirma después de la revisión, no con un precio fijo genérico.' },
+  { question: '¿Atienden Xbox Series X, Series S y Xbox One?', answer: 'Sí, revisamos solicitudes para Xbox Series X, Series S y Xbox One según falla, estado y disponibilidad del caso.' },
+  { question: '¿Atienden Zona Hotelera y Costa Mujeres?', answer: 'Podemos revisar solicitudes por WhatsApp y confirmar la modalidad según zona, propiedad, acceso y disponibilidad. No se promete acceso directo a habitaciones.' },
+  { question: '¿Dan diagnóstico antes de reparar?', answer: 'Sí. Explicamos los hallazgos, alcance y opciones antes de autorizar trabajo adicional.' },
+];
+const schema = [{ '@context': 'https://schema.org', '@type': 'Service', '@id': `${canonical}#service`, name: 'Reparación de Xbox mojado en Cancún', serviceType: 'Diagnóstico y reparación de daño por líquido en Xbox', description, url: canonical, provider: { '@id': 'https://pixon.com.mx/#business' }, areaServed: [{ '@type': 'City', name: 'Cancún' }, { '@type': 'Place', name: 'Zona Hotelera' }, { '@type': 'Place', name: 'Puerto Cancún' }, { '@type': 'Place', name: 'Huayacán' }, { '@type': 'Place', name: 'Cumbres' }] }, buildBreadcrumbSchema([{ name: 'Inicio', url: '/' }, { name: 'Servicios', url: '/servicios' }, { name: 'Consolas', url: '/servicios/consola' }, { name: 'Reparación Xbox', url: '/servicios/consola/reparacion-xbox' }, { name: 'Xbox mojado', url: canonical }])].filter(Boolean) as object[];
+---
+
+<Base title={title} description={description} canonical={canonical} image="/assets/images/xbox.webp" ogTitle={title} ogDescription={description} schema={schema} bodyClass="xbox-liquid-page">
+  <Navbar />
+  <main>
+    <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Servicios', href: '/servicios' }, { label: 'Consolas', href: '/servicios/consola' }, { label: 'Xbox', href: '/servicios/consola/reparacion-xbox' }, { label: 'Daño por líquido' }]} />
+    <header class="xl-hero" aria-labelledby="xl-title"><div class="container xl-hero__grid"><div class="xl-hero__copy"><p class="xl-kicker"><i class="fa-solid fa-droplet" aria-hidden="true"></i> Daño por líquido en Xbox · Cancún</p><h1 id="xl-title">Reparación de Xbox mojado en Cancún</h1><p>Si tu Xbox se mojó, le cayó agua, bebida o estuvo expuesto a humedad, no lo enciendas ni lo conectes. Revisamos corrosión, sulfatación y daño interno antes de cotizar.</p><div class="xl-actions"><a class="xl-btn xl-btn--primary" href="#solicitar-revision"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Solicitar revisión</a><a class="xl-btn xl-btn--ghost" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Explicar mi caso por WhatsApp</a></div><ul><li>Xbox Series X</li><li>Xbox Series S</li><li>Xbox One</li><li>Diagnóstico antes de reparar</li></ul></div>
+      <div class="xl-hero__visual-container">
+        <figure class="xl-visual" aria-hidden="true">
+          <svg viewBox="0 0 540 450" focusable="false" class="xl-xbox-svg">
+            <defs>
+              <!-- Gradients for Xbox Series X -->
+              <linearGradient id="xb-front-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#102b48" />
+                <stop offset="40%" stop-color="#091c30" />
+                <stop offset="100%" stop-color="#040e1a" />
+              </linearGradient>
+              <linearGradient id="xb-side-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#08182b" />
+                <stop offset="100%" stop-color="#030a13" />
+              </linearGradient>
+              <linearGradient id="xb-top-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#0c253f" />
+                <stop offset="100%" stop-color="#051322" />
+              </linearGradient>
+              <linearGradient id="xb-grill-depth" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.6" />
+                <stop offset="100%" stop-color="#021422" stop-opacity="0.9" />
+              </linearGradient>
+              <linearGradient id="xb-pad-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#133352" />
+                <stop offset="100%" stop-color="#081829" />
+              </linearGradient>
+              <linearGradient id="xb-water-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7dd3fc" />
+                <stop offset="100%" stop-color="#0284c7" />
+              </linearGradient>
+              <linearGradient id="xb-scan-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0" />
+                <stop offset="25%" stop-color="#38bdf8" stop-opacity="0.9" />
+                <stop offset="50%" stop-color="#ffffff" />
+                <stop offset="75%" stop-color="#38bdf8" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="xb-check-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#10b981" />
+                <stop offset="100%" stop-color="#047857" />
+              </linearGradient>
+
+              <!-- Glow Filters -->
+              <filter id="xb-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#01070e" flood-opacity="0.6" />
+              </filter>
+              <filter id="xb-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.8" />
+              </filter>
+              <filter id="xb-glow-amber" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.85" />
+              </filter>
+              <filter id="xb-glow-green" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#10b981" flood-opacity="0.9" />
+              </filter>
+            </defs>
+
+            <!-- Radial Background Glow -->
+            <ellipse cx="260" cy="220" rx="190" ry="170" fill="#0b2a47" opacity="0.4" />
+
+            <!-- Perspective Base Shadow -->
+            <ellipse cx="265" cy="405" rx="175" ry="24" fill="#01070e" opacity="0.75" />
+
+            <!-- ==================== XBOX SERIES X MONOLITH ==================== -->
+            <g class="xb-console-group" filter="url(#xb-shadow)">
+
+              <!-- 1. RIGHT SIDE FACET (3D Extrusion) -->
+              <path class="xb-side-face" d="M 285 92 L 342 72 L 342 362 L 285 385 Z" fill="url(#xb-side-grad)" stroke="#1a466d" stroke-width="1" />
+
+              <!-- 2. TOP CONCAVE EXHAUST GRILL -->
+              <g class="xb-top-grill">
+                <!-- Top Parallelogram Lid -->
+                <path d="M 175 92 L 232 72 L 342 72 L 285 92 Z" fill="url(#xb-top-grad)" stroke="#1e5482" stroke-width="1.2" />
+                <!-- Concave Dish Depression Accent -->
+                <path d="M 195 88 Q 255 98 320 78 Q 260 72 195 88 Z" fill="url(#xb-grill-depth)" />
+                <!-- Characteristic Vent Array Holes (Hexagonal Dot Grid) -->
+                <g class="xb-grill-dots" fill="#051422" stroke="#16466e" stroke-width="0.5">
+                  <circle cx="210" cy="85" r="2.2" />
+                  <circle cx="225" cy="83" r="2.4" />
+                  <circle cx="240" cy="81" r="2.6" />
+                  <circle cx="255" cy="79" r="2.8" />
+                  <circle cx="270" cy="78" r="2.8" />
+                  <circle cx="285" cy="77" r="2.6" />
+                  <circle cx="300" cy="76" r="2.4" />
+                  <circle cx="315" cy="75" r="2.2" />
+
+                  <circle cx="205" cy="89" r="2" />
+                  <circle cx="220" cy="87" r="2.4" />
+                  <circle cx="235" cy="85" r="2.7" />
+                  <circle cx="250" cy="83" r="3" />
+                  <circle cx="265" cy="82" r="3" />
+                  <circle cx="280" cy="81" r="2.8" />
+                  <circle cx="295" cy="80" r="2.5" />
+                  <circle cx="310" cy="79" r="2.1" />
+                </g>
+              </g>
+
+              <!-- 3. INTERNAL X-RAY CIRCUIT BOARD LAYER (Revealed during States 3-6) -->
+              <g class="xb-internal-layer">
+                <!-- Board substrate -->
+                <rect x="180" y="98" width="100" height="280" fill="#041220" />
+                <!-- Copper Heatpipes & Vapor chamber routing -->
+                <path d="M 215 110 V 160 Q 215 175 230 175 H 245 Q 260 175 260 190 V 270" fill="none" stroke="#b45309" stroke-width="3.5" opacity="0.65" stroke-linecap="round" />
+                <path d="M 245 110 V 150 Q 245 165 230 165 H 205 V 260" fill="none" stroke="#b45309" stroke-width="2.5" opacity="0.5" stroke-linecap="round" />
+                
+                <!-- Main APU SoC Package -->
+                <rect x="212" y="180" width="46" height="46" rx="4" fill="#08233a" stroke="#22d3ee" stroke-width="1.2" />
+                <rect x="220" y="188" width="30" height="30" rx="2" fill="#031422" stroke="#38bdf8" stroke-width="0.8" />
+                <!-- Memory GDDR6 chips around APU -->
+                <rect x="194" y="183" width="12" height="18" rx="1.5" fill="#0a2a46" />
+                <rect x="194" y="205" width="12" height="18" rx="1.5" fill="#0a2a46" />
+                <rect x="264" y="183" width="12" height="18" rx="1.5" fill="#0a2a46" />
+                <rect x="264" y="205" width="12" height="18" rx="1.5" fill="#0a2a46" />
+                
+                <!-- Top Whisper Fan Silhouette -->
+                <circle cx="232" cy="128" r="18" fill="none" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7" />
+
+                <!-- Ingress Liquid Flow Path inside Chassis -->
+                <path class="xb-liquid-path" d="M 252 88 V 135 Q 252 155 235 165 L 222 188 Q 212 205 218 225 L 235 255 V 300" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" pathLength="100" />
+
+                <!-- Circuit Moisture / Corrosion Nodes -->
+                <g class="xb-corrosion-nodes">
+                  <!-- Node 1: Fan & Power Stage -->
+                  <g class="xb-node xb-node--1" transform="translate(235, 142)">
+                    <circle class="xb-node-halo" r="8" fill="#f59e0b" opacity="0.3" />
+                    <circle class="xb-node-core" r="3.5" fill="#38bdf8" />
+                  </g>
+                  <!-- Node 2: APU Main Power VRM Choke -->
+                  <g class="xb-node xb-node--2" transform="translate(222, 192)">
+                    <circle class="xb-node-halo" r="10" fill="#f59e0b" opacity="0.4" />
+                    <circle class="xb-node-core" r="4" fill="#38bdf8" />
+                  </g>
+                  <!-- Node 3: HDMI / Display Power Rail -->
+                  <g class="xb-node xb-node--3" transform="translate(225, 242)">
+                    <circle class="xb-node-halo" r="9" fill="#f59e0b" opacity="0.35" />
+                    <circle class="xb-node-core" r="3.8" fill="#38bdf8" />
+                  </g>
+                  <!-- Node 4: Southbridge / Standby Controller -->
+                  <g class="xb-node xb-node--4" transform="translate(250, 275)">
+                    <circle class="xb-node-halo" r="8" fill="#f59e0b" opacity="0.3" />
+                    <circle class="xb-node-core" r="3.5" fill="#38bdf8" />
+                  </g>
+                  <!-- Salt / Mineral Residue Micro-dots -->
+                  <g class="xb-salt-residue" fill="#fef08a" opacity="0">
+                    <circle cx="218" cy="190" r="1.5" />
+                    <circle cx="228" cy="196" r="1.2" />
+                    <circle cx="220" cy="246" r="1.4" />
+                  </g>
+                </g>
+              </g>
+
+              <!-- 4. FRONT CASING SHELL (Fades to 0.45 in X-Ray mode, opaque otherwise) -->
+              <g class="xb-front-shell">
+                <path d="M 175 92 L 285 92 L 285 385 L 175 385 Z" fill="url(#xb-front-grad)" stroke="#1a4d78" stroke-width="1.2" />
+                <!-- Left Rim Light Glow -->
+                <line x1="175" y1="92" x2="175" y2="385" stroke="#38bdf8" stroke-width="1.8" stroke-opacity="0.9" />
+
+                <!-- Vertical Disc Slot -->
+                <rect x="186" y="285" width="2.5" height="60" rx="1.2" fill="#040b12" stroke="#163854" stroke-width="0.6" />
+                <!-- Eject Button -->
+                <circle cx="187" cy="275" r="2.2" fill="#0e2a44" stroke="#22d3ee" stroke-width="0.6" />
+                <!-- Front USB 3.0 Port -->
+                <rect x="266" y="348" width="8" height="4.5" rx="1" fill="#040b12" stroke="#22d3ee" stroke-width="0.8" />
+                <!-- Controller Sync Button -->
+                <circle cx="270" cy="334" r="2" fill="#0e2a44" stroke="#22d3ee" stroke-width="0.6" />
+              </g>
+
+              <!-- 5. XBOX ILLUMINATED POWER BUTTON (Top Left) -->
+              <g class="xb-power-group" transform="translate(196, 115)">
+                <!-- Base housing -->
+                <circle cx="0" cy="0" r="8" fill="#061626" stroke="#1e4e79" stroke-width="1" />
+                <!-- Glowing Power Logo Symbol -->
+                <g class="xb-power-logo">
+                  <circle cx="0" cy="0" r="6" fill="#38bdf8" filter="url(#xb-glow-cyan)" />
+                  <!-- Xbox Sphere Cutout Curves -->
+                  <path d="M -4.2 -4.2 Q 0 -1 4.2 -4.2 Q 1 0 4.2 4.2 Q 0 1 -4.2 4.2 Q -1 0 -4.2 -4.2 Z" fill="#051524" />
+                </g>
+                <!-- NO-POWER Red/Amber Warning Slash (Appears in State 5) -->
+                <g class="xb-no-power-warning">
+                  <circle cx="0" cy="0" r="10.5" fill="none" stroke="#f59e0b" stroke-width="2" filter="url(#xb-glow-amber)" />
+                  <line x1="-7.5" y1="7.5" x2="7.5" y2="-7.5" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" />
+                </g>
+              </g>
+
+              <!-- 6. PIXON TECHNICAL SCANNER LINE (Sweeps down in State 6) -->
+              <g class="xb-scanner-group">
+                <rect class="xb-scan-beam" x="170" y="90" width="180" height="4" rx="2" fill="url(#xb-scan-grad)" filter="url(#xb-glow-cyan)" />
+                <line class="xb-scan-laser" x1="172" y1="92" x2="345" y2="92" stroke="#ffffff" stroke-width="1.5" />
+              </g>
+
+              <!-- 7. DIAGNOSIS READY STATE CHECKMARK BADGE (State 7) -->
+              <g class="xb-ready-badge" filter="url(#xb-glow-green)" transform="translate(285, 80)">
+                <circle cx="0" cy="0" r="18" fill="url(#xb-check-grad)" stroke="#ffffff" stroke-width="2" />
+                <path d="M -8 0 L -2 6 L 9 -5" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </g>
+
+              <!-- Sparkle Twinkles (State 7) -->
+              <g class="xb-sparkles">
+                <path class="xb-sparkle xb-sparkle--1" d="M 175 92 Q 175 87 170 87 Q 175 87 175 82 Q 175 87 180 87 Q 175 87 175 92 Z" fill="#ffffff" filter="url(#xb-glow-cyan)" />
+                <path class="xb-sparkle xb-sparkle--2" d="M 285 385 Q 285 380 280 380 Q 285 380 285 375 Q 285 380 290 380 Q 285 380 285 385 Z" fill="#ffffff" filter="url(#xb-glow-cyan)" />
+              </g>
+            </g>
+
+            <!-- ==================== WATER DROPS & IMPACT ==================== -->
+            <g class="xb-water-system">
+              <!-- Main Droplet Falling from above -->
+              <g class="xb-falling-drop">
+                <path d="M 252 0 C 248 10 244 24 244 32 C 244 38 248 42 252 42 C 256 42 260 38 260 32 C 260 24 256 10 252 0 Z" fill="url(#xb-water-grad)" filter="url(#xb-glow-cyan)" />
+              </g>
+              <!-- Secondary Droplet -->
+              <g class="xb-falling-drop-2">
+                <circle cx="280" cy="20" r="3.5" fill="#38bdf8" />
+              </g>
+              <!-- Micro Splash Ripples on Grill Impact -->
+              <g class="xb-splash-impact" transform="translate(252, 78)">
+                <ellipse class="xb-splash-ring" cx="0" cy="0" rx="8" ry="3" fill="none" stroke="#38bdf8" stroke-width="1.5" />
+                <circle class="xb-splash-dot xb-splash-dot--1" cx="-6" cy="-4" r="1.5" fill="#7dd3fc" />
+                <circle class="xb-splash-dot xb-splash-dot--2" cx="6" cy="-5" r="1.5" fill="#7dd3fc" />
+                <circle class="xb-splash-dot xb-splash-dot--3" cx="1" cy="-7" r="1.8" fill="#e0f2fe" />
+              </g>
+            </g>
+
+            <!-- ==================== XBOX CONTROLLER (GAMEPAD COMPANION) ==================== -->
+            <g class="xb-gamepad-group" filter="url(#xb-shadow)" transform="translate(75, 305)">
+              <!-- Controller Outer Silhouette -->
+              <path d="M 18 28 C 18 10 38 4 60 4 C 82 4 102 10 102 28 C 102 44 94 72 82 72 C 72 72 68 56 60 56 C 52 56 48 72 38 72 C 26 72 18 44 18 28 Z" fill="url(#xb-pad-grad)" stroke="#1e5482" stroke-width="1.2" />
+              <!-- Top Bumpers Profile -->
+              <path d="M 28 8 Q 60 2 92 8" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" opacity="0.75" />
+
+              <!-- Left Analog Stick (Raised Position) -->
+              <circle cx="40" cy="26" r="9" fill="#071a2d" stroke="#22d3ee" stroke-width="1" />
+              <circle cx="40" cy="26" r="6" fill="#0f3454" />
+
+              <!-- D-Pad Cross (Lower Left Position) -->
+              <g transform="translate(54, 42)">
+                <path d="M -3 -8 H 3 V -3 H 8 V 3 H 3 V 8 H -3 V 3 H -8 V -3 H -3 Z" fill="#071a2d" stroke="#1d4d75" stroke-width="0.8" />
+              </g>
+
+              <!-- Right Analog Stick (Lower Right Position) -->
+              <circle cx="68" cy="42" r="9" fill="#071a2d" stroke="#22d3ee" stroke-width="1" />
+              <circle cx="68" cy="42" r="6" fill="#0f3454" />
+
+              <!-- ABXY Diamond Buttons (Upper Right Position) -->
+              <g transform="translate(80, 26)">
+                <circle cx="0" cy="-6" r="2.5" fill="#facc15" /> <!-- Y -->
+                <circle cx="6" cy="0" r="2.5" fill="#ef4444" />  <!-- B -->
+                <circle cx="0" cy="6" r="2.5" fill="#22c55e" />  <!-- A -->
+                <circle cx="-6" cy="0" r="2.5" fill="#3b82f6" /> <!-- X -->
+              </g>
+
+              <!-- Center Nexus Guide Button -->
+              <circle class="xb-pad-nexus" cx="60" cy="18" r="5.5" fill="#38bdf8" filter="url(#xb-glow-cyan)" />
+            </g>
+          </svg>
+        </figure>
+
+        <!-- 3 Micro-status Process Cards Below Animation -->
+        <div class="xl-hero-steps" aria-label="Fases del diagnóstico técnico">
+          <div class="xl-hero-step">
+            <span class="xl-step-icon"><i class="fa-solid fa-droplet" aria-hidden="true"></i></span>
+            <div class="xl-step-text">
+              <strong>Ingreso de líquido</strong>
+              <small>Por rejilla o puertos</small>
+            </div>
+          </div>
+
+          <div class="xl-hero-step">
+            <span class="xl-step-icon"><i class="fa-solid fa-microchip" aria-hidden="true"></i></span>
+            <div class="xl-step-text">
+              <strong>Revisión interna</strong>
+              <small>Placa, corrosión y corto</small>
+            </div>
+          </div>
+
+          <div class="xl-hero-step xl-hero-step--ready">
+            <span class="xl-step-icon xl-step-icon--green"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+            <div class="xl-step-text">
+              <strong>Diagnóstico emitido</strong>
+              <small>Presupuesto sin sorpresas</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+    <section class="xl-section" aria-labelledby="steps-title"><div class="container"><div class="xl-heading xl-heading--center"><p>Primero reduce el riesgo</p><h2 id="steps-title">¿Qué hacer si tu Xbox se mojó?</h2><span>Estas acciones no reparan la consola, pero evitan agravar el caso antes de una revisión.</span></div><div class="xl-grid xl-grid--four">{immediateSteps.map(([heading, copy]) => <article><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><h3>{heading}</h3><p>{copy}</p></article>)}</div></div></section>
+    <section class="xl-section xl-section--soft" aria-labelledby="models-title"><div class="container"><div class="xl-heading"><p>Modelos Xbox</p><h2 id="models-title">Reparación de Xbox con daño por líquido en Cancún</h2><span>La revisión cambia según el modelo, el líquido y lo que ocurrió después del incidente.</span></div><div class="xl-grid xl-grid--three">{models.map(([heading, copy]) => <article><i class="fa-brands fa-xbox" aria-hidden="true"></i><h3>{heading}</h3><p>{copy}</p></article>)}</div></div></section>
+    <section class="xl-section" aria-labelledby="power-title"><div class="container"><div class="xl-heading"><p>Después del incidente</p><h2 id="power-title">¿Tu Xbox no prende después de mojarse?</h2><span>El síntoma orienta la conversación, pero no reemplaza una inspección de humedad, consumo y placa.</span></div><div class="xl-grid xl-grid--four">{noPower.map(([heading, copy]) => <article><h3>{heading}</h3><p>{copy}</p></article>)}</div></div></section>
+    <section class="xl-section xl-section--navy" aria-labelledby="liquid-title"><div class="container"><div class="xl-heading xl-heading--light"><p>Contexto costero</p><h2 id="liquid-title">Daño por agua, humedad, salitre y corrosión en Xbox</h2><span>En Cancún, el tipo de exposición importa tanto como el tiempo transcurrido y los intentos de encendido.</span></div><div class="xl-grid xl-grid--five">{liquidTypes.map(([heading, copy]) => <article><h3>{heading}</h3><p>{copy}</p></article>)}</div></div></section>
+    <section class="xl-section" aria-labelledby="process-title"><div class="container xl-split"><div class="xl-heading"><p>Diagnóstico primero</p><h2 id="process-title">¿Cómo revisamos un Xbox mojado?</h2><span>No prometemos recuperación antes de ver el estado interno. Cada fase define si conviene avanzar y con qué alcance.</span></div><ol class="xl-process">{process.map(([heading, copy], index) => <li><b>0{index + 1}</b><div><h3>{heading}</h3><p>{copy}</p></div></li>)}</ol></div></section>
+    <section class="xl-section xl-section--soft" aria-labelledby="price-title"><div class="container xl-split"><div class="xl-heading"><p>Cotización sin atajos</p><h2 id="price-title">¿Cuánto cuesta reparar un Xbox mojado en Cancún?</h2><span>El costo depende del modelo, el nivel de daño, corrosión, posible corto, estado de placa y si se requieren componentes. La revisión define el alcance antes de cotizar.</span><a class="xl-link" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Pedir cotización por WhatsApp <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div><div class="xl-factor-list">{price.map(([heading, copy]) => <article><h3>{heading}</h3><p>{copy}</p></article>)}</div></div></section>
+    <section class="xl-section" aria-labelledby="save-title"><div class="container"><div class="xl-heading xl-heading--center"><p>Sin falsas garantías</p><h2 id="save-title">¿Se puede salvar un Xbox mojado?</h2><span>La posibilidad depende de las condiciones reales de cada consola, no de una promesa previa.</span></div><div class="xl-grid xl-grid--three">{recovery.map(([heading, copy]) => <article><h3>{heading}</h3><p>{copy}</p></article>)}</div></div></section>
+    <section class="xl-section xl-section--navy" aria-labelledby="visitors-title"><div class="container xl-split"><div class="xl-heading xl-heading--light"><p>Visitantes y residentes</p><h2 id="visitors-title">Xbox mojado en Cancún si estás de visita</h2><span>Podemos coordinar por WhatsApp, con comunicación escrita en inglés cuando haga falta. La atención en Zona Hotelera, Costa Mujeres, Playa Mujeres o Puerto Cancún se confirma según zona, propiedad, acceso y disponibilidad.</span></div><div class="xl-visitor-cards"><article><h3>Zona Hotelera</h3><p>Coordinación según las reglas de acceso del hotel, condo o resort.</p></article><article><h3>Costa Mujeres</h3><p>Comparte primero el área, modelo y estado de la consola para confirmar logística.</p></article><article><h3>Playa Mujeres</h3><p>Las opciones se revisan antes de solicitar dirección completa.</p></article><article><h3>Atención mediante WhatsApp</h3><p>Quotes, approvals and updates can be handled in written English.</p></article></div></div></section>
+    <XboxLiquidRequestForm />
+    <section class="xl-section xl-related" aria-labelledby="related-title"><div class="container"><div class="xl-heading"><p>Intenciones separadas</p><h2 id="related-title">Cuando el problema no es daño por líquido</h2><span>Estas rutas mantienen su propio diagnóstico para no mezclar humedad con temperatura, mantenimiento o una reparación general.</span></div><div class="xl-related__grid"><a href="/servicios/consola/reparacion-xbox"><i class="fa-brands fa-xbox" aria-hidden="true"></i> Reparación general Xbox</a><a href="/servicios/consola/xbox/sobrecalentamiento"><i class="fa-solid fa-temperature-three-quarters" aria-hidden="true"></i> Sobrecalentamiento de Xbox</a><a href="/servicios/consola/mantenimiento-preventivo"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Mantenimiento preventivo de consola</a><a href="/servicios/consola/limpieza-interna"><i class="fa-solid fa-broom" aria-hidden="true"></i> Limpieza interna de consola</a></div></div></section>
+    <FaqSection id="xbox-liquid-faq" title="Preguntas frecuentes sobre Xbox mojado" description="Respuestas claras sobre agua, bebida, humedad, corrosión, atención local y diagnóstico." items={faqs} questionColor="#071F3A" titleColor="#071F3A" descriptionColor="#071F3A" backgroundColor="#eef9fb" />
+    <ServiceTicketSection id="xbox-liquid-ticket" defaultDevice="Consola de videojuegos" defaultService="Revisión de Xbox mojado o con daño por líquido" sourcePage="/servicios/consola/xbox/dano-liquido" title="¿Prefieres crear un ticket para tu Xbox?" subtitle="Registra modelo, líquido, síntoma y zona. Confirmaremos el siguiente paso antes de cualquier reparación." />
+  </main><Footer />
+</Base>
+
+<style>
+  .xbox-liquid-page {
+    --xl: #071F3A;
+    --xc: #0d92ae;
+    --xp: #eaf7fb;
+    background: #fff;
+    color: var(--xl);
+  }
+  .xbox-liquid-page main {
+    overflow: clip;
+    background: #fff;
+  }
+  .xbox-liquid-page :global(.breadcrumb-container) {
+    margin-top: 0;
+  }
+
+  /* Hero Section */
+  .xl-hero {
+    padding: clamp(42px, 7vw, 84px) 0;
+    background: radial-gradient(circle at 78% 20%, #168eaa55, transparent 35%), linear-gradient(135deg, #061a31, #092e50);
+    color: #fff;
+  }
+  .xl-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr);
+    align-items: center;
+    gap: clamp(28px, 5vw, 64px);
+  }
+  .xl-kicker, .xl-heading > p:first-child {
+    margin: 0 0 11px;
+    color: #087b99;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .xl-kicker {
+    color: #8eeaf4;
+  }
+  .xl-kicker i {
+    margin-right: 7px;
+  }
+  .xl-hero h1 {
+    max-width: 640px;
+    margin: 0;
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 4.5vw, 4rem);
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+  .xl-hero__copy > p:not(.xl-kicker) {
+    max-width: 640px;
+    margin: 19px 0 0;
+    color: #ecfbfd;
+    font-size: clamp(1rem, 1.5vw, 1.14rem);
+    line-height: 1.66;
+  }
+  .xl-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 27px;
+  }
+  .xl-btn {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px 17px;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform 160ms cubic-bezier(.23,1,.32,1), background 160ms ease;
+  }
+  .xl-btn--primary {
+    background: #6ee1ee;
+    color: #061b32;
+  }
+  .xl-btn--ghost {
+    border-color: #a8e7ef77;
+    background: #ffffff12;
+    color: #fff;
+  }
+  .xl-btn:hover {
+    transform: translateY(-2px);
+  }
+  .xl-hero ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 23px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .xl-hero li {
+    border: 1px solid #a9edf033;
+    border-radius: 999px;
+    padding: 6px 10px;
+    color: #dcfafd;
+    font-size: 0.77rem;
+    font-weight: 800;
+  }
+
+  /* ==================== HERO VISUAL & NARRATIVE MOTION ==================== */
+  .xl-hero__visual-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+  }
+  .xl-visual {
+    width: 100%;
+    margin: 0;
+  }
+  .xl-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* SVG Timeline Keyframe Animations (12-second loop) */
+  .xb-front-shell {
+    transition: opacity 300ms ease;
+    animation: xb-xray-mode 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  /* Water Drop Impact System */
+  .xb-falling-drop {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xb-drop-fall 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  }
+  .xb-falling-drop-2 {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xb-drop-fall-2 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  }
+  .xb-splash-impact {
+    animation: xb-splash-effect 12s ease-out infinite;
+  }
+
+  /* Internal Moisture Path */
+  .xb-liquid-path {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: xb-liquid-flow 12s ease-in-out infinite;
+  }
+
+  /* Circuit Corrosion Nodes */
+  .xb-node-core {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xb-node-shift 12s ease-in-out infinite;
+  }
+  .xb-node-halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xb-halo-pulse 12s ease-in-out infinite;
+  }
+  .xb-node--2 .xb-node-core { animation-delay: 180ms; }
+  .xb-node--2 .xb-node-halo { animation-delay: 180ms; }
+  .xb-node--3 .xb-node-core { animation-delay: 360ms; }
+  .xb-node--3 .xb-node-halo { animation-delay: 360ms; }
+  .xb-node--4 .xb-node-core { animation-delay: 540ms; }
+  .xb-node--4 .xb-node-halo { animation-delay: 540ms; }
+
+  .xb-salt-residue {
+    animation: xb-salt-appear 12s ease-in-out infinite;
+  }
+
+  /* Power Button & Warning */
+  .xb-power-logo {
+    animation: xb-power-state 12s ease-in-out infinite;
+  }
+  .xb-no-power-warning {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xb-no-power-fx 12s ease-in-out infinite;
+  }
+
+  /* Technical Scanner Line */
+  .xb-scanner-group {
+    animation: xb-scan-motion 12s cubic-bezier(0.3, 0.05, 0.2, 1) infinite;
+  }
+
+  /* Ready State Checkmark Badge & Sparkles */
+  .xb-ready-badge {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xb-badge-pop 12s cubic-bezier(0.17, 0.89, 0.32, 1.25) infinite;
+  }
+  .xb-sparkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xb-sparkle-twinkle 12s ease-in-out infinite;
+  }
+  .xb-sparkle--2 {
+    animation-delay: 160ms;
+  }
+
+  /* Gamepad Nexus LED */
+  .xb-pad-nexus {
+    animation: xb-pad-led 12s ease-in-out infinite;
+  }
+
+  /* ==================== KEYFRAMES ==================== */
+  /* State 3: Casing transitions to X-Ray (opacity 0.42) */
+  @keyframes xb-xray-mode {
+    0%, 25% { opacity: 1; }
+    28%, 80% { opacity: 0.38; }
+    86%, 100% { opacity: 1; }
+  }
+
+  /* State 2: Droplet falls & impacts grill */
+  @keyframes xb-drop-fall {
+    0%, 10% { opacity: 0; transform: translateY(-30px) scaleY(0.7); }
+    13% { opacity: 0.95; }
+    20% { opacity: 1; transform: translateY(76px) scaleY(1.3) scaleX(0.8); }
+    22% { opacity: 0; transform: translateY(82px) scaleY(0.4) scaleX(1.4); }
+    100% { opacity: 0; }
+  }
+
+  @keyframes xb-drop-fall-2 {
+    0%, 12% { opacity: 0; transform: translateY(-20px); }
+    15% { opacity: 0.8; }
+    21% { opacity: 0.9; transform: translateY(58px); }
+    23%, 100% { opacity: 0; transform: translateY(62px); }
+  }
+
+  /* State 2: Micro Splash on Grill Impact */
+  @keyframes xb-splash-effect {
+    0%, 19% { opacity: 0; transform: translate(252px, 78px) scale(0.3); }
+    21% { opacity: 1; transform: translate(252px, 78px) scale(1.1); }
+    26%, 100% { opacity: 0; transform: translate(252px, 78px) scale(1.6); }
+  }
+
+  /* State 3: Liquid ingress travels down through chassis */
+  @keyframes xb-liquid-flow {
+    0%, 25% { stroke-dashoffset: 100; opacity: 0; }
+    28% { opacity: 0.95; }
+    40%, 78% { stroke-dashoffset: 0; opacity: 0.85; }
+    84%, 100% { opacity: 0; stroke-dashoffset: 0; }
+  }
+
+  /* State 4: Moisture nodes turn Cyan -> Amber -> Green */
+  @keyframes xb-node-shift {
+    0%, 28% { opacity: 0; transform: scale(0.4); fill: #38bdf8; }
+    32% { opacity: 1; transform: scale(1); fill: #38bdf8; }
+    44%, 72% { fill: #f59e0b; }
+    78%, 88% { fill: #10b981; }
+    94%, 100% { opacity: 0; fill: #38bdf8; }
+  }
+
+  @keyframes xb-halo-pulse {
+    0%, 28% { opacity: 0; transform: scale(0.5); }
+    34%, 42% { opacity: 0.5; fill: #38bdf8; transform: scale(1.3); }
+    46%, 72% { opacity: 0.5; fill: #f59e0b; transform: scale(1.4); }
+    78%, 88% { opacity: 0.45; fill: #10b981; transform: scale(1.2); }
+    94%, 100% { opacity: 0; transform: scale(0.5); }
+  }
+
+  @keyframes xb-salt-appear {
+    0%, 46% { opacity: 0; }
+    52%, 80% { opacity: 0.85; }
+    86%, 100% { opacity: 0; }
+  }
+
+  /* State 5: Power Button turns OFF and Warning Flashes */
+  @keyframes xb-power-state {
+    0%, 54% { opacity: 1; fill: #38bdf8; }
+    58%, 88% { opacity: 0.15; fill: #64748b; }
+    94%, 100% { opacity: 1; fill: #38bdf8; }
+  }
+
+  @keyframes xb-no-power-fx {
+    0%, 56% { opacity: 0; transform: scale(0.5); }
+    59%, 70% { opacity: 1; transform: scale(1); }
+    74%, 100% { opacity: 0; transform: scale(1.25); }
+  }
+
+  @keyframes xb-pad-led {
+    0%, 55% { opacity: 1; fill: #38bdf8; }
+    58%, 88% { opacity: 0.2; fill: #64748b; }
+    94%, 100% { opacity: 1; fill: #38bdf8; }
+  }
+
+  /* State 6: Pixon Technical Scanner Laser sweeps top-to-bottom */
+  @keyframes xb-scan-motion {
+    0%, 65% { opacity: 0; transform: translateY(0); }
+    67% { opacity: 1; }
+    81% { opacity: 1; transform: translateY(280px); }
+    84%, 100% { opacity: 0; transform: translateY(285px); }
+  }
+
+  /* State 7: Diagnosis Ready Check Badge */
+  @keyframes xb-badge-pop {
+    0%, 82% { opacity: 0; transform: translate(285px, 80px) scale(0.4); }
+    85% { opacity: 1; transform: translate(285px, 80px) scale(1.15); }
+    88%, 94% { opacity: 1; transform: translate(285px, 80px) scale(1); }
+    98%, 100% { opacity: 0; transform: translate(285px, 80px) scale(0.6); }
+  }
+
+  @keyframes xb-sparkle-twinkle {
+    0%, 84% { opacity: 0; transform: scale(0.2); }
+    87%, 93% { opacity: 1; transform: scale(1.2) rotate(15deg); }
+    97%, 100% { opacity: 0; transform: scale(0.2); }
+  }
+
+  /* ==================== 3 MICRO-STATUS PROCESS CARDS ==================== */
+  .xl-hero-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .xl-hero-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(169, 237, 247, 0.22);
+    border-radius: 12px;
+    padding: 8px 9px;
+    backdrop-filter: blur(8px);
+    transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .xl-hero-step:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #67d9e9;
+    }
+  }
+  .xl-hero-step--ready {
+    border-color: rgba(52, 211, 153, 0.4);
+    background: rgba(16, 185, 129, 0.09);
+  }
+  .xl-step-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: rgba(56, 189, 248, 0.18);
+    border: 1px solid rgba(56, 189, 248, 0.38);
+    color: #67d9e9;
+    font-size: 0.8rem;
+  }
+  .xl-step-icon--green {
+    background: rgba(16, 185, 129, 0.22);
+    border-color: rgba(52, 211, 153, 0.45);
+    color: #34d399;
+  }
+  .xl-step-text {
+    min-width: 0;
+    flex: 1;
+  }
+  .xl-step-text strong {
+    display: block;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 0.77rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .xl-step-text small {
+    display: block;
+    margin-top: 2px;
+    color: #cbe9f4;
+    font-size: 0.68rem;
+    line-height: 1.2;
+  }
+
+  /* Common Sections */
+  .xl-section {
+    padding: clamp(54px, 8vw, 96px) 0;
+    background: #fff;
+    color: var(--xl);
+  }
+  .xl-section--soft { background: var(--xp); }
+  .xl-section--navy { background: #dff5f8; color: #071F3A; }
+  .xl-heading { max-width: 760px; }
+  .xl-heading--center { margin-inline: auto; text-align: center; }
+  .xl-heading h2 {
+    margin: 0;
+    color: #071F3A;
+    font-family: var(--font-heading);
+    font-size: clamp(1.84rem, 3.7vw, 3.2rem);
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .xl-heading span {
+    display: block;
+    margin-top: 15px;
+    color: #071F3A;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .xl-heading--light > p:first-child { color: #087b99; }
+  .xl-heading--light h2, .xl-heading--light span { color: #071F3A; }
+  .xl-grid {
+    display: grid;
+    gap: 14px;
+    margin-top: 34px;
+  }
+  .xl-grid--four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .xl-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .xl-grid--five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .xl-grid article, .xl-factor-list article {
+    border: 1px solid #cce6ec;
+    border-radius: 15px;
+    padding: 19px;
+    background: #fff;
+    box-shadow: 0 9px 20px #071f3a0a;
+  }
+  .xl-grid article > i {
+    display: grid;
+    width: 37px;
+    height: 37px;
+    place-items: center;
+    border-radius: 10px;
+    background: #d9f4f8;
+    color: #087b99;
+  }
+  .xl-grid h3, .xl-process h3, .xl-factor-list h3, .xl-visitor-cards h3 {
+    margin: 14px 0 0;
+    color: #071F3A;
+    font-family: var(--font-heading);
+    font-size: 1.12rem;
+    line-height: 1.2;
+  }
+  .xl-grid p, .xl-process p, .xl-factor-list p, .xl-visitor-cards p {
+    margin: 8px 0 0;
+    color: #071F3A;
+    font-size: 0.91rem;
+    line-height: 1.6;
+  }
+  .xl-section--navy .xl-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .xl-section--navy .xl-grid article, .xl-visitor-cards article {
+    border-color: #b7e0e7;
+    background: #fff;
+    box-shadow: none;
+  }
+  .xl-section--navy .xl-grid h3, .xl-section--navy .xl-grid p, .xl-visitor-cards h3, .xl-visitor-cards p {
+    color: #071F3A;
+  }
+  .xl-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.93fr) minmax(0, 1.07fr);
+    gap: clamp(28px, 6vw, 90px);
+    align-items: start;
+  }
+  .xl-process {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid #cbe5ec;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .xl-process li {
+    display: grid;
+    grid-template-columns: 39px 1fr;
+    gap: 13px;
+    padding: 18px;
+    border-bottom: 1px solid #cbe5ec;
+  }
+  .xl-process li:last-child { border: 0; }
+  .xl-process b {
+    display: grid;
+    width: 35px;
+    height: 35px;
+    place-items: center;
+    border-radius: 50%;
+    background: #071F3A;
+    color: #fff;
+    font-size: 0.74rem;
+  }
+  .xl-process h3 { margin: 2px 0 0; }
+  .xl-factor-list { display: grid; gap: 11px; }
+  .xl-factor-list article {
+    border-left: 3px solid #54d2e2;
+    border-radius: 0 13px 13px 0;
+  }
+  .xl-factor-list h3 { margin: 0; }
+  .xl-link {
+    display: inline-flex;
+    gap: 7px;
+    margin-top: 21px;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 3px;
+    color: #075e84;
+    font-weight: 900;
+    text-decoration: none;
+  }
+  .xl-visitor-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .xl-related__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 30px;
+  }
+  .xl-related__grid a {
+    display: flex;
+    min-height: 94px;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #c9e4eb;
+    border-radius: 13px;
+    padding: 16px;
+    color: #071F3A;
+    font-weight: 900;
+    text-decoration: none;
+  }
+  .xl-related__grid i { color: #0886a2; }
+  .xl-related__grid a:hover {
+    border-color: #63cbdc;
+    background: #f3fcfd;
+  }
+  .xl-btn:focus-visible, .xl-related__grid a:focus-visible, .xl-link:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 3px;
+  }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 940px) {
+    .xl-hero__grid, .xl-split { grid-template-columns: 1fr; }
+    .xl-hero__visual-container { max-width: 520px; }
+    .xl-grid--four, .xl-section--navy .xl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .xl-grid--five { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .xl-related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 700px) {
+    .xl-hero-steps { grid-template-columns: 1fr; gap: 6px; }
+    .xl-hero-step { padding: 9px 11px; }
+    .xl-step-icon { width: 28px; height: 28px; font-size: 0.8rem; }
+    .xl-step-text strong { font-size: 0.82rem; }
+    .xl-step-text small { font-size: 0.72rem; }
+  }
+
+  @media (max-width: 620px) {
+    .xl-hero { padding-top: 36px; }
+    .xl-actions { display: grid; grid-template-columns: 1fr; }
+    .xl-btn { width: 100%; }
+    .xl-hero h1 { font-size: 2.18rem; }
+    .xl-hero__visual-container { max-width: 100%; }
+    .xl-grid--four, .xl-grid--three, .xl-grid--five, .xl-section--navy .xl-grid, .xl-visitor-cards, .xl-related__grid { grid-template-columns: 1fr; }
+    .xl-grid article { min-height: 0; }
+    .xl-hero li { font-size: 0.71rem; padding: 5px 8px; }
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .xb-front-shell,
+    .xb-falling-drop,
+    .xb-falling-drop-2,
+    .xb-splash-impact,
+    .xb-liquid-path,
+    .xb-node-core,
+    .xb-node-halo,
+    .xb-salt-residue,
+    .xb-power-logo,
+    .xb-no-power-warning,
+    .xb-scanner-group,
+    .xb-ready-badge,
+    .xb-sparkle,
+    .xb-pad-nexus {
+      animation: none !important;
+    }
+    .xb-front-shell { opacity: 0.65; }
+    .xb-falling-drop { opacity: 1; transform: translateY(60px); }
+    .xb-liquid-path { stroke-dashoffset: 0; opacity: 0.8; }
+    .xb-node-core { opacity: 1; fill: #f59e0b; }
+    .xb-no-power-warning { opacity: 1; }
+    .xb-ready-badge { opacity: 1; }
+    .xl-btn, .xl-hero-step { transition: none; }
+  }
+</style>

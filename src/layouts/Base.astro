@@ -1,9 +1,14 @@
 ---
 import globalCss from '../styles/global.css?url';
-import { cleanSchemaList } from '../lib/schema';
+import {
+  buildShippingServiceSchema,
+  cleanSchemaList,
+} from '../lib/schema';
+import { ENGLISH_INDEXABLE_ROUTES, getEnglishRoute, getLanguageAlternates } from '../lib/english-routes';
 import WhatsappFloat from '../components/WhatsappFloat.astro';
 import BackToTopButton from '../components/BackToTopButton/BackToTopButton.astro';
 import RegistrationDiscount from '../components/RegistrationDiscount.astro';
+import EnglishSupportBanner from '../components/EnglishSupportBanner.astro';
 
 interface Props {
   title: string;
@@ -18,6 +23,7 @@ interface Props {
   ogDescription?: string;
   robots?: string;
   extraStyles?: string[];
+  alternateLinks?: Array<{ hreflang: string; href: string }>;
 }
 
 const {
@@ -33,17 +39,42 @@ const {
   ogDescription = description,
   robots = 'index, follow',
   extraStyles = [],
+  alternateLinks = [],
 } = Astro.props;
 
 const siteUrl = 'https://pixon.com.mx';
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 const normalizedPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
-const shouldShowRegistrationDiscount = normalizedPath !== '/404' && !normalizedPath.startsWith('/admin');
-const isEnglishLanding = lang === 'en' && normalizedPath === '/en';
-const effectiveRobots = lang === 'en' && !isEnglishLanding && robots === 'index, follow'
+const isPrivateCommerceFlow = normalizedPath === '/carrito'
+  || normalizedPath === '/checkout'
+  || normalizedPath.startsWith('/pedido/');
+const isPrivateRoute = [
+  '/admin',
+  '/api',
+  '/auth',
+  '/dashboard',
+  '/panel',
+  '/cuenta',
+  '/tickets',
+].some((prefix) => normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`));
+const isDiagnosticFirstService = normalizedPath === '/servicios/telefono/celular-mojado';
+const shouldShowRegistrationDiscount = normalizedPath !== '/404'
+  && !isPrivateRoute
+  && !isPrivateCommerceFlow
+  && normalizedPath !== '/tienda'
+  && !isDiagnosticFirstService;
+const shouldShowEnglishSupportBanner = lang === 'es'
+  && normalizedPath !== '/404'
+  && !isPrivateRoute
+  && !isPrivateCommerceFlow;
+const isEnglishIndexablePage = lang === 'en' && ENGLISH_INDEXABLE_ROUTES.has(normalizedPath);
+const effectiveRobots = lang === 'en' && !isEnglishIndexablePage && robots === 'index, follow'
   ? 'noindex, follow'
   : robots;
+const resolvedAlternateLinks = alternateLinks.length > 0
+  ? alternateLinks
+  : getLanguageAlternates(normalizedPath, siteUrl);
 
 const defaultSchema = [
   {
@@ -51,23 +82,15 @@ const defaultSchema = [
     "@type": "WebSite",
     "@id": `${siteUrl}/#website`,
     "name": "Pixon PC",
-    "url": siteUrl,
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${siteUrl}/?s={search_term_string}`
-      },
-      "query-input": "required name=search_term_string"
-    }
+    "url": `${siteUrl}/`
   },
   {
     "@context": "https://schema.org",
-    "@type": ["LocalBusiness", "ProfessionalService"],
+    "@type": ["LocalBusiness", "ProfessionalService", "OnlineStore"],
     "@id": `${siteUrl}/#business`,
     "name": "Pixon PC",
     "legalName": "Pixon PC",
-    "description": "Servicio técnico privado de reparación de computadoras, laptops, celulares e impresoras a domicilio en Cancún. Recolección y entrega en toda la ciudad. Mantenimiento preventivo, ensamble de PCs gamer y soporte B2B empresarial. Garantía por escrito. English Spoken.",
+    "description": "Servicio técnico privado de reparación de computadoras, laptops, celulares e impresoras en Cancún. Coordinación de recolección y entrega según zona, disponibilidad y tipo de equipo. Mantenimiento preventivo, ensamble de PCs gamer y soporte B2B empresarial. Garantía por escrito. Atención escrita en inglés disponible.",
     "url": siteUrl,
     "telephone": "+529986690777",
     "email": "pixonpc@gmail.com",
@@ -100,13 +123,13 @@ const defaultSchema = [
       "Huayacán",
       "Polígono Sur",
       "Puerto Juárez",
-      "Puerto Morelos"
+      "Puerto Morelos",
+      "Costa Mujeres",
+      "Playa Mujeres",
+      "Punta Sam",
+      "Isla Blanca"
     ],
-    "openingHoursSpecification": [{
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-      "description": "Con cita previa"
-    }],
+    "hasShippingService": [buildShippingServiceSchema()],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Servicios de reparación y mantenimiento",
@@ -137,6 +160,10 @@ const getSchemaTypes = (item: any) => {
   return Array.isArray(type) ? type : [type].filter(Boolean);
 };
 
+// Las FAQ solo se marcan cuando la página las mantiene en HTML visible y verificable.
+// El contenido actual no cumple esa condición de forma consistente.
+const isFaqSchema = (item: any) => getSchemaTypes(item).includes('FAQPage');
+
 const mergeSchemaList = (baseSchema: any[], pageItems: any[]) => {
   const merged = baseSchema.map((item) => ({ ...item }));
   const extra: any[] = [];
@@ -162,11 +189,13 @@ const mergeSchemaList = (baseSchema: any[], pageItems: any[]) => {
   return [...merged, ...extra];
 };
 
-const allSchema = cleanSchemaList(mergeSchemaList(defaultSchema, schema)).filter(Boolean);
+const allSchema = cleanSchemaList(mergeSchemaList(defaultSchema, schema))
+  .filter((item) => item && !isFaqSchema(item));
+const htmlLang = lang === 'en' ? 'en' : 'es-MX';
 ---
 
 <!DOCTYPE html>
-<html lang={lang}>
+<html lang={htmlLang}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -174,13 +203,9 @@ const allSchema = cleanSchemaList(mergeSchemaList(defaultSchema, schema)).filter
   <meta name="description" content={description}>
   <meta name="robots" content={effectiveRobots}>
   <link rel="canonical" href={fullCanonical} />
-  {(normalizedPath === '/' || normalizedPath === '/index' || isEnglishLanding) && (
-    <>
-      <link rel="alternate" hreflang="es-MX" href={`${siteUrl}/`} />
-      <link rel="alternate" hreflang="en" href={`${siteUrl}/en`} />
-      <link rel="alternate" hreflang="x-default" href={`${siteUrl}/`} />
-    </>
-  )}
+  {resolvedAlternateLinks.map((alternate) => (
+    <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
+  ))}
 
   <link rel="icon" href="/favicon.png" type="image/png" sizes="any">
   <link rel="icon" type="image/png" sizes="192x192" href="/LOGO192.png">
@@ -289,9 +314,10 @@ const allSchema = cleanSchemaList(mergeSchemaList(defaultSchema, schema)).filter
   </script>
   <script is:inline src="/scripts/scroll-restore.js?v=20260602-2"></script>
 </head>
-<body class={bodyClass}>
-  <a class="skip-to-content" href="#main-content">Saltar al contenido principal</a>
+<body class={bodyClass} data-pixon-lang={lang}>
+  <a class="skip-to-content" href="#main-content">{lang === 'en' ? 'Skip to main content' : 'Saltar al contenido principal'}</a>
   <div id="main-content" tabindex="-1">
+    {shouldShowEnglishSupportBanner && <EnglishSupportBanner href={getEnglishRoute(normalizedPath)} />}
     <slot />
     {shouldShowRegistrationDiscount && (
       <RegistrationDiscount
@@ -299,6 +325,7 @@ const allSchema = cleanSchemaList(mergeSchemaList(defaultSchema, schema)).filter
         loginHref="/auth/google?returnTo=%2Ftickets"
         guestHref="/tickets"
         placement="after-hero"
+        lang={lang}
       />
     )}
     <script defer src="/scripts/faq-accordion.js?v=20260804-1"></script>

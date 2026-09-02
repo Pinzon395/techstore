@@ -149,153 +149,134 @@ import '../../styles/admin.css';
 
         <!-- ═══ VISTA DASHBOARD ═══ -->
         <section id="view-dashboard" class="admin-section">
-          <div class="dashboard-command">
-            <div>
-              <span class="dashboard-eyebrow">Centro de operaciones</span>
-              <h2>Resumen de Taller y Negocio</h2>
-              <p>Métricas reales, agenda en vivo y rendimiento del taller técnico.</p>
+          <div class="dashboard-command dashboard-command--control">
+            <div class="dashboard-command-copy">
+              <span class="dashboard-eyebrow">Centro de mando</span>
+              <h2>Situación del negocio</h2>
+              <p id="dashboard-period-summary">Cargando datos reales del periodo…</p>
             </div>
-            <div class="dashboard-actions" aria-label="Acciones rápidas">
-              <button type="button" class="dashboard-action dashboard-action-primary" data-view-target="repairs" data-open-repair><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-plus" /></svg><span>Nuevo ticket</span></button>
-              <button type="button" class="dashboard-action" data-view-target="comments"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-comments" /></svg><span>Moderar</span></button>
-              <button type="button" class="dashboard-action" data-view-target="faqs"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-circle-question" /></svg><span>Gestionar FAQ</span></button>
-              <button type="button" class="dashboard-action" id="dashboard-refresh-btn"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-rotate-left" /></svg><span>Refrescar</span></button>
-            </div>
-          </div>
-
-          <!-- KPI Cards Grid -->
-          <div class="dashboard-kpi-grid">
-            <div class="kpi-card kpi-cyan">
-              <div class="kpi-card-header">
-                <span>Tickets Activos</span>
-                <i class="fa-solid fa-screwdriver-wrench"></i>
-              </div>
-              <div class="kpi-value" id="kpi-tickets-open">0</div>
-              <div class="kpi-trend neutral">
-                <span>En taller / revisión</span>
-              </div>
-            </div>
-            <div class="kpi-card kpi-success">
-              <div class="kpi-card-header">
-                <span>Entregados este Mes</span>
-                <i class="fa-solid fa-circle-check"></i>
-              </div>
-              <div class="kpi-value" id="kpi-tickets-month">0</div>
-              <div class="kpi-trend up">
-                <i class="fa-solid fa-arrow-trend-up"></i>
-                <span>Completados con éxito</span>
-              </div>
-            </div>
-            <div class="kpi-card kpi-info">
-              <div class="kpi-card-header">
-                <span>Tiempo de Resolución</span>
-                <i class="fa-solid fa-clock"></i>
-              </div>
-              <div class="kpi-value" id="kpi-resolution-time">0d</div>
-              <div class="kpi-trend">
-                <span>Promedio general</span>
-              </div>
-            </div>
-            <div class="kpi-card kpi-danger">
-              <div class="kpi-card-header">
-                <span>Tickets Urgentes</span>
-                <i class="fa-solid fa-triangle-exclamation"></i>
-              </div>
-              <div class="kpi-value" id="kpi-tickets-urgent">0</div>
-              <div class="kpi-trend down">
-                <span>Requieren atención inmediata</span>
-              </div>
-            </div>
-            <div class="kpi-card kpi-success">
-              <div class="kpi-card-header">
-                <span>Ingresos estimados</span>
-                <i class="fa-solid fa-hand-holding-dollar"></i>
-              </div>
-              <div class="kpi-value" id="kpi-revenue">$0</div>
-              <div class="kpi-trend neutral">
-                <span>Este mes (deliv/ready)</span>
-              </div>
-            </div>
-            <div class="kpi-card kpi-warning">
-              <div class="kpi-card-header">
-                <span>Clientes Nuevos</span>
-                <i class="fa-solid fa-user-plus"></i>
-              </div>
-              <div class="kpi-value" id="kpi-new-clients">0</div>
-              <div class="kpi-trend up">
-                <span>Nuevos contactos este mes</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- BLOQUE LIVE — actualiza cada 10s -->
-          <div class="admin-card live-card" id="live-card">
-            <div class="live-card-head">
-              <h3>
-                <span class="live-pulse" aria-hidden="true"></span>
-                Actividad en vivo del sitio web
-              </h3>
-              <div class="live-card-stats">
-                <div class="live-stat">
-                  <span class="live-stat-num" id="live-active">0</span>
-                  <span class="live-stat-label">viendo ahora</span>
-                </div>
-                <div class="live-stat">
-                  <span class="live-stat-num" id="live-window-views">0</span>
-                  <span class="live-stat-label">vistas últimos 30 min</span>
-                </div>
-                <div class="live-stat">
-                  <span class="live-stat-num" id="live-window-visitors">0</span>
-                  <span class="live-stat-label">visitantes únicos</span>
+            <div class="dashboard-controlbar">
+              <div class="dashboard-period-control">
+                <button type="button" class="dashboard-period-trigger" id="dashboard-period-trigger" aria-expanded="false" aria-controls="dashboard-period-popover">
+                  <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-calendar-days" /></svg>
+                  <span id="dashboard-period-label">Últimos 30 días</span>
+                  <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>
+                <div class="dashboard-period-popover" id="dashboard-period-popover" hidden>
+                  <div class="dashboard-period-presets" role="list" aria-label="Periodos frecuentes">
+                    <button type="button" data-dashboard-preset="today">Hoy</button>
+                    <button type="button" data-dashboard-preset="yesterday">Ayer</button>
+                    <button type="button" data-dashboard-preset="last7">Últimos 7 días</button>
+                    <button type="button" data-dashboard-preset="last30" aria-current="true">Últimos 30 días</button>
+                    <button type="button" data-dashboard-preset="thisMonth">Este mes</button>
+                    <button type="button" data-dashboard-preset="previousMonth">Mes anterior</button>
+                    <button type="button" data-dashboard-preset="year">Año actual</button>
+                  </div>
+                  <form class="dashboard-custom-period" id="dashboard-custom-period">
+                    <label>Desde<input type="date" id="dashboard-period-from" name="from" required /></label>
+                    <label>Hasta<input type="date" id="dashboard-period-to" name="to" required /></label>
+                    <button type="submit">Aplicar rango</button>
+                  </form>
                 </div>
               </div>
-            </div>
-
-            <!-- Sparkline SVG (últimos 30 min, 1 barra por minuto) -->
-            <div class="live-spark-wrap">
-              <svg id="live-sparkline" class="live-spark" viewBox="0 0 600 120" preserveAspectRatio="none" aria-label="Vistas por minuto últimos 30 minutos"></svg>
-              <div class="live-spark-axis">
-                <span>-30 min</span>
-                <span>-15 min</span>
-                <span>ahora</span>
-              </div>
-            </div>
-
-            <!-- Feed de páginas agrupadas -->
-            <div class="live-feed-head">
-              <span><i class="fa-solid fa-layer-group"></i> Páginas vistas agrupadas</span>
-              <small id="live-updated">—</small>
-            </div>
-            <div class="live-feed-legend" aria-label="Métricas de páginas agrupadas">
-              <span>Semana</span>
-              <span>Hoy</span>
-              <span>Últimos 30 min</span>
-            </div>
-            <ul class="live-feed" id="live-feed">
-              <li class="empty-state">Cargando…</li>
-            </ul>
-          </div>
-
-          <div class="admin-grid-2 dashboard-analytics-grid">
-            <div class="admin-card dashboard-analysis-card">
-              <h3>
-                <i class="fa-solid fa-ranking-star"></i>
-                Páginas más visitadas (30 días)
-              </h3>
-              <div id="analytics-top-pages">
-                <div class="empty-state">Cargando…</div>
-              </div>
-            </div>
-            <div class="admin-card dashboard-analysis-card">
-              <h3>
-                <i class="fa-solid fa-chart-line"></i>
-                Tráfico diario (14 días)
-              </h3>
-              <div id="analytics-chart">
-                <div class="empty-state">Cargando…</div>
-              </div>
+              <button type="button" class="dashboard-icon-action" id="dashboard-refresh-btn" aria-label="Actualizar Dashboard" title="Actualizar datos">
+                <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-rotate-left" /></svg>
+              </button>
+              <button type="button" class="dashboard-action dashboard-action-primary" data-view-target="repairs" data-open-repair>
+                <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-plus" /></svg><span>Nuevo ticket</span>
+              </button>
             </div>
           </div>
+
+          <div class="dashboard-status" id="dashboard-status" role="status" aria-live="polite"></div>
+
+          <div class="dashboard-kpi-grid dashboard-kpi-grid--command" id="dashboard-kpis" aria-busy="true">
+            {[
+              ['sales', 'Ventas', 'Valor registrado, no dinero cobrado'],
+              ['collected', 'Ingresos cobrados', 'Pagos aprobados menos reembolsos'],
+              ['expenses', 'Gastos', 'Salidas expresamente registradas'],
+              ['operating_profit', 'Utilidad', 'Ventas menos costos y gastos'],
+              ['active_work', 'Órdenes activas', 'Trabajos que requieren acción'],
+              ['ready', 'Por entregar', 'Listas para el cliente'],
+              ['new_customers', 'Clientes nuevos', 'Primera aparición en el sistema'],
+              ['average_ticket', 'Ticket promedio', 'Ventas por operación con importe']
+            ].map(([key, label, help]) => (
+              <button type="button" class="command-kpi is-loading" data-dashboard-kpi={key} aria-describedby={`kpi-help-${key}`}>
+                <span class="command-kpi-label">{label}</span>
+                <strong class="command-kpi-value" data-kpi-value>—</strong>
+                <span class="command-kpi-change" data-kpi-change>Cargando…</span>
+                <span class="sr-only" id={`kpi-help-${key}`}>{help}</span>
+              </button>
+            ))}
+          </div>
+
+          <div class="dashboard-primary-grid">
+            <article class="command-panel command-panel--operations">
+              <header class="command-panel-header">
+                <div><span class="command-panel-kicker">Operación</span><h3>Flujo del taller</h3></div>
+                <button type="button" class="command-link" data-view-target="repairs">Ver tickets <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+              </header>
+              <div id="dashboard-operations" class="dashboard-panel-body dashboard-skeleton" aria-busy="true"></div>
+            </article>
+
+            <article class="command-panel command-panel--trend">
+              <header class="command-panel-header">
+                <div><span class="command-panel-kicker">Tendencia</span><h3 id="dashboard-series-title">Ingresos en el tiempo</h3></div>
+                <div class="dashboard-series-tabs" role="group" aria-label="Serie visible">
+                  <button type="button" data-dashboard-series="collected" aria-pressed="true">Ingresos</button>
+                  <button type="button" data-dashboard-series="sales" aria-pressed="false">Ventas</button>
+                  <button type="button" data-dashboard-series="tickets" aria-pressed="false">Órdenes</button>
+                  <button type="button" data-dashboard-series="views" aria-pressed="false">Tráfico</button>
+                </div>
+              </header>
+              <div id="dashboard-series" class="dashboard-panel-body dashboard-skeleton" aria-busy="true"></div>
+            </article>
+          </div>
+
+          <div class="dashboard-secondary-grid" id="dashboard-secondary">
+            <details class="command-disclosure" open>
+              <summary><span><i class="fa-solid fa-wallet" aria-hidden="true"></i> Finanzas</span><span class="disclosure-summary" data-dashboard-summary="finance">Cargando…</span></summary>
+              <div class="disclosure-body" id="dashboard-finance" aria-busy="true"><div class="dashboard-skeleton"><span></span><span></span><span></span></div></div>
+            </details>
+            <details class="command-disclosure">
+              <summary><span><i class="fa-solid fa-users" aria-hidden="true"></i> Clientes y citas</span><span class="disclosure-summary" data-dashboard-summary="customers">Cargando…</span></summary>
+              <div class="disclosure-body" id="dashboard-customers"></div>
+            </details>
+            <details class="command-disclosure">
+              <summary><span><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Servicios y técnicos</span><span class="disclosure-summary" data-dashboard-summary="services">Cargando…</span></summary>
+              <div class="disclosure-body" id="dashboard-services"></div>
+            </details>
+            <details class="command-disclosure">
+              <summary><span><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> Inventario y piezas</span><span class="disclosure-summary" data-dashboard-summary="inventory">Cargando…</span></summary>
+              <div class="disclosure-body" id="dashboard-inventory"></div>
+            </details>
+            <details class="command-disclosure command-disclosure--wide">
+              <summary><span><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Tráfico web</span><span class="disclosure-summary" data-dashboard-summary="traffic">Cargando…</span></summary>
+              <div class="disclosure-body" id="dashboard-traffic"></div>
+              <div class="live-card" id="live-card">
+                <div class="live-card-head">
+                  <h3><span class="live-pulse" aria-hidden="true"></span> Actividad en vivo</h3>
+                  <div class="live-card-stats">
+                    <div class="live-stat"><span class="live-stat-num" id="live-active">—</span><span class="live-stat-label">viendo ahora</span></div>
+                    <div class="live-stat"><span class="live-stat-num" id="live-window-views">—</span><span class="live-stat-label">vistas en 30 min</span></div>
+                    <div class="live-stat"><span class="live-stat-num" id="live-window-visitors">—</span><span class="live-stat-label">visitantes</span></div>
+                  </div>
+                </div>
+                <div class="live-spark-wrap">
+                  <svg id="live-sparkline" class="live-spark" viewBox="0 0 600 120" preserveAspectRatio="none" aria-label="Vistas por minuto en los últimos 30 minutos"></svg>
+                  <div class="live-spark-axis"><span>-30 min</span><span>-15 min</span><span>ahora</span></div>
+                </div>
+                <div class="live-feed-head"><span>Páginas vistas agrupadas</span><small id="live-updated">—</small></div>
+                <div class="live-feed-legend" aria-label="Métricas de páginas agrupadas"><span>Semana</span><span>Hoy</span><span>30 min</span></div>
+                <ul class="live-feed" id="live-feed"><li class="empty-state">Cargando…</li></ul>
+              </div>
+            </details>
+          </div>
+
+          <details class="dashboard-data-quality" id="dashboard-data-quality" hidden>
+            <summary>Fuentes pendientes de configurar <span data-quality-count></span></summary>
+            <ul data-quality-list></ul>
+          </details>
         </section>
 
         <!-- ═══ VISTA TALLER (REPAIRS) ═══ -->
@@ -1076,8 +1057,9 @@ import '../../styles/admin.css';
   </script>
 
   <script src="/scripts/ticket-options.js" is:inline defer></script>
-  <script src="/scripts/admin.js?v=20260525-admin-session-1" is:inline defer></script>
+  <script src="/scripts/admin-dashboard.js?v=20260813-1" is:inline defer></script>
+  <script src="/scripts/admin.js?v=20260813-dashboard-1" is:inline defer></script>
   <script src="/scripts/admin-commerce.js?v=20260812-5" is:inline defer></script>
-  <script src="/scripts/admin-marketplace.js?v=20260812-1" is:inline defer></script>
+  <script src="/scripts/admin-marketplace.js?v=20260820-promotions-1" is:inline defer></script>
   <script src="/scripts/user-menu.js?v=20260525-admin-link-1" is:inline defer></script>
 </Base>

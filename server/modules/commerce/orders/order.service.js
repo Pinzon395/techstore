@@ -75,7 +75,16 @@ function publicOrder(row, items, payments, history, settings = null) {
             rejection_reason: payment.status === 'REJECTED' ? payment.rejection_reason : null
         } : null,
         transfer: payment?.method === 'BANK_TRANSFER' && settings?.BANK_TRANSFER?.enabled
-            ? { ...settings.BANK_TRANSFER, reference: row.folio, amount: decimal(row.total), currency: row.currency }
+            ? {
+                beneficiary: settings.BANK_TRANSFER.beneficiary || '',
+                bank: settings.BANK_TRANSFER.bank || '',
+                clabe: settings.BANK_TRANSFER.clabe || '',
+                account: settings.BANK_TRANSFER.account || '',
+                instructions: settings.BANK_TRANSFER.instructions || '',
+                reference: row.folio,
+                amount: decimal(row.total),
+                currency: row.currency
+            }
             : null,
         timeline: history.map((entry) => ({
             from_status: entry.from_status,

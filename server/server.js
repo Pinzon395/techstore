@@ -26,6 +26,7 @@ const { createLimiter } = require('./middlewares/rateLimit.middleware');
 const { errorHandler } = require('./middlewares/error.middleware');
 const createHealthRoutes = require('./routes/health.routes');
 const createCommerceModule = require('./modules/commerce');
+const { DashboardService } = require('./modules/dashboard/dashboard.service');
 const {
     cleanText,
     cleanMultilineText,
@@ -117,7 +118,6 @@ const {
     getAllBuildsPublic,
     insertBuildAdmin,
     logAdminAction,
-    getTicketKPIs,
     getTicketHistory,
     getRecentTickets,
     trackPageView,
@@ -260,10 +260,11 @@ async function bootstrap() {
     const rootPath = path.join(__dirname, '..');
     const distPath = path.join(__dirname, '../dist');
 
-    // Solo /en esta traducida por completo. Las rutas inglesas heredadas se
-    // mantienen fuera de navegacion y se redirigen hasta tener contenido real.
+    // Las rutas inglesas heredadas se mantienen fuera de navegación y se
+    // redirigen hasta tener contenido real. La landing de daño por líquido sí
+    // tiene contenido propio y conserva su URL indexable.
     app.use((req, res, next) => {
-        if (req.method === 'GET' && req.path.startsWith('/en/')) {
+        if (req.method === 'GET' && req.path.startsWith('/en/') && req.path !== '/en/liquid-damage') {
             return res.redirect(302, '/en');
         }
         next();
@@ -408,30 +409,28 @@ async function bootstrap() {
                     res.setHeader('Cache-Control', 'public, max-age=2592000, s-maxage=604800, stale-while-revalidate=2592000');
                 }
             }
-})));
+        })));
     }
 
-
-
     app.get('/robots.txt', (_req, res) => {
-            const file = path.join(distPath, 'robots.txt');
-            res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-            if (fs.existsSync(file)) {
-                res.type('text/plain; charset=UTF-8').sendFile(file);
-            } else {
-                res.type('text/plain; charset=UTF-8').send('User-agent: *\nAllow: /\n\nSitemap: https://pixon.com.mx/sitemap.xml\n');
-            }
-        });
+        const file = path.join(distPath, 'robots.txt');
+        res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+        if (fs.existsSync(file)) {
+            res.type('text/plain; charset=UTF-8').sendFile(file);
+        } else {
+            res.type('text/plain; charset=UTF-8').send('User-agent: *\nAllow: /\n\nSitemap: https://pixon.com.mx/sitemap.xml\n');
+        }
+    });
 
-        app.get('/sitemap.xml', (_req, res) => {
-            const file = path.join(distPath, 'sitemap.xml');
-            res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
-            if (fs.existsSync(file)) {
-                res.type('application/xml; charset=UTF-8').sendFile(file);
-            } else {
-                res.status(404).send('Sitemap not found');
-            }
-        });
+    app.get('/sitemap.xml', (_req, res) => {
+        const file = path.join(distPath, 'sitemap.xml');
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
+        if (fs.existsSync(file)) {
+            res.type('application/xml; charset=UTF-8').sendFile(file);
+        } else {
+            res.status(404).send('Sitemap not found');
+        }
+    });
 
     // M2 → CORS con metodos completos
     app.use(cors({
@@ -445,10 +444,22 @@ async function bootstrap() {
             'X-Customer-Email',
             'X-Idempotency-Key',
             'X-Sort-Order',
-            'X-Is-Primary'
+            'X-Is-Primary',
+            'X-Correlation-ID',
+            'X-Request-ID',
+            'If-Unmodified-Since'
         ],
+        exposedHeaders: ['X-Correlation-ID'],
         credentials: true
     }));
+
+    // Trazabilidad y Correlación de Peticiones (Senior Execution Contract V3)
+    app.use((req, res, next) => {
+        req.correlationId = req.get('X-Correlation-ID') || req.get('X-Request-ID') || crypto.randomUUID();
+        res.setHeader('X-Correlation-ID', req.correlationId);
+        next();
+    });
+
 
     // SECURITY-2 (B2) → Rate-limit. Protege OAuth callback de brute-force
     // y endpoints publicos de spam.
@@ -504,6 +515,26 @@ async function bootstrap() {
        (usa la tabla `sessions` que ya creó 01-schema.sql)
     ───────────────────────────────────────────────────────── */
     app.set('trust proxy', 1);
+
+    // Canonicaliza host y trailing slash en un solo salto para las páginas públicas.
+    // Las peticiones locales y los flujos internos quedan fuera de esta regla.
+    app.use((req, res, next) => {
+        if (!isProduction) return next();
+
+        const host = String(req.hostname || '').toLowerCase();
+        const forwardedProto = String(req.get('x-forwarded-proto') || '').split(',')[0].trim().toLowerCase();
+        const isCanonicalHost = host === 'pixon.com.mx' || host === 'www.pixon.com.mx';
+        const pathname = req.path;
+        const isPublicPage = !/^\/(?:api|auth|_astro|assets|scripts|styles|components|admin|pedido|cuenta|carrito|checkout)(?:\/|$)/i.test(pathname);
+        const needsHostRedirect = host === 'www.pixon.com.mx' || (isCanonicalHost && forwardedProto && forwardedProto !== 'https');
+        const needsSlashRedirect = isPublicPage && pathname.length > 1 && pathname.endsWith('/');
+
+        if (!isCanonicalHost || (!needsHostRedirect && !needsSlashRedirect)) return next();
+
+        const canonicalPath = needsSlashRedirect ? pathname.replace(/\/+$/, '') : pathname;
+        const query = req.originalUrl.includes('?') ? `?${req.originalUrl.split('?').slice(1).join('?')}` : '';
+        return res.redirect(301, `https://pixon.com.mx${canonicalPath || '/'}${query}`);
+    });
 
     app.use(session({
         store: new MySQLStore({
@@ -605,11 +636,14 @@ async function bootstrap() {
         res.status(403).json({ error: 'Prohibido' });
     }
 
+    const dashboardService = new DashboardService({ pool: getDB() });
+
     // Commerce vive fuera del controlador monolitico. El modulo conserva el
     // bypass del rol admin legado, pero para el resto resuelve permisos RBAC
     // desde permissions/role_permissions y user_permissions.
     const commerce = createCommerceModule({
         pool: getDB(),
+        dashboardService,
         mediaDirectory: path.join(__dirname, 'storage', 'commerce-media'),
         mediaMaxBytes: Number(process.env.COMMERCE_MEDIA_MAX_BYTES || 8 * 1024 * 1024),
         proofDirectory: path.join(__dirname, 'storage', 'commerce-payment-proofs'),
@@ -617,6 +651,74 @@ async function bootstrap() {
         legacyAdminBypass: true
     });
     commerce.mount(app);
+
+    // Las fichas generadas durante el build conservan SEO estatico. Si una
+    // publicacion se crea o cambia despues del despliegue, esta ruta entrega
+    // una ficha universal que consulta el catalogo en tiempo real. Asi cada
+    // slug publicado funciona inmediatamente sin ejecutar un build desde el
+    // panel administrativo.
+    app.get('/tienda/:slug', async (req, res, next) => {
+        const slug = String(req.params.slug || '').trim().toLowerCase();
+        if (slug === 'promociones' || slug === 'detalle' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+            return next();
+        }
+
+        try {
+            const item = await commerce.service.getPublicBySlug(slug);
+            const staticFile = path.join(distPath, 'tienda', `${slug}.html`);
+            const rawUpdatedAt = item.updated_at || item.published_at;
+            const normalizedUpdatedAt = typeof rawUpdatedAt === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(rawUpdatedAt)
+                ? `${rawUpdatedAt.replace(' ', 'T')}Z`
+                : rawUpdatedAt;
+            const itemUpdatedAt = normalizedUpdatedAt ? Date.parse(normalizedUpdatedAt) : Number.NaN;
+
+            if (fs.existsSync(staticFile)) {
+                const stats = await fs.promises.stat(staticFile);
+                if (!Number.isFinite(itemUpdatedAt) || stats.mtimeMs >= itemUpdatedAt) {
+                    return res.sendFile(staticFile, {
+                        headers: { 'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400' }
+                    });
+                }
+            }
+
+            const runtimeFile = path.join(distPath, 'tienda', 'detalle.html');
+            if (!fs.existsSync(runtimeFile)) return next();
+
+            const escapeAttribute = (value) => String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            const title = item.seo?.title || `${item.name} en Cancun | Pixon PC`;
+            const description = item.seo?.description || item.short_description || `Consulta ${item.name}, precio y disponibilidad en Pixon PC Cancun.`;
+            const canonical = `https://pixon.com.mx/tienda/${item.slug}`;
+            const image = item.media?.[0]?.url || '/assets/images/tienda-hero-pixon.webp';
+            const fullImage = /^https?:\/\//i.test(image) ? image : `https://pixon.com.mx${image.startsWith('/') ? '' : '/'}${image}`;
+
+            let html = await fs.promises.readFile(runtimeFile, 'utf8');
+            html = html
+                .replace(/<title>[^<]*<\/title>/i, `<title>${escapeAttribute(title)}</title>`)
+                .replace(/<meta name="description" content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escapeAttribute(description)}">`)
+                .replace(/<meta name="robots" content="[^"]*"\s*\/?>/i, '<meta name="robots" content="index, follow">')
+                .replace(/<link rel="canonical" href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${escapeAttribute(canonical)}">`)
+                .replace(/<meta property="og:title" content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${escapeAttribute(title)}">`)
+                .replace(/<meta property="og:description" content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${escapeAttribute(description)}">`)
+                .replace(/<meta property="og:url" content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${escapeAttribute(canonical)}">`)
+                .replace(/<meta property="og:image" content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${escapeAttribute(fullImage)}">`);
+
+            res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=3600');
+            res.type('html').send(html);
+        } catch (error) {
+            if (error?.status === 404 || error?.statusCode === 404 || error?.code === 'NOT_FOUND') {
+                const notFoundPath = path.join(distPath, '404.html');
+                res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300');
+                return fs.existsSync(notFoundPath)
+                    ? res.status(404).sendFile(notFoundPath)
+                    : res.status(404).send('Publicación no encontrada');
+            }
+            return next(error);
+        }
+    });
 
     // SECURITY-2 (M2) → gate del HTML del panel admin a nivel servidor.
     // Antes la proteccion era solo client-side (admin.js mostraba "Acceso
@@ -792,8 +894,128 @@ async function bootstrap() {
     ───────────────────────────────────────────────────────── */
     const googleReviewsCache = { data: null, expires: 0 };
     const GOOGLE_REVIEWS_TTL = 60 * 60 * 1000; // 1 hora
+    const GOOGLE_REVIEW_SHARE_URL = 'https://share.google/RdsuiK10TObYQxIne';
+    const GOOGLE_PLACE_QUERY = 'Pixon PC, Cto. Hacienda Chimay, 77539 Cancún, Q.R., México';
+
+    function googlePlacesJson(url, { method = 'GET', headers = {}, body } = {}) {
+        return new Promise((resolve, reject) => {
+            const https = require('https');
+            const request = https.request(url, { method, headers }, response => {
+                let payload = '';
+                response.setEncoding('utf8');
+                response.on('data', chunk => { payload += chunk; });
+                response.on('end', () => {
+                    let data;
+                    try {
+                        data = payload ? JSON.parse(payload) : {};
+                    } catch (error) {
+                        reject(new Error('Google Places devolvió una respuesta inválida.'));
+                        return;
+                    }
+                    if (response.statusCode < 200 || response.statusCode >= 300) {
+                        const message = data?.error?.message || `Google Places respondió HTTP ${response.statusCode}`;
+                        reject(new Error(message));
+                        return;
+                    }
+                    resolve(data);
+                });
+            });
+            request.setTimeout(8000, () => request.destroy(new Error('La consulta a Google Places excedió el tiempo permitido.')));
+            request.on('error', reject);
+            if (body) request.write(JSON.stringify(body));
+            request.end();
+        });
+    }
+
+    async function sendGoogleReviews(req, res) {
+        const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+        let placeId = process.env.GOOGLE_PLACE_ID;
+        const defaultPayload = {
+            source: 'unconfigured',
+            configured: false,
+            place_id: placeId || null,
+            google_maps_uri: GOOGLE_REVIEW_SHARE_URL,
+            reviews_url: GOOGLE_REVIEW_SHARE_URL,
+            write_review_url: GOOGLE_REVIEW_SHARE_URL,
+            reviews: [],
+            rating: 0,
+            total: 0,
+            hint: 'Configura GOOGLE_PLACES_API_KEY para mostrar reseñas reales de Google Maps.'
+        };
+
+        if (!apiKey) return res.json(defaultPayload);
+
+        if (googleReviewsCache.data && Date.now() < googleReviewsCache.expires) {
+            return res.json({ ...googleReviewsCache.data, cached: true });
+        }
+
+        try {
+            if (!placeId) {
+                const search = await googlePlacesJson('https://places.googleapis.com/v1/places:searchText', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Goog-Api-Key': apiKey,
+                        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress'
+                    },
+                    body: {
+                        textQuery: GOOGLE_PLACE_QUERY,
+                        languageCode: 'es',
+                        regionCode: 'MX'
+                    }
+                });
+                placeId = search.places?.[0]?.id;
+                if (!placeId) throw new Error('No se encontró la ficha de Pixon PC. Configura GOOGLE_PLACE_ID para fijar la ficha correcta.');
+            }
+
+            const place = await googlePlacesJson(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?languageCode=es`, {
+                headers: {
+                    'X-Goog-Api-Key': apiKey,
+                    'X-Goog-FieldMask': 'id,displayName,rating,userRatingCount,reviews,googleMapsUri,googleMapsLinks'
+                }
+            });
+            const reviews = (place.reviews || []).map((review, index) => ({
+                id: review.name || `google-${review.publishTime || index}`,
+                name: review.authorAttribution?.displayName || 'Cliente de Google',
+                text: review.text?.text || review.originalText?.text || '',
+                rating: review.rating || 0,
+                relative_time: review.relativePublishTimeDescription || '',
+                published_at: review.publishTime || '',
+                profile_photo_url: review.authorAttribution?.photoUri || '',
+                google_maps_uri: review.googleMapsUri || ''
+            })).filter(review => review.text);
+
+            const payload = {
+                source: 'google',
+                configured: true,
+                place_id: place.id || placeId,
+                place_name: place.displayName?.text || 'Pixon PC',
+                rating: place.rating || 0,
+                total: place.userRatingCount || 0,
+                google_maps_uri: place.googleMapsUri || GOOGLE_REVIEW_SHARE_URL,
+                reviews_url: place.googleMapsLinks?.reviewsUri || place.googleMapsUri || GOOGLE_REVIEW_SHARE_URL,
+                write_review_url: place.googleMapsLinks?.writeAReviewUri || place.googleMapsUri || GOOGLE_REVIEW_SHARE_URL,
+                reviews
+            };
+
+            googleReviewsCache.data = payload;
+            googleReviewsCache.expires = Date.now() + GOOGLE_REVIEWS_TTL;
+            return res.json(payload);
+        } catch (error) {
+            logError(error, req, 'google-places');
+            return res.json({
+                ...defaultPayload,
+                source: 'error',
+                configured: true,
+                place_id: placeId || null,
+                error: error.message
+            });
+        }
+    }
 
     app.get('/api/reviews/google', ah(async (_req, res) => {
+        return sendGoogleReviews(_req, res);
+
         const apiKey = process.env.GOOGLE_PLACES_API_KEY;
         const placeId = process.env.GOOGLE_PLACE_ID;
 
@@ -1192,6 +1414,9 @@ async function bootstrap() {
             payload.notes_internal = appendCustomerNote(baseNotes, customerNote, req.user?.email);
         }
 
+        payload.expected_updated_at = payload.expected_updated_at || req.get('if-unmodified-since') || null;
+        payload.changed_by = req.user?.id || null;
+        payload.audit_context = { ip: req.ip, user_agent: req.get('user-agent'), correlation_id: req.correlationId };
         const ticket = await updateRepairAdmin(id, payload);
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
 
@@ -1208,16 +1433,19 @@ async function bootstrap() {
             notifications.push(notificationStatus('ticket_note', result));
         }
 
-        await audit(req, 'update', 'repair', ticket?.id, { ticket_code: ticket?.ticket_code });
-        res.json({ success: true, message: 'Cambios guardados correctamente.', ticket, notifications });
+        res.json({ success: true, message: 'Cambios guardados correctamente.', ticket, notifications, correlation_id: req.correlationId });
+
     }));
 
     app.patch('/api/admin/tickets/:id/appointment', requireAdmin, ah(async (req, res) => {
         const id = toPositiveInt(req.params.id);
         if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
-        const ticket = await updateRepairAdmin(id, req.body || {});
+        const ticket = await updateRepairAdmin(id, {
+            ...(req.body || {}),
+            changed_by: req.user?.id || null,
+            audit_context: { ip: req.ip, user_agent: req.get('user-agent') }
+        });
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
-        await audit(req, 'update', 'repair_appointment', ticket?.id, { ticket_code: ticket?.ticket_code });
         res.json({ success: true, message: 'Cita actualizada correctamente.', ticket });
     }));
 
@@ -1303,14 +1531,47 @@ async function bootstrap() {
         req.on('close', () => dbEmitter.off('admin-pending', adminPendingListener));
     });
 
-    app.get('/api/admin/kpis', requireAdmin, ah(async (_req, res) => {
-        const kpis = await getTicketKPIs();
-        res.json(kpis);
+    app.get('/api/admin/dashboard', requireAdmin, ah(async (req, res) => {
+        res.set('Cache-Control', 'private, no-store');
+        res.json(await dashboardService.getDashboard(req.query));
+    }));
+
+    app.get('/api/admin/dashboard/expenses', requireAdmin, ah(async (req, res) => {
+        res.json(await dashboardService.listExpenses(req.query));
+    }));
+
+    app.post('/api/admin/dashboard/expenses', requireAdmin, ah(async (req, res) => {
+        const expense = await dashboardService.createExpense(req.body, { userId: req.user?.id });
+        await audit(req, 'create', 'business_expense', expense.id, { amount: expense.amount, category: expense.category });
+        res.status(201).json({ success: true, expense });
+    }));
+
+    app.delete('/api/admin/dashboard/expenses/:id', requireAdmin, ah(async (req, res) => {
+        await dashboardService.deleteExpense(req.params.id);
+        await audit(req, 'delete', 'business_expense', req.params.id);
+        res.json({ success: true });
+    }));
+
+    // Adaptador temporal para consumidores legados. Todas las cifras salen del
+    // mismo agregador; no mantiene una segunda definición de KPIs.
+    app.get('/api/admin/kpis', requireAdmin, ah(async (req, res) => {
+        const dashboard = await dashboardService.getDashboard({ ...req.query, preset: req.query.preset || 'thisMonth' });
+        res.json({
+            openTickets: dashboard.operations.metrics.active.value,
+            deliveredThisMonth: dashboard.operations.repairs.statuses.delivered || 0,
+            averageResolutionDays: null,
+            urgentTickets: dashboard.operations.attention_now.urgent,
+            monthlyRevenue: dashboard.finance.metrics.sales.value,
+            newClientsThisMonth: dashboard.customers.metrics.new_customers.value,
+            states: Object.fromEntries(Object.entries(dashboard.kpis).map(([key, value]) => [key, value.state]))
+        });
     }));
 
     app.get('/api/admin/tickets/:id/history', requireAdmin, ah(async (req, res) => {
         const id = toPositiveInt(req.params.id);
         if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
+        const ticket = await getRepairAdminById(id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
         const history = await getTicketHistory(id);
         res.json({ success: true, history });
     }));

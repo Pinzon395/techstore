@@ -45,6 +45,26 @@ function getAdminHref() {
     return '/admin';
 }
 
+function getUiLabels() {
+    if (document.body?.dataset.pixonLang === 'en') {
+        return {
+            login: 'Sign in',
+            userMenu: 'User menu',
+            admin: 'Admin panel',
+            account: 'My account',
+            logout: 'Sign out',
+        };
+    }
+
+    return {
+        login: 'Iniciar Sesión',
+        userMenu: 'Menú de usuario',
+        admin: 'Panel de Admin',
+        account: 'Mi cuenta',
+        logout: 'Cerrar sesión',
+    };
+}
+
 async function fetchCurrentUser() {
     try {
         const res = await fetch('/api/me', { credentials: 'include' });
@@ -78,12 +98,13 @@ function initAuthUI() {
 function renderDesktopAuth(user) {
     const area = document.getElementById('nav-auth-area');
     if (!area) return;
+    const labels = getUiLabels();
 
     if (!user) {
         const returnTo = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
         area.innerHTML = `
             <a href="/auth/google?returnTo=${returnTo}" class="btn btn-primary nav-login-btn" id="btn-login-navbar">
-                Iniciar Sesión&nbsp;<i class="fa-brands fa-google"></i>
+                ${labels.login}&nbsp;<i class="fa-brands fa-google"></i>
             </a>`;
         return;
     }
@@ -101,7 +122,7 @@ function renderDesktopAuth(user) {
 
     area.innerHTML = `
         <div class="nav-user-wrapper" id="nav-user-wrapper">
-            <button class="nav-avatar-btn" id="nav-avatar-btn" aria-label="Menú de usuario" aria-expanded="false">
+            <button class="nav-avatar-btn" id="nav-avatar-btn" aria-label="${labels.userMenu}" aria-expanded="false">
                 <img src="${escapeHtml(avatar)}"
                      alt="${escapeHtml(user.name)}"
                      class="nav-avatar-img"
@@ -121,13 +142,13 @@ function renderDesktopAuth(user) {
                 <div class="nav-dropdown-divider"></div>
                 ${isAdmin ? `
                 <a href="${adminHref}" class="nav-dropdown-item" id="nav-item-admin" role="menuitem">
-                    <i class="fa-solid fa-gauge-high"></i> Panel de Admin
+                    <i class="fa-solid fa-gauge-high"></i> ${labels.admin}
                 </a>` : ''}
                 <a href="/cuenta" class="nav-dropdown-item" id="nav-item-profile" role="menuitem">
-                    <i class="fa-solid fa-circle-user"></i> Mi cuenta
+                    <i class="fa-solid fa-circle-user"></i> ${labels.account}
                 </a>
                 <a href="/auth/logout" class="nav-dropdown-item nav-dropdown-logout" id="nav-item-logout" role="menuitem">
-                    <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+                    <i class="fa-solid fa-right-from-bracket"></i> ${labels.logout}
                 </a>
             </div>
         </div>`;
@@ -165,12 +186,13 @@ function renderDesktopAuth(user) {
 function renderMobileAuth(user) {
     const area = document.getElementById('nav-auth-area-mobile');
     if (!area) return;
+    const labels = getUiLabels();
 
     if (!user) {
         const returnTo = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
         area.innerHTML = `
             <a href="/auth/google?returnTo=${returnTo}" class="nav-links nav-login-mobile" id="btn-login-mobile">
-                <i class="fa-brands fa-google"></i>&nbsp;Iniciar Sesión
+                <i class="fa-brands fa-google"></i>&nbsp;${labels.login}
             </a>`;
         return;
     }
@@ -185,13 +207,13 @@ function renderMobileAuth(user) {
         </span>
         ${isAdmin ? `
         <a href="${adminHref}" class="nav-links nav-admin-mobile" id="btn-admin-mobile">
-            <i class="fa-solid fa-gear"></i>&nbsp;Panel de Admin
+            <i class="fa-solid fa-gear"></i>&nbsp;${labels.admin}
         </a>` : ''}
         <a href="/cuenta" class="nav-links" id="nav-item-profile-mobile" style="color:#94a3b8; font-weight:600; padding:12px 15px; border-radius:8px; display:flex; align-items:center; gap:8px;">
-            <i class="fa-solid fa-circle-user"></i>&nbsp;Mi cuenta
+            <i class="fa-solid fa-circle-user"></i>&nbsp;${labels.account}
         </a>
         <a href="/auth/logout" class="nav-links nav-logout-mobile" id="btn-logout-mobile">
-            <i class="fa-solid fa-right-from-bracket"></i>&nbsp;Cerrar sesión
+            <i class="fa-solid fa-right-from-bracket"></i>&nbsp;${labels.logout}
         </a>`;
 }
 

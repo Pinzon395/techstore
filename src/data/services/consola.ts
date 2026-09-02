@@ -98,7 +98,12 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Control no conecta', solution: 'Revisamos sincronización, Bluetooth/radio, puerto, software y control.' },
     ],
     relatedSlugs: ['no-enciende', 'no-da-imagen', 'fuente', 'limpieza-interna'],
-    overrides: { navHidden: true },
+    overrides: {
+      navHidden: true,
+      relatedExternal: [
+        { label: 'Xbox mojado o con daño por líquido', href: '/servicios/consola/xbox/dano-liquido', icon: 'fa-droplet', desc: 'Qué hacer si hubo agua, bebida, humedad, salitre o corrosión.' },
+      ],
+    },
   }),
   consoleClusterService({
     slug: 'xbox-sobrecalentamiento',
@@ -113,7 +118,7 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Xbox expulsa aire muy caliente', solution: 'Revisión de flujo de aire y colocación de consola.' },
       { problem: 'Xbox pierde rendimiento o se traba', solution: 'Diagnóstico de throttling térmico y pruebas bajo carga.' },
     ],
-    relatedSlugs: ['reparacion-xbox', 'no-enciende', 'fuente', 'limpieza-interna'],
+    relatedSlugs: ['reparacion-xbox', 'mantenimiento-preventivo', 'no-enciende', 'fuente', 'limpieza-interna'],
     overrides: { navHidden: true, customUrl: '/servicios/consola/xbox/sobrecalentamiento' },
   }),
   consoleClusterService({
@@ -439,6 +444,7 @@ export const consolaCategory: ServiceCategory = {
         customUrl: '/servicios/consola/reparacion-xbox',
         navChildren: [
           { slug: 'reparacion-xbox', label: 'Reparación de Xbox', customUrl: '/servicios/consola/reparacion-xbox' },
+          { slug: 'xbox-dano-liquido', label: 'Xbox mojado o con líquido', customUrl: '/servicios/consola/xbox/dano-liquido' },
           { slug: 'sobrecalentamiento-xbox', label: 'Sobrecalentamiento de Xbox', customUrl: '/servicios/consola/xbox/sobrecalentamiento' },
           { slug: 'xbox-se-apaga-sola', label: 'Xbox se apaga sola', customUrl: '/servicios/consola/xbox/sobrecalentamiento' },
           { slug: 'xbox-no-enciende', label: 'Xbox no enciende', customUrl: '/servicios/consola/no-enciende' },
@@ -506,13 +512,16 @@ export const consolaCategory: ServiceCategory = {
       { slug: 'reparacion-general',label: 'Reparación General',       customUrl: '/reparaciones', navHidden: true },
       {
         slug: 'mantenimiento-preventivo',
-        label: 'Mantenimiento preventivo',
+        label: 'Mantenimiento preventivo de consolas',
         navHidden: true,
         seoKeyword: 'Mantenimiento preventivo de consolas en Cancún',
-        hook: 'Mantenimiento para PS5, Xbox Series X/S, Nintendo Switch y consolas portátiles antes de que el polvo, calor o ventilador saturado provoquen apagados.',
-        intro: 'Servicio preventivo para consolas de videojuegos en Cancún: limpieza interna, revisión térmica, ventilador, puertos, pasta térmica o metal líquido según modelo.',
-        bullets: ['Limpieza interna de ventilador, disipador y rejillas', 'Revisión térmica de PS5, Xbox, Switch y portátiles', 'Pasta térmica o metal líquido según modelo y estado', 'Prueba de ruido, temperatura, video y controles', 'Reporte con recomendaciones antes de cambiar piezas'],
-        fromPrice: '$700 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        h1: 'Mantenimiento preventivo de consolas en Cancún',
+        metaTitle: 'Mantenimiento de Consolas en Cancún | PS5, Xbox y Switch | Pixon PC',
+        metaDescription: 'Mantenimiento de consolas en Cancún para PS5, Xbox, Nintendo Switch y portátiles gamer. Limpieza, ventilación y revisión térmica con cita previa.',
+        hook: 'Mantenimiento preventivo para PS5, Xbox, Nintendo Switch y consolas portátiles, con revisión del sistema de ventilación y pruebas antes de cotizar cualquier trabajo adicional.',
+        intro: 'Servicio preventivo para consolas de videojuegos en Cancún: inspección, limpieza según condición, revisión térmica y pruebas de funcionamiento de acuerdo con cada modelo.',
+        bullets: ['Inspección de ventilación, polvo y ruido', 'Limpieza interna según condición y modelo', 'Revisión térmica de PS5, Xbox, Switch y portátiles', 'Pruebas de encendido, video y estabilidad', 'Cotización separada si aparece una reparación'],
+        fromPrice: 'Cotización según modelo y diagnóstico', eta: 'Se confirma al revisar', warranty: 'Garantía por escrito sobre la intervención realizada',
         featuredImage: '/assets/images/ps5_xbox.webp',
         sectionImages: {
           whyUs: '/assets/images/ps5_xbox.webp',
@@ -520,7 +529,7 @@ export const consolaCategory: ServiceCategory = {
         },
         whyUs: [
           { icon: 'fa-gamepad', title: 'Modelos actuales', desc: 'Revisamos PS5, Xbox Series X/S, Nintendo Switch, Switch OLED, ROG Ally y consolas portátiles similares.' },
-          { icon: 'fa-fan', title: 'Ruido bajo control', desc: 'Limpiamos ventilador y flujo de aire para evitar que trabaje al máximo por polvo.' },
+          { icon: 'fa-fan', title: 'Ruido y ventilación revisados', desc: 'Revisamos ventilador, rejillas y ruta de aire; el ruido puede requerir limpieza, diagnóstico o una reparación distinta según su causa.' },
           { icon: 'fa-temperature-arrow-down', title: 'Servicio térmico correcto', desc: 'No tratamos igual una PS5 con metal líquido que una Switch con pasta térmica tradicional.' },
           { icon: 'fa-shield-halved', title: 'Trabajo documentado', desc: 'Te explicamos qué se encontró y si conviene limpieza, pasta, ventilador o reparación aparte.' },
         ],
@@ -532,9 +541,9 @@ export const consolaCategory: ServiceCategory = {
           { title: 'Prueba final', desc: 'Probamos encendido, video, ventilación, ruido, temperatura y estabilidad antes de entregar.' },
         ],
         commonProblems: [
-          { problem: 'PS5 o Xbox Series X se calienta y hace mucho ruido', solution: 'El mantenimiento revisa polvo, ventilador, disipador y compuesto térmico para prevenir apagados.' },
-          { problem: 'Nintendo Switch o Switch OLED con ventilación tapada', solution: 'Limpiamos entradas, disipador y ventilador; también revisamos temperatura y estado de batería si aplica.' },
-          { problem: 'Consola portátil ROG con temperatura alta', solution: 'Revisamos ventilación, pasta, disipador, polvo y estabilidad bajo carga antes de recomendar piezas.' },
+          { problem: 'PS5 o Xbox Series X se calienta y hace mucho ruido', solution: 'El mantenimiento revisa polvo, ventilador, disipador y contacto térmico. Si hay una falla activa, se explica antes de proponer reparación.' },
+          { problem: 'Nintendo Switch o Switch OLED con ventilación tapada', solution: 'Revisamos entradas, disipador y ventilador; también se separan causas de software, batería o hardware cuando corresponde.' },
+          { problem: 'Consola portátil ROG con temperatura alta', solution: 'Revisamos ventilación, compuesto térmico, disipador, polvo y estabilidad antes de recomendar piezas.' },
           { problem: 'Consola usada sin historial de servicio', solution: 'El preventivo ayuda a detectar humedad, polvo, ventilador fatigado, puertos flojos o mantenimiento mal hecho.' },
         ],
         compatibleBrands: ['PlayStation 5', 'PS5 Slim', 'PlayStation 4', 'Xbox Series X', 'Xbox Series S', 'Xbox One', 'Nintendo Switch', 'Switch OLED', 'Switch Lite', 'ASUS ROG Ally / ROG Strix portátil', 'Steam Deck'],

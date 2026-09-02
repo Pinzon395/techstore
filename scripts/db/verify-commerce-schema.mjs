@@ -26,6 +26,32 @@ const checks = [
     LEFT JOIN commerce_orders orders ON orders.id = reservation.order_id
     LEFT JOIN catalog_items item ON item.id = reservation.catalog_item_id
     WHERE orders.id IS NULL OR item.id IS NULL`],
+  ['reservas del catalogo sincronizadas con el ledger', `SELECT COUNT(*) failures FROM catalog_items item
+    WHERE item.reserved_quantity <> (
+      SELECT COALESCE(SUM(reservation.quantity), 0)
+      FROM commerce_order_inventory_reservations reservation
+      WHERE reservation.catalog_item_id = item.id AND reservation.status = 'RESERVED'
+    )`],
+  ['publicaciones con categoria e imagen principal', `SELECT COUNT(*) failures FROM catalog_items item
+    WHERE item.status = 'ACTIVE' AND item.published_at IS NOT NULL
+      AND (
+        NOT EXISTS (SELECT 1 FROM catalog_item_categories category WHERE category.catalog_item_id = item.id)
+        OR NOT EXISTS (SELECT 1 FROM catalog_media media WHERE media.catalog_item_id = item.id AND media.is_primary = 1 AND media.deleted_at IS NULL)
+      )`],
+  ['stock disponible para publicaciones comprables', `SELECT COUNT(*) failures FROM catalog_items item
+    WHERE item.status = 'ACTIVE' AND item.published_at IS NOT NULL
+      AND item.allow_purchase = 1 AND item.track_stock = 1
+      AND item.stock_quantity - item.reserved_quantity < 0`],
+  ['pedidos pendientes con intento de pago', `SELECT COUNT(*) failures FROM commerce_orders orders
+    WHERE orders.status = 'PENDING_PAYMENT'
+      AND NOT EXISTS (
+        SELECT 1 FROM commerce_payments payment
+        WHERE payment.order_id = orders.id AND payment.status = 'PENDING'
+      )`],
+  ['pedidos pendientes no vencidos', `SELECT COUNT(*) failures FROM commerce_orders orders
+    WHERE orders.status = 'PENDING_PAYMENT'
+      AND orders.reservation_expires_at IS NOT NULL
+      AND orders.reservation_expires_at < UTC_TIMESTAMP()`],
   ['totales de pedidos consistentes', `SELECT COUNT(*) failures FROM commerce_orders orders
     WHERE orders.total <> orders.subtotal - orders.discount_total
        OR orders.total <> (SELECT COALESCE(SUM(item.line_total),0) FROM commerce_order_items item WHERE item.order_id = orders.id)`],

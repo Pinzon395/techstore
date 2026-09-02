@@ -1,0 +1,71 @@
+<section id="solicitar-revision" class="xbox-liquid-form" aria-labelledby="xbox-liquid-form-title">
+  <div class="container xbox-liquid-form__shell">
+    <div class="xbox-liquid-form__intro">
+      <p>Revisi&oacute;n con contexto</p>
+      <h2 id="xbox-liquid-form-title">Explica qu&eacute; pas&oacute; antes de mover tu Xbox</h2>
+      <span>Esta información ayuda a preparar la revisión. No pedimos dirección completa hasta confirmar la opción de atención.</span>
+    </div>
+    <form id="xbox-liquid-request-form" class="xbox-liquid-form__form">
+      <div class="xbox-liquid-form__grid">
+        <label><span>Modelo <b>*</b></span><select name="modelo" required><option value="">Selecciona tu Xbox</option><option>Xbox Series X</option><option>Xbox Series S</option><option>Xbox One</option><option>Otro modelo</option></select></label>
+        <label><span>&iquest;Qu&eacute; pas&oacute;? <b>*</b></span><select name="liquido" required><option value="">Selecciona una opci&oacute;n</option><option>Se mojó con agua</option><option>Le cayó bebida o refresco</option><option>Estuvo expuesto a humedad</option><option>No estoy seguro</option></select></label>
+        <label><span>S&iacute;ntoma <b>*</b></span><select name="sintoma" required><option value="">Selecciona una opci&oacute;n</option><option>No prende</option><option>Prende y se apaga</option><option>No da imagen</option><option>Otro</option></select></label>
+        <label><span>&iquest;Cu&aacute;ndo ocurri&oacute;? <b>*</b></span><select name="cuando" required><option value="">Selecciona una opci&oacute;n</option><option>Hoy</option><option>Ayer</option><option>Hace varios días</option></select></label>
+        <label><span>Zona <b>*</b></span><input name="zona" required type="text" placeholder="Ej. Zona Hotelera, Cumbres" autocomplete="address-level2" /></label>
+        <label><span>WhatsApp <b>*</b></span><input name="whatsapp" required type="tel" inputmode="tel" autocomplete="tel" placeholder="Tu número de contacto" /></label>
+      </div>
+      <label class="xbox-liquid-form__comment"><span>Comentario</span><textarea name="comentario" rows="4" placeholder="Indica si sigue encendiendo, qué líquido fue y cualquier detalle que ayude a revisar el caso."></textarea></label>
+      <p><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Te llevamos a WhatsApp con el resumen. No conectes la consola solo para probarla.</p>
+      <button type="submit"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Enviar caso por WhatsApp</button>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#xbox-liquid-request-form');
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const value = (name: string) => String(data.get(name) || '').trim() || 'No indicado';
+    const message = [
+      'Hola Pixon PC. Necesito revisión para un Xbox mojado.',
+      '',
+      `Modelo: ${value('modelo')}`,
+      `Qué líquido fue: ${value('liquido')}`,
+      `Síntoma: ${value('sintoma')}`,
+      `Cuándo ocurrió: ${value('cuando')}`,
+      `Zona: ${value('zona')}`,
+      `¿Sigue encendiendo?: ${value('sintoma') === 'No prende' ? 'No' : 'Por confirmar'}`,
+      `WhatsApp: ${value('whatsapp')}`,
+      `Comentario: ${value('comentario')}`,
+    ].join('\n');
+    const href = `https://wa.me/529986690777?text=${encodeURIComponent(message)}`;
+    const popup = window.open(href, '_blank', 'noopener,noreferrer');
+    if (!popup) window.location.assign(href);
+  });
+</script>
+
+<style>
+  .xbox-liquid-form { padding: clamp(52px, 8vw, 92px) 0; background: #eaf7fb; color: #071F3A; }
+  .xbox-liquid-form__shell { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: clamp(26px, 6vw, 80px); align-items: start; }
+  .xbox-liquid-form__intro { padding-top: 7px; }
+  .xbox-liquid-form__intro > p { margin: 0 0 10px; color: #087b99; font-size: .75rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+  .xbox-liquid-form h2 { margin: 0; color: #071F3A; font-family: var(--font-heading); font-size: clamp(1.8rem, 3.1vw, 2.65rem); line-height: 1.08; }
+  .xbox-liquid-form__intro > span { display: block; margin-top: 15px; color: #071F3A; font-size: 1rem; line-height: 1.68; }
+  .xbox-liquid-form__form { border: 1px solid #c8e6ed; border-radius: 18px; padding: clamp(17px, 3vw, 27px); background: #fff; box-shadow: 0 18px 40px rgba(7,31,58,.09); }
+  .xbox-liquid-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+  .xbox-liquid-form label { display: grid; gap: 7px; min-width: 0; color: #071F3A; font-size: .86rem; font-weight: 850; }
+  .xbox-liquid-form b { color: #087b99; }
+  .xbox-liquid-form input, .xbox-liquid-form select, .xbox-liquid-form textarea { width: 100%; min-height: 46px; border: 1px solid #bed8e1; border-radius: 10px; padding: 11px 12px; background: #fff; color: #071F3A; font: inherit; font-size: .93rem; }
+  .xbox-liquid-form textarea { min-height: 100px; resize: vertical; }
+  .xbox-liquid-form__comment { margin-top: 13px; }
+  .xbox-liquid-form__form > p { display: flex; align-items: flex-start; gap: 8px; margin: 15px 0; color: #071F3A; font-size: .82rem; line-height: 1.45; }
+  .xbox-liquid-form__form > p i { margin-top: 2px; color: #087b99; }
+  .xbox-liquid-form button { display: inline-flex; width: 100%; min-height: 48px; align-items: center; justify-content: center; gap: 9px; border: 1px solid #129b64; border-radius: 10px; padding: 12px; background: #0d9b5e; color: #fff; font: inherit; font-weight: 900; cursor: pointer; transition: transform 160ms cubic-bezier(.23,1,.32,1), background 160ms ease; }
+  .xbox-liquid-form input:focus-visible, .xbox-liquid-form select:focus-visible, .xbox-liquid-form textarea:focus-visible, .xbox-liquid-form button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  @media (hover:hover) and (pointer:fine) { .xbox-liquid-form button:hover { background:#078653; transform:translateY(-1px); } }
+  .xbox-liquid-form button:active { transform: scale(.985); }
+  @media (max-width: 800px) { .xbox-liquid-form__shell { grid-template-columns: 1fr; gap: 24px; } }
+  @media (max-width: 540px) { .xbox-liquid-form__grid { grid-template-columns: 1fr; } .xbox-liquid-form__form { padding: 16px; border-radius: 15px; } }
+  @media (prefers-reduced-motion: reduce) { .xbox-liquid-form button { transition: none; } }
+</style>

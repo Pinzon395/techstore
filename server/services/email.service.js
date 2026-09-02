@@ -1,7 +1,7 @@
 'use strict';
 
 const { cleanEmail } = require('../utils/validators');
-const { logWarn } = require('../utils/logger');
+const { logWarn, structuredLog, maskEmail } = require('../utils/logger');
 
 const DEFAULT_OWNER_EMAIL = 'pixonpc@gmail.com';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -16,10 +16,9 @@ function getEmailConfig() {
 
     const enabled = Boolean(apiKey && from);
 
-    // ── Diagnóstico de configuración (se imprime en cada llamada pero es barato) ──
-    if (!apiKey) console.warn('[EMAIL] ⚠️  RESEND_API_KEY no está configurado en .env — los correos NO se enviarán.');
-    if (!from)   console.warn('[EMAIL] ⚠️  EMAIL_FROM no está configurado en .env — los correos NO se enviarán.');
-    if (apiKey && apiKey.includes('XXXX')) console.warn('[EMAIL] ⚠️  RESEND_API_KEY parece ser un placeholder. Reemplaza el valor con tu API key real de https://resend.com/api-keys');
+    // Diagnóstico de configuración en startup
+    if (!apiKey) structuredLog({ level: 'warn', event: 'email_config', message: 'RESEND_API_KEY no está configurado en .env — los correos no se enviarán.' });
+    if (!from) structuredLog({ level: 'warn', event: 'email_config', message: 'EMAIL_FROM no está configurado en .env — los correos no se enviarán.' });
 
     return {
         enabled,
@@ -174,29 +173,54 @@ function ticketSummaryRows(ticket, showBothEmails = false) {
         </tr>`).join('');
 }
 
-async function sendTransactionalEmail({ to, subject, html, text, tags = [] }) {
+async function sendTransactionalEmail({ to, subject, html, text, tags = [], correlationId = null }) {
     const config = getEmailConfig();
     const recipients = Array.isArray(to) ? to.map(cleanEmail).filter(Boolean) : [cleanEmail(to)].filter(Boolean);
+    const maskedRecipients = recipients.map(maskEmail).join(', ');
 
     if (!recipients.length) {
-        console.warn(`[EMAIL] ⚠️  Envio omitido: destinatario vacio o invalido. (subject: ${subject})`);
-        return { ok: false, skipped: true, reason: 'missing_recipient' };
+        structuredLog({
+            level: 'warn',
+            event: 'email_skipped',
+            entity_type: 'email',
+            correlation_id: correlationId,
+            status: 'skipped',
+            message: `Envio omitido: destinatario vacio o invalido. Asunto: "${subject}"`
+        });
+        return { ok: false, status: 'skipped', reason: 'missing_recipient' };
     }
     if (!config.enabled) {
-        const missing = [];
-        if (!String(process.env.RESEND_API_KEY || '').trim()) missing.push('RESEND_API_KEY');
-        if (!String(process.env.EMAIL_FROM || '').trim()) missing.push('EMAIL_FROM');
-        console.warn(`[EMAIL] ⚠️  Correo NO enviado a <${recipients.join(', ')}> — configura ${missing.join(' y ')} en .env para activar el servicio de correo.`);
-        logWarn('Email transaccional omitido: configura RESEND_API_KEY y EMAIL_FROM.');
-        return { ok: false, skipped: true, reason: 'email_disabled' };
+        structuredLog({
+            level: 'warn',
+            event: 'email_disabled',
+            entity_type: 'email',
+            correlation_id: correlationId,
+            status: 'skipped',
+            message: `Email no enviado a <${maskedRecipients}>: faltan credenciales en .env.`
+        });
+        return { ok: false, status: 'skipped', reason: 'email_disabled' };
     }
     if (typeof fetch !== 'function') {
-        console.error('[EMAIL] ❌ fetch no disponible en este runtime de Node. Requiere Node 18+.');
-        logWarn('Email transaccional omitido: fetch no esta disponible en este runtime de Node.');
-        return { ok: false, skipped: true, reason: 'fetch_unavailable' };
+        structuredLog({
+            level: 'error',
+            event: 'email_fetch_unavailable',
+            entity_type: 'email',
+            correlation_id: correlationId,
+            status: 'failed',
+            message: 'fetch no disponible en este runtime de Node.'
+        });
+        return { ok: false, status: 'failed', reason: 'fetch_unavailable' };
     }
 
-    console.log(`[EMAIL] 📤 Enviando correo a <${recipients.join(', ')}> | Asunto: "${subject}" | Desde: ${config.from}`);
+    structuredLog({
+        level: 'info',
+        event: 'email_attempt',
+        entity_type: 'email',
+        provider: 'resend',
+        correlation_id: correlationId,
+        status: 'sending',
+        message: `Enviando correo a <${maskedRecipients}> | Asunto: "${subject}"`
+    });
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), EMAIL_TIMEOUT_MS);
@@ -220,21 +244,46 @@ async function sendTransactionalEmail({ to, subject, html, text, tags = [] }) {
         });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
-            console.error(`[EMAIL] ❌ Error Resend (HTTP ${response.status}) para <${recipients.join(', ')}> | Error: ${JSON.stringify(payload)}`);
-            logWarn(`Email transaccional fallido (${response.status}): ${payload?.message || payload?.error || 'sin detalle'}`);
-            return { ok: false, failed: true, status: response.status, error: payload };
+            structuredLog({
+                level: 'error',
+                event: 'email_provider_error',
+                entity_type: 'email',
+                provider: 'resend',
+                correlation_id: correlationId,
+                status: 'failed',
+                message: `Error Resend (HTTP ${response.status}) para <${maskedRecipients}>`,
+                data: payload
+            });
+            return { ok: false, status: 'failed', http_status: response.status, error: payload };
         }
-        console.log(`[EMAIL] ✅ Correo enviado exitosamente a <${recipients.join(', ')}> | Resend ID: ${payload.id || 'n/a'}`);
-        return { ok: true, id: payload.id || null };
+        structuredLog({
+            level: 'info',
+            event: 'email_delivered',
+            entity_type: 'email',
+            provider: 'resend',
+            correlation_id: correlationId,
+            status: 'sent',
+            message: `Correo enviado exitosamente a <${maskedRecipients}> | Resend ID: ${payload.id || 'n/a'}`
+        });
+        return { ok: true, status: 'sent', id: payload.id || null };
     } catch (error) {
-        const msg = error?.name === 'AbortError' ? 'timeout (' + EMAIL_TIMEOUT_MS + 'ms)' : (error?.message || 'error desconocido');
-        console.error(`[EMAIL] ❌ Excepcion enviando a <${recipients.join(', ')}> | ${msg}`);
-        logWarn(`Email transaccional fallido: ${msg}`);
-        return { ok: false, failed: true, error: msg };
+        const isTimeout = error?.name === 'AbortError';
+        const msg = isTimeout ? `timeout (${EMAIL_TIMEOUT_MS}ms)` : (error?.message || 'error desconocido');
+        structuredLog({
+            level: 'error',
+            event: 'email_exception',
+            entity_type: 'email',
+            provider: 'resend',
+            correlation_id: correlationId,
+            status: 'failed',
+            message: `Excepción enviando correo a <${maskedRecipients}> | ${msg}`
+        });
+        return { ok: false, status: 'failed', error: msg, is_timeout: isTimeout };
     } finally {
         clearTimeout(timeout);
     }
 }
+
 
 async function notifyOwnerTicketCreated(ticket) {
     // REGLA 1: el admin SIEMPRE recibe en el correo fijo del negocio, nunca en el del cliente.
@@ -382,13 +431,13 @@ async function notifyOwnerOrderCreated(order) {
     const config = getEmailConfig();
     return sendTransactionalEmail({
         to: config.ownerEmail,
-        subject: `Nuevo pedido ${order?.folio || ''} - ${order?.customer?.name || ''}`,
+        subject: `Nuevo pedido pendiente de pago ${order?.folio || ''} - ${order?.customer?.name || ''}`,
         html: layout({
-            title: 'Nuevo pedido recibido', eyebrow: 'Marketplace Pixon PC',
-            body: `<p>Se creo el pedido <strong>${escapeHtml(order?.folio)}</strong> para ${escapeHtml(order?.customer?.name)}.</p>${orderItemsTable(order)}<p>Metodo: <strong>${escapeHtml(order?.payment?.method)}</strong></p>`,
+            title: 'Nuevo pedido pendiente de pago', eyebrow: 'Marketplace Pixon PC',
+            body: `<p>Se creo el pedido <strong>${escapeHtml(order?.folio)}</strong> para ${escapeHtml(order?.customer?.name)} y el inventario correspondiente quedo reservado temporalmente.</p>${orderItemsTable(order)}<p>Metodo solicitado: <strong>${escapeHtml(order?.payment?.method)}</strong></p><p><strong>Accion requerida:</strong> contactar al cliente, confirmar entrega y dar seguimiento al pago.</p><p>Telefono: <strong>${escapeHtml(order?.customer?.phone || 'No proporcionado')}</strong><br>Correo: <strong>${escapeHtml(order?.customer?.email || 'No proporcionado')}</strong></p>`,
             ctaUrl: `${config.siteUrl}/admin#commerce-orders`, ctaLabel: 'Abrir pedidos'
         }),
-        text: `Nuevo pedido ${order?.folio}\nCliente: ${order?.customer?.name}\nTotal: ${moneyLabel(order?.pricing?.total, order?.pricing?.currency)}`,
+        text: `Nuevo pedido pendiente de pago ${order?.folio}\nCliente: ${order?.customer?.name}\nTelefono: ${order?.customer?.phone || 'N/A'}\nCorreo: ${order?.customer?.email || 'N/A'}\nTotal: ${moneyLabel(order?.pricing?.total, order?.pricing?.currency)}\nAccion: contactar al cliente y dar seguimiento al pago.`,
         tags: [{ name: 'event', value: 'commerce_order_created_owner' }]
     });
 }
@@ -397,13 +446,13 @@ async function notifyCustomerOrderCreated(order) {
     const config = getEmailConfig();
     return sendTransactionalEmail({
         to: order?.customer?.email,
-        subject: `Pedido recibido ${order?.folio || ''} - Pixon PC`,
+        subject: `Pedido ${order?.folio || ''} pendiente de pago - Pixon PC`,
         html: layout({
-            title: 'Pedido recibido', eyebrow: 'Confirmacion de compra',
-            body: `<p>Hola <strong>${escapeHtml(order?.customer?.name)}</strong>, recibimos tu pedido.</p><p>Folio: <strong style="color:#0b5ed7;font-size:18px;">${escapeHtml(order?.folio)}</strong></p>${orderItemsTable(order)}<p>Metodo: <strong>${escapeHtml(order?.payment?.method)}</strong></p>${transferBlock(order)}`,
+            title: 'Pedido registrado, pago pendiente', eyebrow: 'Confirmacion de pedido',
+            body: `<p>Hola <strong>${escapeHtml(order?.customer?.name)}</strong>, recibimos tu pedido y reservamos temporalmente los articulos disponibles.</p><p>Folio: <strong style="color:#0b5ed7;font-size:18px;">${escapeHtml(order?.folio)}</strong></p>${orderItemsTable(order)}<p>Metodo solicitado: <strong>${escapeHtml(order?.payment?.method)}</strong></p><div style="margin:18px 0;padding:16px;background:#fff8e9;border:1px solid #f2cf85;border-radius:10px;color:#071F3A;"><strong>Tu pago aun no esta confirmado.</strong><br>Pixon PC se pondra en contacto contigo para validar disponibilidad final, entrega y el siguiente paso del pago.</div>${transferBlock(order)}<p>No compartas datos completos de tu tarjeta por correo, WhatsApp o telefono. Si eliges pago con tarjeta, utiliza un enlace o terminal oficial de Pixon PC.</p>`,
             ctaUrl: orderUrl(order, config), ctaLabel: 'Ver mi pedido'
         }),
-        text: `Pedido recibido\nFolio: ${order?.folio}\nTotal: ${moneyLabel(order?.pricing?.total, order?.pricing?.currency)}\nMetodo: ${order?.payment?.method}`,
+        text: `Pedido registrado, pago pendiente\nFolio: ${order?.folio}\nTotal: ${moneyLabel(order?.pricing?.total, order?.pricing?.currency)}\nMetodo: ${order?.payment?.method}\nTu pago aun no esta confirmado. Pixon PC te contactara para validar disponibilidad final, entrega y el siguiente paso del pago.`,
         tags: [{ name: 'event', value: 'commerce_order_created_customer' }]
     });
 }

@@ -1,5 +1,6 @@
 const SITE_URL = 'https://pixon.com.mx';
 const BUSINESS_ID = `${SITE_URL}/#business`;
+export const SHIPPING_SERVICE_ID = `${SITE_URL}/politica-de-envios-y-devoluciones#envio-cancun`;
 
 type FaqItem = {
   question?: string;
@@ -29,6 +30,7 @@ type ServiceSchemaInput = {
   url: string;
   description?: string;
   image?: string;
+  areaServed?: object[];
 };
 
 export function absoluteUrl(value = '') {
@@ -44,6 +46,25 @@ export function stripHtml(value = '') {
     .trim();
 }
 
+export function buildShippingServiceSchema() {
+  return {
+    '@type': 'ShippingService',
+    '@id': SHIPPING_SERVICE_ID,
+    name: 'Entrega y recolección coordinada en Cancún',
+    description: 'La disponibilidad, cobertura y cualquier cargo de recolección o entrega se confirman según la zona, distancia y tipo de equipo.',
+    fulfillmentType: 'FulfillmentTypeDelivery',
+    shippingConditions: {
+      '@type': 'ShippingConditions',
+      shippingDestination: {
+        '@type': 'DefinedRegion',
+        addressCountry: 'MX',
+        addressRegion: 'Quintana Roo',
+        addressLocality: 'Cancún',
+      },
+    },
+  };
+}
+
 function parsePrice(value?: string) {
   if (!value) return null;
   const match = String(value).replace(/,/g, '').match(/\d+(?:\.\d+)?/);
@@ -57,7 +78,7 @@ export function buildLocalBusinessSchema() {
     '@id': BUSINESS_ID,
     name: 'Pixon PC',
     description:
-      'Servicio técnico privado de reparación de computadoras, laptops, celulares e impresoras a domicilio en Cancún. Recolección y entrega en la ciudad, mantenimiento preventivo, ensamble de PCs gamer y soporte B2B empresarial.',
+      'Servicio técnico privado de reparación de computadoras, laptops, celulares e impresoras en Cancún. La recolección y entrega se coordinan según zona, disponibilidad y tipo de equipo. Mantenimiento preventivo, ensamble de PCs gamer, soporte B2B empresarial y atención escrita en inglés.',
     url: SITE_URL,
     telephone: '+529986690777',
     email: 'pixonpc@gmail.com',
@@ -71,7 +92,7 @@ export function buildLocalBusinessSchema() {
     },
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Circuito Hacienda Chimay, Fraccionamiento Haciendas Real del Caribe',
+      streetAddress: 'Cto. Hacienda Chimay',
       addressLocality: 'Cancún',
       addressRegion: 'Quintana Roo',
       postalCode: '77539',
@@ -81,18 +102,11 @@ export function buildLocalBusinessSchema() {
       { '@type': 'City', name: 'Cancún' },
       { '@type': 'AdministrativeArea', name: 'Quintana Roo' },
     ],
-    openingHoursSpecification: [
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-        opens: '09:00',
-        closes: '19:00',
-      },
-    ],
     sameAs: [
       'https://www.facebook.com/people/Pixon-PC/61556271364935/',
       'https://www.instagram.com/pixonpc/',
       'https://www.tiktok.com/@pixonpc',
+      'https://www.youtube.com/@pixonpc',
     ],
   };
 }
@@ -104,18 +118,10 @@ export function buildWebsiteSchema() {
     '@id': `${SITE_URL}/#website`,
     name: 'Pixon PC',
     url: `${SITE_URL}/`,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/servicios?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
   };
 }
 
-export function buildServiceSchema({ service, category, url, description, image }: ServiceSchemaInput) {
+export function buildServiceSchema({ service, category, url, description, image, areaServed }: ServiceSchemaInput) {
   const name = service.seoKeyword || service.label;
   if (!name) return null;
 
@@ -129,7 +135,7 @@ export function buildServiceSchema({ service, category, url, description, image 
     serviceType: category?.title ? `${name} - ${category.title}` : name,
     url: absoluteUrl(url),
     provider: { '@id': BUSINESS_ID },
-    areaServed: [
+    areaServed: areaServed || [
       { '@type': 'City', name: 'Cancún' },
       { '@type': 'AdministrativeArea', name: 'Quintana Roo' },
     ],

@@ -84,7 +84,7 @@
     ═══════════════════════════════════════════════════════ */
 
     /** Obtiene todos los comentarios de la API + reseñas de Google (sin caché) */
-    async function fetchComments() {
+    async function fetchCommentsLegacy() {
         try {
             const [localRes, googleRes] = await Promise.all([
                 fetch(`${API_BASE}/comments?r=${Date.now()}`, {
@@ -139,6 +139,52 @@
         }
     }
 
+    async function fetchComments() {
+        const [localResult, googleResult] = await Promise.allSettled([
+            fetch(`${API_BASE}/comments?r=${Date.now()}`, { signal: AbortSignal.timeout(4000) }),
+            fetch(`${API_BASE}/reviews/google?r=${Date.now()}`, { signal: AbortSignal.timeout(4000) })
+        ]);
+
+        let local = [];
+        let googleReviews = [];
+
+        if (localResult.status === 'fulfilled' && localResult.value.ok) {
+            local = await localResult.value.json().catch(() => []);
+        }
+
+        if (googleResult.status === 'fulfilled' && googleResult.value.ok) {
+            const googleData = await googleResult.value.json().catch(() => null);
+            const reviewUrl = googleData?.write_review_url || googleData?.reviews_url || googleData?.google_maps_uri;
+            if (reviewUrl) {
+                document.querySelectorAll('[data-google-reviews-link]').forEach(link => { link.href = reviewUrl; });
+            }
+            if (Array.isArray(googleData?.reviews)) {
+                googleReviews = googleData.reviews.map((review, index) => ({
+                    id: review.id || `google-${index}`,
+                    name: review.name || 'Cliente de Google',
+                    stars: review.rating,
+                    text: review.text,
+                    source: 'google',
+                    relative_time: review.relative_time || '',
+                    created_at: review.published_at || review.created_at || '',
+                    review_url: review.google_maps_uri || ''
+                })).filter(review => review.text);
+            }
+        }
+
+        const merged = [...googleReviews, ...local];
+        if (merged.length) {
+            try { localStorage.setItem('pixon_comments_v3', JSON.stringify(merged)); } catch (_) {}
+            return merged;
+        }
+
+        try {
+            const cached = localStorage.getItem('pixon_comments_v3');
+            if (cached) return JSON.parse(cached);
+        } catch (_) {}
+        return [...SEED];
+    }
+
     /** Publica un comentario nuevo en la API */
     async function saveComment(data) {
         const res = await fetch(`${API_BASE}/comments`, {
@@ -157,7 +203,7 @@
     /* ═══════════════════════════════════════════════════════
        MOTOR DEL CARRUSEL
     ═══════════════════════════════════════════════════════ */
-    function mountCarousel(container, track) {
+    function mountLegacyCarousel(container, track) {
         const S = CONFIG.SCROLL_SPEED;
         let paused = true;
         let running = false;
@@ -363,6 +409,300 @@
     /* ═══════════════════════════════════════════════════════
        HELPERS UI
     ═══════════════════════════════════════════════════════ */
+    function mountCarousel(container, track) {
+        const shell = container.closest('[data-comments-carousel-shell]') || container.parentElement;
+        const previousButton = shell?.querySelector('[data-comments-prev]');
+        const nextButton = shell?.querySelector('[data-comments-next]');
+        const toggleButton = shell?.querySelector('[data-comments-toggle]');
+        const status = shell?.querySelector('[data-comments-status]');
+        const activeCycle = track.querySelector('[data-comment-cycle="active"]');
+        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+        const activeCards = activeCycle ? Array.from(activeCycle.querySelectorAll('.comment-item')) : [];
+        const gap = Number.parseFloat(window.getComputedStyle(track).gap) || 0;
+        const speed = 22;
+        let cycleWidth = 0;
+        let rafId = null;
+        let lastFrame = null;
+        let visible = true;
+        let destroyed = false;
+        let userPaused = Boolean(reducedMotion?.matches);
+        let temporaryPause = false;
+        let hoverPaused = false;
+        let pointerActive = false;
+        let isDragging = false;
+        let pointerId = null;
+        let pointerStartX = 0;
+        let pointerStartY = 0;
+        let scrollStart = 0;
+        let interactionTimer = null;
+        let scrollFrame = null;
+
+        function autoplayAllowed() {
+            return !destroyed && visible && !userPaused && !temporaryPause && !hoverPaused && !document.hidden && activeCards.length > 1;
+        }
+
+        function updateToggle() {
+            if (!toggleButton) return;
+            const paused = userPaused || activeCards.length < 2;
+            toggleButton.disabled = activeCards.length < 2;
+            if (previousButton) previousButton.disabled = activeCards.length < 2;
+            if (nextButton) nextButton.disabled = activeCards.length < 2;
+            toggleButton.setAttribute('aria-pressed', String(paused));
+            toggleButton.setAttribute('aria-label', paused ? 'Reanudar movimiento automático' : 'Pausar movimiento automático');
+            toggleButton.title = paused ? 'Reanudar movimiento automático' : 'Pausar movimiento automático';
+            toggleButton.innerHTML = `<i class="fa-solid fa-${paused ? 'play' : 'pause'}" aria-hidden="true"></i>`;
+        }
+
+        function updateStatus(force = false) {
+            if (!status || !activeCards.length || (!force && status.textContent)) return;
+            const midpoint = container.scrollLeft + (container.clientWidth / 2);
+            let current = 0;
+            let distance = Infinity;
+            activeCards.forEach((card, index) => {
+                const cardMidpoint = card.offsetLeft + (card.offsetWidth / 2);
+                const currentDistance = Math.abs(cardMidpoint - midpoint);
+                if (currentDistance < distance) {
+                    distance = currentDistance;
+                    current = index;
+                }
+            });
+            status.textContent = `Comentario ${current + 1} de ${activeCards.length}`;
+        }
+
+        function recalculate({ preservePosition = true } = {}) {
+            if (!activeCycle) return;
+            const priorWidth = cycleWidth;
+            cycleWidth = activeCycle.offsetWidth + gap;
+            if (!cycleWidth) return;
+            if (!preservePosition || !priorWidth) {
+                container.scrollLeft = cycleWidth;
+                return;
+            }
+            const relative = (container.scrollLeft - priorWidth) / priorWidth;
+            container.scrollLeft = cycleWidth + (relative * cycleWidth);
+            normalizePosition();
+        }
+
+        function normalizePosition() {
+            if (!cycleWidth || pointerActive) return;
+            if (container.scrollLeft < cycleWidth * 0.45) {
+                container.scrollLeft += cycleWidth;
+            } else if (container.scrollLeft > cycleWidth * 1.55) {
+                container.scrollLeft -= cycleWidth;
+            }
+        }
+
+        function stop() {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = null;
+            lastFrame = null;
+        }
+
+        function tick(timestamp) {
+            if (!autoplayAllowed()) {
+                stop();
+                return;
+            }
+            if (!lastFrame) lastFrame = timestamp;
+            const elapsed = Math.min((timestamp - lastFrame) / 1000, 0.05);
+            lastFrame = timestamp;
+            container.scrollLeft += speed * elapsed;
+            normalizePosition();
+            rafId = requestAnimationFrame(tick);
+        }
+
+        function play() {
+            if (!autoplayAllowed() || rafId) return;
+            rafId = requestAnimationFrame(tick);
+        }
+
+        function pauseTemporarily(delay = 1200) {
+            temporaryPause = true;
+            stop();
+            clearTimeout(interactionTimer);
+            interactionTimer = setTimeout(() => {
+                temporaryPause = false;
+                play();
+            }, delay);
+        }
+
+        function scrollByCard(direction) {
+            if (!activeCards.length) return;
+            const card = activeCards[0];
+            const distance = card.offsetWidth + gap;
+            pauseTemporarily();
+            container.scrollBy({ left: direction * distance, behavior: reducedMotion?.matches ? 'auto' : 'smooth' });
+            setTimeout(() => {
+                normalizePosition();
+                updateStatus(true);
+            }, reducedMotion?.matches ? 0 : 360);
+        }
+
+        function onPrevious() { scrollByCard(-1); }
+        function onNext() { scrollByCard(1); }
+        function onToggle() {
+            userPaused = !userPaused;
+            temporaryPause = false;
+            clearTimeout(interactionTimer);
+            updateToggle();
+            if (userPaused) {
+                stop();
+                if (status) status.textContent = 'Movimiento automático pausado.';
+            } else {
+                if (status) status.textContent = 'Movimiento automático reanudado.';
+                play();
+            }
+        }
+
+        function onPointerDown(event) {
+            if (event.pointerType === 'mouse' && event.button !== 0) return;
+            pointerActive = true;
+            isDragging = false;
+            pointerId = event.pointerId;
+            pointerStartX = event.clientX;
+            pointerStartY = event.clientY;
+            scrollStart = container.scrollLeft;
+            pauseTemporarily(1600);
+        }
+
+        function onPointerMove(event) {
+            if (!pointerActive || event.pointerId !== pointerId) return;
+            const deltaX = event.clientX - pointerStartX;
+            const deltaY = event.clientY - pointerStartY;
+            if (!isDragging && Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                isDragging = true;
+                container.setPointerCapture?.(pointerId);
+            }
+            if (!isDragging) return;
+            event.preventDefault();
+            container.scrollLeft = scrollStart - deltaX;
+        }
+
+        function endPointer(event) {
+            if (!pointerActive || (event.pointerId && event.pointerId !== pointerId)) return;
+            if (isDragging && container.hasPointerCapture?.(pointerId)) container.releasePointerCapture(pointerId);
+            pointerActive = false;
+            isDragging = false;
+            pointerId = null;
+            normalizePosition();
+            updateStatus(true);
+        }
+
+        function onKeyDown(event) {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                onPrevious();
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                onNext();
+            }
+        }
+
+        function onScroll() {
+            if (scrollFrame) return;
+            scrollFrame = requestAnimationFrame(() => {
+                scrollFrame = null;
+                normalizePosition();
+            });
+        }
+
+        function onVisibilityChange() {
+            if (document.hidden) stop();
+            else play();
+        }
+
+        function onMotionChange(event) {
+            if (event.matches) {
+                userPaused = true;
+                stop();
+            }
+            updateToggle();
+        }
+
+        function onMouseEnter() {
+            hoverPaused = true;
+            stop();
+        }
+
+        function onMouseLeave() {
+            hoverPaused = false;
+            play();
+        }
+
+        function onFocusIn() {
+            hoverPaused = true;
+            stop();
+        }
+
+        function onFocusOut(event) {
+            if (container.contains(event.relatedTarget)) return;
+            hoverPaused = false;
+            play();
+        }
+
+        previousButton?.addEventListener('click', onPrevious);
+        nextButton?.addEventListener('click', onNext);
+        toggleButton?.addEventListener('click', onToggle);
+        container.addEventListener('pointerdown', onPointerDown);
+        container.addEventListener('pointermove', onPointerMove);
+        container.addEventListener('pointerup', endPointer);
+        container.addEventListener('pointercancel', endPointer);
+        container.addEventListener('keydown', onKeyDown);
+        container.addEventListener('focusin', onFocusIn);
+        container.addEventListener('focusout', onFocusOut);
+        container.addEventListener('mouseenter', onMouseEnter);
+        container.addEventListener('mouseleave', onMouseLeave);
+        container.addEventListener('scroll', onScroll, { passive: true });
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        reducedMotion?.addEventListener?.('change', onMotionChange);
+
+        const resizeObserver = typeof ResizeObserver === 'function'
+            ? new ResizeObserver(() => recalculate())
+            : null;
+        resizeObserver?.observe(container);
+
+        requestAnimationFrame(() => {
+            recalculate({ preservePosition: false });
+            updateToggle();
+            updateStatus(true);
+            play();
+        });
+
+        return {
+            pause() { temporaryPause = true; stop(); },
+            resume(delay = 0) {
+                clearTimeout(interactionTimer);
+                interactionTimer = setTimeout(() => {
+                    temporaryPause = false;
+                    play();
+                }, delay);
+            },
+            recalc() { recalculate(); },
+            destroy() {
+                destroyed = true;
+                stop();
+                clearTimeout(interactionTimer);
+                if (scrollFrame) cancelAnimationFrame(scrollFrame);
+                resizeObserver?.disconnect();
+                previousButton?.removeEventListener('click', onPrevious);
+                nextButton?.removeEventListener('click', onNext);
+                toggleButton?.removeEventListener('click', onToggle);
+                container.removeEventListener('pointerdown', onPointerDown);
+                container.removeEventListener('pointermove', onPointerMove);
+                container.removeEventListener('pointerup', endPointer);
+                container.removeEventListener('pointercancel', endPointer);
+                container.removeEventListener('keydown', onKeyDown);
+                container.removeEventListener('focusin', onFocusIn);
+                container.removeEventListener('focusout', onFocusOut);
+                container.removeEventListener('mouseenter', onMouseEnter);
+                container.removeEventListener('mouseleave', onMouseLeave);
+                container.removeEventListener('scroll', onScroll);
+                document.removeEventListener('visibilitychange', onVisibilityChange);
+                reducedMotion?.removeEventListener?.('change', onMotionChange);
+            }
+        };
+    }
+
     function starsHTML(n, source) {
         n = parseFloat(n) || 0;
         let html = '<span class="star-display">';
@@ -395,19 +735,31 @@
             .replace(/'/g, '&#39;');
     }
 
-    function buildCard(c) {
-        const card = document.createElement('div');
+    function buildCard(c, { clone = false } = {}) {
+        const card = document.createElement('article');
         card.className = 'comment-item';
         card.dataset.id = c.id || '';
+        card.setAttribute('role', 'listitem');
+        if (clone) card.setAttribute('aria-hidden', 'true');
         const source = c.source || 'local';
         const badge = sourceBadgeHTML(source);
+        const sourceText = source === 'google' ? 'Opinión publicada en Google' : 'Comentario de cliente';
+        const dateText = c.relative_time || '';
+        const reviewLink = source === 'google' && c.review_url
+            ? `<a href="${esc(c.review_url)}" target="_blank" rel="noopener noreferrer">Ver en Google Maps<span class="sr-only">: reseña de ${esc(c.name)}</span></a>`
+            : '';
         card.innerHTML = `
             <div class="header">
                 <h5>${esc(c.name)}${badge}</h5>
                 <div class="stars">${starsHTML(c.stars, source)}</div>
             </div>
             <p>"${esc(c.text)}"</p>
+            <footer class="comment-item__meta">
+                <span class="comment-item__source">${sourceText}${dateText ? ` · ${esc(dateText)}` : ''}</span>
+                ${reviewLink}
+            </footer>
         `;
+        if (clone) card.querySelectorAll('a').forEach(link => { link.tabIndex = -1; });
         return card;
     }
 
@@ -522,14 +874,16 @@
                 commentBox.innerHTML = '<div class="comment-item" style="min-width:260px;text-align:center;opacity:0.6;">Sé el primero en comentar 🌟</div>';
             } else {
                 commentBox.innerHTML = '';
-                const repeats = Math.max(
-                    2,
-                    Math.min(CONFIG.MAX_DUPLICATES, Math.ceil(CONFIG.MIN_LOOP_CARDS / comments.length))
-                );
                 const fragment = document.createDocumentFragment();
-                for (let d = 0; d < repeats; d++) {
-                    comments.forEach(c => fragment.appendChild(buildCard(c)));
-                }
+                ['before', 'active', 'after'].forEach(cycleName => {
+                    const cycle = document.createElement('div');
+                    const isClone = cycleName !== 'active';
+                    cycle.className = 'comment-cycle';
+                    cycle.dataset.commentCycle = cycleName;
+                    if (isClone) cycle.setAttribute('aria-hidden', 'true');
+                    comments.forEach(comment => cycle.appendChild(buildCard(comment, { clone: isClone })));
+                    fragment.appendChild(cycle);
+                });
                 commentBox.appendChild(fragment);
             }
 
@@ -860,7 +1214,7 @@
 
                 } catch (err) {
                     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar Comentario'; }
-                    showCommentMessage(section, 'No se pudo publicar: ' + err.message, 'error');
+                    showCommentMessage(root instanceof Element ? root : null, 'No se pudo publicar: ' + err.message, 'error');
                 }
             });
         }

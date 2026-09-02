@@ -1,0 +1,440 @@
+---
+interface Props {
+  lang?: 'es' | 'en';
+}
+
+const { lang = 'es' } = Astro.props;
+const copy = lang === 'en'
+  ? {
+      label: 'Liquid damage alert',
+      warning: 'MOISTURE DETECTED',
+      subWarning: 'Do not connect charger',
+      instructions: ['Do not connect', 'Power it off', 'Do not shake it'],
+      aria: 'Animated phone submerged in water with a moisture warning',
+    }
+  : {
+      label: 'Alerta por daño de líquido',
+      warning: 'HUMEDAD DETECTADA',
+      subWarning: 'No conectes el cargador',
+      instructions: ['No lo conectes', 'Apaga el equipo', 'No lo sacudas'],
+      aria: 'Celular animado sumergido en agua con advertencia de humedad',
+    };
+---
+
+<div class="water-hero-visual">
+  <div class="water-scene" role="img" aria-label={copy.aria}>
+    <div class="water-scene__surface" aria-hidden="true"><span></span></div>
+    <div class="water-scene__rays" aria-hidden="true"></div>
+    <div class="water-bubbles" aria-hidden="true">
+      <span class="bubble bubble--1"></span>
+      <span class="bubble bubble--2"></span>
+      <span class="bubble bubble--3"></span>
+      <span class="bubble bubble--4"></span>
+      <span class="bubble bubble--5"></span>
+      <span class="bubble bubble--6"></span>
+      <span class="bubble bubble--7"></span>
+      <span class="bubble bubble--8"></span>
+    </div>
+
+    <div class="water-warning-card">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <span>{copy.label}</span>
+    </div>
+
+    <div class="water-phone-shadow" aria-hidden="true"></div>
+
+    <div class="water-phone" aria-hidden="true">
+      <div class="water-phone__side-button water-phone__side-button--top"></div>
+      <div class="water-phone__side-button water-phone__side-button--bottom"></div>
+      <div class="water-phone__frame">
+        <div class="water-phone__screen">
+          <div class="water-phone__notch"></div>
+          <div class="water-phone__screen-glow"></div>
+          <div class="water-phone__alert">
+            <i class="fa-solid fa-droplet-slash" aria-hidden="true"></i>
+            <strong>{copy.warning}</strong>
+            <span>{copy.subWarning}</span>
+          </div>
+          <div class="water-phone__home-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="water-scene__depth" aria-hidden="true">Pixon PC · Cancún</div>
+  </div>
+
+  <div class="water-hero-visual__bottom">
+    <ul class="water-instructions" aria-label={lang === 'en' ? 'Immediate steps' : 'Pasos inmediatos'}>
+      {copy.instructions.map((instruction, index) => (
+        <li><span>0{index + 1}</span>{instruction}</li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .water-hero-visual {
+    --water-ink: #071f3a;
+    --water-cyan: #49d8ef;
+    --water-blue: #1185d8;
+    display: grid;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .water-scene {
+    position: relative;
+    isolation: isolate;
+    min-height: clamp(390px, 37vw, 455px);
+    overflow: hidden;
+    border: 1px solid rgba(126, 224, 245, .5);
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 50% 12%, rgba(135, 239, 255, .24), transparent 18%),
+      radial-gradient(circle at 20% 84%, rgba(20, 130, 221, .22), transparent 29%),
+      linear-gradient(168deg, #05182f 2%, #073a61 47%, #031323 100%);
+    box-shadow: 0 24px 52px rgba(3, 24, 47, .24), inset 0 1px rgba(255, 255, 255, .15);
+  }
+
+  .water-scene::before,
+  .water-scene::after {
+    position: absolute;
+    z-index: -1;
+    content: '';
+    pointer-events: none;
+  }
+
+  .water-scene::before {
+    inset: 0;
+    opacity: .2;
+    background: repeating-linear-gradient(102deg, transparent 0 66px, rgba(138, 235, 255, .14) 67px 68px, transparent 69px 132px);
+    mask-image: linear-gradient(to bottom, #000, transparent 80%);
+  }
+
+  .water-scene::after {
+    right: -20%;
+    bottom: -30%;
+    left: -20%;
+    height: 55%;
+    opacity: .32;
+    background: radial-gradient(ellipse at center, rgba(16, 111, 165, .65), transparent 66%);
+    filter: blur(18px);
+  }
+
+  .water-scene__surface {
+    position: absolute;
+    top: 28px;
+    right: 9%;
+    left: 9%;
+    height: 18px;
+    border-top: 2px solid rgba(164, 246, 255, .72);
+    border-radius: 50%;
+    box-shadow: 0 -7px 18px rgba(92, 225, 246, .32), 0 9px 0 rgba(90, 219, 239, .12);
+    transform: perspective(180px) rotateX(58deg);
+  }
+
+  .water-scene__surface span {
+    position: absolute;
+    right: 23%;
+    left: 23%;
+    height: 12px;
+    border-top: 1px solid rgba(164, 246, 255, .44);
+    border-radius: 50%;
+  }
+
+  .water-scene__rays {
+    position: absolute;
+    top: 50px;
+    left: 10%;
+    width: 80%;
+    height: 180px;
+    opacity: .18;
+    background: conic-gradient(from 250deg at 50% 0%, transparent 0 21%, rgba(137, 240, 255, .33) 23%, transparent 29% 35%, rgba(137, 240, 255, .23) 38%, transparent 45% 100%);
+    filter: blur(7px);
+  }
+
+  .water-warning-card {
+    position: absolute;
+    z-index: 3;
+    top: 52px;
+    left: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 11px;
+    border: 1px solid rgba(255, 208, 111, .5);
+    border-radius: 999px;
+    background: rgba(10, 30, 50, .72);
+    color: #ffe09a;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+    font-size: .68rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    transform-origin: left center;
+    animation: alert-breathe 3s ease-in-out infinite;
+  }
+
+  .water-warning-card i { color: #ffc857; }
+
+  .water-phone {
+    position: absolute;
+    z-index: 2;
+    top: 49%;
+    left: 50%;
+    width: min(39%, 176px);
+    aspect-ratio: .52;
+    transform: translate(-50%, -50%) rotate(9deg);
+    filter: drop-shadow(21px 28px 15px rgba(0, 5, 17, .42));
+    animation: phone-float 5.8s ease-in-out infinite;
+  }
+
+  .water-phone-shadow {
+    position: absolute;
+    z-index: 1;
+    top: 75%;
+    left: 50%;
+    width: min(32%, 146px);
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(0, 5, 17, .52), transparent 70%);
+    transform: translateX(-50%);
+    opacity: .32;
+    animation: shadow-pulse 5.8s ease-in-out infinite;
+  }
+
+  .water-phone::before {
+    position: absolute;
+    right: -21px;
+    bottom: 7%;
+    z-index: -1;
+    width: 100%;
+    height: 24%;
+    border-radius: 50%;
+    background: rgba(81, 226, 249, .2);
+    content: '';
+    filter: blur(10px);
+    transform: rotate(-10deg);
+  }
+
+  .water-phone__frame {
+    position: absolute;
+    inset: 0;
+    padding: 7px;
+    border: 2px solid rgba(206, 247, 255, .76);
+    border-radius: 29px;
+    background: linear-gradient(145deg, #a9f2fc, #0c5f8c 20%, #06192d 80%);
+    box-shadow: inset 2px 0 2px rgba(255, 255, 255, .5), inset -3px -4px 8px rgba(0, 0, 0, .42);
+  }
+
+  .water-phone__screen {
+    position: relative;
+    display: grid;
+    height: 100%;
+    overflow: hidden;
+    place-items: center;
+    border: 1px solid rgba(159, 242, 255, .68);
+    border-radius: 22px;
+    background: radial-gradient(circle at 80% 12%, rgba(255, 255, 255, .3), transparent 20%), linear-gradient(155deg, #0f75a1, #06192c 72%);
+  }
+
+  .water-phone__screen::after {
+    position: absolute;
+    inset: -30% -10%;
+    content: '';
+    background: linear-gradient(117deg, transparent 35%, rgba(255, 255, 255, .23) 47%, transparent 58%);
+    opacity: .72;
+    transform: translateX(14%);
+  }
+
+  .water-phone__notch {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: 36%;
+    height: 15px;
+    border-radius: 0 0 12px 12px;
+    background: #020a14;
+    transform: translateX(-50%);
+  }
+
+  .water-phone__screen-glow {
+    position: absolute;
+    top: 20%;
+    width: 80%;
+    height: 40%;
+    border-radius: 50%;
+    background: rgba(48, 194, 232, .28);
+    filter: blur(19px);
+  }
+
+  .water-phone__alert {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 9px;
+    width: 86%;
+    padding: 17px 10px;
+    border: 1px solid rgba(255, 213, 111, .48);
+    border-radius: 13px;
+    background: rgba(3, 18, 33, .76);
+    color: #fff1c5;
+    text-align: center;
+  }
+
+  .water-phone__alert i { color: #ffd166; font-size: 1.6rem; }
+  .water-phone__alert strong { color: #fff8d6; font-size: clamp(.7rem, 1.4vw, .9rem); letter-spacing: .08em; line-height: 1.1; }
+  .water-phone__alert span { color: #d8f8ff; font-size: clamp(.57rem, 1.1vw, .7rem); line-height: 1.25; }
+
+  .water-phone__home-bar {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    width: 32%;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(224, 250, 255, .7);
+    transform: translateX(-50%);
+  }
+
+  .water-phone__side-button {
+    position: absolute;
+    left: -4px;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+    background: #76dbea;
+  }
+
+  .water-phone__side-button--top { top: 25%; height: 8%; }
+  .water-phone__side-button--bottom { top: 37%; height: 14%; }
+
+  .water-bubbles { position: absolute; inset: 0; pointer-events: none; }
+
+  .bubble {
+    position: absolute;
+    bottom: -18px;
+    display: block;
+    width: 9px;
+    height: 9px;
+    border: 1px solid rgba(192, 247, 255, .8);
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 25%, #fff, rgba(135, 232, 249, .24) 31%, transparent 62%);
+    box-shadow: 0 0 10px rgba(111, 231, 249, .55);
+    animation: bubble-rise var(--bubble-duration, 5s) linear infinite;
+  }
+
+  .bubble--1 { --bubble-duration: 3.8s; left: 15%; width: 7px; height: 7px; animation-delay: -2s; }
+  .bubble--2 { --bubble-duration: 5.4s; left: 30%; width: 13px; height: 13px; animation-delay: -3.1s; }
+  .bubble--3 { --bubble-duration: 4.4s; left: 43%; width: 5px; height: 5px; animation-delay: -1s; }
+  .bubble--4 { --bubble-duration: 6s; left: 63%; width: 9px; height: 9px; animation-delay: -4s; }
+  .bubble--5 { --bubble-duration: 3.5s; left: 76%; width: 6px; height: 6px; animation-delay: -2.5s; }
+  .bubble--6 { --bubble-duration: 5.8s; left: 84%; width: 12px; height: 12px; animation-delay: -1.6s; }
+  .bubble--7 { --bubble-duration: 4.9s; left: 22%; width: 4px; height: 4px; animation-delay: -3.7s; }
+  .bubble--8 { --bubble-duration: 6.2s; left: 53%; width: 7px; height: 7px; animation-delay: -4.6s; }
+
+  /* The global low-end safeguard shortens every animation to .01ms.
+     This visual only animates transform and opacity, so keep these four
+     essential cues visible without changing the rest of the site. */
+  :global(html.low-end-mode) .water-phone,
+  :global(html.low-end-mode) .water-phone-shadow {
+    animation-duration: 5.8s !important;
+  }
+
+  :global(html.low-end-mode) .water-warning-card {
+    animation-duration: 3s !important;
+  }
+
+  :global(html.low-end-mode) .bubble {
+    animation-duration: var(--bubble-duration, 5s) !important;
+  }
+
+  .water-scene__depth {
+    position: absolute;
+    right: 24px;
+    bottom: 20px;
+    color: rgba(190, 246, 255, .62);
+    font-size: .67rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .water-hero-visual__bottom { padding-inline: 3px; }
+
+  .water-instructions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    border-top: 1px solid #c7e3eb;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .water-instructions li {
+    display: grid;
+    gap: 4px;
+    min-height: 38px;
+    align-items: center;
+    grid-template-columns: auto 1fr;
+    padding: 8px 10px 5px;
+    border-right: 1px solid #d2e2ee;
+    color: var(--water-ink);
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .water-instructions li:last-child { border-right: 0; }
+  .water-instructions li span { margin-right: 6px; color: #1284a5; font-size: .58rem; letter-spacing: .12em; }
+
+  @keyframes phone-float {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(8deg); }
+    25% { transform: translate(-50%, -50%) translateY(-10px) rotate(9deg); }
+    50% { transform: translate(-50%, -50%) translateY(0) rotate(8deg); }
+    75% { transform: translate(-50%, -50%) translateY(8px) rotate(7deg); }
+  }
+
+  @keyframes bubble-rise {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.68); }
+    14% { opacity: .78; }
+    76% { opacity: .58; }
+    100% { opacity: 0; transform: translate3d(16px, -500px, 0) scale(1.18); }
+  }
+
+  @keyframes alert-breathe {
+    0%, 100% { opacity: .94; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.035); }
+  }
+
+  @keyframes shadow-pulse {
+    0%, 100% { opacity: .32; transform: translateX(-50%) scaleX(1); }
+    25% { opacity: .22; transform: translateX(-50%) scaleX(.82); }
+    50% { opacity: .32; transform: translateX(-50%) scaleX(1); }
+    75% { opacity: .4; transform: translateX(-50%) scaleX(1.08); }
+  }
+
+  @media (max-width: 540px) {
+    .water-scene { min-height: 365px; border-radius: 22px; }
+    .water-phone { width: min(43%, 160px); }
+    .water-warning-card { top: 46px; left: 15px; font-size: .59rem; }
+    .water-scene__depth { right: 15px; bottom: 15px; font-size: .58rem; }
+    .bubble--6,
+    .bubble--8 { display: none; }
+    .water-instructions { grid-template-columns: 1fr; }
+    .water-instructions li,
+    .water-instructions li:last-child { min-height: 34px; padding: 7px 2px; border-right: 0; border-bottom: 1px solid #d2e2ee; }
+    .water-instructions li:last-child { border-bottom: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .water-phone,
+    .water-phone-shadow,
+    .water-warning-card,
+    .bubble,
+    :global(html.low-end-mode) .water-phone,
+    :global(html.low-end-mode) .water-phone-shadow,
+    :global(html.low-end-mode) .water-warning-card,
+    :global(html.low-end-mode) .bubble { animation: none !important; }
+  }
+</style>

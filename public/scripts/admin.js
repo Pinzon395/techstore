@@ -5,12 +5,7 @@ let allComments = [];
 let allRepairs = [];
 let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
-let analyticsData = null;
-let analyticsDailyData = [];
-let analyticsTopPagesError = null;
-let analyticsDailyError = null;
 let allUsers = [];
-let dashboardStatsUpdater = null;
 let activeRepairTicket = null;
 let crmCurrentPage = 1;
 let crmPageSize = 25;
@@ -70,8 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             fetchFaqs(),
             fetchUnanswered(),
             fetchRepairs(),
-            fetchBuilds(),
-            fetchAnalytics()
+            fetchBuilds()
         ]);
         
         // 3. Conectar SSE para notificaciones en vivo
@@ -87,39 +81,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        async function updateDashboardStats() {
-            try {
-                const kpiRes = await fetch(`${API_BASE}/admin/kpis`, INCLUDE_CREDENTIALS);
-                if (kpiRes.ok) {
-                    const kpis = await kpiRes.json();
-                    setStatNumber('kpi-tickets-open', kpis.openTickets || 0);
-                    setStatNumber('kpi-tickets-month', kpis.deliveredThisMonth || 0);
-                    const timeEl = document.getElementById('kpi-resolution-time');
-                    if (timeEl) timeEl.textContent = `${kpis.avgResolutionDays || 0}d`;
-                    setStatNumber('kpi-tickets-urgent', kpis.urgentTickets || 0);
-                    const revEl = document.getElementById('kpi-revenue');
-                    if (revEl) revEl.textContent = `$${Number(kpis.monthlyRevenue || 0).toLocaleString('es-MX')}`;
-                    setStatNumber('kpi-new-clients', kpis.newClientsThisMonth || 0);
-                }
-            } catch (err) {
-                console.error('Error cargando KPIs:', err);
-            }
-
-            if (analyticsData) {
-                renderTopPages();
-                renderDailyChart();
-            }
-        }
-        dashboardStatsUpdater = updateDashboardStats;
-
         // Escuchar el evento de cambio de vista del sidebar para recargar datos frescos
         window.addEventListener('admin:switch-view', (e) => {
             const targetView = e.detail && e.detail.view;
             if (!targetView) return;
-            if (targetView === 'dashboard') {
-                updateDashboardStats();
-                fetchAnalytics();
-            } else if (targetView === 'comments') {
+            if (targetView === 'comments') {
                 fetchComments();
             } else if (targetView === 'users') {
                 fetchUsers();
@@ -132,36 +98,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 fetchBuilds();
             }
         });
-
-        // Botón Refrescar del dashboard
-        const refreshBtn = document.getElementById('dashboard-refresh-btn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', async () => {
-                refreshBtn.disabled = true;
-                const icon = refreshBtn.querySelector('.fa-icon');
-                if (icon) icon.style.animation = 'adminSpin .7s linear infinite';
-                try {
-                    await Promise.all([
-                        fetchComments(),
-                        fetchUsers(),
-                        fetchFaqs(),
-                        fetchUnanswered(),
-                        fetchRepairs(),
-                        fetchBuilds(),
-                        fetchAnalytics()
-                    ]);
-                    showAdminNotice('Datos actualizados correctamente.', 'success');
-                } catch (err) {
-                    showAdminNotice('Error al actualizar: ' + err.message, 'error');
-                } finally {
-                    refreshBtn.disabled = false;
-                    if (icon) icon.style.animation = '';
-                }
-            });
-        }
-        
-        // Initial dashboard stats population
-        setTimeout(updateDashboardStats, 1000);
 
     } catch (err) {
         authLoading.innerHTML = `
@@ -344,7 +280,7 @@ function connectSSE() {
                 if (!allComments.some(c => c.id === newComment.id)) {
                     allComments.unshift(newComment); // Añadir al principio
                     renderComments();
-                    if (dashboardStatsUpdater) dashboardStatsUpdater();
+                    window.PixonDashboard?.refresh({ quiet: true });
                     addNotification({
                         id: `new-comment-${newComment.id}`,
                         title: `Comentario pendiente`,
@@ -470,188 +406,8 @@ function initNotifications() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   ANALYTICS
+   UTILIDADES DE INTERFAZ
 ───────────────────────────────────────────────────────────── */
-async function fetchAnalytics() {
-    const [summaryResult, topPagesResult, dailyResult] = await Promise.allSettled([
-        fetchJsonOrThrow(`${API_BASE}/admin/analytics/summary`, 'resumen de visitas'),
-        fetchJsonOrThrow(`${API_BASE}/admin/analytics/top-pages?days=30&limit=30`, 'páginas más visitadas'),
-        fetchJsonOrThrow(`${API_BASE}/admin/analytics/daily?days=14`, 'tráfico diario')
-    ]);
-
-    const summary = summaryResult.status === 'fulfilled'
-        ? summaryResult.value
-        : { totalViews: 0, todayViews: 0, uniqueToday: 0 };
-    const topPages = topPagesResult.status === 'fulfilled' && Array.isArray(topPagesResult.value)
-        ? topPagesResult.value
-        : [];
-
-    analyticsData = { ...summary, topPages };
-    analyticsDailyData = dailyResult.status === 'fulfilled' && Array.isArray(dailyResult.value)
-        ? dailyResult.value
-        : [];
-    analyticsTopPagesError = topPagesResult.status === 'rejected' ? topPagesResult.reason : null;
-    analyticsDailyError = dailyResult.status === 'rejected' ? dailyResult.reason : null;
-
-    if (dashboardStatsUpdater) dashboardStatsUpdater();
-}
-
-async function fetchJsonOrThrow(url, label) {
-    const res = await fetch(url, { credentials: 'include' });
-    if (!res.ok) throw new Error(`No se pudo cargar ${label} (HTTP ${res.status})`);
-    return res.json();
-}
-
-function setStatNumber(id, value) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = Number(value || 0).toLocaleString('es-MX');
-}
-
-function renderAnalyticsError(err) {
-    const message = escapeHtml(err?.message || 'No se pudieron cargar las métricas.');
-    const top = document.getElementById('analytics-top-pages');
-    const chart = document.getElementById('analytics-chart');
-    if (top) top.innerHTML = `<div class="empty-state">Error al cargar páginas más visitadas: ${message}</div>`;
-    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar tráfico diario: ${message}</div>`;
-}
-
-function renderTopPagesError(err) {
-    const top = document.getElementById('analytics-top-pages');
-    if (top) top.innerHTML = `<div class="empty-state">Error al cargar páginas más visitadas: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
-}
-
-function renderDailyChartError(err) {
-    const chart = document.getElementById('analytics-chart');
-    if (chart) chart.innerHTML = `<div class="empty-state">Error al cargar tráfico diario: ${escapeHtml(err?.message || 'Error desconocido')}</div>`;
-}
-
-function normalizeAnalyticsPath(path) {
-    const clean = String(path || '/').split('?')[0].replace(/\/+$/, '');
-    return clean || '/';
-}
-
-function renderTopPages() {
-    const container = document.getElementById('analytics-top-pages');
-    if (!container || !analyticsData?.topPages) return;
-    container.innerHTML = '';
-    if (analyticsTopPagesError) {
-        renderTopPagesError(analyticsTopPagesError);
-        return;
-    }
-
-    if (analyticsData.topPages.length === 0) {
-        container.innerHTML = '<div class="empty-state">Sin datos aún. Las visitas se registran cuando los usuarios navegan.</div>';
-        return;
-    }
-
-    const grouped = new Map();
-    analyticsData.topPages.forEach((page) => {
-        const path = normalizeAnalyticsPath(page.path);
-        const current = grouped.get(path) || { path, views: 0, unique_visitors: 0 };
-        current.views += Number(page.views || 0);
-        current.unique_visitors += Number(page.unique_visitors || 0);
-        grouped.set(path, current);
-    });
-
-    const pages = Array.from(grouped.values())
-        .sort((a, b) => Number(b.views || 0) - Number(a.views || 0))
-        .slice(0, 10);
-    const maxViews = Math.max(...pages.map((p) => Number(p.views || 0)), 1);
-    const totalViews = pages.reduce((sum, page) => sum + Number(page.views || 0), 0);
-    const totalUnique = pages.reduce((sum, page) => sum + Number(page.unique_visitors || 0), 0);
-
-    const list = document.createElement('div');
-    list.className = 'analytics-top-list';
-    list.innerHTML = `
-        <div class="analytics-summary-strip">
-            <span><strong>${totalViews.toLocaleString('es-MX')}</strong> vistas top 10</span>
-            <span><strong>${totalUnique.toLocaleString('es-MX')}</strong> visitantes únicos</span>
-        </div>
-    `;
-
-    pages.forEach((page, i) => {
-        const path = normalizeAnalyticsPath(page.path);
-        const views = Number(page.views || 0);
-        const uniques = Number(page.unique_visitors || 0);
-        const maxWidth = Math.max(4, Math.min((views / maxViews) * 100, 100));
-        const share = totalViews ? Math.round((views / totalViews) * 100) : 0;
-
-        const row = document.createElement('div');
-        row.className = 'analytics-top-row';
-        row.innerHTML = `
-            <span class="analytics-rank">${i + 1}</span>
-            <div class="analytics-top-main">
-                <div class="analytics-top-head">
-                    <span class="analytics-path" title="${escapeHtml(path)}">${escapeHtml(path)}</span>
-                    <strong>${views.toLocaleString('es-MX')}</strong>
-                </div>
-                <div class="analytics-top-meta">
-                    <span>${uniques.toLocaleString('es-MX')} visitante(s)</span>
-                    <span>${share}% del top 10</span>
-                </div>
-                <div class="analytics-bar">
-                    <div style="width:${maxWidth}%"></div>
-                </div>
-            </div>
-        `;
-        list.appendChild(row);
-    });
-
-    container.appendChild(list);
-}
-
-function renderDailyChart() {
-    const ctx = document.getElementById('analytics-chart');
-    if (!ctx) return;
-    if (analyticsDailyError) {
-        renderDailyChartError(analyticsDailyError);
-        return;
-    }
-
-    const data = analyticsDailyData || [];
-    if (!data.length) {
-        ctx.innerHTML = '<div class="empty-state">Sin tráfico diario todavía.</div>';
-        return;
-    }
-
-    const chronological = data.slice().reverse();
-    const labels = chronological.map(d => {
-        if (!d.date) return '';
-        // Recortar a YYYY-MM-DD antes de split para manejar ISOs con timestamp
-        const dateStr = String(d.date).substring(0, 10);
-        const parts = dateStr.split('-');
-        return parts.length === 3 ? `${parts[2]}/${parts[1]}` : dateStr;
-    });
-    const views = chronological.map(d => Number(d.views || 0));
-    const uniques = chronological.map(d => Number(d.unique_visitors || 0));
-    const maxVal = Math.max(...views, 1);
-    const totalViews = views.reduce((sum, value) => sum + value, 0);
-    const totalUniques = uniques.reduce((sum, value) => sum + value, 0);
-    const avgViews = Math.round(totalViews / Math.max(chronological.length, 1));
-    const bestIndex = views.indexOf(Math.max(...views));
-
-    ctx.innerHTML = `
-        <div class="analytics-summary-strip">
-            <span><strong>${totalViews.toLocaleString('es-MX')}</strong> vistas</span>
-            <span><strong>${totalUniques.toLocaleString('es-MX')}</strong> visitantes únicos</span>
-            <span><strong>${avgViews.toLocaleString('es-MX')}</strong> promedio diario</span>
-        </div>
-        <div class="chart-bars" aria-label="Tráfico diario de los últimos 14 días">
-            ${views.map((v, i) => {
-                const h = Math.max(4, (v / maxVal) * 150);
-                const isBest = i === bestIndex;
-                return `
-                    <div class="chart-day ${isBest ? 'is-best' : ''}" title="${labels[i]}: ${v} vistas, ${uniques[i]} visitantes únicos">
-                        <span class="chart-value">${v.toLocaleString('es-MX')}</span>
-                        <div class="chart-bar" style="height:${h}px"></div>
-                        <span class="chart-label">${labels[i]}</span>
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -1036,7 +792,7 @@ const REPAIR_DEVICE_SERVICE_OPTIONS = window.PIXON_TICKET_OPTIONS?.services || {
     'Monitor': ['No da imagen', 'Líneas / manchas', 'Fuente / alimentación', 'Otro'],
     'Componente PC': ['Diagnóstico', 'Tarjeta de video', 'Fuente de poder', 'Motherboard', 'RAM / SSD', 'Otro'],
     'Equipo gamer': ['Mantenimiento preventivo', 'Cambio de pasta térmica / Metal líquido', 'Optimización gaming', 'Upgrade de componentes', 'Otro'],
-    'Equipo empresarial / B2B': ['Mantenimiento de flotilla', 'Póliza de soporte', 'Instalación de red', 'Otro'],
+    'Equipo empresarial / B2B': ['Mantenimiento preventivo empresarial', 'Mantenimiento de flotilla', 'Póliza de soporte', 'Instalación de red', 'Otro'],
     'Otro': ['Otro']
 };
 
@@ -1155,7 +911,9 @@ function populateSelectOptions(selectId, values, allLabel, labelMap = {}) {
 
 function populateRepairFilters() {
     const priorityLabels = Object.fromEntries(Object.entries(REPAIR_PRIORITY_OPTIONS).map(([key, data]) => [key, data.label]));
-    populateSelectOptions('repairStatusFilter', Object.keys(REPAIR_STATUS_LABELS), 'Todos', REPAIR_STATUS_LABELS);
+    populateSelectOptions('repairStatusFilter', ['active', 'overdue', ...Object.keys(REPAIR_STATUS_LABELS)], 'Todos', {
+        active: 'Activos', overdue: 'Atrasados', ...REPAIR_STATUS_LABELS
+    });
     populateSelectOptions('repairDeviceFilter', Object.keys(REPAIR_DEVICE_SERVICE_OPTIONS), 'Todos');
     populateSelectOptions('repairUrgencyFilter', Object.keys(REPAIR_PRIORITY_OPTIONS), 'Todas', priorityLabels);
     refreshRepairServiceFilterOptions();
@@ -1181,13 +939,20 @@ function getRepairFilters() {
 
 function filterRepairs() {
     const filters = getRepairFilters();
+    const activeStatuses = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready']);
+    const now = Date.now();
     return allRepairs.filter(r => {
         const service = inferRepairService(r);
         const clientName = getRepairClientName(r);
         const urgency = inferRepairUrgency(r);
         const haystack = normalizeText([r.ticket_code, clientName, r.user_email, r.contact_email, r.contact_phone, r.device_type, r.device_brand, r.device_model, r.reported_issue, r.notes_internal, service, REPAIR_STATUS_LABELS[r.status] || r.status].join(' '));
+        const promisedAt = r.promised_at ? new Date(r.promised_at).getTime() : NaN;
+        const matchesStatus = filters.status === 'all'
+            || r.status === filters.status
+            || (filters.status === 'active' && activeStatuses.has(r.status))
+            || (filters.status === 'overdue' && Number.isFinite(promisedAt) && promisedAt < now && activeStatuses.has(r.status));
         return (!filters.search || haystack.includes(filters.search))
-            && (filters.status === 'all' || r.status === filters.status)
+            && matchesStatus
             && (filters.urgency === 'all' || urgency === filters.urgency)
             && (filters.device === 'all' || normalizeText(r.device_type) === normalizeText(filters.device))
             && (filters.service === 'all' || normalizeText(service) === normalizeText(filters.service));
@@ -1209,6 +974,11 @@ function formatRepairDate(value) {
         hour: '2-digit',
         minute: '2-digit'
     });
+}
+
+function formatRepairDateTimeInput(value) {
+    if (!value) return '';
+    return String(value).replace(' ', 'T').slice(0, 16);
 }
 
 function formatRepairMoney(value) {
@@ -1319,7 +1089,6 @@ function renderRepairText(label, value) {
 
 function renderRepairStatusOptions(current) {
     return Object.entries(REPAIR_STATUS_LABELS)
-        .filter(([key]) => key !== 'waiting_parts')
         .map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(label)}</option>`)
         .join('');
 }
@@ -1348,6 +1117,8 @@ function renderAppointmentTypeLabel(value) {
     return APPOINTMENT_TYPE_VALUES.find(item => normalizeText(item) === normalized) || value || 'Recepción de equipo';
 }
 
+let lastActiveTriggerElement = null;
+
 function renderRepairDetailModal(ticket) {
     activeRepairTicket = ticket;
     const details = parseRepairDetails(ticket);
@@ -1356,6 +1127,7 @@ function renderRepairDetailModal(ticket) {
     const statusColor = REPAIR_STATUS_COLORS[ticket.status] || '#cbd5e1';
     const urgency = inferRepairUrgency(ticket);
     const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || repairValue(ticket.priority);
+    const nextAction = ticket.next_action || 'Revisar expediente';
     const cleanPhone = String(ticket.contact_phone || '').replace(/\D/g, '');
     const waMessage = encodeURIComponent(`Hola ${clientName}, te contactamos de Pixon PC sobre tu ticket #${ticket.ticket_code}.`);
     const waHref = cleanPhone ? `https://wa.me/52${cleanPhone}?text=${waMessage}` : '';
@@ -1370,6 +1142,7 @@ function renderRepairDetailModal(ticket) {
     meta.innerHTML = `
         <span style="background:${statusColor}20;color:${statusColor};border-color:${statusColor}40;">Estado: ${escapeHtml(REPAIR_STATUS_LABELS[ticket.status] || repairValue(ticket.status))}</span>
         <span>Urgencia: ${escapeHtml(urgencyLabel)}</span>
+        <span style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.3);">Siguiente paso: ${escapeHtml(nextAction)}</span>
         <span>Creado: ${escapeHtml(formatRepairDate(ticket.created_at))}</span>
         ${details.isB2b ? '<span>B2B / Empresarial</span>' : ''}
     `;
@@ -1437,12 +1210,9 @@ function renderRepairDetailModal(ticket) {
                         <label>Prioridad<select id="repairDetailPriority" class="admin-input">${renderRepairPriorityOptions(ticket.priority || 'normal')}</select></label>
                         <label>Costo estimado<input id="repairDetailEstimatedCost" class="admin-input" type="number" min="0" step="0.01" value="${escapeHtml(ticket.estimated_cost ?? '')}"></label>
                         <label>Costo final<input id="repairDetailFinalCost" class="admin-input" type="number" min="0" step="0.01" value="${escapeHtml(ticket.final_cost ?? '')}"></label>
-                    </div>
-                    <div class="repair-ticket-field-grid">
-                        ${renderRepairField('Fecha de cita', formatRepairDate(ticket.appointment_at))}
-                        ${renderRepairField('Fecha prometida', formatRepairDate(ticket.promised_at))}
-                        ${renderRepairField('Fecha de entrega', formatRepairDate(ticket.delivered_at))}
-                        ${renderRepairField('Garantía', formatRepairDate(ticket.warranty_until))}
+                        <label>Fecha prometida<input id="repairDetailPromisedAt" class="admin-input" type="datetime-local" value="${escapeHtml(formatRepairDateTimeInput(ticket.promised_at))}"></label>
+                        <label>Fecha de entrega<input id="repairDetailDeliveredAt" class="admin-input" type="datetime-local" value="${escapeHtml(formatRepairDateTimeInput(ticket.delivered_at))}"></label>
+                        <label>Garantía hasta<input id="repairDetailWarrantyUntil" class="admin-input" type="date" value="${escapeHtml(String(ticket.warranty_until || '').slice(0, 10))}"></label>
                     </div>
                     <label class="repair-ticket-label">Diagnóstico técnico<textarea id="repairDetailDiagnostic" class="admin-input" rows="5">${escapeHtml(ticket.diagnostic || '')}</textarea></label>
                     <label class="repair-ticket-label">Nota para cliente (opcional, se envia por correo)<textarea id="repairDetailCustomerNote" class="admin-input" rows="4" placeholder="Escribe aqui una actualizacion clara para el cliente. Se enviara al correo registrado y se guardara en notas internas."></textarea></label>
@@ -1455,12 +1225,9 @@ function renderRepairDetailModal(ticket) {
                         <label>Estado de cita<select id="repairAppointmentStatus" class="admin-input">${renderAppointmentStatusOptions(ticket.appointment_status || 'pendiente_confirmacion')}</select></label>
                         <label>Fecha<input id="repairAppointmentDate" class="admin-input" type="date" value="${escapeHtml(ticket.appointment_date || '')}"></label>
                         <label>Hora<input id="repairAppointmentTime" class="admin-input" type="time" value="${escapeHtml(String(ticket.appointment_time || '').slice(0, 5))}"></label>
+                        <label>Método de recepción<input id="repairAppointmentDeliveryMethod" class="admin-input" maxlength="80" value="${escapeHtml(ticket.appointment_delivery_method || '')}"></label>
                     </div>
-                    <div class="repair-ticket-field-grid">
-                        ${renderRepairField('Como traera el equipo', ticket.appointment_delivery_method)}
-                        ${renderRepairField('Estado de cita', APPOINTMENT_STATUS_LABELS[ticket.appointment_status] || ticket.appointment_status)}
-                    </div>
-                    ${renderRepairText('Comentario de cita', ticket.appointment_note)}
+                    <label class="repair-ticket-label">Comentario de cita<textarea id="repairAppointmentNote" class="admin-input" rows="3">${escapeHtml(ticket.appointment_note || '')}</textarea></label>
                     <div class="repair-detail-actions">
                         <button class="btn-admin btn-approve" type="button" data-appointment-action="confirmada">Confirmar cita</button>
                         <button class="btn-admin" type="button" data-appointment-action="reagendada">Reagendar</button>
@@ -1478,7 +1245,8 @@ function renderRepairDetailModal(ticket) {
     `;
 }
 
-async function openRepairTicket(ticketId) {
+async function openRepairTicket(ticketId, triggerEl = null) {
+    lastActiveTriggerElement = triggerEl || document.activeElement;
     const overlay = document.getElementById('repairDetailOverlay');
     const body = document.getElementById('repairDetailBody');
     const title = document.getElementById('repairDetailTitle');
@@ -1499,6 +1267,8 @@ async function openRepairTicket(ticketId) {
         if (!ticket || !ticket.id) throw new Error('invalid ticket payload');
         renderRepairDetailModal(ticket);
         loadTicketHistory(ticket.id);
+        const firstInput = document.getElementById('repairDetailStatus');
+        if (firstInput) firstInput.focus();
     } catch (err) {
         console.error('No se pudo cargar el detalle por endpoint; usando datos ya cargados en tabla.', err);
         if (fallbackTicket) {
@@ -1508,6 +1278,56 @@ async function openRepairTicket(ticketId) {
         }
         body.innerHTML = '<div class="empty-state">No se pudo cargar la información completa del ticket. Intenta de nuevo.</div>';
     }
+}
+
+const REPAIR_HISTORY_ACTION_LABELS = {
+    creacion: 'Ticket creado',
+    cambio_de_estado: 'Cambio de estado',
+    actualizacion: 'Información actualizada',
+    actualizacion_cita: 'Cita actualizada',
+    update: 'Información actualizada'
+};
+
+const REPAIR_HISTORY_FIELD_LABELS = {
+    status: 'Estado',
+    priority: 'Prioridad',
+    diagnostic: 'Diagnóstico',
+    notes_internal: 'Notas internas',
+    estimated_cost: 'Costo estimado',
+    final_cost: 'Costo final',
+    appointment_type: 'Tipo de cita',
+    appointment_date: 'Fecha de cita',
+    appointment_time: 'Hora de cita',
+    appointment_datetime: 'Fecha y hora de cita',
+    appointment_delivery_method: 'Método de recepción',
+    appointment_note: 'Comentario de cita',
+    appointment_status: 'Estado de cita',
+    promised_at: 'Fecha prometida',
+    delivered_at: 'Fecha de entrega',
+    warranty_until: 'Garantía',
+    comment: 'Comentario'
+};
+
+function repairHistoryValue(field, value) {
+    if (value === null || value === undefined || value === '') return 'Sin definir';
+    if (field === 'status') return REPAIR_STATUS_LABELS[value] || String(value);
+    if (field === 'appointment_status') return APPOINTMENT_STATUS_LABELS[value] || String(value);
+    if (field === 'priority') return ({ low: 'Baja', normal: 'Normal', high: 'Alta', urgent: 'Urgente' })[value] || String(value);
+    if (field === 'estimated_cost' || field === 'final_cost') return formatRepairMoney(value);
+    return String(value);
+}
+
+function renderRepairHistoryDiff(diff) {
+    if (!diff || typeof diff !== 'object') return '';
+    return Object.entries(diff).map(([field, change]) => {
+        const label = REPAIR_HISTORY_FIELD_LABELS[field] || field;
+        const before = change?.before ?? change?.anterior ?? null;
+        const after = change?.after ?? change?.nuevo ?? change;
+        if (['diagnostic', 'notes_internal', 'appointment_note'].includes(field)) {
+            return `<span><strong>${escapeHtml(label)}:</strong> actualizado</span>`;
+        }
+        return `<span><strong>${escapeHtml(label)}:</strong> ${escapeHtml(repairHistoryValue(field, before))} → ${escapeHtml(repairHistoryValue(field, after))}</span>`;
+    }).join('');
 }
 
 async function loadTicketHistory(ticketId) {
@@ -1524,18 +1344,14 @@ async function loadTicketHistory(ticketId) {
         }
         timelineContainer.innerHTML = history.map(item => {
             const date = formatRepairDate(item.created_at);
-            let actionLabel = item.action || 'Modificación';
+            const actionLabel = REPAIR_HISTORY_ACTION_LABELS[item.action] || item.action || 'Modificación';
             let diffDesc = '';
-            
-            // Decodificar diff si existe
             if (item.diff) {
                 try {
                     const diffObj = typeof item.diff === 'string' ? JSON.parse(item.diff) : item.diff;
-                    diffDesc = Object.entries(diffObj)
-                        .map(([key, val]) => `<strong>${key}:</strong> ${escapeHtml(JSON.stringify(val))}`)
-                        .join(', ');
+                    diffDesc = renderRepairHistoryDiff(diffObj);
                 } catch (e) {
-                    diffDesc = String(item.diff);
+                    diffDesc = '';
                 }
             }
 
@@ -1543,7 +1359,7 @@ async function loadTicketHistory(ticketId) {
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="timeline-meta">${date} — por ${escapeHtml(item.user_name || item.user_email || 'Sistema')}</div>
-                    <div class="timeline-title">${escapeHtml(actionLabel.toUpperCase())}</div>
+                    <div class="timeline-title">${escapeHtml(actionLabel)}</div>
                     ${diffDesc ? `<div class="timeline-desc">${diffDesc}</div>` : ''}
                 </div>
             `;
@@ -1561,6 +1377,10 @@ function closeRepairTicketModal() {
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('modal-open');
     activeRepairTicket = null;
+    if (lastActiveTriggerElement && typeof lastActiveTriggerElement.focus === 'function') {
+        lastActiveTriggerElement.focus();
+        lastActiveTriggerElement = null;
+    }
 }
 
 function summarizeTicketNotifications(notifications) {
@@ -1591,13 +1411,19 @@ async function saveRepairTicketChanges() {
         notes_internal: document.getElementById('repairDetailNotes')?.value || '',
         estimated_cost: document.getElementById('repairDetailEstimatedCost')?.value || null,
         final_cost: document.getElementById('repairDetailFinalCost')?.value || null,
+        promised_at: document.getElementById('repairDetailPromisedAt')?.value || null,
+        delivered_at: document.getElementById('repairDetailDeliveredAt')?.value || null,
+        warranty_until: document.getElementById('repairDetailWarrantyUntil')?.value || null,
         appointment_type: document.getElementById('repairAppointmentType')?.value || null,
         appointment_status: document.getElementById('repairAppointmentStatus')?.value || 'pendiente_confirmacion',
         appointment_date: document.getElementById('repairAppointmentDate')?.value || null,
         appointment_time: document.getElementById('repairAppointmentTime')?.value || null,
+        appointment_delivery_method: document.getElementById('repairAppointmentDeliveryMethod')?.value || null,
+        appointment_note: document.getElementById('repairAppointmentNote')?.value || null,
         appointment_datetime: document.getElementById('repairAppointmentDate')?.value && document.getElementById('repairAppointmentTime')?.value
             ? `${document.getElementById('repairAppointmentDate').value} ${document.getElementById('repairAppointmentTime').value}:00`
-            : null
+            : null,
+        expected_updated_at: activeRepairTicket.updated_at || null
     };
     try {
         const res = await fetch(`${API_BASE}/admin/tickets/${activeRepairTicket.id}`, {
@@ -1606,18 +1432,29 @@ async function saveRepairTicketChanges() {
             credentials: 'include',
             body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error('save failed');
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 409) {
+            showAdminNotice('El ticket fue modificado por otro usuario. Recargando datos más recientes...', 'warning');
+            await openRepairTicket(activeRepairTicket.id);
+            return;
+        }
+        if (!res.ok) throw new Error(data.message || data.error || `No se pudo guardar el ticket (HTTP ${res.status}).`);
         const index = allRepairs.findIndex(item => String(item.id) === String(data.ticket.id));
         if (index >= 0) allRepairs[index] = data.ticket;
         renderRepairs();
         renderRepairDetailModal(data.ticket);
+        await loadTicketHistory(data.ticket.id);
+        fetchAdminAppointments();
+        window.dispatchEvent(new CustomEvent('admin:data-changed', { detail: { source: 'ticket', id: data.ticket.id } }));
         if (saveMessage) saveMessage.textContent = 'Cambios guardados correctamente.' + summarizeTicketNotifications(data.notifications);
+        showAdminNotice('Ticket guardado correctamente.', 'success');
     } catch (err) {
-        console.error(err);
-        if (saveMessage) saveMessage.textContent = 'No se pudieron guardar los cambios.';
+        console.error('No se pudieron guardar los cambios del ticket.', err);
+        if (saveMessage) saveMessage.textContent = err.message || 'No se pudieron guardar los cambios.';
+        showAdminNotice(err.message || 'Error al guardar ticket', 'error');
     }
 }
+
 
 /* ─────────────────────────────────────────────────────────────
    TALLER (REPAIRS) UI
@@ -1883,12 +1720,31 @@ function addAppointmentExceptionFromUI() {
 function openRepairDeleteConfirm(ticketId) {
     pendingDeleteRepairId = ticketId || activeRepairTicket?.id || null;
     if (!pendingDeleteRepairId) return;
+    const ticket = allRepairs.find(item => String(item.id) === String(pendingDeleteRepairId)) || activeRepairTicket;
     const overlay = document.getElementById('repairDeleteConfirmOverlay');
     if (!overlay) return;
+
+    const modalBody = overlay.querySelector('.admin-modal-body');
+    if (modalBody && ticket) {
+        const clientName = getRepairClientName(ticket);
+        modalBody.innerHTML = `
+            <p style="color:var(--a-text);font-weight:700;margin:0 0 10px;font-size:1rem;">¿Seguro que deseas eliminar el ticket #${escapeHtml(ticket.ticket_code)}?</p>
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:0.88rem;line-height:1.5;">
+                <div><strong>Cliente:</strong> ${escapeHtml(clientName)}</div>
+                <div><strong>Equipo:</strong> ${escapeHtml(ticket.device_type || '')} ${escapeHtml(ticket.device_brand || '')}</div>
+                <div><strong>Estado actual:</strong> ${escapeHtml(REPAIR_STATUS_LABELS[ticket.status] || ticket.status)}</div>
+            </div>
+            <p style="color:var(--a-text-dim);margin:0;font-size:0.85rem;">Esta acción moverá el ticket al estado <em>eliminado</em> y cancelará cualquier cita asociada pendiente.</p>
+        `;
+    }
+
     overlay.classList.add('show');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
+    const cancelBtn = document.getElementById('repairDeleteCancel');
+    if (cancelBtn) cancelBtn.focus();
 }
+
 
 function closeRepairDeleteConfirm() {
     const overlay = document.getElementById('repairDeleteConfirmOverlay');
@@ -1917,6 +1773,7 @@ async function deleteRepairTicketConfirmed() {
         closeRepairTicketModal();
         renderRepairs();
         renderAdminAppointments();
+        window.dispatchEvent(new CustomEvent('admin:data-changed', { detail: { source: 'ticket-delete', id: ticketId } }));
         const summary = document.getElementById('repairFilterSummary');
         if (summary) summary.textContent = 'Ticket eliminado correctamente.';
     } catch (err) {
@@ -2067,14 +1924,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.id === 'repairDeleteConfirmOverlay') closeRepairDeleteConfirm();
     });
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && document.getElementById('repairDetailOverlay')?.classList.contains('show')) {
-            closeRepairTicketModal();
-        }
-        if (event.key === 'Escape' && document.getElementById('repairDeleteConfirmOverlay')?.classList.contains('show')) {
-            closeRepairDeleteConfirm();
+        if (event.key === 'Escape') {
+            if (document.getElementById('repairDeleteConfirmOverlay')?.classList.contains('show')) {
+                closeRepairDeleteConfirm();
+                return;
+            }
+            if (document.getElementById('repairDetailOverlay')?.classList.contains('show')) {
+                closeRepairTicketModal();
+                return;
+            }
+            if (document.getElementById('faqModalOverlay')?.classList.contains('show')) {
+                closeFaqModal();
+                return;
+            }
+            if (document.getElementById('buildModalOverlay')?.classList.contains('show')) {
+                closeBuildModal();
+                return;
+            }
         }
     });
 });
+
 
 function crmExportToCsv() {
     const filtered = filterRepairs();
@@ -2193,6 +2063,7 @@ window.saveRepair = async function() {
 
         await fetchRepairs();
         closeRepairModal();
+        window.dispatchEvent(new CustomEvent('admin:data-changed', { detail: { source: 'ticket-create' } }));
     } catch(err) {
         showAdminNotice(err.message, 'error');
     }

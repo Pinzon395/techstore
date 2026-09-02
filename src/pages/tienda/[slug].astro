@@ -6,6 +6,7 @@ import Breadcrumb from '../../components/Breadcrumb.astro';
 import CartDrawer from '../../components/store/CartDrawer.astro';
 import storeCss from '../../styles/store.css?url';
 import { getPublishedCommerceItems } from '../../lib/commerce-build';
+import { SHIPPING_SERVICE_ID } from '../../lib/schema';
 
 export async function getStaticPaths() {
   const items = await getPublishedCommerceItems();
@@ -22,10 +23,11 @@ export async function getStaticPaths() {
 const { item, complements = [], similar = [] } = Astro.props as any;
 const currentPrice = String(item.sale_price ?? item.base_price);
 const hasSale = item.sale_price != null && Number(item.sale_price) < Number(item.base_price);
-const available = item.status === 'ACTIVE' && Boolean(item.allow_purchase) && (!item.track_stock || Number(item.stock_quantity) > Number(item.reserved_quantity));
+const availableQuantity = Math.max(0, Number(item.stock_quantity || 0) - Number(item.reserved_quantity || 0));
+const available = item.status === 'ACTIVE' && Boolean(item.allow_purchase) && (!item.track_stock || availableQuantity > 0);
 const sold = item.status === 'SOLD';
 const image = item.image_url || '/assets/images/tienda-hero-pixon.webp';
-const canonical = item.seo_canonical_url || `https://pixon.com.mx/tienda/${item.slug}`;
+const canonical = `https://pixon.com.mx/tienda/${item.slug}`;
 const title = item.seo_title || `${item.name} en Cancún | Pixon PC`;
 const description = item.seo_description || item.short_description || `${item.name} disponible en Pixon PC Cancún. Consulta condición, garantía y disponibilidad real.`;
 const money = (value: any) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: item.currency || 'MXN' }).format(Number(value || 0));
@@ -45,6 +47,10 @@ const productSchema = {
     availability: available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     itemCondition: item.condition_code === 'NEW' ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition',
     seller: { '@id': 'https://pixon.com.mx/#business' },
+    shippingDetails: {
+      '@type': 'OfferShippingDetails',
+      hasShippingService: { '@id': SHIPPING_SERVICE_ID },
+    },
   },
 };
 ---
@@ -85,11 +91,17 @@ const productSchema = {
             <div class="product-sold-message"><h2>Esta oferta ya encontró dueño.</h2><p>La publicación permanece visible como referencia real. Revisa equipos disponibles o solicita uno similar.</p><a class="store-action store-action-primary" href="/tienda">Ver equipos disponibles</a></div>
           ) : (
             <div class="product-buy-actions">
-              <button class="store-action store-action-primary" type="button" data-add-to-cart data-item-id={item.id} data-item-slug={item.slug} data-item-name={item.name} data-item-price={currentPrice} data-item-currency={item.currency} data-item-image={image} disabled={!available}>{available ? 'Agregar al carrito' : 'No disponible'}</button>
+              <button class="store-action store-action-primary" type="button" data-add-to-cart data-item-id={item.id} data-item-slug={item.slug} data-item-name={item.name} data-item-price={currentPrice} data-item-currency={item.currency} data-item-image={image} data-item-type={item.item_type} data-item-max={item.track_stock ? Math.max(1, availableQuantity) : 100} disabled={!available}>{available ? (item.track_stock && availableQuantity === 1 ? 'Agregar última unidad' : 'Agregar al carrito') : 'No disponible'}</button>
               <a class="store-action store-action-secondary" href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola Pixon PC, quiero consultar ${item.name} (${item.slug}).`)}`} target="_blank" rel="noopener noreferrer">Consultar antes de comprar</a>
             </div>
           )}
-          <ul class="product-trust-list"><li>Precio y stock revalidados al confirmar</li><li>Atención local de Pixon PC en Cancún</li><li>Garantía documentada cuando corresponda</li></ul>
+          <ul class="product-trust-list">
+            <li>Precio y stock revalidados al confirmar</li>
+            <li>Entrega en taller o a domicilio sin costo adicional dentro de Cancún</li>
+            <li>Condiciones y garantía documentadas antes de confirmar la compra</li>
+            <li>Garantía documentada cuando corresponda</li>
+          </ul>
+          <a class="product-policy-link" href="/politica-de-envios-y-devoluciones">Ver condiciones de entrega y garantía</a>
         </div>
       </div>
     </section>
@@ -105,8 +117,8 @@ const productSchema = {
 
     {similar.length > 0 && <section class="store-shell product-similar" aria-labelledby="similar-title"><header><h2 id="similar-title">Alternativas disponibles</h2><a href="/tienda">Ver todo el catálogo →</a></header><div class="home-store-grid">{similar.map((candidate: any) => <article class="home-store-card"><a class="home-store-card-media" href={`/tienda/${candidate.slug}`}><img src={candidate.image_url || '/assets/images/tienda-hero-pixon.webp'} alt={candidate.name} width="420" height="300" loading="lazy" /></a><div class="home-store-card-body"><h3><a href={`/tienda/${candidate.slug}`}>{candidate.name}</a></h3><strong>{money(candidate.sale_price ?? candidate.base_price)}</strong></div></article>)}</div></section>}
   </main>
-  <CartDrawer />
+  <CartDrawer showLauncher={true} />
   <Footer />
-  <script src="/scripts/store-cart.js?v=20260812-1" is:inline defer></script>
-  <script src="/scripts/store-product.js?v=20260812-1" is:inline defer></script>
+  <script src="/scripts/store-cart.js?v=20260819-1" is:inline defer></script>
+  <script src="/scripts/store-product.js?v=20260819-1" is:inline defer></script>
 </Base>

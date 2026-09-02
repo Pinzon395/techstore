@@ -48,11 +48,13 @@ export interface ServiceFlags {
   isB2bOfficeSupport: boolean;
   isB2bWifiEmpresarial: boolean;
   isPhoneSpeakerRepair: boolean;
+  isPhoneBatteryReplacement: boolean;
   isPhoneScreenReplacement: boolean;
   isPhoneSoftwareUnlock: boolean;
   isPhoneFlexButtons: boolean;
   isPhoneDiagnostic: boolean;
   isPhoneNoPower: boolean;
+  isPhoneLiquidDamage: boolean;
   isIphoneService: boolean;
   isIphoneScreenRepair: boolean;
   isIphoneBatteryReplacement: boolean;
@@ -120,11 +122,13 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
   const isB2bOfficeSupport = category.slug === 'b2b' && service.slug === 'soporte-oficinas';
   const isB2bWifiEmpresarial = category.slug === 'b2b' && service.slug === 'wifi-empresarial';
   const isPhoneSpeakerRepair = category.slug === 'telefono' && service.slug === 'reparacion-bocina';
+  const isPhoneBatteryReplacement = category.slug === 'telefono' && service.slug === 'cambio-bateria';
   const isPhoneScreenReplacement = category.slug === 'telefono' && service.slug === 'cambio-pantalla';
   const isPhoneSoftwareUnlock = category.slug === 'telefono' && service.slug === 'liberacion-software';
   const isPhoneFlexButtons = category.slug === 'telefono' && service.slug === 'cambio-flex-botones';
   const isPhoneDiagnostic = category.slug === 'telefono' && service.slug === 'diagnostico';
   const isPhoneNoPower = category.slug === 'telefono' && service.slug === 'celular-no-prende';
+  const isPhoneLiquidDamage = category.slug === 'telefono' && service.slug === 'celular-mojado';
   const isIphoneService = category.slug === 'telefono' && (service.slug === 'reparacion-iphone' || service.slug.endsWith('-iphone'));
   const isIphoneScreenRepair = category.slug === 'telefono' && service.slug === 'reparacion-pantalla-iphone';
   const isIphoneBatteryReplacement = category.slug === 'telefono' && service.slug === 'cambio-bateria-iphone';
@@ -201,11 +205,13 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
     isB2bOfficeSupport,
     isB2bWifiEmpresarial,
     isPhoneSpeakerRepair,
+    isPhoneBatteryReplacement,
     isPhoneScreenReplacement,
     isPhoneSoftwareUnlock,
     isPhoneFlexButtons,
     isPhoneDiagnostic,
     isPhoneNoPower,
+    isPhoneLiquidDamage,
     isIphoneService,
     isIphoneScreenRepair,
     isIphoneBatteryReplacement,

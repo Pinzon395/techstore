@@ -43,7 +43,7 @@
         'Monitor': ['No da imagen', 'Líneas / manchas', 'Fuente / alimentación', 'Otro'],
         'Componente PC': ['Diagnóstico', 'Tarjeta de video', 'Fuente de poder', 'Motherboard', 'RAM / SSD', 'Otro'],
         'Equipo gamer': ['Ensambles PC Gamer', 'Mantenimiento Preventivo', 'Cambio de pasta térmica', 'Optimización del Sistema', 'Upgrade RAM / SSD', 'Limpieza profunda', 'Diagnóstico', 'Otro'],
-        'Equipo empresarial / B2B': ['Mantenimiento de flotilla', 'Póliza de soporte', 'Instalación de red', 'Otro'],
+        'Equipo empresarial / B2B': ['Mantenimiento preventivo empresarial', 'Mantenimiento de flotilla', 'Póliza de soporte', 'Instalación de red', 'Otro'],
         'Otro': ['Otro']
     };
 

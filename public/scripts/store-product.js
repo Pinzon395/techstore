@@ -20,8 +20,7 @@
   complements.forEach(function (input) { input.addEventListener('change', updateTotal); });
   mainButton?.addEventListener('click', function () {
     complements.filter(function (input) { return input.checked; }).forEach(function (input) {
-      window.PixonCart?.add({ id: input.dataset.complementId, slug: input.dataset.complementSlug, name: input.dataset.complementName, displayPrice: input.dataset.complementPrice, currency: input.dataset.complementCurrency }, 1);
+      window.PixonCart?.add({ id: input.dataset.complementId, slug: input.dataset.complementSlug, name: input.dataset.complementName, displayPrice: input.dataset.complementPrice, currency: input.dataset.complementCurrency, type: 'SERVICE', maxQuantity: 100 }, 1);
     });
   });
 })();
-

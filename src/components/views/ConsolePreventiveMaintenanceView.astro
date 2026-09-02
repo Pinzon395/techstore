@@ -5,995 +5,1565 @@ import CommentsSection from '../CommentsSection.astro';
 import ContactSection from '../ContactSection.astro';
 
 const { service, category } = Astro.props;
+const quoteMessage = encodeURIComponent(`Hola Pixon PC. Quiero cotizar mantenimiento preventivo para una consola en Cancún.
 
-const waMessage = encodeURIComponent(
-  'Hola, quiero cotizar mantenimiento preventivo de consola en Cancún. Mi consola se calienta y quiero evitar apagados.'
-);
+Consola / modelo:
+Síntoma o motivo:
+¿Hace ruido, se calienta o se apaga?:
+Último mantenimiento:
+Zona:`);
+const symptomsMessage = encodeURIComponent(`Hola Pixon PC. Quiero explicar los síntomas de mi consola antes de solicitar mantenimiento.
 
-const pmFaqs = [
-  {
-    question: '¿Cuánto cuesta el mantenimiento preventivo de consola en Cancún?',
-    answer: 'El servicio preventivo básico inicia en $700 MXN. Depende del modelo exacto (PlayStation 5, Xbox Series X, Nintendo Switch, etc.) y de si requiere materiales térmicos especiales como metal líquido o almohadillas térmicas de alta conductividad para evitar que se apague tu consola.',
-  },
-  {
-    question: '¿La limpieza de consola en Cancún incluye cambio de pasta térmica?',
-    answer: 'Sí, incluye desarmado total, remoción de polvo del ventilador, limpieza del disipador de calor y reemplazo de pasta térmica vieja por una premium. Esto previene el sobrecalentamiento y elimina el lag en consola durante partidas exigentes.',
-  },
-  {
-    question: '¿Por qué se traba mi consola Nintendo Switch en Cancún?',
-    answer: 'El calor y la humedad de Cancún aceleran el secado de la pasta térmica. Si se traba tu consola, reduce su rendimiento o se apaga sola, requiere limpieza interna y cambio de pasta térmica de inmediato para evitar una pantalla negra en tu consola por daño térmico permanente.',
-  },
-  {
-    question: '¿En el mantenimiento preventivo de PS5 se cambia el metal líquido?',
-    answer: 'En la PS5 inspeccionamos visualmente que no haya zonas secas o desplazamientos del metal líquido en el procesador APU. Si es necesario, lo redistribuimos o aplicamos metal líquido nuevo con aislamiento protector para evitar cortocircuitos y sobrecalentamiento severo.',
-  },
-  {
-    question: '¿Qué pasa si no hago mantenimiento preventivo y mi consola tiene lag?',
-    answer: 'No realizar la limpieza interna provoca acumulación de polvo pesado y salitre de Cancún. Esto tapa las rejillas, haciendo que el ventilador gire a máximas revoluciones (ruido de turbina), aparezca el lag térmico (caída de FPS), se apague la consola sola para protegerse o incluso sufra un daño total en la placa base.',
-  },
-  {
-    question: '¿El mantenimiento preventivo de consolas en Cancún tiene garantía?',
-    answer: 'Garantizamos el ensamble profesional, la correcta aplicación del compuesto térmico y la limpieza profunda del sistema de ventilación. Esto reduce drásticamente las temperaturas y previene que tu consola se apague sola o muestre pantalla negra a futuro.',
-  },
+Consola / modelo:
+Síntoma:
+¿Cuándo ocurre?:
+¿Ya recibió mantenimiento?:`);
+const platforms = [
+  { icon: 'fa-playstation', title: 'Mantenimiento de PlayStation en Cancún', groups: [['PS5 Fat, Slim y Pro', 'Revisamos ventilación y el procedimiento térmico según la variante.'], ['PS4 y modelos anteriores según evaluación', 'Confirmamos modelo, estado y viabilidad antes de abrir.']] },
+  { icon: 'fa-xbox', title: 'Mantenimiento de Xbox en Cancún', groups: [['Xbox Series X y Series S', 'Inspección de ventilación, disipación y condición interna.'], ['Xbox One y generaciones compatibles', 'La compatibilidad y alcance se confirman al recibir la consola.']] },
+  { icon: 'fa-gamepad', title: 'Mantenimiento de Nintendo Switch en Cancún', groups: [['Nintendo Switch y Switch OLED', 'Revisamos ventilación, ruido y condición térmica.'], ['Nintendo Switch Lite y Switch 2', 'El procedimiento depende de la arquitectura y el síntoma.']] },
+  { icon: 'fa-handheld', title: 'Mantenimiento de consolas portátiles gamer en Cancún', groups: [['Steam Deck', 'Revisión de ventilación y limpieza según condición.'], ['ASUS ROG Ally', 'Evaluación térmica y de flujo de aire por modelo.'], ['Lenovo Legion Go y similares', 'Confirmamos compatibilidad antes de intervenir.']] },
 ];
-
-const pmSymptoms = [
-  {
-    icon: 'fa-fan',
-    title: 'Ventilador ruidoso a tope',
-    desc: 'Tu consola suena como avión a punto de despegar. El disipador está tapado de polvo o la pasta térmica se secó, forzando al extractor a trabajar al límite.',
-  },
-  {
-    icon: 'fa-temperature-arrow-up',
-    title: 'Sobrecalentamiento extremo',
-    desc: 'La carcasa expulsa aire hirviendo o se siente muy caliente. Sin mantenimiento preventivo, el chip gráfico corre riesgo de desoldarse por calor excesivo.',
-  },
-  {
-    icon: 'fa-triangle-exclamation',
-    title: 'Se apaga mi consola sola',
-    desc: 'La consola se apaga de repente a mitad de la partida. Es el sistema de seguridad térmica previniendo que el procesador se queme por completo.',
-  },
-  {
-    icon: 'fa-gauge-high',
-    title: 'Se traba mi consola (Lag)',
-    desc: 'Los juegos sufren tirones, caídas drásticas de FPS o se congelan. El procesador baja su velocidad (thermal throttling) en un intento de enfriarse.',
-  },
+const symptoms = [
+  ['Consola que se calienta demasiado', 'El calor fuera de lo habitual puede relacionarse con ventilación, polvo, ubicación, compuesto térmico o una falla distinta.'],
+  ['Ventilador de consola muy ruidoso', 'El ruido puede venir de suciedad, una obstrucción, el ambiente o desgaste mecánico; primero se revisa.'],
+  ['Consola que se apaga durante una partida', 'Puede requerir mantenimiento térmico, pero también diagnóstico de fuente, hardware o software según el comportamiento.'],
+  ['Juegos que pierden rendimiento o se congelan', 'El calor puede coincidir con el síntoma, aunque red, almacenamiento, software y hardware también se consideran.'],
+  ['Consola con rejillas llenas de polvo', 'Es una señal útil para agendar inspección; la limpieza interna tiene una página específica cuando ese es el alcance principal.'],
 ];
-
-const processes = [
-  {
-    num: '01',
-    title: 'Pruebas de estrés y diagnóstico térmico',
-    desc: 'Encendemos la consola y corremos un juego exigente para medir la temperatura inicial, verificar si hay lag en la consola o si se traba bajo carga de trabajo.',
-  },
-  {
-    num: '02',
-    title: 'Desarmado completo profesional',
-    desc: 'Abrimos tu PlayStation, Xbox o Nintendo Switch usando herramientas de precisión antiestáticas para proteger los flexores, clips de plástico y componentes internos.',
-  },
-  {
-    num: '03',
-    title: 'Limpieza interna profunda',
-    desc: 'Retiramos el polvo acumulado, pelusas, humedad y rastro de salitre de las aspas del ventilador, disipador de cobre, rejillas de ventilación y fuente de poder.',
-  },
-  {
-    num: '04',
-    title: 'Renovación de compuesto térmico',
-    desc: 'Limpiamos los residuos endurecidos y aplicamos pasta térmica premium de alta conductividad térmica o redistribuimos/reemplazamos el metal líquido (según el modelo de PS5).',
-  },
-  {
-    num: '05',
-    title: 'Pruebas de estabilidad final',
-    desc: 'Reensamblamos el equipo y realizamos pruebas de juego durante 30-45 minutos para garantizar un funcionamiento silencioso, frío y libre de pantallas negras.',
-  },
+const included: [string, [string, string][]][] = [
+  ['Diagnóstico y prueba inicial', [['Encendido, video y comportamiento', 'Confirmamos el estado inicial y los síntomas reportados.'], ['Ruido y ventilación', 'Revisamos ventilador y rutas de aire visibles.']]],
+  ['Desarmado técnico de la consola', [['Control de tornillos, flex y blindajes', 'Organizamos piezas y desmontamos con la herramienta adecuada.'], ['Inspección visual antes de intervenir', 'Documentamos condiciones relevantes antes de cualquier trabajo adicional.']]],
+  ['Limpieza interna de ventilador y disipador', [['Polvo y residuos internos', 'Retiramos acumulación según diseño y condición.'], ['Rejillas y conductos de ventilación', 'Revisamos entradas, salidas y zonas de flujo de aire.']]],
+  ['Revisión del sistema térmico', [['Pasta térmica según modelo', 'Solo se considera cuando modelo, condición y diagnóstico lo justifican.'], ['Metal líquido únicamente en modelos que lo utilizan', 'En PS5 se inspecciona con procedimiento específico; no se trata como pasta convencional.'], ['Thermal pads o materiales térmicos cuando corresponda', 'Se revisan únicamente las zonas y materiales aplicables.']]],
+  ['Reensamble y pruebas finales', [['Ventilación y ruido', 'Comprobamos ensamblaje, giro y comportamiento antes de entregar.'], ['Juego y estabilidad', 'Probamos funciones relevantes sin prometer resolver una falla ajena al mantenimiento.'], ['Resultado documentado', 'Explicamos hallazgos, alcance y recomendaciones por escrito.']]],
+];
+const zones = ['Cancún Centro', 'Zona Hotelera', 'Puerto Cancún', 'Puerto Juárez', 'Huayacán', 'Cumbres', 'Bonampak', 'Av. Tulum', 'Polígono Sur', 'Supermanzanas', 'Haciendas', 'Bonfil'];
+const faqs = [
+  { question: '¿Cuánto cuesta el mantenimiento de una consola en Cancún?', answer: 'El costo depende del modelo, condición interna, nivel de suciedad y de si requiere un material o reparación adicional. Te damos una cotización antes de realizar trabajos fuera del alcance preventivo.' },
+  { question: '¿Cuándo debo hacer mantenimiento a mi consola?', answer: 'Conviene pedir una revisión si aumenta el ruido, hay polvo visible en rejillas, cambia el comportamiento térmico o no recuerdas el último servicio. La frecuencia depende del uso, ubicación y condición real.' },
+  { question: '¿El mantenimiento incluye pasta térmica?', answer: 'No automáticamente. Revisamos modelo, condición y diseño térmico antes de recomendar pasta, pads u otro material. El alcance se confirma antes de intervenir.' },
+  { question: '¿Revisan el metal líquido de PS5?', answer: 'En modelos PS5 que lo utilizan, la revisión se realiza con procedimiento específico cuando corresponde. No se asume que sea la causa de cualquier síntoma.' },
+  { question: '¿Dan mantenimiento a Xbox Series X y Series S?', answer: 'Sí. Revisamos Xbox Series X, Series S y generaciones compatibles según modelo, condición y disponibilidad de atención.' },
+  { question: '¿Atienden Nintendo Switch OLED y Switch 2?', answer: 'Atendemos Switch, Switch OLED, Lite y revisamos compatibilidad para Switch 2 antes de abrir o prometer un procedimiento.' },
+  { question: '¿Atienden Steam Deck y ROG Ally?', answer: 'Podemos confirmar la atención de Steam Deck, ASUS ROG Ally y portátiles similares por modelo y síntoma antes de agendar.' },
+  { question: '¿Qué pasa si mi consola se sigue apagando después de limpiarla?', answer: 'Un apagado puede tener otra causa. Te explicamos si conviene continuar con diagnóstico de temperatura, ventilador, fuente, placa, software u otra ruta de reparación.' },
+  { question: '¿Atienden Zona Hotelera?', answer: 'Coordinamos recepción o recolección mediante cita previa según la zona, disponibilidad y reglas de acceso de la propiedad.' },
+  { question: '¿Atienden Costa Mujeres y Playa Mujeres?', answer: 'Podemos confirmar atención coordinada para estas zonas antes de pedir una dirección exacta. La modalidad depende de disponibilidad, propiedad y traslado.' },
+  { question: '¿Trabajan únicamente con cita previa?', answer: 'Sí. Confirmamos modelo, síntomas, modalidad y disponibilidad antes de agendar el mantenimiento.' },
 ];
 ---
 
-<div class="console-preventive-page">
-  <!-- HERO SECTION -->
-  <section class="cpm-hero">
-    <div class="cpm-hero-glow"></div>
-    <div class="container cpm-hero-grid">
-      <div class="cpm-hero-copy">
-        <span class="cpm-kicker"><i class="fa-solid fa-screwdriver-wrench"></i> Servicio técnico de consolas en Cancún</span>
-        <h1>Mantenimiento preventivo de consola en Cancún</h1>
-        <h2>Prolonga la vida de tu PlayStation, Xbox o Nintendo Switch y evita que se apague sola por sobrecalentamiento.</h2>
-        <p>
-          El polvo, la pelusa y la humedad salina de Cancún son enemigos directos de tu equipo. Si notas que <strong>se traba tu consola</strong>, tiene lag constante o se apaga sola al jugar, nuestro servicio de <strong>mantenimiento preventivo de consola</strong> elimina la suciedad interna antes de provocar un daño permanente en la placa o la temida pantalla negra.
-        </p>
-        <div class="cpm-badges">
-          <span>Limpieza interna profunda</span>
-          <span>Pasta térmica premium</span>
-          <span>Redistribución metal líquido</span>
-          <span>Pruebas de lag térmico</span>
-          <span>Protección anticorrosión</span>
-        </div>
-        <div class="cpm-actions">
-          <a class="cpm-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank">
-            <i class="fa-brands fa-whatsapp"></i> Agendar mantenimiento preventivo
+<div class="console-maintenance-page">
+  <!-- ==================== 1. HERO SECTION WITH CINEMATIC MOTION DESIGN ==================== -->
+  <section class="cmp-hero" aria-labelledby="cmp-title">
+    <div class="container cmp-hero__grid">
+      <div class="cmp-hero__copy">
+        <p class="cmp-kicker"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Servicio técnico de consolas · Cancún</p>
+        <h1 id="cmp-title">Mantenimiento preventivo de consolas en Cancún</h1>
+        <p class="cmp-hero__lead">Revisamos polvo, ventilación, temperatura y sistema térmico de PS5, Xbox, Nintendo Switch y consolas portátiles antes de realizar el mantenimiento adecuado para cada modelo.</p>
+        <p class="cmp-hero__support">Limpieza interna, ventiladores, disipación y materiales térmicos según la arquitectura de tu consola.</p>
+        <div class="cmp-actions">
+          <a class="cmp-button cmp-button--primary" href={`https://wa.me/529986690777?text=${quoteMessage}`} target="_blank" rel="noopener noreferrer" data-wa-link>
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar mantenimiento
           </a>
-          <a class="cpm-secondary" href="#seo-limpieza-consola">Conocer el servicio</a>
+          <a class="cmp-button cmp-button--secondary" href={`https://wa.me/529986690777?text=${symptomsMessage}`} target="_blank" rel="noopener noreferrer" data-wa-link>
+            <i class="fa-solid fa-comment-dots" aria-hidden="true"></i> Explicar síntomas por WhatsApp
+          </a>
         </div>
-      </div>
-
-      <aside class="cpm-hero-panel">
-        <div class="cpm-visual-img" aria-hidden="true">
-          <img src="/assets/images/ps5_xbox.webp" alt="Mantenimiento preventivo de consolas Xbox y PlayStation en Cancún para evitar sobrecalentamiento" class="cpm-img-hero" />
-          <div class="cpm-img-overlay"></div>
-        </div>
-        <div class="cpm-panel-info">
-          <span>Servicio garantizado</span>
-          <strong>{service.fromPrice || 'Desde $700 MXN'}</strong>
-          <small>Incluye desarmado seguro, limpieza interna profunda de disipador y cambio de compuesto térmico.</small>
-        </div>
-        <ul class="cpm-features-list">
-          <li><i class="fa-solid fa-circle-check"></i> Herramientas antiestáticas de precisión</li>
-          <li><i class="fa-solid fa-circle-check"></i> Pasta térmica de alto rendimiento / Metal líquido</li>
-          <li><i class="fa-solid fa-circle-check"></i> Reporte digital con fotos del antes y después</li>
-          <li><i class="fa-solid fa-circle-check"></i> Soporte y asesoría profesional en Cancún</li>
+        <ul class="cmp-trust" aria-label="Características del servicio">
+          <li>PS5 · Xbox · Nintendo</li>
+          <li>Diagnóstico inicial</li>
+          <li>Cita previa</li>
+          <li>Garantía según intervención</li>
         </ul>
-      </aside>
+      </div>
+
+      <!-- Right Visual Hero: Multi-Console High-End Exploded Maintenance Demonstration -->
+      <div class="cmp-hero__visual-wrap" id="cmp-hero-container" data-active-console="ps5">
+        
+        <!-- Console Switcher Tabs (Accessible Micro-Selector) -->
+        <div class="cmp-console-tabs" role="tablist" aria-label="Seleccionar consola">
+          <button type="button" role="tab" class="cmp-tab-btn cmp-tab-btn--active" data-console="ps5" id="tab-ps5" aria-selected="true" aria-controls="panel-consoles">
+            <i class="fa-brands fa-playstation" aria-hidden="true"></i> PS5
+          </button>
+          <button type="button" role="tab" class="cmp-tab-btn" data-console="xbox" id="tab-xbox" aria-selected="false" aria-controls="panel-consoles">
+            <i class="fa-brands fa-xbox" aria-hidden="true"></i> Xbox Series X
+          </button>
+          <button type="button" role="tab" class="cmp-tab-btn" data-console="switch" id="tab-switch" aria-selected="false" aria-controls="panel-consoles">
+            <i class="fa-solid fa-gamepad" aria-hidden="true"></i> Switch
+          </button>
+        </div>
+
+        <figure class="cmp-visual" id="panel-consoles" aria-hidden="true">
+          <svg viewBox="0 0 640 400" focusable="false" class="cmp-stage-svg">
+            <defs>
+              <!-- Background Canvas Gradients -->
+              <linearGradient id="cmp-bench-bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#07223b" />
+                <stop offset="50%" stop-color="#041627" />
+                <stop offset="100%" stop-color="#020d18" />
+              </linearGradient>
+
+              <!-- PS5 Materials -->
+              <linearGradient id="ps5-wing-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#f8fafc" />
+                <stop offset="60%" stop-color="#e2e8f0" />
+                <stop offset="100%" stop-color="#cbd5e1" />
+              </linearGradient>
+              <linearGradient id="ps5-core-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#091829" />
+                <stop offset="50%" stop-color="#020810" />
+                <stop offset="100%" stop-color="#06121f" />
+              </linearGradient>
+
+              <!-- Xbox Materials -->
+              <linearGradient id="xbox-body-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1b2e3d" />
+                <stop offset="50%" stop-color="#101e29" />
+                <stop offset="100%" stop-color="#09121a" />
+              </linearGradient>
+              <radialGradient id="xbox-green-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.8" />
+                <stop offset="60%" stop-color="#059669" stop-opacity="0.3" />
+                <stop offset="100%" stop-color="#047857" stop-opacity="0" />
+              </radialGradient>
+
+              <!-- Switch Materials -->
+              <linearGradient id="switch-screen-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#0b1e30" />
+                <stop offset="100%" stop-color="#030b14" />
+              </linearGradient>
+              <linearGradient id="joycon-blue-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="100%" stop-color="#0284c7" />
+              </linearGradient>
+              <linearGradient id="joycon-red-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#f87171" />
+                <stop offset="100%" stop-color="#dc2626" />
+              </linearGradient>
+
+              <!-- Metallic & Copper Shaders -->
+              <linearGradient id="copper-pipe-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#f59e0b" />
+                <stop offset="50%" stop-color="#d97706" />
+                <stop offset="100%" stop-color="#b45309" />
+              </linearGradient>
+              <linearGradient id="heatsink-clean-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="100%" stop-color="#475569" />
+              </linearGradient>
+              <linearGradient id="cmp-sheen-sweep" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
+                <stop offset="50%" stop-color="#ffffff" stop-opacity="0.45" />
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+              </linearGradient>
+
+              <!-- Lighting & Shadows -->
+              <filter id="c-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#010811" flood-opacity="0.8" />
+              </filter>
+              <filter id="c-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#38bdf8" flood-opacity="0.95" />
+              </filter>
+              <filter id="c-glow-emerald" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#10b981" flood-opacity="0.95" />
+              </filter>
+            </defs>
+
+            <!-- Card Enclosure -->
+            <rect x="10" y="10" width="620" height="380" rx="20" fill="url(#cmp-bench-bg)" stroke="#1a456b" stroke-width="1.5" stroke-opacity="0.65" />
+
+            <!-- Grid Alignment Lines -->
+            <g opacity="0.12">
+              <line x1="10" y1="120" x2="630" y2="120" stroke="#38bdf8" stroke-width="0.8" stroke-dasharray="6 8" />
+              <line x1="10" y1="260" x2="630" y2="260" stroke="#38bdf8" stroke-width="0.8" stroke-dasharray="6 8" />
+              <circle cx="320" cy="200" r="160" stroke="#38bdf8" stroke-width="0.6" stroke-dasharray="4 8" fill="none" />
+            </g>
+
+            <!-- Workbench Base Platform -->
+            <ellipse cx="320" cy="326" rx="250" ry="22" fill="#01070e" opacity="0.8" />
+
+            <!-- ==================== CONSOLE 1: PLAYSTATION 5 STAGE ==================== -->
+            <g class="console-stage console-stage--ps5" id="stage-ps5" transform="translate(320, 200)">
+              <!-- Outer Shadow -->
+              <ellipse class="c-base-shadow" cx="0" cy="115" rx="140" ry="16" fill="#01070e" opacity="0.6" />
+
+              <!-- Layer 1: Motherboard & Shielding Core -->
+              <g class="ps5-layer-pcb">
+                <path d="M -30 -115 L 30 -115 L 26 110 L -26 110 Z" fill="#0b243a" stroke="#1d5583" stroke-width="1.2" />
+                <!-- Thermal Interface Core (Liquid Metal Seal) -->
+                <rect class="ps5-apu-die" x="-16" y="-12" width="32" height="32" rx="3" fill="#082b47" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="-10" y="-6" width="20" height="20" rx="2" fill="#031626" stroke="#38bdf8" stroke-width="1" />
+              </g>
+
+              <!-- Layer 2: Heavy Aluminum/Copper Heatsink Block -->
+              <g class="ps5-layer-heatsink">
+                <rect class="ps5-heatsink-fins" x="-46" y="-65" width="92" height="135" rx="5" fill="#0d2e4a" stroke="#f59e0b" stroke-width="1.2" />
+                <!-- Copper Heatpipes across Block -->
+                <g class="ps5-heatpipes">
+                  <path d="M -38 -45 C -15 -52 15 -52 38 -45" fill="none" stroke="url(#copper-pipe-grad)" stroke-width="5" stroke-linecap="round" />
+                  <path d="M -38 0 C -15 -6 15 -6 38 0" fill="none" stroke="url(#copper-pipe-grad)" stroke-width="5" stroke-linecap="round" />
+                  <path d="M -38 45 C -15 38 15 38 38 45" fill="none" stroke="url(#copper-pipe-grad)" stroke-width="5" stroke-linecap="round" />
+                </g>
+              </g>
+
+              <!-- Layer 3: Large 120mm Vortex Turbine Fan -->
+              <g class="ps5-layer-fan" transform="translate(0, -25)">
+                <circle cx="0" cy="0" r="50" fill="#041220" stroke="#1c4e77" stroke-width="1.8" />
+                <circle cx="0" cy="0" r="44" fill="none" stroke="#0e2f4c" stroke-width="1" />
+                <!-- 11 Curved Aerodynamic Fan Blades -->
+                <g class="c-fan-rotor ps5-fan-rotor">
+                  <line x1="0" y1="-42" x2="0" y2="42" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                  <line x1="-42" y1="0" x2="42" y2="0" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                  <line x1="-30" y1="-30" x2="30" y2="30" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                  <line x1="-30" y1="30" x2="30" y2="-30" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                  <line x1="-14" y1="-40" x2="14" y2="40" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" />
+                </g>
+                <circle cx="0" cy="0" r="14" fill="#0c3252" stroke="#38bdf8" stroke-width="1.5" />
+                <circle cx="0" cy="0" r="5" fill="#22d3ee" />
+              </g>
+
+              <!-- Layer 4: Outer White Curved Wing Panels (Left & Right) -->
+              <g class="ps5-layer-wings">
+                <!-- Left Wing Panel -->
+                <path class="ps5-wing-left" d="M -24 -125 C -75 -70 -75 70 -24 125 C -50 115 -62 45 -48 -115 Z" fill="url(#ps5-wing-grad)" stroke="#94a3b8" stroke-width="1.2" />
+                <!-- Center Dark Gloss Core Body -->
+                <path class="ps5-center-core" d="M -24 -120 L 24 -120 L 20 120 L -20 120 Z" fill="url(#ps5-core-grad)" stroke="#22d3ee" stroke-width="1" />
+                <!-- LED Power Glow Slit -->
+                <line x1="-16" y1="-110" x2="-16" y2="105" stroke="#38bdf8" stroke-width="2" filter="url(#c-glow-cyan)" />
+                <!-- Right Wing Panel -->
+                <path class="ps5-wing-right" d="M 24 -125 C 75 -70 75 70 24 125 C 50 115 62 45 48 -115 Z" fill="url(#ps5-wing-grad)" stroke="#94a3b8" stroke-width="1.2" />
+              </g>
+
+              <!-- Dust Particles (PS5) -->
+              <g class="c-dust-group ps5-dust" fill="#f59e0b">
+                <circle class="c-dust c-dust--1" cx="-25" cy="-55" r="2.8" />
+                <circle class="c-dust c-dust--2" cx="18" cy="-40" r="2.5" />
+                <circle class="c-dust c-dust--3" cx="-5" cy="-10" r="3" />
+                <circle class="c-dust c-dust--4" cx="30" cy="-15" r="2.2" />
+                <circle class="c-dust c-dust--5" cx="-32" cy="15" r="2.6" />
+                <circle class="c-dust c-dust--6" cx="12" cy="45" r="2.8" />
+                <circle class="c-dust c-dust--7" cx="-18" cy="70" r="2.4" />
+                <circle class="c-dust c-dust--8" cx="22" cy="80" r="2.2" />
+              </g>
+
+              <!-- Clean Airflow Paths (PS5) -->
+              <g class="c-airflow-paths ps5-airflow">
+                <path class="c-air-stream c-air-stream--1" d="M -60 -70 C -30 -30 -30 30 -60 70" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                <path class="c-air-stream c-air-stream--2" d="M 0 -130 C -15 -60 -15 60 0 130" fill="none" stroke="#22d3ee" stroke-width="3.5" stroke-linecap="round" />
+                <path class="c-air-stream c-air-stream--3" d="M 60 -70 C 30 -30 30 30 60 70" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+              </g>
+            </g>
+
+            <!-- ==================== CONSOLE 2: XBOX SERIES X STAGE ==================== -->
+            <g class="console-stage console-stage--xbox" id="stage-xbox" transform="translate(320, 200)">
+              <!-- Outer Shadow -->
+              <ellipse class="c-base-shadow" cx="0" cy="115" rx="130" ry="16" fill="#01070e" opacity="0.6" />
+
+              <!-- Layer 1: Split PCB Board & Vapor Chamber Plate -->
+              <g class="xbox-layer-pcb">
+                <path d="M -50 -75 L 50 -75 L 45 95 L -45 95 Z" fill="#0a263c" stroke="#1d5583" stroke-width="1.2" />
+                <!-- APU Core Thermal Zone -->
+                <rect class="xbox-apu-die" x="-20" y="-10" width="40" height="40" rx="3" fill="#0c375b" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="-12" y="-2" width="24" height="24" rx="2" fill="#041829" stroke="#10b981" stroke-width="1" />
+              </g>
+
+              <!-- Layer 2: Vapor Chamber & Parallel Heatsink Fins -->
+              <g class="xbox-layer-heatsink">
+                <rect class="xbox-heatsink-fins" x="-58" y="-70" width="116" height="150" rx="4" fill="#0f3454" stroke="#f59e0b" stroke-width="1.2" />
+                <!-- Heatsink Fin Strips -->
+                <line x1="-40" y1="-65" x2="-40" y2="75" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.6" />
+                <line x1="-20" y1="-65" x2="-20" y2="75" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.6" />
+                <line x1="0" y1="-65" x2="0" y2="75" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.6" />
+                <line x1="20" y1="-65" x2="20" y2="75" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.6" />
+                <line x1="40" y1="-65" x2="40" y2="75" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.6" />
+              </g>
+
+              <!-- Layer 3: Top 130mm Exhaust Axial Fan -->
+              <g class="xbox-layer-fan" transform="translate(0, -95)">
+                <ellipse cx="0" cy="0" rx="56" ry="18" fill="#041220" stroke="#10b981" stroke-width="1.8" />
+                <g class="c-fan-rotor xbox-fan-rotor">
+                  <line x1="-44" y1="0" x2="44" y2="0" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                  <line x1="-30" y1="-8" x2="30" y2="8" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                  <line x1="-30" y1="8" x2="30" y2="-8" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                </g>
+                <circle cx="0" cy="0" r="10" fill="#093123" stroke="#10b981" stroke-width="1.5" />
+              </g>
+
+              <!-- Layer 4: Monolithic Dark Chasis with Top Concave Grille -->
+              <g class="xbox-layer-chassis">
+                <!-- Front & Side Perspective Chasis -->
+                <path d="M -65 -90 L 35 -90 L 65 -70 L 65 105 L -35 105 L -65 85 Z" fill="url(#xbox-body-grad)" stroke="#10b981" stroke-width="1.5" />
+                <!-- Disc Drive Slot -->
+                <rect x="-55" y="0" width="3" height="48" rx="1" fill="#020810" stroke="#38bdf8" stroke-width="0.8" />
+                <!-- Power Logo Icon Button -->
+                <circle cx="-52" cy="-65" r="5" fill="#ffffff" filter="url(#c-glow-emerald)" />
+                <!-- Top Concave Exhaust Mesh Array -->
+                <ellipse cx="0" cy="-90" rx="55" ry="16" fill="#04121a" stroke="#10b981" stroke-width="1.5" />
+                <ellipse cx="0" cy="-90" rx="42" ry="11" fill="url(#xbox-green-glow)" />
+              </g>
+
+              <!-- Dust Particles (Xbox: Upward Direction) -->
+              <g class="c-dust-group xbox-dust" fill="#f59e0b">
+                <circle class="c-dust c-dust--1" cx="-30" cy="-75" r="2.8" />
+                <circle class="c-dust c-dust--2" cx="15" cy="-80" r="2.5" />
+                <circle class="c-dust c-dust--3" cx="-10" cy="-40" r="3" />
+                <circle class="c-dust c-dust--4" cx="35" cy="-30" r="2.4" />
+                <circle class="c-dust c-dust--5" cx="-25" cy="15" r="2.6" />
+                <circle class="c-dust c-dust--6" cx="20" cy="45" r="2.8" />
+                <circle class="c-dust c-dust--7" cx="-40" cy="65" r="2.3" />
+                <circle class="c-dust c-dust--8" cx="5" cy="80" r="2.2" />
+              </g>
+
+              <!-- Clean Airflow Paths (Xbox: Upward Exhaust) -->
+              <g class="c-airflow-paths xbox-airflow">
+                <path class="c-air-stream c-air-stream--1" d="M -30 90 L -30 -130" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                <path class="c-air-stream c-air-stream--2" d="M 0 90 L 0 -140" fill="none" stroke="#34d399" stroke-width="3.5" stroke-linecap="round" />
+                <path class="c-air-stream c-air-stream--3" d="M 30 90 L 30 -130" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+              </g>
+            </g>
+
+            <!-- ==================== CONSOLE 3: NINTENDO SWITCH STAGE ==================== -->
+            <g class="console-stage console-stage--switch" id="stage-switch" transform="translate(320, 200)">
+              <!-- Outer Shadow -->
+              <ellipse class="c-base-shadow" cx="0" cy="85" rx="160" ry="15" fill="#01070e" opacity="0.6" />
+
+              <!-- Layer 1: Motherboard PCB & Tegra APU -->
+              <g class="switch-layer-pcb">
+                <rect x="-85" y="-55" width="170" height="110" rx="8" fill="#09243a" stroke="#1d5583" stroke-width="1.2" />
+                <!-- Tegra Chip Plate -->
+                <rect class="switch-apu-die" x="-18" y="-14" width="36" height="28" rx="2" fill="#0c3558" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="-10" y="-8" width="20" height="16" rx="1" fill="#031626" stroke="#38bdf8" stroke-width="1" />
+              </g>
+
+              <!-- Layer 2: Copper Heatpipe & Micro-Heatsink Fin Assembly -->
+              <g class="switch-layer-heatsink">
+                <!-- S-Curved Copper Heatpipe -->
+                <path class="switch-heatpipe" d="M -10 0 C 15 0 25 -35 55 -35" fill="none" stroke="url(#copper-pipe-grad)" stroke-width="6" stroke-linecap="round" />
+                <!-- Compact Fin Array at Upper Vent -->
+                <rect class="switch-heatsink-fins" x="48" y="-52" width="32" height="20" rx="2" fill="#0d2f4d" stroke="#f59e0b" stroke-width="1.2" />
+              </g>
+
+              <!-- Layer 3: Micro-Turbine Blower Fan -->
+              <g class="switch-layer-fan" transform="translate(62, -15)">
+                <circle cx="0" cy="0" r="24" fill="#041220" stroke="#38bdf8" stroke-width="1.5" />
+                <g class="c-fan-rotor switch-fan-rotor">
+                  <line x1="-18" y1="0" x2="18" y2="0" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                  <line x1="0" y1="-18" x2="0" y2="18" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                  <line x1="-12" y1="-12" x2="12" y2="12" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                  <line x1="-12" y1="12" x2="12" y2="-12" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                </g>
+                <circle cx="0" cy="0" r="7" fill="#082944" stroke="#38bdf8" />
+              </g>
+
+              <!-- Layer 4: Tablet Glass Screen + Joy-Con Controllers -->
+              <g class="switch-layer-chassis">
+                <!-- Left Joy-Con (Neon Blue) -->
+                <path class="switch-joycon-left" d="M -140 -50 C -140 -60 -125 -60 -115 -60 L -115 60 L -125 60 C -140 60 -140 50 -140 40 Z" fill="url(#joycon-blue-grad)" stroke="#7dd3fc" stroke-width="1.2" />
+                <circle cx="-128" cy="-30" r="7" fill="#06253c" stroke="#38bdf8" stroke-width="1.5" />
+                <circle cx="-128" cy="5" r="3" fill="#021424" />
+                <circle cx="-128" cy="20" r="3" fill="#021424" />
+
+                <!-- Center Tablet Screen Body -->
+                <rect class="switch-tablet" x="-115" y="-60" width="230" height="120" rx="8" fill="#061829" stroke="#38bdf8" stroke-width="1.5" />
+                <!-- Screen Glass -->
+                <rect x="-95" y="-48" width="190" height="96" rx="4" fill="url(#switch-screen-grad)" stroke="#1d4d77" stroke-width="1" />
+                <!-- Top Exhaust Vent Grille -->
+                <rect x="35" y="-60" width="45" height="4" rx="1" fill="#020b14" stroke="#38bdf8" stroke-width="0.8" />
+
+                <!-- Right Joy-Con (Neon Red) -->
+                <path class="switch-joycon-right" d="M 115 -60 L 125 -60 C 140 -60 140 -50 140 -40 L 140 40 C 140 50 140 60 125 60 L 115 60 Z" fill="url(#joycon-red-grad)" stroke="#fca5a5" stroke-width="1.2" />
+                <circle cx="128" cy="10" r="7" fill="#450a0a" stroke="#f87171" stroke-width="1.5" />
+                <circle cx="128" cy="-25" r="3" fill="#2d0606" />
+                <circle cx="128" cy="-10" r="3" fill="#2d0606" />
+              </g>
+
+              <!-- Dust Particles (Switch) -->
+              <g class="c-dust-group switch-dust" fill="#f59e0b">
+                <circle class="c-dust c-dust--1" cx="45" cy="-55" r="2.5" />
+                <circle class="c-dust c-dust--2" cx="65" cy="-45" r="2.2" />
+                <circle class="c-dust c-dust--3" cx="60" cy="-15" r="2.6" />
+                <circle class="c-dust c-dust--4" cx="15" cy="-20" r="2.2" />
+                <circle class="c-dust c-dust--5" cx="-10" cy="5" r="2.5" />
+                <circle class="c-dust c-dust--6" cx="-60" cy="-25" r="2.4" />
+              </g>
+
+              <!-- Clean Airflow Paths (Switch: Top Exhaust) -->
+              <g class="c-airflow-paths switch-airflow">
+                <path class="c-air-stream c-air-stream--1" d="M 45 20 C 45 -20 45 -40 45 -90" fill="none" stroke="#38bdf8" stroke-width="2.8" stroke-linecap="round" />
+                <path class="c-air-stream c-air-stream--2" d="M 60 20 C 60 -20 60 -40 60 -100" fill="none" stroke="#22d3ee" stroke-width="3.2" stroke-linecap="round" />
+                <path class="c-air-stream c-air-stream--3" d="M 75 20 C 75 -20 75 -40 75 -90" fill="none" stroke="#38bdf8" stroke-width="2.8" stroke-linecap="round" />
+              </g>
+            </g>
+
+            <!-- ==================== COMMON OVERLAYS: SCANNER, SHEEN, READY BADGE ==================== -->
+            <!-- Diagnostic Scanner Beam -->
+            <line class="c-scanner-beam" x1="160" y1="80" x2="480" y2="80" stroke="#22d3ee" stroke-width="3" filter="url(#c-glow-cyan)" opacity="0" />
+
+            <!-- Light Sheen Sweep Across Active Console -->
+            <rect class="c-sheen-rect" x="140" y="60" width="360" height="280" fill="url(#cmp-sheen-sweep)" opacity="0" />
+
+            <!-- Corner Sparkles -->
+            <g class="c-sparkles">
+              <path class="c-sparkle c-sparkle--1" d="M 230 110 Q 230 105 225 105 Q 230 105 230 100 Q 230 105 235 105 Q 230 105 230 110 Z" fill="#ffffff" filter="url(#c-glow-cyan)" />
+              <path class="c-sparkle c-sparkle--2" d="M 430 270 Q 430 265 425 265 Q 430 265 430 260 Q 430 265 435 265 Q 430 265 430 270 Z" fill="#ffffff" filter="url(#c-glow-cyan)" />
+            </g>
+
+            <!-- Success Ready Check Badge -->
+            <g class="c-success-badge" transform="translate(435, 115)" filter="url(#c-glow-emerald)">
+              <circle cx="0" cy="0" r="18" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+              <path d="M -7 0 L -2 5 L 8 -6" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+          </svg>
+        </figure>
+
+        <!-- 5-Step Process Timeline Container Below Hero SVG -->
+        <ol class="cmp-motion-steps" aria-label="Proceso de mantenimiento de consolas">
+          <li class="cmp-step cmp-step--1">
+            <div class="cmp-step__indicator">
+              <span class="cmp-step__dot"></span>
+              <span class="cmp-step__num">01</span>
+            </div>
+            <div class="cmp-step__info">
+              <strong>Diagnóstico</strong>
+              <p>Escaneo y pruebas de hardware.</p>
+            </div>
+          </li>
+
+          <li class="cmp-step cmp-step--2">
+            <div class="cmp-step__indicator">
+              <span class="cmp-step__dot"></span>
+              <span class="cmp-step__num">02</span>
+            </div>
+            <div class="cmp-step__info">
+              <strong>Desarmado</strong>
+              <p>Apertura técnica y control de piezas.</p>
+            </div>
+          </li>
+
+          <li class="cmp-step cmp-step--3">
+            <div class="cmp-step__indicator">
+              <span class="cmp-step__dot"></span>
+              <span class="cmp-step__num">03</span>
+            </div>
+            <div class="cmp-step__info">
+              <strong>Limpieza</strong>
+              <p>Despeje de turbina y disipador.</p>
+            </div>
+          </li>
+
+          <li class="cmp-step cmp-step--4">
+            <div class="cmp-step__indicator">
+              <span class="cmp-step__dot"></span>
+              <span class="cmp-step__num">04</span>
+            </div>
+            <div class="cmp-step__info">
+              <strong>Revisión térmica</strong>
+              <p>Compuesto y conductividad.</p>
+            </div>
+          </li>
+
+          <li class="cmp-step cmp-step--5">
+            <div class="cmp-step__indicator">
+              <span class="cmp-step__dot"></span>
+              <span class="cmp-step__num">05</span>
+            </div>
+            <div class="cmp-step__info">
+              <strong>Pruebas</strong>
+              <p>Estabilidad y flujo de aire.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
     </div>
   </section>
 
-  <!-- SECCIÓN 1: LIMPIEZA Y SOBRECALENTAMIENTO -->
-  <section class="cpm-section cpm-seo-keywords" id="seo-limpieza-consola">
+  <!-- ==================== 2. COMPATIBILIDAD POR MODELO ==================== -->
+  <section class="cmp-section" aria-labelledby="platforms-title">
     <div class="container">
-      <div class="cpm-split-grid">
-        <div class="cpm-split-text">
-          <h2>Limpieza profunda de consolas en Cancún: ¿Por qué se traba mi consola?</h2>
-          <p class="cpm-large-text">
-            Si experimentas <strong>lag en la consola</strong> o notas que los juegos se congelan repentinamente, la causa principal suele ser la acumulación de suciedad.
-            Las consolas de videojuegos funcionan como aspiradoras de aire que absorben polvo, pelusa y la humedad característica de Cancún. Esta mezcla obstruye los disipadores de cobre, impidiendo que el procesador se enfríe y provocando que se trabe la consola en momentos clave de tu partida.
-          </p>
-          <p>
-            Realizar un <strong>mantenimiento preventivo de consola</strong> remueve todas las obstrucciones físicas del ventilador y componentes internos. Nuestros técnicos desarman por completo el equipo, limpian las aspas con solventes dieléctricos y aplican alcohol isopropílico para retirar residuos adheridos, previniendo cortocircuitos causados por el polvo húmedo.
-          </p>
-        </div>
-        <div class="cpm-split-text">
-          <h2>Evita el sobrecalentamiento: ¿Por qué se apaga mi consola sola?</h2>
-          <p class="cpm-large-text">
-            El <strong>sobrecalentamiento de consolas en Cancún</strong> es una de las fallas más críticas reportadas en nuestro taller.
-            Cuando la pasta térmica se seca y el flujo de aire está bloqueado, la temperatura interna sube drásticamente. Para evitar quemarse, el procesador (APU) activa su protocolo de emergencia: es aquí cuando <strong>se apaga tu consola sola</strong> sin previo aviso o te muestra una pantalla negra.
-          </p>
-          <p>
-            Ignorar estas alertas de temperatura alta puede provocar que el chip procesador se desuelde de la placa base (luz roja de la muerte o pantalla negra consola), requiriendo reparaciones costosas de reballing. El mantenimiento preventivo a tiempo evita que tu consola llegue a este punto de falla general, asegurando un juego silencioso y seguro.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECCIÓN 2: PS5 Y XBOX -->
-  <section class="cpm-section cpm-seo-consolas">
-    <div class="container">
-      <div class="cpm-split-grid">
-        <div class="cpm-split-card">
-          <div class="card-image-wrapper" aria-hidden="true">
-            <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Mantenimiento preventivo de PS5 y metal líquido en Cancún" class="card-inline-image" />
-          </div>
-          <div>
-            <h2>Mantenimiento preventivo de PS5: Evita el sobrecalentamiento y la pantalla negra</h2>
-            <p class="cpm-large-text">
-              El <strong>mantenimiento preventivo de tu PS5</strong> es vital debido a que Sony utiliza metal líquido en lugar de pasta térmica convencional.
-              Con el uso prolongado de la consola en posición vertical y las altas temperaturas de Cancún, el metal líquido puede desplazarse del centro del procesador. Esto crea "zonas secas" que causan un sobrecalentamiento localizado, provocando que <strong>se apague la consola sola</strong> a los pocos minutos de iniciar juegos demandantes de PlayStation 5.
-            </p>
-            <p>
-              Nuestro servicio de limpieza y mantenimiento de PS5 en Cancún incluye la inspección detallada del APU, la redistribución profesional del metal líquido existente para asegurar una disipación uniforme, y la limpieza a fondo del ventilador de doble entrada para eliminar el polvo pegajoso que genera lag y ruido excesivo.
-            </p>
-          </div>
-        </div>
-        <div class="cpm-split-card">
-          <div class="card-image-wrapper" aria-hidden="true">
-            <img src="/assets/images/xbox.webp" alt="Limpieza interna de Xbox Series X para evitar lag térmico en Cancún" class="card-inline-image" />
-          </div>
-          <div>
-            <h2>Limpieza profunda de Xbox: Adiós al ruido del ventilador y lag en consola</h2>
-            <p class="cpm-large-text">
-              La <strong>limpieza de tu Xbox Series X o Series S</strong> es fundamental para mantener su rendimiento silencioso y evitar el lag térmico.
-              Su diseño vertical permite un gran flujo de aire, pero también facilita la entrada directa de polvo por las rejillas superiores. Cuando el radiador y la cámara de vapor se llenan de suciedad, el ventilador trabaja a revoluciones máximas para compensar el calor, produciendo ruidos molestos de turbina y apagados por seguridad.
-            </p>
-            <p>
-              En Pixon PC removemos los blindajes metálicos del Xbox, soplamos y limpiamos a fondo la fuente de poder interna (que acumula polvo estático pesado) y reemplazamos la pasta térmica seca por una de alta conductividad térmica, eliminando el riesgo de que la consola se apague sola o sufra de lag extremo al jugar online.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECCIÓN 3: CONSOLAS PORTÁTILES Y NINTENDO SWITCH -->
-  <section class="cpm-section cpm-seo-portables">
-    <div class="container">
-      <div class="cpm-head-center">
-        <h2>Limpieza de consola portátil: Alto rendimiento y prevención de lag</h2>
-        <p class="cpm-center-desc">
-          Las consolas portátiles como la Steam Deck, ROG Ally y Nintendo Switch concentran componentes potentes en espacios muy reducidos. Por esta razón, la falta de mantenimiento preventivo provoca que el polvo bloquee las rejillas rápidamente, resultando en lag térmico severo y apagados repentinos.
-        </p>
-      </div>
-
-      <div class="cpm-three-columns">
-        <article class="cpm-col-card">
-          <div class="card-num">01</div>
-          <h3>Mantenimiento preventivo en portátiles gamer</h3>
-          <p>
-            Desarmamos el chasis ultracompacto de consolas portátiles, removemos el polvo de los minúsculos ventiladores turbina y reemplazamos la pasta térmica original por compuestos de alto rendimiento. Esto evita que se trabe tu consola portátil y previene que el calor degrade prematuramente la vida útil de la batería interna.
-          </p>
-        </article>
-
-        <article class="cpm-col-card">
-          <div class="card-num">02</div>
-          <h3>Limpieza de Nintendo Switch para evitar sobrecalentamiento</h3>
-          <p>
-            El servicio de <strong>limpieza de tu Nintendo Switch</strong> (Estándar, OLED o Lite) ayuda a mantener el ventilador girando libre de obstrucciones. Cuando juegas en modo dock, el chip genera más calor y la pasta térmica original se seca rápidamente, provocando bajas de frames (lag consola) o que el sistema se congele a mitad de una partida.
-          </p>
-        </article>
-
-        <article class="cpm-col-card">
-          <div class="card-num">03</div>
-          <h3>¿Tu Nintendo se calienta o se apaga sola en Cancún?</h3>
-          <p>
-            Si tu Nintendo Switch muestra el aviso de sobrecalentamiento o la pantalla se queda negra con apagado repentino, necesita servicio urgente. En Cancún, la combinación de calor y humedad bloquea el pequeño extractor. Limpiamos las aspas, destapamos el radiador de cobre y renovamos el compuesto térmico para resolverlo de raíz.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- SÍNTOMAS DE ALERTA -->
-  <section class="cpm-section cpm-symptoms">
-    <div class="container">
-      <div class="cpm-head-center">
-        <h2>Síntomas de que tu consola necesita mantenimiento preventivo urgente</h2>
-        <p class="cpm-center-desc">
-          No esperes a que tu consola sufra un daño irreversible en la placa base o te muestre pantalla negra permanente. Si identificas uno de los siguientes comportamientos en Cancún, es momento de agendar una limpieza interna completa.
-        </p>
-      </div>
-
-      <div class="cpm-symptom-grid">
-        {pmSymptoms.map((symptom) => (
-          <article class="cpm-symptom-card">
-            <i class={`fa-solid ${symptom.icon}`}></i>
-            <h3>{symptom.title}</h3>
-            <p>{symptom.desc}</p>
+      <header class="cmp-heading">
+        <p>Compatibilidad por modelo</p>
+        <h2 id="platforms-title">Mantenimiento de consolas en Cancún para PlayStation, Xbox y Nintendo</h2>
+        <span>El mantenimiento general es el punto de partida; el procedimiento cambia según la arquitectura de cada consola.</span>
+      </header>
+      <div class="cmp-platform-grid">
+        {platforms.map((platform) => (
+          <article>
+            <i class={`fa-brands ${platform.icon}`} aria-hidden="true"></i>
+            <h3>{platform.title}</h3>
+            {platform.groups.map(([title, text]) => (
+              <div>
+                <h4>{title}</h4>
+                <p>{text}</p>
+              </div>
+            ))}
           </article>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- PROCESO TÉCNICO -->
-  <section class="cpm-section cpm-process">
+  <!-- ==================== 3. SÍNTOMAS ANTES DE INTERVENIR ==================== -->
+  <section class="cmp-section cmp-section--soft" aria-labelledby="symptoms-title">
     <div class="container">
-      <div class="cpm-head-center">
-        <h2>¿Cómo realizamos el mantenimiento preventivo de tu consola en Cancún?</h2>
-        <p class="cpm-center-desc">
-          En Pixon PC no hacemos limpiezas superficiales con aire comprimido desde el exterior, ya que esto solo empuja el polvo hacia adentro. Desarmamos cada sección con cuidado para dejar el sistema de refrigeración impecable.
-        </p>
-      </div>
-
-      <div class="cpm-process-timeline">
-        {processes.map((step) => (
-          <div class="cpm-timeline-item">
-            <span class="cpm-timeline-number">{step.num}</span>
-            <div class="cpm-timeline-content">
-              <h3>{step.title}</h3>
-              <p>{step.desc}</p>
-            </div>
-          </div>
+      <header class="cmp-heading cmp-heading--center">
+        <p>Antes de intervenir</p>
+        <h2 id="symptoms-title">¿Tu consola se calienta, hace ruido o se apaga en Cancún?</h2>
+        <span>Estos comportamientos pueden relacionarse con mantenimiento, pero no sustituyen un diagnóstico cuando existe una falla activa.</span>
+      </header>
+      <div class="cmp-symptom-grid">
+        {symptoms.map(([title, text], index) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- SEO LOCAL CANCÚN -->
-  <section class="cpm-section cpm-cancun-climate">
-    <div class="container cpm-cancun-layout">
-      <div class="cpm-cancun-text">
-        <h2>El factor Cancún: Por qué tu consola se calienta y se apaga sola aquí</h2>
-        <p>
-          El clima de Cancún es agresivo con los dispositivos electrónicos de alto rendimiento. La humedad relativa supera habitualmente el 80% y arrastra partículas de salitre marino. Al entrar aire en tu consola, el polvo y el salitre se combinan, creando una capa gruesa y pegajosa sobre los componentes.
-        </p>
-        <p>
-          Si no se realiza un <strong>mantenimiento preventivo de consola</strong> regular cada 12 meses, esta acumulación húmeda acelera el sobrecalentamiento, provoca lag térmico severo y desgasta los componentes críticos. Atendemos consolas de todas las marcas en Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.
-        </p>
-        <address class="cpm-address">
-          <strong>Pixon PC</strong><br />
-          <span><i class="fa-solid fa-location-dot"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span><br />
-          <a href="tel:+529986690777"><i class="fa-solid fa-phone"></i> +52 998 669 0777</a> | 
-          <a href="mailto:pixonpc@gmail.com"><i class="fa-solid fa-envelope"></i> pixonpc@gmail.com</a>
-        </address>
-      </div>
-      <div class="cpm-cancun-badges-strip">
-        <div class="climate-badge"><i class="fa-solid fa-water"></i> Humedad Salina</div>
-        <div class="climate-badge"><i class="fa-solid fa-temperature-high"></i> Calor Costero</div>
-        <div class="climate-badge"><i class="fa-solid fa-wind"></i> Polvo Pegajoso</div>
-        <div class="climate-badge"><i class="fa-solid fa-box"></i> Poca Ventilación</div>
+  <!-- ==================== 4. ALCANCE PREVENTIVO ==================== -->
+  <section class="cmp-section" aria-labelledby="includes-title">
+    <div class="container">
+      <header class="cmp-heading">
+        <p>Alcance preventivo</p>
+        <h2 id="includes-title">¿Qué incluye el mantenimiento preventivo de una consola en Cancún?</h2>
+        <span>Primero revisamos el equipo. Cualquier reparación, refacción o procedimiento adicional se explica y cotiza por separado.</span>
+      </header>
+      <div class="cmp-included-list">
+        {included.map(([title, groups], index) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{title}</h3>
+              <div class="cmp-subgrid">
+                {groups.map(([subTitle, text]) => (
+                  <div>
+                    <h4>{subTitle}</h4>
+                    <p>{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- RELATED SERVICES (FONDO BLANCO Y TEXTO AZUL OSCURO #071F3A) -->
-  <RelatedServicesSection
-    category={category}
-    service={service}
-    title="Servicios relacionados para consolas"
-    eyebrow="Más servicios técnicos"
-    includeCategoryServices={true}
-    initialLimit={8}
-  />
+  <!-- ==================== 5. LIMPIEZA INTERNA VS MANTENIMIENTO ==================== -->
+  <section class="cmp-section cmp-section--soft" aria-labelledby="cleaning-title">
+    <div class="container cmp-two-col">
+      <div>
+        <header class="cmp-heading">
+          <p>Intenciones distintas</p>
+          <h2 id="cleaning-title">Limpieza interna vs mantenimiento preventivo de consolas en Cancún</h2>
+        </header>
+        <h3>¿Cuándo necesitas solo limpieza interna?</h3>
+        <p>Cuando el objetivo principal es atender polvo, ventilador, rejillas y disipador. Consulta el servicio específico de <a href="/servicios/consola/limpieza-interna">limpieza interna de consolas en Cancún</a>.</p>
+      </div>
+      <div class="cmp-decision-card">
+        <h3>¿Cuándo conviene un mantenimiento preventivo completo?</h3>
+        <p>Cuando necesitas inspección, limpieza según condición, revisión del sistema térmico, reensamble, pruebas y recomendaciones. Esta página organiza ese alcance general sin sustituir una reparación necesaria.</p>
+        <a class="cmp-inline-cta" href={`https://wa.me/529986690777?text=${quoteMessage}`} target="_blank" rel="noopener noreferrer" data-wa-link>
+          Solicitar revisión preventiva <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
 
-  <!-- PREGUNTAS FRECUENTES -->
+  <!-- ==================== 6. PS5 EN CANCÚN ==================== -->
+  <section class="cmp-section" aria-labelledby="ps5-title">
+    <div class="container cmp-model-layout">
+      <div>
+        <header class="cmp-heading">
+          <p>Landing especializada</p>
+          <h2 id="ps5-title">Mantenimiento de PS5 en Cancún</h2>
+        </header>
+        <h3>Limpieza del ventilador y disipador de PS5</h3>
+        <p>La revisión considera ventilación, acumulación de polvo y diseño de la variante de PlayStation 5.</p>
+        <h3>Revisión del metal líquido de PlayStation 5</h3>
+        <p>Solo se inspecciona mediante el procedimiento apropiado para modelos que lo utilizan; no se asume que sea la causa de cada síntoma.</p>
+        <h3>PS5 que se calienta o se apaga jugando</h3>
+        <p>Puede requerir diagnóstico adicional de temperatura, fuente o hardware si el comportamiento continúa después del mantenimiento.</p>
+        <a class="cmp-model-link" href="/servicios/consola/mantenimiento-ps5">Ver mantenimiento especializado de PS5 en Cancún <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </div>
+      <div class="cmp-model-mark" aria-hidden="true">
+        <i class="fa-brands fa-playstation"></i>
+        <span>PS5</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 7. XBOX EN CANCÚN ==================== -->
+  <section class="cmp-section cmp-section--soft" aria-labelledby="xbox-title">
+    <div class="container cmp-model-layout">
+      <div class="cmp-model-mark" aria-hidden="true">
+        <i class="fa-brands fa-xbox"></i>
+        <span>Xbox</span>
+      </div>
+      <div>
+        <header class="cmp-heading">
+          <p>Servicio general Xbox</p>
+          <h2 id="xbox-title">Mantenimiento de Xbox Series X y Series S en Cancún</h2>
+        </header>
+        <h3>Limpieza del ventilador de Xbox</h3>
+        <p>Revisamos acumulación de polvo, giro, ruido y conductos según el diseño del equipo.</p>
+        <h3>Disipador y flujo de aire en Xbox Series X</h3>
+        <p>El flujo de aire se evalúa junto con ubicación, ventilación exterior y estado interno.</p>
+        <h3>Pasta térmica según modelo y condición</h3>
+        <p>La necesidad se confirma antes de intervenir; no todos los modelos ni síntomas requieren el mismo material.</p>
+        <h3>Xbox que se calienta o hace ruido</h3>
+        <p>Una falla persistente puede necesitar diagnóstico de sobrecalentamiento o reparación general.</p>
+        <p class="cmp-links">
+          <a href="/servicios/consola/reparacion-xbox">Reparación de Xbox en Cancún</a>
+          <a href="/servicios/consola/xbox/sobrecalentamiento">Sobrecalentamiento de Xbox</a>
+          <a href="/servicios/consola/xbox/dano-liquido">Xbox mojado o con daño por líquido</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 8. NINTENDO SWITCH EN CANCÚN ==================== -->
+  <section class="cmp-section" aria-labelledby="switch-title">
+    <div class="container cmp-model-layout">
+      <div>
+        <header class="cmp-heading">
+          <p>Landing especializada</p>
+          <h2 id="switch-title">Mantenimiento de Nintendo Switch en Cancún</h2>
+        </header>
+        <h3>Nintendo Switch que se calienta</h3>
+        <p>Revisamos ventilación, ruido y condición térmica sin atribuir todos los síntomas a una sola causa.</p>
+        <h3>Limpieza del ventilador y disipador</h3>
+        <p>El alcance se adapta a Switch, OLED, Lite y la condición de la consola.</p>
+        <h3>Switch OLED, Lite y Switch 2</h3>
+        <p>Validamos variante y compatibilidad antes de abrir o proponer materiales térmicos.</p>
+        <a class="cmp-model-link" href="/servicios/consola/mantenimiento-nintendo-switch">Ver mantenimiento Nintendo Switch en Cancún <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </div>
+      <div class="cmp-model-mark" aria-hidden="true">
+        <i class="fa-solid fa-gamepad"></i>
+        <span>Switch</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 9. PORTÁTILES GAMER EN CANCÚN ==================== -->
+  <section class="cmp-section cmp-section--soft" aria-labelledby="portable-title">
+    <div class="container">
+      <header class="cmp-heading">
+        <p>Portátiles gamer</p>
+        <h2 id="portable-title">Mantenimiento de Steam Deck, ROG Ally y consolas portátiles en Cancún</h2>
+      </header>
+      <div class="cmp-three-col">
+        <article>
+          <h3>Limpieza de ventilación en Steam Deck</h3>
+          <p>Confirmamos modelo, estado y procedimiento de limpieza antes de desmontar su chasis compacto.</p>
+        </article>
+        <article>
+          <h3>Mantenimiento térmico ROG Ally</h3>
+          <p>Revisamos ventilación y comportamiento térmico; cualquier reparación se separa del servicio preventivo.</p>
+        </article>
+        <article>
+          <h3>Consolas portátiles que pierden rendimiento por temperatura</h3>
+          <p>El calor puede coincidir con el síntoma, pero también se consideran software, almacenamiento y hardware.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 10. PRECIOS Y COTIZACIÓN ==================== -->
+  <section class="cmp-section" aria-labelledby="price-title">
+    <div class="container cmp-two-col">
+      <div>
+        <header class="cmp-heading">
+          <p>Cotización clara</p>
+          <h2 id="price-title">¿Cuánto cuesta el mantenimiento de una consola en Cancún?</h2>
+          <span>No publicamos un precio único porque el modelo y alcance técnico no son iguales en todas las consolas.</span>
+        </header>
+      </div>
+      <div class="cmp-price-list">
+        <article>
+          <h3>Precio según modelo de consola</h3>
+          <p>PS5, Xbox, Nintendo y portátiles tienen arquitectura y desarmado diferentes.</p>
+        </article>
+        <article>
+          <h3>Precio según nivel de suciedad</h3>
+          <p>La condición interna ayuda a definir el alcance de limpieza y pruebas.</p>
+        </article>
+        <article>
+          <h3>Material térmico necesario</h3>
+          <p>Solo se contempla si la inspección confirma que corresponde al modelo y condición.</p>
+        </article>
+        <article>
+          <h3>Reparaciones adicionales se cotizan por separado</h3>
+          <p>Ventilador, fuente, placa, daño por líquido u otras fallas se explican antes de avanzar.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 11. CITA PREVIA ==================== -->
+  <section class="cmp-section cmp-section--navy" aria-labelledby="appointment-title">
+    <div class="container">
+      <header class="cmp-heading cmp-heading--light cmp-heading--center">
+        <p>Cita previa</p>
+        <h2 id="appointment-title">Mantenimiento de consolas con cita previa en Cancún</h2>
+        <span>Un flujo claro evita mover tu consola o autorizar trabajo sin saber el alcance.</span>
+      </header>
+      <div class="cmp-appointment-grid">
+        <article>
+          <h3>Agenda primero por WhatsApp</h3>
+          <p>Comparte modelo, síntoma y zona para iniciar la coordinación.</p>
+        </article>
+        <article>
+          <h3>Confirmamos modelo y síntomas</h3>
+          <p>Definimos la revisión adecuada antes de prometer materiales o reparaciones.</p>
+        </article>
+        <article>
+          <h3>Te indicamos modalidad y disponibilidad</h3>
+          <p>Confirmamos recepción, recolección o atención según el caso.</p>
+        </article>
+        <article>
+          <h3>Cotización antes de trabajos adicionales</h3>
+          <p>La intervención preventiva no autoriza por sí sola una reparación extra.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 12. ZONA HOTELERA ==================== -->
+  <section class="cmp-section" aria-labelledby="hotel-title">
+    <div class="container cmp-two-col">
+      <div>
+        <header class="cmp-heading">
+          <p>Visitantes y residentes</p>
+          <h2 id="hotel-title">Mantenimiento de consolas en Zona Hotelera de Cancún</h2>
+        </header>
+        <h3>PlayStation, Xbox y Nintendo para huéspedes</h3>
+        <p>Coordinamos la atención por WhatsApp y confirmamos el modelo antes de programar.</p>
+        <h3>Consolas en hoteles, departamentos y rentas vacacionales</h3>
+        <p>La recepción o recolección se coordina de acuerdo con la propiedad y la disponibilidad.</p>
+        <h3>Recolección según zona y disponibilidad</h3>
+        <p>No prometemos acceso directo a habitaciones; se respetan las políticas de cada hotel o condominio.</p>
+      </div>
+      <aside class="cmp-note">
+        <h4>Servicio mediante cita previa</h4>
+        <p>Confirmamos horario y modalidad antes de pedir dirección exacta.</p>
+        <h4>Acceso sujeto a políticas del hotel o propiedad</h4>
+        <p>La coordinación se adapta a las reglas de acceso, recepción y seguridad del lugar.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================== 13. COSTA MUJERES Y PLAYA MUJERES ==================== -->
+  <section class="cmp-section cmp-section--soft" aria-labelledby="coast-title">
+    <div class="container">
+      <header class="cmp-heading">
+        <p>Cobertura coordinada</p>
+        <h2 id="coast-title">Mantenimiento de consolas en Costa Mujeres y Playa Mujeres</h2>
+        <span>Atención sujeta a cita previa, disponibilidad, zona y modalidad de recepción o recolección.</span>
+      </header>
+      <div class="cmp-three-col">
+        <article>
+          <h3>Servicio de consola en Costa Mujeres</h3>
+          <p>Confirmamos modelo y ubicación general antes de coordinar una cita.</p>
+        </article>
+        <article>
+          <h3>Mantenimiento de consola en Playa Mujeres</h3>
+          <p>La disponibilidad y posible traslado se informan antes de agendar.</p>
+        </article>
+        <article>
+          <h3>Atención para hoteles y resorts</h3>
+          <p>Coordinamos recepción o recolección conforme a las políticas de la propiedad.</p>
+          <h4>Cita previa</h4>
+          <h4>Recolección o recepción coordinada</h4>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 14. ZONAS DE CANCÚN ==================== -->
+  <section class="cmp-section" aria-labelledby="zones-title">
+    <div class="container">
+      <header class="cmp-heading cmp-heading--center">
+        <p>Área de servicio</p>
+        <h2 id="zones-title">Zonas de Cancún donde atendemos mantenimiento de consolas</h2>
+        <span>Confirma disponibilidad según tu zona, modelo y modalidad de atención.</span>
+      </header>
+      <div class="cmp-zones">
+        {zones.map((zone) => <span>{zone}</span>)}
+      </div>
+    </div>
+  </section>
+
   <FaqSection
     id="faq"
-    title="Preguntas frecuentes sobre mantenimiento preventivo de consolas en Cancún"
-    description="Respuestas honestas sobre limpieza de PS5, Xbox, Nintendo Switch, cambio de pasta térmica, metal líquido y cómo evitar sobrecalentamientos o que se apague sola tu consola en Cancún."
-    items={pmFaqs}
-    ariaLabel="Preguntas frecuentes sobre mantenimiento preventivo de consolas en Cancún"
-    viewMoreHref="/preguntas-frecuentes"
-    viewMoreLabel="Ver más preguntas frecuentes"
-    sectionClass="faq-section"
-    gridClass="faq-grid"
-    backgroundColor="#F8FAFC"
+    title="Preguntas frecuentes sobre mantenimiento de consolas en Cancún"
+    description="Respuestas sobre PS5, Xbox, Nintendo Switch, portátiles gamer, cotización, atención coordinada y mantenimiento preventivo."
+    items={faqs}
+    ariaLabel="Preguntas frecuentes sobre mantenimiento de consolas en Cancún"
+    sectionClass="cmp-faq"
+    backgroundColor="#f4f9fb"
     questionColor="#071F3A"
     itemGap="10px"
     questionPadding="18px 20px"
   />
 
-  <!-- COMENTARIOS Y CONTACTO -->
+  <RelatedServicesSection
+    category={category}
+    service={service}
+    title="Servicios relacionados para consolas"
+    eyebrow="Intenciones separadas"
+    includeCategoryServices={true}
+    initialLimit={8}
+  />
+
   <CommentsSection dark={false} viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" />
   <ContactSection id="ubicacion" />
 </div>
 
-<style is:global>
-  .console-preventive-page {
-    background: #f4f7fb;
-    color: #071f3a;
-    font-family: 'Inter', sans-serif;
-  }
+<script is:inline>
+  (() => {
+    const container = document.getElementById('cmp-hero-container');
+    if (!container) return;
 
-  /* El Hero conserva su fondo oscuro premium */
-  .cpm-hero {
+    const tabs = Array.from(container.querySelectorAll('.cmp-tab-btn'));
+    const consoles = ['ps5', 'xbox', 'switch'];
+    let currentIndex = 0;
+    let autoTimer = null;
+
+    function activateConsole(consoleKey, userTriggered = false) {
+      container.setAttribute('data-active-console', consoleKey);
+      tabs.forEach((tab) => {
+        const isMatch = tab.getAttribute('data-console') === consoleKey;
+        tab.classList.toggle('cmp-tab-btn--active', isMatch);
+        tab.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+      });
+
+      if (userTriggered) {
+        clearInterval(autoTimer);
+        startAutoTimer();
+      }
+    }
+
+    function nextConsole() {
+      currentIndex = (currentIndex + 1) % consoles.length;
+      activateConsole(consoles[currentIndex]);
+    }
+
+    function startAutoTimer() {
+      autoTimer = setInterval(nextConsole, 12500);
+    }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        currentIndex = index;
+        activateConsole(tab.getAttribute('data-console'), true);
+      });
+    });
+
+    startAutoTimer();
+  })();
+</script>
+
+<style is:global>
+  /* Base typography and theme rules */
+  .console-maintenance-page { background:#fff; color:#071F3A; font-family:'Inter',sans-serif; }
+  .console-maintenance-page :is(h2,h3,h4,p,span,li) { color:#071F3A; }
+
+  /* ==================== 1. HERO SECTION ==================== */
+  .cmp-hero {
     position: relative;
     overflow: hidden;
-    padding: clamp(2.25rem, 4.5vw, 4.5rem) 0 clamp(1.75rem, 3.5vw, 3.5rem);
-    background:
-      radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15), transparent 30%),
-      radial-gradient(circle at 90% 20%, rgba(139, 92, 246, 0.12), transparent 30%),
-      linear-gradient(135deg, #070e1b 0%, #0b1120 50%, #0f192b 100%);
+    padding: clamp(48px, 7vw, 90px) 0;
+    background: radial-gradient(circle at 86% 19%, rgba(56, 189, 248, 0.22), transparent 35%), linear-gradient(135deg, #051a31, #092c4b 58%, #0c4564);
+    color: #fff;
   }
-
-  .cpm-hero-glow {
+  .cmp-hero::before {
+    content: '';
     position: absolute;
-    bottom: -150px;
-    right: -100px;
-    width: 450px;
-    height: 450px;
-    border-radius: 999px;
-    background: rgba(139, 92, 246, 0.15);
-    filter: blur(40px);
+    inset: 0;
+    opacity: 0.18;
+    background-image: linear-gradient(rgba(56, 189, 248, 0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 189, 248, 0.25) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: linear-gradient(90deg, #000, transparent 75%);
     pointer-events: none;
   }
 
-  .cpm-hero-grid {
+  .cmp-hero__grid {
     position: relative;
-    z-index: 2;
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-    gap: 32px;
+    grid-template-columns: minmax(0, 1.02fr) minmax(330px, 0.98fr);
     align-items: center;
+    gap: clamp(28px, 4.5vw, 64px);
   }
 
-  .cpm-kicker,
-  .cpm-eyebrow {
+  .cmp-kicker {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #4f46e5;
-    font-size: 0.78rem;
-    font-weight: 800;
+    margin: 0 0 12px;
+    color: #38bdf8 !important;
+    font-size: 0.8rem;
+    font-weight: 900;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  .cpm-hero .cpm-kicker {
-    color: #818cf8;
+  .cmp-hero h1 {
+    max-width: 720px;
+    margin: 0;
+    color: #fff !important;
+    font: 900 clamp(2.3rem, 4.4vw, 3.75rem) / 1.04 'Kanit', sans-serif;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
   }
 
-  .cpm-hero h1 {
-    margin: 12px 0;
-    color: #ffffff;
-    font-family: 'Kanit', sans-serif;
-    font-size: clamp(2.2rem, 5vw, 4rem);
-    line-height: 1.05;
-  }
-
-  .cpm-hero h2 {
-    margin: 0 0 16px;
-    color: #a7f3d0;
-    font-family: 'Kanit', sans-serif;
-    font-size: clamp(1.1rem, 2.2vw, 1.6rem);
-    line-height: 1.25;
-    font-weight: 400;
-  }
-
-  .cpm-hero p {
-    margin: 0 0 20px;
-    color: #cbd5e1;
+  .cmp-hero__lead {
+    max-width: 640px;
+    margin: 18px 0 0;
+    color: #f1f5f9 !important;
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
     line-height: 1.65;
-    font-weight: 400;
-    font-size: 1.05rem;
   }
 
-  .cpm-badges {
+  .cmp-hero__support {
+    margin: 8px 0 0;
+    color: #bae6fd !important;
+    font-size: 0.94rem;
+    line-height: 1.6;
+  }
+
+  .cmp-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin: 18px 0;
+    gap: 12px;
+    margin-top: 24px;
   }
 
-  .cpm-badges span {
-    color: #e0e7ff;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(129, 140, 248, 0.2);
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-
-  .cpm-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: center;
-  }
-
-  .cpm-primary,
-  .cpm-secondary {
+  .cmp-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .cpm-primary {
-    color: #ffffff !important;
-    background: #4f46e5;
-    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
-  }
-
-  .cpm-primary:hover {
-    background: #4338ca;
-    transform: translateY(-2px);
-  }
-
-  .cpm-primary:active,
-  .cpm-secondary:active {
-    transform: scale(0.97);
-  }
-
-  .cpm-secondary {
-    color: #c7d2fe !important;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .cpm-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.25);
-  }
-
-  .cpm-hero-panel {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 24px;
-    padding: 20px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-  }
-
-  .cpm-visual-img {
-    position: relative;
-    min-height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 18px;
-    background: #0f172a;
-    border: 1px solid rgba(129, 140, 248, 0.15);
-  }
-
-  .cpm-img-hero {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .cpm-hero-panel:hover .cpm-img-hero {
-    transform: scale(1.05);
-  }
-
-  .cpm-img-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(15, 23, 42, 0.8) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .cpm-panel-info {
-    display: grid;
-    gap: 4px;
-    margin: 16px 0;
-  }
-
-  .cpm-panel-info span {
-    color: #818cf8;
-    font-weight: 700;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-  }
-
-  .cpm-panel-info strong {
-    color: #a7f3d0;
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.95rem;
-    line-height: 1;
-  }
-
-  .cpm-panel-info small {
-    color: #94a3b8;
-    line-height: 1.4;
-    font-size: 0.82rem;
-  }
-
-  .cpm-features-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 8px;
-  }
-
-  .cpm-features-list li {
-    color: #cbd5e1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-
-  .cpm-features-list li i {
-    color: #10b981;
-  }
-
-  /* SECTION STYLING (TEXTOS AZUL OSCURO FUERA DEL HERO) */
-  .cpm-section {
-    padding: clamp(2rem, 4vw, 3.75rem) 0;
-    background: #ffffff;
-    color: #071f3a;
-  }
-
-  .cpm-section h2 {
-    font-family: 'Kanit', sans-serif;
-    font-size: clamp(1.65rem, 3vw, 2.3rem);
-    line-height: 1.1;
-    margin: 0 0 14px;
-    font-weight: 700;
-    color: #071f3a;
-  }
-
-  .cpm-section p {
-    line-height: 1.6;
-    margin: 0 0 14px;
-    color: #071f3a;
-  }
-
-  .cpm-large-text {
-    font-size: 1.05rem;
-    line-height: 1.65;
-    font-weight: 500;
-    color: #071f3a;
-  }
-
-  .cpm-split-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 36px;
-    align-items: stretch;
-  }
-
-  /* COLUMN CARDS FOR PORTABLES */
-  .cpm-head-center {
-    max-width: 800px;
-    margin: 0 auto 32px;
-    text-align: center;
-  }
-
-  .cpm-center-desc {
-    font-size: 1.02rem;
-    line-height: 1.6;
-    color: #071f3a;
-  }
-
-  .cpm-three-columns {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-
-  .cpm-col-card {
-    background: #ffffff;
-    border: 1px solid #dbe5ef;
-    border-radius: 18px;
-    padding: 22px;
-    box-shadow: 0 4px 15px rgba(7, 31, 58, 0.03);
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .cpm-col-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .card-num {
-    font-family: 'Kanit', sans-serif;
-    font-size: 2.5rem;
+    min-height: 48px;
+    padding: 12px 18px;
+    border-radius: 11px;
     font-weight: 800;
-    color: rgba(79, 70, 229, 0.15);
-    line-height: 1;
-    margin-bottom: 10px;
+    text-decoration: none;
+    transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
   }
-
-  .cpm-col-card h3 {
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.15rem;
-    color: #071f3a;
-    margin: 0 0 8px;
-    line-height: 1.2;
+  .cmp-button:hover { transform: translateY(-2px); }
+  .cmp-button:active { transform: scale(0.985); }
+  .cmp-button--primary {
+    background: #16a34a;
+    color: #fff !important;
+    box-shadow: 0 10px 22px rgba(22, 163, 74, 0.28);
   }
-
-  .cpm-col-card p {
-    font-size: 0.88rem;
-    line-height: 1.55;
-    margin: 0;
-    color: #071f3a;
+  .cmp-button--primary:hover { background: #15803d; }
+  .cmp-button--secondary {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff !important;
   }
+  .cmp-button--secondary:hover { background: rgba(255, 255, 255, 0.16); }
 
-  /* SPLIT CARDS FOR PS5 AND XBOX */
-  .cpm-split-card {
-    background: #ffffff;
-    border: 1px solid #dbe5ef;
-    border-radius: 20px;
-    padding: 28px;
-    position: relative;
-    overflow: hidden;
+  .cmp-trust {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    box-shadow: 0 4px 15px rgba(7, 31, 58, 0.03);
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
   }
-
-  .cpm-split-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    z-index: 2;
-  }
-
-  .cpm-split-card:first-child::before {
-    background: #003087; /* PS Blue */
-  }
-
-  .cpm-split-card:last-child::before {
-    background: #107c10; /* Xbox Green */
-  }
-
-  .card-image-wrapper {
-    margin-bottom: 18px;
-    border-radius: 14px;
-    overflow: hidden;
-    height: 170px;
-    position: relative;
-    border: 1px solid #dbe5ef;
-  }
-
-  .card-inline-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .cpm-split-card:hover .card-inline-image {
-    transform: scale(1.04);
-  }
-
-  .cpm-split-card h2 {
-    font-size: 1.35rem;
-    line-height: 1.2;
-    margin-top: 0;
-  }
-
-  .cpm-split-card p {
-    font-size: 0.92rem;
-    line-height: 1.55;
-  }
-
-  /* SYMPTOMS */
-  .cpm-symptom-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-
-  .cpm-symptom-card {
-    background: #ffffff;
-    border: 1px solid #dbe5ef;
-    border-radius: 18px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 4px 15px rgba(7, 31, 58, 0.03);
-  }
-
-  .cpm-symptom-card:hover {
-    border-color: rgba(79, 70, 229, 0.25);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(7, 31, 58, 0.06);
-  }
-
-  .cpm-symptom-card i {
-    font-size: 1.85rem;
-    color: #f43f5e;
-    margin-bottom: 10px;
-  }
-
-  .cpm-symptom-card h3 {
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.05rem;
-    color: #071f3a;
-    margin: 0 0 8px;
-  }
-
-  .cpm-symptom-card p {
-    font-size: 0.85rem;
-    line-height: 1.5;
-    margin: 0;
-    color: #071f3a;
-  }
-
-  /* PROCESS TIMELINE */
-  .cpm-process-timeline {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    position: relative;
-  }
-
-  .cpm-process-timeline::before {
-    content: '';
-    position: absolute;
-    left: 20px;
-    top: 10px;
-    bottom: 10px;
-    width: 2px;
-    background: #dbe5ef;
-  }
-
-  .cpm-timeline-item {
-    display: flex;
-    gap: 20px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .cpm-timeline-number {
-    width: 38px;
-    height: 38px;
+  .cmp-trust li {
+    padding: 6px 12px;
+    border: 1px solid rgba(186, 230, 253, 0.24);
     border-radius: 999px;
-    background: #4f46e5;
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e0f2fe !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  /* ==================== HERO MOTION DESIGN & STAGE ==================== */
+  .cmp-hero__visual-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  /* Console Selection Tabs */
+  .cmp-console-tabs {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Kanit', sans-serif;
-    font-weight: 700;
-    flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
-    font-size: 0.88rem;
+    gap: 8px;
+    padding: 4px;
+    border-radius: 12px;
+    background: rgba(4, 22, 39, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(8px);
   }
 
-  .cpm-timeline-content {
-    background: #ffffff;
-    border: 1px solid #dbe5ef;
-    border-radius: 16px;
-    padding: 14px 18px;
-    flex-grow: 1;
-    box-shadow: 0 4px 15px rgba(7, 31, 58, 0.02);
-  }
-
-  .cpm-timeline-content h3 {
-    margin: 0 0 4px;
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.1rem;
-    color: #071f3a;
-  }
-
-  .cpm-timeline-content p {
-    font-size: 0.88rem;
-    line-height: 1.5;
-    margin: 0;
-    color: #071f3a;
-  }
-
-  /* CANCUN CLIMATE LAYOUT */
-  .cpm-cancun-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap: 36px;
-    align-items: center;
-  }
-
-  .cpm-cancun-text h2 {
-    color: #071f3a;
-  }
-
-  .cpm-cancun-text p {
-    color: #071f3a;
-    font-size: 0.95rem;
-    line-height: 1.55;
-  }
-
-  .cpm-address {
-    margin-top: 14px;
-    font-style: normal;
-    line-height: 1.6;
-    color: #071f3a;
-  }
-
-  .cpm-address a {
-    color: #4f46e5;
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .cpm-cancun-badges-strip {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .climate-badge {
-    background: #ffffff;
-    border: 1px solid #dbe5ef;
-    border-radius: 16px;
-    padding: 14px;
-    text-align: center;
-    font-weight: 700;
-    color: #071f3a;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 12px rgba(7, 31, 58, 0.03);
-    display: flex;
-    flex-direction: column;
+  .cmp-tab-btn {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #94a3b8;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 180ms ease;
   }
-
-  .climate-badge i {
-    font-size: 1.35rem;
-    color: #3b82f6;
+  .cmp-tab-btn:hover {
+    color: #e0f2fe;
+    background: rgba(255, 255, 255, 0.06);
   }
-
-  /* RELATED SERVICES SECTION OVERRIDES (FONDO BLANCO Y TEXTO AZUL OSCURO #071F3A) */
-  .console-preventive-page .svc-related {
-    background: #ffffff !important;
-    padding: clamp(2rem, 4vw, 3.75rem) 0 !important;
-  }
-
-  .console-preventive-page .svc-related :is(.ux-h2, .related-card h4, .related-card p, .related-card a, span) {
-    color: #071f3a !important;
-  }
-
-  .console-preventive-page .svc-related .related-card {
-    background: #ffffff !important;
-    border: 1px solid #dbe5ef !important;
-    box-shadow: 0 4px 15px rgba(7, 31, 58, 0.03) !important;
-    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
-  }
-
-  .console-preventive-page .svc-related .related-card:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(7, 31, 58, 0.06) !important;
-  }
-
-  .console-preventive-page .svc-related .related-card .btn-related-ver {
-    background: #f4f7fb !important;
-    color: #071f3a !important;
-    border: 1px solid #dbe5ef !important;
-    border-radius: 8px !important;
-    transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
-  }
-
-  .console-preventive-page .svc-related .related-card .btn-related-ver:hover {
-    background: #4f46e5 !important;
+  .cmp-tab-btn--active {
+    background: rgba(56, 189, 248, 0.18) !important;
+    border-color: #38bdf8 !important;
     color: #ffffff !important;
-    border-color: #4f46e5 !important;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
   }
 
-  /* MEDIA QUERIES */
+  .cmp-visual {
+    width: 100%;
+    margin: 0;
+  }
+  .cmp-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 14px 28px rgba(1, 8, 17, 0.5));
+  }
+
+  /* Console Stage Visibility Switcher */
+  .console-stage {
+    display: none;
+    opacity: 0;
+    transform-origin: center;
+    transition: opacity 350ms ease, transform 350ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  [data-active-console="ps5"] #stage-ps5 {
+    display: block;
+    opacity: 1;
+  }
+  [data-active-console="xbox"] #stage-xbox {
+    display: block;
+    opacity: 1;
+  }
+  [data-active-console="switch"] #stage-switch {
+    display: block;
+    opacity: 1;
+  }
+
+  /* 12.5s Motion Sequence Keyframes & Assignments */
+  .console-stage {
+    animation: c-stage-zoom 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+
+  /* Fan Rotation */
+  .c-fan-rotor {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: c-fans-spin 12.5s linear infinite;
+  }
+
+  /* PS5 Exploded View */
+  .ps5-wing-left {
+    transform-box: fill-box;
+    transform-origin: center left;
+    animation: ps5-wing-left-explode 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+  .ps5-wing-right {
+    transform-box: fill-box;
+    transform-origin: center right;
+    animation: ps5-wing-right-explode 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+  .ps5-layer-heatsink {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ps5-heatsink-explode 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+  .ps5-apu-die {
+    animation: c-thermal-highlight 12.5s ease-in-out infinite;
+  }
+
+  /* Xbox Exploded View */
+  .xbox-layer-fan {
+    transform-box: fill-box;
+    transform-origin: center top;
+    animation: xbox-fan-lift 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+  .xbox-layer-heatsink {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: xbox-heatsink-explode 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+  .xbox-apu-die {
+    animation: c-thermal-highlight 12.5s ease-in-out infinite;
+  }
+
+  /* Switch Exploded View */
+  .switch-layer-chassis {
+    transform-box: fill-box;
+    transform-origin: center top;
+    animation: switch-chassis-lift 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+  .switch-layer-heatsink {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: switch-heatsink-explode 12.5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  }
+  .switch-apu-die {
+    animation: c-thermal-highlight 12.5s ease-in-out infinite;
+  }
+
+  /* Diagnostic Scanner Beam */
+  .c-scanner-beam {
+    animation: c-scanner-sweep 12.5s ease-in-out infinite;
+  }
+
+  /* Dust Particles Blowout */
+  .c-dust-group {
+    animation: c-dust-blowout 12.5s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+  }
+
+  /* Airflow Paths (Clean Post-Service) */
+  .c-air-stream {
+    stroke-dasharray: 30 70;
+    stroke-dashoffset: 100;
+    animation: c-airflow-flow 12.5s linear infinite;
+  }
+  .c-air-stream--2 { animation-delay: 80ms; }
+  .c-air-stream--3 { animation-delay: 160ms; }
+
+  /* Sheen & Success Badge */
+  .c-sheen-rect {
+    animation: c-sheen-sweep-fx 12.5s ease-in-out infinite;
+  }
+  .c-sparkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: c-sparkle-pop 12.5s ease-in-out infinite;
+  }
+  .c-sparkle--2 { animation-delay: 120ms; }
+  .c-success-badge {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: c-success-badge-pop 12.5s cubic-bezier(0.18, 0.9, 0.32, 1.25) infinite;
+  }
+
+  /* ==================== 12.5s TIMING KEYFRAMES ==================== */
+  /* Zoom Stage Initial */
+  @keyframes c-stage-zoom {
+    0% { transform: translate(320px, 200px) scale(0.92); opacity: 0.5; }
+    8% { transform: translate(320px, 200px) scale(1); opacity: 1; }
+    92% { transform: translate(320px, 200px) scale(1); opacity: 1; }
+    98%, 100% { transform: translate(320px, 200px) scale(0.94); opacity: 0.6; }
+  }
+
+  /* Multi-speed Fan Rotation */
+  @keyframes c-fans-spin {
+    0%, 18% { transform: rotate(0deg); }
+    19%, 28% { transform: rotate(720deg); }
+    29%, 41% { transform: rotate(840deg); } /* Stoppage during disassembly */
+    42%, 64% { transform: rotate(1800deg); } /* Free rotation during airjet */
+    65%, 74% { transform: rotate(1800deg); }
+    75%, 94% { transform: rotate(3600deg); } /* Stable uniform speed */
+    95%, 100% { transform: rotate(3780deg); }
+  }
+
+  /* PS5 Exploded Disassembly */
+  @keyframes ps5-wing-left-explode {
+    0%, 27% { transform: translateX(0) rotate(0deg); opacity: 1; }
+    32%, 74% { transform: translateX(-24px) rotate(-2deg); opacity: 0.35; }
+    80%, 100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  }
+  @keyframes ps5-wing-right-explode {
+    0%, 27% { transform: translateX(0) rotate(0deg); opacity: 1; }
+    32%, 74% { transform: translateX(24px) rotate(2deg); opacity: 0.35; }
+    80%, 100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  }
+  @keyframes ps5-heatsink-explode {
+    0%, 27% { transform: translateY(0); opacity: 1; }
+    32%, 74% { transform: translateY(-16px); opacity: 0.7; }
+    80%, 100% { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Xbox Exploded Disassembly */
+  @keyframes xbox-fan-lift {
+    0%, 27% { transform: translateY(-95px); opacity: 1; }
+    32%, 74% { transform: translateY(-118px); opacity: 0.85; }
+    80%, 100% { transform: translateY(-95px); opacity: 1; }
+  }
+  @keyframes xbox-heatsink-explode {
+    0%, 27% { transform: translateY(0); opacity: 1; }
+    32%, 74% { transform: translateY(-14px); opacity: 0.75; }
+    80%, 100% { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Switch Exploded Disassembly */
+  @keyframes switch-chassis-lift {
+    0%, 27% { transform: translateY(0); opacity: 1; }
+    32%, 74% { transform: translateY(-20px); opacity: 0.3; }
+    80%, 100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes switch-heatsink-explode {
+    0%, 27% { transform: translateY(0); opacity: 1; }
+    32%, 74% { transform: translateY(-10px); opacity: 0.8; }
+    80%, 100% { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Scanner Sweep (18% - 28%) */
+  @keyframes c-scanner-sweep {
+    0%, 17% { opacity: 0; transform: translateY(0); }
+    19% { opacity: 0.95; }
+    26% { opacity: 0.95; transform: translateY(180px); }
+    28%, 100% { opacity: 0; transform: translateY(200px); }
+  }
+
+  /* Dust Particles Blowout (42% - 64%) */
+  @keyframes c-dust-blowout {
+    0%, 41% { opacity: 0.9; transform: translate(0, 0) scale(1); }
+    48% { opacity: 0.6; transform: translate(18px, -20px) scale(0.8); }
+    58% { opacity: 0.2; transform: translate(45px, -45px) scale(0.4); }
+    64%, 100% { opacity: 0; transform: translate(60px, -60px) scale(0); }
+  }
+
+  /* Thermal Interface Highlight (64% - 75%) */
+  @keyframes c-thermal-highlight {
+    0%, 63% { stroke: #f59e0b; fill: #082b47; }
+    66%, 74% { stroke: #10b981; fill: #064e3b; filter: url(#c-glow-emerald); }
+    77%, 100% { stroke: #38bdf8; fill: #0a3050; filter: none; }
+  }
+
+  /* Clean Airflow (75% - 94%) */
+  @keyframes c-airflow-flow {
+    0%, 74% { opacity: 0; stroke-dashoffset: 100; }
+    76% { opacity: 0.9; }
+    92% { opacity: 0.9; stroke-dashoffset: -100; }
+    94%, 100% { opacity: 0; stroke-dashoffset: -130; }
+  }
+
+  /* Sheen, Sparkles, Check Badge */
+  @keyframes c-sheen-sweep-fx {
+    0%, 93% { opacity: 0; transform: translateX(-200px) skewX(-20deg); }
+    94% { opacity: 0.8; }
+    96% { opacity: 0.8; transform: translateX(200px) skewX(-20deg); }
+    98%, 100% { opacity: 0; transform: translateX(220px) skewX(-20deg); }
+  }
+  @keyframes c-sparkle-pop {
+    0%, 93% { opacity: 0; transform: scale(0.2); }
+    94%, 97% { opacity: 1; transform: scale(1.3) rotate(15deg); }
+    98%, 100% { opacity: 0; transform: scale(0.2); }
+  }
+  @keyframes c-success-badge-pop {
+    0%, 93% { opacity: 0; transform: translateY(6px) scale(0.3); }
+    94% { opacity: 1; transform: translateY(-2px) scale(1.12); }
+    96%, 98% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-2px) scale(0.85); }
+  }
+
+  /* ==================== 5-STEP TIMELINE BELOW HERO ==================== */
+  .cmp-motion-steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin: 4px 0 0;
+    padding: 14px 10px 12px;
+    list-style: none;
+    background: rgba(4, 22, 39, 0.65);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  .cmp-motion-steps::before {
+    position: absolute;
+    top: 22px;
+    left: 36px;
+    right: 36px;
+    height: 3px;
+    content: '';
+    background: rgba(14, 61, 102, 0.85);
+    border-radius: 2px;
+    z-index: 1;
+  }
+
+  .cmp-motion-steps::after {
+    position: absolute;
+    top: 22px;
+    left: 36px;
+    right: 36px;
+    height: 3px;
+    content: '';
+    background: linear-gradient(90deg, #38bdf8, #22d3ee, #10b981);
+    border-radius: 2px;
+    z-index: 1;
+    transform-origin: left;
+    animation: c-line-progress 12.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .cmp-step {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 2px;
+    opacity: 0.55;
+    transform: translateY(2px);
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+
+  .cmp-step__indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+
+  .cmp-step__dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #092644;
+    border: 2.5px solid #1a517e;
+    box-shadow: 0 0 0 3px rgba(4, 22, 39, 0.9);
+  }
+
+  .cmp-step__num {
+    color: #7dd3fc;
+    font-family: monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+  }
+
+  .cmp-step__info {
+    min-width: 0;
+    width: 100%;
+  }
+  .cmp-step__info strong {
+    display: block;
+    color: #ffffff;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .cmp-step__info p {
+    margin: 2px 0 0;
+    color: #cbe9f4;
+    font-size: 0.66rem;
+    line-height: 1.25;
+  }
+
+  @keyframes c-line-progress {
+    0%, 17% { transform: scaleX(0); }
+    18%, 27% { transform: scaleX(0.25); }
+    28%, 41% { transform: scaleX(0.5); }
+    42%, 74% { transform: scaleX(0.75); }
+    75%, 94% { transform: scaleX(1); }
+    98%, 100% { transform: scaleX(0); }
+  }
+
+  .cmp-step--1 { animation: c-step1-sync 12.5s ease-in-out infinite; }
+  .cmp-step--2 { animation: c-step2-sync 12.5s ease-in-out infinite; }
+  .cmp-step--3 { animation: c-step3-sync 12.5s ease-in-out infinite; }
+  .cmp-step--4 { animation: c-step4-sync 12.5s ease-in-out infinite; }
+  .cmp-step--5 { animation: c-step5-sync 12.5s ease-in-out infinite; }
+
+  @keyframes c-step1-sync {
+    0%, 17% { opacity: 1; transform: translateY(0); }
+    19%, 95% { opacity: 0.55; transform: translateY(2px); }
+    97%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes c-step2-sync {
+    0%, 17% { opacity: 0.55; transform: translateY(2px); }
+    18%, 27% { opacity: 1; transform: translateY(0); }
+    29%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes c-step3-sync {
+    0%, 27% { opacity: 0.55; transform: translateY(2px); }
+    28%, 41% { opacity: 1; transform: translateY(0); }
+    43%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes c-step4-sync {
+    0%, 41% { opacity: 0.55; transform: translateY(2px); }
+    42%, 74% { opacity: 1; transform: translateY(0); }
+    76%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes c-step5-sync {
+    0%, 74% { opacity: 0.55; transform: translateY(2px); }
+    75%, 94% { opacity: 1; transform: translateY(0); }
+    96%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+
+  /* ==================== PAGE CONTENT SECTIONS ==================== */
+  .cmp-section { padding: clamp(56px, 7vw, 92px) 0; background: #fff; }
+  .cmp-section--soft { background: #f1fafb; }
+  .cmp-section--navy { background: #071F3A; }
+  .cmp-heading { max-width: 850px; margin-bottom: 30px; }
+  .cmp-heading--center { margin-right: auto; margin-left: auto; text-align: center; }
+  .cmp-heading > p { margin: 0 0 9px; color: #08799a !important; font-size: 0.76rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+  .cmp-heading h2 { margin: 0; color: #071F3A !important; font: 800 clamp(1.85rem, 3.4vw, 3rem) / 1.1 'Kanit', sans-serif; letter-spacing: -0.02em; text-wrap: balance; }
+  .cmp-heading > span { display: block; margin-top: 13px; color: #071F3A !important; line-height: 1.7; }
+  .cmp-heading--light > p { color: #70dfed !important; }
+  .cmp-heading--light h2, .cmp-heading--light > span { color: #fff !important; }
+
+  .cmp-platform-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .cmp-platform-grid article, .cmp-three-col article, .cmp-symptom-grid article, .cmp-decision-card, .cmp-note, .cmp-price-list article { border: 1px solid #cfe5eb; border-radius: 17px; background: #fff; box-shadow: 0 8px 24px rgba(7, 31, 58, 0.045); }
+  .cmp-platform-grid article { position: relative; padding: 23px; }
+  .cmp-platform-grid article > i { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 10px; background: #dff6f9; color: #087d99; font-size: 1.05rem; }
+  .cmp-platform-grid h3, .cmp-three-col h3, .cmp-symptom-grid h3, .cmp-included-list h3, .cmp-two-col h3, .cmp-model-layout h3, .cmp-price-list h3, .cmp-appointment-grid h3 { margin: 15px 0 8px; color: #071F3A !important; font: 800 1.18rem / 1.23 'Kanit', sans-serif; }
+  .cmp-platform-grid h4, .cmp-included-list h4, .cmp-note h4, .cmp-three-col h4 { margin: 15px 0 3px; color: #071F3A !important; font: 800 0.93rem / 1.3 'Kanit', sans-serif; }
+  .cmp-platform-grid p, .cmp-three-col p, .cmp-symptom-grid p, .cmp-included-list p, .cmp-two-col p, .cmp-model-layout p, .cmp-price-list p, .cmp-appointment-grid p, .cmp-note p { margin: 0; color: #071F3A !important; font-size: 0.93rem; line-height: 1.65; }
+
+  .cmp-symptom-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .cmp-symptom-grid article { padding: 19px; }
+  .cmp-symptom-grid article > span, .cmp-included-list > article > span { color: #09809b !important; font: 900 1.1rem / 1 'Kanit', sans-serif; }
+  .cmp-included-list { display: grid; gap: 12px; }
+  .cmp-included-list > article { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 21px; border: 1px solid #cfe5eb; border-radius: 17px; background: #fff; }
+  .cmp-included-list h3 { margin-top: 0; }
+  .cmp-subgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 22px; }
+  .cmp-two-col, .cmp-model-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 5vw, 70px); align-items: center; }
+  .cmp-two-col a, .cmp-model-layout a { color: #057a96; font-weight: 800; }
+  .cmp-decision-card, .cmp-note { padding: clamp(22px, 3vw, 34px); }
+  .cmp-decision-card h3, .cmp-note h4 { margin-top: 0; }
+  .cmp-inline-cta, .cmp-model-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 19px; color: #057a96 !important; font-weight: 900; text-decoration: none; }
+  .cmp-model-mark { min-height: 260px; display: grid; place-content: center; gap: 8px; border-radius: 22px; background: linear-gradient(145deg, #eefbfc, #d5f3f7); border: 1px solid #c6e9ee; color: #087d99; text-align: center; }
+  .cmp-model-mark i { color: #087d99 !important; font-size: 4.5rem; }
+  .cmp-model-mark span { color: #071F3A !important; font: 800 1.2rem 'Kanit', sans-serif; letter-spacing: 0.06em; }
+  .cmp-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px !important; }
+  .cmp-links a { color: #057a96 !important; font-size: 0.88rem; font-weight: 800; }
+  .cmp-three-col, .cmp-appointment-grid, .cmp-price-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+  .cmp-three-col article, .cmp-price-list article, .cmp-appointment-grid article { padding: 22px; }
+  .cmp-three-col h3, .cmp-price-list h3, .cmp-appointment-grid h3 { margin-top: 0; }
+  .cmp-price-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cmp-appointment-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cmp-appointment-grid article { border-top: 3px solid #62d9e9; background: rgba(255, 255, 255, 0.97); }
+  .cmp-appointment-grid h3, .cmp-appointment-grid p { color: #071F3A !important; }
+  .cmp-zones { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; }
+  .cmp-zones span { padding: 9px 12px; border: 1px solid #bfe3ea; border-radius: 999px; background: #f5fcfd; color: #071F3A !important; font-size: 0.87rem; font-weight: 750; }
+  .console-maintenance-page .svc-related { background: #fff !important; }
+  .console-maintenance-page .svc-related :is(.ux-h2, .related-card h4, .related-card p, .related-card a, .related-card span) { color: #071F3A !important; }
+
+  /* Hover transitions on desktop */
+  @media (hover:hover) and (pointer:fine) {
+    .cmp-platform-grid article, .cmp-three-col article, .cmp-symptom-grid article, .cmp-price-list article { transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 180ms ease; }
+    .cmp-platform-grid article:hover, .cmp-three-col article:hover, .cmp-symptom-grid article:hover, .cmp-price-list article:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(7, 31, 58, 0.09); }
+  }
+
+  /* Responsive Media Queries */
   @media (max-width: 980px) {
-    .cpm-hero-grid,
-    .cpm-split-grid,
-    .cpm-cancun-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .cpm-three-columns {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .cpm-symptom-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .cmp-hero__grid, .cmp-two-col, .cmp-model-layout { grid-template-columns: 1fr; }
+    .cmp-hero__copy { max-width: 760px; }
+    .cmp-hero__visual-wrap { max-width: 580px; width: 100%; margin: auto; }
+    .cmp-symptom-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cmp-appointment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 
-  @media (max-width: 700px) {
-    .cpm-hero {
-      padding: 30px 0 40px;
-    }
-
-    .cpm-hero h1 {
-      font-size: clamp(2rem, 9vw, 2.85rem);
-    }
-
-    .cpm-section {
-      padding: 45px 0;
-    }
-
-    .cpm-three-columns,
-    .cpm-symptom-grid,
-    .cpm-cancun-badges-strip {
+  @media (max-width: 768px) {
+    /* Switch Timeline to Vertical on Mobile */
+    .cmp-motion-steps {
       grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 14px 14px 12px;
     }
-
-    .cpm-process-timeline::before {
-      left: 15px;
+    .cmp-motion-steps::before {
+      top: 18px;
+      bottom: 18px;
+      left: 17px;
+      right: auto;
+      width: 3px;
+      height: auto;
     }
-
-    .cpm-timeline-item {
+    .cmp-motion-steps::after {
+      top: 18px;
+      bottom: 18px;
+      left: 17px;
+      right: auto;
+      width: 3px;
+      height: auto;
+      transform-origin: top;
+      animation: c-line-progress-vert 12.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .cmp-step {
+      flex-direction: row;
+      align-items: flex-start;
+      text-align: left;
       gap: 12px;
+      transform: translateX(0);
+    }
+    .cmp-step__indicator {
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    .cmp-step__dot {
+      margin-top: 3px;
+    }
+    .cmp-step__num {
+      min-width: 18px;
+      margin-top: 1px;
+    }
+    .cmp-step__info strong {
+      font-size: 0.86rem;
+    }
+    .cmp-step__info p {
+      font-size: 0.74rem;
     }
 
-    .cpm-timeline-number {
-      width: 32px;
-      height: 32px;
-      font-size: 0.9rem;
+    @keyframes c-line-progress-vert {
+      0%, 17% { transform: scaleY(0); }
+      18%, 27% { transform: scaleY(0.25); }
+      28%, 41% { transform: scaleY(0.5); }
+      42%, 74% { transform: scaleY(0.75); }
+      75%, 94% { transform: scaleY(1); }
+      98%, 100% { transform: scaleY(0); }
     }
   }
 
-  /* Emil Kowalski motion reduced support */
+  @media (max-width: 640px) {
+    .cmp-hero { padding: 38px 0 43px; }
+    .cmp-hero h1 { font-size: clamp(2rem, 9vw, 2.7rem); }
+    .cmp-actions { flex-direction: column; }
+    .cmp-button { width: 100%; }
+    .cmp-trust { gap: 7px; }
+    .cmp-trust li { font-size: 0.7rem; }
+    .cmp-visual { max-width: 420px; }
+    .cmp-platform-grid, .cmp-three-col, .cmp-symptom-grid, .cmp-price-list, .cmp-appointment-grid, .cmp-subgrid { grid-template-columns: 1fr; }
+    .cmp-included-list > article { grid-template-columns: 1fr; gap: 8px; }
+    .cmp-model-mark { min-height: 180px; }
+    .cmp-model-layout .cmp-model-mark { order: -1; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .cpm-primary,
-    .cpm-secondary,
-    .cpm-col-card,
-    .cpm-symptom-card,
-    .console-preventive-page .svc-related .related-card,
-    .card-inline-image {
-      transition: none !important;
-    }
+    .cmp-visual * { animation: none !important; transition: none !important; }
+    .console-stage { opacity: 1 !important; transform: none !important; }
+    .c-scanner-beam { opacity: 0 !important; }
+    .c-dust-group { opacity: 0 !important; }
+    .c-success-badge { opacity: 1 !important; transform: none !important; }
+    .cmp-motion-steps::after { transform: none !important; animation: none !important; }
+    .cmp-step { opacity: 1 !important; transform: none !important; animation: none !important; }
+    .cmp-button { transition: none; }
   }
 </style>

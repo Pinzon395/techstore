@@ -25,6 +25,12 @@ const BLOCKED_PATHS = new Set([
   '/servicios/consola/ventilacion',
 ]);
 
+const INDEXABLE_ENGLISH_ROUTES = new Set([
+  '/en',
+  '/en/liquid-damage',
+  '/en/iphone-battery-replacement',
+]);
+
 async function walk(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = [];
@@ -49,7 +55,7 @@ function toRoute(filePath) {
 
 function isBlockedRoute(route) {
   if (BLOCKED_PATHS.has(route)) return true;
-  if (route.startsWith('/en/')) return true;
+  if ((route === '/en' || route.startsWith('/en/')) && !INDEXABLE_ENGLISH_ROUTES.has(route)) return true;
   return BLOCKED_PREFIXES.some((prefix) => route === prefix || route.startsWith(`${prefix}/`));
 }
 

@@ -6,128 +6,2612 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import FaqSection from '../components/FaqSection.astro';
 import ServiceTicketSection from '../components/ServiceTicketSection.astro';
 
-const whatsappText = 'Hola Pixon. Quiero revisar mi laptop porque presenta problemas de temperatura o ventilación.';
-const whatsappUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappText)}`;
+const whatsappLocalText = 'Hola Pixon PC. Quiero cotizar la limpieza de mi laptop en Cancún. Marca y modelo: ';
+const whatsappLocalUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappLocalText)}`;
+
+const whatsappShippingText = 'Hola Pixon PC. Quiero enviar mi laptop por paquetería para limpieza/mantenimiento.\nMarca:\nModelo:\nCiudad/estado:\nSíntoma:\nServicio que necesito:\n¿Incluyo cargador?:\nComentario:';
+const whatsappShippingUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappShippingText)}`;
+
 const canonical = 'https://pixon.com.mx/limpieza-laptop';
 
-const symptoms = [
-  ['fa-temperature-half', 'Laptop se calienta demasiado', 'El polvo puede reducir el flujo de aire y hacer que el calor se acumule dentro del equipo.'],
-  ['fa-fan', 'El ventilador suena fuerte', 'Un ventilador trabajando constantemente puede estar intentando compensar una temperatura elevada.'],
-  ['fa-wind', 'Sale aire muy caliente', 'Cuando la ventilación no circula bien, el equipo puede expulsar aire más caliente de lo habitual.'],
-  ['fa-gauge-high', 'Baja el rendimiento', 'Al calentarse, algunos equipos reducen velocidad para protegerse; se percibe como lentitud o pausas.'],
-  ['fa-power-off', 'Se apaga o reinicia', 'La temperatura puede activar protecciones, aunque un apagado también puede tener otras causas que se deben revisar.'],
-  ['fa-calendar-xmark', 'Lleva tiempo sin mantenimiento', 'El polvo se acumula gradualmente en rejillas, ventiladores y disipadores, incluso si la laptop parece funcionar bien.'],
-];
-
-const process = [
-  'Revisión inicial del equipo y de los síntomas reportados.',
-  'Apertura segura cuando el diseño y el estado del modelo lo permiten.',
-  'Limpieza del polvo acumulado en zonas accesibles.',
-  'Revisión de ventiladores, rejillas y conductos de ventilación.',
-  'Inspección del disipador, heatpipes y sistema de disipación.',
-  'Revisión de pasta térmica y thermal pads cuando corresponde.',
-  'Comprobación general después del ensamble.',
-];
-
-const thermalTopics = [
-  ['fa-temperature-half', 'Cambio de pasta térmica', 'La pasta térmica ayuda a transferir calor entre el procesador o GPU y el disipador. Su revisión depende del diseño, el estado térmico y el diagnóstico del equipo.'],
-  ['fa-layer-group', 'Thermal pads', 'Algunas laptops usan thermal pads en zonas específicas. Deben conservar el grosor y material adecuados para que el contacto térmico sea correcto.'],
-  ['fa-table-cells', 'Disipador y heatpipes', 'El disipador, sus aletas y heatpipes se revisan junto con los ventiladores. Limpiar solo una parte puede dejar limitada la refrigeración.'],
-  ['fa-droplet', 'Metal líquido', 'El cambio o revisión de metal líquido solo se considera en equipos diseñados originalmente para usarlo. No es una alternativa universal a la pasta térmica.'],
-];
-
 const faqs = [
-  { question: '¿Es normal que el ventilador de mi laptop suene fuerte?', answer: 'Puede ocurrir cuando el equipo está bajo carga, pero si sucede con tareas ligeras o de forma constante conviene revisar temperatura, polvo, ventilación y estado del ventilador.' },
-  { question: '¿Por qué mi laptop se calienta tanto?', answer: 'Puede relacionarse con polvo, ventilación bloqueada, carga de trabajo, ambiente caluroso, software o componentes térmicos. La revisión permite distinguir una limpieza de otra causa.' },
-  { question: '¿El polvo puede hacer más lenta una laptop?', answer: 'Puede contribuir si la temperatura obliga al procesador a reducir su velocidad. La lentitud también puede venir de almacenamiento, memoria, software o batería; por eso se revisa el caso completo.' },
-  { question: '¿Una limpieza puede ayudar con la temperatura?', answer: 'Cuando hay acumulación de polvo en ventilación, ventiladores o disipadores, una limpieza interna puede ayudar al flujo de aire. El resultado depende del modelo y de la causa real del problema.' },
-  { question: '¿Siempre hay que cambiar la pasta térmica?', answer: 'No. La necesidad se determina según el modelo, el estado del sistema térmico y la revisión del equipo. No todas las laptops requieren el mismo procedimiento.' },
-  { question: '¿Puedo limpiar mi laptop con aire comprimido?', answer: 'Sin conocer el diseño interno se puede mover polvo hacia zonas delicadas o hacer girar un ventilador de forma inadecuada. Si hay síntomas de temperatura, es más seguro solicitar una revisión.' },
-  { question: '¿Por qué mi laptop se apaga cuando se calienta?', answer: 'Algunos equipos se protegen al detectar temperaturas anormales. También pueden existir causas de energía, batería, software o placa, por lo que no conviene asumir que es solo limpieza.' },
-  { question: '¿Qué pasa si nunca limpio mi laptop?', answer: 'La acumulación de polvo puede ir limitando la ventilación. Si aparecen calor excesivo, ruido o caída de rendimiento, es mejor revisarla antes de que el problema avance.' },
-  { question: '¿Cuánto tarda una limpieza de laptop?', answer: 'Depende del modelo, su diseño interno, el nivel de acumulación y si durante la revisión aparece otra causa. Confirmamos el procedimiento antes de intervenir.' },
-  { question: '¿Puedo llevar una laptop gamer a mantenimiento?', answer: 'Sí. En equipos gamer revisamos especialmente ventilación, disipación y el comportamiento bajo carga, porque su uso suele exigir más al sistema térmico.' },
-  { question: '¿Cuándo necesita cambio de pasta térmica una laptop?', answer: 'Se determina después de revisar temperatura, disipador, polvo, ventiladores y el diseño del modelo. No todos los equipos necesitan cambio de pasta térmica por el mismo motivo o con la misma frecuencia.' },
-  { question: '¿Qué diferencia hay entre pasta térmica y thermal pads?', answer: 'La pasta térmica se utiliza en determinadas superficies de contacto, mientras que los thermal pads ocupan espacios con una altura específica en algunos componentes. Usar un espesor inadecuado puede afectar el contacto térmico.' },
-  { question: '¿Se puede poner metal líquido a cualquier laptop?', answer: 'No. El metal líquido requiere un sistema diseñado para ello y un procedimiento adecuado. En una laptop que no fue diseñada para usarlo puede generar riesgos; por eso no se aplica como solución general.' },
-  { question: '¿Qué revisan del disipador de laptop?', answer: 'Se revisan las aletas, el polvo acumulado, el contacto con los componentes, los heatpipes y el flujo de aire que generan los ventiladores. El diagnóstico define qué intervención corresponde.' },
+  {
+    question: '¿Hacen limpieza de laptop en Cancún?',
+    answer: 'Sí. Realizamos limpieza interna técnica para laptops en Cancún, atendiendo en taller mediante cita previa en Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Puerto Cancún y zonas aledañas con servicio de recolección según disponibilidad.'
+  },
+  {
+    question: '¿Puedo enviar mi laptop por paquetería?',
+    answer: 'Sí. Puedes enviar tu laptop a Pixon PC mediante paquetería desde cualquier estado de la República Mexicana. Antes del envío confirmamos marca, modelo, síntomas y el servicio requerido para coordinar la recepción de forma organizada.'
+  },
+  {
+    question: '¿Reciben laptops desde otros estados de México?',
+    answer: 'Sí. Recibimos laptops enviadas por clientes de distintas entidades de México como CDMX, Estado de México, Yucatán (Mérida), Quintana Roo (Playa del Carmen, Tulum), Nuevo León (Monterrey), Jalisco (Guadalajara), Veracruz, Tabasco y Campeche.'
+  },
+  {
+    question: '¿Cómo debo empacar una laptop para enviarla?',
+    answer: 'Recomendamos apagarla por completo, envolver el equipo en varias capas de plástico de burbujas, proteger esquinas, empacar el cargador en una sección separada y utilizar una caja de cartón rígida sin holguras internas para evitar movimiento.'
+  },
+  {
+    question: '¿Quién paga la paquetería?',
+    answer: 'Los costos de envío y retorno por paquetería corren por cuenta del cliente y se confirman con la empresa de mensajería de su preferencia antes de realizar el envío.'
+  },
+  {
+    question: '¿Necesito enviar el cargador?',
+    answer: 'En la mayoría de los casos de limpieza preventiva no es indispensable, pero en laptops gamer de alto consumo o con cargadores propietarios puede ser útil para pruebas de carga sostenida.'
+  },
+  {
+    question: '¿Necesitan mi contraseña?',
+    answer: 'Para una limpieza física y mantenimiento térmico del hardware normalmente no necesitamos contraseña. Si alguna prueba posterior bajo carga requiere acceso al sistema operativo, te solicitaremos autorización previa.'
+  },
+  {
+    question: '¿Cuánto tarda el servicio después de recibirla?',
+    answer: 'El servicio de limpieza interna y revisión térmica generalmente se realiza en un plazo de 24 a 48 horas hábiles tras la recepción y registro del equipo, dependiendo de la dificultad de desarmado y pruebas requeridas.'
+  },
+  {
+    question: '¿Cómo sé que ya recibieron mi laptop?',
+    answer: 'Al llegar a nuestras instalaciones registramos el paquete, tomamos fotografías de recepción y te enviamos confirmación inmediata por WhatsApp con el número de orden asignado.'
+  },
+  {
+    question: '¿Me mandan fotos del proceso?',
+    answer: 'Sí. Documentamos el estado interno antes de la limpieza (polvo acumulado, estado del disipador) y el resultado final después del servicio técnico para compartirte la evidencia por WhatsApp.'
+  },
+  {
+    question: '¿Puedo autorizar trabajos adicionales por WhatsApp?',
+    answer: 'Totalmente. Si durante la inspección encontramos algún componente desgastado (ventilador averiado, thermal pad degradado, bisagra rota), te enviamos el diagnóstico con cotización clara y solo procedemos con tu autorización.'
+  },
+  {
+    question: '¿Cómo devuelven mi laptop?',
+    answer: 'Una vez finalizadas las pruebas de ventilación y rendimiento térmico, empaquetamos la laptop con protección reforzada y coordinamos la guía de retorno con la paquetería de tu preferencia, compartiéndote el número de rastreo.'
+  },
+  {
+    question: '¿Atienden laptops gamer?',
+    answer: 'Sí. Atendemos laptops gamer de marcas como ASUS ROG/TUF, MSI, Lenovo Legion, Alienware, Acer Predator y HP Omen/Victus, trabajando con sus sistemas de doble ventilador, cámaras de vapor y disipadores de alto rendimiento.'
+  },
+  {
+    question: '¿Cambian pasta térmica en la laptop?',
+    answer: 'Sí, cuando la revisión técnica y el estado del compuesto original lo justifican. Aplicamos pastas térmicas de alto rendimiento con la conductividad adecuada para procesador y GPU móvil.'
+  },
+  {
+    question: '¿Revisan y reemplazan thermal pads?',
+    answer: 'Sí. Inspeccionamos los thermal pads en memorias VRAM y etapas de poder (VRM), respetando estrictamente los espesores (milímetros) y dureza original del fabricante para asegurar un contacto térmico uniforme.'
+  },
+  {
+    question: '¿Trabajan metal líquido?',
+    answer: 'Únicamente en laptops que fueron diseñadas de fábrica para utilizar metal líquido (como ciertos modelos ASUS ROG o Alienware con barreras de aislamiento especiales). No lo aplicamos en equipos no diseñados para este material.'
+  },
+  {
+    question: '¿Atienden en Zona Hotelera de Cancún?',
+    answer: 'Sí. Atendemos huéspedes, ejecutivos y residentes en la Zona Hotelera de Cancún con cita previa en taller o coordinando recolección según disponibilidad.'
+  },
+  {
+    question: '¿Atienden en Costa Mujeres y Playa Mujeres?',
+    answer: 'Sí. Brindamos atención para clientes y personal de hoteles en Costa Mujeres y Playa Mujeres mediante cita previa y coordinación logística de entrega.'
+  }
 ];
 
-const faqSchema = faqs.map(({ question, answer }) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } }));
+const faqSchema = faqs.map(({ question, answer }) => ({
+  '@type': 'Question',
+  name: question,
+  acceptedAnswer: { '@type': 'Answer', text: answer }
+}));
 ---
 
 <Base
-  title="Limpieza y Mantenimiento de Laptop en Cancún | Pixon PC"
-  description="Limpieza de laptop en Cancún: mantenimiento preventivo, ventiladores, disipador, pasta térmica y thermal pads según el modelo."
+  title="Limpieza de Laptop en Cancún | Envíos desde México | Pixon PC"
+  description="Limpieza profesional de laptop en Cancún: ventiladores, disipador y sistema térmico según el modelo. También recibimos equipos por paquetería desde México."
   canonical={canonical}
   image="/assets/images/mantenimiento-pastaternima-thermalpads.webp"
   schema={[
-    { '@context': 'https://schema.org', '@type': 'Service', name: 'Limpieza y mantenimiento de laptop', serviceType: 'Limpieza interna, mantenimiento preventivo y revisión térmica de laptop', provider: { '@type': 'LocalBusiness', name: 'Pixon PC', telephone: '+529986690777', url: 'https://pixon.com.mx' }, areaServed: { '@type': 'City', name: 'Cancún' }, url: canonical, description: 'Limpieza de laptop y revisión de ventilación, disipador, pasta térmica y thermal pads según el modelo en Cancún.' },
-    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' }, { '@type': 'ListItem', position: 2, name: 'Limpieza de laptop', item: canonical }] },
-    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqSchema },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: 'Limpieza profesional de laptop en Cancún',
+      serviceType: 'Limpieza interna y servicio térmico de laptop',
+      provider: {
+        '@type': 'LocalBusiness',
+        name: 'Pixon PC',
+        telephone: '+529986690777',
+        url: 'https://pixon.com.mx',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Cto. Hacienda Chimay',
+          postalCode: '77539',
+          addressLocality: 'Cancún',
+          addressRegion: 'Quintana Roo',
+          addressCountry: 'MX'
+        }
+      },
+      areaServed: [
+        { '@type': 'City', name: 'Cancún' },
+        { '@type': 'Country', name: 'México' }
+      ],
+      url: canonical,
+      description: 'Limpieza técnica interna de laptop en Cancún y recepción por paquetería desde todo México: ventiladores, disipador, pasta térmica y thermal pads según el modelo.'
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+        { '@type': 'ListItem', position: 2, name: 'Limpieza de Laptop', item: canonical }
+      ]
+    },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqSchema }
   ]}
 >
   <Navbar />
-  <main id="main-content" class="lc-page">
+
+  <main id="main-content" class="lapclean-page">
     <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Limpieza de laptop' }]} />
 
-    <section class="lc-hero" aria-labelledby="lc-title">
-      <div class="container lc-hero__grid">
-        <div class="lc-hero__copy">
-          <p class="lc-eyebrow"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Servicio técnico para laptops en Cancún</p>
-          <h1 id="lc-title">Limpieza y mantenimiento de laptop</h1>
-          <p class="lc-lead">Una revisión interna para identificar polvo acumulado, ventilación limitada y señales de temperatura que pueden afectar el funcionamiento de tu equipo.</p>
-          <p class="lc-problem"><i class="fa-solid fa-temperature-half" aria-hidden="true"></i> Si tu laptop se calienta demasiado, el ventilador suena fuerte o notas una pérdida de rendimiento, una limpieza interna puede ser necesaria.</p>
-          <div class="lc-actions">
-            <a class="lc-btn lc-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Solicitar revisión por WhatsApp</a>
-            <a class="lc-btn lc-btn--secondary" href="#incluye">Ver qué incluye el servicio</a>
+    <!-- ==================== 1. HERO SECTION WITH ANIMATION ==================== -->
+    <header class="lapclean-hero" aria-labelledby="hero-title">
+      <div class="container lapclean-hero__grid">
+        <div class="lapclean-hero__copy">
+          <p class="lapclean-eyebrow">
+            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> LIMPIEZA TÉCNICA DE LAPTOP · CANCÚN
+          </p>
+          <h1 id="hero-title">Limpieza Profesional de Laptop en Cancún</h1>
+          <p class="lapclean-lead">
+            Revisamos polvo, ventiladores, disipador y sistema térmico según el modelo de tu laptop. Atención en Cancún y recepción por paquetería desde México.
+          </p>
+
+          <div class="lapclean-hero__actions">
+            <a class="lapclean-btn lapclean-btn--primary" href={whatsappLocalUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="hero-local">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar limpieza en Cancún
+            </a>
+            <a class="lapclean-btn lapclean-btn--secondary" href="#envio-paqueteria">
+              <i class="fa-solid fa-box-open" aria-hidden="true"></i> Enviar por paquetería
+            </a>
           </div>
-          <ul class="lc-badges" aria-label="Alcance de la revisión"><li><i class="fa-solid fa-check" aria-hidden="true"></i> Limpieza interna</li><li><i class="fa-solid fa-check" aria-hidden="true"></i> Mantenimiento preventivo</li><li><i class="fa-solid fa-check" aria-hidden="true"></i> Diagnóstico según modelo</li></ul>
+
+          <ul class="lapclean-badges" aria-label="Garantías del servicio de limpieza">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Laptops y laptop gamer</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Cita previa</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Recepción por paquetería</li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Seguimiento por WhatsApp</li>
+          </ul>
         </div>
-        <div class="lc-hero__media-shell">
-          <figure class="lc-hero__media">
-            <div class="lc-media-kicker"><span><i class="fa-solid fa-microchip" aria-hidden="true"></i> Revisión interna</span><span>Según el equipo</span></div>
-            <img src="/assets/images/mantenimiento-pastaternima-thermalpads.webp" alt="Interior de una laptop durante una revisión técnica de ventilación y sistema térmico" width="1200" height="800" loading="eager" fetchpriority="high" />
-            <figcaption><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> El procedimiento se define después de revisar el modelo y sus síntomas.</figcaption>
+
+        <!-- Hero Animation Shell (Pure SVG + CSS Keyframes) -->
+        <div class="lapclean-hero__visual-container">
+          <figure class="lapclean-visual" aria-hidden="true">
+            <div class="lapclean-3d-stage">
+              <img
+                class="lapclean-3d-stage__art lapclean-3d-stage__art--exploded"
+                src="/assets/images/laptop-cleaning-exploded-hero.webp"
+                alt=""
+                width="1600"
+                height="1000"
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+              />
+              <img
+                class="lapclean-3d-stage__art lapclean-3d-stage__art--reassembled"
+                src="/assets/images/laptop-cleaning-reassembled-hero.webp"
+                alt=""
+                width="1600"
+                height="1000"
+                loading="eager"
+                decoding="async"
+              />
+              <span class="lc3d-scan" aria-hidden="true"></span>
+              <span class="lc3d-thermal-pulse" aria-hidden="true"></span>
+              <span class="lc3d-airflow lc3d-airflow--one" aria-hidden="true"></span>
+              <span class="lc3d-airflow lc3d-airflow--two" aria-hidden="true"></span>
+              <span class="lc3d-dust lc3d-dust--one" aria-hidden="true"></span>
+              <span class="lc3d-dust lc3d-dust--two" aria-hidden="true"></span>
+              <span class="lc3d-dust lc3d-dust--three" aria-hidden="true"></span>
+              <span class="lc3d-ready" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+              <span class="lc3d-phase-rail" aria-hidden="true">
+                <i class="lc3d-phase lc3d-phase--diagnostic fa-solid fa-wave-square"></i>
+                <i class="lc3d-phase lc3d-phase--open fa-solid fa-screwdriver-wrench"></i>
+                <i class="lc3d-phase lc3d-phase--clean fa-solid fa-fan"></i>
+                <i class="lc3d-phase lc3d-phase--thermal fa-solid fa-droplet"></i>
+                <i class="lc3d-phase lc3d-phase--test fa-solid fa-check"></i>
+              </span>
+            </div>
+            <svg viewBox="0 0 640 400" focusable="false" class="lapclean-story-svg lapclean-story-svg--legacy">
+              <defs>
+                <linearGradient id="lc-card-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#092543" />
+                  <stop offset="60%" stop-color="#071b30" />
+                  <stop offset="100%" stop-color="#041424" />
+                </linearGradient>
+                <linearGradient id="lc-laptop-lid" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#1e4f7a" />
+                  <stop offset="100%" stop-color="#0e2e4a" />
+                </linearGradient>
+                <linearGradient id="lc-screen-glow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#7dd3fc" />
+                  <stop offset="100%" stop-color="#0369a1" />
+                </linearGradient>
+                <linearGradient id="lc-copper-pipe" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#f59e0b" />
+                  <stop offset="50%" stop-color="#d97706" />
+                  <stop offset="100%" stop-color="#b45309" />
+                </linearGradient>
+                <linearGradient id="lc-sheen-sweep" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
+                  <stop offset="50%" stop-color="#ffffff" stop-opacity="0.38" />
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                </linearGradient>
+
+                <filter id="lc-drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#010e1a" flood-opacity="0.6" />
+                </filter>
+                <filter id="lc-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.9" />
+                </filter>
+                <filter id="lc-glow-green" x="-30%" y="-30%" width="160%" height="160%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#10b981" flood-opacity="0.95" />
+                </filter>
+              </defs>
+
+              <!-- Main Card Base Frame -->
+              <rect class="lc-canvas" x="8" y="8" width="624" height="384" rx="20" fill="url(#lc-card-bg)" stroke="#1e4e79" stroke-width="1.5" stroke-opacity="0.65" />
+
+              <!-- Technical Workspace Backdrop Grid -->
+              <g class="lc-grid-decor" opacity="0.14">
+                <line x1="8" y1="310" x2="632" y2="310" stroke="#38bdf8" stroke-width="1" />
+                <line x1="8" y1="120" x2="632" y2="120" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+                <line x1="8" y1="210" x2="632" y2="210" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+                <circle cx="320" cy="200" r="160" stroke="#38bdf8" stroke-width="0.5" stroke-dasharray="4 8" fill="none" />
+              </g>
+
+              <!-- Laptop Workspace Assembly Container (Perspective 3/4) -->
+              <g class="lc-laptop-assembly" transform="translate(320, 205)" filter="url(#lc-drop-shadow)">
+                
+                <!-- Desk Surface Shadow -->
+                <ellipse class="lc-shadow-ellipse" cx="0" cy="115" rx="210" ry="24" fill="#010d18" opacity="0.75" />
+
+                <!-- Layer 1: Laptop Display Screen (Tilted Back) -->
+                <g class="lc-screen-lid">
+                  <!-- Screen Bezel & Shell -->
+                  <path d="M -160 -95 L 160 -95 L 140 30 L -140 30 Z" fill="url(#lc-laptop-lid)" stroke="#38bdf8" stroke-width="1.5" />
+                  <!-- Screen Display Area -->
+                  <path class="lc-screen-display" d="M -145 -85 L 145 -85 L 128 20 L -128 20 Z" fill="url(#lc-screen-glow)" opacity="0.85" />
+                  <!-- Screen Thermal Diagnostic Graphic Wave -->
+                  <path class="lc-screen-wave" d="M -110 -30 L -70 -30 L -50 -55 L -30 -10 L -10 -40 L 10 -30 L 110 -30" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+                  <!-- Webcam notch -->
+                  <circle cx="0" cy="-90" r="2" fill="#38bdf8" />
+                </g>
+
+                <!-- Layer 2: Main Chassis Base (Top Case & Keyboard Deck) -->
+                <g class="lc-top-chassis">
+                  <path d="M -180 30 L 180 30 L 220 115 L -220 115 Z" fill="#0c2f4e" stroke="#1d588a" stroke-width="1.5" />
+                  <!-- Keyboard Well -->
+                  <path d="M -150 42 L 150 42 L 175 88 L -175 88 Z" fill="#061a2d" stroke="#164368" stroke-width="1" />
+                  <!-- Touchpad -->
+                  <path d="M -45 92 L 45 92 L 52 112 L -52 112 Z" fill="#09243c" stroke="#1c5583" stroke-width="1" />
+                  <!-- Status Indicator LED -->
+                  <circle cx="-165" cy="105" r="2.5" fill="#38bdf8" />
+                </g>
+
+                <!-- Layer 3: Internal Motherboard & Cooling Core (Revealed on Opening) -->
+                <g class="lc-internal-core">
+                  <!-- Motherboard Blue PCB Base -->
+                  <path d="M -170 38 L 170 38 L 205 108 L -205 108 Z" fill="#072b4c" stroke="#22d3ee" stroke-width="1.2" />
+
+                  <!-- Dual Copper Heatpipes Linking CPU & GPU -->
+                  <g class="lc-heatpipes">
+                    <path d="M -110 65 L -35 55 L 35 55 L 110 65" fill="none" stroke="url(#lc-copper-pipe)" stroke-width="6" stroke-linecap="round" />
+                    <path d="M -105 75 L -30 65 L 30 65 L 105 75" fill="none" stroke="url(#lc-copper-pipe)" stroke-width="5" stroke-linecap="round" />
+                  </g>
+
+                  <!-- Left Heatsink Fin Block -->
+                  <rect class="lc-fin-block lc-fin-block--left" x="-160" y="55" width="30" height="24" rx="2" fill="#08253f" stroke="#f59e0b" stroke-width="1.2" />
+                  <!-- Right Heatsink Fin Block -->
+                  <rect class="lc-fin-block lc-fin-block--right" x="130" y="55" width="30" height="24" rx="2" fill="#08253f" stroke="#f59e0b" stroke-width="1.2" />
+
+                  <!-- CPU Die with Thermal Compound Core -->
+                  <rect class="lc-thermal-die lc-thermal-die--cpu" x="-45" y="52" width="28" height="22" rx="3" fill="#0b375b" stroke="#f59e0b" stroke-width="1.5" />
+                  <!-- GPU Die with Thermal Compound Core -->
+                  <rect class="lc-thermal-die lc-thermal-die--gpu" x="18" y="52" width="32" height="24" rx="3" fill="#0b375b" stroke="#f59e0b" stroke-width="1.5" />
+
+                  <!-- Dual Cooling Fans (Left Fan & Right Fan) -->
+                  <!-- Left Fan Housing -->
+                  <circle class="lc-fan-housing" cx="-115" cy="72" r="24" fill="#04182b" stroke="#38bdf8" stroke-width="1.5" />
+                  <g class="lc-fan-blades lc-fan-blades--left">
+                    <line x1="-115" y1="52" x2="-115" y2="92" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                    <line x1="-95" y1="72" x2="-135" y2="72" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                    <line x1="-101" y1="58" x2="-129" y2="86" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+                    <line x1="-101" y1="86" x2="-129" y2="58" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+                  </g>
+                  <circle cx="-115" cy="72" r="6" fill="#0c3558" stroke="#38bdf8" stroke-width="1" />
+
+                  <!-- Right Fan Housing -->
+                  <circle class="lc-fan-housing" cx="115" cy="72" r="24" fill="#04182b" stroke="#38bdf8" stroke-width="1.5" />
+                  <g class="lc-fan-blades lc-fan-blades--right">
+                    <line x1="115" y1="52" x2="115" y2="92" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                    <line x1="95" y1="72" x2="135" y2="72" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                    <line x1="101" y1="58" x2="129" y2="86" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+                    <line x1="101" y1="86" x2="129" y2="58" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+                  </g>
+                  <circle cx="115" cy="72" r="6" fill="#0c3558" stroke="#38bdf8" stroke-width="1" />
+                </g>
+
+                <!-- Layer 4: Bottom Cover (Lifts Smoothly in Exploded View 15%-30%) -->
+                <g class="lc-bottom-cover">
+                  <path d="M -180 30 L 180 30 L 220 115 L -220 115 Z" fill="#061e33" stroke="#22d3ee" stroke-width="1.5" />
+                  <!-- Intake Air Ventilation Grills on Bottom Cover -->
+                  <line x1="-140" y1="65" x2="-90" y2="65" stroke="#1d5583" stroke-width="2" stroke-dasharray="4 3" />
+                  <line x1="-140" y1="73" x2="-90" y2="73" stroke="#1d5583" stroke-width="2" stroke-dasharray="4 3" />
+                  <line x1="-140" y1="81" x2="-90" y2="81" stroke="#1d5583" stroke-width="2" stroke-dasharray="4 3" />
+                  <line x1="90" y1="65" x2="140" y2="65" stroke="#1d5583" stroke-width="2" stroke-dasharray="4 3" />
+                  <line x1="90" y1="73" x2="140" y2="73" stroke="#1d5583" stroke-width="2" stroke-dasharray="4 3" />
+                  <line x1="90" y1="81" x2="140" y2="81" stroke="#1d5583" stroke-width="2" stroke-dasharray="4 3" />
+                </g>
+
+                <!-- Diagnostic Scanner Laser Beam (30% - 40%) -->
+                <line class="lc-scanner-line" x1="-180" y1="72" x2="180" y2="72" stroke="#22d3ee" stroke-width="3" filter="url(#lc-glow-cyan)" opacity="0" />
+
+                <!-- Dust Particles Flecks (Dissipate during 40% - 65%) -->
+                <g class="lc-dust-particles" fill="#f59e0b">
+                  <circle class="lc-dust lc-dust--1" cx="-120" cy="65" r="2.8" />
+                  <circle class="lc-dust lc-dust--2" cx="-110" cy="80" r="2.4" />
+                  <circle class="lc-dust lc-dust--3" cx="-130" cy="74" r="2.2" />
+                  <circle class="lc-dust lc-dust--4" cx="-150" cy="62" r="2.5" />
+                  <circle class="lc-dust lc-dust--5" cx="120" cy="65" r="2.8" />
+                  <circle class="lc-dust lc-dust--6" cx="110" cy="80" r="2.4" />
+                  <circle class="lc-dust lc-dust--7" cx="130" cy="74" r="2.2" />
+                  <circle class="lc-dust lc-dust--8" cx="150" cy="62" r="2.5" />
+                  <circle class="lc-dust lc-dust--9" cx="-30" cy="60" r="2.2" />
+                  <circle class="lc-dust lc-dust--10" cx="30" cy="60" r="2.2" />
+                  <circle class="lc-dust lc-dust--11" cx="-100" cy="68" r="2" />
+                  <circle class="lc-dust lc-dust--12" cx="100" cy="68" r="2" />
+                </g>
+
+                <!-- Clean Airflow Streams (Active during 40% - 94%) -->
+                <g class="lc-airflow-streams">
+                  <path class="lc-air-stream lc-air-stream--1" d="M -180 72 C -150 50 -130 50 -100 72" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                  <path class="lc-air-stream lc-air-stream--2" d="M -100 72 C -60 90 -20 90 20 72" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" />
+                  <path class="lc-air-stream lc-air-stream--3" d="M 100 72 C 130 50 150 50 180 72" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                  <path class="lc-air-stream lc-air-stream--4" d="M -20 55 C 0 45 10 45 30 55" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />
+                </g>
+
+                <!-- Light Sheen Sweep across Entire Laptop (94% - 100%) -->
+                <rect class="lc-sheen-rect" x="-230" y="-105" width="460" height="230" fill="url(#lc-sheen-sweep)" opacity="0" />
+
+                <!-- Corner Sparkles (94% - 100%) -->
+                <g class="lc-sparkles">
+                  <path class="lc-sparkle lc-sparkle--1" d="M -150 -90 Q -150 -95 -155 -95 Q -150 -95 -150 -100 Q -150 -95 -145 -95 Q -150 -95 -150 -90 Z" fill="#ffffff" filter="url(#lc-glow-cyan)" />
+                  <path class="lc-sparkle lc-sparkle--2" d="M 180 100 Q 180 95 175 95 Q 180 95 180 90 Q 180 95 185 95 Q 180 95 180 100 Z" fill="#ffffff" filter="url(#lc-glow-cyan)" />
+                </g>
+
+                <!-- Ready Success Check Badge (94% - 100%) -->
+                <g class="lc-success-badge" filter="url(#lc-glow-green)">
+                  <circle cx="160" cy="-55" r="22" fill="#10b981" stroke="#ffffff" stroke-width="2.5" />
+                  <path d="M 149 -55 L 157 -47 L 173 -63" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+              </g>
+            </svg>
           </figure>
-          <div class="lc-hero__insight"><i class="fa-solid fa-fan" aria-hidden="true"></i><div><strong>Revisión con contexto</strong><span>Ventiladores, rejillas y disipación se evalúan como un sistema.</span></div></div>
+
+          <!-- 5-Step Connected Process Timeline Below Hero SVG -->
+          <ol class="service-process" aria-label="Fases del servicio de limpieza de laptop">
+            <li class="process-step process-step--1">
+              <div class="process-step__indicator">
+                <span class="process-step__dot"></span>
+                <span class="process-step__num">01</span>
+              </div>
+              <div class="process-step__info">
+                <strong>Revisión</strong>
+                <p>Diagnóstico térmico inicial.</p>
+              </div>
+            </li>
+
+            <li class="process-step process-step--2">
+              <div class="process-step__indicator">
+                <span class="process-step__dot"></span>
+                <span class="process-step__num">02</span>
+              </div>
+              <div class="process-step__info">
+                <strong>Desarmado</strong>
+                <p>Apertura según diseño técnico.</p>
+              </div>
+            </li>
+
+            <li class="process-step process-step--3">
+              <div class="process-step__indicator">
+                <span class="process-step__dot"></span>
+                <span class="process-step__num">03</span>
+              </div>
+              <div class="process-step__info">
+                <strong>Limpieza</strong>
+                <p>Ventiladores, rejillas y disipador.</p>
+              </div>
+            </li>
+
+            <li class="process-step process-step--4">
+              <div class="process-step__indicator">
+                <span class="process-step__dot"></span>
+                <span class="process-step__num">04</span>
+              </div>
+              <div class="process-step__info">
+                <strong>Sistema térmico</strong>
+                <p>Pasta y pads cuando corresponde.</p>
+              </div>
+            </li>
+
+            <li class="process-step process-step--5">
+              <div class="process-step__indicator">
+                <span class="process-step__dot"></span>
+                <span class="process-step__num">05</span>
+              </div>
+              <div class="process-step__info">
+                <strong>Pruebas</strong>
+                <p>Test de ventilación y ensamble.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== 2. LIMPIEZA INTERNA DE LAPTOP EN CANCÚN ==================== -->
+    <section class="lapclean-section" aria-labelledby="limpieza-interna-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Mantenimiento de Hardware</p>
+          <h2 id="limpieza-interna-title">Limpieza interna de laptop en Cancún</h2>
+          <p>
+            El sistema de refrigeración de una laptop está diseñado en un espacio sumamente compacto. Retirar el polvo acumulado en conductos, ventiladores y disipadores es fundamental para mantener el flujo de aire adecuado.
+          </p>
+        </div>
+
+        <div class="lapclean-grid-four">
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-fan" aria-hidden="true"></i></div>
+            <h3>Limpieza de ventiladores</h3>
+            <p>Retiramos pelusa, fibras y polvo adherido a las aspas sin dañar los rodamientos ni forzar el eje del motor.</p>
+            <h4>Polvo en ventiladores</h4>
+            <p class="lapclean-card__sub">Evita que giren a las RPM requeridas y genera ruidos mecánicos.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-table-cells" aria-hidden="true"></i></div>
+            <h3>Limpieza de disipador y heatpipes</h3>
+            <p>Despejamos las microaletas de cobre o aluminio donde suele formarse una capa compacta de suciedad que bloquea el aire.</p>
+            <h4>Suciedad en aletas del disipador</h4>
+            <p class="lapclean-card__sub">Actúa como tapón térmico impidiendo la salida del calor del procesador.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-wind" aria-hidden="true"></i></div>
+            <h3>Limpieza de rejillas y salidas de aire</h3>
+            <p>Limpiamos las tomas inferiores y ranuras de expulsión traseras o laterales para restablecer la circulación.</p>
+            <h4>Flujo de aire limitado</h4>
+            <p class="lapclean-card__sub">Provoca recirculación de aire caliente dentro del chasis.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-broom" aria-hidden="true"></i></div>
+            <h3>Retiro de polvo acumulado</h3>
+            <p>Limpieza cuidadosa sobre la placa madre, conectores flexibles, puertos y teclado con herramientas antiestáticas.</p>
+            <h4>Protección de componentes</h4>
+            <p class="lapclean-card__sub">Previene acumulación de humedad y sobrecalentamiento en circuitos.</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="lc-section lc-symptoms" aria-labelledby="symptoms-title">
-      <div class="container"><div class="lc-heading"><span>Señales comunes</span><h2 id="symptoms-title">¿Cómo saber si mi laptop necesita mantenimiento?</h2><p>Estos síntomas no siempre tienen una sola causa, pero ayudan a identificar cuándo vale la pena revisar el sistema de refrigeración.</p></div>
-        <div class="lc-card-grid">{symptoms.map(([icon, title, text]) => <article class="lc-card"><i class={`fa-solid ${icon}`} aria-hidden="true"></i><h3>{title}</h3><p>{text}</p></article>)}</div>
-        <div class="lc-inline-cta"><p><strong>¿Tu laptop presenta alguno de estos síntomas?</strong> Escríbenos y revisamos tu caso.</p><a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link>Consultar por WhatsApp <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+    <!-- ==================== 3. SÍNTOMAS: ¿TU LAPTOP SE CALIENTA, HACE RUIDO O PIERDE RENDIMIENTO? ==================== -->
+    <section class="lapclean-section lapclean-section--alt" aria-labelledby="sintomas-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Diagnóstico de Comportamiento</p>
+          <h2 id="sintomas-title">¿Tu laptop se calienta, hace ruido o pierde rendimiento?</h2>
+          <p>
+            Los problemas de temperatura no siempre avisan con un mensaje en pantalla; se manifiestan en el comportamiento diario del equipo bajo distintas cargas de trabajo.
+          </p>
+        </div>
+
+        <div class="lapclean-grid-three">
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon lapclean-card__icon--warn"><i class="fa-solid fa-temperature-arrow-up" aria-hidden="true"></i></div>
+            <h3>Laptop que se calienta demasiado</h3>
+            <p>El chasis se siente caliente al tacto, especialmente en la zona del teclado, descanso de muñecas o la base inferior.</p>
+            <h4>Temperatura de CPU</h4>
+            <p class="lapclean-card__sub">El procesador alcanza picos elevados incluso en tareas de oficina o navegación.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon lapclean-card__icon--warn"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></div>
+            <h3>Ventilador de laptop muy ruidoso</h3>
+            <p>El ventilador trabaja constantemente al 100% de su capacidad o produce silbidos y vibraciones excesivas.</p>
+            <h4>Ventilación y carga sostenida</h4>
+            <p class="lapclean-card__sub">Indica que el ventilador no logra disipar el calor al ritmo requerido.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon lapclean-card__icon--alert"><i class="fa-solid fa-power-off" aria-hidden="true"></i></div>
+            <h3>Laptop que se apaga por temperatura</h3>
+            <p>El equipo se apaga repentinamente al abrir juegos, programas de render o tras unos minutos de uso continuo.</p>
+            <h4>Protección térmica de hardware</h4>
+            <p class="lapclean-card__sub">La tarjeta madre corta energía para evitar daños en CPU y tarjeta gráfica.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i></div>
+            <h3>Laptop que pierde rendimiento bajo carga</h3>
+            <p>Comienza fluida y después de unos minutos se torna lenta, con caídas drásticas de cuadros por segundo o trabas.</p>
+            <h4>Temperatura de GPU</h4>
+            <p class="lapclean-card__sub">La tarjeta gráfica reduce frecuencias para mantenerse en rangos seguros.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon lapclean-card__icon--fire"><i class="fa-solid fa-gamepad" aria-hidden="true"></i></div>
+            <h3>Laptop gamer con thermal throttling</h3>
+            <p>En juegos exigentes los componentes reducen su velocidad de reloj para controlar el calor extremo, provocando tirones.</p>
+            <h4>Estrés en sistemas de alto rendimiento</h4>
+            <p class="lapclean-card__sub">Requiere revisión completa de disipación, ventiladores y pasta térmica.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+            <h3>Revisión profesional a tiempo</h3>
+            <p>Atender estos síntomas a tiempo restablece la estabilidad operativa del equipo y evita desgastes prematuros.</p>
+            <div class="lapclean-card__action">
+              <a href={whatsappLocalUrl} target="_blank" rel="noopener noreferrer" class="lapclean-link" data-wa-link>
+                Consultar revisión <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section id="incluye" class="lc-section lc-process" aria-labelledby="process-title"><div class="container lc-split"><div><div class="lc-heading"><span>Proceso técnico</span><h2 id="process-title">¿Qué incluye una limpieza de laptop?</h2><p>El procedimiento exacto cambia según la marca, el modelo y su diseño interno. Primero se revisa el equipo para definir qué corresponde hacer.</p></div><ol class="lc-steps">{process.map((item, index) => <li><span>{String(index + 1).padStart(2, '0')}</span><p>{item}</p></li>)}</ol></div><aside class="lc-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><h3>Revisión térmica cuando corresponde</h3><p>La pasta térmica no se cambia por rutina en todos los equipos. Se valora según el estado del sistema de disipación y la revisión realizada.</p><a href="/servicios/laptop/upgrade">Ver otros servicios para laptop</a></aside></div></section>
+    <!-- ==================== 4. ¿QUÉ INCLUYE UNA LIMPIEZA PROFESIONAL DE LAPTOP? ==================== -->
+    <section class="lapclean-section" aria-labelledby="que-incluye-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Protocolo Técnico</p>
+          <h2 id="que-incluye-title">¿Qué incluye una limpieza profesional de laptop?</h2>
+          <p>
+            Cada modelo tiene una arquitectura distinta. Nuestro procedimiento sigue un orden riguroso para asegurar la integridad de cada componente.
+          </p>
+        </div>
 
-    <section class="lc-section lc-airflow" aria-labelledby="airflow-title"><div class="container"><div class="lc-heading lc-heading--center"><span>Temperatura y ventilación</span><h2 id="airflow-title">¿Por qué el polvo hace que una laptop se caliente?</h2><p>El sistema de refrigeración toma aire para retirar el calor generado por el procesador y otros componentes. Si se acumula polvo, el movimiento de aire puede dificultarse.</p></div><div class="lc-flow" aria-label="Recorrido del aire en una laptop"><div><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i><strong>Entrada de aire</strong></div><i class="fa-solid fa-arrow-right lc-flow__arrow" aria-hidden="true"></i><div><i class="fa-solid fa-fan" aria-hidden="true"></i><strong>Ventilador</strong></div><i class="fa-solid fa-arrow-right lc-flow__arrow" aria-hidden="true"></i><div><i class="fa-solid fa-table-cells" aria-hidden="true"></i><strong>Disipador</strong></div><i class="fa-solid fa-arrow-right lc-flow__arrow" aria-hidden="true"></i><div><i class="fa-solid fa-wind" aria-hidden="true"></i><strong>Salida de aire caliente</strong></div></div><div class="lc-compare"><article><span class="lc-status lc-status--good">Ventilación limpia</span><h3>El aire puede circular con menos obstáculos</h3><p>Ventiladores, rejillas y disipadores sin acumulación relevante favorecen el funcionamiento normal del sistema de enfriamiento.</p></article><article><span class="lc-status lc-status--alert">Acumulación de polvo</span><h3>El flujo de aire puede reducirse</h3><p>El polvo puede concentrarse en ventiladores, rejillas, disipadores y conductos, elevando la exigencia del sistema.</p></article></div></div></section>
+        <div class="lapclean-process-grid">
+          <div class="lapclean-step-card">
+            <span class="lapclean-step-card__num">01</span>
+            <h3>Revisión inicial</h3>
+            <p>Evaluación de encendido, comportamiento térmico previo y estado físico general de la laptop.</p>
+          </div>
+          <div class="lapclean-step-card">
+            <span class="lapclean-step-card__num">02</span>
+            <h3>Desarmado según modelo</h3>
+            <p>Apertura cuidadosa de tapas, desconexión de batería interna y retiro de fijaciones sin forzar anclajes.</p>
+          </div>
+          <div class="lapclean-step-card">
+            <span class="lapclean-step-card__num">03</span>
+            <h3>Limpieza interna</h3>
+            <p>Aspirado técnico y soplado antiestático de polvo en placa madre, teclado, puertos y chasis.</p>
+          </div>
+          <div class="lapclean-step-card">
+            <span class="lapclean-step-card__num">04</span>
+            <h3>Sistema de refrigeración</h3>
+            <p>Desmontaje de ventiladores para limpieza aspa por aspa y despeje completo de las aletas del disipador.</p>
+          </div>
+          <div class="lapclean-step-card">
+            <span class="lapclean-step-card__num">05</span>
+            <h3>Revisión térmica</h3>
+            <p>Inspección del estado del compuesto térmico y thermal pads en CPU, GPU y módulos de alimentación.</p>
+          </div>
+          <div class="lapclean-step-card">
+            <span class="lapclean-step-card__num">06</span>
+            <h3>Reensamble</h3>
+            <p>Colocación exacta de tornillería por longitud, reconexión de flexores y sellado firme del chasis.</p>
+          </div>
+          <div class="lapclean-step-card">
+            <span class="lapclean-step-card__num">07</span>
+            <h3>Pruebas posteriores</h3>
+            <p>Comprobación de flujo de aire, velocidad de ventiladores y estabilidad térmica bajo carga.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <section class="lc-section lc-thermal" aria-labelledby="thermal-title"><div class="container"><div class="lc-heading"><span>Mantenimiento térmico</span><h2 id="thermal-title">Pasta térmica, thermal pads, disipador y metal líquido: ¿qué se revisa?</h2><p>Una limpieza interna profesional no se limita a retirar polvo. El sistema térmico de una laptop combina ventiladores, disipador, heatpipes y materiales de transferencia de calor que se revisan según el modelo.</p></div><div class="lc-thermal-grid">{thermalTopics.map(([icon, title, text]) => <article class="lc-thermal-card"><i class={`fa-solid ${icon}`} aria-hidden="true"></i><h3>{title}</h3><p>{text}</p></article>)}</div><aside class="lc-thermal-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><h3>El compuesto correcto depende del equipo</h3><p>En una laptop gamer o de alto rendimiento, una revisión puede incluir pasta térmica, thermal pads o, en diseños específicos, metal líquido. Antes de cambiar cualquier material se valida el sistema original y el contacto del disipador.</p></div></aside></div></section>
+    <!-- ==================== 5. ASÍ REVISAMOS EL SISTEMA DE REFRIGERACIÓN (IMAGEN REAL REUTILIZADA) ==================== -->
+    <section class="lapclean-section lapclean-section--alt" aria-labelledby="evidencia-real-title">
+      <div class="container lapclean-split">
+        <div class="lapclean-split__copy">
+          <p class="lapclean-kicker">Evidencia Técnica Real</p>
+          <h2 id="evidencia-real-title">Así revisamos el sistema de refrigeración de una laptop</h2>
+          <p>
+            En Pixon PC no realizamos limpiezas superficiales con aire comprimido exterior que solo empuja el polvo hacia dentro. Abrimos el equipo para inspeccionar directamente el contacto entre los disipadores, los heatpipes de cobre y los chips principales.
+          </p>
+          <p>
+            Examinamos la consistencia de los thermal pads en memorias VRAM y fases VRM, así como la superficie de contacto del procesador y gráfica dedicada para asegurar una transferencia de calor eficiente.
+          </p>
+          <div class="lapclean-feature-points">
+            <div><i class="fa-solid fa-microchip" aria-hidden="true"></i> <strong>Inspección de dies CPU y GPU</strong></div>
+            <div><i class="fa-solid fa-layer-group" aria-hidden="true"></i> <strong>Verificación de thermal pads y masilla</strong></div>
+            <div><i class="fa-solid fa-wind" aria-hidden="true"></i> <strong>Turbinas y conductos libres de obstrucción</strong></div>
+          </div>
+        </div>
 
-    <section class="lc-section lc-prevention" aria-labelledby="prevention-title"><div class="container lc-split"><div class="lc-visual-copy"><span>Uso y entorno</span><h2 id="prevention-title">¿Cada cuánto conviene dar mantenimiento a una laptop?</h2><p>No existe un intervalo idéntico para todas las laptops. Un equipo usado diariamente en ambientes con polvo puede necesitar revisión antes que otro utilizado ocasionalmente en un espacio limpio.</p><p>También influyen el uso gamer, renderizado, trabajo pesado, temperatura ambiente, mascotas y el diseño propio del equipo.</p></div><div class="lc-tips"><h3>Buenas prácticas para reducir acumulación de polvo</h3><ul><li>Evita bloquear las rejillas de ventilación.</li><li>No la uses directamente sobre cama, cobijas o superficies textiles.</li><li>Mantén limpia la zona de trabajo.</li><li>Revisa temperaturas si aparecen síntomas.</li><li>No introduzcas objetos ni aire a presión sin conocer el diseño interno.</li></ul></div></div></section>
+        <figure class="lapclean-split__media">
+          <img
+            src="/assets/images/mantenimiento-pastaternima-thermalpads.webp"
+            alt="Interior de laptop durante limpieza y revisión del sistema térmico en Pixon PC Cancún"
+            width="1200"
+            height="800"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>
+            <i class="fa-solid fa-camera" aria-hidden="true"></i> Interior de una laptop durante revisión de ventilación y sistema térmico en Pixon PC.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
 
-    <section class="lc-section lc-related" aria-labelledby="related-title"><div class="container"><div class="lc-heading"><span>Revisión complementaria</span><h2 id="related-title">Problemas comunes relacionados con temperatura</h2><p>Si identificas otro síntoma, podemos orientarte sobre el tipo de revisión que corresponde.</p></div><div class="lc-related__grid"><a href="/servicios/laptop/upgrade"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>Laptop lenta o con bajo rendimiento</span></a><a href="/servicios/laptop/cambio-bateria"><i class="fa-solid fa-battery-half" aria-hidden="true"></i><span>Revisión de batería de laptop</span></a><a href="/reparacion-bisagras"><i class="fa-solid fa-laptop" aria-hidden="true"></i><span>Reparación general de laptop</span></a><a href="/limpieza-laptop-liquido"><i class="fa-solid fa-droplet" aria-hidden="true"></i><span>Laptop con daño por líquido</span></a><a href="/mantenimiento-preventivo-computadora"><i class="fa-solid fa-desktop" aria-hidden="true"></i><span>Mantenimiento preventivo de computadora</span></a></div></div></section>
+    <!-- ==================== 6. PASTA TÉRMICA, THERMAL PADS Y METAL LÍQUIDO ==================== -->
+    <section class="lapclean-section" aria-labelledby="compuestos-termicos-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Compuestos y Transferencia de Calor</p>
+          <h2 id="compuestos-termicos-title">Pasta térmica, thermal pads y metal líquido en laptop</h2>
+          <p>
+            No todos los equipos utilizan los mismos materiales. El compuesto adecuado se define según el diseño original y las especificaciones del fabricante.
+          </p>
+        </div>
 
-    <section class="lc-final" aria-labelledby="final-title"><div class="container lc-final__inner"><div><p>Revisión con contexto</p><h2 id="final-title">¿Tu laptop se calienta o hace demasiado ruido?</h2><span>Cuéntanos qué modelo tienes y qué problema presenta. Podemos orientarte sobre la revisión que necesita.</span></div><a class="lc-btn lc-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar por WhatsApp</a></div></section>
+        <div class="lapclean-grid-three">
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-temperature-half" aria-hidden="true"></i></div>
+            <h3>Cambio de pasta térmica cuando corresponde</h3>
+            <p>La pasta térmica cubre las microimperfecciones microscópicas entre el procesador o GPU y el disipador metálico.</p>
+            <h4>CPU y GPU</h4>
+            <p class="lapclean-card__sub">Si la pasta original está seca o cristalizada, se retira y se aplica pasta de alta conductividad.</p>
+          </article>
 
-    <FaqSection title="Preguntas frecuentes sobre limpieza de laptop" description="Respuestas breves para saber cuándo conviene revisar ventilación, temperatura y mantenimiento preventivo." items={faqs} id="limpieza-laptop-faq" questionColor="#071F3A" />
-    <ServiceTicketSection id="ticket" defaultDevice="Laptop" defaultService="Limpieza y mantenimiento de laptop" sourcePage="/limpieza-laptop" />
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></div>
+            <h3>Thermal pads según espesor y diseño</h3>
+            <p>Almohadillas térmicas utilizadas en memorias de video y circuitos reguladores de voltaje (VRM).</p>
+            <h4>Disipador y contacto térmico</h4>
+            <p class="lapclean-card__sub">Deben conservar exactamente el grosor (0.5mm, 1.0mm, 1.5mm) para evitar desniveles en el disipador.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-droplet" aria-hidden="true"></i></div>
+            <h3>Metal líquido solo en equipos diseñados para utilizarlo</h3>
+            <p>Compuesto de galio de altísima conductividad térmica exclusivo para ciertos modelos de gama entusiasta.</p>
+            <h4>Material térmico original</h4>
+            <p class="lapclean-card__sub">Solo se trabaja en laptops preparadas de fábrica con barreras aislantes especiales de níquel y silicona.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. LIMPIEZA DE LAPTOP GAMER EN CANCÚN ==================== -->
+    <section class="lapclean-section lapclean-section--alt" aria-labelledby="laptop-gamer-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Alto Rendimiento</p>
+          <h2 id="laptop-gamer-title">Limpieza de laptop gamer en Cancún</h2>
+          <p>
+            Las laptops gamer concentran procesadores de alto voltaje y tarjetas gráficas dedicadas en espacios muy reducidos. Su mantenimiento exige precisión y conocimiento de sus sistemas térmicos.
+          </p>
+        </div>
+
+        <div class="lapclean-grid-three">
+          <article class="lapclean-brand-card">
+            <h3>ASUS ROG y TUF</h3>
+            <p>Revisión de sistemas con ventiladores Arc Flow, cámaras de vapor y compuestos térmicos especializados.</p>
+            <h4>Doble ventilador</h4>
+            <p class="lapclean-card__sub">Despeje de ductos antipolvo y calibración de curvas de ventilación.</p>
+          </article>
+
+          <article class="lapclean-brand-card">
+            <h3>MSI Gaming</h3>
+            <p>Mantenimiento térmico para series Stealth, Raider, Katana y Cyborg con tecnología Cooler Boost.</p>
+            <h4>CPU y GPU dedicados</h4>
+            <p class="lapclean-card__sub">Revisión de heatpipes compartidos y disipación de memorias gráficas.</p>
+          </article>
+
+          <article class="lapclean-brand-card">
+            <h3>Lenovo Legion</h3>
+            <p>Limpieza de módulos Coldfront con aspas ultrafinas y almohadillas de disipación de alta densidad.</p>
+            <h4>Sistemas térmicos de alto rendimiento</h4>
+            <p class="lapclean-card__sub">Mantenimiento de tomas de aire en teclado y rejillas cuádruples.</p>
+          </article>
+
+          <article class="lapclean-brand-card">
+            <h3>Alienware</h3>
+            <p>Atención a sistemas Cryo-Tech con cámara de vapor y compuestos térmicos de elemento 31 en modelos compatibles.</p>
+            <h4>Sistemas térmicos avanzados</h4>
+            <p class="lapclean-card__sub">Apertura técnica y control de flujo de aire cuádruple.</p>
+          </article>
+
+          <article class="lapclean-brand-card">
+            <h3>Acer Predator y Nitro</h3>
+            <p>Limpieza profunda de ventiladores metálicos AeroBlade 3D y disipadores de cobre extendidos.</p>
+            <h4>Doble turbina</h4>
+            <p class="lapclean-card__sub">Retiro de suciedad en tomas de aire superiores e inferiores.</p>
+          </article>
+
+          <article class="lapclean-brand-card">
+            <h3>HP Omen y Victus</h3>
+            <p>Revisión de ventilación Omen Tempest Cooling con sensores infrarrojos térmicos integrados.</p>
+            <h4>Disipación balanceada</h4>
+            <p class="lapclean-card__sub">Optimización del flujo de aire para gaming y renderizado.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 8. ¿CUÁNTO CUESTA UNA LIMPIEZA DE LAPTOP EN CANCÚN? ==================== -->
+    <section class="lapclean-section" aria-labelledby="costo-limpieza-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Presupuesto Transparente</p>
+          <h2 id="costo-limpieza-title">¿Cuánto cuesta una limpieza de laptop en Cancún?</h2>
+          <p>
+            El costo de una limpieza interna se determina de manera individual según la complejidad de apertura y las características del sistema térmico. No aplicamos tarifas arbitrarias; confirmamos el presupuesto antes de iniciar cualquier trabajo.
+          </p>
+        </div>
+
+        <div class="lapclean-grid-four">
+          <div class="lapclean-pricing-factor">
+            <i class="fa-solid fa-laptop" aria-hidden="true"></i>
+            <h3>Precio según modelo</h3>
+            <p>Laptops convencionales, ultrabooks ultradelgadas o estaciones de trabajo móviles con diferentes requerimientos.</p>
+          </div>
+
+          <div class="lapclean-pricing-factor">
+            <i class="fa-solid fa-screwdriver" aria-hidden="true"></i>
+            <h3>Dificultad de desarmado</h3>
+            <p>Equipos con acceso directo en tapa inferior versus modelos que requieren desmontar teclado, pantalla o placa madre invertida.</p>
+          </div>
+
+          <div class="lapclean-pricing-factor">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            <h3>Material térmico requerido</h3>
+            <p>Uso de pasta térmica estándar, pastas de alta conductividad, thermal pads de espesores específicos o thermal putty.</p>
+          </div>
+
+          <div class="lapclean-pricing-factor">
+            <i class="fa-solid fa-gamepad" aria-hidden="true"></i>
+            <h3>Laptop gamer vs convencional</h3>
+            <p>Sistemas gamer con doble o triple turbina y cámaras de vapor demandan mayor tiempo de desmontaje y pruebas.</p>
+          </div>
+        </div>
+
+        <div class="lapclean-cta-box">
+          <div class="lapclean-cta-box__text">
+            <h3>¿Quieres cotizar la limpieza de tu modelo exacto?</h3>
+            <p>Escríbenos la marca y modelo de tu laptop por WhatsApp para darte un costo estimado claro.</p>
+          </div>
+          <a class="lapclean-btn lapclean-btn--primary" href={whatsappLocalUrl} target="_blank" rel="noopener noreferrer" data-wa-link>
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar por WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 9. SECCIÓN NACIONAL — ENVÍO POR PAQUETERÍA ==================== -->
+    <section id="envio-paqueteria" class="lapclean-section lapclean-section--shipping" aria-labelledby="paqueteria-title">
+      <div class="container">
+        <div class="lapclean-heading lapclean-heading--light">
+          <p class="lapclean-kicker lapclean-kicker--cyan">Alcance Nacional</p>
+          <h2 id="paqueteria-title">¿Estás fuera de Cancún? Envíanos tu laptop por paquetería</h2>
+          <p>
+            Si no estás en Cancún, puedes enviar tu laptop a Pixon PC mediante paquetería desde cualquier parte de México. Antes de que envíes el equipo confirmamos modelo, síntomas y procedimiento para que tu envío sea seguro y con confirmación previa.
+          </p>
+        </div>
+
+        <!-- Microanimación de Paquetería SVG -->
+        <div class="lapclean-shipping-visual-shell">
+          <figure class="lapclean-shipping-figure" aria-hidden="true">
+            <svg viewBox="0 0 720 180" class="lapclean-shipping-svg" focusable="false">
+              <!-- Route Pathway Line -->
+              <path class="lc-ship-path-base" d="M 60 90 L 660 90" stroke="#174b77" stroke-width="4" stroke-dasharray="6 6" />
+              <path class="lc-ship-path-active" d="M 60 90 L 660 90" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" />
+
+              <!-- Stage 1: Origin Package Box -->
+              <g class="lc-ship-box" transform="translate(60, 90)">
+                <rect x="-24" y="-20" width="48" height="40" rx="6" fill="#f59e0b" stroke="#b45309" stroke-width="2" />
+                <line x1="-24" y1="-5" x2="24" y2="-5" stroke="#b45309" stroke-width="1.5" />
+                <rect x="-10" y="-15" width="20" height="8" rx="2" fill="#ffffff" />
+                <circle cx="0" cy="28" r="4" fill="#38bdf8" />
+              </g>
+
+              <!-- Stage 2: In-Transit Courier Marker -->
+              <g class="lc-ship-courier" transform="translate(260, 90)">
+                <circle cx="0" cy="0" r="16" fill="#0369a1" stroke="#38bdf8" stroke-width="2" />
+                <path d="M -7 -4 L 0 5 L 8 -4" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-90)" />
+              </g>
+
+              <!-- Stage 3: Pixon PC Reception Hub -->
+              <g class="lc-ship-hub" transform="translate(460, 90)">
+                <circle cx="0" cy="0" r="22" fill="#0c385f" stroke="#22d3ee" stroke-width="2" />
+                <path d="M 0 -14 C -8 -14 -13 -9 -13 0 C -13 10 0 16 0 16 C 0 16 13 10 13 0 C 13 -9 8 -14 0 -14 Z" fill="#38bdf8" />
+                <circle cx="0" cy="-3" r="4" fill="#ffffff" />
+              </g>
+
+              <!-- Stage 4: Verified Serviced Laptop & Check -->
+              <g class="lc-ship-ready" transform="translate(660, 90)">
+                <rect x="-22" y="-16" width="44" height="32" rx="4" fill="#082a4a" stroke="#10b981" stroke-width="2" />
+                <rect x="-16" y="-12" width="32" height="18" rx="2" fill="#7dd3fc" />
+                <circle cx="16" cy="-14" r="10" fill="#10b981" />
+                <path d="M 12 -14 L 15 -11 L 21 -17" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+              </g>
+            </svg>
+          </figure>
+        </div>
+
+        <div class="lapclean-grid-three">
+          <article class="lapclean-card lapclean-card--dark">
+            <div class="lapclean-card__icon lapclean-card__icon--cyan"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i></div>
+            <h3>Servicio de limpieza de laptop por paquetería en México</h3>
+            <p>Recibimos laptops de usuarios particulares, profesionales y creadores de contenido que buscan un mantenimiento térmico minucioso.</p>
+          </article>
+
+          <article class="lapclean-card lapclean-card--dark">
+            <div class="lapclean-card__icon lapclean-card__icon--cyan"><i class="fa-solid fa-comments" aria-hidden="true"></i></div>
+            <h3>Confirmamos el servicio antes de que envíes el equipo</h3>
+            <p>Revisamos contigo fotos, modelo y síntomas para asegurarnos de que la limpieza técnica sea el servicio indicado.</p>
+          </article>
+
+          <article class="lapclean-card lapclean-card--dark">
+            <div class="lapclean-card__icon lapclean-card__icon--cyan"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i></div>
+            <h3>Recepción y registro de la laptop</h3>
+            <p>Al llegar tu paquete, documentamos fotográficamente el estado del embalaje y registramos el equipo con folio técnico.</p>
+          </article>
+
+          <article class="lapclean-card lapclean-card--dark">
+            <div class="lapclean-card__icon lapclean-card__icon--cyan"><i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i></div>
+            <h3>Diagnóstico y autorización antes de trabajos adicionales</h3>
+            <p>Si detectamos algún detalle extra (ej. soporte de bisagra flojo o thermal pad degradado), te informamos antes de intervenir.</p>
+          </article>
+
+          <article class="lapclean-card lapclean-card--dark">
+            <div class="lapclean-card__icon lapclean-card__icon--cyan"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></div>
+            <h3>Evidencia del servicio y seguimiento por WhatsApp</h3>
+            <p>Te compartimos fotografías del interior de tu laptop antes y después de la limpieza para que compruebes el resultado.</p>
+          </article>
+
+          <article class="lapclean-card lapclean-card--dark">
+            <div class="lapclean-card__icon lapclean-card__icon--cyan"><i class="fa-solid fa-box" aria-hidden="true"></i></div>
+            <h3>Empaque y devolución del equipo</h3>
+            <p>Empacamos tu laptop con máxima protección y coordinamos la guía de retorno con la paquetería de tu elección.</p>
+          </article>
+        </div>
+
+        <!-- Ejemplos naturales de origen de paquetería -->
+        <p class="lapclean-shipping-notes">
+          <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+          Recibimos envíos habitualmente desde entidades como <strong>CDMX, Estado de México, Mérida (Yucatán), Playa del Carmen, Tulum, Monterrey, Guadalajara, Veracruz, Tabasco y Campeche</strong>, coordinando siempre los detalles antes del despacho.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================== 10. FLUJO DE ENVÍO POR PAQUETERÍA (01 A 08) ==================== -->
+    <section class="lapclean-section" aria-labelledby="flujo-envio-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Paso a Paso</p>
+          <h2 id="flujo-envio-title">Flujo de envío por paquetería a Pixon PC</h2>
+          <p>
+            Un proceso ordenado para que tengas total certidumbre sobre el estado y ubicación de tu equipo en todo momento.
+          </p>
+        </div>
+
+        <div class="lapclean-shipping-timeline">
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">01</span>
+            <div>
+              <h3>Solicita revisión</h3>
+              <p>Contáctanos por WhatsApp indicando marca, modelo y síntomas de tu laptop.</p>
+            </div>
+          </div>
+
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">02</span>
+            <div>
+              <h3>Confirmamos modelo y servicio</h3>
+              <p>Validamos viabilidad técnica y te damos instrucciones claras para el envío.</p>
+            </div>
+          </div>
+
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">03</span>
+            <div>
+              <h3>Prepara el equipo</h3>
+              <p>Empaca la laptop con protección acolchada y caja de cartón resistente.</p>
+            </div>
+          </div>
+
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">04</span>
+            <div>
+              <h3>Envía por paquetería</h3>
+              <p>Despacha con la paquetería de tu preferencia y compártenos el número de guía.</p>
+            </div>
+          </div>
+
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">05</span>
+            <div>
+              <h3>Pixon recibe y registra</h3>
+              <p>Confirmamos la llegada con fotos del paquete y apertura técnica en taller.</p>
+            </div>
+          </div>
+
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">06</span>
+            <div>
+              <h3>Realizamos el servicio autorizado</h3>
+              <p>Limpieza profunda de ventiladores, disipador y mantenimiento térmico.</p>
+            </div>
+          </div>
+
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">07</span>
+            <div>
+              <h3>Compartimos evidencia / resultados</h3>
+              <p>Te enviamos fotos del interior limpio y resultados de pruebas térmicas.</p>
+            </div>
+          </div>
+
+          <div class="lapclean-timeline-item">
+            <span class="lapclean-timeline-item__num">08</span>
+            <div>
+              <h3>Coordinamos devolución</h3>
+              <p>Reempacamos con máxima seguridad y gestionamos la guía de retorno.</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="lapclean-shipping-disclaimer">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          Los costos de paquetería (envío y retorno) se confirman antes del despacho y corren por cuenta del cliente.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================== 11. QUÉ PASA CUANDO PIXON RECIBE TU LAPTOP (E-E-A-T) ==================== -->
+    <section class="lapclean-section lapclean-section--alt" aria-labelledby="confianza-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Transparencia y Seguridad</p>
+          <h2 id="confianza-title">Qué pasa cuando Pixon recibe tu laptop</h2>
+          <p>
+            Sabemos que enviar tu computadora portátil requiere absoluta confianza. Nuestro protocolo de recepción garantiza trazabilidad completa.
+          </p>
+        </div>
+
+        <div class="lapclean-grid-three">
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-box-archive" aria-hidden="true"></i></div>
+            <h3>Registro de recepción</h3>
+            <p>Anotamos número de serie, modelo exacto, accesorios incluidos y estado estético del equipo en nuestra plataforma de servicio.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-camera-retro" aria-hidden="true"></i></div>
+            <h3>Revisión física del paquete</h3>
+            <p>Fotografiamos la caja exterior antes de abrirla y el estado inicial de la laptop para registrar cualquier detalle previo.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></div>
+            <h3>Confirmación por WhatsApp</h3>
+            <p>Te notificamos de inmediato que tu laptop está en nuestras manos con su número de ticket correspondiente.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-signature" aria-hidden="true"></i></div>
+            <h3>Servicio únicamente después de autorización</h3>
+            <p>No realizamos cambios ni cobros imprevistos. Todo procedimiento se cotiza y autoriza previamente por escrito.</p>
+          </article>
+
+          <article class="lapclean-card">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+            <h3>Evidencia antes de devolución</h3>
+            <p>Recibes fotos y reporte del servicio antes de que el equipo sea sellado y entregado a la empresa de mensajería.</p>
+          </article>
+
+          <article class="lapclean-card lapclean-card--cta">
+            <div class="lapclean-card__icon"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></div>
+            <h3>¿Listo para enviar tu equipo?</h3>
+            <p>Comunícate con nuestro equipo técnico para recibir la dirección de envío y recomendaciones de empaque.</p>
+            <a href={whatsappShippingUrl} target="_blank" rel="noopener noreferrer" class="lapclean-btn lapclean-btn--primary" data-wa-link>
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Coordinar envío nacional
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 12. CÓMO ENVIAR UNA LAPTOP POR PAQUETERÍA DE FORMA SEGURA ==================== -->
+    <section class="lapclean-section" aria-labelledby="empaque-seguro-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Guía de Empaque</p>
+          <h2 id="empaque-seguro-title">Cómo enviar una laptop por paquetería de forma segura</h2>
+          <p>
+            Sigue estas recomendaciones técnicas para proteger tu equipo durante el trayecto de paquetería.
+          </p>
+        </div>
+
+        <div class="lapclean-grid-three">
+          <div class="lapclean-tip-card">
+            <div class="lapclean-tip-card__badge">1</div>
+            <h3>Apaga completamente la laptop</h3>
+            <p>Verifica que no esté en modo suspensión o hibernación y retira tarjetas SD o receptores USB tipo dongle.</p>
+          </div>
+
+          <div class="lapclean-tip-card">
+            <div class="lapclean-tip-card__badge">2</div>
+            <h3>Protege cargador y accesorios por separado</h3>
+            <p>Envuelve el cargador aparte para que la clavija o los conectores metálicos no rayen la carcasa de la laptop.</p>
+          </div>
+
+          <div class="lapclean-tip-card">
+            <div class="lapclean-tip-card__badge">3</div>
+            <h3>Usa protección alrededor del equipo</h3>
+            <p>Aplica varias vueltas de plástico de burbujas (mínimo 5 cm de grosor) cubriendo esquinas y bordes.</p>
+          </div>
+
+          <div class="lapclean-tip-card">
+            <div class="lapclean-tip-card__badge">4</div>
+            <h3>Evita movimiento dentro de la caja</h3>
+            <p>Rellena espacios vacíos con papel kraft o burbuja hasta que el equipo quede inmóvil al cerrar la caja.</p>
+          </div>
+
+          <div class="lapclean-tip-card">
+            <div class="lapclean-tip-card__badge">5</div>
+            <h3>Usa una caja resistente</h3>
+            <p>Utiliza una caja de cartón corrugado en buen estado y séllala con cinta canela o cinta de empaque reforzada.</p>
+          </div>
+
+          <div class="lapclean-tip-card">
+            <div class="lapclean-tip-card__badge">6</div>
+            <h3>Conserva guía y seguimiento</h3>
+            <p>Guarda el comprobante de envío y compártenos el número de rastreo para monitorear el trayecto.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 13. CANCÚN LOCAL + ZONA HOTELERA ==================== -->
+    <section class="lapclean-section lapclean-section--alt" aria-labelledby="cancun-local-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Cobertura Local</p>
+          <h2 id="cancun-local-title">Limpieza de laptop en Cancún con cita previa</h2>
+          <p>
+            Si vives o trabajas en Cancún, puedes traer tu laptop a nuestro taller o solicitar servicio de recolección según tu ubicación.
+          </p>
+        </div>
+
+        <div class="lapclean-grid-two">
+          <div class="lapclean-zone-box">
+            <h3>Atención local en Cancún</h3>
+            <p>Servicio directo en taller con previa cita en zonas principales:</p>
+            <ul class="lapclean-zone-list">
+              <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Cancún Centro y Supermanzanas</li>
+              <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Av. Huayacán y Av. Cumbres</li>
+              <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Puerto Cancún y Av. Bonampak</li>
+              <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Polígono Sur y Av. Tulum</li>
+              <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Puerto Juárez y Bonfil</li>
+            </ul>
+            <p class="lapclean-zone-meta">
+              <strong>Recolección según zona y disponibilidad:</strong> Coordinamos recolección de equipos en domicilio u oficina bajo agenda.
+            </p>
+          </div>
+
+          <div class="lapclean-zone-box">
+            <h3>Zona Hotelera, Costa Mujeres y Playa Mujeres</h3>
+            <p>Atención para turistas, personal de hotelería, nómadas digitales y residentes en franja turística:</p>
+            <ul class="lapclean-zone-list">
+              <li><i class="fa-solid fa-umbrella-beach" aria-hidden="true"></i> Zona Hotelera de Cancún (Km 0 a Km 22)</li>
+              <li><i class="fa-solid fa-hotel" aria-hidden="true"></i> Hoteles, resorts y departamentos turísticos</li>
+              <li><i class="fa-solid fa-anchor" aria-hidden="true"></i> Costa Mujeres y Playa Mujeres</li>
+            </ul>
+            <p class="lapclean-zone-meta">
+              <strong>Atención mediante cita previa:</strong> Coordinación de horarios para entregas y recepciones puntuales.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 14. ENGLISH SUPPORT FOR TOURISTS ==================== -->
+    <section class="lapclean-section lapclean-section--english" aria-label="English support notice">
+      <div class="container lapclean-english-box">
+        <div class="lapclean-english-box__content">
+          <p class="lapclean-kicker lapclean-kicker--cyan">International Visitors</p>
+          <h3>Visiting Cancun? English support available.</h3>
+          <p>
+            If your laptop is overheating during your stay in Cancun, Costa Mujeres, or Riviera Maya, we provide technical cleaning and diagnostics with written quotes and repair updates in English via WhatsApp.
+          </p>
+        </div>
+        <a class="lapclean-btn lapclean-btn--primary" href="https://wa.me/529986690777?text=Hello%20Pixon%20PC.%20I%20am%20in%20Cancun%20and%20need%20my%20laptop%20cleaned%20or%20serviced." target="_blank" rel="noopener noreferrer" data-wa-link>
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Contact in English
+        </a>
+      </div>
+    </section>
+
+    <!-- ==================== 15. CANIBALIZACIÓN & ENLACES INTERNOS ==================== -->
+    <section class="lapclean-section" aria-labelledby="servicios-relacionados-title">
+      <div class="container">
+        <div class="lapclean-heading">
+          <p class="lapclean-kicker">Especialización de Servicios</p>
+          <h2 id="servicios-relacionados-title">¿Buscas otro tipo de atención para tu laptop?</h2>
+          <p>
+            Para mantener la claridad de cada servicio, enlazamos las opciones específicas según lo que requiera tu equipo:
+          </p>
+        </div>
+
+        <div class="lapclean-related-grid">
+          <a class="lapclean-related-card" href="/servicios/laptop/mantenimiento-preventivo">
+            <i class="fa-solid fa-laptop-medical" aria-hidden="true"></i>
+            <div>
+              <h3>Mantenimiento Preventivo de Laptop</h3>
+              <p>¿Buscas una revisión preventiva más completa con optimización de sistema y diagnóstico general?</p>
+            </div>
+            <span class="lapclean-related-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+          <a class="lapclean-related-card" href="/mantenimiento-pc-laptop-domicilio-cancun">
+            <i class="fa-solid fa-house-laptop" aria-hidden="true"></i>
+            <div>
+              <h3>Mantenimiento a Domicilio en Cancún</h3>
+              <p>Servicio técnico y limpieza directamente en tu casa u oficina en Cancún mediante cita previa.</p>
+            </div>
+            <span class="lapclean-related-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+          <a class="lapclean-related-card" href="/servicios/laptop/diagnostico">
+            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+            <div>
+              <h3>Diagnóstico de Laptop</h3>
+              <p>Para equipos que no encienden, presentan fallas intermitentes o problemas en tarjeta madre.</p>
+            </div>
+            <span class="lapclean-related-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+          <a class="lapclean-related-card" href="/servicios/laptop/cambio-bateria">
+            <i class="fa-solid fa-battery-half" aria-hidden="true"></i>
+            <div>
+              <h3>Cambio de Batería de Laptop</h3>
+              <p>Reemplazo de baterías degradadas, infladas o con baja autonomía en Cancún.</p>
+            </div>
+            <span class="lapclean-related-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+          <a class="lapclean-related-card" href="/reparacion-bisagras">
+            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
+            <div>
+              <h3>Reparación de Bisagras de Laptop</h3>
+              <p>Reconstrucción de soportes y carcasas rotas al abrir o cerrar la pantalla.</p>
+            </div>
+            <span class="lapclean-related-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+          <a class="lapclean-related-card" href="/limpieza-laptop-liquido">
+            <i class="fa-solid fa-droplet" aria-hidden="true"></i>
+            <div>
+              <h3>Limpieza de Laptop por Líquido</h3>
+              <p>Desoxidación ultrasónica y tratamiento químico tras derrame de agua, café o refresco.</p>
+            </div>
+            <span class="lapclean-related-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 16. FAQ SECTION ==================== -->
+    <FaqSection
+      title="Preguntas frecuentes sobre limpieza de laptop"
+      description="Respuestas claras sobre limpieza interna, ventiladores, disipador, pasta térmica y envíos por paquetería desde México."
+      items={faqs}
+      id="faq-limpieza-laptop"
+      questionColor="#071F3A"
+    />
+
+    <!-- ==================== 17. FORMULARIO SERVICE TICKET ==================== -->
+    <ServiceTicketSection
+      id="solicitar-servicio"
+      defaultDevice="Laptop"
+      defaultService="Limpieza y mantenimiento de laptop"
+      sourcePage="/limpieza-laptop"
+    />
   </main>
+
   <Footer />
 </Base>
 
 <style>
-  .lc-page { color: #071F3A; background: #f8fafc; }
-  .lc-hero { position:relative; isolation:isolate; padding:clamp(58px,7vw,92px) 0 72px; background-color:#071F3A !important; color:#fff; overflow:hidden; }.lc-hero::before { content:""; position:absolute; z-index:-1; width:720px; height:720px; right:-280px; top:-320px; border:1px solid rgba(125,211,252,.16); border-radius:50%; box-shadow:0 0 0 74px rgba(14,116,144,.12),0 0 0 148px rgba(14,116,144,.07); }
-  .lc-hero__grid, .lc-split { display:grid; gap:clamp(28px,5vw,68px); align-items:center; }.lc-hero__grid { position:relative; grid-template-columns:minmax(0,1.05fr) minmax(300px,.8fr); }
-  .lc-eyebrow,.lc-heading>span,.lc-visual-copy>span { display:inline-flex; align-items:center; gap:8px; color:#38bdf8; font-weight:800; font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; }.lc-hero h1 { font-family:var(--font-heading); font-size:clamp(2.45rem,5vw,4.55rem); line-height:1.01; letter-spacing:-.035em; margin:15px 0 20px; max-width:760px; }.lc-lead { font-size:clamp(1.08rem,2vw,1.3rem); line-height:1.65; max-width:650px; }.lc-problem { display:flex; align-items:flex-start; gap:10px; color:#dbeafe; max-width:650px; margin:20px 0 28px; padding-left:14px; border-left:2px solid #38bdf8; line-height:1.55; }.lc-problem i { margin-top:.12em; color:#7dd3fc; }.lc-actions { display:flex; flex-wrap:wrap; gap:12px; }.lc-btn { min-height:50px; display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:13px 20px; border-radius:10px; text-decoration:none; font-weight:800; transition:transform .18s ease, box-shadow .18s ease, background .18s ease; }.lc-btn:focus-visible,.lc-inline-cta a:focus-visible,.lc-related a:focus-visible { outline:3px solid #f59e0b; outline-offset:3px; }.lc-btn:hover { transform:translateY(-2px); }.lc-btn--primary { color:#fff; background:#16a34a; box-shadow:0 12px 25px rgba(22,163,74,.25); }.lc-btn--primary:hover { background:#15803d; }.lc-btn--secondary { color:#fff; border:1px solid rgba(255,255,255,.45); }.lc-badges { list-style:none; display:flex; flex-wrap:wrap; gap:8px; margin:25px 0 0; padding:0; }.lc-badges li { display:inline-flex; align-items:center; gap:6px; border:1px solid rgba(186,230,253,.24); background:rgba(255,255,255,.06); border-radius:100px; padding:7px 10px; font-size:.8rem; }.lc-badges i { color:#5eead4; font-size:.7rem; }.lc-hero__media-shell { position:relative; padding-bottom:32px; }.lc-hero__media { position:relative; z-index:1; margin:0; background:#fff; border:1px solid rgba(186,230,253,.3); border-radius:18px; overflow:hidden; box-shadow:0 28px 58px rgba(0,0,0,.3); }.lc-media-kicker { position:absolute; z-index:1; top:14px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:center; gap:10px; color:#e0f2fe; font-size:.76rem; font-weight:800; }.lc-media-kicker span { padding:7px 9px; border:1px solid rgba(255,255,255,.22); border-radius:100px; background:rgba(7,31,58,.8); backdrop-filter:blur(8px); }.lc-media-kicker span:first-child { display:inline-flex; gap:6px; align-items:center; }.lc-hero__media img { width:100%; aspect-ratio:4 / 3; height:auto; object-fit:cover; display:block; }.lc-hero__media figcaption { color:#071F3A; display:flex; gap:9px; padding:14px 16px; font-weight:700; font-size:.84rem; line-height:1.45; }.lc-hero__media figcaption i { color:#0284c7; margin-top:2px; }.lc-hero__insight { position:absolute; z-index:2; right:-20px; bottom:0; display:flex; align-items:flex-start; gap:10px; max-width:285px; padding:14px; border:1px solid rgba(125,211,252,.34); border-radius:12px; background:rgba(7,31,58,.94); box-shadow:0 12px 26px rgba(0,0,0,.25); }.lc-hero__insight>i { display:grid; flex:0 0 34px; width:34px; height:34px; place-items:center; border-radius:9px; color:#071F3A; background:#5eead4; }.lc-hero__insight strong,.lc-hero__insight span { display:block; }.lc-hero__insight strong { margin-bottom:3px; font-size:.84rem; }.lc-hero__insight span { color:#cbd5e1; font-size:.75rem; line-height:1.45; }
-  .lc-section { padding:clamp(54px,8vw,100px) 0; }.lc-heading { max-width:760px; margin-bottom:32px; }.lc-heading h2,.lc-visual-copy h2,.lc-final h2 { font-family:var(--font-heading); color:#071F3A; font-size:clamp(1.85rem,3.5vw,3rem); line-height:1.1; margin:9px 0 12px; }.lc-heading p,.lc-visual-copy p,.lc-card p,.lc-note p,.lc-compare p,.lc-tips li { color:#173755; line-height:1.68; }.lc-card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }.lc-card { border:1px solid #dbe5ef; background:#fff; padding:23px; border-radius:14px; box-shadow:0 8px 20px rgba(7,31,58,.04); transition:transform .18s ease,box-shadow .18s ease; }.lc-card:hover { transform:translateY(-3px); box-shadow:0 16px 30px rgba(7,31,58,.09); }.lc-card>i { display:grid; place-items:center; width:42px; height:42px; border-radius:11px; color:#0369a1; background:#e0f2fe; }.lc-card h3,.lc-note h3,.lc-tips h3,.lc-compare h3 { color:#071F3A; margin:15px 0 8px; font-size:1.04rem; }.lc-inline-cta { display:flex; gap:16px; justify-content:space-between; align-items:center; margin-top:26px; padding:18px 20px; border-radius:12px; background:#eaf5ff; border-left:4px solid #0284c7; }.lc-inline-cta p { margin:0; color:#071F3A; }.lc-inline-cta a,.lc-note a { color:#075985; font-weight:800; text-decoration:none; white-space:nowrap; }.lc-process { background-color:#fff !important; }.lc-split { grid-template-columns:1.05fr .75fr; }.lc-steps { margin:24px 0 0; padding:0; list-style:none; display:grid; gap:10px; }.lc-steps li { display:flex; gap:14px; align-items:flex-start; padding:13px 0; border-bottom:1px solid #e2e8f0; }.lc-steps span { color:#0284c7; font-weight:900; }.lc-steps p { margin:0; color:#071F3A; }.lc-note { background:#f0f9ff; border:1px solid #bae6fd; border-radius:16px; padding:28px; }.lc-note>i { color:#0284c7; font-size:1.4rem; }.lc-heading--center { text-align:center; margin-inline:auto; }.lc-flow { display:flex; align-items:center; justify-content:center; gap:12px; padding:24px; border:1px solid #dbe5ef; border-radius:16px; background:#fff; }.lc-flow>div { min-width:122px; display:grid; place-items:center; gap:8px; text-align:center; color:#071F3A; }.lc-flow>div>i { color:#0284c7; font-size:1.45rem; }.lc-flow__arrow { color:#7dd3fc; }.lc-compare { margin-top:18px; display:grid; grid-template-columns:1fr 1fr; gap:16px; }.lc-compare article { background:#fff; border:1px solid #dbe5ef; padding:22px; border-radius:14px; }.lc-status { display:inline-block; border-radius:100px; padding:5px 9px; font-size:.75rem; font-weight:800; }.lc-status--good { background:#dcfce7; color:#166534; }.lc-status--alert { background:#fff7ed; color:#9a3412; }.lc-prevention { background-color:#eaf5ff !important; }.lc-visual-copy>span { color:#0369a1; }.lc-tips { background:#fff; border-radius:16px; padding:26px; border:1px solid #d4e7f5; }.lc-tips ul { padding-left:20px; margin:14px 0 0; display:grid; gap:9px; }.lc-related__grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }.lc-related a { min-height:128px; display:flex; flex-direction:column; gap:14px; padding:20px; border:1px solid #dbe5ef; border-radius:13px; background:#fff; color:#071F3A; text-decoration:none; font-weight:800; transition:transform .18s ease,border-color .18s ease; }.lc-related a:hover { transform:translateY(-2px); border-color:#7dd3fc; }.lc-related i { color:#0284c7; font-size:1.25rem; }.lc-final { padding:clamp(48px,7vw,78px) 0; background-color:#071F3A !important; }.lc-final__inner { display:flex; justify-content:space-between; align-items:center; gap:24px; }.lc-final p { margin:0; color:#7dd3fc; font-weight:800; text-transform:uppercase; font-size:.8rem; letter-spacing:.08em; }.lc-final h2 { color:#fff; margin-top:9px; }.lc-final span { color:#dbeafe; max-width:700px; display:block; }
-  .lc-thermal { background-color:#f1f8ff !important; }.lc-thermal-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }.lc-thermal-card { padding:22px; border:1px solid #d5e7f4; border-radius:14px; background:#fff; }.lc-thermal-card>i { display:grid; width:42px; height:42px; place-items:center; border-radius:11px; color:#075985; background:#dff4fd; }.lc-thermal-card h3,.lc-thermal-note h3 { margin:14px 0 8px; color:#071F3A; font-size:1.04rem; }.lc-thermal-card p,.lc-thermal-note p { margin:0; color:#173755; line-height:1.65; }.lc-thermal-note { display:flex; align-items:flex-start; gap:14px; max-width:920px; margin:22px auto 0; padding:20px 22px; border-left:4px solid #0284c7; border-radius:12px; background:#fff; }.lc-thermal-note>i { display:grid; flex:0 0 38px; width:38px; height:38px; place-items:center; border-radius:10px; color:#075985; background:#e0f2fe; }.lc-thermal-note h3 { margin-top:0; }
-  @media (max-width:800px) { .lc-hero__grid,.lc-split { grid-template-columns:1fr; }.lc-hero__media-shell { max-width:620px; }.lc-hero__insight { right:0; }.lc-card-grid,.lc-thermal-grid { grid-template-columns:repeat(2,1fr); }.lc-related__grid { grid-template-columns:repeat(2,1fr); }.lc-flow { flex-wrap:wrap; }.lc-flow__arrow { transform:rotate(90deg); }.lc-final__inner { align-items:flex-start; flex-direction:column; }.lc-final .lc-btn { width:100%; } }
-  @media (max-width:520px) { .lc-hero { padding-top:54px; }.lc-hero__media-shell { padding-bottom:0; }.lc-hero__insight { position:static; max-width:none; margin-top:12px; }.lc-card-grid,.lc-thermal-grid,.lc-compare,.lc-related__grid { grid-template-columns:1fr; }.lc-thermal-note { padding:18px; }.lc-inline-cta { align-items:flex-start; flex-direction:column; }.lc-inline-cta a { white-space:normal; }.lc-flow { gap:7px; }.lc-flow>div { min-width:105px; }.lc-flow__arrow { width:100%; text-align:center; }.lc-actions .lc-btn { width:100%; } }
-  @media (prefers-reduced-motion: reduce) { .lc-btn,.lc-card,.lc-related a { transition:none; } }
+  /* ==================== GLOBAL PAGE STYLES ==================== */
+  .lapclean-page {
+    color: #071F3A;
+    background: #f8fafc;
+  }
+  .lapclean-page h2,
+  .lapclean-page h3,
+  .lapclean-page h4,
+  .lapclean-page p,
+  .lapclean-page span,
+  .lapclean-page li {
+    color: #071F3A;
+  }
+
+  /* ==================== HERO SECTION ==================== */
+  .lapclean-hero {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(54px, 7vw, 90px) 0 68px;
+    background-color: #071F3A !important;
+    color: #ffffff;
+    overflow: hidden;
+  }
+  .lapclean-hero::before {
+    position: absolute;
+    top: -240px;
+    right: -240px;
+    width: 680px;
+    height: 680px;
+    content: "";
+    border: 1px solid rgba(56, 189, 248, 0.16);
+    border-radius: 50%;
+    box-shadow: 0 0 0 64px rgba(14, 116, 144, 0.1), 0 0 0 128px rgba(14, 116, 144, 0.05);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .lapclean-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: clamp(28px, 4.5vw, 60px);
+    align-items: center;
+  }
+
+  .lapclean-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #38bdf8 !important;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .lapclean-hero h1 {
+    margin: 0 0 18px;
+    color: #ffffff !important;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(2.3rem, 4.5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
+
+  .lapclean-lead {
+    margin: 0 0 26px;
+    color: #dbeafe !important;
+    font-size: clamp(1.05rem, 1.8vw, 1.22rem);
+    line-height: 1.6;
+    max-width: 620px;
+  }
+
+  .lapclean-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .lapclean-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+  .lapclean-btn:hover {
+    transform: translateY(-2px);
+  }
+  .lapclean-btn--primary {
+    background: #16a34a;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(22, 163, 74, 0.28);
+  }
+  .lapclean-btn--primary:hover {
+    background: #15803d;
+  }
+  .lapclean-btn--secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff !important;
+  }
+  .lapclean-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .lapclean-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lapclean-badges li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid rgba(186, 230, 253, 0.24);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e0f2fe !important;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .lapclean-badges i {
+    color: #38bdf8;
+    font-size: 0.72rem;
+  }
+
+  /* ==================== HERO ANIMATION SVG & TIMELINE ==================== */
+  .lapclean-hero__visual-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .lapclean-visual {
+    width: 100%;
+    margin: 0;
+  }
+  .lapclean-3d-stage {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgba(111, 223, 255, .28);
+    border-radius: 20px;
+    background: #041426;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, .32), inset 0 1px 0 rgba(255, 255, 255, .08);
+    aspect-ratio: 16 / 10;
+  }
+  .lapclean-3d-stage::before,
+  .lapclean-3d-stage::after {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    content: '';
+  }
+  .lapclean-3d-stage::before {
+    inset: 0;
+    background: linear-gradient(108deg, rgba(1, 13, 29, .08) 18%, transparent 50%, rgba(33, 188, 235, .1));
+  }
+  .lapclean-3d-stage::after {
+    inset: auto 6% 6% auto;
+    width: 34%;
+    height: 1px;
+    opacity: .55;
+    background: linear-gradient(90deg, transparent, #68e5ff, transparent);
+  }
+  .lapclean-3d-stage__art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform-origin: 62% 53%;
+    will-change: transform, opacity;
+  }
+  .lapclean-3d-stage__art--exploded {
+    z-index: 1;
+    opacity: 0;
+    animation: lc3d-exploded-state 14s cubic-bezier(.22, 1, .36, 1) infinite;
+  }
+  .lapclean-3d-stage__art--reassembled {
+    z-index: 1;
+    opacity: 1;
+    animation: lc3d-reassembled-state 14s cubic-bezier(.22, 1, .36, 1) infinite;
+  }
+  .lapclean-visual .lapclean-story-svg--legacy { display: none; }
+
+  .lc3d-scan {
+    position: absolute;
+    z-index: 3;
+    top: 17%;
+    bottom: 13%;
+    left: 8%;
+    width: 1px;
+    opacity: 0;
+    background: linear-gradient(180deg, transparent, #86edff 18%, #86edff 82%, transparent);
+    box-shadow: 0 0 0 1px rgba(110, 230, 255, .15), 0 0 24px rgba(53, 213, 255, .85);
+    animation: lc3d-scan 14s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  .lc3d-scan::after {
+    position: absolute;
+    top: 48%;
+    left: -7px;
+    width: 15px;
+    height: 15px;
+    border: 1px solid rgba(147, 239, 255, .9);
+    border-radius: 50%;
+    box-shadow: 0 0 18px rgba(63, 222, 255, .8);
+    content: '';
+  }
+  .lc3d-thermal-pulse {
+    position: absolute;
+    z-index: 3;
+    top: 56%;
+    left: 58.5%;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #78eaff;
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.55);
+    box-shadow: 0 0 20px rgba(66, 219, 255, .9);
+    animation: lc3d-thermal 14s cubic-bezier(.16, 1, .3, 1) infinite;
+    will-change: transform, opacity;
+  }
+  .lc3d-airflow {
+    position: absolute;
+    z-index: 3;
+    width: 16%;
+    height: 2px;
+    border-radius: 50%;
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, #89efff 35%, #4bd7ef 64%, transparent);
+    box-shadow: 0 0 12px rgba(80, 222, 247, .75);
+    animation: lc3d-airflow 14s linear infinite;
+    will-change: transform, opacity;
+  }
+  .lc3d-airflow--one { top: 50%; left: 67%; rotate: -13deg; }
+  .lc3d-airflow--two { top: 58%; left: 70%; rotate: 9deg; animation-delay: 180ms; }
+  .lc3d-dust {
+    position: absolute;
+    z-index: 3;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    opacity: 0;
+    background: #c7a575;
+    box-shadow: 0 0 8px rgba(255, 203, 124, .62);
+    animation: lc3d-dust 14s cubic-bezier(.22, .9, .28, 1) infinite;
+    will-change: transform, opacity;
+  }
+  .lc3d-dust--one { top: 53%; left: 82%; }
+  .lc3d-dust--two { top: 57%; left: 85%; width: 4px; height: 4px; animation-delay: 110ms; }
+  .lc3d-dust--three { top: 49%; left: 86%; width: 3px; height: 3px; animation-delay: 210ms; }
+  .lc3d-ready {
+    position: absolute;
+    z-index: 3;
+    top: 13%;
+    right: 9%;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translateY(8px) scale(.72);
+    background: #12a874;
+    color: #fff;
+    box-shadow: 0 0 22px rgba(17, 191, 132, .65);
+    animation: lc3d-ready 14s cubic-bezier(.16, 1, .3, 1) infinite;
+    will-change: transform, opacity;
+  }
+  .lc3d-ready i { color: inherit !important; font-size: .82rem; }
+
+  .lc3d-phase-rail {
+    position: absolute;
+    z-index: 4;
+    top: 11%;
+    left: 6%;
+    display: grid;
+    gap: 8px;
+  }
+  .lc3d-phase-rail::before {
+    position: absolute;
+    top: 13px;
+    bottom: 13px;
+    left: 13px;
+    width: 1px;
+    content: '';
+    background: linear-gradient(#59dff8, rgba(89, 223, 248, .12));
+  }
+  .lc3d-phase {
+    position: relative;
+    display: grid;
+    width: 27px;
+    height: 27px;
+    place-items: center;
+    border: 1px solid rgba(131, 231, 255, .34);
+    border-radius: 50%;
+    background: rgba(3, 21, 41, .68);
+    color: rgba(180, 240, 255, .55) !important;
+    font-size: .65rem;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 0 3px rgba(3, 20, 38, .52);
+    will-change: transform, opacity, background-color;
+  }
+  .lc3d-phase--diagnostic { animation: lc3d-phase-one 14s ease-in-out infinite; }
+  .lc3d-phase--open { animation: lc3d-phase-two 14s ease-in-out infinite; }
+  .lc3d-phase--clean { animation: lc3d-phase-three 14s ease-in-out infinite; }
+  .lc3d-phase--thermal { animation: lc3d-phase-four 14s ease-in-out infinite; }
+  .lc3d-phase--test { animation: lc3d-phase-five 14s ease-in-out infinite; }
+
+  @keyframes lc3d-exploded-state {
+    0%, 19% { opacity: 0; transform: scale(.985) translateY(8px); }
+    25%, 70% { opacity: 1; transform: scale(1.04) translateY(0); }
+    78%, 100% { opacity: 0; transform: scale(1.075) translateY(-8px); }
+  }
+  @keyframes lc3d-reassembled-state {
+    0%, 17% { opacity: 1; transform: scale(1); }
+    25%, 72% { opacity: 0; transform: scale(.97) translateY(8px); }
+    82%, 96% { opacity: 1; transform: scale(1.025); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes lc3d-scan {
+    0%, 4% { opacity: 0; transform: translateX(0); }
+    8% { opacity: .9; }
+    17% { opacity: .9; transform: translateX(390px); }
+    21%, 100% { opacity: 0; transform: translateX(415px); }
+  }
+  @keyframes lc3d-airflow {
+    0%, 32% { opacity: 0; transform: translateX(-12px); }
+    38% { opacity: .9; }
+    56% { opacity: .88; transform: translateX(74px); }
+    62%, 100% { opacity: 0; transform: translateX(90px); }
+  }
+  @keyframes lc3d-dust {
+    0%, 30% { opacity: 0; transform: translate(0, 0) scale(1); }
+    35% { opacity: .86; }
+    49% { opacity: .58; transform: translate(22px, -10px) scale(.75); }
+    59%, 100% { opacity: 0; transform: translate(58px, -22px) scale(.3); }
+  }
+  @keyframes lc3d-thermal {
+    0%, 58% { opacity: 0; transform: translate(-50%, -50%) scale(.55); }
+    63% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    69% { opacity: .85; transform: translate(-50%, -50%) scale(2.35); }
+    74%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.9); }
+  }
+  @keyframes lc3d-ready {
+    0%, 88% { opacity: 0; transform: translateY(8px) scale(.72); }
+    93%, 98% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-3px) scale(.88); }
+  }
+  @keyframes lc3d-phase-one { 0%, 18% { color: #fff !important; border-color: #7eeeff; background: rgba(15, 151, 187, .72); box-shadow: 0 0 18px rgba(83, 225, 255, .65); transform: scale(1.08); } 23%, 100% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } }
+  @keyframes lc3d-phase-two { 0%, 18% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } 23%, 34% { color: #fff !important; border-color: #7eeeff; background: rgba(15, 151, 187, .72); box-shadow: 0 0 18px rgba(83, 225, 255, .65); transform: scale(1.08); } 39%, 100% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } }
+  @keyframes lc3d-phase-three { 0%, 34% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } 39%, 56% { color: #fff !important; border-color: #7eeeff; background: rgba(15, 151, 187, .72); box-shadow: 0 0 18px rgba(83, 225, 255, .65); transform: scale(1.08); } 61%, 100% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } }
+  @keyframes lc3d-phase-four { 0%, 56% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } 61%, 72% { color: #fff !important; border-color: #7eeeff; background: rgba(15, 151, 187, .72); box-shadow: 0 0 18px rgba(83, 225, 255, .65); transform: scale(1.08); } 77%, 100% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } }
+  @keyframes lc3d-phase-five { 0%, 78% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } 84%, 98% { color: #fff !important; border-color: #8af2be; background: rgba(16, 157, 104, .76); box-shadow: 0 0 18px rgba(91, 231, 156, .6); transform: scale(1.08); } 100% { color: rgba(180, 240, 255, .55) !important; border-color: rgba(131, 231, 255, .34); background: rgba(3, 21, 41, .68); box-shadow: 0 0 0 3px rgba(3, 20, 38, .52); transform: scale(1); } }
+  .lapclean-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 14px 28px rgba(3, 14, 26, 0.45));
+  }
+
+  /* SVG Motion Graphics Elements (13-second loop) */
+  .lc-screen-display {
+    animation: lc-screen-glow-fx 13s ease-in-out infinite;
+  }
+  .lc-bottom-cover {
+    transform-origin: center bottom;
+    animation: lc-cover-explode 13s cubic-bezier(0.3, 0.05, 0.2, 1) infinite;
+  }
+  .lc-scanner-line {
+    animation: lc-scan-sweep 13s ease-in-out infinite;
+  }
+  .lc-dust-particles {
+    animation: lc-dust-blow 13s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+  }
+  .lc-fan-blades {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: lc-fans-spin 13s linear infinite;
+  }
+  .lc-thermal-die {
+    animation: lc-thermal-compound-fx 13s ease-in-out infinite;
+  }
+  .lc-fin-block {
+    animation: lc-fins-contrast 13s ease-in-out infinite;
+  }
+  .lc-air-stream {
+    stroke-dasharray: 30 60;
+    stroke-dashoffset: 90;
+    animation: lc-airflow-run 13s linear infinite;
+  }
+  .lc-air-stream--2 { animation-delay: 90ms; }
+  .lc-air-stream--3 { animation-delay: 180ms; }
+  .lc-air-stream--4 { animation-delay: 120ms; }
+
+  .lc-sheen-rect {
+    animation: lc-sheen-sweep-fx 13s ease-in-out infinite;
+  }
+  .lc-sparkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: lc-sparkle-fx 13s ease-in-out infinite;
+  }
+  .lc-sparkle--2 { animation-delay: 140ms; }
+  .lc-success-badge {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: lc-check-pop-fx 13s cubic-bezier(0.18, 0.9, 0.32, 1.25) infinite;
+  }
+
+  /* 8-Stage Keyframes Definitions */
+  @keyframes lc-screen-glow-fx {
+    0%, 40% { opacity: 0.65; }
+    50%, 94% { opacity: 0.95; }
+    98%, 100% { opacity: 0.65; }
+  }
+
+  /* Exploded View (15% - 30% lifts up, 76% - 87% fits back down) */
+  @keyframes lc-cover-explode {
+    0%, 14% { transform: translateY(0) scale(1); opacity: 0.95; }
+    22%, 74% { transform: translateY(58px) scale(0.92); opacity: 0.15; }
+    82%, 100% { transform: translateY(0) scale(1); opacity: 0.95; }
+  }
+
+  /* Diagnostic Scanner Line (30% - 40%) */
+  @keyframes lc-scan-sweep {
+    0%, 29% { opacity: 0; transform: translateY(-30px); }
+    31% { opacity: 0.95; }
+    38% { opacity: 0.95; transform: translateY(40px); }
+    40%, 100% { opacity: 0; transform: translateY(45px); }
+  }
+
+  /* Dust Particles Cleared (40% - 65%) */
+  @keyframes lc-dust-blow {
+    0%, 39% { opacity: 0.95; transform: translate(0, 0) scale(1); }
+    48% { opacity: 0.8; transform: translate(16px, -18px) scale(0.85); }
+    58% { opacity: 0.3; transform: translate(42px, -36px) scale(0.45); }
+    64%, 100% { opacity: 0; transform: translate(60px, -50px) scale(0); }
+  }
+
+  /* Fans Rotation */
+  @keyframes lc-fans-spin {
+    0%, 38% { transform: rotate(0deg); }
+    42% { transform: rotate(180deg); }
+    65% { transform: rotate(2520deg); }
+    88%, 94% { transform: rotate(3240deg); }
+    98%, 100% { transform: rotate(3420deg); }
+  }
+
+  /* Thermal Compound Color Shift (65% - 76%) */
+  @keyframes lc-thermal-compound-fx {
+    0%, 62% { stroke: #f59e0b; fill: #0b375b; }
+    66%, 74% { stroke: #10b981; fill: #064e3b; }
+    78%, 94% { stroke: #22d3ee; fill: #07355c; }
+    98%, 100% { stroke: #f59e0b; fill: #0b375b; }
+  }
+
+  /* Heatsink Fin Contrast */
+  @keyframes lc-fins-contrast {
+    0%, 40% { stroke: #f59e0b; }
+    55%, 94% { stroke: #38bdf8; }
+    98%, 100% { stroke: #f59e0b; }
+  }
+
+  /* Airflow Streams */
+  @keyframes lc-airflow-run {
+    0%, 41% { opacity: 0; stroke-dashoffset: 90; }
+    46% { opacity: 0.95; }
+    82% { opacity: 0.95; stroke-dashoffset: -90; }
+    88%, 100% { opacity: 0; stroke-dashoffset: -120; }
+  }
+
+  /* Sheen Sweep across Laptop (94% - 100%) */
+  @keyframes lc-sheen-sweep-fx {
+    0%, 93% { opacity: 0; transform: translateX(-180px) skewX(-20deg); }
+    95% { opacity: 0.8; }
+    98% { opacity: 0.8; transform: translateX(180px) skewX(-20deg); }
+    100% { opacity: 0; transform: translateX(200px) skewX(-20deg); }
+  }
+
+  /* Corner Sparkles */
+  @keyframes lc-sparkle-fx {
+    0%, 93% { opacity: 0; transform: scale(0.2); }
+    95%, 98% { opacity: 1; transform: scale(1.3) rotate(15deg); }
+    100% { opacity: 0; transform: scale(0.2); }
+  }
+
+  /* Success Ready Check Badge Pop */
+  @keyframes lc-check-pop-fx {
+    0%, 93% { opacity: 0; transform: translateY(8px) scale(0.4); }
+    95% { opacity: 1; transform: translateY(-3px) scale(1.15); }
+    97%, 99% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-3px) scale(0.85); }
+  }
+
+  /* 5-Step Process Timeline Container */
+  .service-process {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin: 4px 0 0;
+    padding: 14px 10px 12px;
+    list-style: none;
+    background: rgba(6, 26, 48, 0.65);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  .service-process::before {
+    position: absolute;
+    top: 22px;
+    left: 36px;
+    right: 36px;
+    height: 3px;
+    content: '';
+    background: rgba(14, 61, 102, 0.85);
+    border-radius: 2px;
+    z-index: 1;
+  }
+
+  .service-process::after {
+    position: absolute;
+    top: 22px;
+    left: 36px;
+    right: 36px;
+    height: 3px;
+    content: '';
+    background: linear-gradient(90deg, #38bdf8, #22d3ee, #10b981);
+    border-radius: 2px;
+    z-index: 1;
+    transform-origin: left;
+    animation: lc-line-progress 13s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .process-step {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 2px;
+    opacity: 0.55;
+    transform: translateY(2px);
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+
+  .process-step__indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+
+  .process-step__dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #092644;
+    border: 2.5px solid #1a517e;
+    box-shadow: 0 0 0 3px rgba(6, 26, 48, 0.9);
+    transition: background 250ms ease, border-color 250ms ease;
+  }
+
+  .process-step__num {
+    color: #7dd3fc;
+    font-family: monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+  }
+
+  .process-step__info {
+    min-width: 0;
+    width: 100%;
+  }
+  .process-step__info strong {
+    display: block;
+    color: #ffffff;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 800;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .process-step__info p {
+    margin: 2px 0 0;
+    color: #cbe9f4;
+    font-size: 0.66rem;
+    line-height: 1.25;
+  }
+
+  /* Timeline Sync Keyframes */
+  @keyframes lc-line-progress {
+    0%, 14% { transform: scaleX(0); }
+    15%, 38% { transform: scaleX(0.25); }
+    40%, 64% { transform: scaleX(0.5); }
+    65%, 86% { transform: scaleX(0.75); }
+    88%, 96% { transform: scaleX(1); }
+    98%, 100% { transform: scaleX(0); }
+  }
+
+  .process-step--1 { animation: lc-step1-sync 13s ease-in-out infinite; }
+  .process-step--2 { animation: lc-step2-sync 13s ease-in-out infinite; }
+  .process-step--3 { animation: lc-step3-sync 13s ease-in-out infinite; }
+  .process-step--4 { animation: lc-step4-sync 13s ease-in-out infinite; }
+  .process-step--5 { animation: lc-step5-sync 13s ease-in-out infinite; }
+
+  @keyframes lc-step1-sync {
+    0%, 14% { opacity: 1; transform: translateY(0); }
+    16%, 96% { opacity: 0.55; transform: translateY(2px); }
+    98%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes lc-step2-sync {
+    0%, 14% { opacity: 0.55; transform: translateY(2px); }
+    16%, 38% { opacity: 1; transform: translateY(0); }
+    40%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes lc-step3-sync {
+    0%, 38% { opacity: 0.55; transform: translateY(2px); }
+    40%, 64% { opacity: 1; transform: translateY(0); }
+    66%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes lc-step4-sync {
+    0%, 64% { opacity: 0.55; transform: translateY(2px); }
+    66%, 86% { opacity: 1; transform: translateY(0); }
+    88%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+  @keyframes lc-step5-sync {
+    0%, 86% { opacity: 0.55; transform: translateY(2px); }
+    88%, 96% { opacity: 1; transform: translateY(0); }
+    98%, 100% { opacity: 0.55; transform: translateY(2px); }
+  }
+
+  /* ==================== COMMON SECTION STYLES ==================== */
+  .lapclean-section {
+    padding: clamp(52px, 7vw, 84px) 0;
+  }
+  .lapclean-section--alt {
+    background: #f1f5f9;
+  }
+
+  .lapclean-heading {
+    max-width: 780px;
+    margin-bottom: 34px;
+  }
+  .lapclean-heading--light h2,
+  .lapclean-heading--light p {
+    color: #ffffff !important;
+  }
+
+  .lapclean-kicker {
+    display: inline-block;
+    color: #0284c7;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .lapclean-kicker--cyan {
+    color: #38bdf8 !important;
+  }
+
+  .lapclean-heading h2 {
+    margin: 0 0 12px;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  .lapclean-heading p {
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.62;
+    color: #1e3a5f;
+  }
+
+  /* Grids */
+  .lapclean-grid-four {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .lapclean-grid-three {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .lapclean-grid-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* Cards */
+  .lapclean-card {
+    padding: 24px 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.04);
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .lapclean-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(7, 31, 58, 0.08);
+    border-color: #94a3b8;
+  }
+  .lapclean-card__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  .lapclean-card__icon--warn {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .lapclean-card__icon--alert {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  .lapclean-card__icon--fire {
+    background: #ffedd5;
+    color: #ea580c;
+  }
+
+  .lapclean-card h3 {
+    margin: 0 0 8px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.12rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+  .lapclean-card p {
+    margin: 0 0 12px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #1e3a5f;
+  }
+  .lapclean-card h4 {
+    margin: 12px 0 4px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0369a1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .lapclean-card__sub {
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
+    color: #475569 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .lapclean-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7;
+    font-weight: 800;
+    font-size: 0.88rem;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  .lapclean-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Process Step Cards (Grid of 7) */
+  .lapclean-process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .lapclean-step-card {
+    position: relative;
+    padding: 22px 18px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+  }
+  .lapclean-step-card__num {
+    display: inline-block;
+    color: #0284c7;
+    font-family: monospace;
+    font-size: 0.84rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .lapclean-step-card h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .lapclean-step-card p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  /* Real Photo Section (Split Layout) */
+  .lapclean-split {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+  }
+  .lapclean-split__copy h2 {
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 900;
+    margin: 0 0 14px;
+    line-height: 1.15;
+  }
+  .lapclean-split__copy p {
+    margin: 0 0 14px;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: #1e3a5f;
+  }
+  .lapclean-feature-points {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .lapclean-feature-points div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .lapclean-feature-points i {
+    color: #0284c7;
+  }
+
+  .lapclean-split__media {
+    margin: 0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 14px 34px rgba(7, 31, 58, 0.08);
+  }
+  .lapclean-split__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  .lapclean-split__media figcaption {
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #071F3A;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+  }
+  .lapclean-split__media figcaption i {
+    color: #0284c7;
+    margin-right: 4px;
+  }
+
+  /* Gamer Brand Cards */
+  .lapclean-brand-card {
+    padding: 22px 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+  }
+  .lapclean-brand-card h3 {
+    margin: 0 0 8px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #071F3A;
+  }
+  .lapclean-brand-card p {
+    margin: 0 0 10px;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: #1e3a5f;
+  }
+  .lapclean-brand-card h4 {
+    margin: 10px 0 3px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #0284c7;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Pricing Factors */
+  .lapclean-pricing-factor {
+    padding: 20px 18px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .lapclean-pricing-factor i {
+    font-size: 1.8rem;
+    color: #0284c7;
+    margin-bottom: 12px;
+  }
+  .lapclean-pricing-factor h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 800;
+  }
+  .lapclean-pricing-factor p {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  .lapclean-cta-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-top: 28px;
+    padding: 24px 28px;
+    border-radius: 14px;
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+  }
+  .lapclean-cta-box__text h3 {
+    margin: 0 0 4px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+  .lapclean-cta-box__text p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #0369a1;
+  }
+
+  /* ==================== SHIPPING / PAQUETERÍA SECTION ==================== */
+  .lapclean-section--shipping {
+    background-color: #071F3A !important;
+    color: #ffffff;
+  }
+  .lapclean-section--shipping h3,
+  .lapclean-section--shipping p,
+  .lapclean-section--shipping span {
+    color: #ffffff;
+  }
+
+  .lapclean-shipping-visual-shell {
+    width: 100%;
+    margin-bottom: 30px;
+    padding: 16px 20px;
+    background: rgba(6, 26, 48, 0.65);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 16px;
+  }
+  .lapclean-shipping-figure {
+    width: 100%;
+    margin: 0;
+  }
+  .lapclean-shipping-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .lc-ship-path-active {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: lc-shipping-route 12s ease-in-out infinite;
+  }
+  .lc-ship-courier {
+    animation: lc-shipping-courier-travel 12s cubic-bezier(0.3, 0.05, 0.2, 1) infinite;
+  }
+
+  @keyframes lc-shipping-route {
+    0%, 10% { stroke-dashoffset: 200; opacity: 0.2; }
+    25%, 85% { stroke-dashoffset: 0; opacity: 1; }
+    95%, 100% { stroke-dashoffset: -200; opacity: 0.2; }
+  }
+  @keyframes lc-shipping-courier-travel {
+    0%, 10% { transform: translate(60px, 90px); }
+    40%, 80% { transform: translate(460px, 90px); }
+    95%, 100% { transform: translate(660px, 90px); }
+  }
+
+  .lapclean-card--dark {
+    background: rgba(14, 45, 75, 0.65);
+    border-color: rgba(56, 189, 248, 0.22);
+  }
+  .lapclean-card--dark:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+  .lapclean-card__icon--cyan {
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+  }
+  .lapclean-card--dark p {
+    color: #dbeafe !important;
+  }
+
+  .lapclean-shipping-notes {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 26px 0 0;
+    padding: 16px 20px;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #e0f2fe !important;
+  }
+  .lapclean-shipping-notes i {
+    color: #38bdf8;
+    margin-top: 3px;
+    font-size: 1.1rem;
+  }
+
+  /* 8-Step Shipping Timeline */
+  .lapclean-shipping-timeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .lapclean-timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+  }
+  .lapclean-timeline-item__num {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-family: monospace;
+    font-size: 0.82rem;
+    font-weight: 900;
+  }
+  .lapclean-timeline-item h3 {
+    margin: 0 0 4px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 800;
+  }
+  .lapclean-timeline-item p {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #334155;
+  }
+
+  .lapclean-shipping-disclaimer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #0369a1 !important;
+    background: #e0f2fe;
+    padding: 12px 18px;
+    border-radius: 10px;
+  }
+
+  /* Packaging Tips */
+  .lapclean-tip-card {
+    position: relative;
+    padding: 22px 20px 20px 58px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+  }
+  .lapclean-tip-card__badge {
+    position: absolute;
+    top: 20px;
+    left: 18px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff;
+    font-family: monospace;
+    font-size: 0.84rem;
+    font-weight: 900;
+  }
+  .lapclean-tip-card h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .lapclean-tip-card p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  /* Zone Boxes */
+  .lapclean-zone-box {
+    padding: 26px 24px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+  }
+  .lapclean-zone-box h3 {
+    margin: 0 0 10px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+  .lapclean-zone-list {
+    margin: 14px 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .lapclean-zone-list li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .lapclean-zone-list i {
+    color: #0284c7;
+  }
+  .lapclean-zone-meta {
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  /* English Support Box */
+  .lapclean-section--english {
+    padding: 30px 0;
+    background: #092543;
+  }
+  .lapclean-english-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 30px;
+    background: rgba(14, 45, 75, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 16px;
+  }
+  .lapclean-english-box h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffffff !important;
+  }
+  .lapclean-english-box p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #dbeafe !important;
+  }
+
+  /* Cross Linking Grid */
+  .lapclean-related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .lapclean-related-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .lapclean-related-card:hover {
+    transform: translateY(-2px);
+    border-color: #0284c7;
+    box-shadow: 0 10px 22px rgba(7, 31, 58, 0.06);
+  }
+  .lapclean-related-card i {
+    font-size: 1.4rem;
+    color: #0284c7;
+    margin-top: 2px;
+  }
+  .lapclean-related-card h3 {
+    margin: 0 0 4px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #071F3A;
+  }
+  .lapclean-related-card p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #475569;
+  }
+  .lapclean-related-arrow {
+    margin-left: auto;
+    color: #94a3b8;
+  }
+  .lapclean-related-card:hover .lapclean-related-arrow {
+    color: #0284c7;
+  }
+
+  /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+  @media (max-width: 1080px) {
+    .lapclean-grid-four { grid-template-columns: repeat(2, 1fr); }
+    .lapclean-shipping-timeline { grid-template-columns: repeat(2, 1fr); }
+    .lapclean-related-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 860px) {
+    .lapclean-hero__grid,
+    .lapclean-split,
+    .lapclean-grid-two,
+    .lapclean-english-box { grid-template-columns: 1fr; }
+    .lapclean-grid-three { grid-template-columns: repeat(2, 1fr); }
+    .lapclean-hero__copy { max-width: 100%; }
+    .lapclean-hero__visual-container { max-width: 520px; }
+    .lapclean-cta-box { flex-direction: column; align-items: flex-start; }
+    .lapclean-english-box { flex-direction: column; align-items: flex-start; }
+  }
+
+  @media (max-width: 768px) {
+    /* Switch Timeline to Vertical on Mobile */
+    .service-process {
+      grid-template-columns: 1fr;
+      gap: 11px;
+      padding: 14px 14px 12px;
+    }
+    .service-process::before {
+      top: 18px;
+      bottom: 18px;
+      left: 17px;
+      right: auto;
+      width: 3px;
+      height: auto;
+    }
+    .service-process::after {
+      top: 18px;
+      bottom: 18px;
+      left: 17px;
+      right: auto;
+      width: 3px;
+      height: auto;
+      transform-origin: top;
+      animation: lc-line-progress-vert 13s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .process-step {
+      flex-direction: row;
+      align-items: flex-start;
+      text-align: left;
+      gap: 12px;
+      transform: translateX(0);
+    }
+    .process-step__indicator {
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    .process-step__dot {
+      margin-top: 3px;
+    }
+    .process-step__num {
+      min-width: 18px;
+      margin-top: 1px;
+    }
+    .process-step__info strong {
+      font-size: 0.86rem;
+    }
+    .process-step__info p {
+      font-size: 0.74rem;
+    }
+
+    @keyframes lc-line-progress-vert {
+      0%, 14% { transform: scaleY(0); }
+      15%, 38% { transform: scaleY(0.25); }
+      40%, 64% { transform: scaleY(0.5); }
+      65%, 86% { transform: scaleY(0.75); }
+      88%, 96% { transform: scaleY(1); }
+      98%, 100% { transform: scaleY(0); }
+    }
+  }
+
+  @media (max-width: 640px) {
+    .lapclean-hero { padding-top: 40px; }
+    .lapclean-hero h1 { font-size: clamp(2rem, 7.5vw, 2.6rem); }
+    .lapclean-hero__actions { flex-direction: column; }
+    .lapclean-btn { width: 100%; }
+    .lapclean-hero__visual-container { max-width: 100%; }
+    .lapclean-grid-four,
+    .lapclean-grid-three,
+    .lapclean-shipping-timeline,
+    .lapclean-related-grid { grid-template-columns: 1fr; }
+    .lapclean-tip-card { padding-left: 20px; padding-top: 54px; }
+    .lapclean-tip-card__badge { top: 16px; left: 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lapclean-visual * { animation: none !important; }
+    .lapclean-3d-stage__art { transform: scale(1.02); }
+    .lc3d-scan,
+    .lc3d-thermal-pulse,
+    .lc3d-airflow,
+    .lc3d-dust { opacity: 0; }
+    .lc3d-ready { opacity: 1; transform: none; }
+    .lc-bottom-cover { opacity: 0.95; transform: none; }
+    .lc-scanner-line { opacity: 0; }
+    .lc-dust-particles { opacity: 0; }
+    .lc-success-badge { opacity: 1; transform: none; }
+    .service-process::after { transform: none !important; animation: none !important; }
+    .process-step { opacity: 1 !important; transform: none !important; animation: none !important; }
+    .lapclean-btn,
+    .lapclean-card,
+    .lapclean-related-card { transition: none; }
+  }
 </style>

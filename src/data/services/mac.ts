@@ -12,19 +12,19 @@ const macModels = [
 ];
 
 const macProcess = [
-  { title: 'Recepcion y modelo', desc: 'Registramos modelo exacto, serie, sintomas, cargador, golpes, liquidos y reparaciones previas.' },
-  { title: 'Diagnostico por modulo', desc: 'Revisamos energia, bateria, pantalla, teclado, puertos, temperatura, almacenamiento, macOS y placa.' },
-  { title: 'Cotizacion clara', desc: 'Te explicamos causa probable, refaccion, tiempo, garantia y si conviene reparar antes de invertir.' },
-  { title: 'Reparacion controlada', desc: 'Trabajamos con herramienta adecuada, cuidado antiestatico, limpieza y pruebas por funcion.' },
+  { title: 'Recepción y modelo', desc: 'Registramos modelo exacto, serie, síntomas, cargador, golpes, líquidos y reparaciones previas.' },
+  { title: 'Diagnóstico por módulo', desc: 'Revisamos energía, batería, pantalla, teclado, puertos, temperatura, almacenamiento, macOS y placa.' },
+  { title: 'Cotización clara', desc: 'Te explicamos causa probable, refacción, tiempo, garantía y si conviene reparar antes de invertir.' },
+  { title: 'Reparación controlada', desc: 'Trabajamos con herramienta adecuada, cuidado antiestático, limpieza y pruebas por función.' },
   { title: 'Pruebas y entrega', desc: 'Validamos encendido, carga, temperatura, rendimiento, pantalla, teclado, puertos y estabilidad antes de cerrar el ticket.' },
 ];
 
 const macFaqs = (topic: string) => [
-  { question: `Reparan ${topic} en Cancun?`, answer: `Si. Revisamos MacBook, iMac y Mac mini por modelo exacto, sintoma y disponibilidad de piezas antes de cotizar.` },
-  { question: 'Pueden reparar Mac con chip M1, M2 o M3?', answer: 'Si podemos diagnosticar, dar mantenimiento, resolver macOS, pantalla, bateria, teclado y fallas compatibles. Algunas piezas vienen integradas a placa y se cotizan por alcance real.' },
-  { question: 'Mis archivos se borran durante la reparacion?', answer: 'No deberia ocurrir en reparaciones fisicas normales. Si hay riesgo de disco, SSD o sistema, priorizamos respaldo o recuperacion antes de formatear.' },
-  { question: 'Cuanto tarda una reparacion de Mac?', answer: 'Depende de la falla y disponibilidad de refaccion. Diagnosticos y mantenimientos comunes pueden tomar 24 a 72 horas; piezas especiales pueden requerir mas tiempo.' },
-  { question: 'Dan garantia?', answer: 'Si, entregamos garantia por escrito sobre la reparacion o pieza instalada cuando aplica, segun condicion del equipo.' },
+  { question: `¿Reparan ${topic} en Cancún?`, answer: `Sí. Revisamos MacBook, iMac y Mac mini por modelo exacto, síntoma y disponibilidad de piezas antes de cotizar.` },
+  { question: '¿Pueden reparar Mac con chip M1, M2 o M3?', answer: 'Sí podemos diagnosticar, dar mantenimiento, resolver macOS, pantalla, batería, teclado y fallas compatibles. Algunas piezas vienen integradas a placa y se cotizan por alcance real.' },
+  { question: '¿Mis archivos se borran durante la reparación?', answer: 'No debería ocurrir en reparaciones físicas normales. Si hay riesgo de disco, SSD o sistema, priorizamos respaldo o recuperación antes de formatear.' },
+  { question: '¿Cuánto tarda una reparación de Mac?', answer: 'Depende de la falla y disponibilidad de refacción. Diagnósticos y mantenimientos comunes pueden tomar 24 a 72 horas; piezas especiales pueden requerir más tiempo.' },
+  { question: '¿Dan garantía?', answer: 'Sí, entregamos garantía por escrito sobre la reparación o pieza instalada cuando aplica, según condición del equipo.' },
 ];
 
 const macService = ({
@@ -52,21 +52,21 @@ const macService = ({
   label,
   seoKeyword: keyword,
   hook,
-  intro: `${label} en Cancun para MacBook, iMac y Mac mini con diagnostico tecnico, cotizacion clara, pruebas reales y garantia por escrito cuando aplica.`,
+  intro: `${label} en Cancún para MacBook, iMac y Mac mini con diagnóstico técnico, cotización clara, pruebas reales y garantía por escrito cuando aplica.`,
   bullets: [
-    'Diagnostico por modelo exacto',
-    'Revision de energia, pantalla, bateria, teclado, temperatura y macOS',
-    'Cotizacion antes de cambiar piezas',
-    'Servicio local en Cancun con ticket y seguimiento',
+    'Diagnóstico por modelo exacto',
+    'Revisión de energía, pantalla, batería, teclado, temperatura y macOS',
+    'Cotización antes de cambiar piezas',
+    'Servicio local en Cancún con ticket y seguimiento',
   ],
   fromPrice,
   eta,
-  warranty: 'Garantia por escrito segun reparacion',
+  warranty: 'Garantía por escrito según reparación',
   whyUs: [
-    { icon: 'fa-magnifying-glass', title: 'Modelo exacto', desc: 'Validamos generacion, numero de parte y compatibilidad antes de prometer una refaccion.' },
-    { icon: 'fa-microchip', title: 'Hardware y macOS', desc: 'Separamos fallas de sistema, almacenamiento, bateria, carga, pantalla, temperatura y placa.' },
+    { icon: 'fa-magnifying-glass', title: 'Modelo exacto', desc: 'Validamos generación, número de parte y compatibilidad antes de prometer una refacción.' },
+    { icon: 'fa-microchip', title: 'Hardware y macOS', desc: 'Separamos fallas de sistema, almacenamiento, batería, carga, pantalla, temperatura y placa.' },
     { icon: 'fa-file-shield', title: 'Datos primero', desc: 'Si hay riesgo de SSD o sistema, recomendamos respaldo antes de formatear o reinstalar.' },
-    { icon: 'fa-location-dot', title: 'Cancun local', desc: 'Atendemos Centro, Zona Hotelera, Huayacan, Cumbres, Bonampak, Puerto Cancun y alrededores.' },
+    { icon: 'fa-location-dot', title: 'Cancún local', desc: 'Atendemos Centro, Zona Hotelera, Huayacán, Cumbres, Bonampak, Puerto Cancún y alrededores.' },
   ],
   process: macProcess,
   commonProblems: problems,

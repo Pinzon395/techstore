@@ -1,11 +1,11 @@
 import type { ServiceCategory, ServiceItem } from './types';
 
 const networkFaqs = (topic: string) => [
-  { question: `Atienden ${topic} en Cancun?`, answer: `Si. Revisamos ${topic} para casas, oficinas, hoteles pequenos, restaurantes, agencias y negocios en Cancun. Primero ubicamos donde falla la senal, que proveedor usas y cuantos equipos se conectan.` },
-  { question: 'Pueden ir a sitio?', answer: 'Si. Las fallas de WiFi, cableado y red normalmente requieren visita para medir cobertura, revisar router, repetidores, switches, impresoras y ubicacion real de los equipos.' },
-  { question: 'Tambien configuran impresoras, camaras o equipos conectados?', answer: 'Si. Podemos integrar impresoras de red, PCs, laptops, celulares, camaras IP y dispositivos conectados cuando la red lo permite. Si hace falta equipo adicional, te lo decimos antes de comprar.' },
-  { question: 'Dejan reporte o recomendaciones?', answer: 'Si. Podemos dejar diagnostico, cambios realizados, claves entregadas al responsable, recomendaciones de seguridad y mejoras sugeridas para estabilidad o cobertura.' },
-  { question: 'Que zonas cubren?', answer: 'Atendemos Cancun Centro, Zona Hotelera, Avenida Tulum, Bonampak, Puerto Cancun, Cumbres, Huayacan, Bonfil, Aeropuerto, Parque Industrial y otras zonas de Quintana Roo.' },
+  { question: `¿Atienden ${topic} en Cancún?`, answer: `Sí. Revisamos ${topic} para casas, oficinas, hoteles pequeños, restaurantes, agencias y negocios en Cancún. Primero ubicamos dónde falla la señal, qué proveedor usas y cuántos equipos se conectan.` },
+  { question: '¿Pueden ir a sitio?', answer: 'Sí. Las fallas de WiFi, cableado y red normalmente requieren visita para medir cobertura, revisar router, repetidores, switches, impresoras y ubicación real de los equipos.' },
+  { question: '¿También configuran impresoras, cámaras o equipos conectados?', answer: 'Sí. Podemos integrar impresoras de red, PCs, laptops, celulares, cámaras IP y dispositivos conectados cuando la red lo permite. Si hace falta equipo adicional, te lo decimos antes de comprar.' },
+  { question: '¿Dejan reporte o recomendaciones?', answer: 'Sí. Podemos dejar diagnóstico, cambios realizados, claves entregadas al responsable, recomendaciones de seguridad y mejoras sugeridas para estabilidad o cobertura.' },
+  { question: '¿Qué zonas cubren?', answer: 'Atendemos Cancún Centro, Zona Hotelera, Avenida Tulum, Bonampak, Puerto Cancún, Cumbres, Huayacán, Bonfil, Aeropuerto, Parque Industrial y otras zonas de Quintana Roo.' },
 ];
 
 const networkService = ({
@@ -29,23 +29,23 @@ const networkService = ({
   label,
   seoKeyword: keyword,
   hook,
-  intro: `${label} en Cancun para resolver WiFi lento, internet inestable, red de oficina, router, modem, repetidores Mesh, cableado Ethernet, switches, impresoras en red y equipos conectados.`,
-  bullets: ['Diagnostico de red en sitio', 'Router, modem, WiFi, cableado, switches e impresoras', 'Configuracion estable para casas y negocios', 'Reporte y recomendaciones de mejora'],
+  intro: `${label} en Cancún para resolver WiFi lento, internet inestable, red de oficina, router, módem, repetidores Mesh, cableado Ethernet, switches, impresoras en red y equipos conectados.`,
+  bullets: ['Diagnóstico de red en sitio', 'Router, módem, WiFi, cableado, switches e impresoras', 'Configuración estable para casas y negocios', 'Reporte y recomendaciones de mejora'],
   fromPrice: '$650 MXN',
-  eta: 'Segun visita',
-  warranty: 'Garantia por configuracion realizada',
+  eta: 'Según visita',
+  warranty: 'Garantía por configuración realizada',
   whyUs: [
-    { icon: 'fa-wifi', title: 'Cobertura real', desc: 'Revisamos ubicacion, muros, interferencia, saturacion, distancia y cantidad de equipos conectados.' },
-    { icon: 'fa-network-wired', title: 'Red completa', desc: 'Diagnosticamos router, switches, cableado, IP, impresoras, PCs, laptops y dispositivos moviles.' },
-    { icon: 'fa-lock', title: 'Seguridad basica', desc: 'Podemos ordenar claves, red de invitados, nombres WiFi, acceso a equipos e impresoras compartidas.' },
-    { icon: 'fa-map-location-dot', title: 'Cancun local', desc: 'Cobertura en Centro, Zona Hotelera, Huayacan, Cumbres, Bonampak, Aeropuerto, Puerto Cancun y mas.' },
+    { icon: 'fa-wifi', title: 'Cobertura real', desc: 'Revisamos ubicación, muros, interferencia, saturación, distancia y cantidad de equipos conectados.' },
+    { icon: 'fa-network-wired', title: 'Red completa', desc: 'Diagnosticamos router, switches, cableado, IP, impresoras, PCs, laptops y dispositivos móviles.' },
+    { icon: 'fa-lock', title: 'Seguridad básica', desc: 'Podemos ordenar claves, red de invitados, nombres WiFi, acceso a equipos e impresoras compartidas.' },
+    { icon: 'fa-map-location-dot', title: 'Cancún local', desc: 'Cobertura en Centro, Zona Hotelera, Huayacán, Cumbres, Bonampak, Aeropuerto, Puerto Cancún y más.' },
   ],
   process: [
-    { title: 'Levantamiento', desc: 'Identificamos modem, router, repetidores, switches, impresoras, usuarios, proveedor y zonas con falla.' },
-    { title: 'Diagnostico de red', desc: 'Probamos cobertura, velocidad, cableado, IP, DNS, puertos, saturacion, interferencia y equipos conectados.' },
-    { title: 'Solucion propuesta', desc: 'Definimos si conviene reubicar router, ajustar canales, instalar mesh, ordenar cableado o configurar equipos.' },
-    { title: 'Configuracion segura', desc: 'Ajustamos red, nombres, claves, IP, impresoras, invitados o equipos segun necesidad y autorizacion.' },
-    { title: 'Prueba final', desc: 'Validamos conexion en zonas criticas, dejamos recomendaciones y confirmamos que los equipos principales naveguen o impriman.' },
+    { title: 'Levantamiento', desc: 'Identificamos módem, router, repetidores, switches, impresoras, usuarios, proveedor y zonas con falla.' },
+    { title: 'Diagnóstico de red', desc: 'Probamos cobertura, velocidad, cableado, IP, DNS, puertos, saturación, interferencia y equipos conectados.' },
+    { title: 'Solución propuesta', desc: 'Definimos si conviene reubicar router, ajustar canales, instalar mesh, ordenar cableado o configurar equipos.' },
+    { title: 'Configuración segura', desc: 'Ajustamos red, nombres, claves, IP, impresoras, invitados o equipos según necesidad y autorización.' },
+    { title: 'Prueba final', desc: 'Validamos conexión en zonas críticas, dejamos recomendaciones y confirmamos que los equipos principales naveguen o impriman.' },
   ],
   commonProblems: problems,
   compatibleBrands: [
@@ -60,7 +60,7 @@ const networkService = ({
     'Linksys',
     'HP/Epson en red',
     'Casas y oficinas',
-    'Restaurantes y hoteles pequenos',
+    'Restaurantes y hoteles pequeños',
   ],
   faqs: networkFaqs(label.toLowerCase()),
   relatedSlugs,

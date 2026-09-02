@@ -79,7 +79,13 @@ Variables principales:
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`: conexion MariaDB.
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`: login con Google.
 - `ADMIN_EMAIL`: email que recibe rol admin al iniciar sesion.
-- `GOOGLE_PLACES_API_KEY`, `GOOGLE_PLACE_ID`: resenas de Google Maps.
+- `GOOGLE_PLACES_API_KEY`, `GOOGLE_PLACE_ID`: reseñas de Google Maps. Activa **Places API (New)** en Google Cloud y deja la clave solo en el servidor. `GOOGLE_PLACE_ID` es recomendable para fijar la ficha exacta, aunque el sitio puede localizar Pixon PC por nombre y dirección cuando queda vacío.
+
+### Reseñas de Google Maps
+
+La página de comentarios muestra reseñas oficiales en el carrusel cuando `GOOGLE_PLACES_API_KEY` está configurada. La clave nunca llega al navegador; el servidor consulta Google, conserva el resultado durante una hora y entrega solo los datos necesarios para la interfaz.
+
+Google Places devuelve hasta cinco reseñas públicas por consulta. Si se requiere sincronizar el historial completo, el propietario de la ficha debe autorizar la aplicación con Google Business Profile API y el alcance `business.manage`; esa API permite listar reseñas paginadas de una ubicación verificada.
 
 ## Login Con Google
 

@@ -2,408 +2,186 @@
 import Base from '../../layouts/Base.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
-import FaqSection from '../../components/FaqSection.astro';
+import { buildBreadcrumbSchema } from '../../lib/schema';
 
-const homeFaqs = [
-  {
-    icon: 'fa-solid fa-motorcycle',
-    question: 'Do you offer pickup and delivery for computer repair in Cancun?',
-    answer: 'Yes. We offer pickup and delivery in Cancun for laptops, PCs, phones, consoles and printers. You can schedule the service by WhatsApp.'
-  },
-  {
-    icon: 'fa-solid fa-user-doctor',
-    question: 'Is the diagnostic free?',
-    answer: 'Yes. The diagnostic is free and without commitment. We inspect the equipment and give you a clear quote before repairing.'
-  },
-  {
-    icon: 'fa-solid fa-shield-halved',
-    question: 'Do repairs include warranty?',
-    answer: 'Yes. Repairs include written warranty according to the type of service and parts used.'
-  },
-  {
-    icon: 'fa-solid fa-clock',
-    question: 'How long does a repair take?',
-    answer: 'Many repairs are completed the same day or within 24 to 48 hours, depending on the fault and parts availability.'
-  },
-  {
-    icon: 'fa-solid fa-language',
-    question: 'Do you speak English?',
-    answer: 'Yes. We can assist English-speaking customers, tourists, expats and digital nomads in Cancun.'
-  }
+const canonical = 'https://pixon.com.mx/en';
+const whatsappMessage = `Hi Pixon PC. I need help with a device while I am in Cancun.
+
+Device:
+Model:
+Problem:
+Hotel / area:
+How urgent is it?:
+I prefer written communication in English.`;
+const whatsappUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappMessage)}`;
+
+const services = [
+  { icon: 'fa-laptop', title: 'Laptop & PC Repair', copy: 'We assess no-power faults, overheating, screens, batteries, storage, RAM, hardware issues, Windows problems and performance concerns before recommending a repair.' },
+  { icon: 'fa-mobile-screen-button', title: 'iPhone & Phone Repair', copy: 'For iPhone and Android devices, we can review screens, batteries, charging ports, cameras, audio and software symptoms. Model and parts availability are confirmed before work is approved.', href: '/en/iphone-battery-replacement', link: 'iPhone battery replacement' },
+  { icon: 'fa-droplet', title: 'Water Damage Repair', copy: 'Liquid exposure needs a careful diagnosis. Do not charge a wet device; message us with the model, what liquid was involved and whether the device still turns on.', href: '/en/liquid-damage', link: 'Water damage phone repair' },
+  { icon: 'fa-gamepad', title: 'Game Console Repair', copy: 'We assess PS5, Xbox, Nintendo Switch and controller issues such as overheating, no power, HDMI faults, cleaning needs and joystick drift.' },
+  { icon: 'fa-apple-whole', title: 'MacBook Repair', copy: 'MacBook diagnostics can cover battery, display, charging, liquid exposure and software concerns. The repair scope depends on the exact model and findings.' },
+  { icon: 'fa-microchip', title: 'Gaming PC Service', copy: 'For gaming computers, we can assess cooling, component upgrades, graphics issues, instability, cleanup and performance troubleshooting.' },
 ];
+
+const communicationSteps = [
+  ['Written quotes in English', 'Send the device model and symptoms on WhatsApp. We explain the findings and quote in writing when the repair path is confirmed.'],
+  ['Repair updates by WhatsApp', 'Updates, questions and availability checks can be handled by message, so you have a written record while you are away from home.'],
+  ['Clear approval before additional work', 'We do not add work beyond the agreed scope without explaining it and asking for written approval first.'],
+  ['Help for hotel and resort guests', 'Share your hotel, condo or office area. We will explain the options that fit the device, distance and current availability.'],
+];
+
+const areaCards = [
+  ['Cancun Hotel Zone', 'For hotel guests and travelers along the Hotel Zone, share the hotel name and your device details so we can confirm the most practical next step.'],
+  ['Costa Mujeres', 'Coordination for Costa Mujeres depends on the case, distance and availability. Written updates make it easier to follow the repair from your resort.'],
+  ['Playa Mujeres', 'Visitors in Playa Mujeres can message their hotel or condo location, device model and problem for a clear written response before arranging service.'],
+  ['Puerto Cancun', 'For Puerto Cancun homes, condos and offices, we can review the request by WhatsApp and confirm whether pickup, delivery or workshop service fits the case.'],
+];
+
+const faqs = [
+  ['Do you provide repair support in English?', 'Yes. Written English support is available for quotes, approvals, questions and repair updates by WhatsApp.'],
+  ['Can you help me if I do not speak Spanish?', 'Yes. Send your device model and the issue by WhatsApp. We can keep the repair communication clear in written English.'],
+  ['Can we communicate entirely through WhatsApp?', 'WhatsApp is the main channel for written English communication, including the device details, quote and repair updates.'],
+  ['Do you send the repair quote in English?', 'When the repair scope is confirmed, we can send the quote and explanation in written English.'],
+  ['Will you ask before performing additional work?', 'Yes. If the diagnosis finds additional work beyond the approved scope, we explain it and request written approval before continuing.'],
+  ['Can you pick up my device from my hotel in Cancun?', 'Pickup coordination may be available depending on the device, hotel area, distance and schedule. A transportation charge can apply; confirm it with us first.'],
+  ['Do you provide service in Cancun Hotel Zone?', 'We can review Hotel Zone requests by WhatsApp and coordinate the available option for the device and location.'],
+  ['Do you serve Costa Mujeres and Playa Mujeres?', 'Message us with the exact hotel or area. We confirm availability, logistics and any transportation charge before arranging a service.'],
+  ['Can you help tourists staying at resorts?', 'Yes. Tourists, business travelers, expats and digital nomads can receive written English support while the repair is being assessed.'],
+  ['Do you repair iPhones?', 'We assess iPhone issues such as batteries, screens, charging, cameras, audio and liquid exposure according to the model and diagnosis.'],
+  ['Do you repair laptops and PCs?', 'Yes. We assess laptop and PC hardware, Windows, overheating, storage, memory, batteries, screens and no-power faults.'],
+  ['Do you repair water-damaged phones?', 'We assess water-damaged phones and explain the findings before quoting. Do not charge the device after liquid exposure.'],
+  ['Do you repair PS5, Xbox and Nintendo Switch?', 'We assess common console and controller issues, including overheating, cleaning, power, HDMI and joystick drift.'],
+  ['How much does a repair cost?', 'The cost depends on the device, model, confirmed fault, required parts and repair scope. Send the details for a written quote after assessment.'],
+  ['How long does a repair take?', 'Timing depends on the diagnosis, parts availability and testing needed. We confirm the estimated timing for your specific case before work begins.'],
+  ['Do repairs include a warranty?', 'Warranty coverage depends on the type of repair and parts used. The applicable written warranty is confirmed with the approved service.'],
+  ['How do I send my device model and problem?', 'Send a WhatsApp message with the device type, exact model, symptoms, photos or video if helpful, your Cancun area and how urgent the case is.'],
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${canonical}#service`,
+    name: 'Computer Repair in Cancun with English Support',
+    serviceType: 'Computer, laptop, phone and console repair',
+    description: 'Computer, laptop, phone and console repair in Cancun with written English support, clear quotes and WhatsApp repair updates.',
+    url: canonical,
+    provider: { '@id': 'https://pixon.com.mx/#business' },
+    areaServed: [
+      { '@type': 'City', name: 'Cancun' }, { '@type': 'Place', name: 'Cancun Hotel Zone' }, { '@type': 'Place', name: 'Costa Mujeres' }, { '@type': 'Place', name: 'Playa Mujeres' }, { '@type': 'Place', name: 'Puerto Cancun' },
+    ],
+  },
+  buildBreadcrumbSchema([{ name: 'Home', url: '/en' }, { name: 'Computer Repair in Cancun', url: canonical }]),
+].filter(Boolean) as object[];
 ---
 
-<Base
-  title="Computer Repair in Cancun — English Spoken | Pixon PC"
-  description="Professional computer, laptop, phone and console repair in Cancun, Mexico. English-speaking technicians. Free diagnostic, written warranty, fast turnaround. Pickup and delivery available across Cancun."
-  canonical="https://pixon.com.mx/en"
-  image="/LOGOCIRCULAR.png"
-  schema={[
-    {
-        "@context": "https://schema.org",
-        "@type": [
-            "LocalBusiness",
-            "ProfessionalService"
-        ],
-        "@id": "https://pixon.com.mx/#business",
-        "name": "Pixon PC",
-        "alternateName": "Pixon PC Cancun",
-        "description": "Private mobile computer repair service in Cancun. Pickup and delivery anywhere in the city — laptop, PC, phone and console repair. English-speaking technicians, written warranty, free diagnostic. Trusted by expats, tourists and digital nomads.",
-        "url": "https://pixon.com.mx/en",
-        "telephone": "+529986690777",
-        "priceRange": "$$",
-        "image": "https://pixon.com.mx/LOGOCIRCULAR.png",
-        "logo": {
-            "@type": "ImageObject",
-            "url": "https://pixon.com.mx/LOGOCIRCULAR.png",
-            "width": 512,
-            "height": 512
-        },
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "Circuito Hacienda Chimay, Fraccionamiento Haciendas Real del Caribe",
-            "addressLocality": "Cancun",
-            "addressRegion": "Quintana Roo",
-            "postalCode": "77539",
-            "addressCountry": "MX"
-        },
-        "geo": {
-            "@type": "GeoCoordinates",
-            "latitude": 21.1375,
-            "longitude": -86.8462
-        },
-        "serviceArea": {
-            "@type": "GeoCircle",
-            "geoMidpoint": {
-                "@type": "GeoCoordinates",
-                "latitude": 21.1375,
-                "longitude": -86.8462
-            },
-            "geoRadius": "25000"
-        },
-        "openingHoursSpecification": [
-            {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": [
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday"
-                ],
-                "opens": "09:00",
-                "closes": "19:00"
-            }
-        ],
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "5.0",
-            "reviewCount": "9",
-            "bestRating": "5",
-            "worstRating": "1"
-        },
-        "review": [
-            {
-                "@type": "Review",
-                "author": {
-                    "@type": "Person",
-                    "name": "Fred Uriostegui"
-                },
-                "datePublished": "2025-05-08",
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": "4.5",
-                    "bestRating": "5",
-                    "worstRating": "1"
-                },
-                "reviewBody": "Muy buen servicio, reparación entregada a tiempo y de forma correcta.",
-                "inLanguage": "es",
-                "publisher": {
-                    "@type": "Organization",
-                    "name": "Facebook"
-                }
-            },
-            {
-                "@type": "Review",
-                "author": {
-                    "@type": "Person",
-                    "name": "Deon Daboy"
-                },
-                "datePublished": "2025-05-15",
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": "5",
-                    "bestRating": "5",
-                    "worstRating": "1"
-                },
-                "reviewBody": "Excelente servicio y comunicación; informa cada detalle con fotos y videos, logrando recuperar una laptop que parecía perdida.",
-                "inLanguage": "es",
-                "publisher": {
-                    "@type": "Organization",
-                    "name": "Facebook"
-                }
-            },
-            {
-                "@type": "Review",
-                "author": {
-                    "@type": "Person",
-                    "name": "Joel Sonda"
-                },
-                "datePublished": "2025-05-22",
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": "4.5",
-                    "bestRating": "5",
-                    "worstRating": "1"
-                },
-                "reviewBody": "Buen servicio con atención especializada; explica problemas claramente y ofrece soluciones según el presupuesto con honestidad.",
-                "inLanguage": "es",
-                "publisher": {
-                    "@type": "Organization",
-                    "name": "Facebook"
-                }
-            }
-        ],
-        "knowsLanguage": [
-            "en",
-            "es"
-        ],
-        "areaServed": [
-            {
-                "@type": "City",
-                "name": "Cancun"
-            },
-            {
-                "@type": "Place",
-                "name": "Hotel Zone Cancun"
-            },
-            {
-                "@type": "Place",
-                "name": "Puerto Morelos"
-            }
-        ],
-        "sameAs": [
-            "https://www.facebook.com/people/Pixon-PC/61556271364935/",
-            "https://www.instagram.com/pixonpc/",
-            "https://www.tiktok.com/@pixonpc",
-            "https://www.youtube.com/@pixonpc"
-        ]
-    },
-    {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-            {
-                "@type": "Question",
-                "name": "Do you speak English?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes! Our technicians speak English. We have served digital nomads, tourists and expats in Cancun for years. Contact us on WhatsApp and we will assist you in English."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Do you offer pickup and delivery in Cancun?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. We pick up and deliver across Cancun including Hotel Zone, Supermanzanas, Polígono Sur, Huayacán and Puerto Morelos. A small fee may apply depending on the area. WhatsApp us to coordinate."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Is the diagnostic free?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, the initial diagnostic is free. We tell you what is wrong and how much the repair costs before doing anything. If you decide not to proceed, you pay nothing."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Will I lose my files?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "No. Standard maintenance never touches your files. If a repair requires formatting, we tell you first and help you back up your data. Your information is our priority."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Do you accept credit cards and provide receipts?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. We accept bank transfer, debit and credit cards. We also issue Mexican electronic invoices (CFDI) for individuals and businesses, ideal for hotels and corporate clients."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "How long does a repair take?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Standard maintenance or cleaning takes 1 to 3 business days. Complex repairs take 3 to 5 days depending on parts. Express 24-hour service is available — contact us via WhatsApp."
-                }
-            }
-        ]
-    }
-]}
-  lang="en"
->
+<Base title="Computer Repair in Cancun | English Support | Pixon PC" description="Computer, laptop, phone and console repair in Cancun with written English support. Clear quotes, WhatsApp updates and hotel pickup coordination." canonical={canonical} lang="en" schema={schema} bodyClass="en-home-page">
   <Navbar lang="en" />
-<!-- ═══ HERO ═══ -->
-    <header style="background:linear-gradient(135deg,#0a0f1e 0%,#0f172a 40%,#1a2d6b 100%); padding:90px 0 70px; text-align:center; color:#fff; position:relative; overflow:hidden;">
-        <div class="container" style="max-width:900px; margin:0 auto; padding:0 20px;">
-            <div style="display:inline-block; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.35); color:#93c5fd; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; margin-bottom:20px;">
-                <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-flag-usa"/></svg> English Spoken — Trusted by expats since 2020
-            </div>
-            <h1 style="font-size:clamp(2rem,5vw,3.4rem); margin:0 0 18px; line-height:1.2; font-weight:800;">
-                Computer Repair in Cancún — <span style="color:#60a5fa;">English Spoken</span>
-            </h1>
-            <p style="font-size:1.15rem; max-width:680px; margin:0 auto 30px; color:#cbd5e1; line-height:1.6;">
-                Laptop, PC, phone and console repair for expats, tourists, and digital nomads in Cancún. Free diagnostic, written warranty, fast turnaround. Pickup &amp; delivery across the city.
-            </p>
-            <div style="display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-bottom:24px;">
-                <a href="https://wa.me/529986690777?text=Hi%20Pixon%20PC%2C%20I%20need%20English-speaking%20repair%20help%20in%20Cancun"
-                    style="background:#25D366; color:#fff; padding:14px 28px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:10px;">
-                    <svg class="fa-icon fa-brands" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-whatsapp"/></svg> Chat on WhatsApp
-                </a>
-                <a href="tel:+529986690777"
-                    style="background:transparent; color:#fff; border:2px solid rgba(255,255,255,0.3); padding:12px 26px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:10px;">
-                    <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-phone"/></svg> +52 998 669 0777
-                </a>
-            </div>
-            <div style="display:flex; flex-wrap:wrap; gap:18px; justify-content:center; color:#cbd5e1; font-size:0.9rem;">
-                <span><svg class="fa-icon" aria-hidden="true" style="color:#60a5fa;"><use href="/assets/icons/sprite.svg#fa-check"/></svg> Free diagnostic</span>
-                <span><svg class="fa-icon" aria-hidden="true" style="color:#60a5fa;"><use href="/assets/icons/sprite.svg#fa-check"/></svg> Written warranty</span>
-                <span><svg class="fa-icon" aria-hidden="true" style="color:#60a5fa;"><use href="/assets/icons/sprite.svg#fa-check"/></svg> CFDI invoicing</span>
-                <span><svg class="fa-icon" aria-hidden="true" style="color:#60a5fa;"><use href="/assets/icons/sprite.svg#fa-check"/></svg> 24h Express available</span>
-            </div>
-        </div>
+  <main>
+    <header class="en-home-hero" aria-labelledby="en-home-title">
+      <div class="en-home-shell en-home-hero__inner">
+        <p class="en-home-eyebrow">Tech repair in Cancun · English support</p>
+        <h1 id="en-home-title">Computer Repair in Cancun with English Support</h1>
+        <p class="en-home-lead">Laptop, PC, phone, iPhone and console repair in Cancun with clear written communication in English. We can coordinate service, pickup or delivery for hotels, condos and offices depending on the case.</p>
+        <div class="en-home-actions"><a class="en-home-btn en-home-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Message us on WhatsApp</a><a class="en-home-btn en-home-btn--secondary" href="#repair-services">View repair services</a></div>
+        <ul class="en-home-trust" aria-label="Service details"><li>Written quotes</li><li>English updates</li><li>Service by appointment</li><li>Pickup coordination</li><li>Clear approval before repair</li></ul>
+      </div>
     </header>
 
-    <!-- ═══ SERVICES ═══ -->
-    <section style="padding:60px 20px; background:#f8fafc;">
-        <div class="container" style="max-width:1100px; margin:0 auto;">
-            <div style="text-align:center; max-width:680px; margin:0 auto 40px;">
-                <h2 style="font-size:clamp(1.6rem,3vw,2.4rem); color:#0f172a; margin:0 0 12px;">What we fix</h2>
-                <p style="color:#475569; font-size:1.05rem; margin:0;">Same trusted service Pixon PC offers in Spanish, delivered in English.</p>
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px;">
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
-                    <div style="width:48px; height:48px; background:rgba(59,130,246,0.1); color:#3b82f6; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;">
-                        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-laptop"/></svg>
-                    </div>
-                    <h3 style="margin:0 0 8px; color:#0f172a; font-size:1.15rem;">Laptop &amp; PC Repair</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">Hardware diagnosis, component replacement, screen repair, virus removal, OS reinstall.</p>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
-                    <div style="width:48px; height:48px; background:rgba(139,92,246,0.1); color:#8b5cf6; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;">
-                        <svg class="fa-icon fa-brands" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-windows"/></svg>
-                    </div>
-                    <h3 style="margin:0 0 8px; color:#0f172a; font-size:1.15rem;">Windows Install &amp; Optimization</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">Clean install, drivers, virus removal, performance tuning. Your PC fast again.</p>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
-                    <div style="width:48px; height:48px; background:rgba(236,72,153,0.1); color:#ec4899; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;">
-                        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-mobile-screen"/></svg>
-                    </div>
-                    <h3 style="margin:0 0 8px; color:#0f172a; font-size:1.15rem;">Phone Repair</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">Screen, battery, charging port, camera. Android &amp; iPhone.</p>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
-                    <div style="width:48px; height:48px; background:rgba(16,185,129,0.1); color:#10b981; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;">
-                        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gamepad"/></svg>
-                    </div>
-                    <h3 style="margin:0 0 8px; color:#0f172a; font-size:1.15rem;">Console Service</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">Deep cleaning and repair for PS5, Xbox, Switch. Joystick drift fixed in-house.</p>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
-                    <div style="width:48px; height:48px; background:rgba(245,158,11,0.1); color:#f59e0b; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;">
-                        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-microchip"/></svg>
-                    </div>
-                    <h3 style="margin:0 0 8px; color:#0f172a; font-size:1.15rem;">Custom Gaming PC Build</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">Builds assembled part-by-part in Cancun, with full hardware warranty.</p>
-                </div>
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
-                    <div style="width:48px; height:48px; background:rgba(14,165,233,0.1); color:#0ea5e9; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;">
-                        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-building"/></svg>
-                    </div>
-                    <h3 style="margin:0 0 8px; color:#0f172a; font-size:1.15rem;">B2B &amp; Hotel Support</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">On-site corporate IT support with CFDI invoicing for hotels and businesses.</p>
-                </div>
-            </div>
-        </div>
+    <section class="en-home-section en-home-section--soft" id="english-support" aria-labelledby="communication-title">
+      <div class="en-home-shell en-home-intro-grid">
+        <div class="en-home-section-copy"><p class="en-home-kicker">Written English support</p><h2 id="communication-title">Clear English communication from quote to delivery</h2><p>You do not need to speak Spanish to understand your repair. We can communicate with you in written English through WhatsApp, explain the diagnosis, send the quote, confirm what you authorize and keep you updated before any additional work is performed.</p><a class="en-home-text-link" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Send your device details in English <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+        <div class="en-home-approval-card"><span>How it works</span><ol><li><strong>1.</strong> You send the model, symptoms and Cancun area.</li><li><strong>2.</strong> We explain the diagnostic path and quote in writing.</li><li><strong>3.</strong> You approve the agreed repair before it begins.</li><li><strong>4.</strong> You receive written updates and delivery coordination.</li></ol></div>
+      </div>
     </section>
 
-    <!-- ═══ WHY US ═══ -->
-    <section style="padding:60px 20px; background:#fff;">
-        <div class="container" style="max-width:1000px; margin:0 auto;">
-            <div style="text-align:center; max-width:680px; margin:0 auto 40px;">
-                <h2 style="font-size:clamp(1.6rem,3vw,2.4rem); color:#0f172a; margin:0 0 12px;">Why expats choose Pixon PC</h2>
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px;">
-                <div>
-                    <svg class="fa-icon" aria-hidden="true" style="color:#3b82f6; font-size:1.8rem; margin-bottom:10px;"><use href="/assets/icons/sprite.svg#fa-comments"/></svg>
-                    <h3 style="margin:0 0 6px; color:#0f172a; font-size:1.05rem;">English communication</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">Clear quotes, clear updates. No language barrier when discussing your repair.</p>
-                </div>
-                <div>
-                    <svg class="fa-icon" aria-hidden="true" style="color:#10b981; font-size:1.8rem; margin-bottom:10px;"><use href="/assets/icons/sprite.svg#fa-shield-halved"/></svg>
-                    <h3 style="margin:0 0 6px; color:#0f172a; font-size:1.05rem;">Written warranty</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">If something fails because of our work, we fix it at no extra cost.</p>
-                </div>
-                <div>
-                    <svg class="fa-icon" aria-hidden="true" style="color:#8b5cf6; font-size:1.8rem; margin-bottom:10px;"><use href="/assets/icons/sprite.svg#fa-truck"/></svg>
-                    <h3 style="margin:0 0 6px; color:#0f172a; font-size:1.05rem;">Pickup &amp; delivery</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">We come to your hotel, condo or office anywhere in Cancun.</p>
-                </div>
-                <div>
-                    <svg class="fa-icon" aria-hidden="true" style="color:#ec4899; font-size:1.8rem; margin-bottom:10px;"><use href="/assets/icons/sprite.svg#fa-receipt"/></svg>
-                    <h3 style="margin:0 0 6px; color:#0f172a; font-size:1.05rem;">Real receipts (CFDI)</h3>
-                    <p style="color:#475569; font-size:0.95rem; margin:0; line-height:1.5;">Mexican electronic invoices for tax-deductible business expenses.</p>
-                </div>
-            </div>
-        </div>
+    <section class="en-home-section" id="repair-services" aria-labelledby="services-title">
+      <div class="en-home-shell"><div class="en-home-section-copy en-home-section-copy--center"><p class="en-home-kicker">Repair services</p><h2 id="services-title">Computer, Laptop and Phone Repair in Cancun</h2><p>Share the exact model and the issue you are seeing. We confirm the repair route after reviewing the case, not before.</p></div>
+        <div class="en-home-service-grid">{services.map((service) => (<article class="en-home-service-card"><span class="en-home-service-card__icon"><i class={`fa-solid ${service.icon}`} aria-hidden="true"></i></span><h3>{service.title}</h3><p>{service.copy}</p>{service.href ? <a href={service.href}>{service.link} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a> : <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Request a written quote <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>}</article>))}</div>
+      </div>
     </section>
 
-    <!-- ═══ FAQ ═══ -->
-    <FaqSection
-      title="Frequently asked questions"
-      description="We solve the most common doubts about laptop, computer, cell phone and console repair in Cancun."
-      items={homeFaqs}
-      viewMoreHref="/en"
-      viewMoreLabel="See more FAQs"
-      id="faq"
-      backgroundColor="#f1f5f9"
-      questionColor="#0f172a"
-    />
+    <section class="en-home-section en-home-section--line" aria-labelledby="support-title"><div class="en-home-shell"><div class="en-home-section-copy"><p class="en-home-kicker">For international visitors</p><h2 id="support-title">English Support for Tourists and Expats in Cancun</h2><p>Whether you are visiting for a few days, living in Cancun, working remotely or managing a trip, the goal is simple: you can follow the repair with clear written communication.</p></div><div class="en-home-feature-grid">{communicationSteps.map(([title, copy]) => (<article class="en-home-feature-card"><h3>{title}</h3><p>{copy}</p></article>))}</div></div></section>
 
-    <!-- ═══ FINAL CTA ═══ -->
-    <section style="padding:60px 20px; background:linear-gradient(135deg,#1a2d6b 0%,#0f172a 100%); color:#fff; text-align:center;">
-        <div class="container" style="max-width:780px; margin:0 auto;">
-            <h2 style="font-size:clamp(1.6rem,3vw,2.4rem); margin:0 0 14px;">Need help with your computer in Cancun?</h2>
-            <p style="color:#cbd5e1; font-size:1.1rem; margin:0 0 28px; line-height:1.6;">
-                Send us a quick message on WhatsApp. We will diagnose your issue and quote you in English — no commitment required.
-            </p>
-            <a href="https://wa.me/529986690777?text=Hi%20Pixon%20PC%2C%20I%20need%20English-speaking%20repair%20help%20in%20Cancun"
-                style="background:#25D366; color:#fff; padding:16px 32px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:10px; font-size:1.05rem;">
-                <svg class="fa-icon fa-brands" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-whatsapp"/></svg> WhatsApp +52 998 669 0777
-            </a>
-            <p style="color:#94a3b8; font-size:0.9rem; margin:22px 0 0;">
-                Open every day, 9:00 AM – 7:00 PM &nbsp;·&nbsp; <a href="/" style="color:#93c5fd; text-decoration:none;">Ver sitio en español</a>
-            </p>
-        </div>
-    </section>
+    <section class="en-home-section en-home-section--navy" id="hotel-coordination" aria-labelledby="hotel-title"><div class="en-home-shell"><div class="en-home-section-copy en-home-section-copy--light"><p class="en-home-kicker">Visitors, hotels and offices</p><h2 id="hotel-title">Device Repair for Hotels and Resorts in Cancun</h2><p>We can coordinate device service for tourists, hotel guests, condo residents and offices by message. Availability and the most practical logistics are confirmed per case.</p></div><div class="en-home-area-grid">{areaCards.map(([area, copy]) => (<article class="en-home-area-card"><h3>{area}</h3><p>{copy}</p></article>))}</div></div></section>
 
-        <div id="location-placeholder"></div>
+    <section class="en-home-section en-home-section--soft" aria-labelledby="pickup-title"><div class="en-home-shell en-home-split"><div class="en-home-section-copy"><p class="en-home-kicker">Availability confirmed per case</p><h2 id="pickup-title">Pickup and Delivery for Device Repair in Cancun</h2><p>Pickup and delivery can be coordinated for a hotel, condo or office when the device, area, distance and schedule allow it. We confirm the logistics in writing before arranging anything.</p></div><div class="en-home-note-card"><h3>Before pickup is arranged</h3><ul><li>Send the device type, exact model and problem.</li><li>Share the hotel, condo, office or Cancun area.</li><li>Confirm the available time window and transportation charge, if applicable.</li><li>Receive the next step and approval request in writing.</li></ul></div></div></section>
 
-    <!-- ═══ FOOTER ═══ -->
+    <section class="en-home-section" aria-labelledby="phone-title"><div class="en-home-shell en-home-content-grid"><div class="en-home-section-copy"><p class="en-home-kicker">Mobile devices</p><h2 id="phone-title">Phone and iPhone Repair in Cancun</h2><p>Phone issues can have more than one cause. We review the model, symptoms and history before quoting screens, batteries, charging, camera, audio or liquid damage work.</p><div class="en-home-inline-links"><a href="/en/liquid-damage">Water Damage Phone Repair</a><a href="/en/iphone-battery-replacement">iPhone Battery Replacement</a></div></div><div class="en-home-mini-grid"><article><h3>iPhone repair questions</h3><p>Send the model, issue and iOS message or battery health if relevant. We confirm parts and scope before approval.</p></article><article><h3>Water damage after a beach or pool day</h3><p>Do not charge it. Tell us whether it was fresh water, pool water or salt water and whether the phone still turns on.</p></article></div></div></section>
+
+    <section class="en-home-section en-home-section--line" aria-labelledby="computer-title"><div class="en-home-shell en-home-content-grid"><div class="en-home-section-copy"><p class="en-home-kicker">Computers</p><h2 id="computer-title">Laptop and Computer Repair in Cancun</h2><p>From a laptop that will not turn on to a desktop that overheats, we start with the symptom and identify what the repair actually requires.</p></div><div class="en-home-mini-grid"><article><h3>Hardware and temperature issues</h3><p>We can assess screens, batteries, storage, RAM, fans, thermal performance and no-power faults.</p></article><article><h3>Windows and performance troubleshooting</h3><p>We can review Windows errors, malware symptoms, startup problems, optimization and installation needs after diagnosis.</p></article></div></div></section>
+
+    <section class="en-home-section" aria-labelledby="console-title"><div class="en-home-shell en-home-content-grid"><div class="en-home-section-copy"><p class="en-home-kicker">Consoles</p><h2 id="console-title">Game Console Repair in Cancun</h2><p>We assess PlayStation, Xbox, Nintendo Switch and controller problems without turning the English hub into a console-only page.</p></div><div class="en-home-mini-grid"><article><h3>PS5, Xbox and Nintendo Switch</h3><p>Common requests include cleaning, overheating, HDMI, power and storage-related faults. The solution depends on the diagnosis.</p></article><article><h3>Controller repair</h3><p>For joystick drift, buttons, charging and connection issues, send the controller model and a short description of the behavior.</p></article></div></div></section>
+
+    <section class="en-home-section en-home-section--soft" aria-labelledby="b2b-title"><div class="en-home-shell en-home-split"><div class="en-home-section-copy"><p class="en-home-kicker">Separate business request flow</p><h2 id="b2b-title">IT Support for Businesses and Hotels in Cancun</h2><p>Business, hotel and office requests are reviewed separately from personal-device repairs. Share the number of devices, location, issue and operational impact for a clearer next step.</p></div><div class="en-home-note-card"><h3>For a business or hotel request</h3><ul><li>Office computer and maintenance requests</li><li>Hotel IT and guest-device coordination</li><li>Onsite support feasibility by appointment</li><li>Written scope, quote and approval process</li></ul></div></div></section>
+
+    <section class="en-home-section" aria-labelledby="faq-title"><div class="en-home-shell en-home-faq-shell"><div class="en-home-section-copy en-home-section-copy--center"><p class="en-home-kicker">Helpful details before you message</p><h2 id="faq-title">Frequently Asked Questions About Tech Repair in Cancun</h2></div><div class="en-home-faq-list">{faqs.map(([question, answer]) => (<details><summary>{question}</summary><p>{answer}</p></details>))}</div></div></section>
+
+    <section class="en-home-final-cta" aria-labelledby="final-title"><div class="en-home-shell"><p class="en-home-eyebrow">Clear written English support</p><h2 id="final-title">Need help with a device while you are in Cancun?</h2><p>Message Pixon PC with the device, model, problem and your hotel or area. We will explain the available next step in writing.</p><a class="en-home-btn en-home-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Message us on WhatsApp</a></div></section>
+  </main>
   <Footer lang="en" />
 </Base>
 
-<script>
-  function smartWaRedirect(url: string) {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) { window.location.href = url; } else { window.open(url, '_blank'); }
-  }
-
-</script>
+<style>
+  .en-home-page { background: #fff; color: #071F3A; }
+  .en-home-shell { width: min(100% - 32px, 1180px); margin-inline: auto; }
+  .en-home-hero, .en-home-final-cta { background: radial-gradient(circle at 84% 18%, rgba(14, 165, 201, .28), transparent 30%), linear-gradient(135deg, #071F3A, #0b3255); color: #fff; }
+  .en-home-hero { padding: clamp(48px, 7vw, 84px) 0 clamp(38px, 6vw, 66px); }
+  .en-home-hero__inner { max-width: 1100px; text-align: center; }
+  .en-home-eyebrow, .en-home-kicker { margin: 0 0 10px; font-size: .76rem; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+  .en-home-eyebrow { color: #a8e6f4; }
+  .en-home-kicker { color: #071F3A; }
+  .en-home-hero h1 { max-width: 1060px; margin: 0 auto 16px; color: #fff; font-family: 'Kanit', sans-serif; font-size: clamp(2.05rem, 5.2vw, 3.9rem); line-height: 1.07; }
+  .en-home-lead { max-width: 760px; margin: 0 auto; color: #e1f2f7; font-size: clamp(1rem, 2.3vw, 1.16rem); line-height: 1.65; }
+  .en-home-actions { display: flex; flex-direction: column; gap: 10px; width: min(100%, 390px); margin: 20px auto 18px; }
+  .en-home-btn { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 9px; padding: 12px 18px; border: 1px solid transparent; border-radius: 12px; font-size: .94rem; font-weight: 850; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
+  .en-home-btn--whatsapp { color: #fff; background: #168b50; box-shadow: 0 12px 28px rgba(0, 0, 0, .22); }
+  .en-home-btn--secondary { border-color: rgba(220, 242, 248, .42); color: #fff; background: rgba(255, 255, 255, .08); }
+  .en-home-trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 0; margin: 0; list-style: none; }
+  .en-home-trust li { padding: 5px 9px; border: 1px solid rgba(202, 237, 246, .26); border-radius: 999px; color: #e1f2f7; font-size: .72rem; font-weight: 700; }
+  .en-home-section { padding: clamp(52px, 8vw, 88px) 0; }
+  .en-home-section--soft { background: #eff9fc; }
+  .en-home-section--line { border-block: 1px solid #c9e5ed; }
+  .en-home-section--navy { background: #d9f3f8; }
+  .en-home-section-copy { max-width: 760px; }
+  .en-home-section-copy--center { margin-inline: auto; text-align: center; }
+  .en-home-section h2, .en-home-final-cta h2 { margin: 0 0 14px; color: #071F3A; font-family: 'Kanit', sans-serif; font-size: clamp(1.72rem, 3.6vw, 2.7rem); line-height: 1.15; }
+  .en-home-section p, .en-home-section li, .en-home-section summary, .en-home-section a { color: #071F3A; }
+  .en-home-section-copy > p:not(.en-home-kicker) { margin: 0; font-size: 1rem; line-height: 1.7; }
+  .en-home-section-copy--light h2, .en-home-section-copy--light p, .en-home-section-copy--light .en-home-kicker { color: #071F3A; }
+  .en-home-intro-grid, .en-home-split, .en-home-content-grid { display: grid; gap: 24px; }
+  .en-home-approval-card, .en-home-note-card { padding: 24px; border: 1px solid #9bcfdd; border-radius: 18px; background: #fff; box-shadow: 0 13px 30px rgba(7, 31, 58, .08); }
+  .en-home-approval-card > span { display: block; margin-bottom: 14px; color: #071F3A; font-size: .76rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+  .en-home-approval-card ol, .en-home-note-card ul { display: grid; gap: 13px; padding: 0; margin: 0; list-style: none; }
+  .en-home-approval-card li, .en-home-note-card li { display: flex; gap: 10px; align-items: flex-start; color: #071F3A; line-height: 1.5; }
+  .en-home-approval-card strong { color: #071F3A; }
+  .en-home-text-link, .en-home-inline-links a, .en-home-service-card a { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; color: #071F3A; font-weight: 850; text-decoration: underline; text-underline-offset: 4px; }
+  .en-home-service-grid, .en-home-feature-grid, .en-home-area-grid, .en-home-mini-grid { display: grid; gap: 15px; margin-top: 30px; }
+  .en-home-service-card, .en-home-feature-card, .en-home-mini-grid article { padding: 22px; border: 1px solid #b9dfe9; border-radius: 16px; background: #fff; }
+  .en-home-service-card__icon { display: grid; width: 42px; height: 42px; margin-bottom: 16px; place-items: center; border-radius: 12px; color: #071F3A; background: #d9f2f8; }
+  .en-home-service-card h3, .en-home-feature-card h3, .en-home-area-card h3, .en-home-mini-grid h3, .en-home-note-card h3 { margin: 0 0 9px; color: #071F3A; font-family: 'Kanit', sans-serif; font-size: 1.13rem; line-height: 1.25; }
+  .en-home-service-card p, .en-home-feature-card p, .en-home-mini-grid p { margin: 0; color: #071F3A; font-size: .91rem; line-height: 1.58; }
+  .en-home-area-card { min-height: 180px; padding: 22px; border: 1px solid #9bcfdd; border-radius: 16px; background: #fff; }
+  .en-home-area-card h3, .en-home-area-card p { color: #071F3A; }
+  .en-home-area-card p { margin: 0; line-height: 1.58; }
+  .en-home-note-card h3 { margin-bottom: 14px; }
+  .en-home-inline-links { display: flex; flex-direction: column; gap: 4px; margin-top: 14px; }
+  .en-home-inline-links a { margin-top: 0; }
+  .en-home-faq-shell { max-width: 900px; }
+  .en-home-faq-list { display: grid; gap: 10px; margin-top: 30px; }
+  .en-home-faq-list details { border: 1px solid #b9dfe9; border-radius: 13px; background: #fff; overflow: hidden; }
+  .en-home-faq-list summary { min-height: 54px; padding: 16px 18px; cursor: pointer; font-weight: 850; line-height: 1.4; }
+  .en-home-faq-list p { padding: 0 18px 18px; margin: 0; line-height: 1.6; }
+  .en-home-final-cta { padding: clamp(60px, 9vw, 96px) 0; background: #edf8fc; text-align: center; }
+  .en-home-final-cta h2 { max-width: 760px; margin-inline: auto; color: #071F3A; }
+  .en-home-final-cta p { max-width: 660px; margin: 0 auto 24px; color: #071F3A; line-height: 1.65; }
+  .en-home-final-cta .en-home-eyebrow { color: #071F3A; }
+  .en-home-final-cta .en-home-btn { width: min(100%, 310px); }
+  .en-home-btn:focus-visible, .en-home-service-card a:focus-visible, .en-home-text-link:focus-visible, .en-home-inline-links a:focus-visible { outline: 3px solid #0ea5c9; outline-offset: 3px; }
+  @media (hover: hover) and (pointer: fine) { .en-home-btn:hover { transform: translateY(-2px); } .en-home-service-card { transition: transform 160ms ease, box-shadow 160ms ease; } .en-home-service-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(7, 31, 58, .12); } }
+  @media (min-width: 620px) { .en-home-actions { width: auto; flex-direction: row; justify-content: center; } .en-home-service-grid, .en-home-feature-grid, .en-home-area-grid, .en-home-mini-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 860px) { .en-home-intro-grid, .en-home-split, .en-home-content-grid { grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr); align-items: center; } .en-home-service-grid { grid-template-columns: repeat(3, 1fr); } .en-home-feature-grid, .en-home-area-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 520px) { .en-home-hero { padding-top: 44px; padding-bottom: 32px; } .en-home-lead { line-height: 1.55; } }
+  @media (prefers-reduced-motion: reduce) { .en-home-btn, .en-home-service-card { transition: none; } }
+</style>

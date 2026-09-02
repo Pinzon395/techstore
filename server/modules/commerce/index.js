@@ -31,6 +31,7 @@ const emailService = require('../../services/email.service');
 
 function createCommerceModule({
     pool,
+    dashboardService,
     mediaStorage,
     mediaDirectory = path.join(process.cwd(), 'server', 'storage', 'commerce-media'),
     mediaMaxBytes = DEFAULT_MEDIA_MAX_BYTES,
@@ -65,7 +66,7 @@ function createCommerceModule({
     });
     const adminOrderService = new AdminOrderService({
         pool, runTransaction, orderService, inventoryService, notifications,
-        settingsService, audit, emails: emailService
+        settingsService, audit, emails: emailService, dashboardService
     });
     const refundService = new RefundService({ pool, runTransaction, audit, providerService });
     const returnService = new ReturnService({ pool, runTransaction, audit });

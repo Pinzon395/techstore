@@ -5,6 +5,15 @@ const { ServiceUnavailableError, ValidationError } = require('../errors');
 
 const PROVIDERS = Object.freeze(['STRIPE', 'PAYPAL', 'MERCADO_PAGO']);
 
+// A provider is not operational just because credentials exist. These flags must
+// only be enabled when checkout creation and automatic reconciliation are both
+// implemented and covered by integration tests for that provider.
+const PROVIDER_IMPLEMENTATION = Object.freeze({
+    STRIPE: Object.freeze({ checkout_session: false, automatic_reconciliation: false }),
+    PAYPAL: Object.freeze({ checkout_session: false, automatic_reconciliation: false }),
+    MERCADO_PAGO: Object.freeze({ checkout_session: false, automatic_reconciliation: false })
+});
+
 function configured(provider, env = process.env) {
     if (provider === 'STRIPE') return Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET);
     if (provider === 'PAYPAL') return Boolean(env.PAYPAL_CLIENT_ID && env.PAYPAL_CLIENT_SECRET && env.PAYPAL_WEBHOOK_ID);
@@ -143,9 +152,31 @@ class PaymentProviderService {
         return this.adapters[name];
     }
     isConfigured(provider) { return configured(String(provider).toUpperCase(), this.env); }
+    capabilities(provider) {
+        const name = String(provider || '').toUpperCase();
+        const credentialsReady = this.isConfigured(name);
+        const implementation = PROVIDER_IMPLEMENTATION[name] || {};
+        return {
+            checkout_session: Boolean(implementation.checkout_session),
+            webhook_ingest: credentialsReady,
+            refund_api: credentialsReady,
+            automatic_reconciliation: Boolean(implementation.automatic_reconciliation)
+        };
+    }
     async readiness(executor = this.pool) {
         const [rows] = await executor.execute('SELECT provider, enabled, mode, display_name, public_config, sort_order, updated_at FROM commerce_payment_provider_configs ORDER BY sort_order, provider');
-        return rows.map((row) => ({ ...row, enabled: Boolean(row.enabled), configured: this.isConfigured(row.provider) }));
+        return rows.map((row) => {
+            const isConfigured = this.isConfigured(row.provider);
+            const capabilities = this.capabilities(row.provider);
+            const integrationReady = capabilities.checkout_session && capabilities.webhook_ingest && capabilities.automatic_reconciliation;
+            const enabled = Boolean(row.enabled);
+            const issues = [];
+            if (!isConfigured) issues.push('credentials');
+            if (!capabilities.checkout_session) issues.push('checkout_session');
+            if (!capabilities.automatic_reconciliation) issues.push('automatic_reconciliation');
+            return { ...row, enabled, configured: isConfigured, capabilities, integration_ready: integrationReady,
+                operational: enabled && isConfigured && integrationReady, issues };
+        });
     }
     async updateConfigs(payload, actor) {
         if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new ValidationError('Configuracion de proveedores no valida');
@@ -157,6 +188,10 @@ class PaymentProviderService {
                 if (!input || typeof input !== 'object' || Array.isArray(input)) throw new ValidationError(`${provider} no es valido`);
                 const enabled = input.enabled === true || input.enabled === 1 || input.enabled === '1';
                 if (enabled && !this.isConfigured(provider)) throw new ValidationError(`${provider} no puede activarse sin credenciales y secreto de webhook`);
+                const capabilities = this.capabilities(provider);
+                if (enabled && (!capabilities.checkout_session || !capabilities.automatic_reconciliation)) {
+                    throw new ValidationError(`${provider} no puede activarse hasta implementar sesion de pago y conciliacion automatica`);
+                }
                 const mode = String(input.mode || 'TEST').toUpperCase();
                 if (!['TEST','LIVE'].includes(mode)) throw new ValidationError(`${provider}.mode no es valido`);
                 const displayName = String(input.display_name || provider).trim().slice(0, 100);
@@ -209,4 +244,4 @@ class PaymentProviderService {
     }
 }
 
-module.exports = { PaymentProviderService, StripeAdapter, PayPalAdapter, MercadoPagoAdapter, configured, PROVIDERS };
+module.exports = { PaymentProviderService, StripeAdapter, PayPalAdapter, MercadoPagoAdapter, configured, PROVIDERS, PROVIDER_IMPLEMENTATION };

@@ -143,9 +143,9 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
   pcClusterService({
     slug: 'tarjeta-video-gpu',
     label: 'Tarjeta de video GPU',
-    keyword: 'Reparación de tarjeta de video GPU en Cancún',
-    metaTitle: 'Reparación de tarjeta de video GPU en Cancún | Pixon PC',
-    metaDescription: 'Diagnóstico y reparación de GPU en Cancún para PC sin imagen, artefactos, temperatura alta, crashes, mantenimiento térmico e instalación de tarjeta de video.',
+    keyword: 'Reparación de Tarjeta Gráfica GPU en Cancún',
+    metaTitle: 'Reparación de Tarjeta Gráfica GPU en Cancún | Pixon PC',
+    metaDescription: 'Reparación y diagnóstico de GPU en Cancún para tarjetas NVIDIA y AMD con artefactos, pantalla negra, crashes, temperatura alta o fallas de video.',
     hook: 'Diagnóstico de GPU para PC gamer sin imagen, artefactos, pantallazos, crashes, ventiladores al máximo o bajo rendimiento en Cancún.',
     intro: 'Revisamos tarjeta de video, drivers, fuente de poder, temperatura, ranura PCIe, cables, monitor y estabilidad bajo carga con benchmark profesional.',
     bullets: ['Prueba de stress y benchmark GPU', 'Revisión de temperatura y fuente de poder', 'Limpieza y pasta térmica de GPU', 'Instalación o cambio de GPU NVIDIA/AMD'],

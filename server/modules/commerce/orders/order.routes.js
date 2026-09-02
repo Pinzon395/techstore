@@ -189,7 +189,14 @@ function createAdminOrderRoutes({
 
     router.get('/promotions', canManagePromotions, ah(async (req, res) => {
         const result = await promotionService.listAdmin(req.query);
+        return sendData(res, result.rows, { meta: { ...paginationMeta(result), summary: result.summary } });
+    }));
+    router.get('/promotions/targets', canManagePromotions, ah(async (req, res) => {
+        const result = await promotionService.listTargets(req.query);
         return sendData(res, result.rows, { meta: paginationMeta(result) });
+    }));
+    router.post('/promotions/preview', canManagePromotions, ah(async (req, res) => {
+        return sendData(res, await promotionService.preview(req.body, { excludeId: req.query.exclude_id || null }));
     }));
     router.get('/promotions/:id', canManagePromotions, ah(async (req, res) => sendData(res, await promotionService.getAdmin(req.params.id))));
     router.post('/promotions', canManagePromotions, ah(async (req, res) => {

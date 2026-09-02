@@ -319,13 +319,14 @@ async function trackPageView({ path, title, referrer, user_agent, ip, session_id
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [path, title || null, referrer || null, user_agent || null, ipBin, session_id || null, user_id || null]
     );
-    // Upsert daily aggregate
-    const today = new Date().toISOString().slice(0, 10);
+    // Mantener el agregado alineado con la fuente cruda: fecha de Cancún y
+    // sesiones distintas, no un contador de "únicos" por cada vista.
     await pool.execute(
         `INSERT INTO page_views_daily (date, path, views, unique_visitors)
-         VALUES (?, ?, 1, 1)
-         ON DUPLICATE KEY UPDATE views = views + 1, unique_visitors = unique_visitors + 1`,
-        [today, path]
+         SELECT CURDATE(), ?, 1, COUNT(DISTINCT COALESCE(session_id,CONCAT('view-',id)))
+         FROM page_views WHERE DATE(created_at) = CURDATE() AND path = ?
+         ON DUPLICATE KEY UPDATE views = views + 1, unique_visitors = VALUES(unique_visitors)`,
+        [path, path]
     );
 }
 
@@ -336,6 +337,7 @@ async function getPageViewsDaily(days = 30) {
                 COUNT(DISTINCT session_id) AS unique_visitors
          FROM page_views
          WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+           AND COALESCE(path,'') NOT LIKE '/admin%'
          GROUP BY DATE(created_at)
          ORDER BY date DESC`,
         [days]
@@ -350,6 +352,7 @@ async function getPageViewsTop(limit = 20, days = 30) {
                 COUNT(DISTINCT session_id) AS unique_visitors
          FROM page_views
          WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+           AND COALESCE(path,'') NOT LIKE '/admin%'
          GROUP BY path
          ORDER BY views DESC
          LIMIT ?`,
@@ -368,7 +371,8 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
     const [active] = await pool.execute(
         `SELECT COUNT(DISTINCT session_id) AS active
          FROM page_views
-         WHERE created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)`
+         WHERE created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+           AND COALESCE(path,'') NOT LIKE '/admin%'`
     );
     const [perMinute] = await pool.execute(
         `SELECT
@@ -377,6 +381,7 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
             COUNT(DISTINCT session_id) AS visitors
          FROM page_views
          WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+           AND COALESCE(path,'') NOT LIKE '/admin%'
          GROUP BY minute
          ORDER BY minute ASC`,
         [minutesWindow]
@@ -385,12 +390,14 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
         `SELECT COUNT(*) AS views,
                 COUNT(DISTINCT session_id) AS visitors
          FROM page_views
-         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)`,
+         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+           AND COALESCE(path,'') NOT LIKE '/admin%'`,
         [minutesWindow]
     );
     const [lastViews] = await pool.execute(
         `SELECT path, title, created_at
          FROM page_views
+         WHERE COALESCE(path,'') NOT LIKE '/admin%'
          ORDER BY created_at DESC
          LIMIT ?`,
         [recentLimit]
@@ -417,6 +424,7 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
                 END AS normalized_path
             FROM page_views
             WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+              AND COALESCE(path,'') NOT LIKE '/admin%'
          ) pv
          GROUP BY normalized_path
          ORDER BY week_views DESC, last_seen DESC
@@ -436,16 +444,16 @@ async function getLiveAnalytics(minutesWindow = 30, recentLimit = 12) {
 }
 
 async function getPageViewsSummary() {
-    const [totalViews] = await pool.execute('SELECT COUNT(*) as total FROM page_views');
+    const [totalViews] = await pool.execute("SELECT COUNT(*) as total FROM page_views WHERE COALESCE(path,'') NOT LIKE '/admin%'");
     const [todayViews] = await pool.execute(
-        `SELECT COUNT(*) as total FROM page_views WHERE DATE(created_at) = CURDATE()`
+        `SELECT COUNT(*) as total FROM page_views WHERE DATE(created_at) = CURDATE() AND COALESCE(path,'') NOT LIKE '/admin%'`
     );
     const [uniqueToday] = await pool.execute(
-        `SELECT COUNT(DISTINCT session_id) as total FROM page_views WHERE DATE(created_at) = CURDATE()`
+        `SELECT COUNT(DISTINCT session_id) as total FROM page_views WHERE DATE(created_at) = CURDATE() AND COALESCE(path,'') NOT LIKE '/admin%'`
     );
     const [topReferrer] = await pool.execute(
         `SELECT referrer, COUNT(*) as total FROM page_views
-         WHERE referrer IS NOT NULL AND referrer != ''
+         WHERE referrer IS NOT NULL AND referrer != '' AND COALESCE(path,'') NOT LIKE '/admin%'
          GROUP BY referrer ORDER BY total DESC LIMIT 5`
     );
     return {
@@ -459,6 +467,47 @@ async function getPageViewsSummary() {
 /* ─────────────────────────────────────────────────────────────
    TALLER Y TICKETS (Repairs)
 ───────────────────────────────────────────────────────────── */
+function deriveNextAction(repair) {
+    if (!repair) return 'Revisar expediente';
+    const status = repair.status || 'new';
+    switch (status) {
+        case 'new':
+            return 'Confirmar recepción y disponibilidad de cita';
+        case 'received':
+            return 'Realizar diagnóstico técnico inicial';
+        case 'diagnosing':
+            return repair.estimated_cost ? 'Enviar cotización al cliente' : 'Registrar costo y diagnóstico';
+        case 'contacted':
+            return 'Esperar respuesta o coordinar con cliente';
+        case 'quoted':
+            return 'Esperar aprobación de presupuesto';
+        case 'approved':
+            return 'Iniciar reparación en taller';
+        case 'in_progress':
+            return 'Realizar pruebas de estabilidad';
+        case 'waiting_parts':
+            return 'Monitorear llegada de refacciones';
+        case 'ready':
+            return 'Contactar cliente para entrega de equipo';
+        case 'delivered':
+            return 'Garantía activa';
+        case 'cancelled':
+            return 'Ticket cancelado';
+        case 'eliminado':
+            return 'Ticket archivado';
+        default:
+            return 'Revisar expediente';
+    }
+}
+
+function mapRepairWithDerived(repair) {
+    if (!repair) return null;
+    return {
+        ...repair,
+        next_action: deriveNextAction(repair)
+    };
+}
+
 async function getAllRepairsAdmin() {
     const [rows] = await pool.execute(`
         SELECT r.*, u.name as user_name, u.email as user_email
@@ -467,7 +516,7 @@ async function getAllRepairsAdmin() {
         WHERE r.deleted_at IS NULL
         ORDER BY r.created_at DESC
     `);
-    return rows;
+    return rows.map(mapRepairWithDerived);
 }
 
 async function getRepairAdminById(id) {
@@ -478,77 +527,214 @@ async function getRepairAdminById(id) {
         WHERE r.id = ? AND r.deleted_at IS NULL
         LIMIT 1
     `, [id]);
-    return rows[0] || null;
+    return mapRepairWithDerived(rows[0] || null);
+}
+
+const REPAIR_STATUS_VALUES = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled', 'eliminado']);
+const REPAIR_PRIORITY_VALUES = new Set(['low', 'normal', 'high', 'urgent']);
+const APPOINTMENT_STATUS_VALUES = new Set(['pendiente_confirmacion', 'confirmada', 'reagendada', 'cancelada', 'completada']);
+const REPAIR_AUDIT_FIELDS = [
+    'status', 'priority', 'diagnostic', 'notes_internal', 'estimated_cost', 'final_cost',
+    'appointment_type', 'appointment_date', 'appointment_time', 'appointment_datetime',
+    'appointment_delivery_method', 'appointment_note', 'appointment_status',
+    'promised_at', 'delivered_at', 'warranty_until'
+];
+
+function repairUpdateError(message) {
+    const error = new Error(message);
+    error.status = 422;
+    error.code = 'INVALID_REPAIR_UPDATE';
+    return error;
+}
+
+function nullableText(value, maxLength) {
+    if (value === null || value === undefined || value === '') return null;
+    return String(value).trim().slice(0, maxLength);
+}
+
+function nullableMoney(value, fieldLabel) {
+    if (value === null || value === undefined || value === '') return null;
+    const amount = Number(value);
+    if (!Number.isFinite(amount) || amount < 0 || amount > 99_999_999.99) {
+        throw repairUpdateError(`${fieldLabel} debe ser un importe valido y no negativo.`);
+    }
+    return amount.toFixed(2);
+}
+
+function nullableDate(value, fieldLabel) {
+    if (value === null || value === undefined || value === '') return null;
+    const normalized = String(value).trim().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized) || Number.isNaN(Date.parse(`${normalized}T12:00:00Z`))) {
+        throw repairUpdateError(`${fieldLabel} no es una fecha valida.`);
+    }
+    return normalized;
+}
+
+function nullableTime(value) {
+    if (value === null || value === undefined || value === '') return null;
+    const normalized = String(value).trim();
+    if (!/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(normalized)) {
+        throw repairUpdateError('La hora de la cita no es valida.');
+    }
+    return normalized.length === 5 ? `${normalized}:00` : normalized;
+}
+
+function nullableDateTime(value, fieldLabel) {
+    if (value === null || value === undefined || value === '') return null;
+    const normalized = String(value).trim().replace('T', ' ');
+    if (!/^\d{4}-\d{2}-\d{2} ([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(normalized)) {
+        throw repairUpdateError(`${fieldLabel} no es una fecha y hora valida.`);
+    }
+    return normalized.length === 16 ? `${normalized}:00` : normalized;
+}
+
+function auditValue(value) {
+    if (value === null || value === undefined || value === '') return null;
+    if (value instanceof Date) return value.toISOString();
+    return String(value);
+}
+
+function buildRepairDiff(before, after) {
+    return Object.fromEntries(REPAIR_AUDIT_FIELDS.flatMap((field) => {
+        const previous = auditValue(before[field]);
+        const next = auditValue(after[field]);
+        return previous === next ? [] : [[field, { before: previous, after: next }]];
+    }));
 }
 
 async function updateRepairAdmin(id, data) {
-    const allowedStatus = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled', 'eliminado']);
-    const allowedPriority = new Set(['low', 'normal', 'high', 'urgent']);
-    const allowedAppointmentStatus = new Set(['pendiente_confirmacion', 'confirmada', 'reagendada', 'cancelada', 'completada']);
     const fields = [];
     const values = [];
+    const has = (field) => Object.prototype.hasOwnProperty.call(data, field);
+    const set = (field, value) => {
+        fields.push(`${field} = ?`);
+        values.push(value);
+    };
 
-    if (Object.prototype.hasOwnProperty.call(data, 'status') && allowedStatus.has(String(data.status))) {
-        fields.push('status = ?');
-        values.push(String(data.status));
+    if (has('status')) {
+        if (!REPAIR_STATUS_VALUES.has(String(data.status))) throw repairUpdateError('Estado de ticket no reconocido.');
+        set('status', String(data.status));
     }
-    if (Object.prototype.hasOwnProperty.call(data, 'priority') && allowedPriority.has(String(data.priority))) {
-        fields.push('priority = ?');
-        values.push(String(data.priority));
+    if (has('priority')) {
+        if (!REPAIR_PRIORITY_VALUES.has(String(data.priority))) throw repairUpdateError('Prioridad no reconocida.');
+        set('priority', String(data.priority));
     }
-    if (Object.prototype.hasOwnProperty.call(data, 'diagnostic')) {
-        fields.push('diagnostic = ?');
-        values.push(data.diagnostic ? String(data.diagnostic).trim() : null);
+    if (has('diagnostic')) set('diagnostic', nullableText(data.diagnostic, 10_000));
+    if (has('notes_internal')) set('notes_internal', nullableText(data.notes_internal, 20_000));
+    if (has('estimated_cost')) set('estimated_cost', nullableMoney(data.estimated_cost, 'El costo estimado'));
+    if (has('final_cost')) set('final_cost', nullableMoney(data.final_cost, 'El costo final'));
+    if (has('appointment_type')) set('appointment_type', nullableText(data.appointment_type, 60));
+    if (has('appointment_date')) set('appointment_date', nullableDate(data.appointment_date, 'La fecha de cita'));
+    if (has('appointment_time')) set('appointment_time', nullableTime(data.appointment_time));
+    if (has('appointment_datetime')) {
+        const appointmentDateTime = nullableDateTime(data.appointment_datetime, 'La fecha de cita');
+        set('appointment_datetime', appointmentDateTime);
+        set('appointment_at', appointmentDateTime);
     }
-    if (Object.prototype.hasOwnProperty.call(data, 'notes_internal')) {
-        fields.push('notes_internal = ?');
-        values.push(data.notes_internal ? String(data.notes_internal).trim() : null);
+    if (has('appointment_delivery_method')) set('appointment_delivery_method', nullableText(data.appointment_delivery_method, 80));
+    if (has('appointment_note')) set('appointment_note', nullableText(data.appointment_note, 3_000));
+    if (has('appointment_status')) {
+        if (!APPOINTMENT_STATUS_VALUES.has(String(data.appointment_status))) throw repairUpdateError('Estado de cita no reconocido.');
+        set('appointment_status', String(data.appointment_status));
     }
-    if (Object.prototype.hasOwnProperty.call(data, 'estimated_cost')) {
-        fields.push('estimated_cost = ?');
-        const amount = Number(data.estimated_cost);
-        values.push(data.estimated_cost === '' || data.estimated_cost === null || data.estimated_cost === undefined || !Number.isFinite(amount) ? null : amount);
+    if (has('promised_at')) set('promised_at', nullableDateTime(data.promised_at, 'La fecha prometida'));
+    if (has('delivered_at') && !(has('status') && String(data.status) === 'delivered' && !data.delivered_at)) {
+        set('delivered_at', nullableDateTime(data.delivered_at, 'La fecha de entrega'));
     }
-    if (Object.prototype.hasOwnProperty.call(data, 'final_cost')) {
-        fields.push('final_cost = ?');
-        const amount = Number(data.final_cost);
-        values.push(data.final_cost === '' || data.final_cost === null || data.final_cost === undefined || !Number.isFinite(amount) ? null : amount);
+    if (has('warranty_until')) set('warranty_until', nullableDate(data.warranty_until, 'La vigencia de garantia'));
+
+    if (has('status') && String(data.status) === 'delivered' && !data.delivered_at) {
+        fields.push('delivered_at = COALESCE(delivered_at, NOW())');
     }
-    ['appointment_type', 'appointment_date', 'appointment_time', 'appointment_datetime', 'appointment_delivery_method', 'appointment_note'].forEach(field => {
-        if (Object.prototype.hasOwnProperty.call(data, field)) {
-            fields.push(`${field} = ?`);
-            values.push(data[field] ? String(data[field]).trim() : null);
-        }
-    });
-    if (Object.prototype.hasOwnProperty.call(data, 'appointment_datetime')) {
-        fields.push('appointment_at = ?');
-        values.push(data.appointment_datetime ? String(data.appointment_datetime).trim() : null);
-    }
-    if (Object.prototype.hasOwnProperty.call(data, 'appointment_status') && allowedAppointmentStatus.has(String(data.appointment_status))) {
-        fields.push('appointment_status = ?');
-        values.push(String(data.appointment_status));
+    if (has('status') && String(data.status) === 'cancelled' && !has('appointment_status')) {
+        fields.push("appointment_status = IF(appointment_status = 'completada', appointment_status, 'cancelada')");
     }
 
     if (fields.length === 0) return getRepairAdminById(id);
 
-    values.push(id);
-    await pool.execute(`UPDATE repairs SET ${fields.join(', ')} WHERE id = ? AND deleted_at IS NULL`, values);
-    return getRepairAdminById(id);
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        const [[previous]] = await connection.execute(
+            'SELECT * FROM repairs WHERE id = ? AND deleted_at IS NULL FOR UPDATE',
+            [id]
+        );
+        if (!previous) {
+            await connection.rollback();
+            return null;
+        }
+
+        // Optimistic Concurrency Control
+        if (data.expected_updated_at) {
+            const prevUpdated = previous.updated_at instanceof Date ? previous.updated_at.toISOString() : String(previous.updated_at || '');
+            const expected = String(data.expected_updated_at).trim();
+            if (prevUpdated && expected && !prevUpdated.startsWith(expected.slice(0, 19)) && !expected.startsWith(prevUpdated.slice(0, 19))) {
+                await connection.rollback();
+                const conflictErr = new Error('El ticket fue modificado por otro usuario. Por favor recarga el expediente para ver los cambios más recientes.');
+                conflictErr.status = 409;
+                conflictErr.code = 'CONFLICT';
+                throw conflictErr;
+            }
+        }
+
+        values.push(id);
+        await connection.execute(`UPDATE repairs SET ${fields.join(', ')} WHERE id = ? AND deleted_at IS NULL`, values);
+        const [[updated]] = await connection.execute('SELECT * FROM repairs WHERE id = ?', [id]);
+        const nextStatus = updated.status;
+        if (previous.status !== nextStatus) {
+            await connection.execute(
+                `INSERT INTO repair_status_history (repair_id,old_status,new_status,comment,changed_by)
+                 VALUES (?,?,?,?,?)`,
+                [id, previous.status, nextStatus, String(data.status_comment || '').trim().slice(0, 500) || null, data.changed_by || null]
+            );
+        }
+
+        const auditDiff = buildRepairDiff(previous, updated);
+        delete auditDiff.status;
+        if (Object.keys(auditDiff).length) {
+            const appointmentFields = new Set([
+                'appointment_type', 'appointment_date', 'appointment_time', 'appointment_datetime',
+                'appointment_delivery_method', 'appointment_note', 'appointment_status'
+            ]);
+            const action = Object.keys(auditDiff).every((field) => appointmentFields.has(field))
+                ? 'actualizacion_cita'
+                : 'actualizacion';
+            await connection.execute(
+                `INSERT INTO admin_logs (user_id,action,entity,entity_id,diff,ip,user_agent)
+                 VALUES (?,?,?,?,?,?,?)`,
+                [
+                    data.changed_by || null,
+                    action,
+                    'repair',
+                    String(id),
+                    JSON.stringify(auditDiff),
+                    data.audit_context?.ip ? String(data.audit_context.ip).slice(0, 45) : null,
+                    data.audit_context?.user_agent ? String(data.audit_context.user_agent).slice(0, 255) : null
+                ]
+            );
+        }
+        await connection.commit();
+        return getRepairAdminById(id);
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
 }
 
-async function softDeleteRepairAdmin(id, deleted_by) {
-    const [info] = await pool.execute(
-        `UPDATE repairs
-         SET status = 'eliminado', deleted_at = NOW(), deleted_by = ?, appointment_status = IF(appointment_status = 'completada', appointment_status, 'cancelada')
-         WHERE id = ? AND deleted_at IS NULL`,
-        [deleted_by || null, id]
-    );
-    return info.affectedRows > 0;
+async function generateUniqueTicketCode(connection) {
+    for (let attempt = 0; attempt < 10; attempt++) {
+        const code = crypto.randomBytes(4).toString('hex').slice(0, 6).toUpperCase();
+        const [[existing]] = await connection.execute('SELECT id FROM repairs WHERE ticket_code = ? LIMIT 1', [code]);
+        if (!existing) return code;
+    }
+    return `PIX${Date.now().toString(36).slice(-5).toUpperCase()}`;
 }
 
 async function insertRepairAdmin(data) {
     const { user_id, user_name, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, status, is_b2b, b2b_company, b2b_quantity, b2b_type, b2b_frequency, b2b_invoice, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status } = data;
-    const ticket_code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
     const allowedStatus = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled']);
     const priorityMap = {
         quote: 'low',
@@ -566,20 +752,122 @@ async function insertRepairAdmin(data) {
         internalNotes += `\nB2B Info: Empresa: ${b2b_company || ''}, Cantidad: ${b2b_quantity || ''}, Tipo: ${b2b_type || ''}, Frec: ${b2b_frequency || ''}, Factura: ${b2b_invoice || ''}`;
     }
 
-    const [info] = await pool.execute(
-        `INSERT INTO repairs (ticket_code, user_id, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, notes_internal, status, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status, appointment_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-            ticket_code, user_id || null, device_type, device_brand || '', device_model || '', reported_issue,
-            contact_phone, contact_email || null, cleanPriority, internalNotes, cleanStatus,
-            appointment_type || null, appointment_date || null, appointment_time || null, appointment_datetime || null,
-            appointment_delivery_method || null, appointment_note || null, appointment_status || 'pendiente_confirmacion',
-            appointment_datetime || null
-        ]
-    );
-    const [[newRow]] = await pool.execute('SELECT * FROM repairs WHERE id = ?', [info.insertId]);
-    return newRow;
+    const connection = await pool.getConnection();
+    try {
+        const ticket_code = await generateUniqueTicketCode(connection);
+        const [info] = await connection.execute(
+            `INSERT INTO repairs (ticket_code, user_id, device_type, device_brand, device_model, reported_issue, contact_phone, contact_email, priority, notes_internal, status, appointment_type, appointment_date, appointment_time, appointment_datetime, appointment_delivery_method, appointment_note, appointment_status, appointment_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                ticket_code, user_id || null, device_type, device_brand || '', device_model || '', reported_issue,
+                contact_phone, contact_email || null, cleanPriority, internalNotes, cleanStatus,
+                appointment_type || null, appointment_date || null, appointment_time || null, appointment_datetime || null,
+                appointment_delivery_method || null, appointment_note || null, appointment_status || 'pendiente_confirmacion',
+                appointment_datetime || null
+            ]
+        );
+        const [[newRow]] = await connection.execute('SELECT * FROM repairs WHERE id = ?', [info.insertId]);
+        return mapRepairWithDerived(newRow);
+    } finally {
+        connection.release();
+    }
 }
+
+async function getTicketHistory(id) {
+    const [[repair]] = await pool.execute(
+        `SELECT id,ticket_code,created_at FROM repairs WHERE id = ? LIMIT 1`,
+        [id]
+    );
+    if (!repair) return [];
+
+    const [statusRows, auditRows] = await Promise.all([
+        pool.execute(
+            `SELECT h.id,h.old_status,h.new_status,h.comment,h.created_at,
+                    u.name user_name,u.email user_email
+             FROM repair_status_history h
+             LEFT JOIN users u ON u.id = h.changed_by
+             WHERE h.repair_id = ?
+             ORDER BY h.created_at DESC,h.id DESC`,
+            [id]
+        ).then(([rows]) => rows),
+        pool.execute(
+            `SELECT l.id,l.action,l.diff,l.created_at,u.name user_name,u.email user_email
+             FROM admin_logs l
+             LEFT JOIN users u ON u.id = l.user_id
+             WHERE l.entity IN ('repair','repair_appointment') AND l.entity_id = ?
+             ORDER BY l.created_at DESC,l.id DESC`,
+            [String(id)]
+        ).then(([rows]) => rows)
+    ]);
+
+    const creationAudit = auditRows.find((row) => row.action === 'create');
+    const history = [{
+        id: `created-${repair.id}`,
+        action: 'creacion',
+        created_at: repair.created_at,
+        user_name: creationAudit?.user_name || null,
+        user_email: creationAudit?.user_email || null,
+        diff: {}
+    }];
+
+    history.push(...statusRows.map((row) => ({
+        id: `status-${row.id}`,
+        action: 'cambio_de_estado',
+        created_at: row.created_at,
+        user_name: row.user_name,
+        user_email: row.user_email,
+        diff: {
+            status: { before: row.old_status, after: row.new_status },
+            ...(row.comment ? { comment: { before: null, after: row.comment } } : {})
+        }
+    })));
+
+    for (const row of auditRows) {
+        if (row.action === 'create') continue;
+        let diff;
+        try { diff = typeof row.diff === 'string' ? JSON.parse(row.diff) : row.diff; } catch { diff = null; }
+        if (!diff || typeof diff !== 'object') continue;
+        const usefulDiff = Object.fromEntries(Object.entries(diff).filter(([field]) => field !== 'ticket_code'));
+        if (!Object.keys(usefulDiff).length) continue;
+        history.push({
+            id: `audit-${row.id}`,
+            action: row.action || 'actualizacion',
+            created_at: row.created_at,
+            user_name: row.user_name,
+            user_email: row.user_email,
+            diff: usefulDiff
+        });
+    }
+
+    return history.sort((left, right) => String(right.created_at).localeCompare(String(left.created_at)));
+}
+
+async function getRecentTickets(limit = 8) {
+    const safeLimit = Math.min(50, Math.max(1, Number.parseInt(limit, 10) || 8));
+    const [rows] = await pool.execute(
+        `SELECT r.id,r.ticket_code,r.device_type,r.device_brand,r.device_model,r.status,
+                r.priority,r.created_at,r.updated_at,u.name user_name
+         FROM repairs r
+         LEFT JOIN users u ON u.id = r.user_id
+         WHERE r.deleted_at IS NULL
+         ORDER BY r.created_at DESC,r.id DESC
+         LIMIT ?`,
+        [safeLimit]
+    );
+    return rows.map(mapRepairWithDerived);
+}
+
+async function softDeleteRepairAdmin(id, deleted_by) {
+    const [info] = await pool.execute(
+        `UPDATE repairs
+         SET status = 'eliminado', deleted_at = NOW(), deleted_by = ?, appointment_status = IF(appointment_status = 'completada', appointment_status, 'cancelada')
+         WHERE id = ? AND deleted_at IS NULL`,
+        [deleted_by || null, id]
+    );
+    return info.affectedRows > 0;
+}
+
+
 
 function normalizeAppointmentType(type) {
     const value = String(type || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -786,7 +1074,7 @@ async function getUserRepairs(userId) {
         WHERE r.user_id = ? AND r.deleted_at IS NULL
         ORDER BY r.created_at DESC
     `, [userId]);
-    return rows;
+    return rows.map(mapRepairWithDerived);
 }
 
 module.exports = {
@@ -815,6 +1103,11 @@ module.exports = {
     updateRepairAdmin,
     insertRepairAdmin,
     softDeleteRepairAdmin,
+    getTicketHistory,
+    getRecentTickets,
+    deriveNextAction,
+    generateUniqueTicketCode,
+    mapRepairWithDerived,
     getAppointmentConfig,
     saveAppointmentConfig,
     getAppointmentAvailability,
@@ -832,3 +1125,4 @@ module.exports = {
     getPageViewsSummary,
     getLiveAnalytics
 };
+

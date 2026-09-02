@@ -4,7 +4,7 @@ const { ValidationError } = require('../errors');
 const { plainText, booleanValue } = require('../validation');
 
 const DEFAULT_PAYMENT_METHODS = Object.freeze({
-    BANK_TRANSFER: { enabled: false, beneficiary: '', bank: '', account: '', clabe: '', card: '', instructions: '' },
+    BANK_TRANSFER: { enabled: false, beneficiary: '', bank: '', account: '', clabe: '', instructions: '' },
     CASH: { enabled: true, instructions: 'Pago al recoger en Pixon PC.' },
     TERMINAL: { enabled: true, instructions: 'Pago con terminal al recoger en Pixon PC.' },
     STRIPE: { enabled: false, instructions: 'Pago seguro procesado por Stripe.' },
@@ -16,6 +16,17 @@ function parseJson(value, fallback) {
     if (!value) return structuredClone(fallback);
     if (typeof value === 'object') return value;
     try { return JSON.parse(value); } catch { return structuredClone(fallback); }
+}
+
+function normalizeBankNumber(value) { return String(value || '').replace(/[\s-]/g, ''); }
+
+function validClabe(value) {
+    const digits = String(value || '');
+    if (!/^\d{18}$/.test(digits)) return false;
+    const weights = [3, 7, 1];
+    const sum = digits.slice(0, 17).split('').reduce((total, digit, index) =>
+        total + (Number(digit) * weights[index % 3]) % 10, 0);
+    return (10 - (sum % 10)) % 10 === Number(digits[17]);
 }
 
 function cleanPaymentMethods(payload) {
@@ -31,12 +42,23 @@ function cleanPaymentMethods(payload) {
             Object.assign(output[method], {
                 beneficiary: plainText(input.beneficiary, { field: 'BANK_TRANSFER.beneficiary', max: 160, nullable: true }) || '',
                 bank: plainText(input.bank, { field: 'BANK_TRANSFER.bank', max: 120, nullable: true }) || '',
-                account: plainText(input.account, { field: 'BANK_TRANSFER.account', max: 40, nullable: true })?.replace(/\s/g, '') || '',
-                clabe: plainText(input.clabe, { field: 'BANK_TRANSFER.clabe', max: 24, nullable: true })?.replace(/\s/g, '') || '',
-                card: plainText(input.card, { field: 'BANK_TRANSFER.card', max: 24, nullable: true })?.replace(/\s/g, '') || ''
+                account: normalizeBankNumber(plainText(input.account, { field: 'BANK_TRANSFER.account', max: 32, nullable: true })),
+                clabe: normalizeBankNumber(plainText(input.clabe, { field: 'BANK_TRANSFER.clabe', max: 32, nullable: true }))
             });
-            if (output[method].enabled && !output[method].clabe && !output[method].account && !output[method].card) {
-                throw new ValidationError('Configura al menos CLABE, cuenta o tarjeta para activar transferencia');
+            if (output[method].enabled && !output[method].beneficiary) {
+                throw new ValidationError('Configura el beneficiario para activar transferencia');
+            }
+            if (output[method].enabled && !output[method].bank) {
+                throw new ValidationError('Configura el banco para activar transferencia');
+            }
+            if (output[method].enabled && !output[method].clabe && !output[method].account) {
+                throw new ValidationError('Configura una CLABE o cuenta para activar transferencia');
+            }
+            if (output[method].clabe && !validClabe(output[method].clabe)) {
+                throw new ValidationError('La CLABE debe tener 18 digitos y un digito verificador valido');
+            }
+            if (output[method].account && !/^\d{4,20}$/.test(output[method].account)) {
+                throw new ValidationError('La cuenta debe contener entre 4 y 20 digitos');
             }
         }
     }
@@ -52,7 +74,7 @@ class SettingsService {
         const methods = { ...structuredClone(DEFAULT_PAYMENT_METHODS), ...parseJson(row?.setting_value, DEFAULT_PAYMENT_METHODS) };
         if (!enabledOnly) return methods;
         const readiness = this.providerService ? await this.providerService.readiness(executor) : [];
-        const externalReady = new Map(readiness.map((entry) => [entry.provider, entry.enabled && entry.configured]));
+        const externalReady = new Map(readiness.map((entry) => [entry.provider, entry.operational]));
         return Object.fromEntries(Object.entries(methods).filter(([key, value]) =>
             value?.enabled && (!['STRIPE','PAYPAL','MERCADO_PAGO'].includes(key) || externalReady.get(key))));
     }
@@ -62,7 +84,7 @@ class SettingsService {
         if (!methods[method]?.enabled) throw new ValidationError('El metodo de pago no esta disponible', { method });
         if (['STRIPE','PAYPAL','MERCADO_PAGO'].includes(method)) {
             const provider = (await this.providerService.readiness(executor)).find((entry) => entry.provider === method);
-            if (!provider?.enabled || !provider.configured) throw new ValidationError('El proveedor de pago no esta disponible', { method });
+            if (!provider?.operational) throw new ValidationError('El proveedor de pago no esta disponible', { method, issues: provider?.issues || [] });
         }
         return methods[method];
     }
@@ -75,9 +97,11 @@ class SettingsService {
 
     async updatePaymentMethods(payload, actor) {
         const clean = cleanPaymentMethods(payload);
+        const readiness = this.providerService ? await this.providerService.readiness() : [];
         for (const provider of ['STRIPE','PAYPAL','MERCADO_PAGO']) {
-            if (clean[provider].enabled && !this.providerService?.isConfigured(provider)) {
-                throw new ValidationError(`${provider} no puede activarse: faltan credenciales o secreto de webhook`);
+            const state = readiness.find((entry) => entry.provider === provider);
+            if (clean[provider].enabled && !state?.operational) {
+                throw new ValidationError(`${provider} no puede activarse: la integracion de cobro y conciliacion no esta operativa`, { provider, issues: state?.issues || [] });
             }
         }
         return this.runTransaction(this.pool, async (connection) => {
@@ -93,4 +117,4 @@ class SettingsService {
     }
 }
 
-module.exports = { SettingsService, DEFAULT_PAYMENT_METHODS, cleanPaymentMethods };
+module.exports = { SettingsService, DEFAULT_PAYMENT_METHODS, cleanPaymentMethods, validClabe };

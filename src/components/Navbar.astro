@@ -42,6 +42,7 @@ interface Props {
 }
 const { lang = 'es' } = Astro.props;
 const home = lang === 'en' ? '/en' : '/';
+const isEnglishNavigation = () => lang === 'en';
 
 const t = lang === 'en' ? {
   home: 'Home',
@@ -74,11 +75,11 @@ const t = lang === 'en' ? {
 
 <div class="nav-reveal-zone" id="nav-reveal-zone" aria-hidden="true"></div>
 
-<nav class="navbar navbar-v3" id="navbar" role="navigation" aria-label="Menú principal">
+<nav class="navbar navbar-v3" id="navbar" role="navigation" aria-label={lang === 'en' ? 'Main navigation' : 'Menú principal'}>
   <div class="nav-container">
 
     <!-- Logo -->
-    <a href={home} class="logo" aria-label="Pixon PC  → Inicio">
+    <a href={home} class="logo" aria-label={lang === 'en' ? 'Pixon PC home' : 'Pixon PC → Inicio'}>
       <img src="/assets/logos/Logo.svg?v=3" alt="Pixon PC Logo" style="height:42px;" id="navbar-logo" class="brand-logo">
     </a>
 
@@ -86,7 +87,7 @@ const t = lang === 'en' ? {
     <button
       class="menu-toggle"
       id="mobile-menu"
-      aria-label="Abrir menú"
+      aria-label={lang === 'en' ? 'Open menu' : 'Abrir menú'}
       aria-expanded="false"
       aria-controls="nav-menu"
     >
@@ -100,6 +101,15 @@ const t = lang === 'en' ? {
 
       <li role="none"><a href={home} class="nav-links" role="menuitem">{t.home}</a></li>
 
+      {isEnglishNavigation() ? (
+        <>
+          <li role="none"><a href="/en#repair-services" class="nav-links" role="menuitem">Repair services</a></li>
+          <li role="none"><a href="/en#english-support" class="nav-links" role="menuitem">English support</a></li>
+          <li role="none"><a href="/en#hotel-coordination" class="nav-links" role="menuitem">Hotels &amp; business</a></li>
+          <li role="none"><a href="https://wa.me/529986690777?text=Hi%20Pixon%20PC.%20I%20need%20help%20with%20a%20device%20while%20I%20am%20in%20Cancun.%0A%0ADevice%3A%0AModel%3A%0AProblem%3A%0AHotel%20%2F%20area%3A%0AHow%20urgent%20is%20it%3F%3A%0A I%20prefer%20written%20communication%20in%20English." class="nav-links" role="menuitem" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+        </>
+      ) : (
+        <>
       <li role="none"><a href={lang === 'en' ? '/en' : '/tienda'} class="nav-links" role="menuitem">{t.store}</a></li>
 
       <!-- - SERVICIOS - Cascade Dropdown -->
@@ -426,6 +436,9 @@ const t = lang === 'en' ? {
           </li>
         </ul>
       </li>
+
+        </>
+      )}
 
       <!-- Auth (mobile) -->
       <li class="nav-auth-mobile-li" id="nav-auth-mobile-li" role="none">

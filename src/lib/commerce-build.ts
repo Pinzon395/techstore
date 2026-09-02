@@ -40,7 +40,7 @@ export async function getPublishedCommerceItems(): Promise<CatalogItem[]> {
         [item.id]
       );
       const [attributes] = await connection.execute<any[]>(
-        `SELECT d.label, d.attribute_key, d.unit, v.value_text, v.value_integer, v.value_decimal,
+        `SELECT d.label, d.attribute_key, d.data_type, d.unit, v.value_text, v.value_number,
                 v.value_boolean, v.value_date, v.value_json
          FROM catalog_item_attribute_values v JOIN catalog_attribute_definitions d ON d.id = v.attribute_definition_id
          WHERE v.catalog_item_id = ? AND d.status = 'ACTIVE' ORDER BY v.sort_order, d.sort_order, d.id`,
@@ -60,14 +60,24 @@ export async function getPublishedCommerceItems(): Promise<CatalogItem[]> {
       item.media = media;
       item.categories = categories;
       item.badges = badges;
-      item.attributes = attributes.map((attribute: any) => ({
-        label: attribute.label,
-        key: attribute.attribute_key,
-        unit: attribute.unit,
-        value: attribute.value_text ?? attribute.value_integer ?? attribute.value_decimal
-          ?? (attribute.value_boolean == null ? null : Boolean(attribute.value_boolean))
-          ?? attribute.value_date ?? parseJson(attribute.value_json),
-      }));
+      item.attributes = attributes.map((attribute: any) => {
+        let value: any = attribute.value_text;
+        if (value == null && attribute.value_number != null) {
+          const number = Number(attribute.value_number);
+          value = attribute.data_type === 'INTEGER'
+            ? String(Math.trunc(number))
+            : new Intl.NumberFormat('es-MX', { maximumFractionDigits: 6 }).format(number);
+        }
+        if (value == null && attribute.value_boolean != null) value = Boolean(attribute.value_boolean) ? 'Sí' : 'No';
+        if (value == null && attribute.value_date != null) value = attribute.value_date;
+        if (value == null) value = parseJson(attribute.value_json);
+        return {
+          label: attribute.label,
+          key: attribute.attribute_key,
+          unit: attribute.unit,
+          value,
+        };
+      });
     }
     return rows;
   } catch (error: any) {
