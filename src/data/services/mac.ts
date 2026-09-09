@@ -115,9 +115,9 @@ export const macCategory: ServiceCategory = {
           'Cotizacion por WhatsApp antes de reparar o pedir refaccion',
         ],
         featuredImage: '/assets/images/mantenimiento-macbook-cancun.webp',
-        warranty: 'Diagnostico gratis y garantia si se repara',
+        warranty: 'Diagnóstico técnico desde $600 MXN y garantía según la reparación',
         ticketTitle: 'Agendar diagnostico Mac gratis',
-        ticketSubtitle: 'Cuentanos modelo de Mac, ano aproximado, si es MacBook, iMac o Mac mini, sintomas, cargador usado, liquido, golpes, reinicios, pantalla negra o errores de macOS. Te contactaremos para confirmar recepcion y diagnostico gratis.',
+        ticketSubtitle: 'Cuéntanos modelo de Mac, año aproximado, si es MacBook, iMac o Mac mini, síntomas, cargador usado, líquido, golpes, reinicios, pantalla negra o errores de macOS. Te contactaremos para confirmar la recepción y el diagnóstico técnico desde $600 MXN.',
         relatedTitle: 'Servicios Mac que pueden salir del diagnostico',
         whyUs: [
           { icon: 'fa-circle-check', title: 'Revision inicial gratis', desc: 'El diagnostico de entrada no tiene costo. Te decimos causa probable y presupuesto antes de tocar piezas o reinstalar macOS.' },

@@ -1,0 +1,31 @@
+---
+import { getLocalizedPath } from '../lib/english-routes';
+import { getLocaleFromPath } from '../lib/i18n';
+
+interface Props { expanded?: boolean }
+const { expanded = false } = Astro.props;
+const pathname = Astro.originPathname;
+const locale = getLocaleFromPath(pathname);
+---
+<div class:list={['language-switcher', { expanded }]} role="group" aria-label={locale === 'en' ? 'Change language' : 'Cambiar idioma'}>
+  {expanded && <span class="language-label">{locale === 'en' ? 'Language' : 'Idioma'}</span>}
+  {(['es', 'en'] as const).map((target) => (
+    <a href={getLocalizedPath(pathname, target)} lang={target === 'es' ? 'es-MX' : 'en'}
+      hreflang={target === 'es' ? 'es-MX' : 'en'} data-locale-switch={target}
+      aria-current={target === locale ? 'true' : undefined}
+      aria-label={target === 'es' ? 'Cambiar a español' : 'Switch to English'}>
+      {expanded ? (target === 'es' ? 'Español' : 'English') : target.toUpperCase()}
+    </a>
+  ))}
+</div>
+<style>
+  .language-switcher { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: .72rem; white-space: nowrap; }
+  .language-switcher a { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; min-height: 32px; padding: 4px; color: #475569; text-decoration: none; border-radius: 4px; }
+  .language-switcher a + a { border-left: 1px solid #cbd5e1; border-radius: 0 4px 4px 0; }
+  .language-switcher a[aria-current] { color: #071f3a; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+  .language-switcher a:hover { background: #eff6ff; }
+  .language-switcher a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .expanded { flex-wrap: wrap; gap: 8px; padding: 12px 20px; border-top: 1px solid #e2e8f0; font-size: .875rem; }
+  .expanded a { min-height: 44px; padding: 8px 12px; }
+  .language-label { width: 100%; color: #475569; font-size: .75rem; text-align: center; }
+</style>

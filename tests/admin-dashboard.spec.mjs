@@ -32,14 +32,19 @@ async function prepare(page, dashboardReport = report) {
     await expect(page.locator('#dashboard-kpis')).toHaveAttribute('aria-busy', 'false');
 }
 
-test('renderiza datos reales, estados explícitos y controles temporales', async ({ page }) => {
+test('prioriza Mi Jornada y conserva el análisis bajo demanda', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await prepare(page);
 
     await expect(page.locator('[data-dashboard-kpi]')).toHaveCount(8);
-    await expect(page.locator('[data-dashboard-kpi="new_customers"] [data-kpi-value]')).toHaveText(String(report.kpis.new_customers.value));
-    await expect(page.locator('[data-dashboard-kpi="expenses"] [data-kpi-value]')).toHaveText('No configurado');
+    await expect(page.locator('#admin-page-title')).toHaveText('Mi jornada');
+    await expect(page.locator('#journey-title')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Atención ahora' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Próximas 24 horas' })).toBeVisible();
     await expect(page.locator('#dashboard-period-label')).toHaveText(report.period.label);
+
+    await page.locator('.journey-analysis > summary').click();
+    await expect(page.locator('.dashboard-primary-grid')).toBeVisible();
 
     await page.locator('#dashboard-period-trigger').click();
     await expect(page.locator('#dashboard-period-popover')).toBeVisible();
@@ -53,14 +58,13 @@ test('renderiza datos reales, estados explícitos y controles temporales', async
     await page.screenshot({ path: 'test-results/admin-dashboard-desktop.png', fullPage: true });
 });
 
-test('mantiene jerarquía y acciones utilizables en móvil', async ({ page }) => {
+test('mantiene Mi Jornada operable y sin desbordamiento en móvil', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await prepare(page);
 
-    await expect(page.locator('[data-dashboard-kpi]')).toHaveCount(8);
-    await expect(page.locator('.dashboard-primary-grid')).toBeVisible();
-    await page.locator('.command-disclosure').nth(1).locator('summary').click();
-    await expect(page.locator('#dashboard-customers')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Atención ahora' })).toBeVisible();
+    await expect(page.locator('.journey-summary-grid')).toBeVisible();
+    await expect(page.locator('.journey-primary-action')).toBeVisible();
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
@@ -73,6 +77,7 @@ test('resiste importes y textos extremos sin desbordamiento horizontal', async (
     extreme.traffic.top_pages = [{ path: `/servicios/${'reparacion-especializada-'.repeat(12)}`, views: 987654321, visitors: 123 }];
     await page.setViewportSize({ width: 320, height: 720 });
     await prepare(page, extreme);
+    await page.locator('.journey-analysis > summary').click();
     await page.locator('.command-disclosure--wide summary').click();
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -91,7 +96,5 @@ test('un error de red se explica y permite reintentar sin mostrar ceros', async 
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('[data-dashboard-kpi="sales"] [data-kpi-value]')).toHaveText('Error');
-    await expect(page.locator('#dashboard-operations [data-dashboard-retry]')).toBeVisible();
-    await expect(page.locator('#dashboard-finance [data-dashboard-retry]')).toBeVisible();
     await expect(page.locator('#dashboard-status')).toContainText('Fuente temporalmente no disponible');
 });

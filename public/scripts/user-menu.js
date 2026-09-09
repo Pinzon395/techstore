@@ -46,7 +46,9 @@ function getAdminHref() {
 }
 
 function getUiLabels() {
-    if (document.body?.dataset.pixonLang === 'en') {
+    const isEn = document.body?.dataset.pixonLang === 'en'
+        || document.documentElement.lang === 'en';
+    if (isEn) {
         return {
             login: 'Sign in',
             userMenu: 'User menu',
@@ -64,6 +66,14 @@ function getUiLabels() {
         logout: 'Cerrar sesión',
     };
 }
+
+function getAccountHref() {
+    return document.documentElement.lang === 'en' || document.body?.dataset.pixonLang === 'en'
+
+        ? '/en/account'
+        : '/cuenta';
+}
+
 
 async function fetchCurrentUser() {
     try {
@@ -144,7 +154,7 @@ function renderDesktopAuth(user) {
                 <a href="${adminHref}" class="nav-dropdown-item" id="nav-item-admin" role="menuitem">
                     <i class="fa-solid fa-gauge-high"></i> ${labels.admin}
                 </a>` : ''}
-                <a href="/cuenta" class="nav-dropdown-item" id="nav-item-profile" role="menuitem">
+                <a href="${getAccountHref()}" class="nav-dropdown-item" id="nav-item-profile" role="menuitem">
                     <i class="fa-solid fa-circle-user"></i> ${labels.account}
                 </a>
                 <a href="/auth/logout" class="nav-dropdown-item nav-dropdown-logout" id="nav-item-logout" role="menuitem">
@@ -209,7 +219,7 @@ function renderMobileAuth(user) {
         <a href="${adminHref}" class="nav-links nav-admin-mobile" id="btn-admin-mobile">
             <i class="fa-solid fa-gear"></i>&nbsp;${labels.admin}
         </a>` : ''}
-        <a href="/cuenta" class="nav-links" id="nav-item-profile-mobile" style="color:#94a3b8; font-weight:600; padding:12px 15px; border-radius:8px; display:flex; align-items:center; gap:8px;">
+        <a href="${getAccountHref()}" class="nav-links" id="nav-item-profile-mobile" style="color:#94a3b8; font-weight:600; padding:12px 15px; border-radius:8px; display:flex; align-items:center; gap:8px;">
             <i class="fa-solid fa-circle-user"></i>&nbsp;${labels.account}
         </a>
         <a href="/auth/logout" class="nav-links nav-logout-mobile" id="btn-logout-mobile">

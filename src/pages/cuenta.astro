@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
 
+const isEnglish = Astro.originPathname.startsWith('/en/');
+
 const schema = [
   {
     '@context': 'https://schema.org',
@@ -16,15 +18,16 @@ const schema = [
 ---
 
 <Base
-  title="Mi cuenta | Seguimiento de reparaciones Pixon PC"
-  description="Accede a tu cuenta de Pixon PC para consultar tickets de reparacion, actualizar tu telefono y dar seguimiento a tus servicios."
-  canonical="https://pixon.com.mx/cuenta"
+  title={isEnglish ? 'My Account | Pixon PC Service Tracking' : 'Mi cuenta | Seguimiento de reparaciones Pixon PC'}
+  description={isEnglish ? 'Access your Pixon PC account to review repair tickets, update your phone number and follow your services.' : 'Accede a tu cuenta de Pixon PC para consultar tickets de reparacion, actualizar tu telefono y dar seguimiento a tus servicios.'}
+  canonical={isEnglish ? 'https://pixon.com.mx/en/account' : 'https://pixon.com.mx/cuenta'}
   image="/LOGOCIRCULAR.png"
   schema={schema}
   robots="noindex, follow"
+  lang={isEnglish ? 'en' : 'es'}
 >
-  <Navbar />
-  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Mi cuenta' }]} />
+  <Navbar lang={isEnglish ? 'en' : 'es'} />
+  <Breadcrumb items={isEnglish ? [{ label: 'Home', href: '/en' }, { label: 'My Account' }] : [{ label: 'Inicio', href: '/' }, { label: 'Mi cuenta' }]} />
 
   <main class="account-page" data-account-app>
     <section class="account-hero">
@@ -2157,7 +2160,74 @@ const schema = [
         }
       }
 
+      function isEn() {
+        return (document.documentElement.lang && document.documentElement.lang.startsWith('en'));
+      }
+
+      function localizeAccountPage() {
+        if (!isEn()) return;
+        document.title = 'Account & Tickets | Pixon PC';
+        var h1 = document.querySelector('.account-hero__copy h1');
+        if (h1) h1.textContent = 'Account & Tickets';
+        var eyebrow = document.querySelector('.account-eyebrow');
+        if (eyebrow) eyebrow.innerHTML = '<i class="fa-solid fa-circle-user"></i> Customer Portal';
+        var heroLead = document.querySelector('.account-hero__copy p');
+        if (heroLead) heroLead.textContent = 'Clear tracking of your repairs, updated contact info, and fast access to request another service.';
+        var checkingSession = document.querySelector('.account-loading span');
+        if (checkingSession) checkingSession.textContent = 'Checking session...';
+        var loginH2 = document.querySelector('.account-login__card h2');
+        if (loginH2) loginH2.textContent = 'Sign in to view your account';
+        var loginP = document.querySelector('.account-login__card p');
+        if (loginP) loginP.textContent = 'Use Google to check tickets created online, save your phone number, and streamline repair tracking.';
+        var loginBtn = document.getElementById('account-login-link');
+        if (loginBtn) loginBtn.innerHTML = '<i class="fa-brands fa-google"></i> Continue with Google';
+
+        var perks = document.querySelectorAll('.account-perk');
+        var perkTitles = ['Saved folios', 'Contact ready', 'Secure access', 'New service'];
+        var perkDescs = [
+          'Check your tickets without digging through old conversations.',
+          'Save your mobile phone so our workshop can update you quickly.',
+          'Session handled securely with Google and protected cookies.',
+          'Choose a service and submit a ticket with your details.'
+        ];
+        perks.forEach(function(perk, i) {
+          var strong = perk.querySelector('strong');
+          if (strong && perkTitles[i]) strong.textContent = perkTitles[i];
+          var span = perk.querySelector('span');
+          if (span && perkDescs[i]) span.textContent = perkDescs[i];
+        });
+
+        var tabs = document.querySelectorAll('.account-tab-btn');
+        var tabLabels = ['Summary', 'Tickets', 'Orders', 'Profile', 'Help'];
+        tabs.forEach(function(tab, i) {
+          var label = tabLabels[i];
+          if (label) {
+            var icon = tab.querySelector('i');
+            tab.innerHTML = '';
+            if (icon) tab.appendChild(icon);
+            tab.appendChild(document.createTextNode(' ' + label));
+          }
+        });
+
+        var ticketsH2 = document.querySelector('.account-tickets__header h2');
+        if (ticketsH2) ticketsH2.textContent = 'My repair tickets';
+        var ticketsP = document.querySelector('.account-tickets__header p');
+        if (ticketsP) ticketsP.textContent = 'Track the status of all your service requests, check appointments, history and repair details.';
+        var newTicketA = document.querySelector('.account-tickets__header a[href="/tickets"]');
+        if (newTicketA) newTicketA.innerHTML = '<i class="fa-solid fa-plus"></i> New Ticket';
+        if (els.search) els.search.placeholder = 'Search by folio, device, service or issue...';
+
+        var profileH2 = document.querySelector('#tab-profile h2');
+        if (profileH2) profileH2.textContent = 'Contact information';
+        var profileP = document.querySelector('#tab-profile p');
+        if (profileP) profileP.textContent = 'Keep your phone number updated so our workshop can notify you about your repair.';
+        var phoneLabel = document.querySelector('#account-profile-form label span');
+        if (phoneLabel) phoneLabel.textContent = 'Phone for notifications';
+        if (els.savePhone) els.savePhone.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save phone';
+      }
+
       async function init() {
+        localizeAccountPage();
         try {
           var res = await fetch('/api/me', { credentials: 'include' });
           var data = await res.json();
@@ -2379,5 +2449,5 @@ const schema = [
   </script>
 
   <script defer src="/scripts/account-orders.js?v=20260812-1"></script>
-  <Footer />
+  <Footer lang={isEnglish ? 'en' : 'es'} />
 </Base>

@@ -1,0 +1,43 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Navbar from '../../../components/Navbar.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import PhoneLiquidDamageView from '../../../components/views/PhoneLiquidDamageView.astro';
+import { getService } from '../../../data/services';
+import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
+
+const resolved = getService('telefono', 'celular-mojado');
+if (!resolved) throw new Error('Servicio celular-mojado no encontrado');
+const { category, service } = resolved;
+const canonical = 'https://pixon.com.mx/servicios/telefono/celular-mojado';
+const description = 'Reparación de celular mojado en Cancún. No lo cargues ni lo enciendas: revisamos humedad, corrosión, conectores y placa antes de cotizar.';
+const schema = [
+  buildServiceSchema({ service, category, url: canonical, description, image: service.featuredImage, areaServed: [
+    { '@type': 'City', name: 'Cancún' },
+    { '@type': 'Place', name: 'Zona Hotelera de Cancún' },
+    { '@type': 'AdministrativeArea', name: 'Benito Juárez' },
+  ] }),
+  buildBreadcrumbSchema([
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: category.title, href: '/servicios/telefono' },
+    { label: service.label, href: '/servicios/telefono/celular-mojado' },
+  ]),
+  buildFAQSchema(service.faqs || []),
+].filter(Boolean) as object[];
+---
+
+<Base title="Reparación de celular mojado en Cancún | Pixon PC" description={description} canonical={canonical} image={service.featuredImage} schema={schema} bodyClass="service-page" alternateLinks={[
+  { hreflang: 'es-MX', href: canonical },
+  { hreflang: 'en', href: 'https://pixon.com.mx/en/liquid-damage' },
+  { hreflang: 'x-default', href: canonical },
+]}>
+  <Navbar />
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: category.title, href: '/servicios/telefono' },
+    { label: service.label },
+  ]} />
+  <PhoneLiquidDamageView service={service} />
+</Base>

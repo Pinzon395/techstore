@@ -10,9 +10,15 @@ let activeRepairTicket = null;
 let crmCurrentPage = 1;
 let crmPageSize = 25;
 let crmSelectedTickets = new Set();
+let activeRepairQuickView = 'all';
+let activeRepairTab = 'summary';
+let availableTechnicians = [];
+let globalSearchIndex = -1;
+let globalSearchResults = [];
 let appointmentConfig = { settings: [], exceptions: [] };
 let adminAppointments = [];
 let activeAppointmentFilter = 'today';
+let activeAgendaView = 'list';
 let pendingDeleteRepairId = null;
 
 // M8 → header CSRF que el backend exige en POST/PUT/DELETE.
@@ -65,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             fetchFaqs(),
             fetchUnanswered(),
             fetchRepairs(),
+            fetchTechnicians(),
             fetchBuilds()
         ]);
         
@@ -743,8 +750,20 @@ async function fetchRepairs() {
         allRepairs = await res.json();
         populateRepairFilters();
         renderRepairs();
+        renderMyJourney();
     } catch (err) {
         console.error(err);
+    }
+}
+
+async function fetchTechnicians() {
+    try {
+        const res = await fetch(`${API_BASE}/admin/technicians`, INCLUDE_CREDENTIALS);
+        if (!res.ok) throw new Error('No se pudo cargar el equipo técnico');
+        availableTechnicians = await res.json();
+    } catch (err) {
+        console.warn('No se pudo cargar el equipo técnico.', err);
+        availableTechnicians = [];
     }
 }
 
@@ -1117,6 +1136,11 @@ function renderAppointmentTypeLabel(value) {
     return APPOINTMENT_TYPE_VALUES.find(item => normalizeText(item) === normalized) || value || 'Recepción de equipo';
 }
 
+function renderTechnicianOptions(currentId) {
+    const options = availableTechnicians.map((technician) => `<option value="${escapeHtml(technician.id)}" ${String(technician.id) === String(currentId || '') ? 'selected' : ''}>${escapeHtml(technician.name)}</option>`).join('');
+    return `<option value="">Sin asignar</option>${options}`;
+}
+
 let lastActiveTriggerElement = null;
 
 function renderRepairDetailModal(ticket) {
@@ -1149,6 +1173,12 @@ function renderRepairDetailModal(ticket) {
     if (saveMessage) saveMessage.textContent = '';
 
     body.innerHTML = `
+        <section class="repair-ticket-overview" aria-label="Resumen operativo">
+            <div><small>Siguiente acción</small><strong>${escapeHtml(nextAction)}</strong></div>
+            <div><small>Cliente</small><strong>${escapeHtml(clientName)}</strong></div>
+            <div><small>Saldo</small><strong>${escapeHtml(ticketBalanceLabel(ticket))}</strong></div>
+            <label><span>Responsable</span><select id="repairDetailAssignee" class="admin-input">${renderTechnicianOptions(ticket.technician_id)}</select></label>
+        </section>
         <div class="repair-ticket-columns">
             <div class="repair-ticket-column">
                 <section class="repair-ticket-section repair-ticket-client-section">
@@ -1243,6 +1273,62 @@ function renderRepairDetailModal(ticket) {
             </div>
         </div>
     `;
+    organizeRepairDetailTabs(body, ticket);
+}
+
+function organizeRepairDetailTabs(body, ticket) {
+    const columns = body.querySelector('.repair-ticket-columns');
+    if (!columns) return;
+    const overview = body.querySelector('.repair-ticket-overview');
+    const sections = {
+        summary: Array.from(body.querySelectorAll('.repair-ticket-client-section, .repair-ticket-device-section, .repair-ticket-issue-section, .repair-ticket-b2b-section')),
+        work: Array.from(body.querySelectorAll('.repair-ticket-admin-section')),
+        appointment: Array.from(body.querySelectorAll('.repair-ticket-appointment-section')),
+        history: Array.from(body.querySelectorAll('.repair-ticket-history-section'))
+    };
+    const workspace = document.createElement('div');
+    workspace.className = 'repair-workspace';
+    workspace.innerHTML = `<div class="repair-workspace-tabs" role="tablist" aria-label="Expediente de ticket">
+        <button type="button" role="tab" data-repair-workspace-tab="summary">Resumen</button>
+        <button type="button" role="tab" data-repair-workspace-tab="work">Diagnóstico y costos</button>
+        <button type="button" role="tab" data-repair-workspace-tab="appointment">Cita</button>
+        <button type="button" role="tab" data-repair-workspace-tab="communication">Comunicación</button>
+        <button type="button" role="tab" data-repair-workspace-tab="history">Historial</button>
+    </div>`;
+    const makePanel = (key) => {
+        const panel = document.createElement('section');
+        panel.className = 'repair-workspace-panel';
+        panel.dataset.repairWorkspacePanel = key;
+        panel.setAttribute('role', 'tabpanel');
+        if (key === 'summary' && overview) panel.append(overview);
+        (sections[key] || []).forEach((section) => panel.append(section));
+        if (key === 'communication') {
+            panel.innerHTML = `<div class="repair-communication-empty"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i><div><strong>Sin registro de comunicación persistente</strong><p>El historial de correo se mostrará aquí cuando la entrega transaccional esté registrada. No se inventan eventos ni confirmaciones.</p></div></div>`;
+        }
+        workspace.append(panel);
+    };
+    ['summary', 'work', 'appointment', 'communication', 'history'].forEach(makePanel);
+    columns.replaceWith(workspace);
+    setRepairWorkspaceTab(activeRepairTab, workspace);
+    workspace.querySelectorAll('[data-repair-workspace-tab]').forEach((tab) => tab.addEventListener('click', () => setRepairWorkspaceTab(tab.dataset.repairWorkspaceTab, workspace)));
+}
+
+function setRepairWorkspaceTab(tabName, workspace = document.querySelector('.repair-workspace')) {
+    if (!workspace) return;
+    activeRepairTab = tabName;
+    workspace.querySelectorAll('[data-repair-workspace-tab]').forEach((tab) => {
+        const selected = tab.dataset.repairWorkspaceTab === tabName;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        tab.classList.toggle('active', selected);
+    });
+    workspace.querySelectorAll('[data-repair-workspace-panel]').forEach((panel) => {
+        const selected = panel.dataset.repairWorkspacePanel === tabName;
+        panel.hidden = !selected;
+    });
+    if (tabName === 'communication' && activeRepairTicket?.id) {
+        loadTicketEmails(activeRepairTicket.id);
+    }
 }
 
 async function openRepairTicket(ticketId, triggerEl = null) {
@@ -1266,19 +1352,107 @@ async function openRepairTicket(ticketId, triggerEl = null) {
         const ticket = data.ticket || data.repair || data;
         if (!ticket || !ticket.id) throw new Error('invalid ticket payload');
         renderRepairDetailModal(ticket);
-        loadTicketHistory(ticket.id);
+        await Promise.allSettled([
+            loadTicketHistory(ticket.id),
+            loadTicketEmails(ticket.id)
+        ]);
         const firstInput = document.getElementById('repairDetailStatus');
         if (firstInput) firstInput.focus();
     } catch (err) {
         console.error('No se pudo cargar el detalle por endpoint; usando datos ya cargados en tabla.', err);
         if (fallbackTicket) {
             renderRepairDetailModal(fallbackTicket);
-            loadTicketHistory(fallbackTicket.id);
+            await Promise.allSettled([
+                loadTicketHistory(fallbackTicket.id),
+                loadTicketEmails(fallbackTicket.id)
+            ]);
             return;
         }
         body.innerHTML = '<div class="empty-state">No se pudo cargar la información completa del ticket. Intenta de nuevo.</div>';
     }
 }
+window.openRepairTicket = openRepairTicket;
+
+async function loadTicketEmails(ticketId) {
+    const container = document.querySelector('[data-repair-workspace-panel="communication"]');
+    if (!container) return;
+    try {
+        const res = await fetch(`${API_BASE}/admin/tickets/${ticketId}/emails`, INCLUDE_CREDENTIALS);
+        if (!res.ok) throw new Error('Error al cargar correos');
+        const data = await res.json();
+        const emails = data.emails || [];
+        if (emails.length === 0) {
+            container.innerHTML = `
+                <div class="repair-communication-empty">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <div>
+                        <strong>Sin registros de correo en esta sesión</strong>
+                        <p>Los correos transaccionales (confirmación al cliente, aviso de recepción y notas) quedarán registrados automáticamente al enviarse.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        const eventLabels = {
+            ticket_created_customer: 'Confirmación inicial enviada al cliente',
+            ticket_created_admin: 'Aviso de nuevo ticket al administrador',
+            ticket_received: 'Aviso de equipo recibido en taller',
+            ticket_note: 'Actualización de notas al cliente'
+        };
+        container.innerHTML = `
+            <div class="repair-ticket-section" style="border:none;padding:0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <h3 style="margin:0;">Historial de Correos Transaccionales</h3>
+                    <small style="color:var(--a-text-muted);">Estado: Aceptado por Resend (Entrega no verificada por webhook)</small>
+                </div>
+                <div class="timeline-list">
+                    ${emails.map(e => {
+                        const isAccepted = e.status === 'accepted';
+                        const isFailed = e.status === 'failed';
+                        const statusBadge = isAccepted
+                            ? `<span class="badge-status" style="background:#10b98120;color:#10b981;border:1px solid #10b98140;"><i class="fa-solid fa-check"></i> Aceptado</span>`
+                            : isFailed
+                            ? `<span class="badge-status" style="background:#ef444420;color:#ef4444;border:1px solid #ef444440;"><i class="fa-solid fa-triangle-exclamation"></i> Fallido</span>`
+                            : `<span class="badge-status" style="background:#64748b20;color:#94a3b8;border:1px solid #64748b40;">Omitido</span>`;
+                        return `
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background:${isAccepted ? '#10b981' : isFailed ? '#ef4444' : '#64748b'};"></div>
+                                <div class="timeline-meta">
+                                    <span>${formatRepairDate(e.created_at)}</span> · Destinatario: <strong>&lt;${escapeHtml(e.recipient)}&gt;</strong>
+                                </div>
+                                <div class="timeline-title" style="display:flex;align-items:center;gap:8px;">
+                                    <span>${escapeHtml(eventLabels[e.event_type] || e.event_type)}</span>
+                                    ${statusBadge}
+                                </div>
+                                <div class="timeline-desc">
+                                    <div><strong>Asunto:</strong> ${escapeHtml(e.subject)}</div>
+                                    ${e.provider_id ? `<div><small style="color:var(--a-text-muted);">Resend ID: ${escapeHtml(e.provider_id)}</small></div>` : ''}
+                                    ${e.error ? `<div style="color:#ef4444;font-size:0.8rem;margin-top:4px;">Error: ${escapeHtml(typeof e.error === 'string' ? e.error : JSON.stringify(e.error))}</div>` : ''}
+                                    ${isFailed ? `<button type="button" class="btn-admin btn-sm" style="margin-top:6px;" onclick="window.retryEmailEventUI('${e.id}', ${ticketId})"><i class="fa-solid fa-rotate-right"></i> Reintentar envío</button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div class="empty-state">No se pudo cargar el historial de correos.</div>';
+    }
+}
+
+window.retryEmailEventUI = async function(eventId, ticketId) {
+    try {
+        const res = await fetch(`${API_BASE}/admin/emails/${eventId}/retry`, { method: 'POST', headers: JSON_HEADERS, credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Error al reintentar envío');
+        showAdminNotice('Reintento enviado correctamente.', 'success');
+        if (ticketId) loadTicketEmails(ticketId);
+    } catch (err) {
+        showAdminNotice(err.message || 'Fallo en el reintento', 'error');
+    }
+};
 
 const REPAIR_HISTORY_ACTION_LABELS = {
     creacion: 'Ticket creado',
@@ -1385,8 +1559,8 @@ function closeRepairTicketModal() {
 
 function summarizeTicketNotifications(notifications) {
     if (!Array.isArray(notifications) || notifications.length === 0) return '';
-    if (notifications.some(item => item.status === 'sent')) {
-        return ' Aviso enviado por correo.';
+    if (notifications.some(item => item.status === 'accepted')) {
+        return ' Correo aceptado por el proveedor; la entrega no está verificada.';
     }
     if (notifications.some(item => item.reason === 'missing_recipient')) {
         return ' No se envio correo porque el ticket no tiene email de cliente.';
@@ -1434,8 +1608,30 @@ async function saveRepairTicketChanges() {
         });
         const data = await res.json().catch(() => ({}));
         if (res.status === 409) {
-            showAdminNotice('El ticket fue modificado por otro usuario. Recargando datos más recientes...', 'warning');
-            await openRepairTicket(activeRepairTicket.id);
+            const body = document.getElementById('repairDetailBody');
+            document.getElementById('repairConflictBanner')?.remove();
+            if (body) {
+                const banner = document.createElement('div');
+                banner.id = 'repairConflictBanner';
+                banner.className = 'repair-conflict-banner';
+                banner.innerHTML = `
+                    <div style="display:flex;gap:12px;align-items:flex-start;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;font-size:1.2rem;margin-top:2px;"></i>
+                        <div style="flex:1;">
+                            <strong style="color:#f59e0b;font-size:0.92rem;display:block;margin-bottom:3px;">Conflicto de edición (409)</strong>
+                            <p style="margin:0 0 8px;font-size:0.84rem;color:var(--a-text);">Este ticket cambió en el servidor mientras lo tenías abierto. Tus cambios no se han borrado de la pantalla.</p>
+                            <div style="display:flex;gap:8px;">
+                                <button type="button" class="btn-admin btn-sm btn-approve" onclick="openRepairTicket('${activeRepairTicket.id}')">Recargar versión del servidor</button>
+                                <button type="button" class="btn-admin btn-sm" onclick="document.getElementById('repairConflictBanner')?.remove()">Descartar aviso</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                body.prepend(banner);
+            }
+            if (saveBtn) saveBtn.disabled = false;
+            if (saveMessage) saveMessage.textContent = 'Conflicto de edición (409). Revisa el aviso arriba.';
+            showAdminNotice('El ticket fue modificado por otro proceso. Revisa el aviso en el expediente.', 'warning');
             return;
         }
         if (!res.ok) throw new Error(data.message || data.error || `No se pudo guardar el ticket (HTTP ${res.status}).`);
@@ -1444,6 +1640,7 @@ async function saveRepairTicketChanges() {
         renderRepairs();
         renderRepairDetailModal(data.ticket);
         await loadTicketHistory(data.ticket.id);
+        loadTicketEmails(data.ticket.id);
         fetchAdminAppointments();
         window.dispatchEvent(new CustomEvent('admin:data-changed', { detail: { source: 'ticket', id: data.ticket.id } }));
         if (saveMessage) saveMessage.textContent = 'Cambios guardados correctamente.' + summarizeTicketNotifications(data.notifications);
@@ -1455,17 +1652,260 @@ async function saveRepairTicketChanges() {
     }
 }
 
+async function updateRepairAssignee(technicianId) {
+    if (!activeRepairTicket) return;
+    const select = document.getElementById('repairDetailAssignee');
+    if (select) select.disabled = true;
+    try {
+        const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(activeRepairTicket.id)}/assignee`, {
+            method: 'PATCH', headers: JSON_HEADERS, credentials: 'include', body: JSON.stringify({ technician_id: technicianId || null })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || 'No se pudo actualizar el responsable.');
+        activeRepairTicket = data.ticket;
+        allRepairs = allRepairs.map((ticket) => String(ticket.id) === String(data.ticket.id) ? data.ticket : ticket);
+        renderRepairs();
+        renderMyJourney();
+        showAdminNotice(technicianId ? 'Responsable actualizado.' : 'Ticket sin asignar.', 'success');
+    } catch (err) {
+        showAdminNotice(err.message, 'error');
+        if (select) select.value = activeRepairTicket.technician_id || '';
+    } finally {
+        if (select) select.disabled = false;
+    }
+}
+
 
 /* ─────────────────────────────────────────────────────────────
    TALLER (REPAIRS) UI
 ───────────────────────────────────────────────────────────── */
+
+function getRepairAssignee(repair) {
+    return repair.technician_name || 'Sin asignar';
+}
+
+function formatRelativeTicketTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Sin fecha';
+    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
+    if (minutes < 60) return `Hace ${Math.max(1, minutes)} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `Hace ${hours} h`;
+    const days = Math.floor(hours / 24);
+    return days === 1 ? 'Ayer' : `Hace ${days} días`;
+}
+
+function ticketBalanceLabel(repair) {
+    const total = Number(repair.final_cost ?? repair.estimated_cost);
+    if (!Number.isFinite(total) || total <= 0) return 'Sin saldo definido';
+    return `${formatRepairMoney(total)} pendiente`;
+}
+
+function applyRepairQuickView(repairs) {
+    const view = activeRepairQuickView;
+    const activeStatuses = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready']);
+    if (view === 'attention') return repairs.filter((ticket) => activeStatuses.has(ticket.status) && (inferRepairUrgency(ticket) === 'urgent' || !ticket.technician_id || ticket.status === 'diagnosing'));
+    if (view === 'unassigned') return repairs.filter((ticket) => activeStatuses.has(ticket.status) && !ticket.technician_id);
+    if (view === 'waiting') return repairs.filter((ticket) => ['quoted', 'contacted'].includes(ticket.status));
+    if (view === 'ready') return repairs.filter((ticket) => ticket.status === 'ready');
+    return repairs;
+}
+
+function renderRepairFilterChips(filters) {
+    const container = document.getElementById('repairFilterChips');
+    if (!container) return;
+    const labels = {
+        status: REPAIR_STATUS_LABELS[filters.status] || (filters.status === 'active' ? 'Activos' : filters.status === 'overdue' ? 'Atrasados' : ''),
+        urgency: REPAIR_PRIORITY_OPTIONS[filters.urgency]?.label || '',
+        device: filters.device === 'all' ? '' : filters.device,
+        service: filters.service === 'all' ? '' : filters.service
+    };
+    const chips = Object.entries(labels).filter(([, label]) => label).map(([key, label]) => `<button type="button" class="repair-filter-chip" data-clear-filter="${key}">${escapeHtml(label)} <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`);
+    if (filters.search) chips.unshift(`<button type="button" class="repair-filter-chip" data-clear-filter="search">“${escapeHtml(filters.search)}” <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`);
+    container.innerHTML = chips.join('');
+}
+
+function updateBulkToolbar() {
+    const toolbar = document.getElementById('repairBulkToolbar');
+    const count = crmSelectedTickets.size;
+    if (!toolbar) return;
+    toolbar.hidden = count === 0;
+    const countEl = document.getElementById('repairBulkCount');
+    if (countEl) countEl.textContent = count;
+}
+
+let bulkActionKind = null;
+let bulkDialogTrigger = null;
+
+function openBulkActionDialog(kind, trigger) {
+    const ids = [...crmSelectedTickets];
+    if (!ids.length) return;
+    const overlay = document.getElementById('repairBulkDialog');
+    const title = document.getElementById('repairBulkDialogTitle');
+    const description = document.getElementById('repairBulkDialogDescription');
+    const label = document.getElementById('repairBulkDialogLabel');
+    const select = document.getElementById('repairBulkDialogValue');
+    if (!overlay || !select) return;
+    bulkActionKind = kind;
+    bulkDialogTrigger = trigger || document.activeElement;
+    const definitions = {
+        status: { title: 'Cambiar estado', label: 'Nuevo estado', values: Object.entries(REPAIR_STATUS_LABELS).filter(([value]) => value !== 'eliminado').map(([value, text]) => [value, text]) },
+        priority: { title: 'Cambiar prioridad', label: 'Nueva prioridad', values: Object.entries(REPAIR_PRIORITY_OPTIONS).map(([value, data]) => [value, data.label]) },
+        assignee: { title: 'Asignar responsable', label: 'Responsable', values: [['', 'Sin asignar'], ...availableTechnicians.map((person) => [person.id, person.name])] }
+    };
+    const definition = definitions[kind];
+    if (!definition) return;
+    title.textContent = definition.title;
+    description.textContent = `Aplicarás este cambio a ${ids.length} ticket${ids.length === 1 ? '' : 's'} seleccionados.`;
+    label.firstChild.textContent = definition.label;
+    select.innerHTML = definition.values.map(([value, text]) => `<option value="${escapeHtml(value)}">${escapeHtml(text)}</option>`).join('');
+    overlay.hidden = false;
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    requestAnimationFrame(() => select.focus());
+}
+
+function closeBulkActionDialog() {
+    const overlay = document.getElementById('repairBulkDialog');
+    if (!overlay) return;
+    overlay.hidden = true;
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    bulkDialogTrigger?.focus?.();
+    bulkDialogTrigger = null;
+    bulkActionKind = null;
+}
+
+async function confirmBulkAction() {
+    const value = document.getElementById('repairBulkDialogValue')?.value;
+    const ids = [...crmSelectedTickets];
+    if (!bulkActionKind || !ids.length) return;
+    const confirm = document.getElementById('repairBulkDialogConfirm');
+    if (confirm) { confirm.disabled = true; confirm.textContent = 'Aplicando…'; }
+    try {
+        const response = await fetch(`${API_BASE}/admin/tickets/bulk`, {
+            method: 'PATCH',
+            headers: JSON_HEADERS,
+            credentials: 'include',
+            body: JSON.stringify({ ticket_ids: ids, action: bulkActionKind, value })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || 'No se pudieron actualizar los tickets.');
+        const updated = new Map((data.tickets || []).map((ticket) => [String(ticket.id), ticket]));
+        allRepairs = allRepairs.map((ticket) => updated.get(String(ticket.id)) || ticket);
+        crmSelectedTickets.clear();
+        renderRepairs();
+        renderMyJourney();
+        closeBulkActionDialog();
+        showAdminNotice(`${data.count || ids.length} ticket${ids.length === 1 ? '' : 's'} actualizado${ids.length === 1 ? '' : 's'}.`, 'success');
+    } catch (error) {
+        showAdminNotice(error.message, 'error');
+    } finally {
+        if (confirm) { confirm.disabled = false; confirm.textContent = 'Aplicar cambios'; }
+    }
+}
+
+function getGlobalSearchItems(query) {
+    const normalized = normalizeText(query);
+    if (!normalized) return [];
+    const ticketItems = allRepairs.filter((ticket) => normalizeText(`${ticket.ticket_code} ${getRepairClientName(ticket)} ${ticket.contact_phone} ${getRepairContactEmail(ticket)} ${ticket.serial_number} ${ticket.device_model}`).includes(normalized)).slice(0, 8).map((ticket) => ({ type: 'Tickets', title: `#${ticket.ticket_code} · ${ticket.device_type || 'Equipo'}`, meta: `${getRepairClientName(ticket)} · ${ticket.next_action || 'Revisar expediente'}`, action: () => openRepairTicket(ticket.id) }));
+    const customerItems = allUsers.filter((user) => normalizeText(`${user.name} ${user.email} ${user.phone}`).includes(normalized)).slice(0, 5).map((user) => ({ type: 'Clientes', title: user.name || 'Cliente sin nombre', meta: user.email || user.phone || 'Sin datos de contacto', action: () => { document.querySelector('[data-view="users"]')?.click(); } }));
+    const buildItems = allBuilds.filter((build) => normalizeText(`${build.title} ${build.description} ${build.price}`).includes(normalized)).slice(0, 5).map((build) => ({ type: 'Ensambles', title: build.title || 'Ensamble', meta: build.price || 'Sin precio visible', action: () => { document.querySelector('[data-view="builds"]')?.click(); } }));
+    return [...ticketItems, ...customerItems, ...buildItems];
+}
+
+function renderGlobalSearchResults(query) {
+    const container = document.getElementById('adminGlobalSearchResults');
+    if (!container) return;
+    globalSearchResults = getGlobalSearchItems(query);
+    globalSearchIndex = globalSearchResults.length ? 0 : -1;
+    if (!globalSearchResults.length) {
+        container.innerHTML = `<div class="admin-search-empty">${query ? 'No encontramos coincidencias. Prueba con folio, cliente, teléfono o modelo.' : 'Escribe para buscar tickets, clientes y ensambles.'}</div>`;
+        return;
+    }
+    const grouped = globalSearchResults.reduce((groups, item, index) => {
+        (groups[item.type] ||= []).push({ ...item, index });
+        return groups;
+    }, {});
+    container.innerHTML = Object.entries(grouped).map(([group, items]) => `<section class="admin-search-group"><h3>${escapeHtml(group)}</h3>${items.map((item) => `<button type="button" class="admin-search-result ${item.index === globalSearchIndex ? 'active' : ''}" data-global-result="${item.index}" role="option" aria-selected="${item.index === globalSearchIndex}"><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.meta)}</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>`).join('')}</section>`).join('');
+}
+
+function openGlobalSearch(trigger) {
+    const overlay = document.getElementById('adminGlobalSearchDialog');
+    const input = document.getElementById('adminGlobalSearchInput');
+    if (!overlay || !input) return;
+    overlay.hidden = false;
+    overlay.setAttribute('aria-hidden', 'false');
+    overlay.dataset.triggerId = trigger?.id || '';
+    document.body.classList.add('modal-open');
+    input.value = '';
+    renderGlobalSearchResults('');
+    requestAnimationFrame(() => input.focus());
+}
+
+function closeGlobalSearch() {
+    const overlay = document.getElementById('adminGlobalSearchDialog');
+    if (!overlay) return;
+    const trigger = overlay.dataset.triggerId ? document.getElementById(overlay.dataset.triggerId) : null;
+    overlay.hidden = true;
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    trigger?.focus();
+}
+
+function activateGlobalSearchResult(index = globalSearchIndex) {
+    const result = globalSearchResults[index];
+    if (!result) return;
+    closeGlobalSearch();
+    result.action();
+}
+
+function renderMyJourney() {
+    const attention = document.getElementById('journey-attention');
+    const upcoming = document.getElementById('journey-upcoming');
+    const summary = document.getElementById('journey-summary-grid');
+    const date = document.getElementById('journey-date');
+    if (!attention || !upcoming || !summary) return;
+    const today = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Cancun' }).format(new Date());
+    if (date) date.textContent = today.charAt(0).toUpperCase() + today.slice(1);
+    const active = allRepairs.filter((ticket) => !['delivered', 'cancelled', 'eliminado'].includes(ticket.status));
+    const withoutDiagnosis = active.filter((ticket) => ['new', 'received', 'diagnosing'].includes(ticket.status));
+    const unassigned = active.filter((ticket) => !ticket.technician_id);
+    const ready = active.filter((ticket) => ticket.status === 'ready');
+    const waitingClient = active.filter((ticket) => ['quoted', 'contacted'].includes(ticket.status));
+    const ageOldest = (tickets) => tickets.length ? tickets.reduce((oldest, item) => new Date(item.created_at) < new Date(oldest.created_at) ? item : oldest, tickets[0]) : null;
+    const items = [
+        { tone: withoutDiagnosis.length ? 'warning' : 'positive', icon: withoutDiagnosis.length ? 'fa-triangle-exclamation' : 'fa-circle-check', title: withoutDiagnosis.length ? `${withoutDiagnosis.length} ticket${withoutDiagnosis.length === 1 ? '' : 's'} sin diagnóstico` : 'No hay tickets sin diagnóstico', meta: withoutDiagnosis.length ? `Más antiguo: ${formatRelativeTicketTime(ageOldest(withoutDiagnosis).created_at)} · ${unassigned.length} sin asignar` : 'Todo al día en revisión inicial', action: 'Revisar', filter: 'attention' },
+        { tone: waitingClient.length ? 'warning' : 'neutral', icon: waitingClient.length ? 'fa-clock' : 'fa-message', title: waitingClient.length ? `${waitingClient.length} esperando respuesta del cliente` : 'Sin respuestas pendientes', meta: waitingClient.length ? `Cotizaciones o contactos por confirmar` : 'No hay seguimiento bloqueado', action: 'Abrir', filter: 'waiting' },
+        { tone: ready.length ? 'positive' : 'neutral', icon: ready.length ? 'fa-box-open' : 'fa-check', title: ready.length ? `${ready.length} equipo${ready.length === 1 ? '' : 's'} listo${ready.length === 1 ? '' : 's'} para entregar` : 'Sin entregas pendientes', meta: ready.length ? `${ready.filter(ticket => (Date.now() - new Date(ticket.created_at).getTime()) > 86400000).length} desde ayer o antes` : 'Se mostrará aquí lo que requiera entrega', action: 'Entregar', filter: 'ready' }
+    ];
+    attention.innerHTML = items.map((item) => `<div class="journey-item is-${item.tone}"><div class="journey-item-icon"><i class="fa-solid ${item.icon}" aria-hidden="true"></i></div><div class="journey-item-copy"><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.meta)}</span></div><button type="button" data-journey-filter="${item.filter}">${item.action} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>`).join('');
+    attention.setAttribute('aria-busy', 'false');
+
+    const now = Date.now();
+    const nextDay = now + 86400000;
+    const appointments = allRepairs.filter((ticket) => ticket.appointment_datetime || (ticket.appointment_date && ticket.appointment_time)).map((ticket) => ({ ticket, at: new Date(ticket.appointment_datetime || `${ticket.appointment_date}T${ticket.appointment_time}`) })).filter((entry) => !Number.isNaN(entry.at.getTime()) && entry.at.getTime() >= now - 1800000 && entry.at.getTime() <= nextDay).sort((a, b) => a.at - b.at);
+    upcoming.innerHTML = appointments.length ? appointments.map(({ ticket, at }) => `<button type="button" class="journey-timeline-item" data-ticket-open="${ticket.id}"><time>${at.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Cancun' })}</time><span><strong>${escapeHtml(`${ticket.device_type || 'Equipo'}${ticket.device_model ? ` · ${ticket.device_model}` : ''}`)}</strong><small>${escapeHtml(getRepairClientName(ticket))} · ${escapeHtml(APPOINTMENT_STATUS_LABELS[ticket.appointment_status] || 'Cita')}</small></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>`).join('') : '<div class="journey-empty"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i><strong>Sin citas en las próximas 24 horas.</strong><span>La agenda disponible aparecerá aquí.</span></div>';
+    upcoming.setAttribute('aria-busy', 'false');
+
+    const totalPending = active.reduce((sum, ticket) => sum + (Number(ticket.final_cost ?? ticket.estimated_cost) || 0), 0);
+    const metrics = [
+        ['Tickets abiertos', active.length, 'repairs'],
+        ['Por entregar', ready.length, 'repairs'],
+        ['Sin asignar', unassigned.length, 'repairs'],
+        ['Pendiente estimado', formatRepairMoney(totalPending), 'repairs']
+    ];
+    summary.innerHTML = metrics.map(([label, value, view]) => `<button type="button" class="journey-metric" data-view-target="${view}"><span>${label}</span><strong>${value}</strong><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>`).join('');
+    summary.setAttribute('aria-busy', 'false');
+}
 
 function renderRepairs() {
     const tbody = document.getElementById('repairs-tbody');
     if(!tbody) return;
     tbody.innerHTML = '';
 
-    const filteredRepairs = filterRepairs();
+    const filters = getRepairFilters();
+    const filteredRepairs = applyRepairQuickView(filterRepairs());
     const totalCount = filteredRepairs.length;
 
     // Calcular paginación
@@ -1479,8 +1919,10 @@ function renderRepairs() {
 
     const summary = document.getElementById('repairFilterSummary');
     if (summary) {
-        summary.textContent = `Mostrando ${filteredRepairs.length} de ${allRepairs.length} ticket(s) en total.`;
+        summary.textContent = `Mostrando ${filteredRepairs.length} de ${allRepairs.length} tickets.`;
     }
+    renderRepairFilterChips(filters);
+    updateBulkToolbar();
 
     // Actualizar controles de paginación en UI
     const pagInfo = document.getElementById('crmPaginationInfo');
@@ -1494,16 +1936,16 @@ function renderRepairs() {
 
     if (paginatedRepairs.length === 0) {
         const message = allRepairs.length === 0 ? 'Aún no hay tickets registrados.' : 'No hay tickets que coincidan con los filtros.';
-        tbody.innerHTML = `<tr><td colspan="9" class="empty-row" style="text-align: center; padding: 30px; color: var(--a-text-dim);">${message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" class="empty-row" style="text-align: center; padding: 30px; color: var(--a-text-dim);">${message}</td></tr>`;
+        const mobile = document.getElementById('repairMobileList');
+        if (mobile) mobile.innerHTML = `<div class="repair-mobile-empty">${message}</div>`;
         return;
     }
 
     paginatedRepairs.forEach(r => {
-        const date = formatRepairDate(r.created_at);
         const color = REPAIR_STATUS_COLORS[r.status] || '#cbd5e1';
         const clientName = getRepairClientName(r);
         const service = inferRepairService(r);
-        const issueDescription = getRepairIssueDescription(r);
         const urgency = inferRepairUrgency(r);
         const urgencyColor = urgency === 'urgent' ? '#ef4444' : urgency === 'work_school' ? '#f59e0b' : urgency === 'quote' ? '#38bdf8' : '#10b981';
         const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || urgency;
@@ -1524,28 +1966,33 @@ function renderRepairs() {
             </td>
             <td>
                 <div style="font-weight:600;">${escapeHtml(r.device_type)}</div>
-                <div style="font-size:0.75rem; color:var(--a-text-muted);">${escapeHtml(r.device_brand || '')} ${escapeHtml(r.device_model || '')}</div>
-            </td>
-            <td style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(issueDescription)}">
-                <div style="font-weight:500;">${escapeHtml(service)}</div>
-                <div style="font-size:0.75rem; color:var(--a-text-muted); overflow:hidden; text-overflow:ellipsis;">${escapeHtml(issueDescription)}</div>
+                <div style="font-size:0.75rem; color:var(--a-text-muted);">${escapeHtml([r.device_brand, r.device_model, service].filter(Boolean).join(' · '))}</div>
             </td>
             <td><span class="badge-status" style="background: ${urgencyColor}18; color: ${urgencyColor}; border: 1px solid ${urgencyColor}30;">${escapeHtml(urgencyLabel)}</span></td>
             <td><span class="badge-status" style="background: ${color}18; color: ${color}; border: 1px solid ${color}30;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span></td>
             <td>
-                <div style="font-weight:500;">${date.split(',')[0] || date}</div>
-                <div style="font-size:0.75rem; color:var(--a-text-dim);">${date.split(',')[1] || ''}</div>
+                <span class="ticket-assignee ${r.technician_id ? '' : 'is-unassigned'}"><i class="fa-solid fa-user" aria-hidden="true"></i>${escapeHtml(getRepairAssignee(r))}</span>
             </td>
-            <td style="text-align: right;" onclick="event.stopPropagation()">
+            <td><span class="ticket-next-action"><small>Siguiente</small>${escapeHtml(r.next_action || 'Revisar expediente')}</span></td>
+            <td><time title="${escapeHtml(formatRepairDate(r.created_at))}">${escapeHtml(formatRelativeTicketTime(r.created_at))}</time></td>
+            <td><span class="ticket-balance ${Number(r.final_cost ?? r.estimated_cost) > 0 ? 'is-pending' : ''}">${escapeHtml(ticketBalanceLabel(r))}</span></td>
+            <td style="text-align: right;">
                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}">
-                        <i class="fa-solid fa-folder-open"></i> Abrir
+                    <button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}" onclick="window.openRepairTicket('${escapeHtml(r.id)}')" aria-label="Abrir ticket ${escapeHtml(r.ticket_code)}">
+                        Abrir <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </button>
                 </div>
             </td>
         `;
         tbody.appendChild(tr);
     });
+
+    const mobile = document.getElementById('repairMobileList');
+    if (mobile) mobile.innerHTML = paginatedRepairs.map((r) => {
+        const urgency = inferRepairUrgency(r);
+        const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || urgency;
+        return `<article class="repair-mobile-card"><header><strong>#${escapeHtml(r.ticket_code)}</strong><span class="ticket-priority priority-${escapeHtml(urgency)}">${escapeHtml(urgencyLabel)}</span></header><div class="repair-mobile-device"><strong>${escapeHtml(r.device_type || 'Equipo')}</strong><span>${escapeHtml(getRepairClientName(r))}</span></div><div class="repair-mobile-state"><span>${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span><strong><small>Siguiente</small>${escapeHtml(r.next_action || 'Revisar expediente')}</strong></div><footer><span>${escapeHtml(getRepairAssignee(r))} · ${escapeHtml(formatRelativeTicketTime(r.created_at))}</span><strong>${escapeHtml(ticketBalanceLabel(r))}</strong></footer><button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}" onclick="window.openRepairTicket('${escapeHtml(r.id)}')">Abrir ticket <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></article>`;
+    }).join('');
 }
 
 function switchRepairPanel(panel) {
@@ -1612,8 +2059,15 @@ async function fetchAdminAppointments() {
 
 function renderAdminAppointments() {
     const list = document.getElementById('appointmentsList');
+    const calendar = document.getElementById('appointmentsCalendar');
     if (!list) return;
     const visibleAppointments = getFilteredAdminAppointments();
+    if (calendar) calendar.hidden = activeAgendaView === 'list';
+    list.hidden = activeAgendaView !== 'list';
+    if (activeAgendaView !== 'list') {
+        renderAppointmentCalendar(visibleAppointments, activeAgendaView);
+        return;
+    }
     if (!visibleAppointments.length) {
         list.innerHTML = '<div class="empty-state">No hay citas programadas para este rango.</div>';
         return;
@@ -1631,6 +2085,26 @@ function renderAdminAppointments() {
             <button class="btn-admin repair-open-btn" type="button" data-open-ticket="${escapeHtml(item.id)}">Abrir ticket</button>
         </div>
     `).join('');
+}
+
+function renderAppointmentCalendar(appointments, view) {
+    const calendar = document.getElementById('appointmentsCalendar');
+    if (!calendar) return;
+    const from = document.getElementById('appointmentFrom')?.value || dateISOFromOffset(0);
+    const start = new Date(`${from}T12:00:00`);
+    const days = view === 'week' ? Array.from({ length: 7 }, (_, index) => { const date = new Date(start); date.setDate(start.getDate() + index); return date; }) : [start];
+    const byDay = new Map(days.map((date) => [date.toISOString().slice(0, 10), []]));
+    appointments.forEach((appointment) => {
+        const key = String(appointment.appointment_date || '').slice(0, 10);
+        if (byDay.has(key)) byDay.get(key).push(appointment);
+    });
+    calendar.className = `appointments-calendar is-${view}`;
+    calendar.innerHTML = days.map((day) => {
+        const key = day.toISOString().slice(0, 10);
+        const label = day.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'America/Cancun' });
+        const entries = (byDay.get(key) || []).sort((a, b) => String(a.appointment_time || '').localeCompare(String(b.appointment_time || '')));
+        return `<section class="agenda-day-column"><h3>${escapeHtml(label)}</h3>${entries.length ? entries.map((item) => `<button type="button" class="agenda-calendar-item status-${escapeHtml(item.appointment_status || 'pendiente_confirmacion')}" data-open-ticket="${item.id}"><time>${escapeHtml(String(item.appointment_time || '').slice(0, 5) || 'Hora por confirmar')}</time><span><strong>${escapeHtml(item.device_type || 'Equipo')}</strong><small>${escapeHtml(getRepairClientName(item))} · ${escapeHtml(APPOINTMENT_STATUS_LABELS[item.appointment_status] || 'Pendiente')}</small></span></button>`).join('') : '<p class="agenda-day-empty">Sin citas</p>'}</section>`;
+    }).join('');
 }
 
 async function fetchAppointmentConfig() {
@@ -1784,6 +2258,27 @@ async function deleteRepairTicketConfirmed() {
 document.addEventListener('DOMContentLoaded', () => {
     setupRepairModalOptions();
     populateRepairFilters();
+    document.getElementById('adminGlobalSearchTrigger')?.addEventListener('click', (event) => openGlobalSearch(event.currentTarget));
+    document.querySelectorAll('[data-search-close]').forEach((button) => button.addEventListener('click', closeGlobalSearch));
+    document.getElementById('adminGlobalSearchDialog')?.addEventListener('click', (event) => { if (event.target.id === 'adminGlobalSearchDialog') closeGlobalSearch(); });
+    document.getElementById('adminGlobalSearchInput')?.addEventListener('input', (event) => renderGlobalSearchResults(event.target.value));
+    document.getElementById('adminGlobalSearchResults')?.addEventListener('click', (event) => {
+        const result = event.target.closest('[data-global-result]');
+        if (result) activateGlobalSearchResult(Number(result.dataset.globalResult));
+    });
+    document.getElementById('adminGlobalSearchInput')?.addEventListener('keydown', (event) => {
+        if (!globalSearchResults.length) return;
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            globalSearchIndex = (globalSearchIndex + (event.key === 'ArrowDown' ? 1 : -1) + globalSearchResults.length) % globalSearchResults.length;
+            renderGlobalSearchResults(event.currentTarget.value);
+            document.querySelector(`[data-global-result="${globalSearchIndex}"]`)?.scrollIntoView({ block: 'nearest' });
+        }
+        if (event.key === 'Enter') { event.preventDefault(); activateGlobalSearchResult(); }
+    });
+    document.addEventListener('keydown', (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); openGlobalSearch(document.getElementById('adminGlobalSearchTrigger')); }
+    });
     
     // Iniciar notificaciones tras un pequeño delay para que repairs ya estén cargados
     setTimeout(initNotifications, 1200);
@@ -1822,6 +2317,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cb.closest('tr')?.classList.remove('selected');
             }
         });
+        updateBulkToolbar();
     });
 
     // Event listener delegado para selección de checkboxes individuales
@@ -1836,11 +2332,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 crmSelectedTickets.delete(id);
                 cb.closest('tr')?.classList.remove('selected');
             }
+            updateBulkToolbar();
         }
     });
 
     // Exportación CSV
     document.getElementById('crmExportCsv')?.addEventListener('click', crmExportToCsv);
+    document.getElementById('repairBulkExport')?.addEventListener('click', crmExportToCsv);
+    document.getElementById('repairBulkStatus')?.addEventListener('click', (event) => openBulkActionDialog('status', event.currentTarget));
+    document.getElementById('repairBulkAssign')?.addEventListener('click', (event) => openBulkActionDialog('assignee', event.currentTarget));
+    document.getElementById('repairBulkPriority')?.addEventListener('click', (event) => openBulkActionDialog('priority', event.currentTarget));
+    document.getElementById('repairBulkClear')?.addEventListener('click', () => { crmSelectedTickets.clear(); renderRepairs(); });
+    document.getElementById('repairBulkDialogConfirm')?.addEventListener('click', confirmBulkAction);
+    document.querySelectorAll('[data-bulk-close]').forEach((button) => button.addEventListener('click', closeBulkActionDialog));
+    document.getElementById('repairBulkDialog')?.addEventListener('click', (event) => { if (event.target.id === 'repairBulkDialog') closeBulkActionDialog(); });
+    document.querySelectorAll('[data-repair-quick-view]').forEach((button) => button.addEventListener('click', () => {
+        activeRepairQuickView = button.dataset.repairQuickView || 'all';
+        document.querySelectorAll('[data-repair-quick-view]').forEach((item) => item.classList.toggle('active', item === button));
+        crmCurrentPage = 1;
+        renderRepairs();
+    }));
 
     ['repairSearchInput', 'repairStatusFilter', 'repairUrgencyFilter', 'repairDeviceFilter', 'repairServiceFilter'].forEach(id => {
         document.getElementById(id)?.addEventListener(id === 'repairSearchInput' ? 'input' : 'change', () => {
@@ -1859,6 +2370,17 @@ document.addEventListener('DOMContentLoaded', () => {
         crmCurrentPage = 1;
         renderRepairs();
     });
+    document.getElementById('repairFilterChips')?.addEventListener('click', (event) => {
+        const chip = event.target.closest('[data-clear-filter]');
+        if (!chip) return;
+        const key = chip.dataset.clearFilter;
+        const inputMap = { search: 'repairSearchInput', status: 'repairStatusFilter', urgency: 'repairUrgencyFilter', device: 'repairDeviceFilter', service: 'repairServiceFilter' };
+        const input = document.getElementById(inputMap[key]);
+        if (input) input.value = key === 'search' ? '' : 'all';
+        if (key === 'device') refreshRepairServiceFilterOptions();
+        crmCurrentPage = 1;
+        renderRepairs();
+    });
     document.addEventListener('click', (event) => {
         const copyBtn = event.target.closest('[data-copy-ticket]');
         if (copyBtn) {
@@ -1871,6 +2393,16 @@ document.addEventListener('DOMContentLoaded', () => {
             openRepairTicket(openBtn.dataset.openTicket);
             return;
         }
+        const journeyFilter = event.target.closest('[data-journey-filter]');
+        if (journeyFilter) {
+            activeRepairQuickView = journeyFilter.dataset.journeyFilter || 'all';
+            document.querySelectorAll('[data-repair-quick-view]').forEach((item) => item.classList.toggle('active', item.dataset.repairQuickView === activeRepairQuickView));
+            document.querySelector('[data-view="repairs"]')?.click();
+            renderRepairs();
+            return;
+        }
+        const journeyTicket = event.target.closest('[data-ticket-open]');
+        if (journeyTicket) { openRepairTicket(journeyTicket.dataset.ticketOpen, journeyTicket); return; }
         const deleteBtn = event.target.closest('[data-delete-ticket]');
         if (deleteBtn) {
             event.preventDefault();
@@ -1898,6 +2430,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('repairDetailClose')?.addEventListener('click', closeRepairTicketModal);
     document.getElementById('repairDetailCancel')?.addEventListener('click', closeRepairTicketModal);
     document.getElementById('repairDetailSave')?.addEventListener('click', saveRepairTicketChanges);
+    document.addEventListener('change', (event) => {
+        if (event.target.id === 'repairDetailAssignee') updateRepairAssignee(event.target.value);
+    });
     document.getElementById('repairDetailDelete')?.addEventListener('click', () => openRepairDeleteConfirm(activeRepairTicket?.id));
     document.getElementById('repairTabTickets')?.addEventListener('click', () => switchRepairPanel('tickets'));
     document.getElementById('repairTabAgenda')?.addEventListener('click', () => switchRepairPanel('agenda'));
@@ -1914,6 +2449,15 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchAdminAppointments();
         });
     });
+    document.querySelectorAll('[data-agenda-view]').forEach((button) => button.addEventListener('click', () => {
+        activeAgendaView = button.dataset.agendaView || 'list';
+        document.querySelectorAll('[data-agenda-view]').forEach((item) => {
+            const selected = item === button;
+            item.classList.toggle('active', selected);
+            item.setAttribute('aria-selected', String(selected));
+        });
+        renderAdminAppointments();
+    }));
     document.getElementById('repairDetailOverlay')?.addEventListener('click', (event) => {
         if (event.target.id === 'repairDetailOverlay') closeRepairTicketModal();
     });
@@ -1924,7 +2468,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.id === 'repairDeleteConfirmOverlay') closeRepairDeleteConfirm();
     });
     document.addEventListener('keydown', (event) => {
+        if (event.key === 'Tab') {
+            const overlay = document.querySelector('.admin-search-overlay:not([hidden]), .crm-drawer-overlay.show, .admin-modal-overlay.show');
+            if (overlay) {
+                const focusable = Array.from(overlay.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter((element) => element.getClientRects().length > 0);
+                const first = focusable[0];
+                const last = focusable.at(-1);
+                if (first && last) {
+                    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+                }
+            }
+        }
         if (event.key === 'Escape') {
+            if (!document.getElementById('adminGlobalSearchDialog')?.hidden) { closeGlobalSearch(); return; }
+            if (!document.getElementById('repairBulkDialog')?.hidden) { closeBulkActionDialog(); return; }
             if (document.getElementById('repairDeleteConfirmOverlay')?.classList.contains('show')) {
                 closeRepairDeleteConfirm();
                 return;

@@ -6,7 +6,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 const distServices = path.join(root, 'dist', 'servicios');
 
-const requiredSchemas = ['Service', 'FAQPage', 'BreadcrumbList', 'LocalBusiness'];
+// FAQPage no es requisito global: Base.astro solo lo emite cuando existe FAQ
+// visible y verificable en la página. El auditor debe reflejar esa política.
+const requiredSchemas = ['Service', 'BreadcrumbList', 'LocalBusiness'];
 const privateSlugs = new Set(['admin', 'cuenta']);
 
 function walk(dir, files = []) {

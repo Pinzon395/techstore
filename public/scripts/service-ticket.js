@@ -256,13 +256,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (appointmentHint) appointmentHint.textContent = data.message || 'Este día está bloqueado por el taller.';
                 return;
             }
-            const slots = Array.isArray(data.slots) ? data.slots : [];
-            appointmentTime.innerHTML = slots.length
-                ? '<option value="">Selecciona un horario...</option>' + slots.map(slot => `<option value="${slot}">${slot}</option>`).join('')
+            const rawSlots = Array.isArray(data.slots) ? data.slots : [];
+            const availableOptions = rawSlots.map(slot => {
+                const time = typeof slot === 'string' ? slot : slot.time;
+                const state = typeof slot === 'object' ? slot.state : 'AVAILABLE';
+                const remaining = typeof slot === 'object' ? (slot.remaining_capacity ?? slot.remainingCapacity) : 1;
+                const isAvail = typeof slot === 'object' ? slot.available : true;
+                if (!isAvail) return '';
+                let label = time;
+                if (state === 'PARTIAL') label += ` (${remaining} espacio${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''})`;
+                return `<option value="${time}">${label}</option>`;
+            }).filter(Boolean);
+
+            appointmentTime.innerHTML = availableOptions.length
+                ? '<option value="">Selecciona un horario...</option>' + availableOptions.join('')
                 : '<option value="">Día lleno o sin horarios disponibles</option>';
             if (appointmentHint) {
-                appointmentHint.textContent = slots.length
-                    ? 'Tu visita quedará registrada como pendiente de confirmación.'
+                appointmentHint.textContent = availableOptions.length
+                    ? 'Horario con reserva temporal. Diagnóstico desde $600 MXN (abonables a tu reparación si la aceptas).'
                     : 'Este día está lleno o no tiene horarios disponibles para el tipo de visita seleccionado.';
             }
         } catch (err) {

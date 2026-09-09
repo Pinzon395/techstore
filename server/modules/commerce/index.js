@@ -28,14 +28,15 @@ const {
     createAdminOrderRoutes
 } = require('./orders/order.routes');
 const emailService = require('../../services/email.service');
+const persistentPaths = require('../../config/persistent-paths');
 
 function createCommerceModule({
     pool,
     dashboardService,
     mediaStorage,
-    mediaDirectory = path.join(process.cwd(), 'server', 'storage', 'commerce-media'),
+    mediaDirectory = persistentPaths.mediaDir,
     mediaMaxBytes = DEFAULT_MEDIA_MAX_BYTES,
-    proofDirectory = path.join(process.cwd(), 'server', 'storage', 'commerce-payment-proofs'),
+    proofDirectory = persistentPaths.proofDir,
     proofMaxBytes = 10 * 1024 * 1024,
     legacyAdminBypass = true
 }) {

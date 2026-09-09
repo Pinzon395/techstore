@@ -28,6 +28,9 @@ const pcClusterService = ({
   relatedSlugs,
   metaTitle,
   metaDescription,
+  schemaName,
+  schemaServiceType,
+  hideSchemaOffer,
   faqs,
 }: {
   slug: string;
@@ -40,6 +43,9 @@ const pcClusterService = ({
   relatedSlugs: string[];
   metaTitle?: string;
   metaDescription?: string;
+  schemaName?: string;
+  schemaServiceType?: string;
+  hideSchemaOffer?: boolean;
   faqs?: { question: string; answer: string }[];
 }): ServiceItem => ({
   slug,
@@ -50,6 +56,9 @@ const pcClusterService = ({
   bullets,
   metaTitle,
   metaDescription,
+  schemaName,
+  schemaServiceType,
+  hideSchemaOffer,
   fromPrice: '$650 MXN',
   eta: '24-72 h',
   warranty: 'Garantía por escrito según reparación',
@@ -150,7 +159,7 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     intro: 'Revisamos tarjeta de video, drivers, fuente de poder, temperatura, ranura PCIe, cables, monitor y estabilidad bajo carga con benchmark profesional.',
     bullets: ['Prueba de stress y benchmark GPU', 'Revisión de temperatura y fuente de poder', 'Limpieza y pasta térmica de GPU', 'Instalación o cambio de GPU NVIDIA/AMD'],
     problems: [
-      { problem: 'Artefactos o cuadros en pantalla', solution: 'Puede ser GPU, VRAM, temperatura o driver; se prueba bajo carga real con FurMark.' },
+      { problem: 'Artefactos o cuadros en pantalla', solution: 'Puede ser GPU, VRAM, temperatura o driver; se realizan pruebas funcionales y bajo carga cuando son técnicamente seguras.' },
       { problem: 'Juegos se cierran o reinician', solution: 'Revisamos fuente de poder, temperatura, drivers, RAM y GPU bajo estrés.' },
       { problem: 'No da imagen por HDMI/DP', solution: 'Probamos cable, monitor, salida, ranura PCIe, BIOS y GPU por separado.' },
       { problem: 'Quiero actualizar GPU', solution: 'Validamos fuente, gabinete, CPU, ventilación y cuello de botella antes de comprar.' },
@@ -231,10 +240,16 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
   pcClusterService({
     slug: 'lentitud',
     label: 'PC lenta',
-    keyword: 'PC lenta en Cancún',
-    hook: 'Diagnóstico para PC lenta al encender, abrir programas, navegar, trabajar con Office, editar o jugar.',
-    intro: 'Revisamos si la lentitud viene de disco duro, poca RAM, virus, Windows dañado, temperatura, apps de inicio o hardware viejo.',
-    bullets: ['Diagnóstico de cuello de botella', 'SSD/RAM si conviene', 'Limpieza de software y arranque', 'Prueba antes/después'],
+    keyword: 'Computadora lenta en Cancún',
+    metaTitle: 'PC Lenta en Cancún | Diagnóstico y Soluciones | Pixon PC',
+    metaDescription: '¿Tu PC está lenta, tarda en prender o se congela? En Pixon PC diagnosticamos almacenamiento, RAM, Windows, temperatura y malware en Cancún para encontrar la causa antes de recomendar una solución.',
+    schemaName: 'Diagnóstico y solución de PC lenta en Cancún',
+    schemaServiceType: 'Diagnóstico de rendimiento y lentitud de computadoras',
+    hideSchemaOffer: true,
+    h1: '¿Tu PC está lenta? Diagnóstico y solución en Cancún',
+    hook: 'Diagnóstico para computadoras lentas en Cancún: almacenamiento, RAM, Windows, temperatura y software antes de recomendar cambios.',
+    intro: 'Revisamos por qué una PC se vuelve lenta antes de recomendar SSD, RAM, optimización, limpieza, reinstalación de Windows o una reparación distinta.',
+    bullets: ['Diagnóstico de cuello de botella', 'SSD/RAM si conviene', 'Revisión de software y arranque', 'Opciones según la causa real'],
     problems: [
       { problem: 'Tarda mucho en encender', solution: 'Suele ser disco mecánico, programas de inicio o Windows dañado.' },
       { problem: 'Se congela con varias pestañas', solution: 'Revisamos RAM, navegador, disco y procesos en segundo plano.' },
@@ -537,13 +552,13 @@ export const pcCategory: ServiceCategory = {
         seoKeyword: 'Diagnóstico de PC en Cancún',
         hook: '¿Tu PC no enciende, se reinicia, va lenta, muestra pantalla azul o no da video? Hacemos diagnóstico técnico real antes de cambiar piezas.',
         intro: 'Diagnóstico profesional de PC en Cancún para fallas de encendido, Windows, virus, fuente de poder, RAM, SSD, disco duro, GPU, temperatura y placa madre.',
-        bullets: ['Prueba de fuente, RAM, SSD/HDD y GPU', 'Revisión de Windows, virus y drivers', 'Medición de temperatura y estabilidad', 'Reporte claro por WhatsApp', 'Diagnóstico gratis'],
+        bullets: ['Prueba de fuente, RAM, SSD/HDD y GPU', 'Revisión de Windows, virus y drivers', 'Medición de temperatura y estabilidad', 'Reporte claro por WhatsApp', 'Diagnóstico técnico desde $600 MXN'],
         fromPrice: 'GRATIS', eta: 'Hasta 6 h o más según falla', warranty: 'Reporte por escrito',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico real', desc: 'No decimos "es la placa" sin pruebas. Separamos fuente, RAM, disco, Windows, temperatura y GPU.' },
           { icon: 'fa-file-contract',    title: 'Reporte por WhatsApp', desc: 'Te explicamos la falla, causa probable, urgencia, costo y tiempo antes de reparar.' },
           { icon: 'fa-handshake',        title: 'Recomendación honesta', desc: 'Si conviene formatear, cambiar SSD, limpiar, reparar o no invertir más, te lo decimos claro.' },
-          { icon: 'fa-piggy-bank',       title: 'Diagnóstico gratis', desc: 'La revisión no tiene costo. El tiempo depende del tipo de problema y puede extenderse si la falla requiere pruebas largas.' },
+          { icon: 'fa-piggy-bank',       title: 'Diagnóstico técnico desde $600', desc: 'El pago se realiza por adelantado para confirmar la cita y se abona a la reparación si aceptas la cotización.' },
         ],
         process: [
           { title: 'Recepción y síntomas', desc: 'Registramos si no enciende, se reinicia, va lenta, no da video, se calienta o marca errores.' },

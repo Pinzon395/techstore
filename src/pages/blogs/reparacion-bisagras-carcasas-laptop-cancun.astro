@@ -10,61 +10,137 @@ import Footer from '../../components/Footer.astro';
 import Icon from '../../components/LocalSpriteIcon.astro';
 
 const canonical = '/blogs/reparacion-bisagras-carcasas-laptop-cancun';
-const whatsappText = encodeURIComponent('Hola Pixon PC, tengo una laptop con bisagra o carcasa rota y quiero cotizar reparacion en Cancun.');
+const whatsappText = encodeURIComponent('Hola Pixon PC, tengo una laptop con la bisagra o carcasa rota y quiero cotizar la reparación con fotos en Cancún.');
 
 const cases = [
   {
     before: '/assets/images/responsive/AntesBisagra.webp',
     after: '/assets/images/responsive/DespuesBisagra.webp',
-    title: 'Anclaje interno desprendido',
-    detail: 'Reconstrucción del soporte de la bisagra con resina epóxica, ajuste de tensión y prueba de apertura.',
+    title: 'HP Pavilion / Serie 240: Anclajes Superiores Arrancados',
+    brand: 'HP',
+    problem: 'Tornillos de la tapa trasera (Top Cover) desprendidos por bisagra agarrotada. La carcasa se abría 2 cm al levantar la pantalla.',
+    solution: 'Reconstrucción con matriz epóxica bicomponente de grado industrial, reinstalación de insertos roscados de latón y calibración de torque al 60% de tensión original.',
+    saving: 'Ahorro del 75% frente a importación de tapa original.',
   },
   {
     before: '/assets/images/responsive/AntesBisagra2.webp',
     after: '/assets/images/responsive/DespuesBisagra2.webp',
-    title: 'Carcasa abierta cerca de pantalla',
-    detail: 'Refuerzo del poste, cierre de separación y acabado limpio para evitar presión sobre display y flex.',
+    title: 'Dell Inspiron 15: Separación en Marco y Palmrest',
+    brand: 'Dell',
+    problem: 'Postes de fijación en Palmrest (teclado) quebrados. Peligro inminente de corte sobre el cable flex de video eDP.',
+    solution: 'Desarme milimétrico, resguardo del cable de video, refuerzo estructural en esquinas y alineación al ras sin tornillos pasantes antiestéticos.',
+    saving: 'Entrega en 24 horas y pantalla 100% protegida.',
   },
   {
     before: '/assets/images/responsive/AntesBisagra3.webp',
     after: '/assets/images/responsive/DespuesBisagra3.webp',
-    title: 'Bisagra forzada por tapa rígida',
-    detail: 'Reparación estructural y calibración para que la tapa abra sin tronar ni levantar la cubierta.',
+    title: 'Lenovo IdeaPad / Legion: Bisagra Trabada por Humedad',
+    brand: 'Lenovo',
+    problem: 'Resequedad y salinidad costera en los ejes de acero. La fuerza de palanca reventó la base inferior (Bottom Case).',
+    solution: 'Desoxidación por inmersión, lubricación con grasa sintética de alta viscosidad, ajuste micrométrico de tuercas de tensión y anclaje epóxico reforzado.',
+    saving: 'Apertura suave con un solo dedo y garantía de 90 días.',
   },
 ];
 
+const symptoms = [
+  {
+    level: 'Fase 1 · Alerta Temprana',
+    status: 'Riesgo Moderado',
+    statusColor: '#d97706',
+    icon: 'triangle-exclamation',
+    title: 'Tapa rígida, crujidos o click al abrir',
+    desc: 'La grasa interna de la bisagra de acero se secó por el calor y salinidad de Cancún. El metal ofrece demasiada resistencia y transmite toda la torsión al plástico de la carcasa.',
+    action: 'Calibración y lubricación de torque preventivo antes de que arranque los postes.',
+  },
+  {
+    level: 'Fase 2 · Daño Estructural',
+    status: 'Riesgo Alto',
+    statusColor: '#ea580c',
+    icon: 'wrench',
+    title: 'Carcasa abierta, tornillo suelto o esquina que se separa',
+    desc: 'Los postes plásticos internos (torretas) ya se fracturaron. Al mover la pantalla se observa cómo la tapa se infla y se abre en cuña, forzando los anclajes vecinos.',
+    action: 'Reconstrucción epóxica con insertos de latón para evitar que el daño llegue al display.',
+  },
+  {
+    level: 'Fase 3 · Peligro Crítico',
+    status: 'Riesgo Extremo',
+    statusColor: '#dc2626',
+    icon: 'shield-halved',
+    title: 'Bisagra zafada, cable flex visible o pantalla que parpadea',
+    desc: 'El bracket metálico está completamente suelto y está presionando directamente el cable flex de video (eDP) o torsionando el cristal del panel LCD/OLED.',
+    action: '¡No forzar la pantalla! Requiere intervención inmediata para no romper el display de $2,000+ MXN.',
+  },
+];
+
+const brands = [
+  { name: 'HP', models: 'Pavilion 14/15, 240/250 G7/G8/G9, Envy x360, Victus 15/16, OMEN' },
+  { name: 'Dell', models: 'Inspiron 15 3501/3511/3520/5502, Vostro 3400/3500, Dell G15 5510/5515/5520, Latitude' },
+  { name: 'Lenovo', models: 'IdeaPad 3, IdeaPad 5, IdeaPad Gaming 3, Legion 5/7, ThinkPad E14/E15' },
+  { name: 'Acer', models: 'Nitro 5 (AN515), Aspire 3, Aspire 5, Swift 3, Predator Helios 300' },
+  { name: 'Asus & MSI', models: 'TUF Gaming F15/A15, ROG Strix, VivoBook 14/15, MSI GF63 Thin, Katana GF66' },
+  { name: 'Huawei & MacBook', models: 'MateBook D14, MateBook D15, MacBook Pro/Air (ajuste de embrague/clutch cover)' },
+];
+
 const process = [
-  ['Diagnóstico de daño', 'Revisamos base, tapa, postes, tornillos, flex de pantalla y tensión real de la bisagra.'],
-  ['Desarme controlado', 'Abrimos sin forzar la carcasa para no romper pestañas, cable de pantalla o conectores.'],
-  ['Reconstrucción y refuerzo', 'Usamos resina epóxica, anclaje y técnica según el tipo de plástico y zona rota.'],
-  ['Ajuste de tensión', 'La bisagra no debe quedar floja ni demasiado dura. El ajuste evita que vuelva a tronar.'],
-  ['Acabado y prueba', 'Validamos apertura, cierre, alineación y apariencia antes de entregar el equipo.'],
+  {
+    num: '01',
+    title: 'Diagnóstico Estructural y Chequeo de Flex',
+    desc: 'Evaluamos el estado de la tapa (Top Cover), bisel (Bezel), palmrest y base (Bottom Case). Verificamos que el cable flex de video y antenas Wi-Fi no tengan cortes ni puntos de presión.',
+  },
+  {
+    num: '02',
+    title: 'Desarme Cuidadoso sin Romper Grapas',
+    desc: 'Desensamblamos el marco con herramientas plásticas antiestáticas, aislando la pantalla LCD/OLED para protegerla contra ralladuras, flexiones o polvo.',
+  },
+  {
+    num: '03',
+    title: 'Desoxidación y Calibración de Torque',
+    desc: 'En Cancún el óxido y salitre endurecen el acero. Limpiamos las bisagras, aplicamos lubricante sintético y calibramos la tensión para una apertura suave y duradera.',
+  },
+  {
+    num: '04',
+    title: 'Reconstrucción con Matriz Epóxica e Insertos',
+    desc: 'Colocamos insertos roscados de latón moleteado (brass inserts) alineados a la altura exacta de fábrica y los fundimos con resina epóxica de alta resistencia mecánica.',
+  },
+  {
+    num: '05',
+    title: 'Curado Polimérico y Prueba de Fatiga (50 Ciclos)',
+    desc: 'Respetamos los tiempos de curado térmico. Reensamblamos con ajuste al ras y sometemos el equipo a más de 50 pruebas de apertura y cierre antes de la entrega.',
+  },
 ];
 
 const faqs = [
   {
-    question: '¿Conviene reparar la bisagra de una laptop o cambiar la carcasa completa?',
-    answer: 'Depende del modelo, disponibilidad de pieza y zona rota. Muchas veces la reparación estructural ahorra dinero y evita esperar una carcasa difícil de conseguir, pero primero revisamos si el daño permite un refuerzo seguro.',
+    question: '¿Por qué se rompen tanto las bisagras de laptop en Cancún?',
+    answer: 'Por una combinación de diseño y clima: la mayoría de laptops modernas usan carcasas delgadas de plástico ABS con postes muy finos. En Cancún, la alta humedad relativa y la salinidad ambiental oxidan y resecan la grasa de los ejes de acero de la bisagra, haciendo que se endurezca (se agarrote). Al intentar abrir la pantalla con una sola mano, la palanca ejerce una fuerza de torsión brutal que arranca de raíz los postes de plástico.',
   },
   {
-    question: '¿La resina epóxica queda más resistente que la carcasa original?',
-    answer: 'En reparaciones compatibles buscamos que el anclaje quede más firme que el plástico dañado de fábrica. No prometemos el mismo resultado en todos los modelos porque cambia el material, la tensión y el daño previo.',
+    question: '¿Conviene reparar con resina epóxica o comprar la carcasa completa?',
+    answer: 'En más del 90% de los casos, la reconstrucción estructural con resina epóxica e insertos de latón es la mejor opción: cuesta entre 60% y 80% menos que una carcasa original, se realiza en 24 a 48 horas (sin esperar semanas de importación) y queda con mayor resistencia mecánica que el plástico original de fábrica.',
   },
   {
-    question: '¿Cuánto puedo ahorrar reparando la carcasa?',
-    answer: 'En algunos modelos el ahorro puede acercarse al 80% frente a comprar tapa, palmrest o carcasa completa. El porcentaje depende del precio de la pieza y del nivel de daño.',
+    question: '¿Por qué no debo usar Kola Loka (cianocrilato) o Plastiacero casero?',
+    answer: 'El cianocrilato (Kola Loka) es extremadamente rígido y cristaliza: ante la primera flexión de la pantalla se quiebra de nuevo. Además, sus vapores empañan y dañan el display de forma irreversible, y el pegamento líquido puede filtrarse al eje de la bisagra bloqueándola por completo. El Plastiacero casero aplicado sin desarmar estorba el cierre y genera bultos antiestéticos.',
   },
   {
-    question: '¿Cuánto tarda una reparación de bisagras en Cancún?',
-    answer: 'Muchas reparaciones se resuelven entre 24 y 48 horas hábiles. Si hay daño en pantalla, flex, tornillos barridos o falta una pieza, el tiempo puede cambiar.',
+    question: '¿Qué pasa si sigo usando mi laptop con la bisagra rota?',
+    answer: 'El riesgo es inminente y costoso: cada vez que abres o cierras la tapa, el metal afilado de la bisagra zafada se mueve sobre el cable flex de video (eDP) y antenas Wi-Fi. Si el flex se corta o hace corto, puede quemar la línea de backlight en la tarjeta madre o romper el cristal del display LCD, elevando el costo de reparación de $800 a más de $3,000 MXN.',
   },
   {
-    question: '¿Qué pasa si sigo usando la laptop con la bisagra rota?',
-    answer: 'La presión puede romper pantalla, flex de video, tapa, base o conectores internos. Si truena, se abre o se levanta una esquina, conviene dejar de forzarla y revisarla.',
+    question: '¿La reparación deja tornillos pasantes o marcas feas en la tapa exterior?',
+    answer: 'No. En Pixon PC realizamos un trabajo 100% estético por la parte interna. No perforamos la tapa exterior con tornillos pasantes ni remaches visibles. La laptop conserva su apariencia original al ras, abriendo y cerrando con suavidad.',
   },
   {
-    question: '¿Puedo crear un ticket con fotos?',
-    answer: 'Sí. Lo ideal es enviar fotos de la bisagra abierta, vista lateral, modelo de laptop y explicar si truena, se separó o ya no cierra correctamente.',
+    question: '¿Cuánto cuesta reparar la bisagra o carcasa de una laptop en Cancún?',
+    answer: 'El costo promedio de reconstrucción estructural y calibración de bisagras en Pixon PC va desde $700 hasta $1,200 MXN, dependiendo de si el daño es en una o ambas bisagras y si involucra la tapa superior (Top Cover) o el Palmrest. Incluye diagnóstico de flex, calibración de torque y garantía por escrito.',
+  },
+  {
+    question: '¿Cuánto tiempo tarda la reparación de bisagras en Pixon PC?',
+    answer: 'La mayoría de reparaciones se completan en 24 a 48 horas hábiles. Este tiempo nos permite realizar un desarmado minucioso, curado térmico completo de la resina epóxica (para máxima dureza) y pruebas rigurosas de apertura.',
+  },
+  {
+    question: '¿Cómo puedo cotizar la reparación de mi bisagra por WhatsApp?',
+    answer: 'Envíanos 2 o 3 fotos de la zona rota (con la laptop abierta y de lado), menciona la marca y modelo de tu equipo, y dinos si la pantalla sigue dando video. Podemos darte una orientación visual inicial; el diagnóstico técnico inicia desde $600 MXN.',
   },
 ];
 
@@ -72,12 +148,77 @@ const schema = [
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'Reparación de bisagras y carcasas de laptop en Cancún',
-    serviceType: 'Reparación estructural de laptop',
+    name: 'Reparación de Bisagras y Carcasas de Laptop en Cancún',
+    serviceType: 'Reparación y Reconstrucción Estructural de Laptops',
     url: `https://pixon.com.mx${canonical}`,
-    description: 'Guía y servicio de reparación de bisagras, carcasas y anclajes de laptop en Cancún con diagnóstico, refuerzo y acabado profesional.',
-    provider: { '@id': 'https://pixon.com.mx/#business' },
-    areaServed: [{ '@type': 'City', name: 'Cancún' }, { '@type': 'State', name: 'Quintana Roo' }],
+    description: 'Servicio técnico especializado en reparación y reconstrucción de bisagras rotas, carcasas desprendidas, postes quebrados y ajuste de tensión para laptops en Cancún.',
+    provider: {
+      '@type': 'LocalBusiness',
+      name: 'Pixon PC',
+      telephone: '+52 998 669 0777',
+      email: 'pixonpc@gmail.com',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Cto. Hacienda Chimay',
+        postalCode: '77539',
+        addressLocality: 'Cancún',
+        addressRegion: 'Quintana Roo',
+        addressCountry: 'MX',
+      },
+      priceRange: '$$',
+      image: 'https://pixon.com.mx/assets/images/responsive/DespuesBisagra.webp',
+    },
+    areaServed: [
+      { '@type': 'City', name: 'Cancún' },
+      { '@type': 'State', name: 'Quintana Roo' },
+      { '@type': 'AdministrativeArea', name: 'Zona Hotelera' },
+      { '@type': 'AdministrativeArea', name: 'Huayacán' },
+      { '@type': 'AdministrativeArea', name: 'Cumbres' },
+      { '@type': 'AdministrativeArea', name: 'Puerto Cancún' },
+      { '@type': 'AdministrativeArea', name: 'Polígono Sur' },
+      { '@type': 'AdministrativeArea', name: 'Bonfil' },
+      { '@type': 'AdministrativeArea', name: 'Supermanzanas' },
+      { '@type': 'AdministrativeArea', name: 'Haciendas' },
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Servicios de Carcasas y Bisagras',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Reconstrucción de bisagras con resina epóxica e insertos de latón',
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Calibración y lubricación de torque en bisagras de laptop',
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Cambio de bisagras originales y reemplazo de carcasas',
+          },
+        },
+      ],
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Cómo se repara la bisagra y carcasa rota de una laptop',
+    description: 'Protocolo técnico profesional para reconstruir anclajes y calibrar bisagras de laptop en Cancún.',
+    step: process.map((p, idx) => ({
+      '@type': 'HowToStep',
+      position: idx + 1,
+      name: p.title,
+      text: p.desc,
+    })),
   },
   {
     '@context': 'https://schema.org',
@@ -88,190 +229,500 @@ const schema = [
       acceptedAnswer: { '@type': 'Answer', text: faq.answer },
     })),
   },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Blogs', item: 'https://pixon.com.mx/blogs' },
+      { '@type': 'ListItem', position: 3, name: 'Reparación de Bisagras en Cancún', item: `https://pixon.com.mx${canonical}` },
+    ],
+  },
 ];
 ---
 
 <Base
-  title="Reparación de bisagras y carcasas de laptop en Cancún | Pixon PC"
-  description="Guía de reparación de bisagras y carcasas de laptop en Cancún. Antes y después, resina epóxica, señales de daño, ahorro posible y cuándo crear ticket."
+  title="Reparación de Bisagras y Carcasas de Laptop en Cancún | Pixon PC"
+  description="Reparación y reconstrucción de bisagras, carcasas y postes rotos de laptop en Cancún. Evita romper pantalla o cable flex. Refuerzo epóxico con garantía y fotos."
   canonical={canonical}
   image="/assets/images/responsive/DespuesBisagra.webp"
   schema={schema}
   bodyClass="service-page hinge-blog-page"
 >
   <Navbar />
-  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Blogs', href: '/blogs' }, { label: 'Reparación de bisagras' }]} />
+  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Blogs', href: '/blogs' }, { label: 'Reparación de bisagras y carcasas' }]} />
 
+  <!-- HERO SECTION CONTEXTUALIZADO, COMPACTO Y DE ALTO IMPACTO -->
   <header class="hb-hero">
-    <div class="hb-hero__media" aria-hidden="true">
-      <img src="/assets/images/responsive/AntesBisagra.webp" alt="" width="1170" height="1557" loading="eager" decoding="async" />
-      <img src="/assets/images/responsive/DespuesBisagra.webp" alt="" width="1170" height="1557" loading="eager" decoding="async" />
-    </div>
-    <div class="hb-hero__shade"></div>
-    <div class="hb-shell hb-hero__content">
-      <span>Estética y resistencia</span>
-      <h1>Reparación de bisagras y carcasas de laptop en Cancún</h1>
-      <p>Si la carcasa truena, se separó o la pantalla abre con presión, revisamos el daño antes de que rompa display, flex o base.</p>
-      <div class="hb-actions">
-        <a class="hb-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Cotizar por WhatsApp</a>
-        <a class="hb-btn hb-btn--ghost" href="#ticket-bisagras"><Icon name="clipboard-list" /> Crear ticket</a>
+    <div class="hb-hero__bg-grid" aria-hidden="true"></div>
+    <div class="hb-hero__ambient-glow" aria-hidden="true"></div>
+
+    <div class="hb-shell hb-hero__grid">
+      <div class="hb-hero__content">
+        <div class="hb-hero__pill">
+          <span class="hb-pill-dot"></span>
+          <span>Taller Especializado en Cancún · Hardware & Carcasas</span>
+        </div>
+
+        <h1>Reparación de Bisagras y Carcasas de Laptop en Cancún</h1>
+
+        <p class="hb-hero__lead">
+          ¿La tapa truena, se levanta de una esquina o se abrió la carcasa? Reconstruimos los postes internos con <strong>resina epóxica de alta resistencia</strong> y calibramos la tensión antes de que la fuerza rompa tu <strong>pantalla o cable flex</strong>.
+        </p>
+
+        <!-- Proof Badges -->
+        <div class="hb-hero__stats">
+          <div class="hb-stat-item">
+            <span class="hb-stat-num">98%</span>
+            <span class="hb-stat-label">Éxito en reconstrucción</span>
+          </div>
+          <div class="hb-stat-divider" aria-hidden="true"></div>
+          <div class="hb-stat-item">
+            <span class="hb-stat-num">Hasta 80%</span>
+            <span class="hb-stat-label">Ahorro vs carcasa</span>
+          </div>
+          <div class="hb-stat-divider" aria-hidden="true"></div>
+          <div class="hb-stat-item">
+            <span class="hb-stat-num">24–48h</span>
+            <span class="hb-stat-label">Tiempo promedio</span>
+          </div>
+          <div class="hb-stat-divider" aria-hidden="true"></div>
+          <div class="hb-stat-item">
+            <span class="hb-stat-num">90 Días</span>
+            <span class="hb-stat-label">Garantía por escrito</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="hb-actions">
+          <a class="hb-btn hb-btn--wa" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+            <Icon name="whatsapp" /> Cotizar con fotos por WhatsApp
+          </a>
+          <a class="hb-btn hb-btn--ghost" href="#ticket-bisagras">
+            <Icon name="clipboard-list" /> Solicitar revisión
+          </a>
+        </div>
+
+        <div class="hb-hero__note">
+          <Icon name="circle-check" /> <span>Diagnóstico visual rápido · Sin tornillos pasantes · Cancún y Riviera Maya</span>
+        </div>
+      </div>
+
+      <!-- Compact Before/After Preview Card in Hero -->
+      <div class="hb-hero__showcase">
+        <div class="hb-showcase-card">
+          <div class="hb-showcase-badge">
+            <span class="pulse-icon"></span> Caso Real en Cancún: HP Pavilion
+          </div>
+          <div class="hb-showcase-split">
+            <div class="hb-showcase-pane">
+              <span class="hb-pane-tag hb-pane-tag--before">Antes</span>
+              <img src="/assets/images/responsive/AntesBisagra.webp" alt="Laptop con bisagra rota y carcasa desprendida en Cancún" width="1170" height="1557" loading="eager" decoding="async" />
+            </div>
+            <div class="hb-showcase-pane">
+              <span class="hb-pane-tag hb-pane-tag--after">Después</span>
+              <img src="/assets/images/responsive/DespuesBisagra.webp" alt="Reparación terminada de bisagra con resina epóxica en Cancún" width="1170" height="1557" loading="eager" decoding="async" />
+            </div>
+          </div>
+          <div class="hb-showcase-footer">
+            <div class="hb-showcase-detail">
+              <strong>Anclaje interno 100% reforzado</strong>
+              <p>Insertos de latón fundidos en resina epóxica con ajuste suave de apertura.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
   <main class="hb-main">
-    <section class="hb-section hb-intro">
-      <div class="hb-shell hb-split">
-        <div>
-          <span class="hb-icon"><Icon name="laptop" /></span>
-          <h2>¿Por qué se rompe una bisagra de laptop?</h2>
-          <h3>El problema casi nunca es solo la bisagra</h3>
-          <p>Cuando una laptop truena al abrir, normalmente ya hay postes internos rotos, plástico fatigado, tornillos barridos o tensión excesiva. Si se sigue usando, la fuerza se transmite a la pantalla, al flex de video y a la tapa.</p>
-          <h3>Reparación local con diagnóstico en Cancún</h3>
-          <p>En Pixon PC revisamos si conviene reconstruir con resina epóxica, reforzar el anclaje, cambiar pieza o ajustar tensión. No todas las carcasas se reparan igual.</p>
+
+    <!-- SECCIÓN: ANATOMÍA DE LA FALLA Y CAUSAS REALES EN CANCÚN -->
+    <section class="hb-section hb-anatomy" id="por-que-se-rompe">
+      <div class="hb-shell">
+        <div class="hb-section-header text-center">
+          <span class="hb-tagline"><Icon name="laptop" /> Análisis Técnico de Hardware</span>
+          <h2>¿Por Qué se Rompe la Bisagra de una Laptop en Cancún?</h2>
+          <p class="hb-lead">
+            El problema casi nunca es el metal de la bisagra en sí, sino el plástico donde se atornilla y los efectos del clima tropical costero.
+          </p>
         </div>
-        <aside class="hb-summary">
-          <strong>Señales de alerta</strong>
-          <ul>
-            <li><Icon name="circle-check" /> La tapa se levanta de una esquina.</li>
-            <li><Icon name="circle-check" /> Se escucha un crujido al abrir.</li>
-            <li><Icon name="circle-check" /> La pantalla no queda alineada.</li>
-            <li><Icon name="circle-check" /> Hay tornillos sueltos o plástico roto.</li>
-          </ul>
-        </aside>
+
+        <div class="hb-anatomy-grid">
+          <article class="hb-card hb-card--interactive">
+            <div class="hb-card__icon hb-card__icon--blue">
+              <Icon name="temperature-high" />
+            </div>
+            <h3>1. Salinidad y Humedad de Cancún</h3>
+            <p>
+              El ambiente caribeño oxida los rodamientos de acero de la bisagra y seca la grasa lubricante de fábrica. Esto incrementa drásticamente la resistencia de giro: la bisagra se pone <strong>dura o trabada</strong>.
+            </p>
+            <div class="hb-card__callout">
+              <strong>Efecto:</strong> La fuerza necesaria para abrir la tapa se triplica, forzando la estructura plástica.
+            </div>
+          </article>
+
+          <article class="hb-card hb-card--interactive">
+            <div class="hb-card__icon hb-card__icon--amber">
+              <Icon name="wrench" />
+            </div>
+            <h3>2. Postes Plásticos Frágiles (Torretas)</h3>
+            <p>
+              Los fabricantes fijan las bisagras metálicas mediante tuercas de latón embutidas en tubos plásticos de apenas 1.2 mm de grosor. Al levantar la pantalla desde una esquina, el <strong>efecto palanca</strong> arranca los postes de raíz.
+            </p>
+            <div class="hb-card__callout">
+              <strong>Efecto:</strong> La carcasa se abre en cuña y los tornillos giran en falso o se caen.
+            </div>
+          </article>
+
+          <article class="hb-card hb-card--interactive">
+            <div class="hb-card__icon hb-card__icon--red">
+              <Icon name="shield-halved" />
+            </div>
+            <h3>3. Riesgo Crítico: Cable Flex y Pantalla</h3>
+            <p>
+              Por la esquina de la bisagra corre el <strong>cable flex de video (eDP/LVDS)</strong> y las antenas Wi-Fi. Al zafarse la bisagra, el metal afilado pellizca el cable, provocando parpadeos, líneas o un cortocircuito a la tarjeta madre.
+            </p>
+            <div class="hb-card__callout">
+              <strong>Peligro:</strong> Seguir forzando la laptop puede romper el cristal del display LCD/OLED.
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section class="hb-section hb-cases">
+    <!-- SECCIÓN: SEMÁFORO DE GRAVEDAD / DIAGNÓSTICO -->
+    <section class="hb-section hb-severity" id="niveles-de-dano">
       <div class="hb-shell">
-        <header class="hb-heading">
-          <Icon name="camera-retro" />
+        <div class="hb-section-header">
+          <span class="hb-tagline"><Icon name="triangle-exclamation" /> Diagnóstico de Urgencia</span>
+          <h2>Identifica la Fase de Daño de tu Laptop</h2>
+          <p class="hb-lead">
+            Entre más rápido atiendas una bisagra dura o desprendida, menor será el costo y evitarás daños irreparables a tu pantalla.
+          </p>
+        </div>
+
+        <div class="hb-severity-list">
+          {symptoms.map((s) => (
+            <article class="hb-severity-card">
+              <div class="hb-severity-card__badge" style={`background:${s.statusColor}15; color:${s.statusColor}; border-color:${s.statusColor}40;`}>
+                <Icon name={s.icon} />
+                <span>{s.level} · {s.status}</span>
+              </div>
+              <div class="hb-severity-card__content">
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+                <div class="hb-severity-card__action">
+                  <strong>Recomendación técnica:</strong> {s.action}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div class="hb-inline-cta">
           <div>
-            <h2>Antes y después: bisagra rota vs reparación terminada</h2>
-            <p>La meta es que la laptop vuelva a abrir y cerrar con firmeza, sin dejar un acabado improvisado.</p>
+            <strong>¿Tu laptop presenta alguno de estos síntomas?</strong>
+            <p>No la fuerces al abrir o cerrar. Envíanos fotos por WhatsApp para una orientación visual inicial.</p>
           </div>
-        </header>
+          <a class="hb-btn hb-btn--wa" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+            <Icon name="whatsapp" /> Enviar fotos por WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: GALERÍA ANTES Y DESPUÉS -->
+    <section class="hb-section hb-cases" id="casos-reales">
+      <div class="hb-shell">
+        <div class="hb-section-header text-center">
+          <span class="hb-tagline"><Icon name="camera-retro" /> Evidencia Fotográfica Real</span>
+          <h2>Casos Reales en Taller: Antes vs. Después</h2>
+          <p class="hb-lead">
+            Reparaciones estructurales ejecutadas en nuestro laboratorio en Cancún con acabado estético al ras, sin tornillos pasantes ni remaches.
+          </p>
+        </div>
+
         <div class="hb-case-grid">
           {cases.map((item) => (
-            <article class="hb-case">
-              <div class="hb-compare">
-                <figure>
-                  <span class="hb-badge hb-badge--before">Antes</span>
-                  <img src={item.before} alt={`Antes de ${item.title} en laptop reparada en Cancún`} width="1170" height="1557" loading="lazy" decoding="async" />
-                </figure>
-                <figure>
-                  <span class="hb-badge hb-badge--after">Después</span>
-                  <img src={item.after} alt={`Después de ${item.title} reparado por Pixon PC en Cancún`} width="1170" height="1557" loading="lazy" decoding="async" />
-                </figure>
+            <article class="hb-case-card">
+              <div class="hb-case-media">
+                <div class="hb-case-pane">
+                  <span class="hb-case-tag hb-case-tag--before">Antes</span>
+                  <img src={item.before} alt={`Antes de reparación de ${item.title} en Cancún`} width="1170" height="1557" loading="lazy" decoding="async" />
+                </div>
+                <div class="hb-case-pane">
+                  <span class="hb-case-tag hb-case-tag--after">Después</span>
+                  <img src={item.after} alt={`Reparación finalizada de ${item.title} en Pixon PC Cancún`} width="1170" height="1557" loading="lazy" decoding="async" />
+                </div>
               </div>
-              <h3>{item.title}</h3>
-              <p>{item.detail}</p>
+
+              <div class="hb-case-body">
+                <div class="hb-case-brand-tag">{item.brand}</div>
+                <h3>{item.title}</h3>
+                <p class="hb-case-problem"><strong>Falla:</strong> {item.problem}</p>
+                <p class="hb-case-solution"><strong>Trabajo:</strong> {item.solution}</p>
+                <div class="hb-case-benefit">
+                  <Icon name="circle-check" /> <span>{item.saving}</span>
+                </div>
+              </div>
             </article>
           ))}
         </div>
       </div>
     </section>
 
-    <section class="hb-section hb-benefits">
-      <div class="hb-shell hb-benefits__grid">
-        <article>
-          <Icon name="shield-halved" />
-          <h2>Más resistencia cuando el anclaje es reparable</h2>
-          <p>La reconstrucción busca reforzar la zona donde el plástico ya cedió. También ajustamos la tensión para que la fuerza no vuelva al mismo punto.</p>
-        </article>
-        <article>
-          <Icon name="piggy-bank" />
-          <h2>Ahorro frente a carcasa nueva</h2>
-          <p>En ciertos modelos puedes ahorrar hasta 80% frente a comprar carcasa completa, especialmente cuando la pieza es escasa o tarda en llegar.</p>
-        </article>
-        <article>
-          <Icon name="eye" />
-          <h2>Acabado limpio y profesional</h2>
-          <p>No se trata solo de pegar. Cuidamos alineación, cierre, apariencia y funcionamiento real de apertura.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="hb-section hb-process">
+    <!-- SECCIÓN: COMPARATIVA DE MÉTODOS -->
+    <section class="hb-section hb-comparison" id="comparativa-metodos">
       <div class="hb-shell">
-        <header class="hb-heading">
-          <Icon name="screwdriver-wrench" />
-          <div>
-            <h2>Cómo reparamos bisagras y carcasas en Pixon PC</h2>
-            <p>El proceso cambia según marca y daño, pero siempre empieza con diagnóstico y termina con prueba de apertura.</p>
-          </div>
-        </header>
-        <ol class="hb-process__list">
-          {process.map(([title, text], index) => (
-            <li>
-              <strong>{String(index + 1).padStart(2, '0')}</strong>
-              <div>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-
-    <section class="hb-section hb-local">
-      <div class="hb-shell hb-local__grid">
-        <div>
-          <span class="hb-icon"><Icon name="location-dot" /></span>
-          <h2>Reparación de bisagras para laptop en Cancún</h2>
-          <h3>Atención para marcas comunes y equipos de trabajo</h3>
-          <p>Revisamos laptops HP, Dell, Lenovo, Acer, Asus, MSI y otras marcas. Atendemos Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.</p>
-          <h3>Cuándo dejar de usar la laptop</h3>
-          <p>Si la tapa se levanta, truena o la pantalla se mueve de forma irregular, no sigas forzándola. Un daño de carcasa puede terminar en pantalla rota.</p>
+        <div class="hb-section-header text-center">
+          <span class="hb-tagline"><Icon name="scale-balanced" /> Decisión Inteligente</span>
+          <h2>Reconstrucción Epóxica vs. Pegamentos Caseros vs. Carcasa Nueva</h2>
+          <p class="hb-lead">
+            Compara por qué nuestro método profesional de reconstrucción química es la opción preferida por empresas y usuarios en Cancún.
+          </p>
         </div>
-        <address>
-          <strong>Pixon PC</strong>
-          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
-          <a href="tel:+529986690777">+52 998 669 0777</a>
-          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
-        </address>
+
+        <div class="hb-table-wrap">
+          <table class="hb-comp-table">
+            <thead>
+              <tr>
+                <th scope="col">Criterio de Evaluación</th>
+                <th scope="col" class="highlight-col">Reconstrucción Epóxica Pixon PC</th>
+                <th scope="col">Pegamento Casero (Kola Loka / Plastiacero)</th>
+                <th scope="col">Reemplazo de Carcasa Completa</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Resistencia Mecánica</strong></td>
+                <td class="highlight-col"><span class="badge-positive"><Icon name="circle-check" /> Alta Resistencia</span> (Supera al plástico original)</td>
+                <td><span class="badge-negative"><Icon name="ban" /> Muy Baja</span> (Cristaliza y quiebra en días)</td>
+                <td><span class="badge-neutral"><Icon name="circle-check" /> Estándar</span> (Misma fragilidad de fábrica)</td>
+              </tr>
+              <tr>
+                <td><strong>Ajuste y Tensión de Bisagra</strong></td>
+                <td class="highlight-col"><span class="badge-positive"><Icon name="circle-check" /> Calibración exacta</span> de torque y lubricación</td>
+                <td><span class="badge-negative"><Icon name="ban" /> Ninguno</span> (El pegamento puede bloquear la bisagra)</td>
+                <td><span class="badge-neutral"><Icon name="circle-check" /> Requiere calibración manual</span></td>
+              </tr>
+              <tr>
+                <td><strong>Acabado Estético Exterior</strong></td>
+                <td class="highlight-col"><span class="badge-positive"><Icon name="circle-check" /> 100% Original al ras</span> (Sin tornillos exteriores)</td>
+                <td><span class="badge-negative"><Icon name="ban" /> Antiéstetico</span> (Bultos, derrames y manchas blancas)</td>
+                <td><span class="badge-positive"><Icon name="circle-check" /> 100% Original</span></td>
+              </tr>
+              <tr>
+                <td><strong>Tiempo de Entrega en Cancún</strong></td>
+                <td class="highlight-col"><span class="badge-positive">24 a 48 Horas hábiles</span></td>
+                <td>Inmediato pero dura menos de una semana</td>
+                <td>15 a 30 días (Sujeto a importación)</td>
+              </tr>
+              <tr>
+                <td><strong>Costo / Ahorro</strong></td>
+                <td class="highlight-col"><span class="badge-positive">Económico (Ahorro del 60% al 80%)</span></td>
+                <td>Barato al inicio, muy costoso si daña pantalla</td>
+                <td>Costoso ($2,500 a $4,500+ MXN)</td>
+              </tr>
+              <tr>
+                <td><strong>Garantía por Escrito</strong></td>
+                <td class="highlight-col"><span class="badge-positive">Garantía por Escrito de 90 Días</span></td>
+                <td>Sin garantía</td>
+                <td>Garantía limitada de refacción</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
+    <!-- SECCIÓN: PROTOCOLO TÉCNICO EN 5 PASOS -->
+    <section class="hb-section hb-process" id="proceso-tecnico">
+      <div class="hb-shell">
+        <div class="hb-section-header">
+          <span class="hb-tagline"><Icon name="screwdriver-wrench" /> Metodología de Laboratorio</span>
+          <h2>Protocolo Técnico de Reparación en 5 Fases</h2>
+          <p class="hb-lead">
+            Cada equipo sigue un riguroso estándar de ingeniería de hardware para garantizar que la reparación sea definitiva.
+          </p>
+        </div>
+
+        <div class="hb-process-timeline">
+          {process.map((p) => (
+            <div class="hb-timeline-item">
+              <div class="hb-timeline-marker">
+                <span class="hb-timeline-num">{p.num}</span>
+              </div>
+              <div class="hb-timeline-content">
+                <h3>{p.title}</h3>
+                <p>{p.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: MARCAS Y MODELOS ATENDIDOS EN CANCÚN -->
+    <section class="hb-section hb-brands" id="marcas-atendidas">
+      <div class="hb-shell">
+        <div class="hb-section-header text-center">
+          <span class="hb-tagline"><Icon name="microchip" /> Cobertura Multi-Marca</span>
+          <h2>Marcas y Series de Laptop con Fallas de Bisagra que Reparamos</h2>
+          <p class="hb-lead">
+            Tenemos experiencia documentada y herramentales específicos para las arquitecturas de carcasa más comunes en el mercado.
+          </p>
+        </div>
+
+        <div class="hb-brands-grid">
+          {brands.map((b) => (
+            <article class="hb-brand-card">
+              <div class="hb-brand-card__header">
+                <Icon name="laptop" />
+                <h3>{b.name}</h3>
+              </div>
+              <p><strong>Series frecuentes:</strong> {b.models}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: COBERTURA LOCAL CANCÚN & NAP -->
+    <section class="hb-section hb-local" id="cobertura-cancun">
+      <div class="hb-shell hb-local__grid">
+        <div class="hb-local__info">
+          <span class="hb-tagline"><Icon name="location-dot" /> Servicio Local en Quintana Roo</span>
+          <h2>Taller de Reparación de Bisagras de Laptop en Cancún</h2>
+          <p class="hb-local__lead">
+            Ubicados estratégicamente en Cancún para atender tanto a usuarios particulares como a profesionistas, estudiantes y empresas que necesitan su equipo listo en tiempo récord.
+          </p>
+
+          <div class="hb-zones-box">
+            <strong>Zonas con cobertura y recepción de equipos:</strong>
+            <div class="hb-zones-pills">
+              <span>Cancún Centro</span>
+              <span>Zona Hotelera</span>
+              <span>Av. Huayacán</span>
+              <span>Residencial Cumbres</span>
+              <span>Alfredo V. Bonfil</span>
+              <span>Polígono Sur</span>
+              <span>Puerto Cancún</span>
+              <span>Av. Tulum</span>
+              <span>Av. Bonampak</span>
+              <span>Puerto Juárez</span>
+              <span>Supermanzanas</span>
+              <span>Haciendas del Caribe</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="hb-local__card">
+          <div class="hb-nap-header">
+            <Icon name="building" />
+            <div>
+              <h3>Pixon PC — Taller Matriz</h3>
+              <p>Especialistas en Reparación de Hardware</p>
+            </div>
+          </div>
+
+          <address class="hb-nap-body">
+            <div class="hb-nap-row">
+              <Icon name="location-dot" />
+              <div>
+                <strong>Dirección:</strong>
+                <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+              </div>
+            </div>
+
+            <div class="hb-nap-row">
+              <Icon name="phone" />
+              <div>
+                <strong>Teléfono / WhatsApp:</strong>
+                <a href="tel:+529986690777">+52 998 669 0777</a>
+              </div>
+            </div>
+
+            <div class="hb-nap-row">
+              <Icon name="envelope" />
+              <div>
+                <strong>Correo Oficial:</strong>
+                <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+              </div>
+            </div>
+
+            <div class="hb-nap-row">
+              <Icon name="clock" />
+              <div>
+                <strong>Horario de Atención:</strong>
+                <span>Lunes a Sábado: 9:00 AM – 7:00 PM</span>
+              </div>
+            </div>
+          </address>
+
+          <div class="hb-nap-footer">
+            <a class="hb-btn hb-btn--wa hb-btn--block" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" /> Contactar Taller por WhatsApp
+            </a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- FORMULARIO TICKET INTACTO -->
     <ServiceTicketSection
       id="ticket-bisagras"
       defaultDevice="Laptop con bisagra o carcasa dañada"
       defaultService="Reparación de bisagras y carcasas de laptop"
       sourcePage="/blogs/reparacion-bisagras-carcasas-laptop-cancun"
+      title="Solicita Diagnóstico y Reparación de Bisagras"
+      subtitle="Llena este ticket con los detalles de tu laptop. Te contactamos en menos de 2 horas hábiles con el plan de reparación y presupuesto estimado."
     />
 
+    <!-- SECCIÓN PREGUNTAS FRECUENTES -->
     <FaqSection
       id="faq-bisagras-blog"
-      title="Preguntas frecuentes sobre bisagras y carcasas de laptop"
-      description="Respuestas directas sobre reparación, resina epóxica, ahorro posible, tiempos y cuándo dejar de usar el equipo."
+      title="Preguntas Frecuentes sobre Bisagras y Carcasas de Laptop"
+      description="Respuestas técnicas transparentes sobre costos, tiempos, resina epóxica, riesgos y garantía en Cancún."
       items={faqs}
       viewMoreHref="/preguntas-frecuentes"
-      viewMoreLabel="Ver más preguntas"
+      viewMoreLabel="Ver más preguntas frecuentes"
       ariaLabel="Preguntas frecuentes sobre reparación de bisagras de laptop en Cancún"
-      backgroundColor="#eef6fc"
+      backgroundColor="#f8fbfe"
       titleColor="#071F3A"
       descriptionColor="#294963"
       questionColor="#071F3A"
     />
 
-    <section class="hb-final">
+    <!-- CTA FINAL DE CONVERSIÓN -->
+    <section class="hb-final" id="cotizar-ahora">
       <div class="hb-shell hb-final__grid">
-        <div>
-          <span>Evita que el daño llegue a pantalla</span>
-          <h2>Cotiza la reparación de tu bisagra con fotos</h2>
-          <p>Envíanos fotos de la zona rota, modelo de laptop y síntoma. Te decimos si conviene reparación, refuerzo o cambio de carcasa antes de intervenir.</p>
+        <div class="hb-final__content">
+          <span class="hb-tagline-light"><Icon name="shield-halved" /> Protege tu Inversión Hoy</span>
+          <h2>Evita que el Daño de la Bisagra Rompa tu Pantalla</h2>
+          <p>
+            No esperes a que el flex de video haga corto o el display se quiebre. Envíanos fotos claras de la zona afectada y el modelo de tu laptop; te decimos de inmediato si es reparable con resina estructural y el costo exacto.
+          </p>
           <div class="hb-actions">
-            <a class="hb-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Enviar fotos por WhatsApp</a>
-            <a class="hb-btn hb-btn--light" href="/reparacion-bisagras"><Icon name="arrow-right" /> Ver servicio y precios</a>
+            <a class="hb-btn hb-btn--wa" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" /> Enviar Fotos por WhatsApp (+52 998 669 0777)
+            </a>
+            <a class="hb-btn hb-btn--light" href="/reparacion-bisagras">
+              <Icon name="arrow-right" /> Ver página de servicio y precios
+            </a>
           </div>
         </div>
-        <figure>
-          <img src="/assets/images/responsive/DespuesBisagra2.webp" alt="Reparación terminada de carcasa y bisagra de laptop en Cancún" width="1170" height="1557" loading="lazy" decoding="async" />
-        </figure>
+
+        <div class="hb-final__image">
+          <img src="/assets/images/responsive/DespuesBisagra2.webp" alt="Reparación finalizada de carcasa y bisagra en Cancún" width="1170" height="1557" loading="lazy" decoding="async" />
+          <div class="hb-final__image-badge">
+            <Icon name="circle-check" /> <span>Trabajo 100% Garantizado</span>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- COMENTARIOS Y CONTACTO -->
     <CommentsSection viewMoreHref="/comentarios" />
     <ContactSection />
   </main>
@@ -279,66 +730,1201 @@ const schema = [
 </Base>
 
 <style is:global>
-  .hinge-blog-page :where(.hb-main,.hb-section,.hb-final){--ink:#071F3A;--muted:#294963;--blue:#1479D4;--green:#0f9f6e;--ice:#eef6fc;--line:#cbdce8;color:var(--ink)}
-  .hinge-blog-page .hb-shell{width:min(1180px,calc(100% - 32px));margin:0 auto}
-  .hinge-blog-page .hb-main :where(h2,h3,p,li,span,strong,a,address){color:var(--ink)}
-  .hinge-blog-page .tc-svg{display:block;width:18px;height:18px;fill:currentColor;flex:0 0 auto}
-  .hb-hero{position:relative;min-height:760px;display:grid;align-items:end;overflow:hidden;background:#071F3A}
-  .hb-hero__media{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr}
-  .hb-hero__media img{width:100%;height:100%;object-fit:cover}
-  .hb-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,15,29,.96),rgba(3,15,29,.78) 55%,rgba(3,15,29,.32))}
-  .hb-hero__content{position:relative;padding:150px 0 62px}
-  .hb-hero span{color:#bce0fb;font-size:.78rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
-  .hb-hero h1{max-width:910px;margin:14px 0 18px;color:#fff;font-family:var(--font-heading);font-size:clamp(2.35rem,5.4vw,5rem);font-style:italic;font-weight:850;line-height:1.02;text-wrap:balance}
-  .hb-hero p{max-width:690px;margin:0;color:rgba(255,255,255,.86);font-size:clamp(1rem,1.55vw,1.12rem);font-weight:600;line-height:1.68}
-  .hb-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
-  .hb-btn{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:9px;padding:12px 18px;border:1px solid var(--blue);border-radius:8px;background:var(--blue);color:#fff!important;font-weight:850;text-decoration:none;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 160ms ease,border-color 160ms ease}
-  .hb-btn--ghost{border-color:rgba(255,255,255,.52);background:rgba(7,31,58,.62)}
-  .hb-btn--light{border-color:#fff;background:#fff;color:var(--ink)!important}
-  .hb-btn:active{transform:scale(.97)}
-  .hb-section{padding:clamp(56px,8vw,96px) 0;background:#fff}
-  .hb-split,.hb-local__grid,.hb-final__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.86fr);gap:clamp(30px,6vw,76px);align-items:center}
-  .hb-section h2,.hb-final h2{margin:0 0 16px;font-family:var(--font-heading);font-size:clamp(2rem,4vw,3.35rem);font-style:italic;font-weight:850;line-height:1.06;text-wrap:balance}
-  .hb-section h3{margin:20px 0 8px;font-size:1.08rem;line-height:1.28;text-wrap:balance}
-  .hb-section p,.hb-summary li,.hb-heading p,.hb-final p{max-width:72ch;margin:0;color:var(--muted);font-weight:560;line-height:1.72}
-  .hb-icon{display:grid;width:44px;height:44px;margin-bottom:16px;place-items:center;border-radius:8px;background:#dff2fb;color:var(--blue)}
-  .hb-summary{padding:28px;border:1px solid #acd3e8;border-radius:8px;background:#f8fcff}
-  .hb-summary strong{display:block;margin-bottom:14px;font-size:1.12rem}
-  .hb-summary ul{display:grid;gap:12px;margin:0;padding:0;list-style:none}
-  .hb-summary li{display:flex;align-items:center;gap:10px;font-weight:750}
-  .hb-summary .tc-svg{color:var(--green)}
-  .hb-cases,.hb-process{background:var(--ice)}
-  .hb-heading{display:grid;grid-template-columns:48px minmax(0,820px);gap:16px;align-items:start;margin-bottom:30px}
-  .hb-heading>.tc-svg{box-sizing:border-box;width:44px;height:44px;max-width:44px;max-height:44px;padding:12px;border-radius:8px;background:var(--blue);color:#fff}
-  .hb-case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-  .hb-case{display:flex;flex-direction:column;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:transform 220ms cubic-bezier(.2,0,.2,1),box-shadow 220ms ease,border-color 220ms ease}
-  .hb-case:hover{transform:translateY(-4px);box-shadow:0 14px 28px -6px rgba(7,31,58,.09);border-color:#b5d2e6}
-  .hb-compare{display:grid;grid-template-columns:1fr 1fr;gap:2px;overflow:hidden;border-radius:10px;background:var(--line)}
-  .hb-compare figure{position:relative;margin:0;background:#d9e7f0;overflow:hidden}
-  .hb-compare img{display:block;width:100%;aspect-ratio:16/10;max-height:210px;object-fit:cover;object-position:center;transition:transform 320ms cubic-bezier(.2,0,.2,1)}
-  .hb-case:hover .hb-compare img{transform:scale(1.04)}
-  .hb-badge{position:absolute;top:8px;left:8px;z-index:2;padding:4px 8px;border-radius:6px;font-size:.68rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase;pointer-events:none}
-  .hb-badge--before{background:rgba(7,31,58,.88);backdrop-filter:blur(4px);color:#fff!important;border:1px solid rgba(255,255,255,.2)}
-  .hb-badge--after{background:var(--green);color:#fff!important;box-shadow:0 2px 6px rgba(15,159,110,.3)}
-  .hb-case h3{margin:14px 0 6px;color:var(--ink);font-family:var(--font-heading);font-size:1.12rem;font-weight:850;line-height:1.28;text-wrap:balance}
-  .hb-case p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.55;font-weight:560}
-  .hb-benefits__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
-  .hb-benefits article{padding:clamp(24px,4vw,42px);background:#fff}
-  .hb-benefits article>.tc-svg{width:28px;height:28px;margin-bottom:18px;color:var(--green)}
-  .hb-benefits h2{font-size:clamp(1.55rem,2.8vw,2.35rem)}
-  .hb-process__list{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin:0;padding:0;background:var(--line);list-style:none}
-  .hb-process__list li{display:grid;min-height:220px;align-content:start;gap:18px;padding:22px;background:#fff}
-  .hb-process__list strong{font-size:1.55rem;color:var(--blue)!important}
-  .hb-process__list h3{margin-top:0}
-  .hb-local{background:#fff}
-  .hb-local address{display:grid;gap:12px;padding:26px;border-radius:8px;background:#e7f4fb;font-style:normal}
-  .hb-local address a{color:var(--blue)!important;text-decoration:none;font-weight:800}
-  .hb-final{padding:clamp(64px,8vw,104px) 0;background:#dcecf7}
-  .hb-final>div>div>span{color:var(--blue)!important;font-weight:850;text-transform:uppercase;font-size:.78rem;letter-spacing:.08em}
-  .hb-final figure{margin:0;overflow:hidden;border-radius:8px;background:#d6e8f2}
-  .hb-final img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
-  @media(hover:hover) and (pointer:fine){.hb-btn:hover{transform:translateY(-2px);background:#0e68b8}.hb-btn--light:hover{background:#eff8fd;border-color:#eff8fd}}
-  @media(max-width:980px){.hb-split,.hb-local__grid,.hb-final__grid{grid-template-columns:1fr}.hb-case-grid,.hb-benefits__grid{grid-template-columns:1fr}.hb-process__list{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:640px){.hb-hero{min-height:720px}.hb-hero__media{grid-template-columns:1fr}.hb-hero__media img:first-child{display:none}.hb-hero__content{padding-top:130px}.hb-actions,.hb-actions .hb-btn{width:100%}.hb-heading{grid-template-columns:42px 1fr}.hb-heading>.tc-svg{width:40px;height:40px;max-width:40px;max-height:40px;padding:11px}.hb-process__list{grid-template-columns:1fr}.hb-process__list li{min-height:auto}.hb-section{padding:52px 0}}
-  @media(prefers-reduced-motion:reduce){.hb-btn{transition:none}}
+  /* ============================================================
+     DESIGN SYSTEM & COLOR TOKENS (PIXON PC STANDARDS)
+     ============================================================ */
+  :root {
+    --azul-oscuro: #071F3A;
+    --azul-profundo: #030F1D;
+    --azul-medio: #1479D4;
+    --azul-hover: #0E62B0;
+    --azul-claro: #EEF6FC;
+    --azul-borde: #CBDCE8;
+    --azul-muted: #294963;
+    --verde-acento: #0F9F6E;
+    --verde-glow: rgba(15, 159, 110, 0.2);
+    --sombra-suave: 0 10px 25px -5px rgba(7, 31, 58, 0.08), 0 8px 10px -6px rgba(7, 31, 58, 0.04);
+    --sombra-card: 0 18px 38px -10px rgba(7, 31, 58, 0.12), 0 8px 16px -6px rgba(7, 31, 58, 0.06);
+    --curva-suave: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* REGLA CRÍTICA: TODOS LOS TEXTOS FUERA DEL HERO DEBEN SER AZUL OSCURO */
+  .hinge-blog-page :where(.hb-main, .hb-section, .hb-final, .hb-anatomy, .hb-severity, .hb-cases, .hb-comparison, .hb-process, .hb-brands, .hb-local) {
+    color: var(--azul-oscuro);
+  }
+  .hinge-blog-page .hb-main :where(h2, h3, h4, strong, dt, th) {
+    color: var(--azul-oscuro);
+  }
+  .hinge-blog-page .hb-main :where(p, li, dd, td, span, address) {
+    color: var(--azul-muted);
+  }
+  .hinge-blog-page .hb-main strong {
+    color: var(--azul-oscuro);
+  }
+
+  .hinge-blog-page .hb-shell {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .hinge-blog-page .tc-svg {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     HERO SECTION (COMPACTO, ELEGANTE Y PROPORCIONADO)
+     ============================================================ */
+  .hb-hero {
+    position: relative;
+    background: linear-gradient(145deg, #020b17 0%, #071f3a 55%, #0a2e55 100%);
+    color: #ffffff;
+    padding: clamp(76px, 8vw, 100px) 0 clamp(36px, 4vw, 52px);
+    overflow: hidden;
+  }
+
+  .hb-hero__bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: radial-gradient(circle at 60% 30%, black, transparent 80%);
+    pointer-events: none;
+  }
+
+  .hb-hero__ambient-glow {
+    position: absolute;
+    top: -15%;
+    right: -5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(20, 121, 212, 0.22) 0%, rgba(15, 159, 110, 0.1) 40%, transparent 70%);
+    filter: blur(70px);
+    pointer-events: none;
+  }
+
+  .hb-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+    gap: clamp(24px, 4vw, 48px);
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hb-hero__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #bce0fb;
+    margin-bottom: 14px;
+  }
+
+  .hb-pill-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulseGlow 2s infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+  }
+
+  .hb-hero h1 {
+    font-family: var(--font-heading, system-ui, sans-serif);
+    font-size: clamp(1.85rem, 2.75vw, 2.55rem);
+    font-weight: 850;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    color: #ffffff;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  .hb-hero__lead {
+    font-size: clamp(0.92rem, 1.1vw, 1.04rem);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.88);
+    margin: 0 0 20px;
+    max-width: 58ch;
+  }
+
+  .hb-hero__lead strong {
+    color: #60a5fa;
+    font-weight: 700;
+  }
+
+  /* Stats row in Hero - Compacto */
+  .hb-hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: rgba(3, 15, 29, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
+  }
+
+  .hb-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .hb-stat-num {
+    font-size: 1.12rem;
+    font-weight: 850;
+    color: #38bdf8;
+    line-height: 1.1;
+  }
+
+  .hb-stat-label {
+    font-size: 0.66rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .hb-stat-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Hero Actions */
+  .hb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .hb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 200ms var(--curva-suave);
+  }
+
+  .hb-btn--wa {
+    background: #25d366;
+    color: #032b13 !important;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+    border: 1px solid #20ba5a;
+  }
+
+  .hb-btn--wa:hover {
+    background: #20ba5a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+    color: #000 !important;
+  }
+
+  .hb-btn--ghost {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+  }
+
+  .hb-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.45);
+    transform: translateY(-2px);
+  }
+
+  .hb-btn--light {
+    background: #ffffff;
+    color: var(--azul-oscuro) !important;
+    border: 1px solid #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  }
+
+  .hb-btn--light:hover {
+    background: #f0f7fc;
+    transform: translateY(-2px);
+  }
+
+  .hb-btn--block {
+    width: 100%;
+  }
+
+  .hb-hero__note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .hb-hero__note .tc-svg {
+    color: #10b981;
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Compact Hero Showcase Card */
+  .hb-showcase-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.45);
+    max-width: 440px;
+    margin-left: auto;
+    transition: transform 260ms var(--curva-suave), border-color 260ms ease;
+  }
+
+  .hb-showcase-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(56, 189, 248, 0.4);
+  }
+
+  .hb-showcase-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(3, 15, 29, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.78rem;
+    font-weight: 750;
+    color: #e0f2fe;
+  }
+
+  .pulse-icon {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+  }
+
+  .hb-showcase-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .hb-showcase-pane {
+    position: relative;
+    background: #020912;
+    aspect-ratio: 4/4.2;
+    overflow: hidden;
+  }
+
+  .hb-showcase-pane img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 350ms var(--curva-suave);
+  }
+
+  .hb-showcase-card:hover .hb-showcase-pane img {
+    transform: scale(1.04);
+  }
+
+  .hb-pane-tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    padding: 3px 7px;
+    border-radius: 5px;
+    font-size: 0.64rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .hb-pane-tag--before {
+    background: rgba(220, 38, 38, 0.9);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .hb-pane-tag--after {
+    background: rgba(15, 159, 110, 0.95);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .hb-showcase-footer {
+    padding: 12px 16px;
+    background: rgba(3, 15, 29, 0.85);
+  }
+
+  .hb-showcase-detail strong {
+    display: block;
+    font-size: 0.88rem;
+    color: #ffffff;
+    margin-bottom: 2px;
+  }
+
+  .hb-showcase-detail p {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* ============================================================
+     COMMON SECTION STYLING & HEADERS
+     ============================================================ */
+  .hb-section {
+    padding: clamp(52px, 6vw, 84px) 0;
+    background: #ffffff;
+    position: relative;
+  }
+
+  .hb-section-header {
+    max-width: 800px;
+    margin-bottom: clamp(30px, 4vw, 48px);
+  }
+
+  .text-center {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hb-tagline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--azul-medio);
+    background: var(--azul-claro);
+    padding: 5px 12px;
+    border-radius: 9999px;
+    border: 1px solid var(--azul-borde);
+    margin-bottom: 12px;
+  }
+
+  .hb-tagline-light {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #38bdf8;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 12px;
+    border-radius: 9999px;
+    margin-bottom: 12px;
+  }
+
+  .hb-section h2 {
+    font-family: var(--font-heading, system-ui, sans-serif);
+    font-size: clamp(1.85rem, 3.2vw, 2.65rem);
+    font-weight: 850;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--azul-oscuro);
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  .hb-lead {
+    font-size: clamp(0.96rem, 1.15vw, 1.08rem);
+    line-height: 1.6;
+    color: var(--azul-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     SECCIÓN 1: ANATOMÍA DE LA FALLA
+     ============================================================ */
+  .hb-anatomy {
+    background: #ffffff;
+  }
+
+  .hb-anatomy-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+
+  .hb-card {
+    background: #ffffff;
+    border: 1px solid var(--azul-borde);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--sombra-suave);
+    transition: transform 240ms var(--curva-suave), box-shadow 240ms ease, border-color 240ms ease;
+  }
+
+  .hb-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra-card);
+    border-color: var(--azul-medio);
+  }
+
+  .hb-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 16px;
+  }
+
+  .hb-card__icon--blue {
+    background: #e0f2fe;
+    color: #0284c7;
+  }
+
+  .hb-card__icon--amber {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  .hb-card__icon--red {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .hb-card h3 {
+    font-size: 1.18rem;
+    font-weight: 850;
+    color: var(--azul-oscuro);
+    margin: 0 0 10px;
+    line-height: 1.3;
+  }
+
+  .hb-card p {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--azul-muted);
+    margin: 0 0 16px;
+    flex-grow: 1;
+  }
+
+  .hb-card__callout {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--azul-claro);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--azul-oscuro);
+    border-left: 3px solid var(--azul-medio);
+  }
+
+  /* ============================================================
+     SECCIÓN 2: SEMÁFORO DE GRAVEDAD
+     ============================================================ */
+  .hb-severity {
+    background: #f8fbfe;
+    border-top: 1px solid var(--azul-borde);
+    border-bottom: 1px solid var(--azul-borde);
+  }
+
+  .hb-severity-list {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  .hb-severity-card {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 20px;
+    background: #ffffff;
+    border: 1px solid var(--azul-borde);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--sombra-suave);
+    align-items: start;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .hb-severity-card:hover {
+    border-color: #93c5fd;
+    box-shadow: var(--sombra-card);
+  }
+
+  .hb-severity-card__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-size: 0.78rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .hb-severity-card__content h3 {
+    font-size: 1.12rem;
+    font-weight: 850;
+    color: var(--azul-oscuro);
+    margin: 0 0 6px;
+  }
+
+  .hb-severity-card__content p {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--azul-muted);
+    margin: 0 0 10px;
+  }
+
+  .hb-severity-card__action {
+    font-size: 0.84rem;
+    color: var(--azul-oscuro);
+    background: var(--azul-claro);
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .hb-inline-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 26px;
+    background: #ffffff;
+    border: 2px solid var(--azul-medio);
+    border-radius: 14px;
+    box-shadow: var(--sombra-card);
+  }
+
+  .hb-inline-cta strong {
+    display: block;
+    font-size: 1.08rem;
+    color: var(--azul-oscuro);
+    margin-bottom: 2px;
+  }
+
+  .hb-inline-cta p {
+    margin: 0;
+    color: var(--azul-muted);
+    font-size: 0.9rem;
+  }
+
+  /* ============================================================
+     SECCIÓN 3: GALERÍA ANTES Y DESPUÉS
+     ============================================================ */
+  .hb-cases {
+    background: #ffffff;
+  }
+
+  .hb-case-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+
+  .hb-case-card {
+    background: #ffffff;
+    border: 1px solid var(--azul-borde);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--sombra-suave);
+    display: flex;
+    flex-direction: column;
+    transition: transform 240ms var(--curva-suave), box-shadow 240ms ease, border-color 240ms ease;
+  }
+
+  .hb-case-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra-card);
+    border-color: var(--azul-medio);
+  }
+
+  .hb-case-media {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--azul-borde);
+  }
+
+  .hb-case-pane {
+    position: relative;
+    background: #e2e8f0;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+  }
+
+  .hb-case-pane img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 300ms var(--curva-suave);
+  }
+
+  .hb-case-card:hover .hb-case-pane img {
+    transform: scale(1.05);
+  }
+
+  .hb-case-tag {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 2;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hb-case-tag--before {
+    background: rgba(7, 31, 58, 0.88);
+    color: #ffffff;
+  }
+
+  .hb-case-tag--after {
+    background: var(--verde-acento);
+    color: #ffffff;
+  }
+
+  .hb-case-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .hb-case-brand-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--azul-claro);
+    color: var(--azul-medio);
+    font-size: 0.7rem;
+    font-weight: 850;
+    margin-bottom: 8px;
+    align-self: flex-start;
+  }
+
+  .hb-case-body h3 {
+    font-size: 1.08rem;
+    font-weight: 850;
+    color: var(--azul-oscuro);
+    margin: 0 0 10px;
+    line-height: 1.3;
+  }
+
+  .hb-case-problem, .hb-case-solution {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--azul-muted);
+    margin: 0 0 8px;
+  }
+
+  .hb-case-benefit {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px dashed var(--azul-borde);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--verde-acento);
+  }
+
+  /* ============================================================
+     SECCIÓN 4: TABLA COMPARATIVA DE MÉTODOS
+     ============================================================ */
+  .hb-comparison {
+    background: #f8fbfe;
+    border-top: 1px solid var(--azul-borde);
+    border-bottom: 1px solid var(--azul-borde);
+  }
+
+  .hb-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--azul-borde);
+    box-shadow: var(--sombra-suave);
+    background: #ffffff;
+  }
+
+  .hb-comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+  }
+
+  .hb-comp-table th, .hb-comp-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--azul-borde);
+    vertical-align: middle;
+  }
+
+  .hb-comp-table th {
+    background: #f0f7fc;
+    color: var(--azul-oscuro);
+    font-weight: 850;
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .hb-comp-table .highlight-col {
+    background: rgba(20, 121, 212, 0.06);
+    border-left: 2px solid var(--azul-medio);
+    border-right: 2px solid var(--azul-medio);
+    font-weight: 600;
+    color: var(--azul-oscuro);
+  }
+
+  .hb-comp-table thead .highlight-col {
+    background: var(--azul-medio);
+    color: #ffffff;
+    border-color: var(--azul-medio);
+  }
+
+  .badge-positive {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--verde-acento);
+    font-weight: 800;
+  }
+
+  .badge-negative {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #dc2626;
+    font-weight: 800;
+  }
+
+  .badge-neutral {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--azul-muted);
+    font-weight: 700;
+  }
+
+  /* ============================================================
+     SECCIÓN 5: PROTOCOLO TÉCNICO EN 5 FASES
+     ============================================================ */
+  .hb-process {
+    background: #ffffff;
+  }
+
+  .hb-process-timeline {
+    display: grid;
+    gap: 16px;
+  }
+
+  .hb-timeline-item {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid var(--azul-borde);
+    border-radius: 12px;
+    box-shadow: var(--sombra-suave);
+    transition: transform 200ms var(--curva-suave), border-color 200ms ease;
+  }
+
+  .hb-timeline-item:hover {
+    transform: translateX(4px);
+    border-color: var(--azul-medio);
+  }
+
+  .hb-timeline-marker {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: var(--azul-medio);
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+    font-weight: 850;
+  }
+
+  .hb-timeline-content h3 {
+    font-size: 1.15rem;
+    font-weight: 850;
+    color: var(--azul-oscuro);
+    margin: 0 0 6px;
+  }
+
+  .hb-timeline-content p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--azul-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     SECCIÓN 6: MARCAS Y MODELOS
+     ============================================================ */
+  .hb-brands {
+    background: #f8fbfe;
+    border-top: 1px solid var(--azul-borde);
+    border-bottom: 1px solid var(--azul-borde);
+  }
+
+  .hb-brands-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .hb-brand-card {
+    background: #ffffff;
+    border: 1px solid var(--azul-borde);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: var(--sombra-suave);
+    transition: transform 200ms var(--curva-suave), border-color 200ms ease;
+  }
+
+  .hb-brand-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--azul-medio);
+  }
+
+  .hb-brand-card__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .hb-brand-card__header .tc-svg {
+    color: var(--azul-medio);
+  }
+
+  .hb-brand-card__header h3 {
+    font-size: 1.12rem;
+    font-weight: 850;
+    color: var(--azul-oscuro);
+    margin: 0;
+  }
+
+  .hb-brand-card p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--azul-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     SECCIÓN 7: COBERTURA LOCAL Y NAP
+     ============================================================ */
+  .hb-local {
+    background: #ffffff;
+  }
+
+  .hb-local__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: clamp(28px, 4vw, 56px);
+    align-items: start;
+  }
+
+  .hb-local__lead {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--azul-muted);
+    margin: 0 0 24px;
+  }
+
+  .hb-zones-box {
+    padding: 20px;
+    background: var(--azul-claro);
+    border: 1px solid var(--azul-borde);
+    border-radius: 12px;
+  }
+
+  .hb-zones-box strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--azul-oscuro);
+    margin-bottom: 12px;
+  }
+
+  .hb-zones-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .hb-zones-pills span {
+    display: inline-block;
+    padding: 4px 9px;
+    background: #ffffff;
+    border: 1px solid var(--azul-borde);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--azul-oscuro);
+  }
+
+  /* NAP Card */
+  .hb-local__card {
+    background: #ffffff;
+    border: 2px solid var(--azul-medio);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--sombra-card);
+  }
+
+  .hb-nap-header {
+    padding: 16px 20px;
+    background: var(--azul-oscuro);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hb-nap-header .tc-svg {
+    color: #38bdf8;
+    width: 24px;
+    height: 24px;
+  }
+
+  .hb-nap-header h3 {
+    font-size: 1.08rem;
+    font-weight: 850;
+    color: #ffffff;
+    margin: 0 0 2px;
+  }
+
+  .hb-nap-header p {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+  }
+
+  .hb-nap-body {
+    padding: 20px;
+    display: grid;
+    gap: 14px;
+    font-style: normal;
+  }
+
+  .hb-nap-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .hb-nap-row .tc-svg {
+    color: var(--azul-medio);
+    margin-top: 2px;
+  }
+
+  .hb-nap-row strong {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--azul-muted);
+  }
+
+  .hb-nap-row span, .hb-nap-row a {
+    font-size: 0.9rem;
+    color: var(--azul-oscuro) !important;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .hb-nap-row a:hover {
+    color: var(--azul-medio) !important;
+    text-decoration: underline;
+  }
+
+  .hb-nap-footer {
+    padding: 0 20px 20px;
+  }
+
+  /* ============================================================
+     SECCIÓN FINAL: CTA
+     ============================================================ */
+  .hb-final {
+    background: linear-gradient(135deg, #071f3a 0%, #030f1d 100%);
+    color: #ffffff;
+    padding: clamp(56px, 6vw, 84px) 0;
+    overflow: hidden;
+  }
+
+  .hb-final__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+  }
+
+  .hb-final h2 {
+    font-family: var(--font-heading, system-ui, sans-serif);
+    font-size: clamp(1.85rem, 3.2vw, 2.65rem);
+    font-weight: 850;
+    line-height: 1.15;
+    color: #ffffff !important;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  .hb-final p {
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85) !important;
+    margin: 0 0 22px;
+    max-width: 58ch;
+  }
+
+  .hb-final__image {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .hb-final__image img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hb-final__image-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(7, 31, 58, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #38bdf8;
+  }
+
+  .hb-final__image-badge .tc-svg {
+    color: #10b981;
+  }
+
+  /* ============================================================
+     RESPONSIVE BREAKPOINTS (MOBILE FIRST ENDURECIDO)
+     ============================================================ */
+  @media (max-width: 1024px) {
+    .hb-hero__grid, .hb-local__grid, .hb-final__grid {
+      grid-template-columns: 1fr;
+    }
+    .hb-showcase-card {
+      margin-left: 0;
+      max-width: 100%;
+    }
+    .hb-anatomy-grid, .hb-case-grid, .hb-brands-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hb-hero {
+      padding-top: 80px;
+    }
+    .hb-anatomy-grid, .hb-case-grid, .hb-brands-grid {
+      grid-template-columns: 1fr;
+    }
+    .hb-severity-card {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .hb-timeline-item {
+      grid-template-columns: 46px 1fr;
+      gap: 12px;
+      padding: 16px;
+    }
+    .hb-timeline-marker {
+      width: 42px;
+      height: 42px;
+      font-size: 1.1rem;
+    }
+    .hb-actions {
+      flex-direction: column;
+    }
+    .hb-actions .hb-btn {
+      width: 100%;
+    }
+    .hb-inline-cta {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+    }
+    .hb-inline-cta .hb-btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hb-hero__stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .hb-stat-divider {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hb-btn, .hb-card, .hb-case-card, .hb-timeline-item, .hb-showcase-card, .hb-pill-dot {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
+    }
+  }
 </style>

@@ -1,0 +1,35 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Navbar from '../../../components/Navbar.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import PcGpuView from '../../../components/views/PcGpuView.astro';
+import { getService } from '../../../data/services';
+import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
+
+const resolved = getService('pc', 'tarjeta-video-gpu');
+if (!resolved) throw new Error('Servicio tarjeta-video-gpu no encontrado');
+const { category, service } = resolved;
+const canonical = 'https://pixon.com.mx/servicios/pc/tarjeta-video-gpu';
+const description = 'Diagnóstico y reparación de tarjeta gráfica GPU en Cancún para artefactos, temperatura, pantalla negra, ventiladores y fallas bajo carga.';
+const schema = [
+  buildServiceSchema({ service, category, url: canonical, description, image: service.featuredImage }),
+  buildBreadcrumbSchema([
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: category.title, href: '/servicios/pc' },
+    { label: service.label, href: '/servicios/pc/tarjeta-video-gpu' },
+  ]),
+  buildFAQSchema(service.faqs || []),
+].filter(Boolean) as object[];
+---
+
+<Base title="Reparación de Tarjeta Gráfica GPU en Cancún | Pixon PC" description={description} canonical={canonical} image={service.featuredImage} schema={schema} bodyClass="service-page">
+  <Navbar />
+  <Breadcrumb items={[
+    { label: 'Inicio', href: '/' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: category.title, href: '/servicios/pc' },
+    { label: service.label },
+  ]} />
+  <PcGpuView service={service} />
+</Base>

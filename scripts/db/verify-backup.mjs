@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import path from 'node:path';
 import { findLatestBackup, verifyBackupFile } from './backup-format.mjs';
+import { backupDirectory } from './runtime-paths.mjs';
 
 function usage() {
   console.log(`Uso:
@@ -52,7 +53,7 @@ if (options.help) {
 
   const file = options.file
     ? path.resolve(options.file)
-    : await findLatestBackup(path.join(process.cwd(), 'backups'));
+    : await findLatestBackup(backupDirectory);
   if (!file) {
     throw new Error('No se encontro un backup .pixonbak. Crea uno antes del preflight.');
   }

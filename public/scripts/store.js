@@ -3,6 +3,24 @@
 
   const API_ROOT = '/api/commerce/catalog';
   const PAGE_SIZE = 12;
+  function isEn() {
+    return (document.documentElement.lang && document.documentElement.lang.startsWith('en'));
+  }
+
+  function getTypeLabel(type) {
+    if (isEn()) {
+      return ({ PRODUCT: 'Product', EQUIPMENT: 'Equipment', HARDWARE: 'Hardware', SERVICE: 'Service', BUNDLE: 'Bundle' })[type] || 'Product';
+    }
+    return ({ PRODUCT: 'Producto', EQUIPMENT: 'Equipo', HARDWARE: 'Hardware', SERVICE: 'Servicio', BUNDLE: 'Paquete' })[type] || 'Producto';
+  }
+
+  function getConditionLabel(condition) {
+    if (isEn()) {
+      return ({ NEW: 'New', USED: 'Used', REFURBISHED: 'Refurbished', OPEN_BOX: 'Open box', FOR_PARTS: 'For parts', NOT_APPLICABLE: 'N/A' })[condition] || condition;
+    }
+    return ({ NEW: 'Nuevo', USED: 'Usado', REFURBISHED: 'Reacondicionado', OPEN_BOX: 'Caja abierta', FOR_PARTS: 'Para refacciones', NOT_APPLICABLE: 'No aplica' })[condition] || condition;
+  }
+
   const TYPE_LABELS = {
     PRODUCT: 'Producto',
     EQUIPMENT: 'Equipo',
@@ -18,6 +36,7 @@
     FOR_PARTS: 'Para refacciones',
     NOT_APPLICABLE: 'No aplica',
   };
+
 
   const elements = {
     form: document.getElementById('store-filters'),
@@ -115,6 +134,17 @@
     }
   }
 
+  function cardMediaUrl(url) {
+    if (!url || !url.includes('/api/commerce/media/')) return url;
+    try {
+      const parsed = new URL(url, window.location.origin);
+      parsed.searchParams.set('variant', 'card');
+      return parsed.href;
+    } catch (_) {
+      return url;
+    }
+  }
+
   function normalizeItem(raw) {
     if (raw && raw.__storeNormalized === true) return raw;
     const item = asObject(raw);
@@ -148,6 +178,7 @@
       allowQuote: Boolean(firstDefined(item.allow_quote, item.allowQuote, true)),
       allowPurchase: Boolean(firstDefined(item.allow_purchase, item.allowPurchase, false)),
       image: mediaUrl(item),
+      cardImage: cardMediaUrl(mediaUrl(item)),
       imageAlt: String(firstDefined(asObject((item.media || [])[0]).alt_text, asObject((item.media || [])[0]).altText, item.imageAlt, item.name, 'Publicación de Pixon PC')),
       categoryName: String(firstDefined(category.name, item.category_name, item.categoryName, 'Catálogo')),
       badges: badges.map((badge) => String(firstDefined(asObject(badge).label, asObject(badge).name, badge))).filter(Boolean).slice(0, 2),
@@ -158,7 +189,7 @@
   function money(value, currency) {
     if (value === null) return 'Precio a consultar';
     try {
-      return new Intl.NumberFormat('es-MX', {
+      return new Intl.NumberFormat(isEn() ? 'en-US' : 'es-MX', {
         style: 'currency',
         currency: currency || 'MXN',
         maximumFractionDigits: 2,
@@ -169,11 +200,12 @@
   }
 
   function availability(item) {
-    if (item.status === 'SOLD') return 'Vendido';
-    if (item.status === 'RESERVED') return 'Reservado';
-    if (item.status === 'OUT_OF_STOCK' || (item.trackStock && item.stock !== null && item.stock <= 0)) return 'Agotado';
-    if (item.trackStock && item.stock === 1) return 'Última unidad';
-    return 'Disponible';
+    const en = isEn();
+    if (item.status === 'SOLD') return en ? 'Sold' : 'Vendido';
+    if (item.status === 'RESERVED') return en ? 'Reserved' : 'Reservado';
+    if (item.status === 'OUT_OF_STOCK' || (item.trackStock && item.stock !== null && item.stock <= 0)) return en ? 'Out of stock' : 'Agotado';
+    if (item.trackStock && item.stock === 1) return en ? 'Low stock' : 'Última unidad';
+    return en ? 'Available' : 'Disponible';
   }
 
   function element(tag, className, text) {
@@ -190,22 +222,28 @@
   }
 
   function whatsappUrl(item) {
-    const message = 'Hola Pixon PC, quiero consultar “' + item.name + '” de la tienda' + (item.slug ? ' (' + item.slug + ')' : '') + '.';
+    const en = isEn();
+    const message = en
+      ? 'Hi Pixon PC, I would like to inquire about “' + item.name + '” from your store' + (item.slug ? ' (' + item.slug + ')' : '') + '.'
+      : 'Hola Pixon PC, quiero consultar “' + item.name + '” de la tienda' + (item.slug ? ' (' + item.slug + ')' : '') + '.';
     return 'https://wa.me/529986690777?text=' + encodeURIComponent(message);
   }
+
 
   function createMedia(item) {
     const media = element(item.slug ? 'a' : 'div', 'store-card-media');
     if (item.slug) {
-      media.href = '/tienda/' + encodeURIComponent(item.slug);
+      media.href = (isEn() ? '/en/store/item?slug=' : '/tienda/') + encodeURIComponent(item.slug);
       media.setAttribute('aria-label', 'Abrir ficha de ' + item.name);
     }
     if (item.image) {
       const image = document.createElement('img');
-      image.src = item.image;
+      image.src = item.cardImage || item.image;
       image.alt = item.imageAlt;
       image.loading = 'lazy';
       image.decoding = 'async';
+      image.width = 640;
+      image.height = 480;
       media.appendChild(image);
     } else {
       const placeholder = element('div', 'store-card-placeholder');
@@ -229,13 +267,13 @@
 
     const body = element('div', 'store-card-body');
     const meta = element('div', 'store-card-meta');
-    meta.appendChild(element('span', '', TYPE_LABELS[item.type] || item.type));
-    meta.appendChild(element('span', '', CONDITION_LABELS[item.condition] || item.condition));
+    meta.appendChild(element('span', '', getTypeLabel(item.type)));
+    meta.appendChild(element('span', '', getConditionLabel(item.condition)));
     body.appendChild(meta);
     const heading = element('h3');
     if (item.slug) {
       const headingLink = element('a', '', item.name);
-      headingLink.href = '/tienda/' + encodeURIComponent(item.slug);
+      headingLink.href = (isEn() ? '/en/store/item?slug=' : '/tienda/') + encodeURIComponent(item.slug);
       heading.appendChild(headingLink);
     } else {
       heading.textContent = item.name;
@@ -247,22 +285,22 @@
     priceRow.appendChild(element('span', 'store-card-price', money(item.currentPrice, item.currency)));
     if (item.basePrice !== null && item.currentPrice !== null && item.basePrice > item.currentPrice) {
       priceRow.appendChild(element('span', 'store-card-original', money(item.basePrice, item.currency)));
-      priceRow.appendChild(element('span', 'store-card-saving', 'Ahorras ' + money(item.basePrice - item.currentPrice, item.currency)));
+      priceRow.appendChild(element('span', 'store-card-saving', (isEn() ? 'Save ' : 'Ahorras ') + money(item.basePrice - item.currentPrice, item.currency)));
     }
     body.appendChild(priceRow);
 
     const actions = element('div', 'store-card-actions');
     if (item.slug) {
-      const detail = element('a', '', 'Ver detalles');
-      detail.href = '/tienda/' + encodeURIComponent(item.slug);
-      detail.setAttribute('aria-label', 'Ver detalles de ' + item.name);
+      const detail = element('a', '', isEn() ? 'View details' : 'Ver detalles');
+      detail.href = (isEn() ? '/en/store/item?slug=' : '/tienda/') + encodeURIComponent(item.slug);
+      detail.setAttribute('aria-label', (isEn() ? 'View details of ' : 'Ver detalles de ') + item.name);
       actions.appendChild(detail);
     }
     const isSold = Boolean(options && options.sold) || item.status === 'SOLD';
     const purchasable = !isSold && item.status === 'ACTIVE' && item.allowPurchase
       && (!item.trackStock || item.stock === null || item.stock > 0);
     if (purchasable) {
-      const add = element('button', 'store-card-add', 'Agregar');
+      const add = element('button', 'store-card-add', isEn() ? 'Add to Cart' : 'Agregar');
       add.type = 'button';
       add.dataset.addToCart = '';
       add.dataset.itemId = String(item.id);
@@ -273,7 +311,7 @@
       add.dataset.itemImage = item.image;
       add.dataset.itemType = item.type;
       add.dataset.itemMax = String(item.trackStock && item.stock !== null ? Math.max(1, item.stock) : 100);
-      add.setAttribute('aria-label', 'Agregar ' + item.name + ' al carrito');
+      add.setAttribute('aria-label', (isEn() ? 'Add ' : 'Agregar ') + item.name + (isEn() ? ' to cart' : ' al carrito'));
       actions.appendChild(add);
     }
     const quote = element('a', '');
@@ -281,16 +319,17 @@
     if (!isSold && item.allowQuote) {
       quote.target = '_blank';
       quote.rel = 'noopener noreferrer';
-      quote.setAttribute('aria-label', 'Consultar ' + item.name + ' por WhatsApp');
+      quote.setAttribute('aria-label', isEn() ? ('Inquire about ' + item.name + ' on WhatsApp') : ('Consultar ' + item.name + ' por WhatsApp'));
       appendIcon(quote, 'fa-brands fa-whatsapp');
     } else {
-      quote.setAttribute('aria-label', isSold ? 'Ver publicaciones disponibles' : 'Contactar a Pixon PC');
+      quote.setAttribute('aria-label', isSold ? (isEn() ? 'View available listings' : 'Ver publicaciones disponibles') : (isEn() ? 'Contact Pixon PC' : 'Contactar a Pixon PC'));
       appendIcon(quote, isSold ? 'fa-solid fa-arrow-right' : 'fa-solid fa-envelope');
     }
     actions.appendChild(quote);
     body.appendChild(actions);
     card.appendChild(body);
     return card;
+
   }
 
   function readMeta(meta, itemCount) {
@@ -368,16 +407,20 @@
 
       if (!items.length) {
         setView('empty');
-        elements.summary.textContent = 'Sin resultados para esta selección';
+        elements.summary.textContent = isEn() ? 'No listings found for this selection' : 'Sin resultados para esta selección';
       } else {
         setView('results');
-        const totalLabel = pagination.total === null ? items.length + ' publicaciones en esta página' : pagination.total + (pagination.total === 1 ? ' publicación' : ' publicaciones');
+        const en = isEn();
+        const totalLabel = en
+          ? (pagination.total === null ? items.length + ' listings on this page' : pagination.total + (pagination.total === 1 ? ' listing' : ' listings'))
+          : (pagination.total === null ? items.length + ' publicaciones en esta página' : pagination.total + (pagination.total === 1 ? ' publicación' : ' publicaciones'));
         elements.summary.textContent = totalLabel;
-        elements.pageLabel.textContent = 'Página ' + state.page + ' de ' + state.pages;
+        elements.pageLabel.textContent = en ? ('Page ' + state.page + ' of ' + state.pages) : ('Página ' + state.page + ' de ' + state.pages);
         elements.previous.disabled = state.page <= 1;
         elements.next.disabled = state.page >= state.pages;
         elements.pagination.hidden = state.pages <= 1;
       }
+
       syncUrl();
       if (shouldFocus) document.getElementById('catalog-title')?.focus({ preventScroll: true });
     } catch (error) {
@@ -642,12 +685,12 @@
     });
   });
   [elements.type, elements.condition, elements.availability, elements.sort].forEach((control) => {
-    control.addEventListener('change', () => {
+    control?.addEventListener('change', () => {
       state.page = 1;
       loadCatalog();
     });
   });
-  elements.search.addEventListener('input', () => {
+  elements.search?.addEventListener('input', () => {
     window.clearTimeout(state.debounce);
     state.debounce = window.setTimeout(() => {
       state.page = 1;
@@ -656,7 +699,7 @@
     }, 320);
   });
   [elements.brand, elements.minPrice, elements.maxPrice].forEach((control) => {
-    control.addEventListener('input', () => {
+    control?.addEventListener('input', () => {
       window.clearTimeout(state.debounce);
       state.debounce = window.setTimeout(() => {
         state.page = 1;
@@ -664,7 +707,7 @@
       }, 320);
     });
   });
-  elements.categories.addEventListener('click', (event) => {
+  elements.categories?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-category]');
     if (!button) return;
     state.category = button.dataset.category || '';
@@ -676,22 +719,22 @@
     });
     loadCatalog();
   });
-  elements.clear.addEventListener('click', resetFilters);
-  elements.emptyClear.addEventListener('click', resetFilters);
-  elements.retry.addEventListener('click', () => loadCatalog());
-  elements.previous.addEventListener('click', () => {
+  elements.clear?.addEventListener('click', resetFilters);
+  elements.emptyClear?.addEventListener('click', resetFilters);
+  elements.retry?.addEventListener('click', () => loadCatalog());
+  elements.previous?.addEventListener('click', () => {
     if (state.page <= 1) return;
     state.page -= 1;
     loadCatalog();
     document.getElementById('catalogo-tienda')?.scrollIntoView({ behavior: 'smooth' });
   });
-  elements.next.addEventListener('click', () => {
+  elements.next?.addEventListener('click', () => {
     if (state.page >= state.pages) return;
     state.page += 1;
     loadCatalog();
     document.getElementById('catalogo-tienda')?.scrollIntoView({ behavior: 'smooth' });
   });
-  elements.grid.addEventListener('click', (event) => {
+  elements.grid?.addEventListener('click', (event) => {
     const trigger = event.target.closest('[data-detail-slug]');
     if (trigger) openDetail(trigger.dataset.detailSlug);
   });
@@ -723,6 +766,75 @@
     document.getElementById('catalogo-tienda')?.scrollIntoView({ behavior: 'smooth' });
   });
 
+  function localizeStorePage() {
+    if (!isEn()) return;
+    const title = document.getElementById('store-title');
+    if (title) title.textContent = 'Equipment, components and repair services in Cancun';
+    const label = document.querySelector('.store-marketplace-header .store-section-label');
+    if (label) label.textContent = 'Pixon PC Catalog';
+    const lead = document.querySelector('.store-marketplace-lead');
+    if (lead) lead.textContent = 'Real listings with verified pricing, condition and availability directly accessible.';
+    const actionsA = document.querySelectorAll('.store-marketplace-actions a');
+    if (actionsA[0]) actionsA[0].innerHTML = '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Inquire';
+    if (actionsA[1]) actionsA[1].innerHTML = '<i class="fa-solid fa-ticket" aria-hidden="true"></i> Create ticket';
+
+    const searchField = document.querySelector('.store-search-field > span:first-child');
+    if (searchField) searchField.textContent = 'Search in store';
+    if (elements.search) elements.search.placeholder = 'Search laptops, SSDs, maintenance...';
+
+    const catTitle = document.getElementById('catalog-title');
+    if (catTitle) catTitle.textContent = 'Full catalog';
+    const catLead = document.querySelector('.store-catalog-heading p');
+    if (catLead) catLead.textContent = 'Filter by type, condition and availability to find what you need faster.';
+    if (elements.filterToggle) elements.filterToggle.innerHTML = '<i class="fa-solid fa-sliders" aria-hidden="true"></i> Filters';
+
+    const legends = document.querySelectorAll('.store-filters legend');
+    if (legends[0]) legends[0].textContent = 'Type';
+    if (legends[1]) legends[1].textContent = 'Condition';
+    if (legends[2]) legends[2].textContent = 'Availability';
+    if (legends[3]) legends[3].textContent = 'Sort by';
+
+    const typeSpans = document.querySelectorAll('[data-filter-group="type"] + span');
+    const typeEn = ['Products', 'Equipment', 'Hardware', 'Services', 'Bundles'];
+    typeSpans.forEach((span, i) => { if (typeEn[i]) span.textContent = typeEn[i]; });
+
+    const condSpans = document.querySelectorAll('[data-filter-group="condition"] + span');
+    const condEn = ['Brand new', 'Open box', 'Refurbished', 'Pre-owned'];
+    condSpans.forEach((span, i) => { if (condEn[i]) span.textContent = condEn[i]; });
+
+    const availSpans = document.querySelectorAll('[data-filter-group="availability"] + span');
+    const availEn = ['Available for pickup', 'Reserved / In progress', 'Recently sold'];
+    availSpans.forEach((span, i) => { if (availEn[i]) span.textContent = availEn[i]; });
+
+    const sortSpans = document.querySelectorAll('[data-filter-group="sort"] + span');
+    const sortEn = ['Newest first', 'Price: low to high', 'Price: high to low', 'Biggest discount'];
+    sortSpans.forEach((span, i) => { if (sortEn[i]) span.textContent = sortEn[i]; });
+
+    if (elements.clear) elements.clear.textContent = 'Clear filters';
+    const promoLink = document.querySelector('.store-catalog-sidebar a[href="/tienda/promociones"]');
+    if (promoLink) promoLink.textContent = 'View promotions';
+
+    const loadingP = document.querySelector('#store-loading p');
+    if (loadingP) loadingP.textContent = 'Loading listings…';
+    const errH3 = document.querySelector('#store-error h3');
+    if (errH3) errH3.textContent = 'Could not load catalog';
+    const errP = document.querySelector('#store-error p');
+    if (errP) errP.textContent = 'Information is currently unavailable. Please try again or reach out to confirm stock.';
+    if (elements.retry) elements.retry.textContent = 'Try again';
+
+    const emptyH3 = document.querySelector('#store-empty h3');
+    if (emptyH3) emptyH3.textContent = 'No listings match these filters';
+    const emptyP = document.querySelector('#store-empty p');
+    if (emptyP) emptyP.textContent = 'Try another search term or let us know what equipment, part or service you need.';
+    if (elements.emptyClear) elements.emptyClear.textContent = 'View full catalog';
+    const emptyWa = document.querySelector('#store-empty a');
+    if (emptyWa) emptyWa.textContent = 'Inquire on WhatsApp';
+
+    if (elements.previous) elements.previous.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Previous';
+    if (elements.next) elements.next.innerHTML = 'Next <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+  }
+
+  localizeStorePage();
   applyInitialQuery();
   Promise.allSettled([loadCategories(), loadCatalog(), loadSold(), loadPromotionBanner()]);
 })();

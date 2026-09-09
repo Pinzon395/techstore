@@ -2,10 +2,10 @@
 
 const fs = require('fs');
 const path = require('path');
+const { cacheDir } = require('../config/persistent-paths');
 
 const rootPath = path.join(__dirname, '..', '..');
 const catalogPath = path.join(rootPath, 'src', 'data', 'pc-builder-catalog.json');
-const cacheDir = path.join(rootPath, 'server', 'cache');
 const cachePath = path.join(cacheDir, 'pc-prices-cache.json');
 
 const API_BASE = 'https://api.pricesapi.io/api/v1';

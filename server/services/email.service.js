@@ -173,22 +173,290 @@ function ticketSummaryRows(ticket, showBothEmails = false) {
         </tr>`).join('');
 }
 
-async function sendTransactionalEmail({ to, subject, html, text, tags = [], correlationId = null }) {
+// Estados oficiales del Outbox Transaccional
+const OUTBOX_STATUSES = Object.freeze({
+    QUEUED: 'QUEUED',
+    PROCESSING: 'PROCESSING',
+    ACCEPTED_BY_PROVIDER: 'ACCEPTED_BY_PROVIDER',
+    DELIVERED: 'DELIVERED',
+    BOUNCED: 'BOUNCED',
+    FAILED: 'FAILED'
+});
+
+// Registro en memoria de eventos de correo (anillo de hasta 500 eventos como espejo de acceso rápido)
+const emailLedger = [];
+const idempotencyMap = new Map(); // key -> { id, status, timestamp, providerId }
+const IDEMPOTENCY_TTL_MS = 15 * 60 * 1000; // 15 minutos
+
+function getDbPool() {
+    try {
+        const { getDB } = require('../database');
+        return getDB();
+    } catch (_) {
+        return null;
+    }
+}
+
+async function persistOutboxRecord(entry) {
+    const pool = getDbPool();
+    if (!pool) return;
+    try {
+        await pool.execute(
+            `INSERT INTO email_outbox
+              (id, idempotency_key, ticket_id, event_type, recipient, subject, html, text, tags_json, raw_params_json, status, provider_id, attempts, last_error)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+               status = VALUES(status),
+               attempts = VALUES(attempts),
+               provider_id = VALUES(provider_id),
+               last_error = VALUES(last_error),
+               last_attempt_at = CURRENT_TIMESTAMP`,
+            [
+                entry.id,
+                entry.idempotency_key || null,
+                entry.ticket_id || null,
+                entry.event_type || 'transactional',
+                entry.recipient || '',
+                entry.subject || '',
+                entry.raw_params?.html || entry.html || null,
+                entry.raw_params?.text || entry.text || null,
+                JSON.stringify(entry.tags || []),
+                JSON.stringify(entry.raw_params || {}),
+                entry.status || OUTBOX_STATUSES.QUEUED,
+                entry.provider_id || null,
+                entry.attempts || 1,
+                entry.error || null
+            ]
+        );
+    } catch (err) {
+        logWarn(`No se pudo persistir el outbox de correo: ${err.message}`);
+    }
+}
+
+async function updateOutboxStatusInDb(id, status, { providerId = null, error = null } = {}) {
+    const pool = getDbPool();
+    if (!pool) return;
+    try {
+        await pool.execute(
+            `UPDATE email_outbox
+             SET status = ?,
+                 provider_id = COALESCE(?, provider_id),
+                 last_error = ?,
+                 last_attempt_at = CURRENT_TIMESTAMP
+             WHERE id = ?`,
+            [status, providerId, error, id]
+        );
+    } catch (err) {
+        logWarn(`No se pudo actualizar estado outbox de correo: ${err.message}`);
+    }
+}
+
+async function updateEmailDeliveryStatus(providerId, newStatus, error = null) {
+    const validStatuses = new Set([
+        OUTBOX_STATUSES.DELIVERED,
+        OUTBOX_STATUSES.BOUNCED,
+        OUTBOX_STATUSES.FAILED
+    ]);
+    if (!validStatuses.has(newStatus)) {
+        throw new Error(`Estado de entrega no válido: ${newStatus}`);
+    }
+    const entry = emailLedger.find(e => e.provider_id === providerId);
+    if (entry) {
+        entry.status = newStatus;
+        if (error) entry.error = error;
+    }
+    const pool = getDbPool();
+    if (pool) {
+        await pool.execute(
+            `UPDATE email_outbox SET status = ?, last_error = COALESCE(?, last_error) WHERE provider_id = ?`,
+            [newStatus, error, providerId]
+        ).catch(err => logWarn(`Error actualizando entrega en outbox: ${err.message}`));
+    }
+    return { ok: true, status: newStatus };
+}
+
+function recordLedgerEvent(entry) {
+    emailLedger.unshift(entry);
+    if (emailLedger.length > 500) emailLedger.pop();
+    persistOutboxRecord(entry).catch(() => {});
+    return entry;
+}
+
+function getEmailEventsForTicket(ticketId) {
+    if (!ticketId) return [];
+    return emailLedger.filter(e => String(e.ticket_id) === String(ticketId));
+}
+
+function getEmailHealthSummary() {
     const config = getEmailConfig();
-    const recipients = Array.isArray(to) ? to.map(cleanEmail).filter(Boolean) : [cleanEmail(to)].filter(Boolean);
+    const now = Date.now();
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    const events24h = emailLedger.filter(e => new Date(e.created_at).getTime() >= oneDayAgo);
+    const accepted24h = events24h.filter(e => e.status === OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER || e.status === 'accepted' || e.status === OUTBOX_STATUSES.DELIVERED).length;
+    const failed24h = events24h.filter(e => e.status === OUTBOX_STATUSES.FAILED || e.status === 'failed').length;
+    const skipped24h = events24h.filter(e => e.status === 'skipped').length;
+    const lastAccepted = emailLedger.find(e => e.status === OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER || e.status === 'accepted' || e.status === OUTBOX_STATUSES.DELIVERED);
+    const lastFailed = emailLedger.find(e => e.status === OUTBOX_STATUSES.FAILED || e.status === 'failed');
+
+    let providerStatus = 'healthy';
+    if (!config.enabled) {
+        providerStatus = 'unconfigured';
+    } else if (failed24h > 0 && accepted24h === 0) {
+        providerStatus = 'down';
+    } else if (failed24h > 0) {
+        providerStatus = 'degraded';
+    }
+
+    return {
+        provider: 'resend',
+        status: providerStatus,
+        configured: config.enabled,
+        accepted_24h: accepted24h,
+        failed_24h: failed24h,
+        skipped_24h: skipped24h,
+        total_24h: events24h.length,
+        last_accepted_at: lastAccepted?.created_at || null,
+        last_failed_at: lastFailed?.created_at || null,
+        last_failed_error: lastFailed?.error || null
+    };
+}
+
+async function retryEmailEvent(eventId) {
+    let event = emailLedger.find(e => e.id === eventId);
+    if (!event) {
+        const pool = getDbPool();
+        if (pool) {
+            const [rows] = await pool.execute(
+                `SELECT * FROM email_outbox WHERE id = ? LIMIT 1`,
+                [eventId]
+            ).catch(() => [[]]);
+            if (rows && rows.length) {
+                const r = rows[0];
+                event = {
+                    id: r.id,
+                    created_at: r.created_at,
+                    ticket_id: r.ticket_id,
+                    event_type: r.event_type,
+                    recipient: r.recipient,
+                    subject: r.subject,
+                    status: r.status,
+                    provider_id: r.provider_id,
+                    error: r.last_error,
+                    attempts: r.attempts,
+                    idempotency_key: r.idempotency_key,
+                    raw_params: typeof r.raw_params_json === 'string' ? JSON.parse(r.raw_params_json) : (r.raw_params_json || {})
+                };
+            }
+        }
+    }
+    if (!event) return { ok: false, error: 'Evento no encontrado en outbox o historial.' };
+    if (!event.raw_params || Object.keys(event.raw_params).length === 0) {
+        return { ok: false, error: 'Los parámetros originales de este correo no están disponibles para reintento.' };
+    }
+
+    if ([OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER, OUTBOX_STATUSES.DELIVERED].includes(event.status)) {
+        return { ok: true, status: event.status, id: event.provider_id, deduplicated: true };
+    }
+
+    event.attempts = (event.attempts || 1) + 1;
+    event.status = OUTBOX_STATUSES.PROCESSING;
+    event.last_retry_at = new Date().toISOString();
+
+    const result = await sendTransactionalEmail({
+        ...event.raw_params,
+        isRetry: true,
+        existingEventId: event.id
+    });
+    return result;
+}
+
+/**
+ * Motor central de envío vía Resend (HTTP API) con Transactional Outbox.
+ * Soporta idempotencia, persistencia en MariaDB, y semántica estricta:
+ * Resend accepted != delivered. Solo un evento webhook marca DELIVERED.
+ */
+async function sendTransactionalEmail({
+    to,
+    subject,
+    html,
+    text,
+    tags = [],
+    correlationId = null,
+    ticketId = null,
+    eventType = 'transactional',
+    idempotencyKey = null,
+    isRetry = false,
+    existingEventId = null
+}) {
+    const config = getEmailConfig();
+    const recipients = (Array.isArray(to) ? to : [to]).map(cleanEmail).filter(Boolean);
     const maskedRecipients = recipients.map(maskEmail).join(', ');
 
-    if (!recipients.length) {
+    // Validación de idempotencia en memoria y DB
+    if (idempotencyKey && !isRetry) {
+        const cached = idempotencyMap.get(idempotencyKey);
+        if (cached && (Date.now() - cached.timestamp < IDEMPOTENCY_TTL_MS) && [OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER, 'accepted', OUTBOX_STATUSES.DELIVERED].includes(cached.status)) {
+            structuredLog({
+                level: 'info',
+                event: 'email_idempotent_skip',
+                entity_type: 'email',
+                correlation_id: correlationId,
+                status: OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER,
+                message: `Envío duplicado omitido por clave de idempotencia (${idempotencyKey}) | Resend ID: ${cached.providerId}`
+            });
+            return { ok: true, status: OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER, id: cached.providerId, deduplicated: true };
+        }
+
+        const pool = getDbPool();
+        if (pool) {
+            try {
+                const [rows] = await pool.execute(
+                    `SELECT id, provider_id, status FROM email_outbox WHERE idempotency_key = ? LIMIT 1`,
+                    [idempotencyKey]
+                );
+                if (rows.length && [OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER, OUTBOX_STATUSES.DELIVERED].includes(rows[0].status)) {
+                    return { ok: true, status: rows[0].status, id: rows[0].provider_id, deduplicated: true };
+                }
+            } catch (_) {}
+        }
+    }
+
+    const eventId = existingEventId || `evt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const ledgerEntry = isRetry && existingEventId
+        ? emailLedger.find(e => e.id === existingEventId)
+        : recordLedgerEvent({
+            id: eventId,
+            created_at: new Date().toISOString(),
+            ticket_id: ticketId || null,
+            event_type: eventType,
+            recipient: maskedRecipients || 'sin_destinatario',
+            subject: subject || 'Sin asunto',
+            status: OUTBOX_STATUSES.PROCESSING,
+            provider_id: null,
+            error: null,
+            attempts: 1,
+            correlation_id: correlationId,
+            idempotency_key: idempotencyKey || null,
+            raw_params: { to, subject, html, text, tags, correlationId, ticketId, eventType }
+        });
+
+    if (recipients.length === 0) {
         structuredLog({
             level: 'warn',
             event: 'email_skipped',
             entity_type: 'email',
             correlation_id: correlationId,
             status: 'skipped',
-            message: `Envio omitido: destinatario vacio o invalido. Asunto: "${subject}"`
+            message: 'Email no enviado: no se proporcionaron destinatarios validos.'
         });
-        return { ok: false, status: 'skipped', reason: 'missing_recipient' };
+        if (ledgerEntry) {
+            ledgerEntry.status = OUTBOX_STATUSES.FAILED;
+            ledgerEntry.error = 'missing_recipient';
+            updateOutboxStatusInDb(eventId, OUTBOX_STATUSES.FAILED, { error: 'missing_recipient' }).catch(() => {});
+        }
+        return { ok: false, status: OUTBOX_STATUSES.FAILED, reason: 'missing_recipient' };
     }
+
     if (!config.enabled) {
         structuredLog({
             level: 'warn',
@@ -198,18 +466,29 @@ async function sendTransactionalEmail({ to, subject, html, text, tags = [], corr
             status: 'skipped',
             message: `Email no enviado a <${maskedRecipients}>: faltan credenciales en .env.`
         });
+        if (ledgerEntry) {
+            ledgerEntry.status = OUTBOX_STATUSES.FAILED;
+            ledgerEntry.error = 'email_disabled';
+            updateOutboxStatusInDb(eventId, OUTBOX_STATUSES.FAILED, { error: 'email_disabled' }).catch(() => {});
+        }
         return { ok: false, status: 'skipped', reason: 'email_disabled' };
     }
+
     if (typeof fetch !== 'function') {
         structuredLog({
             level: 'error',
             event: 'email_fetch_unavailable',
             entity_type: 'email',
             correlation_id: correlationId,
-            status: 'failed',
+            status: OUTBOX_STATUSES.FAILED,
             message: 'fetch no disponible en este runtime de Node.'
         });
-        return { ok: false, status: 'failed', reason: 'fetch_unavailable' };
+        if (ledgerEntry) {
+            ledgerEntry.status = OUTBOX_STATUSES.FAILED;
+            ledgerEntry.error = 'fetch_unavailable';
+            updateOutboxStatusInDb(eventId, OUTBOX_STATUSES.FAILED, { error: 'fetch_unavailable' }).catch(() => {});
+        }
+        return { ok: false, status: OUTBOX_STATUSES.FAILED, reason: 'fetch_unavailable' };
     }
 
     structuredLog({
@@ -218,7 +497,7 @@ async function sendTransactionalEmail({ to, subject, html, text, tags = [], corr
         entity_type: 'email',
         provider: 'resend',
         correlation_id: correlationId,
-        status: 'sending',
+        status: OUTBOX_STATUSES.PROCESSING,
         message: `Enviando correo a <${maskedRecipients}> | Asunto: "${subject}"`
     });
 
@@ -244,28 +523,53 @@ async function sendTransactionalEmail({ to, subject, html, text, tags = [], corr
         });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
+            const errMsg = payload?.message || `HTTP ${response.status}`;
             structuredLog({
                 level: 'error',
                 event: 'email_provider_error',
                 entity_type: 'email',
                 provider: 'resend',
                 correlation_id: correlationId,
-                status: 'failed',
-                message: `Error Resend (HTTP ${response.status}) para <${maskedRecipients}>`,
+                status: OUTBOX_STATUSES.FAILED,
+                message: `Error Resend (${errMsg}) para <${maskedRecipients}>`,
                 data: payload
             });
-            return { ok: false, status: 'failed', http_status: response.status, error: payload };
+            if (ledgerEntry) {
+                ledgerEntry.status = OUTBOX_STATUSES.FAILED;
+                ledgerEntry.error = errMsg;
+                updateOutboxStatusInDb(eventId, OUTBOX_STATUSES.FAILED, { error: errMsg }).catch(() => {});
+            }
+            return { ok: false, status: OUTBOX_STATUSES.FAILED, http_status: response.status, error: errMsg };
         }
+
+        const providerId = payload.id || null;
         structuredLog({
             level: 'info',
-            event: 'email_delivered',
+            event: 'email_accepted',
             entity_type: 'email',
             provider: 'resend',
             correlation_id: correlationId,
-            status: 'sent',
-            message: `Correo enviado exitosamente a <${maskedRecipients}> | Resend ID: ${payload.id || 'n/a'}`
+            status: OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER,
+            message: `Correo aceptado por Resend para <${maskedRecipients}> | Resend ID: ${providerId || 'n/a'}`
         });
-        return { ok: true, status: 'sent', id: payload.id || null };
+
+        if (ledgerEntry) {
+            ledgerEntry.status = OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER;
+            ledgerEntry.provider_id = providerId;
+            ledgerEntry.error = null;
+            updateOutboxStatusInDb(eventId, OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER, { providerId }).catch(() => {});
+        }
+
+        if (idempotencyKey) {
+            idempotencyMap.set(idempotencyKey, {
+                id: providerId,
+                status: OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER,
+                timestamp: Date.now(),
+                providerId
+            });
+        }
+
+        return { ok: true, status: OUTBOX_STATUSES.ACCEPTED_BY_PROVIDER, id: providerId };
     } catch (error) {
         const isTimeout = error?.name === 'AbortError';
         const msg = isTimeout ? `timeout (${EMAIL_TIMEOUT_MS}ms)` : (error?.message || 'error desconocido');
@@ -275,21 +579,25 @@ async function sendTransactionalEmail({ to, subject, html, text, tags = [], corr
             entity_type: 'email',
             provider: 'resend',
             correlation_id: correlationId,
-            status: 'failed',
+            status: OUTBOX_STATUSES.FAILED,
             message: `Excepción enviando correo a <${maskedRecipients}> | ${msg}`
         });
-        return { ok: false, status: 'failed', error: msg, is_timeout: isTimeout };
+        if (ledgerEntry) {
+            ledgerEntry.status = OUTBOX_STATUSES.FAILED;
+            ledgerEntry.error = msg;
+            updateOutboxStatusInDb(eventId, OUTBOX_STATUSES.FAILED, { error: msg }).catch(() => {});
+        }
+        return { ok: false, status: OUTBOX_STATUSES.FAILED, error: msg, is_timeout: isTimeout };
     } finally {
         clearTimeout(timeout);
     }
 }
 
 
-async function notifyOwnerTicketCreated(ticket) {
+async function notifyOwnerTicketCreated(ticket, { correlationId = null } = {}) {
     // REGLA 1: el admin SIEMPRE recibe en el correo fijo del negocio, nunca en el del cliente.
     const ADMIN_DEST = DEFAULT_OWNER_EMAIL; // pixonpc@gmail.com — hardcoded, no cambia.
     const config = getEmailConfig();
-    console.log(`[EMAIL] 🔔 [ADMIN] Iniciando notificacion al administrador <${ADMIN_DEST}> | Folio: #${ticket?.ticket_code || 'N/A'}`);
 
     const accountEmail = getTicketAccountEmail(ticket);
     const contactEmail = getTicketContactEmail(ticket);
@@ -308,24 +616,23 @@ async function notifyOwnerTicketCreated(ticket) {
         subject,
         html: layout({ title: 'Nuevo ticket generado', eyebrow: 'Solicitud web — Pixon PC', body, ctaUrl: `${config.siteUrl}/admin#repairs`, ctaLabel: 'Abrir panel de tickets' }),
         text: `Nuevo ticket #${ticket?.ticket_code || ''}\nCliente: ${getTicketClientName(ticket)}\nEquipo: ${ticket?.device_type || ''}\nTelefono: ${ticket?.contact_phone || ''}\nCorreo cuenta: ${accountEmail || 'N/A'}\nCorreo contacto: ${contactEmail || 'N/A'}\n\n${issue}`,
-        tags: [{ name: 'event', value: 'ticket_created' }]
+        tags: [{ name: 'event', value: 'ticket_created' }],
+        correlationId,
+        ticketId: ticket?.id,
+        eventType: 'ticket_created_admin',
+        idempotencyKey: ticket?.id ? `ticket-created:${ticket.id}:admin` : null
     });
-    if (!result.ok) {
-        console.warn(`[EMAIL] ⚠️  [ADMIN] Notificacion al admin <${ADMIN_DEST}> NO enviada | Razon: ${result.reason || result.error || 'error desconocido'}`);
-    }
     return result;
 }
 
-async function notifyCustomerTicketCreated(ticket) {
+async function notifyCustomerTicketCreated(ticket, { correlationId = null } = {}) {
     // REGLA 2 y 6: el correo de confirmacion va UNICAMENTE al correo de la cuenta
     // del usuario que creo el ticket (user_email). NUNCA al correo de contacto alternativo.
     const to = getTicketAccountEmail(ticket);
     if (!to) {
-        const altEmail = getTicketContactEmail(ticket);
-        console.warn(`[EMAIL] ⚠️  [CLIENTE] Confirmacion NO enviada: el ticket #${ticket?.ticket_code || 'N/A'} no tiene correo de cuenta (user_email).${altEmail ? ` Correo alternativo registrado: ${altEmail} (no se usa para envio automatico).` : ''}`);
+        structuredLog({ level: 'warn', event: 'email_skipped', entity_type: 'ticket', entity_id: ticket?.id || null, status: 'skipped', message: `Confirmación omitida para ticket #${ticket?.ticket_code || 'N/A'}: no hay correo de cuenta.` });
         return { ok: false, skipped: true, reason: 'missing_account_email' };
     }
-    console.log(`[EMAIL] 🔔 [CLIENTE] Enviando confirmacion a correo de cuenta <${to}> | Folio: #${ticket?.ticket_code || 'N/A'}`);
     const config = getEmailConfig();
     const body = `
       <p style="margin:0 0 16px;color:#334155;line-height:1.6;">Hola <strong>${escapeHtml(getTicketClientName(ticket))}</strong>, recibimos tu solicitud de servicio en Pixon PC.</p>
@@ -338,15 +645,16 @@ async function notifyCustomerTicketCreated(ticket) {
         subject: `✅ Confirmacion de tu solicitud #${ticket?.ticket_code || ''} — Pixon PC`,
         html: layout({ title: 'Tu ticket fue recibido', eyebrow: 'Confirmacion de servicio', body, ctaUrl: ticketUrl(ticket, config), ctaLabel: 'Ver mis tickets' }),
         text: `Hola ${getTicketClientName(ticket)}, recibimos tu ticket #${ticket?.ticket_code || ''} en Pixon PC.\nNos pondremos en contacto en el menor tiempo posible.\nEquipo: ${ticket?.device_type || ''}\nServicio: ${getTicketService(ticket)}\nCita: ${formatTicketDate(ticket)}\n\nPixon PC | pixonpc@gmail.com | +52 998 669 0777 | pixon.com.mx`,
-        tags: [{ name: 'event', value: 'ticket_customer_confirmation' }]
+        tags: [{ name: 'event', value: 'ticket_customer_confirmation' }],
+        correlationId,
+        ticketId: ticket?.id,
+        eventType: 'ticket_created_customer',
+        idempotencyKey: ticket?.id ? `ticket-created:${ticket.id}:customer` : null
     });
-    if (!result.ok) {
-        console.warn(`[EMAIL] ⚠️  [CLIENTE] Confirmacion a <${to}> NO enviada | Razon: ${result.reason || result.error || 'error desconocido'}`);
-    }
     return result;
 }
 
-async function notifyCustomerTicketReceived(ticket, note = '') {
+async function notifyCustomerTicketReceived(ticket, note = '', { correlationId = null } = {}) {
     // Siempre al correo de la cuenta del cliente, nunca al alternativo.
     const to = getTicketAccountEmail(ticket);
     const config = getEmailConfig();
@@ -361,11 +669,14 @@ async function notifyCustomerTicketReceived(ticket, note = '') {
         subject: `Tu ticket #${ticket?.ticket_code || ''} fue recibido`,
         html: layout({ title: 'Ticket recibido por Pixon PC', eyebrow: 'Actualizacion de servicio', body, ctaUrl: ticketUrl(ticket, config), ctaLabel: 'Ver mis tickets' }),
         text: `Hola ${getTicketClientName(ticket)}, tu ticket #${ticket?.ticket_code || ''} fue marcado como recibido.\nEquipo: ${ticket?.device_type || ''}\nServicio: ${getTicketService(ticket)}\n${note ? `\nNota del taller:\n${note}\n` : ''}`,
-        tags: [{ name: 'event', value: 'ticket_received' }]
+        tags: [{ name: 'event', value: 'ticket_received' }],
+        correlationId,
+        ticketId: ticket?.id,
+        eventType: 'ticket_received'
     });
 }
 
-async function notifyCustomerTicketNote(ticket, note) {
+async function notifyCustomerTicketNote(ticket, note, { correlationId = null } = {}) {
     const cleanNote = textPreview(note, 1200);
     if (!cleanNote) return { ok: false, skipped: true, reason: 'empty_note' };
     const config = getEmailConfig();
@@ -380,7 +691,10 @@ async function notifyCustomerTicketNote(ticket, note) {
         subject: `Actualizacion de tu ticket #${ticket?.ticket_code || ''}`,
         html: layout({ title: 'Actualizacion de ticket', eyebrow: 'Nota del taller', body, ctaUrl: ticketUrl(ticket, config), ctaLabel: 'Ver mis tickets' }),
         text: `Actualizacion de ticket #${ticket?.ticket_code || ''}\n\n${cleanNote}`,
-        tags: [{ name: 'event', value: 'ticket_note' }]
+        tags: [{ name: 'event', value: 'ticket_note' }],
+        correlationId,
+        ticketId: ticket?.id,
+        eventType: 'ticket_note'
     });
 }
 
@@ -513,6 +827,12 @@ async function notifyCustomerOrderCompleted(order) {
 }
 
 module.exports = {
+    OUTBOX_STATUSES,
+    sendTransactionalEmail,
+    updateEmailDeliveryStatus,
+    getEmailEventsForTicket,
+    getEmailHealthSummary,
+    retryEmailEvent,
     notifyOwnerTicketCreated,
     notifyCustomerTicketCreated,
     notifyCustomerTicketReceived,

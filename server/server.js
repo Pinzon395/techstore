@@ -24,9 +24,11 @@ const MySQLStore = require('express-mysql-session')(session);
 const { ah } = require('./middlewares/async.middleware');
 const { createLimiter } = require('./middlewares/rateLimit.middleware');
 const { errorHandler } = require('./middlewares/error.middleware');
+const persistentPaths = require('./config/persistent-paths');
 const createHealthRoutes = require('./routes/health.routes');
 const createCommerceModule = require('./modules/commerce');
 const { DashboardService } = require('./modules/dashboard/dashboard.service');
+const { createAppointmentRouter, createAdminAppointmentRouter } = require('./modules/appointments/appointment.routes');
 const {
     cleanText,
     cleanMultilineText,
@@ -41,11 +43,16 @@ const {
     hasHtml
 } = require('./utils/validators');
 const { logError } = require('./utils/logger');
+const { safeInternalReturnTo } = require('./utils/locale-paths');
+const { startEmailOutboxWorker } = require('./jobs/email-outbox.worker');
 const {
     notifyOwnerTicketCreated,
     notifyCustomerTicketCreated,
     notifyCustomerTicketReceived,
-    notifyCustomerTicketNote
+    notifyCustomerTicketNote,
+    getEmailEventsForTicket,
+    getEmailHealthSummary,
+    retryEmailEvent
 } = require('./services/email.service');
 const {
     publicCatalog: getPcBuilderCatalog,
@@ -67,6 +74,10 @@ function validateEnv() {
     const missing = requiredInProduction.filter((key) => !String(process.env[key] || '').trim());
     if (isProduction && missing.length) {
         throw new Error(`Variables de entorno obligatorias faltantes: ${missing.join(', ')}`);
+    }
+
+    if (isProduction && sessionSecret.length < 32) {
+        throw new Error('SESSION_SECRET debe tener al menos 32 caracteres en produccion.');
     }
 
     if (!isProduction && missing.length) {
@@ -109,6 +120,8 @@ const {
     getRepairAdminById,
     updateRepairAdmin,
     insertRepairAdmin,
+    getActiveTechnicians,
+    assignRepairTechnician,
     softDeleteRepairAdmin,
     getAppointmentConfig,
     saveAppointmentConfig,
@@ -121,6 +134,7 @@ const {
     getTicketHistory,
     getRecentTickets,
     trackPageView,
+    trackConversionEvent,
     getPageViewsDaily,
     getPageViewsTop,
     getPageViewsSummary,
@@ -171,7 +185,7 @@ function appendCustomerNote(notes, note, author) {
 
 function notificationStatus(type, result) {
     if (!result) return { type, status: 'not_sent' };
-    if (result.ok) return { type, status: 'sent', id: result.id || null };
+    if (result.ok) return { type, status: result.status || 'accepted', id: result.id || null };
     if (result.skipped) return { type, status: 'skipped', reason: result.reason || 'unknown' };
     return { type, status: 'failed', statusCode: result.status || null };
 }
@@ -193,6 +207,7 @@ function isTrustedRequestOrigin(req) {
    BOOTSTRAP → todo el setup que necesita la DB lista va dentro
 ───────────────────────────────────────────────────────────── */
 async function bootstrap() {
+    persistentPaths.ensurePersistentDirectories();
     await initDB();
 
     const sseClients = new Set();
@@ -260,16 +275,13 @@ async function bootstrap() {
     const rootPath = path.join(__dirname, '..');
     const distPath = path.join(__dirname, '../dist');
 
+    // Consolidate the legacy public entry point before the static middleware
+    // can serve dist/index.html directly.
+    app.get('/index.html', (_req, res) => res.redirect(301, '/'));
+
     // Las rutas inglesas heredadas se mantienen fuera de navegación y se
     // redirigen hasta tener contenido real. La landing de daño por líquido sí
     // tiene contenido propio y conserva su URL indexable.
-    app.use((req, res, next) => {
-        if (req.method === 'GET' && req.path.startsWith('/en/') && req.path !== '/en/liquid-damage') {
-            return res.redirect(302, '/en');
-        }
-        next();
-    });
-
     // Alias SEO de alta intención. Se redirigen únicamente variantes conocidas
     // hacia la landing que realmente responde esa búsqueda; no se "adivinan"
     // rutas inexistentes para no convertir errores reales en contenido débil.
@@ -353,7 +365,7 @@ async function bootstrap() {
     // se montan después de passport y bloquean la entrada.
     app.use((req, res, next) => {
         const p = req.path;
-        if (p === '/admin' || p === '/admin/' || p === '/admin/admin.html' || p.startsWith('/admin/commerce')) {
+        if (p === '/admin' || p === '/admin/' || p === '/admin/admin.html' || p.startsWith('/admin/commerce') || p.startsWith('/admin/agenda')) {
             // Marcar para que el static middleware lo deje pasar al handler con gate.
             req._skipStatic = true;
         }
@@ -644,13 +656,42 @@ async function bootstrap() {
     const commerce = createCommerceModule({
         pool: getDB(),
         dashboardService,
-        mediaDirectory: path.join(__dirname, 'storage', 'commerce-media'),
+        mediaDirectory: persistentPaths.mediaDir,
         mediaMaxBytes: Number(process.env.COMMERCE_MEDIA_MAX_BYTES || 8 * 1024 * 1024),
-        proofDirectory: path.join(__dirname, 'storage', 'commerce-payment-proofs'),
+        proofDirectory: persistentPaths.proofDir,
         proofMaxBytes: Number(process.env.COMMERCE_PROOF_MAX_BYTES || 10 * 1024 * 1024),
         legacyAdminBypass: true
     });
     commerce.mount(app);
+    const emailOutboxWorker = startEmailOutboxWorker({
+        pool: getDB(),
+        retryEmailEvent
+    });
+
+    // Agenda Operativa y Citas con Capacidad Multicliente
+    const appointmentPublic = createAppointmentRouter({
+        pool: getDB(),
+        requireAdmin,
+        requireAuth,
+        rateLimiter: ticketLimiter
+    });
+    const appointmentAdminRouter = createAdminAppointmentRouter({
+        pool: getDB(),
+        requireAdmin
+    });
+
+    app.use('/api/appointments', appointmentPublic.router);
+    app.use('/api/admin/appointments', appointmentAdminRouter);
+
+    // Auto-expiración periódica de apartados impagos (cada 5 minutos)
+    const holdCleanupInterval = setInterval(() => {
+        appointmentPublic.service.cleanupExpiredHolds().catch((err) => {
+            logError(err, null, 'appointments_cleanup');
+        });
+    }, 5 * 60 * 1000);
+    if (holdCleanupInterval && typeof holdCleanupInterval.unref === 'function') {
+        holdCleanupInterval.unref();
+    }
 
     // Las fichas generadas durante el build conservan SEO estatico. Si una
     // publicacion se crea o cambia despues del despliegue, esta ruta entrega
@@ -789,10 +830,8 @@ async function bootstrap() {
        AUTH
     ───────────────────────────────────────────────────────── */
     app.get('/auth/google', requireGoogleOAuthConfigured, (req, res, next) => {
-        const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '';
-        if (returnTo.startsWith('/') && !returnTo.startsWith('//')) {
-            req.session.returnTo = returnTo.slice(0, 240);
-        }
+        const returnTo = safeInternalReturnTo(req.query.returnTo, '');
+        if (returnTo) req.session.returnTo = returnTo;
         passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
     });
 
@@ -810,7 +849,7 @@ async function bootstrap() {
                 return res.redirect(`/auth/failure?reason=${encodeURIComponent(reason)}`);
             }
 
-            const returnTo = req.session.returnTo || '/';
+            const returnTo = safeInternalReturnTo(req.session.returnTo, '/cuenta');
             req.session.regenerate((err) => {
                 if (err) return next(err);
                 req.login(user, (err2) => {
@@ -880,7 +919,12 @@ async function bootstrap() {
     /* ─────────────────────────────────────────────────────────
        API PÚBLICA
     ───────────────────────────────────────────────────────── */
-    app.use('/api', createHealthRoutes({ getClientCount: () => sseClients.size }));
+    app.use('/api', createHealthRoutes({
+        getClientCount: () => sseClients.size,
+        checkDatabase: async () => {
+            await getDB().query('SELECT 1 AS ok');
+        }
+    }));
 
     app.get('/api/comments', ah(async (_req, res) => {
         const comments = await getAllComments();
@@ -1228,7 +1272,8 @@ async function bootstrap() {
         }
 
         const availability = await getAppointmentAvailability(cleanedAppointmentDate, cleanedAppointmentType);
-        if (!availability.available || !availability.slots.includes(cleanedAppointmentTime)) {
+        const availableSlotTimes = (availability.slots || []).map(s => typeof s === 'string' ? s : s.time);
+        if (!availability.available || !availableSlotTimes.includes(cleanedAppointmentTime)) {
             return res.status(409).json({ success: false, message: 'Ese horario ya no está disponible. Elige otro.' });
         }
         
@@ -1275,6 +1320,40 @@ async function bootstrap() {
             appointment_note: cleanedAppointmentNote,
             appointment_status: cleanText(appointment_status || 'pendiente_confirmacion', 40)
         });
+        const standardTypeMap = {
+            recepcion: 'DROP_OFF',
+            diagnostico: 'DIAGNOSTIC',
+            entrega: 'PICKUP',
+            domicilio: 'ON_SITE',
+            mantenimiento: 'MAINTENANCE',
+            reparacion: 'REPAIR',
+            liquido: 'LIQUID_DAMAGE',
+            b2b: 'BUSINESS',
+            remoto: 'REMOTE'
+        };
+        const mappedAppointType = standardTypeMap[cleanedAppointmentType.toLowerCase()] || 'DROP_OFF';
+
+        try {
+            await appointmentPublic.service.hold({
+                ticketId: ticket.id,
+                customerId: user_id,
+                customerName: cleanedName,
+                customerEmail: cleanedEmail,
+                customerPhone: cleanedPhone,
+                appointmentType: mappedAppointType,
+                serviceType: cleanedService,
+                locationType: mappedAppointType === 'ON_SITE' ? 'ON_SITE' : 'WORKSHOP',
+                date: cleanedAppointmentDate,
+                time: cleanedAppointmentTime,
+                customerNotes: cleanedAppointmentNote,
+                deviceSummary: `${cleanedDeviceType}${cleanedBrand ? ' ' + cleanedBrand : ''}${cleanedModel ? ' ' + cleanedModel : ''}`,
+                plannedServiceSummary: cleanedService,
+                actorId: user_id,
+                actorRole: req.user?.role === 'admin' ? 'ADMIN' : 'CUSTOMER'
+            });
+        } catch (holdErr) {
+            logError(holdErr, req, 'ticket_appointment_sync');
+        }
 
         const ticketForNotification = {
             ...ticket,
@@ -1282,8 +1361,8 @@ async function bootstrap() {
             user_name: ticket.user_name || cleanedName
         };
         Promise.allSettled([
-            notifyOwnerTicketCreated(ticketForNotification),
-            notifyCustomerTicketCreated(ticketForNotification)
+            notifyOwnerTicketCreated(ticketForNotification, { correlationId: req.correlationId }),
+            notifyCustomerTicketCreated(ticketForNotification, { correlationId: req.correlationId })
         ]).then((results) => {
             results
                 .filter((result) => result.status === 'rejected')
@@ -1361,6 +1440,31 @@ async function bootstrap() {
         res.json({ ok: true });
     });
 
+    app.post('/api/track/event', trackingLimiter, (req, res) => {
+        const payload = typeof req.body === 'string'
+            ? (() => { try { return JSON.parse(req.body || '{}'); } catch (_e) { return {}; } })()
+            : (req.body || {});
+        const eventName = cleanText(payload.event, 48);
+        const pagePath = cleanText(payload.path, 300);
+        const locale = cleanText(payload.locale, 2).toLowerCase();
+        const allowed = new Set(['whatsapp_click', 'phone_click', 'ticket_start', 'ticket_submit', 'add_to_cart', 'checkout_start', 'order_created', 'language_switch']);
+        if (!allowed.has(eventName) || !pagePath.startsWith('/') || pagePath.startsWith('//') || !['es', 'en'].includes(locale)) {
+            return res.status(400).json({ error: 'invalid conversion event' });
+        }
+        trackConversionEvent({
+            event_name: eventName,
+            path: pagePath,
+            locale,
+            referrer: cleanText(payload.referrer, 500),
+            utm_source: cleanText(payload.utm_source, 120),
+            utm_medium: cleanText(payload.utm_medium, 120),
+            utm_campaign: cleanText(payload.utm_campaign, 120),
+            session_id: req.sessionID || null,
+            user_id: req.user?.id || null
+        }).catch((error) => logError(error, req, 'analytics_event'));
+        res.json({ ok: true });
+    });
+
     /* ─────────────────────────────────────────────────────────
         PANEL DE ADMINISTRACIÓN
     ───────────────────────────────────────────────────────── */
@@ -1372,6 +1476,10 @@ async function bootstrap() {
     app.get('/api/admin/repairs', requireAdmin, ah(async (_req, res) => {
         const repairs = await getAllRepairsAdmin();
         res.json(repairs);
+    }));
+
+    app.get('/api/admin/technicians', requireAdmin, ah(async (_req, res) => {
+        res.json(await getActiveTechnicians());
     }));
 
     app.get('/api/admin/appointments', requireAdmin, ah(async (req, res) => {
@@ -1437,6 +1545,23 @@ async function bootstrap() {
 
     }));
 
+    app.patch('/api/admin/tickets/:id/assignee', requireAdmin, ah(async (req, res) => {
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID inválido.' });
+        const technicianId = req.body?.technician_id === null || req.body?.technician_id === ''
+            ? null
+            : toPositiveInt(req.body?.technician_id);
+        if (req.body?.technician_id !== null && req.body?.technician_id !== '' && !technicianId) {
+            return res.status(400).json({ success: false, message: 'Responsable inválido.' });
+        }
+        const ticket = await assignRepairTechnician(id, technicianId, {
+            changed_by: req.user?.id || null,
+            audit_context: { ip: req.ip, user_agent: req.get('user-agent'), correlation_id: req.correlationId }
+        });
+        if (!ticket) return res.status(404).json({ success: false, message: 'Ticket no encontrado.' });
+        res.json({ success: true, ticket, correlation_id: req.correlationId });
+    }));
+
     app.patch('/api/admin/tickets/:id/appointment', requireAdmin, ah(async (req, res) => {
         const id = toPositiveInt(req.params.id);
         if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
@@ -1458,6 +1583,56 @@ async function bootstrap() {
         res.json({ success: true, message: 'Ticket eliminado correctamente.' });
     }));
 
+    app.patch('/api/admin/tickets/bulk', requireAdmin, ah(async (req, res) => {
+        const { ticket_ids, action, value } = req.body || {};
+        if (!Array.isArray(ticket_ids) || ticket_ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'Se requiere una lista de IDs de tickets.' });
+        }
+        const updatedTickets = [];
+        for (const rawId of ticket_ids) {
+            const id = toPositiveInt(rawId);
+            if (!id) continue;
+            let ticket = null;
+            if (action === 'assignee') {
+                const techId = value === null || value === '' ? null : toPositiveInt(value);
+                ticket = await assignRepairTechnician(id, techId, {
+                    changed_by: req.user?.id || null,
+                    audit_context: { ip: req.ip, user_agent: req.get('user-agent'), correlation_id: req.correlationId }
+                });
+            } else if (action === 'status' || action === 'priority') {
+                ticket = await updateRepairAdmin(id, {
+                    [action]: value,
+                    changed_by: req.user?.id || null,
+                    audit_context: { ip: req.ip, user_agent: req.get('user-agent'), correlation_id: req.correlationId }
+                });
+            }
+            if (ticket) updatedTickets.push(ticket);
+        }
+        res.json({ success: true, count: updatedTickets.length, tickets: updatedTickets });
+    }));
+
+    app.get('/api/admin/tickets/:id/emails', requireAdmin, ah(async (req, res) => {
+        const id = toPositiveInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID inválido.' });
+        const emails = getEmailEventsForTicket(id);
+        res.json({ success: true, emails });
+    }));
+
+    app.get('/api/admin/email-health', requireAdmin, ah(async (_req, res) => {
+        const health = getEmailHealthSummary();
+        res.json({ success: true, health });
+    }));
+
+    app.post('/api/admin/emails/:id/retry', requireAdmin, ah(async (req, res) => {
+        const eventId = String(req.params.id || '').trim();
+        if (!eventId) return res.status(400).json({ success: false, message: 'ID de evento requerido.' });
+        const result = await retryEmailEvent(eventId);
+        if (!result.ok) {
+            return res.status(500).json({ success: false, error: result.error || 'Fallo al reintentar el correo.' });
+        }
+        res.json({ success: true, result });
+    }));
+
     app.post('/api/admin/repairs', requireAdmin, ah(async (req, res) => {
         const payload = req.body || {};
         const errors = [];
@@ -1470,7 +1645,13 @@ async function bootstrap() {
 
         const repair = await insertRepairAdmin({ ...payload, status: payload.status || 'received' });
         await audit(req, 'create', 'repair', repair?.id, { ticket_code: repair?.ticket_code });
-        res.status(201).json({ success: true, repair });
+        const ticketForNotification = { ...repair, user_name: payload.user_name, user_email: payload.user_email || null, contact_email: payload.contact_email || repair.contact_email };
+        const emailResults = await Promise.allSettled([
+            notifyOwnerTicketCreated(ticketForNotification, { correlationId: req.correlationId }),
+            notifyCustomerTicketCreated(ticketForNotification, { correlationId: req.correlationId })
+        ]);
+        const notifications = emailResults.map((entry, index) => notificationStatus(index === 0 ? 'ticket_created_admin' : 'ticket_created_customer', entry.status === 'fulfilled' ? entry.value : { ok: false, status: 'failed', error: 'notification_exception' }));
+        res.status(201).json({ success: true, repair, notifications, correlation_id: req.correlationId });
     }));
 
     app.get('/api/admin/builds', requireAdmin, ah(async (_req, res) => {
@@ -1719,11 +1900,15 @@ async function bootstrap() {
             '/en/faq':                      'en/faq.html',
             '/en/privacy':                  'en/privacy.html',
             '/en/warranty':                 'en/warranty.html',
+            '/en/404':                      'en/404.html',
         };
 
-        const legacyRedirects = ['/formateo-optimizacion'];
-        legacyRedirects.forEach(oldPath => {
-            app.get(oldPath, (_req, res) => res.redirect(301, '/instalacion-windows'));
+        const legacyRedirects = [
+            { from: '/formateo-optimizacion', to: '/instalacion-windows' },
+            { from: '/garantia', to: '/politica-de-garantia' }
+        ];
+        legacyRedirects.forEach(({ from, to }) => {
+            app.get(from, (_req, res) => res.redirect(301, to));
         });
 
         // M6 → canonicaliza /b2b -> /B2B (Preferencia del usuario por Mayúsculas)
@@ -1738,7 +1923,7 @@ async function bootstrap() {
         app.get(
             ['/admin', '/admin/', '/admin/admin.html', '/admin/commerce', '/admin/commerce/store',
                 '/admin/commerce/sales', '/admin/commerce/orders', '/admin/commerce/payments',
-                '/admin/commerce/inventory', '/admin/commerce/promotions', '/admin/commerce/payment-methods'],
+                '/admin/commerce/inventory', '/admin/commerce/promotions', '/admin/commerce/payment-methods', '/admin/agenda', '/admin/agenda/configuracion'],
             gateAdminPage,
             (_req, res) => {
                 res.sendFile(path.join(distPath, 'admin/admin.html'), {
@@ -1753,6 +1938,23 @@ async function bootstrap() {
             const orderTemplate = path.join(distPath, 'pedido/seguimiento.html');
             if (!fs.existsSync(orderTemplate)) return next();
             return res.sendFile(orderTemplate, { headers: { 'Cache-Control': 'private, no-store' } });
+        });
+
+        // La vista de error en inglés
+        app.get(['/en/404', '/en/404.html'], (_req, res) => {
+            const enNotFoundPath = path.join(distPath, 'en/404.html');
+            if (fs.existsSync(enNotFoundPath)) {
+                return res.status(404).sendFile(enNotFoundPath, {
+                    headers: { 'Cache-Control': 'public, max-age=300, s-maxage=3600' }
+                });
+            }
+            const notFoundPath = path.join(distPath, '404.html');
+            if (fs.existsSync(notFoundPath)) {
+                return res.status(404).sendFile(notFoundPath, {
+                    headers: { 'Cache-Control': 'public, max-age=300, s-maxage=3600' }
+                });
+            }
+            return res.status(404).send('Not found');
         });
 
         // La vista de error también debe conservar el estado HTTP correcto
@@ -1867,6 +2069,23 @@ Alternativa para arrancar en otro puerto:
         console.error(error);
         process.exit(1);
     });
+
+    let shuttingDown = false;
+    const shutdown = (signal) => {
+        if (shuttingDown) return;
+        shuttingDown = true;
+        console.log(`[server] ${signal} recibido; cerrando conexiones nuevas.`);
+        commerce.stopMaintenance();
+        emailOutboxWorker.stop();
+        clearInterval(holdCleanupInterval);
+        server.close(async () => {
+            try { await getDB().end(); } catch (error) { console.error('[server] Error cerrando MariaDB:', error.message); }
+            process.exit(0);
+        });
+        setTimeout(() => process.exit(1), 25_000).unref();
+    };
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
+    process.once('SIGINT', () => shutdown('SIGINT'));
 }
 
 if (require.main === module) {

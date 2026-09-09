@@ -8,7 +8,8 @@
 //  · All routes unchanged
 // --------------------------------------------------------
 
-const IS_MOBILE = () => window.innerWidth <= 750;
+// The header CSS determines when its contents need the compact menu.
+const IS_MOBILE = () => !!mobileMenuBtn && getComputedStyle(mobileMenuBtn).display !== 'none';
 
 // 1. HAMBURGER
 const mobileMenuBtn = document.getElementById('mobile-menu');
@@ -19,7 +20,8 @@ mobileMenuBtn?.addEventListener('click', () => {
   navMenu?.classList.toggle('active');
   navMenu?.classList.remove('is-menu-peeking');
   mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  mobileMenuBtn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+  const isEnglish = document.documentElement.lang === 'en';
+  mobileMenuBtn.setAttribute('aria-label', isEnglish ? (isOpen ? 'Close menu' : 'Open menu') : (isOpen ? 'Cerrar menú' : 'Abrir menú'));
   if (!isOpen) closeAllCascades();
 });
 

@@ -4,11 +4,13 @@ import {
   buildShippingServiceSchema,
   cleanSchemaList,
 } from '../lib/schema';
-import { ENGLISH_INDEXABLE_ROUTES, getEnglishRoute, getLanguageAlternates } from '../lib/english-routes';
+import { getEnglishRoute, getLanguageAlternates } from '../lib/english-routes';
+import { getLocaleFromPath, normalizeRoutePath } from '../lib/i18n';
 import WhatsappFloat from '../components/WhatsappFloat.astro';
 import BackToTopButton from '../components/BackToTopButton/BackToTopButton.astro';
 import RegistrationDiscount from '../components/RegistrationDiscount.astro';
 import EnglishSupportBanner from '../components/EnglishSupportBanner.astro';
+import { business } from '../lib/business';
 
 interface Props {
   title: string;
@@ -32,7 +34,7 @@ const {
   canonical = Astro.url.pathname,
   image = '/LOGOCIRCULAR.png',
   schema = [],
-  lang = 'es',
+  lang = getLocaleFromPath(Astro.originPathname),
   bodyClass = 'light-theme',
   preloadSprite = false,
   ogTitle = title,
@@ -42,12 +44,14 @@ const {
   alternateLinks = [],
 } = Astro.props;
 
-const siteUrl = 'https://pixon.com.mx';
+const siteUrl = business.siteUrl;
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
-const normalizedPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const normalizedPath = normalizeRoutePath(Astro.originPathname);
 const isPrivateCommerceFlow = normalizedPath === '/carrito'
   || normalizedPath === '/checkout'
+  || normalizedPath === '/en/cart'
+  || normalizedPath === '/en/checkout'
   || normalizedPath.startsWith('/pedido/');
 const isPrivateRoute = [
   '/admin',
@@ -57,31 +61,34 @@ const isPrivateRoute = [
   '/panel',
   '/cuenta',
   '/tickets',
+  '/en/account',
+  '/en/tickets',
 ].some((prefix) => normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`));
 const isDiagnosticFirstService = normalizedPath === '/servicios/telefono/celular-mojado';
 const shouldShowRegistrationDiscount = normalizedPath !== '/404'
   && !isPrivateRoute
   && !isPrivateCommerceFlow
   && normalizedPath !== '/tienda'
+  && normalizedPath !== '/en/store'
   && !isDiagnosticFirstService;
 const shouldShowEnglishSupportBanner = lang === 'es'
   && normalizedPath !== '/404'
   && !isPrivateRoute
   && !isPrivateCommerceFlow;
-const isEnglishIndexablePage = lang === 'en' && ENGLISH_INDEXABLE_ROUTES.has(normalizedPath);
-const effectiveRobots = lang === 'en' && !isEnglishIndexablePage && robots === 'index, follow'
-  ? 'noindex, follow'
-  : robots;
+const effectiveRobots = robots;
 const resolvedAlternateLinks = alternateLinks.length > 0
   ? alternateLinks
   : getLanguageAlternates(normalizedPath, siteUrl);
+const businessDescription = lang === 'en'
+  ? 'Appointment-based computer, laptop, phone and printer repair in Cancun. Device diagnosis and repair scope are confirmed before work begins.'
+  : 'Servicio técnico con cita previa para computadoras, laptops, celulares e impresoras en Cancún. El diagnóstico y alcance se confirman antes de reparar.';
 
 const defaultSchema = [
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${siteUrl}/#website`,
-    "name": "Pixon PC",
+    "name": business.name,
     "url": `${siteUrl}/`
   },
   {
@@ -90,13 +97,12 @@ const defaultSchema = [
     "@id": `${siteUrl}/#business`,
     "name": "Pixon PC",
     "legalName": "Pixon PC",
-    "description": "Servicio técnico privado de reparación de computadoras, laptops, celulares e impresoras en Cancún. Coordinación de recolección y entrega según zona, disponibilidad y tipo de equipo. Mantenimiento preventivo, ensamble de PCs gamer y soporte B2B empresarial. Garantía por escrito. Atención escrita en inglés disponible.",
+    "description": businessDescription,
     "url": siteUrl,
-    "telephone": "+529986690777",
-    "email": "pixonpc@gmail.com",
+    "telephone": business.phone,
+    "email": business.email,
     "priceRange": "$$",
     "currenciesAccepted": "MXN",
-    "paymentAccepted": "Efectivo, Tarjeta de crédito, Tarjeta de débito, Transferencia bancaria",
     "image": `${siteUrl}/LOGOCIRCULAR.png`,
     "logo": {
       "@type": "ImageObject",
@@ -324,13 +330,12 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
         discount="30%"
         loginHref="/auth/google?returnTo=%2Ftickets"
         guestHref="/tickets"
-        placement="after-hero"
         lang={lang}
       />
     )}
     <script defer src="/scripts/faq-accordion.js?v=20260804-1"></script>
   </div>
-  <WhatsappFloat />
+  <WhatsappFloat lang={lang} />
   <BackToTopButton />
 
   <script>
@@ -357,6 +362,7 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
     }
   </script>
   <script defer src="/scripts/user-menu.js"></script>
+  <script defer src="/scripts/locale-preference.js"></script>
   <script defer src="/cache-buster.js?v=20260620-1"></script>
   <script defer src="/scripts/tracker.js"></script>
   <script defer src="/scripts/pwa-register.js?v=20260620-1"></script>

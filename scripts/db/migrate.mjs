@@ -5,6 +5,7 @@ import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 import mysql from 'mysql2/promise';
 import { findLatestBackup, verifyBackupFile } from './backup-format.mjs';
+import { backupDirectory } from './runtime-paths.mjs';
 import {
   analyzeMigrationState,
   blockingIssues,
@@ -113,7 +114,7 @@ async function verifyBackupPreflight(options) {
   }
   const backupPath = options.backupPath
     ? path.resolve(options.backupPath)
-    : await findLatestBackup(path.join(process.cwd(), 'backups'));
+    : await findLatestBackup(backupDirectory);
   if (!backupPath) {
     throw new Error(
       'No existe un backup elegible. Ejecuta db:backup:encrypted y vuelve a intentarlo.'

@@ -1,4 +1,6 @@
-const SITE_URL = 'https://pixon.com.mx';
+import { business } from './business';
+
+const SITE_URL = business.siteUrl;
 const BUSINESS_ID = `${SITE_URL}/#business`;
 export const SHIPPING_SERVICE_ID = `${SITE_URL}/politica-de-envios-y-devoluciones#envio-cancun`;
 
@@ -76,12 +78,12 @@ export function buildLocalBusinessSchema() {
     '@context': 'https://schema.org',
     '@type': ['LocalBusiness', 'ProfessionalService'],
     '@id': BUSINESS_ID,
-    name: 'Pixon PC',
+    name: business.name,
     description:
       'Servicio técnico privado de reparación de computadoras, laptops, celulares e impresoras en Cancún. La recolección y entrega se coordinan según zona, disponibilidad y tipo de equipo. Mantenimiento preventivo, ensamble de PCs gamer, soporte B2B empresarial y atención escrita en inglés.',
     url: SITE_URL,
-    telephone: '+529986690777',
-    email: 'pixonpc@gmail.com',
+    telephone: business.phone,
+    email: business.email,
     priceRange: '$$',
     image: `${SITE_URL}/LOGOCIRCULAR.png`,
     logo: {
@@ -122,17 +124,17 @@ export function buildWebsiteSchema() {
 }
 
 export function buildServiceSchema({ service, category, url, description, image, areaServed }: ServiceSchemaInput) {
-  const name = service.seoKeyword || service.label;
+  const name = service.schemaName || service.seoKeyword || service.label;
   if (!name) return null;
 
-  const price = parsePrice(service.fromPrice);
+  const price = service.hideSchemaOffer ? null : parsePrice(service.fromPrice);
   const schema: Record<string, any> = {
     '@context': 'https://schema.org',
     '@type': 'Service',
     '@id': `${absoluteUrl(url)}#service`,
     name,
     description: stripHtml(description || service.intro || `Servicio de ${name} en Cancún.`),
-    serviceType: category?.title ? `${name} - ${category.title}` : name,
+    serviceType: service.schemaServiceType || (category?.title ? `${name} - ${category.title}` : name),
     url: absoluteUrl(url),
     provider: { '@id': BUSINESS_ID },
     areaServed: areaServed || [

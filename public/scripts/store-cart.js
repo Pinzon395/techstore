@@ -59,11 +59,18 @@
     renderLauncher();
   }
 
+  function isEn() {
+    return (document.documentElement.lang && document.documentElement.lang.startsWith('en'));
+  }
+
   function money(value, currency) {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: currency || 'MXN' }).format(Number(value || 0));
+    return new Intl.NumberFormat(isEn() ? 'en-US' : 'es-MX', { style: 'currency', currency: currency || 'MXN' }).format(Number(value || 0));
   }
 
   function typeLabel(type) {
+    if (isEn()) {
+      return ({ SERVICE: 'Service', EQUIPMENT: 'Equipment', HARDWARE: 'Hardware', BUNDLE: 'Bundle' })[type] || 'Product';
+    }
     return ({ SERVICE: 'Servicio', EQUIPMENT: 'Equipo', HARDWARE: 'Hardware', BUNDLE: 'Paquete' })[type] || 'Producto';
   }
 
@@ -79,7 +86,10 @@
       if (nextQuantity > existing.maxQuantity) {
         existing.quantity = existing.maxQuantity;
         write(items);
-        toast(existing.maxQuantity === 1 ? 'Solo hay una unidad disponible.' : 'Stock máximo disponible: ' + existing.maxQuantity + '.', 'warning');
+        var limitMsg = isEn()
+          ? (existing.maxQuantity === 1 ? 'Only 1 unit available.' : 'Maximum stock available: ' + existing.maxQuantity + '.')
+          : (existing.maxQuantity === 1 ? 'Solo hay una unidad disponible.' : 'Stock máximo disponible: ' + existing.maxQuantity + '.');
+        toast(limitMsg, 'warning');
         pulseLauncher();
         return false;
       }
@@ -91,7 +101,7 @@
         quantity: Math.min(requested, itemMax),
         maxQuantity: itemMax,
         visual: {
-          name: String(item.name || 'Artículo'),
+          name: String(item.name || (isEn() ? 'Item' : 'Artículo')),
           image: String(item.image || ''),
           displayPrice: String(item.displayPrice || ''),
           currency: String(item.currency || 'MXN'),
@@ -101,7 +111,7 @@
     }
 
     write(items);
-    toast(typeLabel(item.type) + ' agregado al carrito.', 'success');
+    toast(typeLabel(item.type) + (isEn() ? ' added to cart.' : ' agregado al carrito.'), 'success');
     pulseLauncher();
     return true;
   }
@@ -113,14 +123,17 @@
     var requested = positiveInteger(quantity, 1);
     found.quantity = Math.max(1, Math.min(maxFor(found), requested));
     if (requested > found.maxQuantity) {
-      toast(found.maxQuantity === 1 ? 'Solo hay una unidad disponible.' : 'Stock máximo disponible: ' + found.maxQuantity + '.', 'warning');
+      var limitMsg = isEn()
+        ? (found.maxQuantity === 1 ? 'Only 1 unit available.' : 'Maximum stock available: ' + found.maxQuantity + '.')
+        : (found.maxQuantity === 1 ? 'Solo hay una unidad disponible.' : 'Stock máximo disponible: ' + found.maxQuantity + '.');
+      toast(limitMsg, 'warning');
     }
     write(items);
   }
 
   function remove(id) {
     write(read().filter(function (item) { return String(item.id) !== String(id); }));
-    toast('Artículo eliminado del carrito.', 'info');
+    toast(isEn() ? 'Item removed from cart.' : 'Artículo eliminado del carrito.', 'info');
   }
 
   function clear() {
@@ -168,7 +181,13 @@
     var count = items.reduce(function (sum, item) { return sum + Number(item.quantity); }, 0);
     launcherCount.textContent = String(count);
     launcher.classList.toggle('has-items', count > 0);
-    launcher.setAttribute('aria-label', 'Abrir carrito, ' + count + (count === 1 ? ' artículo' : ' artículos'));
+    launcher.setAttribute('aria-label', isEn() ? ('Open cart, ' + count + (count === 1 ? ' item' : ' items')) : ('Abrir carrito, ' + count + (count === 1 ? ' artículo' : ' artículos')));
+    var launcherCopy = launcher.querySelector('.store-cart-launcher-copy');
+    if (launcherCopy) {
+      launcherCopy.innerHTML = isEn()
+        ? '<small>Your selection</small><strong>View cart</strong>'
+        : '<small>Tu selección</small><strong>Ver carrito</strong>';
+    }
   }
 
   function renderDrawer() {
@@ -176,6 +195,20 @@
     var items = read();
     drawerItems.replaceChildren();
     var total = 0;
+    var en = isEn();
+
+    if (drawer) {
+      var headerP = drawer.querySelector('header div p');
+      if (headerP) headerP.textContent = en ? 'Shop at Pixon PC' : 'Compra en Pixon PC';
+      var headerH2 = drawer.querySelector('#store-cart-title');
+      if (headerH2) headerH2.textContent = en ? 'Your cart' : 'Tu carrito';
+      var footerSubtotal = drawer.querySelector('footer p span');
+      if (footerSubtotal) footerSubtotal.textContent = en ? 'Estimated subtotal' : 'Subtotal estimado';
+      var footerPrimary = drawer.querySelector('footer .store-action-primary');
+      if (footerPrimary) footerPrimary.textContent = en ? 'Review cart' : 'Revisar carrito';
+      var footerSecondary = drawer.querySelector('footer .store-action-secondary');
+      if (footerSecondary) footerSecondary.textContent = en ? 'Continue shopping' : 'Continuar comprando';
+    }
 
     items.forEach(function (item) {
       var row = document.createElement('article');
@@ -195,17 +228,17 @@
       title.href = '/tienda/' + encodeURIComponent(item.slug);
       title.textContent = item.visual.name;
       var meta = document.createElement('span');
-      meta.textContent = typeLabel(item.visual.type) + ' · Cantidad ' + item.quantity + (item.maxQuantity < DEFAULT_MAX ? ' de ' + item.maxQuantity : '');
+      meta.textContent = typeLabel(item.visual.type) + ' · ' + (en ? 'Qty ' : 'Cantidad ') + item.quantity + (item.maxQuantity < DEFAULT_MAX ? (en ? ' of ' : ' de ') + item.maxQuantity : '');
       var price = Number(item.visual.displayPrice || 0);
       total += price * item.quantity;
       var amount = document.createElement('strong');
-      amount.textContent = price ? money(price * item.quantity, item.visual.currency) : 'Se validará al confirmar';
+      amount.textContent = price ? money(price * item.quantity, item.visual.currency) : (en ? 'Validated upon confirmation' : 'Se validará al confirmar');
       copy.append(title, meta, amount);
 
       var removeButton = document.createElement('button');
       removeButton.type = 'button';
       removeButton.dataset.cartRemove = String(item.id);
-      removeButton.setAttribute('aria-label', 'Eliminar ' + item.visual.name);
+      removeButton.setAttribute('aria-label', (en ? 'Remove ' : 'Eliminar ') + item.visual.name);
       removeButton.innerHTML = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i>';
       row.append(copy, removeButton);
       drawerItems.appendChild(row);
@@ -214,7 +247,9 @@
     if (!items.length) {
       var empty = document.createElement('div');
       empty.className = 'store-cart-drawer-empty';
-      empty.innerHTML = '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><strong>Tu carrito está vacío</strong><span>Agrega un equipo, producto o servicio para verlo aquí.</span>';
+      empty.innerHTML = en
+        ? '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><strong>Your cart is empty</strong><span>Add equipment, product or service to see it here.</span>'
+        : '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><strong>Tu carrito está vacío</strong><span>Agrega un equipo, producto o servicio para verlo aquí.</span>';
       drawerItems.appendChild(empty);
     }
     drawerTotal.textContent = money(total, items[0] && items[0].visual.currency || 'MXN');
@@ -288,6 +323,7 @@
         type: trigger.dataset.itemType,
         maxQuantity: trigger.dataset.itemMax
       }, 1);
+      window.pixonTrackEvent?.('add_to_cart');
     }
     if (event.target.closest('[data-cart-open]')) openDrawer();
     if (event.target.closest('[data-cart-close]')) closeDrawer();

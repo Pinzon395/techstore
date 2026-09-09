@@ -110,3 +110,43 @@ test('Structured Logger: structuredLog builds valid timestamped JSON entry with 
     assert.equal(entry.correlation_id, 'test-uuid-corr-1234');
     assert.ok(entry.timestamp);
 });
+
+const {
+    sendTransactionalEmail,
+    getEmailEventsForTicket,
+    getEmailHealthSummary
+} = require('../services/email.service');
+
+test('Email Semantics: ACCEPTED status indicates provider accepted message, not verified delivery', async () => {
+    // Cuando el email está deshabilitado o corre en mock/test, la función retorna status explícito
+    const res = await sendTransactionalEmail({
+        to: 'test@example.com',
+        subject: 'Test Subject',
+        ticketId: 999,
+        eventType: 'ticket_test'
+    });
+    // El status nunca debe ser 'delivered' a menos que haya confirmación explícita de webhook
+    assert.notEqual(res.status, 'delivered');
+    assert.ok(['accepted', 'skipped', 'failed'].includes(res.status));
+});
+
+test('Email Ledger & Idempotency: records events and provides ticket-scoped lookup', async () => {
+    const key = `ticket-test:${Date.now()}`;
+    await sendTransactionalEmail({
+        to: 'cliente@ejemplo.com',
+        subject: 'Prueba de ticket 777',
+        ticketId: 777,
+        eventType: 'ticket_created_customer',
+        idempotencyKey: key
+    });
+
+    const events = getEmailEventsForTicket(777);
+    assert.ok(Array.isArray(events));
+    assert.ok(events.length >= 1);
+    assert.equal(events[0].ticket_id, 777);
+    assert.equal(events[0].event_type, 'ticket_created_customer');
+
+    const health = getEmailHealthSummary();
+    assert.ok(health.provider === 'resend');
+    assert.ok(typeof health.total_24h === 'number');
+});

@@ -10,10 +10,10 @@ import ContactSection from '../components/ContactSection.astro';
 import pcBuilderCatalog from '../data/pc-builder-catalog.json';
 
 const pcBuilderMarginRate = pcBuilderCatalog.pricing.marginRate;
-const pcBuilderAssemblyFee = pcBuilderCatalog.pricing.assemblyFee;
+const pcBuilderAssemblyFee = Math.round((pcBuilderCatalog.pricing.assemblyFee || 1000) * 1.4);
 const pcBuilderQuoteLockHours = pcBuilderCatalog.pricing.quoteLockHours;
 const pcBuilderOptions = (category: string) => pcBuilderCatalog.components.filter((item) => item.category === category);
-const pcBuilderSalePrice = (marketPrice: number) => Math.round(Number(marketPrice || 0) * (1 + pcBuilderMarginRate));
+const pcBuilderSalePrice = (marketPrice: number) => Math.round(Number(marketPrice || 0) * (1 + pcBuilderMarginRate) * 1.4);
 const pcBuilderFormatPrice = (price: number) => new Intl.NumberFormat('es-MX').format(price);
 const pcBuilderOptionLabel = (item: any) => {
   const salePrice = pcBuilderSalePrice(item.marketPrice);
@@ -26,7 +26,7 @@ const canonicalUrl = 'https://pixon.com.mx/ensambles';
 const faqs = [
   {
     question: '¿Cuánto cuesta armar una PC en Cancún?',
-    answer: 'El costo depende del uso previsto y del hardware seleccionado. Una PC de oficina o uso diario con procesador con gráficos integrados parte aproximadamente desde <strong>$8,000 a $11,000 MXN</strong>. Una PC Gamer o de diseño de entrada ronda los <strong>$13,000 a $17,000 MXN</strong>, configuraciones intermedias para 1440p y edición 4K entre <strong>$18,000 y $28,000 MXN</strong>, y estaciones de trabajo o gama alta superan los <strong>$35,000 MXN</strong>. Primero definimos tu objetivo y presupuesto para armar una propuesta a medida sin compromiso.'
+    answer: 'El costo depende del uso previsto y del hardware seleccionado. Una PC de oficina o uso diario con procesador con gráficos integrados parte aproximadamente desde <strong>$11,200 a $15,400 MXN</strong>. Una PC Gamer o de diseño de entrada ronda los <strong>$18,200 a $23,800 MXN</strong>, configuraciones intermedias para 1440p y edición 4K entre <strong>$25,200 y $39,200 MXN</strong>, y estaciones de trabajo o gama alta superan los <strong>$49,000 MXN</strong>. Primero definimos tu objetivo y presupuesto para armar una propuesta a medida sin compromiso.'
   },
   {
     question: '¿Puedo llevar mis propios componentes?',
@@ -370,20 +370,411 @@ const faqs = [
     ========================================================================== -->
     <nav class="ensambles-subnav" aria-label="Navegación de secciones de ensamble">
       <div class="container subnav-container">
-        <a href="#que-pc-necesitas" class="subnav-pill active">¿Qué PC necesitas?</a>
+        <a href="#builder" class="subnav-pill active"><i class="fa-solid fa-sliders"></i> Arma tu PC</a>
+        <a href="#que-pc-necesitas" class="subnav-pill">¿Qué PC necesitas?</a>
         <a href="#pc-gamer" class="subnav-pill">Gaming</a>
         <a href="#pc-oficina" class="subnav-pill">Oficina & Trabajo</a>
         <a href="#pc-programacion" class="subnav-pill">Programación</a>
         <a href="#pc-creacion" class="subnav-pill">Edición & 3D</a>
         <a href="#pc-workstation" class="subnav-pill">Workstation</a>
         <a href="#componentes-hardware" class="subnav-pill">Hardware</a>
-        <a href="#precios-presupuesto" class="subnav-pill">Presupuesto</a>
         <a href="#builds-ejemplos" class="subnav-pill">Builds</a>
-        <a href="#builder" class="subnav-pill">Configurador</a>
         <a href="#proceso-ensamble" class="subnav-pill">Proceso</a>
         <a href="#faqs" class="subnav-pill">Preguntas</a>
       </div>
     </nav>
+
+    <!-- =========================================================================
+         2. SECTION: CONFIGURADOR DE PC INTERACTIVO (MODO RECOMENDADO + MODO AVANZADO)
+    ========================================================================== -->
+    <section
+      id="builder"
+      class="section-padding builder-section"
+      data-assembly-fee={pcBuilderAssemblyFee}
+      data-margin-rate={pcBuilderMarginRate}
+      data-quote-lock-hours={pcBuilderQuoteLockHours}
+    >
+      <div class="container">
+        <div class="section-header text-center builder-header">
+          <span class="section-badge badge--cyan"><i class="fa-solid fa-sliders"></i> Configurador Interactivo</span>
+          <h2 class="text-white">Arma tu PC a la Carta en Cancún</h2>
+          <p class="builder-subtitle">
+            Elige el camino que mejor se adapte a ti: déjanos recomendarte la mejor configuración según tu uso o selecciona cada componente pieza por pieza.
+          </p>
+          <p id="builder-price-status" class="builder-status-text" aria-live="polite">
+            Precios de referencia de mercado actualizados con ensamble garantizado y pruebas de estabilidad térmica en Cancún. Piezas sujetas a disponibilidad y confirmación por WhatsApp.
+          </p>
+        </div>
+
+        <!-- Mode Toggle Tabs -->
+        <div class="builder-mode-tabs" role="tablist" aria-label="Modo de configuración">
+          <button type="button" class="mode-tab active" id="tab-mode-recommended" onclick="switchBuilderMode('recommended')" role="tab" aria-selected="true">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Modo Recomendado (Por Uso y Presupuesto)
+          </button>
+          <button type="button" class="mode-tab" id="tab-mode-advanced" onclick="switchBuilderMode('advanced')" role="tab" aria-selected="false">
+            <i class="fa-solid fa-microchip"></i> Modo Avanzado (Selector de Piezas)
+          </button>
+        </div>
+
+        <!-- PANEL 1: MODO RECOMENDADO (ASISTENTE GUIADO) -->
+        <div id="panel-recommended" class="builder-panel active">
+          <div class="rec-wizard-grid">
+            <div class="rec-wizard-left">
+              <h3 class="wizard-step-title">1. ¿Para qué utilizarás principalmente tu PC?</h3>
+              <div class="rec-use-options">
+                <button type="button" class="rec-opt-btn active" data-use="gaming" onclick="selectRecommendedUse('gaming')">
+                  <i class="fa-solid fa-gamepad"></i>
+                  <div>
+                    <strong>Gaming</strong>
+                    <p>Fortnite, Valorant, Warzone, AAA a 1080p, 1440p o 4K</p>
+                  </div>
+                </button>
+                <button type="button" class="rec-opt-btn" data-use="oficina" onclick="selectRecommendedUse('oficina')">
+                  <i class="fa-solid fa-briefcase"></i>
+                  <div>
+                    <strong>Oficina & Negocio</strong>
+                    <p>Excel, facturación, contabilidad, videollamadas, navegación</p>
+                  </div>
+                </button>
+                <button type="button" class="rec-opt-btn" data-use="programacion" onclick="selectRecommendedUse('programacion')">
+                  <i class="fa-solid fa-code"></i>
+                  <div>
+                    <strong>Programación & Dev</strong>
+                    <p>Docker, Visual Studio, emuladores, desarrollo web y backend</p>
+                  </div>
+                </button>
+                <button type="button" class="rec-opt-btn" data-use="edicion" onclick="selectRecommendedUse('edicion')">
+                  <i class="fa-solid fa-film"></i>
+                  <div>
+                    <strong>Edición de Video & Diseño</strong>
+                    <p>Premiere Pro, DaVinci Resolve, Photoshop, Illustrator</p>
+                  </div>
+                </button>
+                <button type="button" class="rec-opt-btn" data-use="render" onclick="selectRecommendedUse('render')">
+                  <i class="fa-solid fa-cube"></i>
+                  <div>
+                    <strong>Render 3D & Arquitectura</strong>
+                    <p>Blender, AutoCAD, Revit, Lumion, SketchUp, V-Ray</p>
+                  </div>
+                </button>
+                <button type="button" class="rec-opt-btn" data-use="workstation" onclick="selectRecommendedUse('workstation')">
+                  <i class="fa-solid fa-server"></i>
+                  <div>
+                    <strong>Workstation & Cómputo</strong>
+                    <p>Simulaciones, ingeniería, IA local y cargas sostenidas</p>
+                  </div>
+                </button>
+              </div>
+
+              <h3 class="wizard-step-title mt-4">2. Selecciona tu rango de inversión aproximado</h3>
+              <div class="budget-slider-box">
+                <div class="budget-buttons-row">
+                  <button type="button" class="budget-btn" data-budget="8000" onclick="selectRecommendedBudget(8000)">~$11k - $16k</button>
+                  <button type="button" class="budget-btn active" data-budget="15000" onclick="selectRecommendedBudget(15000)">~$18k - $24k</button>
+                  <button type="button" class="budget-btn" data-budget="24000" onclick="selectRecommendedBudget(24000)">~$25k - $38k</button>
+                  <button type="button" class="budget-btn" data-budget="38000" onclick="selectRecommendedBudget(38000)">~$39k - $65k+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recommended Configuration Result Card -->
+            <div class="rec-wizard-right">
+              <div class="rec-result-card" id="rec-result-box">
+                <div class="rec-result-header">
+                  <span class="badge--cyan" id="rec-badge-tier">Recomendación Sugerida</span>
+                  <h3 id="rec-build-name">PC Gamer Equilibrada 1080p</h3>
+                  <p id="rec-build-desc">Balance ideal para juegos competitivos y tareas diarias con margen de actualización.</p>
+                </div>
+
+                <div class="rec-specs-summary" id="rec-specs-list">
+                  <div class="rec-spec-line"><i class="fa-solid fa-microchip"></i> <strong>CPU:</strong> <span id="rec-cpu-val">AMD Ryzen 5 5600 (6C/12T)</span></div>
+                  <div class="rec-spec-line"><i class="fa-solid fa-display"></i> <strong>GPU:</strong> <span id="rec-gpu-val">AMD Radeon RX 6600 8GB</span></div>
+                  <div class="rec-spec-line"><i class="fa-solid fa-memory"></i> <strong>RAM:</strong> <span id="rec-ram-val">16GB (2x8GB) DDR4 3200MHz</span></div>
+                  <div class="rec-spec-line"><i class="fa-solid fa-hard-drive"></i> <strong>SSD:</strong> <span id="rec-ssd-val">1TB SSD NVMe M.2</span></div>
+                  <div class="rec-spec-line"><i class="fa-solid fa-box"></i> <strong>Base & PSU:</strong> <span id="rec-base-val">Motherboard B550 + 650W Bronze + Gabinete Mesh</span></div>
+                </div>
+
+                <div class="rec-price-row">
+                  <div>
+                    <span class="rec-price-label">Presupuesto estimado</span>
+                    <div class="rec-price-total" id="rec-price-val">$19,460 <small>MXN</small></div>
+                  </div>
+                  <button type="button" class="btn btn-outline" onclick="loadRecommendedIntoManual()" style="font-size:0.85rem; padding:8px 14px; border-color:#475569; color:#cbd5e1;">
+                    <i class="fa-solid fa-pen-to-square"></i> Editar piezas
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  id="rec-whatsapp-btn"
+                  onclick="sendRecommendedToWhatsApp()"
+                  class="btn btn-whatsapp-full"
+                >
+                  <i class="fa-brands fa-whatsapp"></i> Cotizar esta configuración por WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 2: MODO AVANZADO (SELECTOR PIEZA POR PIEZA) -->
+        <div id="panel-advanced" class="builder-panel">
+          <div class="builder-interactive-layout">
+            <!-- Selectors Column -->
+            <div class="builder-controls-col">
+              <!-- Stepper: CPU -->
+              <div class="builder-field-card">
+                <label for="b-cpu" class="builder-field-label">
+                  <span><i class="fa-solid fa-microchip text-blue"></i> 1. Procesador (CPU)</span>
+                  <span id="cpu-badge" class="field-badge-ready" style="display:none;">Listo</span>
+                </label>
+                <select id="b-cpu" onchange="updateBuilder()" class="builder-select">
+                  <option value="" data-name="" data-perf="0" data-igpu="0" selected disabled>Selecciona el procesador...</option>
+                  {pcBuilderOptions('cpu').map((item: any) => (
+                    <option
+                      value={item.id}
+                      data-id={item.id}
+                      data-category={item.category}
+                      data-name={item.name}
+                      data-price={pcBuilderSalePrice(item.marketPrice)}
+                      data-market-price={item.marketPrice}
+                      data-source="catalog"
+                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                      data-perf={item.perf}
+                      data-igpu={item.igpu ? '1' : '0'}
+                      data-socket={item.socket || ''}
+                    >
+                      {pcBuilderOptionLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <!-- Stepper: GPU -->
+              <div class="builder-field-card">
+                <label for="b-gpu" class="builder-field-label">
+                  <span><i class="fa-solid fa-display text-blue"></i> 2. Tarjeta Gráfica (GPU)</span>
+                  <span id="gpu-badge" class="field-badge-ready" style="display:none;">Listo</span>
+                </label>
+                <select id="b-gpu" onchange="updateBuilder()" class="builder-select">
+                  <option value="" data-name="" data-perf="0" data-dedicated="0" selected disabled>Selecciona la tarjeta gráfica...</option>
+                  {pcBuilderOptions('gpu').map((item: any) => (
+                    <option
+                      value={item.id}
+                      data-id={item.id}
+                      data-category={item.category}
+                      data-name={item.name}
+                      data-price={pcBuilderSalePrice(item.marketPrice)}
+                      data-market-price={item.marketPrice}
+                      data-source="catalog"
+                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                      data-perf={item.perf}
+                      data-dedicated={item.dedicated ? '1' : '0'}
+                      data-vram={item.vram || ''}
+                      data-recommended-psu={item.recommendedPsu || 0}
+                    >
+                      {pcBuilderOptionLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <!-- Stepper: RAM -->
+              <div class="builder-field-card">
+                <label for="b-ram" class="builder-field-label">
+                  <span><i class="fa-solid fa-memory text-blue"></i> 3. Memoria RAM</span>
+                  <span id="ram-badge" class="field-badge-ready" style="display:none;">Listo</span>
+                </label>
+                <select id="b-ram" onchange="updateBuilder()" class="builder-select">
+                  <option value="" data-name="" data-perf="0" data-gb="0" selected disabled>Selecciona la memoria RAM...</option>
+                  {pcBuilderOptions('ram').map((item: any) => (
+                    <option
+                      value={item.id}
+                      data-id={item.id}
+                      data-category={item.category}
+                      data-name={item.name}
+                      data-price={pcBuilderSalePrice(item.marketPrice)}
+                      data-market-price={item.marketPrice}
+                      data-source="catalog"
+                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                      data-perf={item.perf}
+                      data-gb={item.gb || 0}
+                      data-memory-type={item.memoryType || ''}
+                    >
+                      {pcBuilderOptionLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <!-- Stepper: SSD -->
+              <div class="builder-field-card">
+                <label for="b-ssd" class="builder-field-label">
+                  <span><i class="fa-solid fa-hard-drive text-blue"></i> 4. Almacenamiento (SSD NVMe)</span>
+                  <span id="ssd-badge" class="field-badge-ready" style="display:none;">Listo</span>
+                </label>
+                <select id="b-ssd" onchange="updateBuilder()" class="builder-select">
+                  <option value="" data-name="" data-perf="0" selected disabled>Selecciona almacenamiento...</option>
+                  {pcBuilderOptions('ssd').map((item: any) => (
+                    <option
+                      value={item.id}
+                      data-id={item.id}
+                      data-category={item.category}
+                      data-name={item.name}
+                      data-price={pcBuilderSalePrice(item.marketPrice)}
+                      data-market-price={item.marketPrice}
+                      data-source="catalog"
+                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                      data-perf={item.perf}
+                      data-capacity={item.capacity || ''}
+                    >
+                      {pcBuilderOptionLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <!-- Stepper: Base (Mobo + Gabinete + PSU) -->
+              <div class="builder-field-card">
+                <label for="b-base" class="builder-field-label">
+                  <span><i class="fa-solid fa-box text-blue"></i> 5. Gabinete, Fuente y Tarjeta Madre (Kit Base)</span>
+                  <span id="base-badge" class="field-badge-ready" style="display:none;">Listo</span>
+                </label>
+                <select id="b-base" onchange="updateBuilder()" class="builder-select">
+                  <option value="" data-name="" data-perf="0" data-watts="0" selected disabled>Selecciona tu kit base...</option>
+                  {pcBuilderOptions('base').map((item: any) => (
+                    <option
+                      value={item.id}
+                      data-id={item.id}
+                      data-category={item.category}
+                      data-name={item.name}
+                      data-price={pcBuilderSalePrice(item.marketPrice)}
+                      data-market-price={item.marketPrice}
+                      data-source="catalog"
+                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
+                      data-perf={item.perf}
+                      data-watts={item.watts || 0}
+                      data-platform={item.platform || ''}
+                      data-memory-type={item.memoryType || ''}
+                    >
+                      {pcBuilderOptionLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <!-- Live Power & Compatibility Meter -->
+              <div class="power-meter-box">
+                <div class="power-meter-header">
+                  <span class="power-title"><i class="fa-solid fa-gauge-high"></i> Rendimiento Estimado & Compatibilidad</span>
+                  <span id="power-label" class="power-tier">Sin selección</span>
+                </div>
+                <div class="power-meter-track">
+                  <div id="power-bar" class="power-meter-fill"></div>
+                </div>
+                <p id="power-desc" class="power-desc-text">Selecciona componentes para ver el nivel de rendimiento y compatibilidad en tiempo real.</p>
+              </div>
+            </div>
+
+            <!-- Cart & Summary Column -->
+            <div class="builder-cart-col">
+              <div class="cart-sticky-card">
+                <h3 class="cart-card-title">
+                  <span><i class="fa-solid fa-cart-shopping"></i> Tu Carrito</span>
+                  <span id="cart-count" class="cart-count-pill">0 piezas</span>
+                </h3>
+
+                <ul id="builder-summary" class="cart-items-list">
+                  <li class="cart-empty-msg">Aún no has seleccionado componentes...</li>
+                </ul>
+
+                <!-- Addons Extras -->
+                <div class="cart-addons-box">
+                  <p class="addons-title"><i class="fa-solid fa-circle-plus"></i> Extras opcionales</p>
+                  <label class="addon-option-label">
+                    <input type="checkbox" id="addon-warranty" onchange="updateBuilder()" class="addon-checkbox" />
+                    <div class="addon-text">
+                      <strong>Garantía Extendida +6 meses</strong>
+                      <p>Soporte prioritario y revisión en taller</p>
+                    </div>
+                    <span class="addon-price">+$1,120</span>
+                  </label>
+
+                  <label class="addon-option-label">
+                    <input type="checkbox" id="addon-windows" onchange="updateBuilder()" class="addon-checkbox" />
+                    <div class="addon-text">
+                      <strong>Instalación de Windows 11</strong>
+                      <p>Configuración limpia + drivers actualizados</p>
+                    </div>
+                    <span class="addon-price">+$700</span>
+                  </label>
+
+                  <div class="addon-included-badge">
+                    <i class="fa-solid fa-check-double text-green"></i>
+                    <div class="addon-text">
+                      <strong>Optimización y perfiles XMP/EXPO</strong>
+                      <p>Ajuste de memorias y curva de ventiladores</p>
+                    </div>
+                    <span class="badge-free">INCLUIDO</span>
+                  </div>
+                </div>
+
+                <!-- Total & Submit -->
+                <div class="cart-total-section">
+                  <div class="cart-total-row">
+                    <span class="total-label">Total Estimado</span>
+                    <div id="builder-total" class="total-amount">$0 <small>MXN</small></div>
+                  </div>
+                  <p class="cart-fine-print">
+                    <i class="fa-solid fa-lock"></i> Precios de referencia de mercado + ensamble, cable management y pruebas de estabilidad térmica en Cancún.
+                  </p>
+                </div>
+
+                <button id="builder-btn" type="button" onclick="showCrossSellModal()" class="btn btn-cart-submit disabled">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Rellena todos los campos
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cross-Sell / Final Quote Modal -->
+        <div id="cross-sell-modal" class="builder-modal" style="display:none;" onclick="if(event.target===this) closeCrossSellModal();">
+          <div class="modal-dialog-card">
+            <button type="button" onclick="closeCrossSellModal()" class="modal-close-btn" aria-label="Cerrar ventana">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-header-icon">
+              <i class="fa-solid fa-desktop"></i>
+            </div>
+            <h3>¡Tu PC está lista para cotizar!</h3>
+            <p class="modal-sub">¿Deseas agregar algún accesorio antes de enviar tu carrito a nuestro WhatsApp?</p>
+
+            <div id="addon-kit-gamer" class="modal-addon-item" onclick="toggleAddon('kit-gamer')">
+              <div id="addon-kit-check" class="addon-check-box">
+                <i class="fa-solid fa-check" style="display:none;"></i>
+              </div>
+              <div class="modal-addon-info">
+                <div class="modal-addon-title-row">
+                  <strong>Kit Periféricos Teclado + Mouse RGB</strong>
+                  <span class="modal-addon-price">+$839 MXN</span>
+                </div>
+                <p>Combo de teclado y mouse gaming ergonómico seleccionado para complementar tu ensamble.</p>
+              </div>
+            </div>
+
+            <div class="modal-actions-col">
+              <button type="button" onclick="finishConfigWithAddons()" class="btn btn-whatsapp-full">
+                <i class="fa-brands fa-whatsapp"></i> Enviar Carrito por WhatsApp
+              </button>
+              <button type="button" onclick="closeCrossSellModal()" class="btn btn-outline" style="color:#94a3b8; border-color:#334155;">
+                Volver a editar componentes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- =========================================================================
          3. SECTION: ARMADO Y ENSAMBLE DE COMPUTADORAS EN CANCÚN (INTRO CLUSTERS)
@@ -812,7 +1203,7 @@ const faqs = [
           <div class="pricing-tier-card">
             <div class="pricing-tier-badge">Oficina / Diario</div>
             <h3>PC económica para oficina y uso diario</h3>
-            <div class="price-range">~$8,000 - $11,500 <span class="currency">MXN</span></div>
+            <div class="price-range">~$11,200 - $16,100 <span class="currency">MXN</span></div>
             <p class="tier-desc">Ryzen serie G o Core i3/i5 con gráficos integrados, 16GB RAM y 500GB SSD NVMe. Ideal para facturación, Office y comercio.</p>
             <ul class="tier-features">
               <li><i class="fa-solid fa-check"></i> Encendido ultra rápido</li>
@@ -824,7 +1215,7 @@ const faqs = [
           <div class="pricing-tier-card">
             <div class="pricing-tier-badge">Gaming 1080p</div>
             <h3>PC Gamer de entrada</h3>
-            <div class="price-range">~$12,500 - $16,500 <span class="currency">MXN</span></div>
+            <div class="price-range">~$17,500 - $23,100 <span class="currency">MXN</span></div>
             <p class="tier-desc">Core i5 o Ryzen 5 con tarjeta gráfica dedicada (RX 6600 / RTX 3050), 16GB RAM y 1TB SSD. Excelente para eSports y juegos populares.</p>
             <ul class="tier-features">
               <li><i class="fa-solid fa-check"></i> 1080p fluido en juegos actuales</li>
@@ -836,7 +1227,7 @@ const faqs = [
           <div class="pricing-tier-card pricing-tier-card--popular">
             <div class="pricing-tier-badge badge--pop">Gama Media</div>
             <h3>PC Gamer gama media</h3>
-            <div class="price-range">~$18,000 - $26,000 <span class="currency">MXN</span></div>
+            <div class="price-range">~$25,200 - $36,400 <span class="currency">MXN</span></div>
             <p class="tier-desc">Ryzen 5 / Core i5 con RTX 4060 / RX 7600 XT, 32GB RAM DDR5 y SSD NVMe Gen4. Diseñada para 1080p Ultra y 1440p competitivo.</p>
             <ul class="tier-features">
               <li><i class="fa-solid fa-check"></i> Soporte DLSS y Ray Tracing</li>
@@ -848,7 +1239,7 @@ const faqs = [
           <div class="pricing-tier-card">
             <div class="pricing-tier-badge">High-End</div>
             <h3>PC Gamer de alto rendimiento</h3>
-            <div class="price-range">~$28,000 - $42,000 <span class="currency">MXN</span></div>
+            <div class="price-range">~$39,200 - $58,800 <span class="currency">MXN</span></div>
             <p class="tier-desc">Ryzen 7 7800X3D / Core i7 con RTX 4070 SUPER o superior, 32GB DDR5 6000MHz y refrigeración líquida. Rendimiento 1440p Ultra y 4K.</p>
             <ul class="tier-features">
               <li><i class="fa-solid fa-check"></i> Máxima tasa de FPS sostenida</li>
@@ -860,7 +1251,7 @@ const faqs = [
           <div class="pricing-tier-card">
             <div class="pricing-tier-badge">Workstation</div>
             <h3>Workstation profesional</h3>
-            <div class="price-range">~$38,000 - $65,000+ <span class="currency">MXN</span></div>
+            <div class="price-range">~$53,200 - $91,000+ <span class="currency">MXN</span></div>
             <p class="tier-desc">Ryzen 9 / Core Ultra / i9 con GPUs de 16GB+ VRAM, 64GB a 128GB RAM y fuentes 850W-1000W Gold. Para render 3D, arquitectura e IA.</p>
             <ul class="tier-features">
               <li><i class="fa-solid fa-check"></i> Estabilidad bajo carga pesada</li>
@@ -918,11 +1309,11 @@ const faqs = [
               <div class="build-footer">
                 <div>
                   <span class="price-label">Precio estimado</span>
-                  <span class="price-amount">$8,900 <small>MXN</small></span>
+                  <span class="price-amount">$13,350 <small>MXN</small></span>
                 </div>
                 <button
                   type="button"
-                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20Oficina%20Pro%20($8,900%20MXN)')"
+                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20Oficina%20Pro%20($13,350%20MXN)')"
                   class="btn btn-primary build-cta-btn"
                 >
                   <i class="fa-brands fa-whatsapp"></i> Cotizar
@@ -959,11 +1350,11 @@ const faqs = [
               <div class="build-footer">
                 <div>
                   <span class="price-label">Precio estimado</span>
-                  <span class="price-amount">$13,900 <small>MXN</small></span>
+                  <span class="price-amount">$20,850 <small>MXN</small></span>
                 </div>
                 <button
                   type="button"
-                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20eSports%201080p%20($13,900%20MXN)')"
+                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20eSports%201080p%20($20,850%20MXN)')"
                   class="btn btn-primary build-cta-btn"
                 >
                   <i class="fa-brands fa-whatsapp"></i> Cotizar
@@ -1000,11 +1391,11 @@ const faqs = [
               <div class="build-footer">
                 <div>
                   <span class="price-label">Precio estimado</span>
-                  <span class="price-amount">$23,800 <small>MXN</small></span>
+                  <span class="price-amount">$35,700 <small>MXN</small></span>
                 </div>
                 <button
                   type="button"
-                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20Creator%201440p%20($23,800%20MXN)')"
+                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20Creator%201440p%20($35,700%20MXN)')"
                   class="btn btn-primary build-cta-btn"
                 >
                   <i class="fa-brands fa-whatsapp"></i> Cotizar
@@ -1041,11 +1432,11 @@ const faqs = [
               <div class="build-footer">
                 <div>
                   <span class="price-label">Precio estimado</span>
-                  <span class="price-amount">$39,500 <small>MXN</small></span>
+                  <span class="price-amount">$59,250 <small>MXN</small></span>
                 </div>
                 <button
                   type="button"
-                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20Workstation%20Master%20($39,500%20MXN)')"
+                  onclick="smartWaRedirect('https://wa.me/529986690777?text=Me%20interesa%20la%20PC%20Build%20Workstation%20Master%20($59,250%20MXN)')"
                   class="btn btn-primary build-cta-btn"
                 >
                   <i class="fa-brands fa-whatsapp"></i> Cotizar
@@ -1131,397 +1522,7 @@ const faqs = [
       </div>
     </section>
 
-    <!-- =========================================================================
-         9. SECTION: CONFIGURADOR DE PC INTERACTIVO (MODO RECOMENDADO + MODO AVANZADO)
-    ========================================================================== -->
-    <section
-      id="builder"
-      class="section-padding builder-section"
-      data-assembly-fee={pcBuilderAssemblyFee}
-      data-margin-rate={pcBuilderMarginRate}
-      data-quote-lock-hours={pcBuilderQuoteLockHours}
-    >
-      <div class="container">
-        <div class="section-header text-center builder-header">
-          <span class="section-badge badge--cyan"><i class="fa-solid fa-sliders"></i> Configurador Interactivo</span>
-          <h2 class="text-white">Arma tu PC a la Carta en Cancún</h2>
-          <p class="builder-subtitle">
-            Elige el camino que mejor se adapte a ti: déjanos recomendarte la mejor configuración según tu uso o selecciona cada componente pieza por pieza.
-          </p>
-          <p id="builder-price-status" class="builder-status-text" aria-live="polite">
-            Precios de referencia del mercado mexicano calculados con margen técnico del 30%. Piezas sujetas a disponibilidad y confirmación por WhatsApp.
-          </p>
-        </div>
 
-        <!-- Mode Toggle Tabs -->
-        <div class="builder-mode-tabs" role="tablist" aria-label="Modo de configuración">
-          <button type="button" class="mode-tab active" id="tab-mode-recommended" onclick="switchBuilderMode('recommended')" role="tab" aria-selected="true">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Modo Recomendado (Por Uso y Presupuesto)
-          </button>
-          <button type="button" class="mode-tab" id="tab-mode-advanced" onclick="switchBuilderMode('advanced')" role="tab" aria-selected="false">
-            <i class="fa-solid fa-microchip"></i> Modo Avanzado (Selector de Piezas)
-          </button>
-        </div>
-
-        <!-- PANEL 1: MODO RECOMENDADO (ASISTENTE GUIADO) -->
-        <div id="panel-recommended" class="builder-panel active">
-          <div class="rec-wizard-grid">
-            <div class="rec-wizard-left">
-              <h3 class="wizard-step-title">1. ¿Para qué utilizarás principalmente tu PC?</h3>
-              <div class="rec-use-options">
-                <button type="button" class="rec-opt-btn active" data-use="gaming" onclick="selectRecommendedUse('gaming')">
-                  <i class="fa-solid fa-gamepad"></i>
-                  <div>
-                    <strong>Gaming</strong>
-                    <p>Fortnite, Valorant, Warzone, AAA a 1080p, 1440p o 4K</p>
-                  </div>
-                </button>
-                <button type="button" class="rec-opt-btn" data-use="oficina" onclick="selectRecommendedUse('oficina')">
-                  <i class="fa-solid fa-briefcase"></i>
-                  <div>
-                    <strong>Oficina & Negocio</strong>
-                    <p>Excel, facturación, contabilidad, videollamadas, navegación</p>
-                  </div>
-                </button>
-                <button type="button" class="rec-opt-btn" data-use="programacion" onclick="selectRecommendedUse('programacion')">
-                  <i class="fa-solid fa-code"></i>
-                  <div>
-                    <strong>Programación & Dev</strong>
-                    <p>Docker, Visual Studio, emuladores, desarrollo web y backend</p>
-                  </div>
-                </button>
-                <button type="button" class="rec-opt-btn" data-use="edicion" onclick="selectRecommendedUse('edicion')">
-                  <i class="fa-solid fa-film"></i>
-                  <div>
-                    <strong>Edición de Video & Diseño</strong>
-                    <p>Premiere Pro, DaVinci Resolve, Photoshop, Illustrator</p>
-                  </div>
-                </button>
-                <button type="button" class="rec-opt-btn" data-use="render" onclick="selectRecommendedUse('render')">
-                  <i class="fa-solid fa-cube"></i>
-                  <div>
-                    <strong>Render 3D & Arquitectura</strong>
-                    <p>Blender, AutoCAD, Revit, Lumion, SketchUp, V-Ray</p>
-                  </div>
-                </button>
-                <button type="button" class="rec-opt-btn" data-use="workstation" onclick="selectRecommendedUse('workstation')">
-                  <i class="fa-solid fa-server"></i>
-                  <div>
-                    <strong>Workstation & Cómputo</strong>
-                    <p>Simulaciones, ingeniería, IA local y cargas sostenidas</p>
-                  </div>
-                </button>
-              </div>
-
-              <h3 class="wizard-step-title mt-4">2. Selecciona tu rango de inversión aproximado</h3>
-              <div class="budget-slider-box">
-                <div class="budget-buttons-row">
-                  <button type="button" class="budget-btn" data-budget="8000" onclick="selectRecommendedBudget(8000)">~$8k - $12k</button>
-                  <button type="button" class="budget-btn active" data-budget="15000" onclick="selectRecommendedBudget(15000)">~$13k - $17k</button>
-                  <button type="button" class="budget-btn" data-budget="24000" onclick="selectRecommendedBudget(24000)">~$18k - $27k</button>
-                  <button type="button" class="budget-btn" data-budget="38000" onclick="selectRecommendedBudget(38000)">~$28k - $45k+</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Recommended Configuration Result Card -->
-            <div class="rec-wizard-right">
-              <div class="rec-result-card" id="rec-result-box">
-                <div class="rec-result-header">
-                  <span class="badge--cyan" id="rec-badge-tier">Recomendación Sugerida</span>
-                  <h3 id="rec-build-name">PC Gamer Equilibrada 1080p</h3>
-                  <p id="rec-build-desc">Balance ideal para juegos competitivos y tareas diarias con margen de actualización.</p>
-                </div>
-
-                <div class="rec-specs-summary" id="rec-specs-list">
-                  <div class="rec-spec-line"><i class="fa-solid fa-microchip"></i> <strong>CPU:</strong> <span id="rec-cpu-val">AMD Ryzen 5 5600 (6C/12T)</span></div>
-                  <div class="rec-spec-line"><i class="fa-solid fa-display"></i> <strong>GPU:</strong> <span id="rec-gpu-val">AMD Radeon RX 6600 8GB</span></div>
-                  <div class="rec-spec-line"><i class="fa-solid fa-memory"></i> <strong>RAM:</strong> <span id="rec-ram-val">16GB (2x8GB) DDR4 3200MHz</span></div>
-                  <div class="rec-spec-line"><i class="fa-solid fa-hard-drive"></i> <strong>SSD:</strong> <span id="rec-ssd-val">1TB SSD NVMe M.2</span></div>
-                  <div class="rec-spec-line"><i class="fa-solid fa-box"></i> <strong>Base & PSU:</strong> <span id="rec-base-val">Motherboard B550 + 650W Bronze + Gabinete Mesh</span></div>
-                </div>
-
-                <div class="rec-price-row">
-                  <div>
-                    <span class="rec-price-label">Presupuesto estimado</span>
-                    <div class="rec-price-total" id="rec-price-val">$13,900 <small>MXN</small></div>
-                  </div>
-                  <button type="button" class="btn btn-outline" onclick="loadRecommendedIntoManual()" style="font-size:0.85rem; padding:8px 14px; border-color:#475569; color:#cbd5e1;">
-                    <i class="fa-solid fa-pen-to-square"></i> Editar piezas
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  id="rec-whatsapp-btn"
-                  onclick="sendRecommendedToWhatsApp()"
-                  class="btn btn-whatsapp-full"
-                >
-                  <i class="fa-brands fa-whatsapp"></i> Cotizar esta configuración por WhatsApp
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PANEL 2: MODO AVANZADO (SELECTOR PIEZA POR PIEZA) -->
-        <div id="panel-advanced" class="builder-panel">
-          <div class="builder-interactive-layout">
-            <!-- Selectors Column -->
-            <div class="builder-controls-col">
-              <!-- Stepper: CPU -->
-              <div class="builder-field-card">
-                <label for="b-cpu" class="builder-field-label">
-                  <span><i class="fa-solid fa-microchip text-blue"></i> 1. Procesador (CPU)</span>
-                  <span id="cpu-badge" class="field-badge-ready" style="display:none;">Listo</span>
-                </label>
-                <select id="b-cpu" onchange="updateBuilder()" class="builder-select">
-                  <option value="" data-name="" data-perf="0" data-igpu="0" selected disabled>Selecciona el procesador...</option>
-                  {pcBuilderOptions('cpu').map((item: any) => (
-                    <option
-                      value={item.id}
-                      data-id={item.id}
-                      data-category={item.category}
-                      data-name={item.name}
-                      data-price={pcBuilderSalePrice(item.marketPrice)}
-                      data-market-price={item.marketPrice}
-                      data-source="catalog"
-                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
-                      data-perf={item.perf}
-                      data-igpu={item.igpu ? '1' : '0'}
-                      data-socket={item.socket || ''}
-                    >
-                      {pcBuilderOptionLabel(item)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <!-- Stepper: GPU -->
-              <div class="builder-field-card">
-                <label for="b-gpu" class="builder-field-label">
-                  <span><i class="fa-solid fa-display text-blue"></i> 2. Tarjeta Gráfica (GPU)</span>
-                  <span id="gpu-badge" class="field-badge-ready" style="display:none;">Listo</span>
-                </label>
-                <select id="b-gpu" onchange="updateBuilder()" class="builder-select">
-                  <option value="" data-name="" data-perf="0" data-dedicated="0" selected disabled>Selecciona la tarjeta gráfica...</option>
-                  {pcBuilderOptions('gpu').map((item: any) => (
-                    <option
-                      value={item.id}
-                      data-id={item.id}
-                      data-category={item.category}
-                      data-name={item.name}
-                      data-price={pcBuilderSalePrice(item.marketPrice)}
-                      data-market-price={item.marketPrice}
-                      data-source="catalog"
-                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
-                      data-perf={item.perf}
-                      data-dedicated={item.dedicated ? '1' : '0'}
-                      data-vram={item.vram || ''}
-                      data-recommended-psu={item.recommendedPsu || 0}
-                    >
-                      {pcBuilderOptionLabel(item)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <!-- Stepper: RAM -->
-              <div class="builder-field-card">
-                <label for="b-ram" class="builder-field-label">
-                  <span><i class="fa-solid fa-memory text-blue"></i> 3. Memoria RAM</span>
-                  <span id="ram-badge" class="field-badge-ready" style="display:none;">Listo</span>
-                </label>
-                <select id="b-ram" onchange="updateBuilder()" class="builder-select">
-                  <option value="" data-name="" data-perf="0" data-gb="0" selected disabled>Selecciona la memoria RAM...</option>
-                  {pcBuilderOptions('ram').map((item: any) => (
-                    <option
-                      value={item.id}
-                      data-id={item.id}
-                      data-category={item.category}
-                      data-name={item.name}
-                      data-price={pcBuilderSalePrice(item.marketPrice)}
-                      data-market-price={item.marketPrice}
-                      data-source="catalog"
-                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
-                      data-perf={item.perf}
-                      data-gb={item.gb || 0}
-                      data-memory-type={item.memoryType || ''}
-                    >
-                      {pcBuilderOptionLabel(item)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <!-- Stepper: SSD -->
-              <div class="builder-field-card">
-                <label for="b-ssd" class="builder-field-label">
-                  <span><i class="fa-solid fa-hard-drive text-blue"></i> 4. Almacenamiento (SSD NVMe)</span>
-                  <span id="ssd-badge" class="field-badge-ready" style="display:none;">Listo</span>
-                </label>
-                <select id="b-ssd" onchange="updateBuilder()" class="builder-select">
-                  <option value="" data-name="" data-perf="0" selected disabled>Selecciona almacenamiento...</option>
-                  {pcBuilderOptions('ssd').map((item: any) => (
-                    <option
-                      value={item.id}
-                      data-id={item.id}
-                      data-category={item.category}
-                      data-name={item.name}
-                      data-price={pcBuilderSalePrice(item.marketPrice)}
-                      data-market-price={item.marketPrice}
-                      data-source="catalog"
-                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
-                      data-perf={item.perf}
-                      data-capacity={item.capacity || ''}
-                    >
-                      {pcBuilderOptionLabel(item)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <!-- Stepper: Base (Mobo + Gabinete + PSU) -->
-              <div class="builder-field-card">
-                <label for="b-base" class="builder-field-label">
-                  <span><i class="fa-solid fa-box text-blue"></i> 5. Gabinete, Fuente y Tarjeta Madre (Kit Base)</span>
-                  <span id="base-badge" class="field-badge-ready" style="display:none;">Listo</span>
-                </label>
-                <select id="b-base" onchange="updateBuilder()" class="builder-select">
-                  <option value="" data-name="" data-perf="0" data-watts="0" selected disabled>Selecciona tu kit base...</option>
-                  {pcBuilderOptions('base').map((item: any) => (
-                    <option
-                      value={item.id}
-                      data-id={item.id}
-                      data-category={item.category}
-                      data-name={item.name}
-                      data-price={pcBuilderSalePrice(item.marketPrice)}
-                      data-market-price={item.marketPrice}
-                      data-source="catalog"
-                      data-updated-at={pcBuilderCatalog.pricing.fallbackUpdatedAt}
-                      data-perf={item.perf}
-                      data-watts={item.watts || 0}
-                      data-platform={item.platform || ''}
-                      data-memory-type={item.memoryType || ''}
-                    >
-                      {pcBuilderOptionLabel(item)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <!-- Live Power & Compatibility Meter -->
-              <div class="power-meter-box">
-                <div class="power-meter-header">
-                  <span class="power-title"><i class="fa-solid fa-gauge-high"></i> Rendimiento Estimado & Compatibilidad</span>
-                  <span id="power-label" class="power-tier">Sin selección</span>
-                </div>
-                <div class="power-meter-track">
-                  <div id="power-bar" class="power-meter-fill"></div>
-                </div>
-                <p id="power-desc" class="power-desc-text">Selecciona componentes para ver el nivel de rendimiento y compatibilidad en tiempo real.</p>
-              </div>
-            </div>
-
-            <!-- Cart & Summary Column -->
-            <div class="builder-cart-col">
-              <div class="cart-sticky-card">
-                <h3 class="cart-card-title">
-                  <span><i class="fa-solid fa-cart-shopping"></i> Tu Carrito</span>
-                  <span id="cart-count" class="cart-count-pill">0 piezas</span>
-                </h3>
-
-                <ul id="builder-summary" class="cart-items-list">
-                  <li class="cart-empty-msg">Aún no has seleccionado componentes...</li>
-                </ul>
-
-                <!-- Addons Extras -->
-                <div class="cart-addons-box">
-                  <p class="addons-title"><i class="fa-solid fa-circle-plus"></i> Extras opcionales</p>
-                  <label class="addon-option-label">
-                    <input type="checkbox" id="addon-warranty" onchange="updateBuilder()" class="addon-checkbox" />
-                    <div class="addon-text">
-                      <strong>Garantía Extendida +6 meses</strong>
-                      <p>Soporte prioritario y revisión en taller</p>
-                    </div>
-                    <span class="addon-price">+$800</span>
-                  </label>
-
-                  <label class="addon-option-label">
-                    <input type="checkbox" id="addon-windows" onchange="updateBuilder()" class="addon-checkbox" />
-                    <div class="addon-text">
-                      <strong>Instalación de Windows 11</strong>
-                      <p>Configuración limpia + drivers actualizados</p>
-                    </div>
-                    <span class="addon-price">+$500</span>
-                  </label>
-
-                  <div class="addon-included-badge">
-                    <i class="fa-solid fa-check-double text-green"></i>
-                    <div class="addon-text">
-                      <strong>Optimización y perfiles XMP/EXPO</strong>
-                      <p>Ajuste de memorias y curva de ventiladores</p>
-                    </div>
-                    <span class="badge-free">INCLUIDO</span>
-                  </div>
-                </div>
-
-                <!-- Total & Submit -->
-                <div class="cart-total-section">
-                  <div class="cart-total-row">
-                    <span class="total-label">Total Estimado</span>
-                    <div id="builder-total" class="total-amount">$0 <small>MXN</small></div>
-                  </div>
-                  <p class="cart-fine-print">
-                    <i class="fa-solid fa-lock"></i> Precios de referencia de mercado + margen del 30%. Incluye ensamble, cable management y pruebas de estabilidad en taller.
-                  </p>
-                </div>
-
-                <button id="builder-btn" type="button" onclick="showCrossSellModal()" class="btn btn-cart-submit disabled">
-                  <i class="fa-solid fa-triangle-exclamation"></i> Rellena todos los campos
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cross-Sell / Final Quote Modal -->
-        <div id="cross-sell-modal" class="builder-modal" style="display:none;" onclick="if(event.target===this) closeCrossSellModal();">
-          <div class="modal-dialog-card">
-            <button type="button" onclick="closeCrossSellModal()" class="modal-close-btn" aria-label="Cerrar ventana">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="modal-header-icon">
-              <i class="fa-solid fa-desktop"></i>
-            </div>
-            <h3>¡Tu PC está lista para cotizar!</h3>
-            <p class="modal-sub">¿Deseas agregar algún accesorio antes de enviar tu carrito a nuestro WhatsApp?</p>
-
-            <div id="addon-kit-gamer" class="modal-addon-item" onclick="toggleAddon('kit-gamer')">
-              <div id="addon-kit-check" class="addon-check-box">
-                <i class="fa-solid fa-check" style="display:none;"></i>
-              </div>
-              <div class="modal-addon-info">
-                <div class="modal-addon-title-row">
-                  <strong>Kit Periféricos Teclado + Mouse RGB</strong>
-                  <span class="modal-addon-price">+$599 MXN</span>
-                </div>
-                <p>Combo de teclado y mouse gaming ergonómico seleccionado para complementar tu ensamble.</p>
-              </div>
-            </div>
-
-            <div class="modal-actions-col">
-              <button type="button" onclick="finishConfigWithAddons()" class="btn btn-whatsapp-full">
-                <i class="fa-brands fa-whatsapp"></i> Enviar Carrito por WhatsApp
-              </button>
-              <button type="button" onclick="closeCrossSellModal()" class="btn btn-outline" style="color:#94a3b8; border-color:#334155;">
-                Volver a editar componentes
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- =========================================================================
          10. SECTION: VERIFICAMOS COMPATIBILIDAD ANTES DE COMPRAR
@@ -3838,7 +3839,7 @@ const faqs = [
      PAGE CLIENT SCRIPT (CONFIGURADOR, RECOMENDADOR Y EVENTOS)
 ========================================================================== -->
 <script>
-  // Catalogo de Perfiles Recomendados
+  // Catalogo de Perfiles Recomendados (+40% de incremento)
   const recommendedProfiles: Record<string, Record<number, any>> = {
     gaming: {
       8000: {
@@ -3849,7 +3850,7 @@ const faqs = [
         ram: '16GB (2x8GB) DDR4 3200MHz',
         ssd: '500GB SSD NVMe M.2',
         base: 'Kit AM4 Básico (A520 + 500W + Gabinete)',
-        price: 8900
+        price: 12460
       },
       15000: {
         name: 'PC Gamer 1080p Equilibrada',
@@ -3859,7 +3860,7 @@ const faqs = [
         ram: '16GB (2x8GB) DDR4 3200MHz',
         ssd: '1TB SSD NVMe M.2',
         base: 'Kit AM4 / Intel Intermedio (650W + Gabinete Mesh)',
-        price: 13900
+        price: 19460
       },
       24000: {
         name: 'PC Gamer 1440p High-FPS',
@@ -3869,7 +3870,7 @@ const faqs = [
         ram: '32GB (2x16GB) DDR5 6000MHz CL30',
         ssd: '1TB SSD NVMe Gen4 High-Speed',
         base: 'Kit AM5 / Intel DDR5 (650W/750W Gold + Mesh)',
-        price: 23800
+        price: 33320
       },
       38000: {
         name: 'PC Gamer 4K Extreme Master',
@@ -3879,7 +3880,7 @@ const faqs = [
         ram: '32GB (2x16GB) DDR5 6000MHz CL30',
         ssd: '2TB SSD NVMe Gen4',
         base: 'Kit AM5 Avanzado (850W Gold + Gabinete Premium)',
-        price: 39500
+        price: 55300
       }
     },
     oficina: {
@@ -3891,7 +3892,7 @@ const faqs = [
         ram: '16GB (2x8GB) DDR4 3200MHz',
         ssd: '500GB SSD NVMe M.2',
         base: 'Kit AM4 Básico (500W + Gabinete Compacto)',
-        price: 8500
+        price: 11900
       },
       15000: {
         name: 'PC Oficina Ejecutiva & Multitarea',
@@ -3901,7 +3902,7 @@ const faqs = [
         ram: '32GB (2x16GB) RAM',
         ssd: '1TB SSD NVMe M.2',
         base: 'Kit Básico / Intermedio Silencioso',
-        price: 12500
+        price: 17500
       },
       24000: {
         name: 'PC Oficina B2B Alta Densidad',
@@ -3911,7 +3912,7 @@ const faqs = [
         ram: '32GB DDR5 5600MHz',
         ssd: '2TB SSD NVMe M.2 Gen4',
         base: 'Kit AM5 Intermedio 650W Gold',
-        price: 18500
+        price: 25900
       },
       38000: {
         name: 'Servidor Departamental / Workstation Oficina',
@@ -3921,7 +3922,7 @@ const faqs = [
         ram: '64GB DDR5 5600MHz',
         ssd: '2x 2TB SSD NVMe en respaldo',
         base: 'Kit Workstation 850W Gold',
-        price: 34500
+        price: 48300
       }
     },
     programacion: {
@@ -3933,7 +3934,7 @@ const faqs = [
         ram: '16GB DDR4 3200MHz',
         ssd: '500GB SSD NVMe M.2',
         base: 'Kit AM4 Básico',
-        price: 8900
+        price: 12460
       },
       15000: {
         name: 'PC Full-Stack & Docker Dev',
@@ -3943,7 +3944,7 @@ const faqs = [
         ram: '32GB DDR5 5600MHz',
         ssd: '1TB SSD NVMe Gen4',
         base: 'Kit AM5 / Intel DDR5',
-        price: 14800
+        price: 20720
       },
       24000: {
         name: 'PC Mobile & Machine Learning Dev',
@@ -3953,7 +3954,7 @@ const faqs = [
         ram: '32GB DDR5 6000MHz',
         ssd: '2TB SSD NVMe Gen4',
         base: 'Kit Intermedio DDR5 750W',
-        price: 24500
+        price: 34300
       },
       38000: {
         name: 'Workstation Software Engineer Pro',
@@ -3963,7 +3964,7 @@ const faqs = [
         ram: '64GB (2x32GB) DDR5 6000MHz',
         ssd: '2TB SSD NVMe Gen4',
         base: 'Kit Workstation 850W Gold',
-        price: 38500
+        price: 53900
       }
     },
     edicion: {
@@ -3975,7 +3976,7 @@ const faqs = [
         ram: '16GB DDR4',
         ssd: '500GB SSD NVMe',
         base: 'Kit AM4 Básico',
-        price: 8900
+        price: 12460
       },
       15000: {
         name: 'PC Edición de Video 1080p / Premiere Pro',
@@ -3985,7 +3986,7 @@ const faqs = [
         ram: '32GB DDR4 3200MHz',
         ssd: '1TB SSD NVMe M.2',
         base: 'Kit Intermedio 650W',
-        price: 16500
+        price: 23100
       },
       24000: {
         name: 'PC Creador de Contenido 4K Pro',
@@ -3995,7 +3996,7 @@ const faqs = [
         ram: '32GB DDR5 6000MHz',
         ssd: '2TB SSD NVMe Gen4',
         base: 'Kit AM5 / Intel DDR5 750W',
-        price: 25800
+        price: 36120
       },
       38000: {
         name: 'Workstation Postproducción 4K/6K Master',
@@ -4005,7 +4006,7 @@ const faqs = [
         ram: '64GB (2x32GB) DDR5 6000MHz',
         ssd: '2TB + 1TB Scratch Disk NVMe Gen4',
         base: 'Kit Workstation 850W Gold',
-        price: 41500
+        price: 58100
       }
     },
     render: {
@@ -4017,7 +4018,7 @@ const faqs = [
         ram: '16GB DDR4',
         ssd: '500GB SSD NVMe',
         base: 'Kit AM4 Básico',
-        price: 8900
+        price: 12460
       },
       15000: {
         name: 'PC Arquitectura & SketchUp 3D',
@@ -4027,7 +4028,7 @@ const faqs = [
         ram: '32GB DDR4 3200MHz',
         ssd: '1TB SSD NVMe M.2',
         base: 'Kit Intermedio 650W',
-        price: 16800
+        price: 23520
       },
       24000: {
         name: 'PC Render 3D Lumion & Blender',
@@ -4037,7 +4038,7 @@ const faqs = [
         ram: '32GB DDR5 6000MHz',
         ssd: '2TB SSD NVMe Gen4',
         base: 'Kit AM5 / Intel DDR5 750W',
-        price: 26500
+        price: 37100
       },
       38000: {
         name: 'Workstation Render Arquitectura & Unreal Engine',
@@ -4047,7 +4048,7 @@ const faqs = [
         ram: '64GB DDR5 6000MHz',
         ssd: '2TB SSD NVMe Gen4 High-Speed',
         base: 'Kit Workstation 850W/1000W Gold',
-        price: 42500
+        price: 59500
       }
     },
     workstation: {
@@ -4059,7 +4060,7 @@ const faqs = [
         ram: '16GB DDR4',
         ssd: '500GB SSD NVMe',
         base: 'Kit AM4 Básico',
-        price: 8900
+        price: 12460
       },
       15000: {
         name: 'Workstation Ingeniería Intermedia',
@@ -4069,7 +4070,7 @@ const faqs = [
         ram: '32GB DDR5 5600MHz',
         ssd: '1TB SSD NVMe Gen4',
         base: 'Kit Intermedio 650W',
-        price: 17800
+        price: 24920
       },
       24000: {
         name: 'Workstation Cómputo Profesional',
@@ -4079,7 +4080,7 @@ const faqs = [
         ram: '32GB DDR5 6000MHz',
         ssd: '2TB SSD NVMe Gen4',
         base: 'Kit AM5 / Intel DDR5 750W Gold',
-        price: 27500
+        price: 38500
       },
       38000: {
         name: 'Workstation Alto Rendimiento & IA',
@@ -4089,7 +4090,7 @@ const faqs = [
         ram: '64GB DDR5 6000MHz',
         ssd: '2TB SSD NVMe Gen4',
         base: 'Kit Workstation 1000W Gold',
-        price: 44500
+        price: 62300
       }
     }
   };
@@ -4264,7 +4265,7 @@ const faqs = [
 
     const isComplete = slots.every(({ sel }) => sel.value !== '');
     if (isComplete) {
-      const assemblyFee = parseInt((document.getElementById('builder') as HTMLElement | null)?.getAttribute('data-assembly-fee') || '1000', 10) || 1000;
+      const assemblyFee = parseInt((document.getElementById('builder') as HTMLElement | null)?.getAttribute('data-assembly-fee') || '1400', 10) || 1400;
       total += assemblyFee;
       summaryHtml += `<li style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #334155;padding-top:10px;margin-top:5px;">
         <span style="color:#cbd5e1;font-size:0.88rem;"><i class="fa-solid fa-screwdriver-wrench" style="color:#38bdf8;width:14px;margin-right:8px;"></i>Ensamble Profesional + Pruebas</span>
@@ -4273,17 +4274,17 @@ const faqs = [
     }
 
     if (warranty && warranty.checked) {
-      total += 800;
+      total += 1120;
       summaryHtml += `<li style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
         <span style="color:#10b981;font-size:0.88rem;"><i class="fa-solid fa-shield-halved" style="width:14px;margin-right:8px;"></i>Garantía Extendida +6m</span>
-        <span style="color:#10b981;font-size:0.88rem;font-weight:700;">$800</span>
+        <span style="color:#10b981;font-size:0.88rem;font-weight:700;">$1,120</span>
       </li>`;
     }
     if (windows && windows.checked) {
-      total += 500;
+      total += 700;
       summaryHtml += `<li style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
         <span style="color:#10b981;font-size:0.88rem;"><i class="fa-brands fa-windows" style="width:14px;margin-right:8px;"></i>Instalación Windows 11</span>
-        <span style="color:#10b981;font-size:0.88rem;font-weight:700;">$500</span>
+        <span style="color:#10b981;font-size:0.88rem;font-weight:700;">$700</span>
       </li>`;
     }
 
@@ -4491,16 +4492,16 @@ const faqs = [
     appendComponent('SSD', ssd);
     appendComponent('Kit Base', base);
 
-    const assemblyFee = parseInt((document.getElementById('builder') as HTMLElement | null)?.getAttribute('data-assembly-fee') || '1000', 10) || 1000;
+    const assemblyFee = parseInt((document.getElementById('builder') as HTMLElement | null)?.getAttribute('data-assembly-fee') || '1400', 10) || 1400;
     msg += 'Ensamble y Pruebas: $' + assemblyFee.toLocaleString('es-MX') + ' MXN\n';
 
-    if (warranty && warranty.checked) msg += 'Garantía Extendida +6m: $800 MXN\n';
-    if (windows && windows.checked) msg += 'Instalación Windows 11: $500 MXN\n';
-    if (crossSellSelected) msg += 'Kit Periféricos RGB: $599 MXN\n';
+    if (warranty && warranty.checked) msg += 'Garantía Extendida +6m: $1,120 MXN\n';
+    if (windows && windows.checked) msg += 'Instalación Windows 11: $700 MXN\n';
+    if (crossSellSelected) msg += 'Kit Periféricos RGB: $839 MXN\n';
 
     const totalText = (document.getElementById('builder-total') as HTMLElement | null)?.innerText.replace(/[^\d]/g, '') || '0';
     let finalTotal = parseInt(totalText) || 0;
-    if (crossSellSelected) finalTotal += 599;
+    if (crossSellSelected) finalTotal += 839;
 
     msg += '\nTotal Estimado: $' + finalTotal.toLocaleString('es-MX') + ' MXN\n';
     msg += 'Favor de confirmar disponibilidad de componentes en Cancún.';

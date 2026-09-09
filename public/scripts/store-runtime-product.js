@@ -4,7 +4,8 @@
   var root = document.querySelector('[data-runtime-product]');
   if (!root) return;
 
-  var slug = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '').trim();
+  var isEn = document.documentElement.lang === 'en';
+  var slug = (new URLSearchParams(location.search).get('slug') || decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '')).trim();
   var loading = document.getElementById('runtime-product-loading');
   var error = document.getElementById('runtime-product-error');
   var content = document.getElementById('runtime-product-content');
@@ -17,8 +18,13 @@
     NOT_APPLICABLE: 'No aplica'
   };
 
+  function conditionLabel(code) {
+    if (!isEn) return conditionLabels[code] || code || 'Por confirmar';
+    return ({ NEW: 'New', USED: 'Pre-owned', REFURBISHED: 'Refurbished', OPEN_BOX: 'Open box', FOR_PARTS: 'For parts', NOT_APPLICABLE: 'Not applicable' })[code] || code || 'To be confirmed';
+  }
+
   function money(value, currency) {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: currency || 'MXN' }).format(Number(value || 0));
+    return new Intl.NumberFormat(isEn ? 'en-US' : 'es-MX', { style: 'currency', currency: currency || 'MXN' }).format(Number(value || 0));
   }
 
   function showError(message) {
@@ -77,13 +83,14 @@
     var purchasable = item.status === 'ACTIVE' && Boolean(item.allow_purchase) && (!tracked || availableQuantity > 0);
     var availability = sold ? 'Vendido' : item.status === 'RESERVED' ? 'Reservado' : purchasable ? (tracked && availableQuantity === 1 ? 'Última unidad' : 'Disponible') : 'No disponible';
 
+    if (isEn) availability = sold ? 'Sold' : item.status === 'RESERVED' ? 'Reserved' : purchasable ? (tracked && availableQuantity === 1 ? 'Last unit' : 'Available') : 'Unavailable';
     document.getElementById('runtime-breadcrumb-name').textContent = item.name;
     document.getElementById('product-title').textContent = item.name + ' en Cancún';
     document.getElementById('runtime-product-lead').textContent = item.short_description || '';
     document.getElementById('runtime-product-description').textContent = item.description || item.short_description || 'Solicita la ficha completa para validar los detalles de esta publicación.';
     document.getElementById('runtime-product-price').textContent = money(currentPrice, currency);
     document.getElementById('runtime-product-availability').textContent = availability;
-    document.getElementById('runtime-product-condition').textContent = conditionLabels[item.condition] || item.condition || 'Por confirmar';
+    document.getElementById('runtime-product-condition').textContent = conditionLabel(item.condition);
     document.getElementById('runtime-product-warranty').textContent = item.warranty_text || 'Consulta cobertura según la publicación';
     document.getElementById('runtime-sold-stamp').hidden = !sold;
 
@@ -105,7 +112,7 @@
       badges.appendChild(span);
     });
     var conditionBadge = document.createElement('span');
-    conditionBadge.textContent = conditionLabels[item.condition] || 'Pixon PC';
+    conditionBadge.textContent = conditionLabel(item.condition) || 'Pixon PC';
     badges.appendChild(conditionBadge);
 
     var attributes = document.getElementById('runtime-product-attributes');

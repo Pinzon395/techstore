@@ -1,18 +1,21 @@
 ---
+import { commercialCopy } from '../lib/business';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { getLocaleFromPath } from '../lib/i18n';
 interface Props {
   lang?: 'es' | 'en';
 }
 
-const { lang = 'es' } = Astro.props;
+const { lang = getLocaleFromPath(Astro.originPathname) } = Astro.props;
 
 const footerLinks = lang === 'en' ? {
   pages: {
     title: 'English services',
     home: 'Home',
-    services: 'Computer & device repair',
+    services: 'Repair services',
     waterDamage: 'Water damage phone repair',
     battery: 'iPhone battery replacement',
-    business: 'Business & hotel IT support',
+    business: 'Business IT support',
     contact: 'Contact Pixon PC',
   },
   legal: {
@@ -55,7 +58,7 @@ const currentYear = new Date().getFullYear();
 <footer class="light-footer">
   <div class="container footer-content">
     <div class="footer-logo">
-      <a href={lang === 'en' ? '/en' : '/'} class="logo text-dark">
+      <a href="/" class="logo text-dark">
         <img src="/assets/logos/Logo.svg" alt="Pixon PC Logo" height="35" class="brand-logo">
       </a>
       <p set:html={footerLinks.description}></p>
@@ -73,14 +76,18 @@ const currentYear = new Date().getFullYear();
             <p>RFC / Mexican invoicing is available when requested for an eligible service.</p>
             <p>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</p>
             <p>Independent technical service with appointments coordinated in advance.</p>
-            <p>Card, bank transfer and cash accepted · <a href="/politica-de-garantia">Warranty (Spanish)</a> · <a href="/politica-de-envios-y-devoluciones">Delivery & warranty (Spanish)</a> · <a href="/privacidad">Privacy (Spanish)</a></p>
+            <p>{commercialCopy.en.payment}</p>
+            <p data-payment-methods hidden aria-live="polite"></p>
+            <p><a href="/politica-de-garantia">Warranty (Spanish)</a> · <a href="/politica-de-envios-y-devoluciones">Delivery & warranty (Spanish)</a> · <a href="/privacidad">Privacy (Spanish)</a></p>
           </>
         ) : (
           <>
             <p>RFC: disponible para facturación CFDI al solicitar el servicio.</p>
             <p>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</p>
             <p>Registro de actividad comercial: servicio técnico independiente con atención mediante cita previa.</p>
-            <p>Aceptamos tarjeta, transferencia y efectivo · <a href="/politica-de-garantia">Política de garantía</a> · <a href="/politica-de-envios-y-devoluciones">Entregas y garantía</a> · <a href="/privacidad">Privacidad</a></p>
+            <p>{commercialCopy.es.payment}</p>
+            <p data-payment-methods hidden aria-live="polite"></p>
+            <p><a href="/politica-de-garantia">Política de garantía</a> · <a href="/politica-de-envios-y-devoluciones">Entregas y garantía</a> · <a href="/privacidad">Privacidad</a></p>
           </>
         )}
       </div>
@@ -91,11 +98,11 @@ const currentYear = new Date().getFullYear();
         {lang === 'en' ? (
           <>
             <li><a href="/en">{footerLinks.pages.home}</a></li>
-            <li><a href="/en#repair-services">{footerLinks.pages.services}</a></li>
+            <li><a href="/en/services">{footerLinks.pages.services}</a></li>
             <li><a href="/en/liquid-damage">{footerLinks.pages.waterDamage}</a></li>
             <li><a href="/en/iphone-battery-replacement">{footerLinks.pages.battery}</a></li>
-            <li><a href="/empresas">{footerLinks.pages.business} (Spanish)</a></li>
-            <li><a href="/contacto">{footerLinks.pages.contact} (Spanish)</a></li>
+            <li><a href="/en/business-it-support">{footerLinks.pages.business}</a></li>
+            <li><a href="/en/contact">{footerLinks.pages.contact}</a></li>
           </>
         ) : (
           <>
@@ -140,6 +147,7 @@ const currentYear = new Date().getFullYear();
     </div>
   </div>
   <div class="footer-bottom">
+    <LanguageSwitcher />
     <p>&copy; {currentYear} {footerLinks.rights} |
       <a href="/privacidad" style="color:var(--text-muted); text-decoration: underline;">{footerLinks.legal.privacy}</a> ·
       <a href="/politica-de-garantia" style="color:var(--text-muted); text-decoration: underline;">{footerLinks.legal.warranty}</a>
@@ -147,5 +155,6 @@ const currentYear = new Date().getFullYear();
     </p>
   </div>
 </footer>
+
 
 <div id="specialty-overlay" style="position:fixed; inset:0; background:rgba(15,23,42,0.7); backdrop-filter:blur(4px); z-index:9000; opacity:0; pointer-events:none; transition:opacity 0.3s ease;"></div>

@@ -268,7 +268,7 @@ export const laptopCategory: ServiceCategory = {
         ],
         commonProblems: [
           { problem: 'Laptop dura menos de 1 hora',           solution: 'Batería con desgaste >30%. Cambio recupera autonomía original.' },
-          { problem: 'No carga aunque conectada',             solution: 'Puede ser batería, cargador o flex de carga. Diagnóstico gratis lo define.' },
+          { problem: 'No carga aunque conectada',             solution: 'Puede ser batería, cargador o flex de carga. El diagnóstico técnico permite definirlo.' },
           { problem: 'Batería inflamada o hinchada',          solution: 'PELIGROSO. Apaga la laptop y tráela de inmediato  -  riesgo de daño a placa.' },
           { problem: 'Windows reporta "considere reemplazar"',solution: 'El sistema detectó desgaste >50%. Es buen momento para cambiar.' },
         ],
@@ -523,7 +523,7 @@ export const laptopCategory: ServiceCategory = {
       {
         slug: 'diagnostico',
         label: 'Diagnóstico',
-        seoKeyword: 'Diagnóstico gratis de laptop en Cancún',
+        seoKeyword: 'Diagnóstico técnico de laptop en Cancún',
         hook: '¿Tu laptop tiene una falla que no entiendes? Diagnóstico profesional con reporte por escrito. GRATIS si autorizas la reparación.',
         intro: 'Revisión profesional para identificar la falla y darte presupuesto sin compromiso. Te explicamos qué tiene y qué cuesta arreglarlo.',
         bullets: ['Test eléctrico, software y hardware', 'Revisión de placa, RAM, disco, ventilación', 'Reporte por escrito con fotos', 'GRATIS si autorizas la reparación', 'Sin compromiso de continuar'],

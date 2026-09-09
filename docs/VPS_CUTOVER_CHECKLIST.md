@@ -1,0 +1,23 @@
+# VPS cutover checklist
+
+- [ ] VPS purchased.
+- [ ] Ubuntu ready.
+- [ ] SSH key access.
+- [ ] Deployment user.
+- [ ] Firewall configured.
+- [ ] Node installed.
+- [ ] MariaDB installed.
+- [ ] `cloudflared` installed and configured.
+- [ ] Production environment ready.
+- [ ] Initial database backup verified.
+- [ ] Initial persistent-files sync completed.
+- [ ] Application deployed.
+- [ ] Staging/origin test passed.
+- [ ] Final write freeze enabled on the old origin.
+- [ ] Final database sync completed.
+- [ ] Final persistent-files sync completed.
+- [ ] Cloudflare cutover completed.
+- [ ] Smoke tests passed.
+- [ ] Old origin is read-only.
+- [ ] 24–72 h observation completed.
+- [ ] Old PC retired.

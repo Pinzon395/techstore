@@ -22,6 +22,11 @@ export interface ServiceItem {
   /** Meta tags especificos cuando difieren del patron automatico */
   metaTitle?: string;
   metaDescription?: string;
+  /** Overrides puntuales para Schema Service sin alterar el label de navegación. */
+  schemaName?: string;
+  schemaServiceType?: string;
+  /** Evita publicar una oferta cuando el precio depende íntegramente del diagnóstico. */
+  hideSchemaOffer?: boolean;
   /** Subtítulo grande bajo el H1 (gancho emocional / problema que resuelve) */
   hook?: string;
   /** "Por qué nosotros"  -  4-6 cards */

@@ -31,10 +31,22 @@ function createMediaRoutes({ repository, storage, permissionService }) {
             }
         }
 
-        const file = await storage.open(media.storage_key);
-        const extension = media.storage_key.split('.').pop().toLowerCase();
+        const variant = typeof req.query.variant === 'string' ? req.query.variant : '';
+        const requestedKey = ['thumb', 'card', 'large'].includes(variant)
+            ? storage.variantKey(media.storage_key, variant)
+            : media.storage_key;
+        let file;
+        let servedKey = requestedKey;
+        try {
+            file = await storage.open(requestedKey);
+        } catch (error) {
+            if (!variant) throw error;
+            servedKey = media.storage_key;
+            file = await storage.open(media.storage_key);
+        }
+        const extension = servedKey.split('.').pop().toLowerCase();
         res.set({
-            'Content-Type': media.mime_type || MIME_BY_EXTENSION[extension] || 'application/octet-stream',
+            'Content-Type': variant ? (MIME_BY_EXTENSION[extension] || 'application/octet-stream') : (media.mime_type || MIME_BY_EXTENSION[extension] || 'application/octet-stream'),
             'Content-Length': String(file.sizeBytes),
             'Cache-Control': publicItem ? 'public, max-age=31536000, immutable' : 'private, no-store',
             'X-Content-Type-Options': 'nosniff',

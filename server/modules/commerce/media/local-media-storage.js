@@ -7,6 +7,7 @@ const path = require('path');
 const { NotFoundError, ValidationError } = require('../errors');
 
 const STORAGE_KEY_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(?:jpg|png|webp)$/i;
+const VARIANT_PATTERN = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\.(?:thumb|card|large)\.webp$/i;
 
 class LocalMediaStorage {
     constructor({ rootDirectory, publicBaseUrl = '/api/commerce/media' }) {
@@ -16,7 +17,7 @@ class LocalMediaStorage {
     }
 
     resolveKey(storageKey) {
-        if (!STORAGE_KEY_PATTERN.test(String(storageKey || ''))) {
+        if (!STORAGE_KEY_PATTERN.test(String(storageKey || '')) && !VARIANT_PATTERN.test(String(storageKey || ''))) {
             throw new ValidationError('Clave de medio no valida');
         }
         const resolved = path.resolve(this.rootDirectory, storageKey);
@@ -24,6 +25,13 @@ class LocalMediaStorage {
             throw new ValidationError('Ruta de medio no valida');
         }
         return resolved;
+    }
+
+    variantKey(storageKey, variant) {
+        if (!STORAGE_KEY_PATTERN.test(String(storageKey || '')) || !['thumb', 'card', 'large'].includes(variant)) {
+            throw new ValidationError('Variante de medio no valida');
+        }
+        return `${storageKey.replace(/\.(?:jpg|png|webp)$/i, '')}.${variant}.webp`;
     }
 
     async save({ buffer, extension }) {
@@ -35,6 +43,12 @@ class LocalMediaStorage {
             storageKey,
             url: `${this.publicBaseUrl}/${encodeURIComponent(storageKey)}`
         };
+    }
+
+    async saveVariant(storageKey, variant, buffer) {
+        const variantKey = this.variantKey(storageKey, variant);
+        await fsPromises.writeFile(this.resolveKey(variantKey), buffer, { flag: 'w', mode: 0o640 });
+        return { storageKey: variantKey, url: `${this.publicBaseUrl}/${encodeURIComponent(variantKey)}` };
     }
 
     async remove(storageKey) {
@@ -59,4 +73,4 @@ class LocalMediaStorage {
     }
 }
 
-module.exports = { LocalMediaStorage, STORAGE_KEY_PATTERN };
+module.exports = { LocalMediaStorage, STORAGE_KEY_PATTERN, VARIANT_PATTERN };

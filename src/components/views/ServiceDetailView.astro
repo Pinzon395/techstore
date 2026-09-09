@@ -5,6 +5,7 @@ import ContactSection from '../ContactSection.astro';
 import RelatedServicesSection from '../RelatedServicesSection.astro';
 import ServiceTicketSection from '../ServiceTicketSection.astro';
 import Footer from '../Footer.astro';
+import { commercialCopy } from '../../lib/business';
 
 const { service, category, description = '', faqs: providedFaqs = [] } = Astro.props;
 
@@ -391,7 +392,7 @@ const warrantyPresets: Record<string, string[]> = {
   ],
 };
 const warranties = service.warrantyPoints || warrantyPresets[category.slug] || [
-  'Garantia por escrito sobre la intervencion realizada.',
+  commercialCopy.es.warranty,
   'Pruebas de funcionamiento antes de entregar.',
   'Diagnostico claro si la falla viene de placa, humedad o piezas externas.',
 ];
@@ -553,7 +554,7 @@ const serviceImageAlt = isPs5HdmiService
             <div class="sdv-macbook-tags" aria-label={isNetworkService ? 'Servicios frecuentes de redes' : 'Fallas frecuentes de MacBook'}>
               {isMacDiagnostic ? (
                 <>
-                  <span><i class="fa-solid fa-circle-check"></i>Gratis</span>
+                  <span><i class="fa-solid fa-circle-check"></i>Revisión</span>
                   <span><i class="fa-solid fa-power-off"></i>No prende</span>
                   <span><i class="fa-solid fa-gauge-high"></i>Lenta</span>
                   <span><i class="fa-solid fa-display"></i>Pantalla</span>
@@ -578,8 +579,8 @@ const serviceImageAlt = isPs5HdmiService
               )}
             </div>
             <div class="sdv-macbook-stats" aria-label="Resumen del servicio">
-              <span><strong>{service.fromPrice || (isMacDiagnostic ? 'Gratis' : '$650 MXN')}</strong>{isNetworkService ? 'Visita desde' : isMacDiagnostic ? 'Diagnostico inicial' : 'Diagnostico desde'}</span>
-              <span><strong>{service.eta || (isMacDiagnostic ? '24-48 h' : '24-72 h')}</strong>{isNetworkService ? 'Segun sitio' : isMacDiagnostic ? 'Revision comun' : 'Tiempo comun'}</span>
+              <span><strong>{service.fromPrice || 'Por confirmar'}</strong>{isNetworkService ? 'Visita según sitio' : 'Diagnóstico según revisión'}</span>
+              <span><strong>{service.eta || 'Por confirmar'}</strong>{isNetworkService ? 'Según sitio' : 'Después del diagnóstico'}</span>
               <span><strong>{isNetworkService ? 'Casa / negocio' : isMacDiagnostic ? 'Mac completa' : 'Air / Pro'}</strong>{isNetworkService ? 'Router, WiFi, cableado' : isMacDiagnostic ? 'Hardware, macOS y datos' : 'Intel, M1, M2, M3'}</span>
             </div>
           </>
@@ -624,7 +625,7 @@ const serviceImageAlt = isPs5HdmiService
           {(isMacPremiumView || isNetworkService) && (
             <div class="sdv-macbook-media-badge">
               <i class={`fa-solid ${isNetworkService ? 'fa-wifi' : isMacDiagnostic ? 'fa-circle-check' : 'fa-screwdriver-wrench'}`}></i>
-              {isNetworkService ? 'Medicion de cobertura' : isMacDiagnostic ? 'Diagnostico gratis' : 'Diagnostico por modulo'}
+              {isNetworkService ? 'Medición de cobertura' : isMacDiagnostic ? 'Diagnóstico por revisión' : 'Diagnóstico por módulo'}
             </div>
           )}
           {isPs5HdmiService && (
@@ -651,8 +652,8 @@ const serviceImageAlt = isPs5HdmiService
               <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
               <span>Precio desde</span>
               <div class="sdv-mini-list">
-                <p><i class="fa-solid fa-clock"></i> {service.eta || 'Tiempo segun diagnostico'}</p>
-                <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || 'Garantia por escrito'}</p>
+                <p><i class="fa-solid fa-clock"></i> {service.eta || commercialCopy.es.turnaround}</p>
+                <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || commercialCopy.es.warranty}</p>
                 <p><i class="fa-solid fa-location-dot"></i> Servicio local en Cancun</p>
               </div>
             </>

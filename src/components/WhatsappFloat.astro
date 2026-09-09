@@ -1,37 +1,23 @@
 ---
-const { message = 'Hola%2C%20ven%C3%ADa%20de%20la%20web%20y%20quiero%20informaci%C3%B3n' } = Astro.props;
+interface Props { lang?: 'es' | 'en'; message?: string }
+const { lang = 'es', message = lang === 'en' ? 'Hi%2C%20I%20need%20help%20with%20a%20device%20in%20Cancun.' : 'Hola%2C%20ven%C3%ADa%20de%20la%20web%20y%20quiero%20informaci%C3%B3n' } = Astro.props;
 const waUrl = `https://wa.me/529986690777?text=${message}`;
+const label = lang === 'en' ? 'Contact us on WhatsApp' : 'Contáctanos por WhatsApp';
 ---
 
-<a
-  href={waUrl}
-  data-smart-wa
-  class="whatsapp-float"
-  id="whatsapp-float"
-  title="Contáctanos por WhatsApp"
-  aria-label="Contáctanos por WhatsApp"
->
+<a href={waUrl} data-smart-wa class="whatsapp-float" id="whatsapp-float" title={label} aria-label={label}>
   <i class="fa-brands fa-whatsapp"></i>
 </a>
 
 <script>
   const floats = Array.from(document.querySelectorAll('.whatsapp-float'));
   const whatsappFloat = floats[floats.length - 1];
-
   floats.slice(0, -1).forEach((node) => node.remove());
   whatsappFloat?.setAttribute('id', 'whatsapp-float');
-
   whatsappFloat?.addEventListener('click', (event) => {
     event.preventDefault();
     const href = whatsappFloat.getAttribute('href');
     if (href) (window as any).smartWaRedirect(href);
   });
-
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
-      whatsappFloat?.classList.add('visible');
-    } else {
-      whatsappFloat?.classList.remove('visible');
-    }
-  });
+  window.addEventListener('scroll', () => whatsappFloat?.classList.toggle('visible', window.scrollY > 300));
 </script>

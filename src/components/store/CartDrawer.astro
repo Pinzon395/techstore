@@ -1,9 +1,12 @@
 ---
+import { getLocaleFromPath } from '../../lib/i18n';
+import { getLocalizedPath } from '../../lib/english-routes';
 interface Props {
   showLauncher?: boolean;
 }
 
 const { showLauncher = false } = Astro.props;
+const lang = getLocaleFromPath(Astro.originPathname);
 ---
 
 {showLauncher && (
@@ -32,7 +35,7 @@ const { showLauncher = false } = Astro.props;
     <div id="store-cart-drawer-items" class="store-cart-drawer-items"></div>
     <footer>
       <p><span>Subtotal estimado</span><strong id="store-cart-drawer-total">$0.00</strong></p>
-      <a class="store-action store-action-primary" href="/carrito">Revisar carrito</a>
+      <a class="store-action store-action-primary" href={getLocalizedPath('/carrito', lang)}>{lang === 'en' ? 'Review cart' : 'Revisar carrito'}</a>
       <button class="store-action store-action-secondary" type="button" data-cart-close>Continuar comprando</button>
     </footer>
   </section>

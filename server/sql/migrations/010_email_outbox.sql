@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS email_outbox (
+  id VARCHAR(64) NOT NULL PRIMARY KEY,
+  idempotency_key VARCHAR(128) UNIQUE NULL,
+  ticket_id INT UNSIGNED NULL,
+  event_type VARCHAR(64) NOT NULL,
+  recipient VARCHAR(255) NOT NULL,
+  subject VARCHAR(255) NOT NULL,
+  html LONGTEXT NULL,
+  text LONGTEXT NULL,
+  tags_json JSON NULL,
+  raw_params_json JSON NULL,
+  status ENUM('QUEUED', 'PROCESSING', 'ACCEPTED_BY_PROVIDER', 'DELIVERED', 'BOUNCED', 'FAILED') NOT NULL DEFAULT 'QUEUED',
+  provider_id VARCHAR(128) NULL,
+  attempts INT UNSIGNED NOT NULL DEFAULT 0,
+  last_attempt_at TIMESTAMP NULL,
+  last_error TEXT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_outbox_status_created (status, created_at),
+  KEY idx_outbox_ticket (ticket_id)
+) ENGINE=InnoDB;

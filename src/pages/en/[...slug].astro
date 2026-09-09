@@ -1,0 +1,21 @@
+---
+import EnglishOwnerPage from '../../components/EnglishOwnerPage.astro';
+import { ENGLISH_OWNER_ROUTES, getEnglishOwner } from '../../lib/english-routes';
+
+export function getStaticPaths() {
+  const existingPages = new Set([
+    'computer-repair', 'laptop-repair', 'phone-repair', 'liquid-damage',
+    'iphone-battery-replacement', '404', 'store', 'cart', 'checkout',
+    'tickets', 'account', 'login'
+  ]);
+  return ENGLISH_OWNER_ROUTES
+    .map((route) => ({ route, slug: route.en.replace(/^\/en\/?/, '') }))
+    .filter(({ slug }) => slug && !existingPages.has(slug))
+    .map(({ route, slug }) => ({ params: { slug }, props: { route } }));
+}
+
+const route = Astro.props.route ?? getEnglishOwner(`/en/${Astro.params.slug ?? ''}`);
+if (!route) return Astro.redirect('/en');
+---
+
+<EnglishOwnerPage route={route} />

@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const sharp = require('sharp');
 const {
     ValidationError,
     NotFoundError,
@@ -25,6 +26,18 @@ const {
 
 function transactionActor(actor) {
     return { ...actor, transactionId: crypto.randomUUID() };
+}
+
+async function createMediaVariants(storage, storageKey, buffer) {
+    const source = sharp(buffer, { failOn: 'none' }).rotate();
+    await Promise.all([
+        ['thumb', 320, 72],
+        ['card', 640, 82],
+        ['large', 1440, 84]
+    ].map(async ([name, width, quality]) => {
+        const output = await source.clone().resize({ width, withoutEnlargement: true }).webp({ quality }).toBuffer();
+        await storage.saveVariant(storageKey, name, output);
+    }));
 }
 
 function assertPriceRelationship(item) {
@@ -581,6 +594,12 @@ class CatalogService {
         const isPrimary = booleanValue(primary, { field: 'is_primary', fallback: false });
 
         const stored = await this.storage.save({ buffer, extension: inspected.extension });
+        try {
+            await createMediaVariants(this.storage, stored.storageKey, buffer);
+        } catch (error) {
+            await this.storage.remove(stored.storageKey).catch(() => {});
+            throw error;
+        }
         const txActor = transactionActor(actor);
         let mediaId;
         try {

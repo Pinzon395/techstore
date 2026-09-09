@@ -35,14 +35,19 @@
  *    - /servicios/laptop/upgrade, /servicios/laptop/cambio-bateria
  *    Cambios aquí afectan TODAS esas páginas simultaneamente.
  */
-import { SERVICE_CATEGORIES } from '../data/services';
+import { SERVICE_CATEGORIES, type ServiceItem } from '../data/services';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { getLocaleFromPath } from '../lib/i18n';
 
 interface Props {
   lang?: 'es' | 'en';
 }
-const { lang = 'es' } = Astro.props;
+const { lang = getLocaleFromPath(Astro.originPathname) } = Astro.props;
 const home = lang === 'en' ? '/en' : '/';
 const isEnglishNavigation = () => lang === 'en';
+// El catálogo completo de enlaces vive en las páginas hub y servicios relacionados.
+// El navbar conserva la jerarquía de categorías sin enviar todos los servicios al DOM inicial.
+const NAV_SERVICE_CATEGORIES = SERVICE_CATEGORIES.map((category) => ({ ...category, services: [] as ServiceItem[] }));
 
 const t = lang === 'en' ? {
   home: 'Home',
@@ -79,7 +84,7 @@ const t = lang === 'en' ? {
   <div class="nav-container">
 
     <!-- Logo -->
-    <a href={home} class="logo" aria-label={lang === 'en' ? 'Pixon PC home' : 'Pixon PC → Inicio'}>
+    <a href="/" class="logo" aria-label={lang === 'en' ? 'Pixon PC — Spanish home' : 'Pixon PC → Inicio'}>
       <img src="/assets/logos/Logo.svg?v=3" alt="Pixon PC Logo" style="height:42px;" id="navbar-logo" class="brand-logo">
     </a>
 
@@ -101,16 +106,17 @@ const t = lang === 'en' ? {
 
       <li role="none"><a href={home} class="nav-links" role="menuitem">{t.home}</a></li>
 
+
       {isEnglishNavigation() ? (
         <>
-          <li role="none"><a href="/en#repair-services" class="nav-links" role="menuitem">Repair services</a></li>
-          <li role="none"><a href="/en#english-support" class="nav-links" role="menuitem">English support</a></li>
-          <li role="none"><a href="/en#hotel-coordination" class="nav-links" role="menuitem">Hotels &amp; business</a></li>
+          <li role="none"><a href="/en/services" class="nav-links" role="menuitem">Services</a></li>
+          <li role="none"><a href="/en/business-it-support" class="nav-links" role="menuitem">Business IT</a></li>
+          <li role="none"><a href="/en/contact" class="nav-links" role="menuitem">Contact</a></li>
           <li role="none"><a href="https://wa.me/529986690777?text=Hi%20Pixon%20PC.%20I%20need%20help%20with%20a%20device%20while%20I%20am%20in%20Cancun.%0A%0ADevice%3A%0AModel%3A%0AProblem%3A%0AHotel%20%2F%20area%3A%0AHow%20urgent%20is%20it%3F%3A%0A I%20prefer%20written%20communication%20in%20English." class="nav-links" role="menuitem" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
         </>
       ) : (
         <>
-      <li role="none"><a href={lang === 'en' ? '/en' : '/tienda'} class="nav-links" role="menuitem">{t.store}</a></li>
+      <li role="none"><a href="/tienda" class="nav-links" role="menuitem">{t.store}</a></li>
 
       <!-- - SERVICIOS - Cascade Dropdown -->
       <li class="has-dropdown has-cascade" role="none" id="dd-servicios">
@@ -141,7 +147,7 @@ const t = lang === 'en' ? {
         -->
         <!-- Nivel 1: Categóras -->
         <ul class="v3-cascade-l1" role="menu" aria-label="Categorías de servicio" id="dd-servicios-menu">
-          {SERVICE_CATEGORIES.map((cat) => (
+          {NAV_SERVICE_CATEGORIES.map((cat) => (
             <li class="cascade-item" role="none" data-cat={cat.id} id={`dd-cat-${cat.id}`}>
               <a
                 href={`/servicios/${cat.slug}`}
@@ -251,24 +257,24 @@ const t = lang === 'en' ? {
            La clase .has-cascade activa el comportamiento de cascade dropdown en el JS.
       -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href={lang === 'en' ? '/en' : '/paquetes'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href="/paquetes" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.packages} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/paquetes?section=paquetes'} class="cascade-cat-link" role="menuitem">
+            <a href="/paquetes?section=paquetes" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{lang === 'en' ? 'Maintenance' : 'Mantenimiento'}</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/optimizacion?section=paquetes-optimizacion'} class="cascade-cat-link" role="menuitem">
+            <a href="/optimizacion?section=paquetes-optimizacion" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{lang === 'en' ? 'Optimization' : 'Optimización'}</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/paquetes'} class="cascade-cat-link" role="menuitem">
+            <a href="/paquetes" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{lang === 'en' ? 'All packages' : 'Todos los Paquetes'}</span>
               <i class="fa-solid fa-arrow-right cascade-arrow" aria-hidden="true"></i>
@@ -283,30 +289,30 @@ const t = lang === 'en' ? {
            Si agregas/quitas subitems, verifica que las páginas de destino existan.
       -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href={lang === 'en' ? '/en' : '/preguntas-frecuentes'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href="/preguntas-frecuentes" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.info} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/preguntas-frecuentes'} class="cascade-cat-link" role="menuitem">
+            <a href="/preguntas-frecuentes" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{t.faq}</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/comentarios'} class="cascade-cat-link" role="menuitem">
+            <a href="/comentarios" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{t.reviews}</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/catalogo'} class="cascade-cat-link" role="menuitem">
+            <a href="/catalogo" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-video" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{t.catalog}</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/blogs'} class="cascade-cat-link" role="menuitem" aria-haspopup="true" aria-expanded="false">
+            <a href="/blogs" class="cascade-cat-link" role="menuitem" aria-haspopup="true" aria-expanded="false">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-newspaper" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{t.blogs}</span>
               <i class="fa-solid fa-chevron-right cascade-arrow" aria-hidden="true"></i>
@@ -317,43 +323,43 @@ const t = lang === 'en' ? {
                 <span>{t.blogs}</span>
               </li>
               <li class="v3-sub-item" role="none">
-                <a href={lang === 'en' ? '/en' : '/blogs/mantenimiento-preventivo-equipos-cancun'} class="v3-sub-link" role="menuitem">
+                <a href="/blogs/mantenimiento-preventivo-equipos-cancun" class="v3-sub-link" role="menuitem">
                   <i class="fa-solid fa-screwdriver-wrench v3-sub-arrow" aria-hidden="true"></i>
                   <span>{lang === 'en' ? 'Preventive maintenance in Cancún' : 'Mantenimiento preventivo en Cancún'}</span>
                 </a>
               </li>
               <li class="v3-sub-item" role="none">
-                <a href={lang === 'en' ? '/en' : '/blogs/desarrollo-software-paginas-web-cancun'} class="v3-sub-link" role="menuitem">
+                <a href="/blogs/desarrollo-software-paginas-web-cancun" class="v3-sub-link" role="menuitem">
                   <i class="fa-solid fa-code v3-sub-arrow" aria-hidden="true"></i>
                   <span>{lang === 'en' ? 'Software & Web Development' : 'Desarrollo web y software'}</span>
                 </a>
               </li>
               <li class="v3-sub-item" role="none">
-                <a href={lang === 'en' ? '/en' : '/blogs/humedad-salitre-calor-cancun'} class="v3-sub-link" role="menuitem">
+                <a href="/blogs/humedad-salitre-calor-cancun" class="v3-sub-link" role="menuitem">
                   <i class="fa-solid fa-cloud-sun-rain v3-sub-arrow" aria-hidden="true"></i>
                   <span>{lang === 'en' ? 'Humidity and salt air in Cancun' : 'Humedad, salitre y calor'}</span>
                 </a>
               </li>
               <li class="v3-sub-item" role="none">
-                <a href={lang === 'en' ? '/en' : '/blogs/pasta-termica-vs-metal-liquido'} class="v3-sub-link" role="menuitem">
+                <a href="/blogs/pasta-termica-vs-metal-liquido" class="v3-sub-link" role="menuitem">
                   <i class="fa-solid fa-temperature-half v3-sub-arrow" aria-hidden="true"></i>
                   <span>{lang === 'en' ? 'Thermal paste vs liquid metal' : 'Pasta térmica vs metal líquido'}</span>
                 </a>
               </li>
               <li class="v3-sub-item" role="none">
-                <a href={lang === 'en' ? '/en' : '/blogs/aplicacion-metal-liquido-cancun'} class="v3-sub-link" role="menuitem">
+                <a href="/blogs/aplicacion-metal-liquido-cancun" class="v3-sub-link" role="menuitem">
                   <i class="fa-solid fa-fire-flame-curved v3-sub-arrow" aria-hidden="true"></i>
                   <span>{lang === 'en' ? 'Liquid metal service' : 'Aplicación de metal líquido'}</span>
                 </a>
               </li>
               <li class="v3-sub-item" role="none">
-                <a href={lang === 'en' ? '/en' : '/blogs/reparacion-bisagras-carcasas-laptop-cancun'} class="v3-sub-link" role="menuitem">
+                <a href="/blogs/reparacion-bisagras-carcasas-laptop-cancun" class="v3-sub-link" role="menuitem">
                   <i class="fa-solid fa-wrench v3-sub-arrow" aria-hidden="true"></i>
                   <span>{lang === 'en' ? 'Laptop hinge repair' : 'Bisagras y carcasas'}</span>
                 </a>
               </li>
               <li class="v3-l2-footer" role="none">
-                <a href={lang === 'en' ? '/en' : '/blogs'} class="v3-all-link" role="menuitem">
+                <a href="/blogs" class="v3-all-link" role="menuitem">
                   {lang === 'en' ? 'View all blogs' : 'Ver todos los blogs'}
                   <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                 </a>
@@ -361,7 +367,7 @@ const t = lang === 'en' ? {
             </ul>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/garantia'} class="cascade-cat-link" role="menuitem">
+            <a href="/garantia" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{t.warranty}</span>
             </a>
@@ -375,12 +381,12 @@ const t = lang === 'en' ? {
            El número de WhatsApp es 529986690777.
       -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href={lang === 'en' ? '/en' : '/contacto'} class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href="/contacto" class="nav-links nav-dd-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
           {t.contact} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu">
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/contacto'} class="cascade-cat-link" role="menuitem">
+            <a href="/contacto" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">{lang === 'en' ? 'Send a message' : 'Enviar mensaje'}</span>
             </a>
@@ -400,36 +406,36 @@ const t = lang === 'en' ? {
            sin probar que el CSS no colisione con el resto del menú.
       -->
       <li class="has-dropdown has-cascade" role="none">
-        <a href={lang === 'en' ? '/en' : '/empresas'} class="nav-links nav-dd-trigger b2b-btn-premium" role="menuitem" aria-haspopup="true" aria-expanded="false">
+        <a href="/empresas" class="nav-links nav-dd-trigger b2b-btn-premium" role="menuitem" aria-haspopup="true" aria-expanded="false">
           <i class="fa-solid fa-building-shield" aria-hidden="true"></i> {t.b2b} <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
         </a>
         <ul class="v3-cascade-l1" role="menu" aria-label="Servicios B2B">
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/empresas'} class="cascade-cat-link" role="menuitem">
+            <a href="/empresas" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-building-shield" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">Soporte TI empresarial</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/servicios/b2b/soporte-oficinas'} class="cascade-cat-link" role="menuitem">
+            <a href="/servicios/b2b/soporte-oficinas" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-building" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">Soporte TI para oficinas</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/servicios/mantenimiento-preventivo-pc-empresas'} class="cascade-cat-link" role="menuitem">
+            <a href="/servicios/mantenimiento-preventivo-pc-empresas" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">Mantenimiento preventivo</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/servicios/b2b/wifi-empresarial'} class="cascade-cat-link" role="menuitem">
+            <a href="/servicios/b2b/wifi-empresarial" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-wifi" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">WiFi empresarial</span>
             </a>
           </li>
           <li class="cascade-item" role="none">
-            <a href={lang === 'en' ? '/en' : '/servicios/b2b/polizas-mantenimiento'} class="cascade-cat-link" role="menuitem">
+            <a href="/servicios/b2b/polizas-mantenimiento" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-file-contract" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">Pólizas de mantenimiento TI</span>
             </a>
@@ -440,6 +446,7 @@ const t = lang === 'en' ? {
         </>
       )}
 
+      <li role="none" class="language-mobile"><LanguageSwitcher expanded /></li>
       <!-- Auth (mobile) -->
       <li class="nav-auth-mobile-li" id="nav-auth-mobile-li" role="none">
         <div id="nav-auth-area-mobile"></div>
@@ -448,6 +455,7 @@ const t = lang === 'en' ? {
 
     <!-- Actions (desktop) -->
     <div class="nav-actions">
+      <LanguageSwitcher />
       <a
         href="https://pixon.com.mx/admin"
         class="nav-admin-gear"
@@ -465,6 +473,30 @@ const t = lang === 'en' ? {
 </nav>
 
 <style is:global>
+.navbar-v3 .language-mobile { display: none; }
+.navbar-v3 .nav-actions { gap: 10px; }
+@media (max-width: 1100px) {
+  .navbar-v3 .language-mobile { display: block; }
+  .navbar-v3 .nav-actions { display: none; }
+  .navbar-v3 .menu-toggle { display: block; }
+  .navbar-v3 .nav-auth-mobile-li { display: block; }
+  .navbar-v3 .nav-menu {
+    position: fixed; left: -100%; top: 100%; width: 100%;
+    flex-direction: column; background: #fff; text-align: center;
+    padding: 20px 0; gap: 20px; box-shadow: 0 10px 20px rgba(0,0,0,.1);
+    transition: left .3s;
+    visibility: hidden;
+  }
+  .navbar-v3 .nav-menu.active { left: 0; visibility: visible; }
+  .navbar-v3 .nav-menu > li { width: 100%; text-align: center; }
+  .navbar-v3 .nav-links {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 12px 20px; font-size: 1.05rem;
+  }
+  .navbar-v3 .menu-toggle.active .bar:nth-child(2) { opacity: 0; }
+  .navbar-v3 .menu-toggle.active .bar:first-child { transform: translateY(8px) rotate(45deg); }
+  .navbar-v3 .menu-toggle.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+}
 /* ---------------------------------"
    Navbar 3.0  → PREMIUM CASCADE  → Desktop & Mobile
    Scope: .navbar-v3  → no afecta otros componentes
@@ -502,7 +534,7 @@ const t = lang === 'en' ? {
 /* ---------------
    DESKTOP CASCADE (0 751px)
 --------------- */
-@media (min-width: 751px) {
+@media (min-width: 1101px) {
 
   /*  -> -> Nivel 1: el dropdown de categorías */
   .navbar-v3 .has-cascade { position: relative; }
@@ -842,7 +874,7 @@ const t = lang === 'en' ? {
 /* ---------------
    MOBILE (0 750px)   → Acordeón
 --------------- */
-@media (max-width: 750px) {
+@media (max-width: 1100px) {
 
   .navbar-v3 .nav-menu {
     box-sizing: border-box;

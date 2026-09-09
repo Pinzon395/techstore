@@ -817,7 +817,7 @@ export const consolaCategory: ServiceCategory = {
       {
         slug: 'diagnostico',
         label: 'Diagnóstico',
-        seoKeyword: 'Diagnóstico gratis de consolas en Cancún',
+        seoKeyword: 'Diagnóstico técnico de consolas en Cancún',
         hook: 'Tu PS5/Xbox/Switch tiene un problema y no entiendes qué es. Diagnóstico técnico real con reporte por escrito. GRATIS si reparas con nosotros.',
         intro: 'Revisión completa para identificar el problema sin costo. Te decimos exactamente qué tiene tu consola.',
         bullets: ['Test de encendido, video, audio, conectividad', 'Revisión térmica', 'Reporte por escrito con fotos', 'GRATIS si autorizas reparación', 'Sin compromiso'],

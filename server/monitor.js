@@ -19,6 +19,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { exec, spawn } = require('child_process');
+const { backupDir } = require('./config/persistent-paths');
 
 // Configuración
 const CONFIG = {
@@ -38,8 +39,8 @@ const CONFIG = {
     timeoutMs: 10000,
 
     // Rutas de backup
-    backupPath: path.join(__dirname, '../backups'),
-    dbBackupPath: path.join(__dirname, '../backups/db'),
+    backupPath: backupDir,
+    dbBackupPath: path.join(backupDir, 'legacy-monitor'),
 
     // Webhook de alertas (configurar en .env)
     whatsappWebhook: process.env.WHATSAPP_WEBHOOK || '',

@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import Navbar from './Navbar.astro';
+import Footer from './Footer.astro';
+import Breadcrumb from './Breadcrumb.astro';
+import type { EnglishRoute } from '../lib/english-routes';
+import { buildBreadcrumbSchema } from '../lib/schema';
+
+interface Props { route: EnglishRoute }
+const { route } = Astro.props;
+const canonical = `https://pixon.com.mx${route.en}`;
+const whatsappUrl = 'https://wa.me/529986690777?text=Hi%20Pixon%20PC.%20I%20need%20help%20in%20Cancun.%0A%0ADevice%3A%0AModel%3A%0AProblem%3A%0AArea%20or%20hotel%3A';
+
+const details: Record<EnglishRoute['category'], { title: string; copy: string; points: string[] }> = {
+  computer: { title: 'A clear repair route starts with the symptom', copy: 'Share the device type, exact model and what changed. We use that information to determine the appropriate diagnostic path before any repair is approved.', points: ['No power, slow performance or Windows problems', 'Storage, memory, cooling and hardware compatibility', 'Clear written scope before repair work begins'] },
+  laptop: { title: 'Laptop issues need model-specific assessment', copy: 'Screen, battery, charging, keyboard, liquid and overheating symptoms can have different causes. The model and the device condition guide the next step.', points: ['Screen, keyboard, battery and charging checks', 'Cooling, storage, Windows and data-risk assessment', 'Written English support by WhatsApp'] },
+  phone: { title: 'Phone repair starts with the exact model', copy: 'Screen, battery, charging and liquid problems need a model-specific assessment. Do not charge a phone after liquid exposure.', points: ['Screen, battery and charging-port symptoms', 'Liquid exposure and device-condition assessment', 'Compatibility confirmed before a part is ordered'] },
+  graphics: { title: 'GPU faults can involve more than the graphics card', copy: 'A black screen, artifacts or crashes may involve the GPU, power supply, drivers, cooling, PCIe connection, cable or monitor. Diagnosis separates those possibilities.', points: ['NVIDIA and AMD graphics-card assessment', 'Black screen, artifacts, crash and temperature symptoms', 'Power, cooling and display-path checks'] },
+  mac: { title: 'MacBook service is confirmed by model and symptom', copy: 'Power, display, battery, charging, liquid and macOS issues are reviewed based on the MacBook model and current condition.', points: ['Power, display, battery and charging symptoms', 'Liquid exposure and data-risk assessment', 'macOS and hardware diagnostic routes'] },
+  console: { title: 'Console repair follows the confirmed fault', copy: 'Power, HDMI, heat, storage and controller symptoms are assessed before a repair route is quoted. Required parts and timing depend on the diagnosis.', points: ['PS5, Xbox, Nintendo Switch and controllers', 'HDMI, power, cooling and storage symptoms', 'PS5 service without unsupported price claims'] },
+  printer: { title: 'Printer errors are not always an ink or toner issue', copy: 'Print quality, paper feed, connectivity, drivers, sensors and consumables are reviewed to identify the actual cause.', points: ['HP, Epson, Canon and Brother assessments', 'Paper feed, print quality, WiFi and driver issues', 'Home, office and business printer requests'] },
+  data: { title: 'Avoid actions that can increase data risk', copy: 'If a drive clicks, disconnects, overheats or Windows will not start, avoid repeated restart attempts. The storage condition determines the appropriate recovery route.', points: ['SSD, HDD, NVMe and laptop storage assessment', 'Priority files and risk explained before work', 'No recovery outcome is guaranteed'] },
+  builds: { title: 'A custom PC should match the actual workload', copy: 'Gaming, editing, programming, office and workstation systems have different requirements. Component compatibility is planned around the intended use.', points: ['Gaming, editing, programming and office builds', 'Compatible component planning', 'MXN quote based on the selected configuration'] },
+  business: { title: 'Business requests need operational context', copy: 'Tell us the location, number of devices, network symptoms and effect on day-to-day operations. This makes the technical next step more useful.', points: ['Office, hotel and small-business technical requests', 'Device maintenance, networks and printer support', 'Scope and availability confirmed by appointment'] },
+  wifi: { title: 'Business WiFi requires an on-site network picture', copy: 'Coverage, interference, access points, switches, cabling, IP configuration and network printers can all affect performance.', points: ['Access points, switches, cabling and WiFi assessment', 'Network printers, IP and DNS troubleshooting', 'No unsupported coverage or speed guarantees'] },
+  contact: { title: 'Send the essentials for a faster first response', copy: 'Include the device type, exact model, symptom, when it began and your Cancun area. A photo or short video can help when it shows the issue.', points: ['WhatsApp written English support', 'Appointment-based service coordination', 'MXN quotes confirmed after assessment'] },
+  services: { title: 'Choose a repair area', copy: 'Use the service links below to start with the device or business need closest to your case.', points: ['Personal devices and custom PCs', 'Consoles, printers and data recovery', 'Business IT and network diagnostics'] },
+};
+
+const detail = details[route.category];
+const related = [
+  ['/en/computer-repair', 'Computer Repair'], ['/en/laptop-repair', 'Laptop Repair'], ['/en/phone-repair', 'Phone Repair'],
+  ['/en/graphics-card-repair', 'Graphics Card Repair'], ['/en/macbook-repair', 'MacBook Repair'], ['/en/game-console-repair', 'Game Console Repair'],
+  ['/en/printer-repair', 'Printer Repair'], ['/en/data-recovery', 'Data Recovery'], ['/en/custom-pc-builds', 'Custom PC Builds'],
+  ['/en/business-it-support', 'Business IT Support'], ['/en/business-wifi', 'Business WiFi'], ['/en/contact', 'Contact Pixon PC'],
+].filter(([href]) => href !== route.en);
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'Service', '@id': `${canonical}#service`, name: route.h1, description: route.description, url: canonical, provider: { '@id': 'https://pixon.com.mx/#business' }, areaServed: { '@type': 'City', name: 'Cancun' }, availableLanguage: 'en' },
+  buildBreadcrumbSchema([{ name: 'Home', url: '/en' }, { name: route.h1, url: canonical }]),
+].filter(Boolean) as object[];
+---
+
+<Base title={route.title} description={route.description} canonical={canonical} lang="en" schema={schema} bodyClass="english-owner-page">
+  <Navbar lang="en" />
+  <Breadcrumb items={[{ label: 'Home', href: '/en' }, { label: route.h1 }]} />
+  <main>
+    <header class="owner-hero">
+      <div class="owner-shell">
+        <p>{route.eyebrow}</p>
+        <h1>{route.h1}</h1>
+        <div class="owner-hero__grid"><span>{route.summary}</span><a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a></div>
+        <small>Service by appointment · scope and availability confirmed per case</small>
+      </div>
+    </header>
+    <section class="owner-section"><div class="owner-shell owner-grid"><div><p class="owner-kicker">Before service is arranged</p><h2>{detail.title}</h2><p>{detail.copy}</p></div><ul>{detail.points.map((point) => <li>{point}</li>)}</ul></div></section>
+    <section class="owner-section owner-section--soft"><div class="owner-shell"><p class="owner-kicker">Related English services</p><h2>Find the right repair area</h2><div class="owner-links">{related.map(([href, label]) => <a href={href}>{label}<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>)}</div></div></section>
+    <section class="owner-final"><div class="owner-shell"><h2>Need help in Cancun?</h2><p>Send the device, model, symptom and area. Pixon PC will explain the available next step in written English.</p><a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Get a quote on WhatsApp</a></div></section>
+  </main>
+  <Footer lang="en" />
+</Base>
+
+<style>
+  .english-owner-page { color: #071F3A; background: #fff; }
+  .owner-shell { width: min(100% - 32px, 1120px); margin-inline: auto; }
+  .owner-hero { padding: clamp(44px, 8vw, 84px) 0; background: linear-gradient(135deg, #071F3A, #0b426a); color: #fff; }
+  .owner-hero p, .owner-kicker { margin: 0 0 10px; color: #93dbe8; font-size: .78rem; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+  .owner-hero h1 { max-width: 820px; margin: 0; font: 800 clamp(2.1rem, 5vw, 4rem)/1.05 'Kanit', sans-serif; color: #fff; }
+  .owner-hero__grid { display: grid; gap: 20px; max-width: 900px; margin-top: 18px; font-size: 1.06rem; line-height: 1.65; }
+  .owner-hero a, .owner-final a { display: inline-flex; align-items: center; justify-content: center; width: fit-content; min-height: 48px; padding: 12px 18px; border-radius: 12px; background: #168b50; color: #fff; font-weight: 850; text-decoration: none; }
+  .owner-hero small { display: block; margin-top: 16px; color: #d5eff5; }
+  .owner-section { padding: clamp(52px, 8vw, 86px) 0; }
+  .owner-section--soft { background: #eef8fb; }
+  .owner-grid { display: grid; gap: 28px; }
+  .owner-section h2, .owner-final h2 { margin: 0 0 14px; font: 800 clamp(1.75rem, 3.5vw, 2.7rem)/1.14 'Kanit', sans-serif; color: #071F3A; }
+  .owner-section p { margin: 0; line-height: 1.7; }
+  .owner-grid ul { display: grid; gap: 10px; margin: 0; padding: 22px; list-style: none; border: 1px solid #b8dce7; border-radius: 16px; background: #fff; }
+  .owner-grid li { padding-left: 20px; position: relative; line-height: 1.55; }
+  .owner-grid li::before { content: '•'; position: absolute; left: 2px; color: #0b7491; font-weight: 900; }
+  .owner-links { display: grid; gap: 10px; margin-top: 22px; }
+  .owner-links a { display: flex; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid #b8dce7; border-radius: 12px; color: #071F3A; background: #fff; font-weight: 800; text-decoration: none; }
+  .owner-final { padding: clamp(54px, 8vw, 88px) 0; background: #071F3A; color: #fff; text-align: center; }
+  .owner-final h2, .owner-final p { color: #fff; }
+  .owner-final p { max-width: 650px; margin: 0 auto 22px; line-height: 1.65; }
+  .owner-final a { margin: auto; }
+  .owner-hero a:focus-visible, .owner-links a:focus-visible, .owner-final a:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
+  @media (min-width: 760px) { .owner-hero__grid { grid-template-columns: 1fr auto; align-items: center; } .owner-grid { grid-template-columns: 1.1fr .9fr; align-items: center; } .owner-links { grid-template-columns: repeat(2, 1fr); } }
+</style>

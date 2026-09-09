@@ -5,10 +5,18 @@ import signature from 'cookie-signature';
 
 const baseUrl = process.env.COMMERCE_E2E_BASE_URL || 'http://127.0.0.1:3017';
 const origin = new URL(baseUrl).origin;
+const databaseName = process.env.PIXON_TEST_DB || process.env.DB_NAME || '';
+
+if (process.env.NODE_ENV !== 'test'
+  || process.env.PIXON_E2E_ALLOW !== '1'
+  || !/(^|[_-])test(?:[_-]|$)/i.test(databaseName)) {
+  throw new Error('Commerce E2E aborted: requires NODE_ENV=test, PIXON_E2E_ALLOW=1, and PIXON_TEST_DB/DB_NAME containing "test".');
+}
+
 const connection = await mysql.createConnection({
   host: process.env.DB_HOST || '127.0.0.1', port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER || 'pixon_app', password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'pixon_db', dateStrings: true,
+  database: databaseName, dateStrings: true,
 });
 const created = { itemIds: [], promotionIds: [], orderIds: [] };
 let sessionId = null;

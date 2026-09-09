@@ -20,6 +20,7 @@ const DOMPurify = require('isomorphic-dompurify');
 const { EventEmitter } = require('events');
 const crypto = require('crypto');
 const { createPoolFromEnv } = require('./db/connection');
+const { cancunToday } = require('./modules/dashboard/period');
 
 const dbEmitter = new EventEmitter();
 
@@ -330,6 +331,15 @@ async function trackPageView({ path, title, referrer, user_agent, ip, session_id
     );
 }
 
+async function trackConversionEvent({ event_name, path, locale, referrer, utm_source, utm_medium, utm_campaign, session_id, user_id }) {
+    await pool.execute(
+        `INSERT INTO conversion_events
+          (event_name, path, locale, referrer, utm_source, utm_medium, utm_campaign, session_id, user_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [event_name, path, locale, referrer || null, utm_source || null, utm_medium || null, utm_campaign || null, session_id || null, user_id || null]
+    );
+}
+
 async function getPageViewsDaily(days = 30) {
     const [rows] = await pool.execute(
         `SELECT DATE(created_at) AS date,
@@ -510,7 +520,9 @@ function mapRepairWithDerived(repair) {
 
 async function getAllRepairsAdmin() {
     const [rows] = await pool.execute(`
-        SELECT r.*, u.name as user_name, u.email as user_email
+        SELECT r.*, u.name as user_name, u.email as user_email,
+               (SELECT ra.technician_id FROM repair_assignments ra WHERE ra.repair_id = r.id AND ra.released_at IS NULL ORDER BY ra.assigned_at DESC LIMIT 1) AS technician_id,
+               (SELECT t.name FROM repair_assignments ra JOIN technicians t ON t.id = ra.technician_id WHERE ra.repair_id = r.id AND ra.released_at IS NULL ORDER BY ra.assigned_at DESC LIMIT 1) AS technician_name
         FROM repairs r
         LEFT JOIN users u ON u.id = r.user_id
         WHERE r.deleted_at IS NULL
@@ -521,7 +533,9 @@ async function getAllRepairsAdmin() {
 
 async function getRepairAdminById(id) {
     const [rows] = await pool.execute(`
-        SELECT r.*, u.name as user_name, u.email as user_email
+        SELECT r.*, u.name as user_name, u.email as user_email,
+               (SELECT ra.technician_id FROM repair_assignments ra WHERE ra.repair_id = r.id AND ra.released_at IS NULL ORDER BY ra.assigned_at DESC LIMIT 1) AS technician_id,
+               (SELECT t.name FROM repair_assignments ra JOIN technicians t ON t.id = ra.technician_id WHERE ra.repair_id = r.id AND ra.released_at IS NULL ORDER BY ra.assigned_at DESC LIMIT 1) AS technician_name
         FROM repairs r
         LEFT JOIN users u ON u.id = r.user_id
         WHERE r.id = ? AND r.deleted_at IS NULL
@@ -773,6 +787,60 @@ async function insertRepairAdmin(data) {
     }
 }
 
+async function getActiveTechnicians() {
+    const [rows] = await pool.execute(
+        'SELECT id, name, specialty FROM technicians WHERE is_active = 1 ORDER BY name ASC'
+    );
+    return rows;
+}
+
+async function assignRepairTechnician(repairId, technicianId, context = {}) {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        const [[repair]] = await connection.execute('SELECT id FROM repairs WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [repairId]);
+        if (!repair) return null;
+        const [[technician]] = technicianId
+            ? await connection.execute('SELECT id, name FROM technicians WHERE id = ? AND is_active = 1 LIMIT 1', [technicianId])
+            : [[null]];
+        if (technicianId && !technician) throw repairUpdateError('El responsable seleccionado no está disponible.');
+
+        const [[current]] = await connection.execute(
+            `SELECT technician_id FROM repair_assignments
+             WHERE repair_id = ? AND released_at IS NULL ORDER BY assigned_at DESC LIMIT 1`,
+            [repairId]
+        );
+        if (current) await connection.execute(
+            'UPDATE repair_assignments SET released_at = NOW() WHERE repair_id = ? AND released_at IS NULL',
+            [repairId]
+        );
+        if (technician) await connection.execute(
+            'INSERT INTO repair_assignments (repair_id, technician_id) VALUES (?, ?)',
+            [repairId, technician.id]
+        );
+        await connection.execute(
+            `INSERT INTO admin_logs (user_id,action,entity,entity_id,diff,ip,user_agent)
+             VALUES (?,?,?,?,?,?,?)`,
+            [
+                context.changed_by || null,
+                'asignacion_responsable',
+                'repair',
+                String(repairId),
+                JSON.stringify({ technician: { before: current?.technician_id || null, after: technician?.name || null } }),
+                context.audit_context?.ip ? String(context.audit_context.ip).slice(0, 45) : null,
+                context.audit_context?.user_agent ? String(context.audit_context.user_agent).slice(0, 255) : null
+            ]
+        );
+        await connection.commit();
+        return getRepairAdminById(repairId);
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
 async function getTicketHistory(id) {
     const [[repair]] = await pool.execute(
         `SELECT id,ticket_code,created_at FROM repairs WHERE id = ? LIMIT 1`,
@@ -934,7 +1002,7 @@ async function getAppointmentAvailability(date, type) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
         return { available: false, message: 'Selecciona un día disponible.', slots: [] };
     }
-    const today = new Date().toISOString().slice(0, 10);
+    const today = cancunToday();
     if (date < today) return { available: false, message: 'No se permiten fechas pasadas.', slots: [] };
 
     const weekday = new Date(`${date}T12:00:00`).getDay();
@@ -955,24 +1023,74 @@ async function getAppointmentAvailability(date, type) {
     }
     if (!start || !end || slotMinutes <= 0) return { available: false, message: 'Este día no tiene horario configurado.', slots: [] };
 
-    const [occupiedRows] = await pool.execute(
-        `SELECT appointment_time FROM repairs
-         WHERE appointment_date = ? AND appointment_time IS NOT NULL
-           AND deleted_at IS NULL
-           AND COALESCE(appointment_status, 'pendiente_confirmacion') NOT IN ('cancelada')`,
+    const capacity = Number(exception?.capacity_override || setting?.capacity || 3);
+
+    const [aptRows] = await pool.execute(
+        `SELECT start_at, duration_minutes, capacity_units FROM appointments
+         WHERE DATE(start_at) = ?
+           AND status IN ('TEMPORARY_HOLD', 'PENDING_PAYMENT', 'CONFIRMED', 'CHECKED_IN', 'DEVICE_RECEIVED', 'IN_PROGRESS', 'CUSTOMER_ARRIVED')
+           AND (reservation_expires_at IS NULL OR reservation_expires_at > NOW())`,
         [date]
     );
-    const occupied = new Set(occupiedRows.map(row => String(row.appointment_time).slice(0, 5)));
+
+    const [blockRows] = await pool.execute(
+        `SELECT start_time, end_time, is_all_day FROM appointment_blocks WHERE date = ?`,
+        [date]
+    );
+
+    const hasAllDayBlock = blockRows.some(b => Boolean(b.is_all_day));
+    if (hasAllDayBlock) return { available: false, message: 'Este día está bloqueado por el taller.', slots: [], detailedSlots: [] };
+
     const slots = [];
+    const detailedSlots = [];
+
     for (let mins = timeToMinutes(start); mins + slotMinutes <= timeToMinutes(end); mins += slotMinutes) {
         const slot = minutesToTime(mins);
-        if (!occupied.has(slot)) slots.push(slot);
+        const slotEndMins = mins + slotMinutes;
+
+        // Check blocks
+        const isBlocked = blockRows.some(b => {
+            const bStart = timeToMinutes(b.start_time);
+            const bEnd = timeToMinutes(b.end_time);
+            return Math.max(mins, bStart) < Math.min(slotEndMins, bEnd);
+        });
+
+        if (isBlocked) continue;
+
+        // Calculate capacity used
+        let used = 0;
+        for (const apt of aptRows) {
+            const aptStart = String(apt.start_at).slice(11, 16);
+            const aStartMins = timeToMinutes(aptStart);
+            const aEndMins = aStartMins + Number(apt.duration_minutes || 30);
+            if (Math.max(mins, aStartMins) < Math.min(slotEndMins, aEndMins)) {
+                used += Number(apt.capacity_units || 1);
+            }
+        }
+
+        const remaining = Math.max(0, capacity - used);
+        if (remaining > 0) {
+            slots.push(slot);
+            detailedSlots.push({
+                time: slot,
+                total_capacity: capacity,
+                used_capacity: used,
+                remaining_capacity: remaining,
+                state: used === 0 ? 'AVAILABLE' : 'PARTIAL'
+            });
+        }
     }
-    return { available: slots.length > 0, message: slots.length ? '' : 'Este día está lleno.', slots };
+
+    return {
+        available: slots.length > 0,
+        message: slots.length ? '' : 'Este día está lleno.',
+        slots,
+        detailedSlots
+    };
 }
 
 async function getAdminAppointments({ from, to } = {}) {
-    const start = from || new Date().toISOString().slice(0, 10);
+    const start = from || cancunToday();
     const end = to || start;
     const [rows] = await pool.execute(
         `SELECT r.*, u.name as user_name, u.email as user_email
@@ -1102,6 +1220,8 @@ module.exports = {
     getRepairAdminById,
     updateRepairAdmin,
     insertRepairAdmin,
+    getActiveTechnicians,
+    assignRepairTechnician,
     softDeleteRepairAdmin,
     getTicketHistory,
     getRecentTickets,
@@ -1120,9 +1240,9 @@ module.exports = {
        PAGE VIEWS → Analytics
     ───────────────────────────────────────────────────────── */
     trackPageView,
+    trackConversionEvent,
     getPageViewsDaily,
     getPageViewsTop,
     getPageViewsSummary,
     getLiveAnalytics
 };
-

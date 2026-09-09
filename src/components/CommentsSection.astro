@@ -32,7 +32,7 @@ const inputStyle = dark
 const labelColor = dark ? '#fbbf24' : '#f59e0b';
 ---
 
-<section class={`comments-section-container section-padding${dark ? ' dark-bg' : ''}`} style={sectionStyle} id={id}>
+<section class={`comments-section-container section-padding${dark ? ' dark-bg' : ''}`} style={sectionStyle} id={id} data-comments-lazy>
   <div class="container comments-section">
     <div class="section-title text-center" style="margin-bottom: 2rem;">
       <h2 style={`color: ${titleColor};`}>{title}</h2>
@@ -99,7 +99,26 @@ const labelColor = dark ? '#fbbf24' : '#f59e0b';
   </div>
 </section>
 
-<script src="/scripts/comments.js" is:inline defer></script>
+<script is:inline>
+  (() => {
+    const section = document.currentScript?.previousElementSibling;
+    if (!section || !('IntersectionObserver' in window)) return;
+    const load = () => {
+      if (document.querySelector('script[data-pixon-comments]')) return;
+      const script = document.createElement('script');
+      script.src = '/scripts/comments.js';
+      script.defer = true;
+      script.dataset.pixonComments = 'true';
+      document.head.appendChild(script);
+    };
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      load();
+    }, { rootMargin: '700px 0px' });
+    observer.observe(section);
+  })();
+</script>
 
 <style is:global>
   .comments-section-container.dark-bg .section-title p { color: #E2E8F0 !important; }

@@ -1,0 +1,27 @@
+[Unit]
+Description=Pixon PC Express application
+After=network-online.target mariadb.service
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=pixon
+Group=pixon
+WorkingDirectory=/opt/pixon/current
+EnvironmentFile=/opt/pixon/shared/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=DATA_DIR=/opt/pixon/shared/data
+ExecStart=/usr/bin/node server/server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ReadWritePaths=/opt/pixon/shared/data
+
+[Install]
+WantedBy=multi-user.target

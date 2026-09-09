@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { backupDirectory } from './runtime-paths.mjs';
 import { createConnection } from './snapshot-utils.mjs';
 import {
   BACKUP_FORMAT,
@@ -90,7 +91,7 @@ try {
     data,
   };
   const envelope = encryptBackupPayload(payload, secret);
-  const directory = path.join(process.cwd(), 'backups');
+  const directory = backupDirectory;
   await fs.mkdir(directory, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const target = path.join(directory, `pixon-${stamp}.pixonbak`);
