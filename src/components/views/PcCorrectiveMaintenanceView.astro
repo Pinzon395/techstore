@@ -1,6 +1,5 @@
 ---
 import FaqSection from '../FaqSection.astro';
-import RelatedServicesSection from '../RelatedServicesSection.astro';
 import CommentsSection from '../CommentsSection.astro';
 import ContactSection from '../ContactSection.astro';
 import ServiceTicketSection from '../ServiceTicketSection.astro';
@@ -8,1061 +7,1857 @@ import Footer from '../Footer.astro';
 
 const { service, category } = Astro.props;
 
-const waMessage = encodeURIComponent(
-  'Hola, quiero cotizar mantenimiento correctivo para mi PC en Cancún. Presenta fallas en encendido, pantalla azul o reinicios.'
+const whatsappPrefill = encodeURIComponent(
+  'Hola Pixon PC.\nMi computadora presenta una falla.\n\nEquipo: (PC / PC Gamer / Workstation / Mini PC)\nSíntoma: (No enciende / No da imagen / Se apaga / Se reinicia / Se congela / Pantalla azul / Ruido / No detecta disco / Otro)\nDesde cuándo ocurre:\nQué estaba haciendo cuando falló:'
 );
+const whatsappUrl = `https://wa.me/529986690777?text=${whatsappPrefill}`;
 
-const pcCorrectiveFaqs = [
+// 1. Matriz de Síntomas Comunes (10 tarjetas con causa probable, descarte y enlace owner)
+const symptomsList = [
   {
-    question: '¿Cuánto cuesta reparar una computadora en Cancún?',
-    answer: 'Nuestra mano de obra para revisiones e intervenciones correctivas inicia desde **$650 MXN** (más refacciones si se requiere). Primero realizamos un diagnóstico completo para identificar qué componente está fallando y te enviamos un presupuesto exacto para que lo autorices antes de realizar cualquier reparación.',
-  },
-  {
-    question: '¿Qué pasa si mi computadora no conviene repararla?',
-    answer: 'Somos totalmente transparentes. Si por antigüedad, costo de la refacción o desgaste general del equipo no conviene invertir en repararlo, te lo decimos claro y te asesoramos sobre qué componentes puedes rescatar (como discos duros o memoria) o si te conviene más adquirir un equipo nuevo.',
-  },
-  {
-    question: '¿Cuánto tiempo toma la reparación correctiva de una PC?',
-    answer: 'La mayoría de reparaciones toman de **24 a 72 horas** si las refacciones están disponibles de forma local. En fallas intermitentes complejas de placa madre o cuando requerimos solicitar piezas especiales, el tiempo puede extenderse; sin embargo, siempre te mantendremos informado sobre el estatus.',
-  },
-  {
-    question: '¿Se pierden mis archivos y documentos al reparar la PC?',
-    answer: 'No. Antes de realizar cualquier cambio físico de hardware o corrección lógica de sistema, realizamos un clonado o respaldo (backup) de seguridad de tu información siempre que las condiciones físicas del disco lo permitan. Tus fotos, documentos y archivos son nuestra prioridad número uno.',
-  },
-  {
-    question: '¿Qué garantía ofrecen en reparaciones correctivas?',
-    answer: 'Ofrecemos una garantía de **30 días por escrito** sobre la mano de obra del componente reparado o instalado. Las refacciones nuevas de marcas reconocidas que instalamos cuentan con sus respectivas garantías directas del fabricante que van desde 1 hasta 3 años.',
-  },
-];
-
-const pcCorrectiveSymptoms = [
-  {
-    icon: 'fa-power-off',
+    id: 'sintoma-no-enciende',
+    icon: 'fa-solid fa-power-off',
     title: 'PC no enciende por completo',
-    desc: 'No prende ningún LED, los ventiladores no giran o el equipo se apaga inmediatamente después de presionar el botón.',
+    subtitle: 'Sin luces LED, ventiladores apagados o no responde al botón',
+    probableCauses: 'Fuente de poder dañada, cable de corriente, botón de encendido o cortocircuito en placa madre.',
+    notToAssume: 'No asumas que la placa madre se quemó por completo; en muchos casos es la fuente o una protección activa.',
+    ownerHref: '/servicios/pc/no-enciende',
+    ownerLabel: 'Ver servicio cuando la PC no enciende',
   },
   {
-    icon: 'fa-desktop',
-    title: 'Prende pero no da imagen',
-    desc: 'Los ventiladores y las luces del gabinete encienden, pero el monitor se queda en negro con el mensaje "Sin señal".',
+    id: 'sintoma-sin-video',
+    icon: 'fa-solid fa-desktop',
+    title: 'Prende pero no da video (pantalla negra)',
+    subtitle: 'Ventiladores giran y luces prenden, pero el monitor marca "Sin señal"',
+    probableCauses: 'Módulos de RAM mal asentados o sulfatados, tarjeta gráfica GPU, BIOS corrupta o salida de video.',
+    notToAssume: 'No asumas que la tarjeta gráfica quedó inservible; suele ser suciedad en slots de RAM o CMOS bloqueado.',
+    ownerHref: '/servicios/pc/tarjeta-video-gpu',
+    ownerLabel: 'Ver diagnóstico de video y GPU',
   },
   {
-    icon: 'fa-triangle-exclamation',
+    id: 'sintoma-apagados',
+    icon: 'fa-solid fa-plug-circle-xmark',
+    title: 'Se apaga sola de repente',
+    subtitle: 'El equipo se corta de golpe sin aviso previo durante el uso',
+    probableCauses: 'Protección térmica por sobrecalentamiento crítico de CPU, fuente de poder degradada o caída de 12V.',
+    notToAssume: 'No asumas que es un virus; los cortes instantáneos de energía son casi siempre protecciones de hardware.',
+    ownerHref: '/servicios/pc/fuente-poder',
+    ownerLabel: 'Ver revisión de fuente de poder',
+  },
+  {
+    id: 'sintoma-reinicios',
+    icon: 'fa-solid fa-rotate-left',
+    title: 'Se reinicia sola o entra en bucle',
+    subtitle: 'Reinicios espontáneos en reposo o bucle continuo en el logo inicial',
+    probableCauses: 'Falla eléctrica en riel de 12V, error crítico Kernel-Power 41, RAM inestable o sector de arranque dañado.',
+    notToAssume: 'No asumas que un formateo lo resuelve; si el reinicio ocurre bajo carga, el origen suele ser físico.',
+    ownerHref: '/servicios/pc/pantalla-azul',
+    ownerLabel: 'Ver causas de reinicios y pantallas azules',
+  },
+  {
+    id: 'sintoma-congelamiento',
+    icon: 'fa-solid fa-snowflake',
+    title: 'Se congela o se traba totalmente',
+    subtitle: 'El cursor no responde, la pantalla se queda fija y requiere forzar apagado',
+    probableCauses: 'Unidad SSD o disco duro con sectores defectuosos, saturación de memoria RAM o microcorte de GPU.',
+    notToAssume: 'No asumas que tu PC ya no sirve; sustituir un almacenamiento degradado por un SSD NVMe suele recuperarla.',
+    ownerHref: '/servicios/pc/upgrade',
+    ownerLabel: 'Ver opciones de SSD y memoria RAM',
+  },
+  {
+    id: 'sintoma-bsod',
+    icon: 'fa-solid fa-triangle-exclamation',
     title: 'Pantallas azules constantes (BSOD)',
-    desc: 'Errores recurrentes de Windows que congelan tu PC y te obligan a reiniciar al jugar, trabajar o abrir ciertos programas.',
+    subtitle: 'Pantallazos con códigos como MEMORY_MANAGEMENT o WHEA_UNCORRECTABLE',
+    probableCauses: 'Celdas de memoria RAM dañadas, drivers corruptos, temperaturas extremas o inestabilidad de voltaje.',
+    notToAssume: 'No asumas falla del procesador; en la gran mayoría de casos el problema radica en RAM, drivers o disco.',
+    ownerHref: '/servicios/pc/pantalla-azul',
+    ownerLabel: 'Ver servicio especializado de BSOD',
   },
   {
-    icon: 'fa-rotate-left',
-    title: 'Se reinicia sola al jugar o exigirle',
-    desc: 'Apagados térmicos o caídas eléctricas que ocurren de golpe al abrir videojuegos pesados o software de renderizado.',
+    id: 'sintoma-ruidos',
+    icon: 'fa-solid fa-volume-high',
+    title: 'Ruidos extraños, zumbidos o clics',
+    subtitle: 'Chasquidos mecánicos en discos, zumbido de bobinas o ventiladores ruidosos',
+    probableCauses: 'Cabezal de disco mecánico HDD dañado (clic de advertencia), ventilador trabado o coil whine.',
+    notToAssume: 'No lo ignores como algo normal; un clic metálico en disco mecánico avisa falla inminente con pérdida de datos.',
+    ownerHref: '/servicios/pc/recuperacion-datos',
+    ownerLabel: 'Ver respaldo y recuperación de datos',
   },
   {
-    icon: 'fa-volume-high',
-    title: 'Ruidos metálicos o zumbidos raros',
-    desc: 'Ruidos extraños provenientes del disco duro mecánico a punto de fallar o de ventiladores con baleros desgastados.',
+    id: 'sintoma-almacenamiento',
+    icon: 'fa-solid fa-hard-drive',
+    title: 'No detecta disco duro o SSD',
+    subtitle: 'Aparece mensaje "No bootable device" o el disco desaparece en Windows',
+    probableCauses: 'Cable SATA o ranura M.2 con falso contacto, SSD bloqueado en modo seguro o daño en controladora.',
+    notToAssume: 'No asumas que tus archivos se borraron; muchas veces la partición o la placa están íntegras.',
+    ownerHref: '/servicios/pc/diagnostico',
+    ownerLabel: 'Ver diagnóstico de almacenamiento',
   },
   {
-    icon: 'fa-keyboard',
-    title: 'Puertos USB o periféricos fallando',
-    desc: 'Los puertos frontales o traseros no reconocen dispositivos, fallas constantes de red por cable o WiFi intermitente.',
+    id: 'sintoma-puertos',
+    icon: 'fa-solid fa-network-wired',
+    title: 'Puertos USB, red o conectores fallando',
+    subtitle: 'Desconexiones aleatorias de periféricos, falso contacto o red no reconocida',
+    probableCauses: 'Pines doblados, daño por descargas electrostáticas, headers dañados o controlador de chipset.',
+    notToAssume: 'No sigas forzando conectores flojos; un corto en un puerto USB puede apagar la tarjeta madre entera.',
+    ownerHref: '/servicios/pc/tarjeta-madre',
+    ownerLabel: 'Ver revisión de tarjeta madre y puertos',
+  },
+  {
+    id: 'sintoma-gaming',
+    icon: 'fa-solid fa-gamepad',
+    title: 'Cierres de juegos o caídas bruscas de FPS',
+    subtitle: 'La PC funciona en tareas básicas pero colapsa o da tirones al jugar',
+    probableCauses: 'Fuente insuficiente para los picos de la GPU, throttling térmico por pasta seca o límite de VRAM.',
+    notToAssume: 'No asumas que tu gráfica ya no sirve; una limpieza térmica y revisión de voltajes suele devolver la estabilidad.',
+    ownerHref: '/servicios/pc/refrigeracion',
+    ownerLabel: 'Ver revisión térmica y ventilación',
   },
 ];
 
-const pcCorrectiveSteps = [
+// 2. Componentes que reparamos o sustituimos
+const componentsList = [
+  {
+    icon: 'fa-solid fa-microchip',
+    title: 'Tarjeta Madre (Motherboard)',
+    desc: 'Diagnóstico de cortocircuitos en líneas principales, condensadores dañados, reflasheo de BIOS corrupta mediante programador y sustitución de placas con compatibilidad verificada.',
+  },
+  {
+    icon: 'fa-solid fa-plug-circle-bolt',
+    title: 'Fuente de Poder (PSU)',
+    desc: 'Medición de voltajes en banco de carga (+12V, +5V, +3.3V), descarte de caídas eléctricas bajo demanda y reemplazo por fuentes certificadas con protecciones activas contra apagones.',
+  },
+  {
+    icon: 'fa-solid fa-memory',
+    title: 'Memoria RAM',
+    desc: 'Pruebas de integridad celda por celda para ubicar módulos inestables, limpieza de contactos sulfatados por el ambiente de Cancún y configuración de perfiles XMP/EXPO estables.',
+  },
+  {
+    icon: 'fa-solid fa-hard-drive',
+    title: 'Almacenamiento (SSD / NVMe / HDD)',
+    desc: 'Evaluación de salud SMART, aislamiento de sectores defectuosos, migración segura de datos a unidades de estado sólido y reemplazo de discos con riesgo de pérdida.',
+  },
+  {
+    icon: 'fa-solid fa-vr-cardboard',
+    title: 'Tarjeta Gráfica (GPU)',
+    desc: 'Diagnóstico de fallas de video, artefactos en pantalla, mantenimiento de disipadores, reemplazo de ventiladores con holgura y sustitución de GPUs dedicadas NVIDIA y AMD.',
+  },
+  {
+    icon: 'fa-solid fa-server',
+    title: 'Procesador (CPU)',
+    desc: 'Verificación de pines de socket, pruebas de cálculo aritmético bajo estrés térmico, control de voltajes en los VRM de la placa y reemplazo de procesadores compatibles.',
+  },
+  {
+    icon: 'fa-solid fa-fan',
+    title: 'Refrigeración y Ventilación',
+    desc: 'Sustitución de ventiladores desgastados, reparación de bombas en sistemas de refrigeración líquida AIO, renovación de pasta térmica premium y balanceo de flujo de aire.',
+  },
+  {
+    icon: 'fa-solid fa-bolt',
+    title: 'Puertos, Conectores y BIOS',
+    desc: 'Reparación de puertos frontales y traseros, conectores de encendido, restablecimiento de configuración UEFI y corrección de pistas electrónicas cuando el daño es técnicamente viable.',
+  },
+];
+
+// 3. Proceso Técnico en 6 Pasos
+const processSteps = [
   {
     num: '01',
-    title: 'Diagnóstico y pruebas de descarte',
-    desc: 'Sometemos los componentes a test independientes (voltajes de fuente, SMART de disco, Memtest para RAM) para ubicar el componente defectuoso.',
+    title: 'Recepción del síntoma',
+    desc: 'Registramos con detalle el comportamiento anómalo que experimentas y el contexto en que ocurrió (tras un apagón, jugando, al encender o actualizando).',
   },
   {
     num: '02',
-    title: 'Respaldo de información preventivo',
-    desc: 'Siempre que el almacenamiento esté accesible, salvamos tus datos en servidores externos de respaldo antes de intervenir el equipo.',
+    title: 'Pruebas de descarte en taller',
+    desc: 'Sometemos los componentes a test independientes con tester de fuente, multímetro, pruebas cruzadas de RAM y verificación de almacenamiento.',
   },
   {
     num: '03',
-    title: 'Presupuesto transparente y cotización',
-    desc: 'Te desglosamos mano de obra y refacciones requeridas por WhatsApp. No cambiamos nada sin tu consentimiento y firma digital de aprobación.',
+    title: 'Identificación de la causa raíz',
+    desc: 'Aislamos el componente averiado o el conflicto lógico exacto para no cambiar piezas funcionales ni generar gastos innecesarios.',
   },
   {
     num: '04',
-    title: 'Sustitución y ensamble de piezas nuevas',
-    desc: 'Instalamos las piezas de reemplazo bajo estrictos estándares de cableado y energía, garantizando compatibilidad eléctrica y de espacio.',
+    title: 'Presupuesto previo claro',
+    desc: 'Te entregamos por escrito el desglose detallado de las refacciones necesarias y la mano de obra de instalación antes de realizar cualquier intervención.',
   },
   {
     num: '05',
-    title: 'Pruebas de estrés y estabilidad 24h',
-    desc: 'Corremos software de estrés sostenido (Cinebench, Prime95) para certificar que el equipo no vuelva a fallar bajo cargas extremas de trabajo.',
+    title: 'Autorización y reparación',
+    desc: 'Una vez aprobado el presupuesto, procedemos al reemplazo de componentes, corrección electrónica o ajuste de sistema con ensamble limpio.',
   },
   {
     num: '06',
-    title: 'Entrega con garantía por escrito',
-    desc: 'Te devolvemos tu equipo funcionando como nuevo, con reporte técnico físico y tu póliza de garantía correspondiente.',
+    title: 'Pruebas finales y entrega',
+    desc: 'Validamos el equipo bajo carga según el componente intervenido (voltajes, temperaturas, estabilidad) y entregamos tu garantía técnica por escrito.',
   },
 ];
 
-const relatedServices = [
+// 4. Servicios Especializados Relacionados (Derivación contextual a owners)
+const relatedOwners = [
   {
-    href: '/mantenimiento-preventivo-computadora',
-    icon: 'fa-screwdriver-wrench',
-    label: 'Mantenimiento Preventivo PC',
-    desc: 'Limpieza profunda de polvo, cambio de compuesto térmico y pruebas para evitar que tu PC falle o haga ruidos molestos.',
-    cta: 'Ver preventivo →',
+    href: '/servicios/pc/no-enciende',
+    icon: 'fa-solid fa-power-off',
+    title: 'PC no enciende',
+    desc: 'Diagnóstico técnico cuando la computadora no da señales de vida, no encienden ventiladores ni responde al botón.',
   },
   {
-    href: '/servicios/pc/formateo',
-    icon: 'fa-window-restore',
-    label: 'Formateo e Instalación de Windows',
-    desc: 'Restauración lógica del sistema operativo desde cero con drivers oficiales, paquetería básica y eliminación de virus.',
-    cta: 'Ver formateo →',
+    href: '/servicios/pc/pantalla-azul',
+    icon: 'fa-solid fa-triangle-exclamation',
+    title: 'Pantalla azul (BSOD)',
+    desc: 'Resolución de pantallazos azules recurrentes de Windows, errores de kernel y fallas de controladores.',
   },
   {
-    href: '/servicios/pc/upgrade',
-    icon: 'fa-memory',
-    label: 'Upgrade SSD y Memoria RAM',
-    desc: 'Dale una segunda vida a tu computadora lenta instalando discos de estado sólido y aumentando memoria RAM.',
-    cta: 'Ver upgrades →',
+    href: '/servicios/pc/fuente-poder',
+    icon: 'fa-solid fa-plug-circle-bolt',
+    title: 'Fuente de poder PC',
+    desc: 'Medición de voltajes reales, sustitución por fuentes certificadas y compatibilidad eléctrica con tarjetas de video.',
+  },
+  {
+    href: '/servicios/pc/tarjeta-video-gpu',
+    icon: 'fa-solid fa-vr-cardboard',
+    title: 'Tarjeta de video GPU',
+    desc: 'Diagnóstico y servicio térmico para tarjetas gráficas NVIDIA y AMD con artefactos, pantalla negra o cierres.',
+  },
+  {
+    href: '/servicios/pc/tarjeta-madre',
+    icon: 'fa-solid fa-microchip',
+    title: 'Tarjeta madre de PC',
+    desc: 'Revisión electrónica de placa, detección de cortocircuitos, socket de procesador y puertos dañados.',
   },
   {
     href: '/servicios/pc/refrigeracion',
-    icon: 'fa-fan',
-    label: 'Sobrecalentamiento y Refrigeración PC',
-    desc: 'Revisión y mantenimiento de disipadores, curvas de ventilación y soluciones térmicas para PC gamer.',
-    cta: 'Ver refrigeración →',
+    icon: 'fa-solid fa-fan',
+    title: 'Refrigeración y temperatura',
+    desc: 'Mantenimiento de disipadores, ventiladores de gabinete y sistemas líquidos para evitar apagados por calor en Cancún.',
   },
   {
     href: '/servicios/pc/diagnostico',
-    icon: 'fa-stethoscope',
-    label: 'Diagnóstico Profesional de PC',
-    desc: '¿Tu PC falla y no sabes qué tiene? Hacemos pruebas lógicas y físicas de componentes con reporte detallado.',
-    cta: 'Ver diagnóstico →',
+    icon: 'fa-solid fa-stethoscope',
+    title: 'Diagnóstico técnico',
+    desc: 'Pruebas profundas de descarte para computadoras con fallas intermitentes o comportamiento indeterminado.',
   },
   {
-    href: '/reparaciones',
-    icon: 'fa-toolbox',
-    label: 'Reparación General de Equipos',
-    desc: 'Soporte multimarca para laptops, computadoras de escritorio, pantallas, periféricos y equipos de oficina.',
-    cta: 'Ver reparaciones →',
+    href: '/servicios/pc/formateo',
+    icon: 'fa-solid fa-window-restore',
+    title: 'Formateo y Windows',
+    desc: 'Reinstalación limpia del sistema operativo con controladores oficiales y respaldo previo cuando la falla es lógica.',
+  },
+  {
+    href: '/ensambles',
+    icon: 'fa-solid fa-computer',
+    title: 'Armado de PC nueva',
+    desc: 'Cuando el costo de reparar un equipo antiguo no es rentable, diseñamos tu nueva computadora a medida con garantía.',
+  },
+];
+
+// 5. 20 FAQs Técnicas Directas (SEO Local, PAA y dudas reales)
+const correctiveFaqs = [
+  {
+    question: '¿Qué es el mantenimiento correctivo de una computadora?',
+    answer: 'El mantenimiento correctivo es el conjunto de acciones técnicas orientadas a diagnosticar, reparar o sustituir componentes de hardware y corregir fallas de software en una PC que ya no funciona con normalidad. A diferencia del preventivo (que se realiza en equipos sanos para evitar averías), el correctivo entra en acción cuando el equipo no enciende, se apaga, se congela, da pantalla azul o presenta pérdida de rendimiento.',
+  },
+  {
+    question: '¿Cuánto cuesta reparar una computadora en Cancún?',
+    answer: 'El costo depende exclusivamente del tipo de problema, la refacción que deba sustituirse (fuente de poder, tarjeta madre, memoria RAM, SSD o tarjeta gráfica) y las horas de trabajo técnico requeridas. Primero realizamos una revisión en taller para localizar la falla exacta y te entregamos un presupuesto previo claro y cerrado antes de que autorices cualquier gasto.',
+  },
+  {
+    question: '¿El diagnóstico incluye la reparación de la PC?',
+    answer: 'No. El diagnóstico técnico es la etapa de análisis mediante instrumental y pruebas de descarte que permite identificar la causa raíz de la falla. Una vez confirmado qué componente está dañado o qué conflicto presenta el sistema, te presentamos la cotización de la reparación correspondiente para que decidas si autorizas el trabajo.',
+  },
+  {
+    question: '¿Por qué mi computadora se apaga sola de repente?',
+    answer: 'Los apagados abruptos suelen deberse a dos razones principales de hardware: sobrecalentamiento crítico (el procesador o la tarjeta de video alcanzan temperaturas límite y el sistema corta energía para evitar quemarse) o una fuente de poder degradada que no logra mantener los voltajes requeridos, disparando sus protecciones eléctricas.',
+  },
+  {
+    question: '¿Por qué mi PC prende ventiladores y luces pero no da imagen?',
+    answer: 'Este síntoma clásico suele originarse en módulos de memoria RAM con suciedad o fallas de contacto en las ranuras, una tarjeta de video que perdió comunicación con el bus PCIe, una BIOS bloqueada o desconfigurada, o daño en los circuitos reguladores de voltaje de la placa madre. Descartamos pieza por pieza antes de sugerir cualquier cambio.',
+  },
+  {
+    question: '¿Qué causa que una PC se reinicie sola al jugar o abrir programas pesados?',
+    answer: 'Cuando el equipo funciona en reposo pero se reinicia al exigirle carga gráfica o de cálculo, la causa más frecuente es una fuente de poder insuficiente o con capacitores fatigados que no soporta la demanda eléctrica de la tarjeta gráfica (GPU), o bien temperaturas excesivas en el disipador del procesador.',
+  },
+  {
+    question: '¿Por qué aparecen pantallas azules (BSOD) constantemente en Windows?',
+    answer: 'Las pantallas azules ocurren cuando Windows detecta un error crítico de bajo nivel del cual no puede recuperarse. Suelen ser provocadas por sectores dañados en el disco de arranque, módulos de memoria RAM defectuosos, drivers de hardware en conflicto o fallas en el procesador. Revisamos el volcado de memoria (minidump) para ubicar el código de error exacto.',
+  },
+  {
+    question: '¿Por qué mi computadora se congela y no responde ni el mouse?',
+    answer: 'Los congelamientos totales suelen indicar que el sistema operativo quedó a la espera de una respuesta que nunca llegó, habitualmente debido a una unidad de almacenamiento (SSD o disco duro) con tiempos de respuesta al 100% permanente, memoria RAM con celdas corruptas o problemas de suministro eléctrico.',
+  },
+  {
+    question: '¿Cómo saber si la fuente de poder de mi PC está fallando?',
+    answer: 'Una fuente en mal estado puede provocar que el equipo no encienda, que se apague de golpe bajo carga, que huela a quemado tras un apagón, que no entregue voltajes estables en el riel de 12V o que emita ruidos eléctricos anormales. Medimos la fuente con tester especializado y carga resistiva en banco de trabajo.',
+  },
+  {
+    question: '¿Se pueden reparar las tarjetas madre (motherboards)?',
+    answer: 'Depende del daño. Si la falla se debe a condensadores inflados, pistas superficiales dañadas, fusibles de protección abiertos o BIOS corrupta, la reparación electrónica suele ser viable. Si el chipset principal o el procesador de socket sufrieron una perforación interna por alta tensión, lo técnicamente recomendable es reemplazar la tarjeta madre por una compatible.',
+  },
+  {
+    question: '¿Se pierden mis archivos personales durante la reparación de la PC?',
+    answer: 'En reparaciones de fuente de poder, memoria RAM, ventiladores o tarjeta gráfica, tus discos duros no se tocan y tu información permanece íntegra. Si la falla está relacionada directamente con la unidad de almacenamiento o requiere reinstalación de sistema operativo, te informamos previamente para valorar el respaldo de tus datos siempre que el disco sea legible.',
+  },
+  {
+    question: '¿Pueden recuperar mis datos si el disco duro o SSD falló?',
+    answer: 'Si la unidad es legible o presenta fallas lógicas leves, podemos respaldar tu información a otra unidad sana. Si el disco presenta daño físico interno severo (cabezales rotos o chips de memoria flash quemados), te orientamos sobre las opciones viables mediante nuestro servicio dedicado de recuperación de datos.',
+  },
+  {
+    question: '¿Cómo sé si conviene reparar mi PC o comprar una nueva?',
+    answer: 'Comparamos la antigüedad de tu plataforma (generación de procesador, socket y tipo de RAM) con el costo de las refacciones necesarias frente al valor de un equipo nuevo ensamblado. Si cambiando una sola pieza de costo moderado tu equipo rinde eficientemente, vale la pena reparar. Si requieres sustituir placa, procesador y fuente en un equipo obsoleto, te recomendamos armar una nueva.',
+  },
+  {
+    question: '¿Cuánto tiempo toma la reparación de una computadora?',
+    answer: 'El tiempo depende de la falla identificada y la disponibilidad de refacciones. Reparaciones con componentes comunes disponibles en taller suelen resolverse con rapidez tras tu autorización. En casos de fallas intermitentes complejas en placa madre o cuando se requiere encargar una refacción específica, te notificamos el tiempo estimado de forma transparente.',
+  },
+  {
+    question: '¿Qué garantía tienen las reparaciones correctivas en Pixon PC?',
+    answer: 'Entregamos garantía por escrito sobre la mano de obra técnica realizada en el componente intervenido. La garantía aplicable se confirma según la reparación y la pieza instalada (original o compatible de proveedor certificado).',
+  },
+  {
+    question: '¿Las variaciones de voltaje y apagones de Cancún dañan las computadoras?',
+    answer: 'Sí. Las caídas bruscas y picos de voltaje provocados por la red eléctrica local pueden sobrecargar los circuitos primarios de la fuente de poder y desestabilizar la tarjeta madre. Recomendamos siempre el uso de reguladores de voltaje certificados o no-breaks para proteger equipos de trabajo y PC gamer.',
+  },
+  {
+    question: '¿El salitre y la humedad de Cancún afectan los componentes de la PC?',
+    answer: 'El ambiente costero de Cancún acelera la oxidación y sulfatación en los pines dorados de memorias RAM, ranuras PCIe de tarjetas gráficas y condensadores de la placa madre, provocando falsos contactos o cortocircuitos que requieren limpieza química técnica y aislamiento.',
+  },
+  {
+    question: '¿Hacen pruebas de estrés después de reparar la PC?',
+    answer: 'Sí. Las pruebas se adaptan al componente intervenido: comprobamos voltajes estables en fuentes de poder, ciclos de memoria en RAM, temperaturas sostenidas bajo carga en procesadores y tarjetas gráficas, y velocidad de lectura/escritura en unidades de almacenamiento.',
+  },
+  {
+    question: '¿Atienden computadoras gamer ensambladas y estaciones de trabajo?',
+    answer: 'Por supuesto. Atendemos computadoras de escritorio de oficina, equipos gamer personalizados de alto rendimiento y estaciones de trabajo para arquitectura, render 3D y edición de video, respetando la compatibilidad de cada fabricante.',
+  },
+  {
+    question: '¿Cómo solicito la revisión de mi PC en Cancún?',
+    answer: 'Puedes escribirnos por WhatsApp describiéndonos los síntomas que presenta tu equipo o crear un ticket en nuestra plataforma. Te indicamos cómo traerla a nuestro taller o coordinamos la atención para revisar tu computadora con instrumental adecuado.',
   },
 ];
 ---
 
 <div class="pc-corrective-page">
-  <!-- HERO SECTION -->
-  <section class="pcm-hero">
-    <div class="pcm-hero-glow"></div>
-    <div class="container pcm-hero-grid">
-      <div class="pcm-hero-copy">
-        <span class="pcm-kicker"><i class="fa-solid fa-desktop"></i> Reparación Física y Lógica de PC en Cancún</span>
-        <h1>Mantenimiento Correctivo de PC en Cancún</h1>
-        <h2>Diagnosticamos fallas complejas, reparamos cortocircuitos y reemplazamos componentes dañados con garantía.</h2>
-        <p>
-          Si tu PC se reinicia sola, no enciende, da pantallas azules de Windows o hace ruidos extraños, no adivines la falla. 
-          En Pixon PC realizamos un **mantenimiento correctivo de computadoras en Cancún** con herramientas de diagnóstico avanzadas. 
-          Reemplazamos fuentes de poder, tarjetas madre, memorias y unidades de almacenamiento, asegurando tus archivos e instalando refacciones con garantía oficial.
+  <!-- ==================== 1. HERO SECTION SIMÉTRICO ==================== -->
+  <header class="pcc-hero" aria-labelledby="pcc-hero-title">
+    <div class="pcc-hero-glow" aria-hidden="true"></div>
+    <div class="container pcc-hero__grid">
+      <!-- 1. Eyebrow -->
+      <div class="pcc-hero__eyebrow-wrap">
+        <p class="pcc-eyebrow">
+          <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> FALLAS DE HARDWARE Y SOFTWARE · SERVICIO TÉCNICO EN CANCÚN
         </p>
-        <div class="pcm-badges">
-          <span>Reparación de computadoras Cancún</span>
-          <span>PC no prende solución</span>
-          <span>Cambio de fuente de poder PC</span>
-          <span>Reparación de tarjeta madre PC</span>
-          <span>Respaldo de información</span>
-        </div>
-        <div class="pcm-actions">
-          <a class="pcm-primary" href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" rel="noopener">
-            <i class="fa-brands fa-whatsapp"></i> Agendar Reparación de PC
-          </a>
-          <a class="pcm-secondary" href="#que-incluye">Ver proceso técnico <i class="fa-solid fa-arrow-down"></i></a>
-        </div>
       </div>
 
-      <aside class="pcm-hero-panel">
-        <div class="pcm-visual-img" aria-hidden="true">
-          <img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento correctivo de computadoras en taller local Cancún" class="pcm-img-hero" />
-          <div class="pcm-img-overlay"></div>
-          <div class="pcm-diag-panel">
-            <div class="diag-log">
-              <span class="text-success"><i class="fa-solid fa-circle-check"></i> RAM Check: OK</span>
-              <span class="text-success"><i class="fa-solid fa-circle-check"></i> SSD Health: 98%</span>
-              <span class="text-danger"><i class="fa-solid fa-circle-xmark"></i> PSU Voltage: FAIL (11.2V)</span>
-            </div>
-            <div class="diag-action">
-              <span>Recomendación</span>
-              <strong>Cambiar Fuente</strong>
+      <!-- 2. H1 -->
+      <h1 id="pcc-hero-title" class="pcc-hero__title">
+        <span>Mantenimiento correctivo y</span>
+        <span>reparación de PC en Cancún</span>
+      </h1>
+
+      <!-- 3. Visual de Diagnóstico y Reparación (Debajo del H1 en mobile, a la derecha en desktop) -->
+      <div class="pcc-hero__visual-wrap">
+        <figure class="pcc-visual-stage" aria-label="Esquema técnico de diagnóstico y reparación de componentes de PC">
+          <svg class="pcc-svg" viewBox="0 0 540 440" width="540" height="440" role="img" aria-label="Gabinete de PC con indicadores de análisis de hardware: energía, almacenamiento, memoria y video">
+            <defs>
+              <linearGradient id="pcc-case-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0f2942" />
+                <stop offset="100%" stop-color="#071829" />
+              </linearGradient>
+              <linearGradient id="pcc-mobo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0d3b66" />
+                <stop offset="100%" stop-color="#09223a" />
+              </linearGradient>
+              <linearGradient id="pcc-card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#143859" />
+                <stop offset="100%" stop-color="#0b2138" />
+              </linearGradient>
+              <filter id="pcc-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <!-- Gabinete / Chasis de la PC -->
+            <rect x="70" y="30" width="400" height="380" rx="20" fill="url(#pcc-case-grad)" stroke="#1e4e79" stroke-width="2" />
+            <rect x="85" y="45" width="370" height="350" rx="14" fill="#061626" stroke="#123555" stroke-width="1.5" />
+
+            <!-- Placa Madre (Motherboard) interna -->
+            <rect x="100" y="60" width="260" height="320" rx="8" fill="url(#pcc-mobo-grad)" stroke="#1a5585" stroke-width="1" />
+
+            <!-- CPU Socket & Cooler Fan -->
+            <g class="pcc-cpu-unit" transform="translate(180, 120)">
+              <rect x="-45" y="-45" width="90" height="90" rx="8" fill="#08233a" stroke="#38bdf8" stroke-width="2" />
+              <circle cx="0" cy="0" r="32" fill="#061a2c" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 2" />
+              <path d="M-20 -20 L20 20 M-20 20 L20 -20 M0 -28 L0 28 M-28 0 L28 0" stroke="#0ea5e9" stroke-width="2" opacity="0.8" />
+              <circle cx="0" cy="0" r="10" fill="#38bdf8" />
+              <text x="0" y="4" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#071f3a" text-anchor="middle">CPU</text>
+            </g>
+
+            <!-- RAM DIMM Slots con badge de estado -->
+            <g class="pcc-ram-slots" transform="translate(250, 75)">
+              <rect x="0" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#38bdf8" stroke-width="1.5" />
+              <rect x="14" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#38bdf8" stroke-width="1.5" />
+              <rect x="28" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#38bdf8" stroke-width="1.5" />
+              <rect x="42" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#38bdf8" stroke-width="1.5" />
+              <rect x="15" y="10" width="8" height="15" fill="#38bdf8" />
+              <rect x="15" y="35" width="8" height="15" fill="#38bdf8" />
+              <rect x="43" y="10" width="8" height="15" fill="#38bdf8" />
+              <rect x="43" y="35" width="8" height="15" fill="#38bdf8" />
+            </g>
+
+            <!-- M.2 NVMe SSD Slot -->
+            <g class="pcc-m2-slot" transform="translate(130, 200)">
+              <rect x="0" y="0" width="100" height="24" rx="4" fill="#0c2944" stroke="#38bdf8" stroke-width="1.5" />
+              <rect x="6" y="5" width="22" height="14" rx="2" fill="#0284c7" />
+              <text x="17" y="15" font-size="7.5" font-family="'Kanit', sans-serif" font-weight="900" fill="#ffffff" text-anchor="middle">SSD</text>
+              <rect x="34" y="7" width="14" height="10" rx="1" fill="#cbd5e1" opacity="0.6" />
+              <rect x="52" y="7" width="14" height="10" rx="1" fill="#cbd5e1" opacity="0.6" />
+              <rect x="70" y="7" width="14" height="10" rx="1" fill="#cbd5e1" opacity="0.6" />
+            </g>
+
+            <!-- PCIe x16 Slot & GPU dedicada -->
+            <g class="pcc-gpu-slot" transform="translate(110, 245)">
+              <rect x="0" y="0" width="230" height="60" rx="6" fill="#092036" stroke="#38bdf8" stroke-width="2" />
+              <circle cx="55" cy="30" r="20" fill="#061626" stroke="#0ea5e9" stroke-width="1.5" />
+              <circle cx="115" cy="30" r="20" fill="#061626" stroke="#0ea5e9" stroke-width="1.5" />
+              <circle cx="175" cy="30" r="20" fill="#061626" stroke="#0ea5e9" stroke-width="1.5" />
+              <path d="M43 18 L67 42 M43 42 L67 18" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+              <path d="M103 18 L127 42 M103 42 L127 18" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+              <path d="M163 18 L187 42 M163 42 L187 18" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+              <text x="218" y="34" font-size="8" font-family="'Kanit', sans-serif" font-weight="900" fill="#38bdf8" text-anchor="end">GPU PCI-E</text>
+            </g>
+
+            <!-- Bahía Fuente de Poder (PSU) -->
+            <g class="pcc-psu-bay" transform="translate(95, 325)">
+              <rect x="0" y="0" width="160" height="60" rx="6" fill="#081e33" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 3" />
+              <circle cx="40" cy="30" r="18" fill="#051322" stroke="#0284c7" stroke-width="1.2" />
+              <text x="90" y="34" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#94a3b8">POWER PSU</text>
+            </g>
+
+            <!-- Diagnostic Status Badges (Clean, no fake numbers) -->
+            <g class="pcc-diag-tags" transform="translate(350, 55)">
+              <!-- Tag Power -->
+              <rect x="0" y="0" width="165" height="42" rx="8" fill="url(#pcc-card-grad)" stroke="#38bdf8" stroke-width="1.2" filter="url(#pcc-glow)" />
+              <circle cx="18" cy="21" r="9" fill="#0284c7" />
+              <text x="18" y="25" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">⚡</text>
+              <text x="36" y="19" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#ffffff">POWER · 12V</text>
+              <text x="36" y="32" font-size="7.5" fill="#bae6fd">Línea de alimentación</text>
+            </g>
+
+            <g class="pcc-diag-tags" transform="translate(350, 110)">
+              <!-- Tag RAM -->
+              <rect x="0" y="0" width="165" height="42" rx="8" fill="url(#pcc-card-grad)" stroke="#38bdf8" stroke-width="1.2" />
+              <circle cx="18" cy="21" r="9" fill="#0369a1" />
+              <text x="18" y="25" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">▦</text>
+              <text x="36" y="19" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#ffffff">RAM · MEMORIA</text>
+              <text x="36" y="32" font-size="7.5" fill="#bae6fd">Integridad de módulos</text>
+            </g>
+
+            <g class="pcc-diag-tags" transform="translate(350, 165)">
+              <!-- Tag Storage -->
+              <rect x="0" y="0" width="165" height="42" rx="8" fill="url(#pcc-card-grad)" stroke="#38bdf8" stroke-width="1.2" />
+              <circle cx="18" cy="21" r="9" fill="#075985" />
+              <text x="18" y="25" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">▤</text>
+              <text x="36" y="19" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#ffffff">STORAGE · SMART</text>
+              <text x="36" y="32" font-size="7.5" fill="#bae6fd">Salud de SSD / HDD</text>
+            </g>
+
+            <g class="pcc-diag-tags" transform="translate(350, 220)">
+              <!-- Tag GPU -->
+              <rect x="0" y="0" width="165" height="42" rx="8" fill="url(#pcc-card-grad)" stroke="#38bdf8" stroke-width="1.2" />
+              <circle cx="18" cy="21" r="9" fill="#0c4a6e" />
+              <text x="18" y="25" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">◈</text>
+              <text x="36" y="19" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#ffffff">VIDEO · GPU</text>
+              <text x="36" y="32" font-size="7.5" fill="#bae6fd">Carga y temperaturas</text>
+            </g>
+
+            <g class="pcc-diag-tags" transform="translate(350, 275)">
+              <!-- Tag System -->
+              <rect x="0" y="0" width="165" height="42" rx="8" fill="url(#pcc-card-grad)" stroke="#10b981" stroke-width="1.2" filter="url(#pcc-glow)" />
+              <circle cx="18" cy="21" r="9" fill="#059669" />
+              <path d="M 14 21 L 17 24 L 23 18" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <text x="36" y="19" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#ffffff">SISTEMA · ESTABILIDAD</text>
+              <text x="36" y="32" font-size="7.5" fill="#a7f3d0">Pruebas bajo carga</text>
+            </g>
+          </svg>
+          <figcaption class="pcc-visual-caption">
+            <span class="pcc-caption-step"><strong class="pcc-step-num">1</strong> Detección de falla</span>
+            <span class="pcc-caption-sep" aria-hidden="true">→</span>
+            <span class="pcc-caption-step"><strong class="pcc-step-num">2</strong> Presupuesto previo</span>
+            <span class="pcc-caption-sep" aria-hidden="true">→</span>
+            <span class="pcc-caption-step"><strong class="pcc-step-num">3</strong> Reparación y pruebas</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <!-- 4. Subcopy / Resumen -->
+      <div class="pcc-hero__summary">
+        <p class="pcc-lead">Cuando una PC falla, no adivines qué pieza cambiar. Identificamos la causa real antes de reparar.</p>
+        <p class="pcc-description">
+          Diagnosticamos y reparamos fallas en computadoras de escritorio, PC gamer y estaciones de trabajo en Cancún: no enciende, reinicios aleatorios, pantalla azul, falta de video, sobrecalentamiento, fuente de poder, tarjeta madre y discos dañados. Presupuesto previo claro antes de comprar refacciones o intervenir el equipo.
+        </p>
+      </div>
+
+      <!-- 5. CTAs -->
+      <div class="pcc-hero__actions">
+        <a class="pcc-btn pcc-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="corrective_hero_primary">
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Revisar falla de mi PC
+        </a>
+        <a class="pcc-btn pcc-btn--secondary" href="#sintomas">
+          Identificar síntoma <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+
+      <!-- 6. Trust Badges -->
+      <div class="pcc-hero__trust">
+        <ul class="pcc-badges" aria-label="Garantías y certezas del servicio">
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Diagnóstico por pruebas</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Hardware y Software</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> PC Gamer y Oficina</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Garantía por escrito</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main id="corrective-content">
+    <!-- ==================== 2. MATRIZ DE SÍNTOMAS COMUNES ==================== -->
+    <section id="sintomas" class="pcc-section pcc-symptoms-section" aria-labelledby="symptoms-title">
+      <div class="container">
+        <div class="pcc-heading pcc-heading--center">
+          <span class="pcc-kicker">Identificación de Problemas</span>
+          <h2 id="symptoms-title">¿Qué falla presenta tu computadora?</h2>
+          <p>
+            El síntoma que experimentas no siempre señala al culpable evidente. Una computadora que se apaga no necesariamente tiene un virus, ni una que no da video tiene la tarjeta gráfica quemada. Aislamos la causa con instrumental técnico en taller:
+          </p>
+        </div>
+
+        <div class="pcc-symptoms-grid">
+          {symptomsList.map((item) => (
+            <article class="pcc-symptom-card" id={item.id}>
+              <div class="pcc-symptom-card__header">
+                <div class="pcc-symptom-card__icon" aria-hidden="true">
+                  <i class={item.icon}></i>
+                </div>
+                <div class="pcc-symptom-card__titles">
+                  <h3>{item.title}</h3>
+                  <span class="pcc-symptom-subtitle">{item.subtitle}</span>
+                </div>
+              </div>
+              <div class="pcc-symptom-card__body">
+                <div class="pcc-symptom-card__field">
+                  <strong>Causas probables:</strong>
+                  <p>{item.probableCauses}</p>
+                </div>
+                <div class="pcc-symptom-card__field pcc-symptom-card__field--warning">
+                  <strong>Qué no se debe asumir:</strong>
+                  <p>{item.notToAssume}</p>
+                </div>
+              </div>
+              <div class="pcc-symptom-card__footer">
+                <a href={item.ownerHref} class="pcc-text-link">
+                  {item.ownerLabel} <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div class="pcc-symptoms-cta">
+          <p>¿Tu computadora presenta una falla diferente o intermitente que no aparece en la lista?</p>
+          <a class="pcc-btn pcc-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="symptoms_cta">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Describir síntoma por WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. COMPONENTES QUE REPARAMOS O SUSTITUIMOS ==================== -->
+    <section id="componentes" class="pcc-section pcc-components-section" aria-labelledby="components-title">
+      <div class="container">
+        <div class="pcc-heading pcc-heading--center">
+          <span class="pcc-kicker">Cobertura Integral de Hardware</span>
+          <h2 id="components-title">Componentes y etapas que reparamos en tu PC</h2>
+          <p>
+            Trabajamos con arquitectura física modular de computadoras de escritorio, torres gamer y workstations. Cada componente intervenido se somete a validación de voltajes, temperaturas y compatibilidad:
+          </p>
+        </div>
+
+        <div class="pcc-components-grid">
+          {componentsList.map((comp) => (
+            <article class="pcc-component-card">
+              <div class="pcc-component-card__icon" aria-hidden="true">
+                <i class={comp.icon}></i>
+              </div>
+              <h3>{comp.title}</h3>
+              <p>{comp.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. DIAGNÓSTICO VS MANTENIMIENTO CORRECTIVO ==================== -->
+    <section id="diagnostico-vs-reparacion" class="pcc-section pcc-triage-section" aria-labelledby="triage-title">
+      <div class="container">
+        <div class="pcc-triage-card">
+          <div class="pcc-triage-content">
+            <span class="pcc-kicker">Transparencia Técnica</span>
+            <h2 id="triage-title">Diagnóstico vs Mantenimiento Correctivo: ¿Cuál es la diferencia?</h2>
+            <div class="pcc-triage-columns">
+              <div class="pcc-triage-col">
+                <div class="pcc-triage-col__header">
+                  <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+                  <h3>1. El Diagnóstico Técnico</h3>
+                </div>
+                <p>
+                  Es la etapa de inspección, medición y pruebas de descarte en banco de trabajo. Su objetivo exclusivo es localizar la causa raíz de la falla y evaluar si la pieza tiene reparación electrónica viable o si requiere reemplazo. <strong>El diagnóstico no incluye la refacción ni la reparación de antemano</strong>, ya que primero debes conocer qué tiene tu equipo y cuánto costará repararlo.
+                </p>
+                <a href="/servicios/pc/diagnostico" class="pcc-text-link">Conocer servicio de diagnóstico →</a>
+              </div>
+
+              <div class="pcc-triage-col">
+                <div class="pcc-triage-col__header">
+                  <i class="fa-solid fa-wrench" aria-hidden="true"></i>
+                  <h3>2. El Mantenimiento Correctivo</h3>
+                </div>
+                <p>
+                  Es la ejecución del trabajo autorizado: sustituir la fuente de poder dañada, reparar los condensadores de la placa madre, reemplazar la memoria RAM defectuosa, migrar un disco a SSD o reinstalar controladores limpios. <strong>Se cotiza de forma previa y transparente</strong>, desglosando refacción y mano de obra con garantía por escrito.
+                </p>
+                <a href="#contacto" class="pcc-text-link">Solicitar presupuesto correctivo →</a>
+              </div>
             </div>
           </div>
         </div>
-        <div class="pcm-panel-info">
-          <span>Soporte Técnico Especializado</span>
-          <strong>{service.fromPrice || 'Desde $650 MXN'}</strong>
-          <small>El costo de la reparación depende del componente dañado. Hacemos cotizaciones claras antes de trabajar.</small>
+      </div>
+    </section>
+
+    <!-- ==================== 5. FALLA FÍSICA (HARDWARE) VS FALLA LÓGICA (SOFTWARE) ==================== -->
+    <section id="hardware-vs-software" class="pcc-section pcc-compare-section" aria-labelledby="compare-title">
+      <div class="container">
+        <div class="pcc-heading pcc-heading--center">
+          <span class="pcc-kicker">Clasificación del Problema</span>
+          <h2 id="compare-title">¿La falla de tu PC es de Hardware o de Software?</h2>
+          <p>
+            Identificar si el origen del fallo es físico o de sistema operativo ahorra tiempo y dinero. En Pixon PC evaluamos ambas áreas:
+          </p>
         </div>
-        <ul class="pcm-features-list">
-          <li><i class="fa-solid fa-circle-check"></i> Técnicos especialistas en ensamble y hardware</li>
-          <li><i class="fa-solid fa-circle-check"></i> Diagnóstico lógico y pruebas de corriente</li>
-          <li><i class="fa-solid fa-circle-check"></i> Respaldo previo de tu información</li>
-          <li><i class="fa-solid fa-circle-check"></i> Garantía por escrito en cada intervención</li>
-        </ul>
-      </aside>
-    </div>
-  </section>
 
-  <!-- SECCIÓN 1: SEO LOCAL Y CLIMA -->
-  <section class="pcm-section pcm-local-bg">
-    <div class="container pcm-local-grid">
-      <div>
-        <span class="pcm-eyebrow">Diagnóstico local Cancún</span>
-        <h2>¿Por qué fallan los componentes de PC en Cancún?</h2>
-        <p class="pcm-large-text">
-          La humedad, el salitre acumulado y los constantes apagones o variaciones de voltaje de Cancún aceleran el desgaste de piezas delicadas.
-        </p>
-        <p>
-          En nuestro taller de **reparación de computadoras en Cancún**, las fallas correctivas más comunes provienen de fuentes de poder dañadas por picos eléctricos, 
-          discos duros mecánicos que fallan por apagones repentinos y cortos en placas madre provocados por polvo húmedo sulfatado. 
-          Atendemos clientes en Cancún Centro, Huayacán, Cumbres, Zona Hotelera, Puerto Cancún y alrededores, brindando soluciones definitivas 
-          y recomendando reguladores o no-breaks adecuados para evitar que la falla vuelva a ocurrir.
-        </p>
-      </div>
-      <div class="pcm-local-card">
-        <i class="fa-solid fa-plug-circle-exclamation"></i>
-        <h3>Fallas por Voltaje en Cancún</h3>
-        <p>
-          Las variaciones en la red eléctrica de Cancún suelen fundir transistores y capacitores en la fuente de poder y tarjeta madre. 
-          Probamos voltajes por tramo antes de dar de baja cualquier pieza.
-        </p>
-      </div>
-    </div>
-  </section>
+        <div class="pcc-compare-grid">
+          <!-- Columna Hardware -->
+          <div class="pcc-compare-card pcc-compare-card--hw">
+            <div class="pcc-compare-card__header">
+              <span class="pcc-compare-badge"><i class="fa-solid fa-microchip" aria-hidden="true"></i> Nivel Físico</span>
+              <h3>Fallas de Hardware</h3>
+            </div>
+            <ul class="pcc-compare-list">
+              <li><strong>Síntomas comunes:</strong> No prende ningún LED, se apaga de golpe, la pantalla se queda negra con ventiladores al 100%, clics mecánicos o reinicios aleatorios sin mensaje de error.</li>
+              <li><strong>Causas habituales:</strong> Condensadores desgastados, fuente con caída de 12V, celdas de RAM con errores, pistas sulfatadas por salitre o pasta térmica seca.</li>
+              <li><strong>Procedimiento:</strong> Pruebas eléctricas con multímetro, sustitución de componentes averiados, microelectrónica si aplica y validación de temperaturas.</li>
+            </ul>
+          </div>
 
-  <!-- SECCIÓN 2: SÍNTOMAS COMUNES -->
-  <section class="pcm-section pcm-dark-bg" id="sintomas">
-    <div class="container">
-      <div class="ppm-head-center">
-        <span class="pcm-eyebrow">Fallas Frecuentes</span>
-        <h2>¿Qué síntomas presenta tu computadora cuando está dañada?</h2>
-        <p class="pcm-center-desc">
-          Si tu equipo presenta alguno de los siguientes problemas, requiere una inspección y mantenimiento correctivo para restaurar su funcionamiento:
-        </p>
+          <!-- Columna Software -->
+          <div class="pcc-compare-card pcc-compare-card--sw">
+            <div class="pcc-compare-card__header">
+              <span class="pcc-compare-badge pcc-compare-badge--sw"><i class="fa-brands fa-windows" aria-hidden="true"></i> Nivel Lógico</span>
+              <h3>Fallas de Software</h3>
+            </div>
+            <ul class="pcc-compare-list">
+              <li><strong>Síntomas comunes:</strong> Pantallas azules con código de excepción, bucle de carga de Windows, aplicaciones que se cierran solas, virus, malware o lentitud severa.</li>
+              <li><strong>Causas habituales:</strong> Actualizaciones fallidas de Windows, drivers de GPU incompatibles, archivos de sistema corruptos o infecciones de malware.</li>
+              <li><strong>Procedimiento:</strong> Reparación de arranque BCD, desinfección profunda, reinstalación limpia de Windows con drivers certificados y respaldo previo de datos.</li>
+            </ul>
+            <div class="pcc-compare-footer">
+              <a href="/servicios/pc/formateo" class="pcc-text-link">Ver servicio de formateo y Windows →</a>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="pcm-symptom-grid">
-        {pcCorrectiveSymptoms.map((symptom) => (
-          <article class="pcm-symptom-card">
-            <i class={`fa-solid ${symptom.icon}`}></i>
-            <h3>{symptom.title}</h3>
-            <p>{symptom.desc}</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- SECCIÓN 3: PROCESO TÉCNICO (LIGHT BACKGROUND WITH DARK BLUE TEXTS) -->
-  <section class="pcm-section pcm-process-section" id="que-incluye">
-    <div class="container pcm-split-grid">
-      <div class="pcm-split-text">
-        <span class="pcm-eyebrow">Ruta de reparación</span>
-        <h2>Qué incluye nuestro servicio de mantenimiento correctivo de PC</h2>
-        <p class="pcm-large-text">
-          No adivinamos qué pieza falla. Seguimos protocolos técnicos de descarte lógico y eléctrico para entregarte un reporte transparente.
-        </p>
-        <p>
-          Desmontamos tu computadora de escritorio y probamos la fuente con medidor de carga, el almacenamiento con analizador de sectores 
-          y la memoria RAM con test de ciclos. Si algún componente está dañado, cotizamos el reemplazo de la marca de tu elección 
-          y reinstalamos el sistema operativo configurando drivers de forma limpia.
-        </p>
-        <div class="pcm-timeline">
-          {pcCorrectiveSteps.map((step) => (
-            <div class="pcm-timeline-item">
-              <span class="pcm-timeline-num">{step.num}</span>
-              <div class="pcm-timeline-content">
-                <h3>{step.title}</h3>
-                <p>{step.desc}</p>
+    <!-- ==================== 6. ¿CONVIENE REPARAR O CAMBIAR LA PC? ==================== -->
+    <section id="decision" class="pcc-section pcc-decision-section" aria-labelledby="decision-title">
+      <div class="container">
+        <div class="pcc-decision-box">
+          <div class="pcc-heading">
+            <span class="pcc-kicker">Asesoría Honesta</span>
+            <h2 id="decision-title">¿Conviene reparar tu PC o armar una completamente nueva?</h2>
+            <p>
+              No todas las computadoras deben repararse a cualquier costo. Actuamos con total transparencia: si el costo de la reparación no es rentable para ti, te lo decimos claro antes de que gastes un solo peso.
+            </p>
+          </div>
+
+          <div class="pcc-decision-grid">
+            <div class="pcc-decision-card pcc-decision-card--yes">
+              <div class="pcc-decision-card__header">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <h3>Cuándo SÍ conviene reparar</h3>
               </div>
+              <ul>
+                <li>Tu equipo cuenta con una plataforma actual (DDR4 o DDR5, sockets AMD AM4/AM5 o Intel recientes).</li>
+                <li>La falla está localizada en un único componente accesible (fuente de poder, ventilador, SSD o módulo de RAM).</li>
+                <li>El costo de la refacción y mano de obra es significativamente menor al valor de un equipo nuevo equivalente.</li>
+                <li>La computadora cumple perfectamente tu carga habitual de trabajo, escuela o gaming una vez reparada.</li>
+              </ul>
+            </div>
+
+            <div class="pcc-decision-card pcc-decision-card--no">
+              <div class="pcc-decision-card__header">
+                <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+                <h3>Cuándo NO conviene reparar</h3>
+              </div>
+              <ul>
+                <li>Plataforma muy antigua (memorias DDR2/DDR3, procesadores de más de 10 años sin soporte oficial).</li>
+                <li>Múltiples componentes críticos dañados simultáneamente (placa madre perforada + fuente + procesador).</li>
+                <li>Las refacciones solo se consiguen usadas, sin garantía o a precios inflados por escasez en el mercado.</li>
+                <li>El presupuesto de reparación se acerca al costo de una PC nueva ensamblada con tecnología actual y garantía completa.</li>
+              </ul>
+              <div class="pcc-decision-footer">
+                <a href="/ensambles" class="pcc-text-link">Ver armado de PC Gamer y Oficina por piezas →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. PROCESO TÉCNICO EN 6 PASOS ==================== -->
+    <section id="proceso" class="pcc-section pcc-process-section" aria-labelledby="process-title">
+      <div class="container">
+        <div class="pcc-heading pcc-heading--center">
+          <span class="pcc-kicker">Metodología de Trabajo</span>
+          <h2 id="process-title">Proceso técnico de mantenimiento correctivo en Cancún</h2>
+          <p>
+            Trabajamos con un protocolo ordenado para garantizar que tu computadora quede completamente funcional, estable y con presupuesto autorizado:
+          </p>
+        </div>
+
+        <div class="pcc-process-grid">
+          {processSteps.map((step) => (
+            <div class="pcc-step-card">
+              <span class="pcc-step-card__num">{step.num}</span>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
             </div>
           ))}
         </div>
       </div>
+    </section>
 
-      <div class="pcm-split-visual">
-        <div class="pcm-visual-card">
-          <img src="/assets/images/ensamble-pc-gamer-cancun.webp" alt="Técnico probando componentes de PC en taller Cancún" />
-          <div class="visual-badge">
-            <i class="fa-solid fa-shield-halved"></i>
-            <div>
-              <strong>Respaldo de archivos prioritario</strong>
-              <span>Tu información queda resguardada antes de formatear o intervenir discos duros con fallas lógicas.</span>
+    <!-- ==================== 8. PROTOCOLO DE PRUEBAS POST-REPARACIÓN ==================== -->
+    <section id="pruebas" class="pcc-section pcc-testing-section" aria-labelledby="testing-title">
+      <div class="container">
+        <div class="pcc-testing-layout">
+          <div class="pcc-testing-content">
+            <span class="pcc-kicker">Control de Calidad</span>
+            <h2 id="testing-title">Pruebas técnicas adaptadas a cada componente intervenido</h2>
+            <p>
+              No asumimos que una computadora está lista simplemente porque encendió. Las pruebas finales dependen de la pieza reparada o reemplazada para verificar su rendimiento bajo condiciones reales de exigencia:
+            </p>
+
+            <div class="pcc-tests-list">
+              <div class="pcc-test-item">
+                <i class="fa-solid fa-plug-circle-bolt" aria-hidden="true"></i>
+                <div>
+                  <strong>Fuentes de poder y alimentación:</strong>
+                  <p>Medición de voltajes estables (+12V, +5V, +3.3V) bajo consumo máximo para certificar que no haya caídas repentinas.</p>
+                </div>
+              </div>
+
+              <div class="pcc-test-item">
+                <i class="fa-solid fa-memory" aria-hidden="true"></i>
+                <div>
+                  <strong>Memoria RAM:</strong>
+                  <p>Pruebas de ciclos de lectura y escritura para descartar celdas inestables que causan congelamientos o pantallas azules.</p>
+                </div>
+              </div>
+
+              <div class="pcc-test-item">
+                <i class="fa-solid fa-hard-drive" aria-hidden="true"></i>
+                <div>
+                  <strong>Unidades de almacenamiento SSD/HDD:</strong>
+                  <p>Comprobación de registros SMART, velocidades de lectura secuencial y aleatoria, y temperatura del controlador M.2.</p>
+                </div>
+              </div>
+
+              <div class="pcc-test-item">
+                <i class="fa-solid fa-vr-cardboard" aria-hidden="true"></i>
+                <div>
+                  <strong>Tarjetas gráficas y procesadores:</strong>
+                  <p>Monitoreo de curvas de temperatura y estabilidad bajo carga sostenida para evitar thermal throttling en el clima de Cancún.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcc-testing-note">
+            <div class="pcc-note-card">
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+              <h3>Garantía y Respaldo Técnico</h3>
+              <p>
+                Cada reparación concluida se entrega con un reporte de servicio donde se detallan las intervenciones realizadas, las piezas sustituidas y la póliza de garantía por escrito aplicable a la mano de obra y refacciones.
+              </p>
+              <div class="pcc-note-points">
+                <span><i class="fa-solid fa-check"></i> Refacciones nuevas de calidad</span>
+                <span><i class="fa-solid fa-check"></i> Ensamble limpio y cableado ordenado</span>
+                <span><i class="fa-solid fa-check"></i> Asesoría técnica post-entrega</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- SECCIÓN 4: COMPATIBILIDAD -->
-  <section class="pcm-section pcm-local-bg">
-    <div class="container text-center">
-      <div class="ppm-head-center">
-        <span class="pcm-eyebrow">Modelos y Marcas</span>
-        <h2>Reparación técnica y correctiva multimarca en Cancún</h2>
-        <p class="pcm-center-desc">Contamos con refacciones compatibles para marcas líderes del mercado y computadoras ensambladas a la medida.</p>
-      </div>
-      <div class="pcm-compat-strip">
-        <span>PC Gamer (Asus, MSI, Gigabyte)</span>
-        <span>Equipos Ensamblados ATX / Micro ATX</span>
-        <span>PC de Escritorio Dell, HP, Lenovo</span>
-        <span>Estaciones de Trabajo Workstation</span>
-        <span>Mini PC y computadoras de formato compacto</span>
-      </div>
-    </div>
-  </section>
+    <!-- ==================== 9. DERIVACIÓN A SERVICIOS ESPECIALIZADOS ==================== -->
+    <section id="servicios-especificos" class="pcc-section pcc-related-section" aria-labelledby="related-title">
+      <div class="container">
+        <div class="pcc-heading pcc-heading--center">
+          <span class="pcc-kicker">Ecosistema Técnico Pixon</span>
+          <h2 id="related-title">Servicios especializados para fallas específicas</h2>
+          <p>
+            Si ya conoces la pieza dañada o el síntoma exacto de tu equipo, puedes consultar directamente la página especializada correspondiente:
+          </p>
+        </div>
 
-  <!-- SECCIÓN 5: RUTAS RELACIONADAS (REDISENADAS CON IMAGENES Y ENLACES) -->
-  <section class="pcm-section pcm-links-section" id="relacionados">
-    <div class="container">
-      <div class="ppm-head-center">
-        <span class="pcm-eyebrow">Servicios relacionados</span>
-        <h2>Rutas de mantenimiento y soporte que te pueden interesar</h2>
-        <p class="pcm-center-desc">
-          Explora soluciones complementarias para acelerar tu PC lenta, corregir calentamiento o limpiar tu hardware.
-        </p>
+        <div class="pcc-related-grid">
+          {relatedOwners.map((rel) => (
+            <a href={rel.href} class="pcc-related-card">
+              <div class="pcc-related-card__icon" aria-hidden="true">
+                <i class={rel.icon}></i>
+              </div>
+              <div class="pcc-related-card__info">
+                <h3>{rel.title}</h3>
+                <p>{rel.desc}</p>
+              </div>
+              <span class="pcc-related-card__arrow" aria-hidden="true">→</span>
+            </a>
+          ))}
+        </div>
       </div>
-      <div class="pcm-links-grid">
-        {relatedServices.map((item) => (
-          <a href={item.href} class="pcm-link-card">
-            <div class="card-icon-wrap">
-              <i class={`fa-solid ${item.icon}`}></i>
+    </section>
+
+    <!-- ==================== 10. TALLER LOCAL EN CANCÚN ==================== -->
+    <section class="pcc-section pcc-local-section" aria-labelledby="local-title">
+      <div class="container">
+        <div class="pcc-local-box">
+          <div class="pcc-local-text">
+            <span class="pcc-kicker">Atención Física en Cancún</span>
+            <h2 id="local-title">Taller local de reparación de computadoras en Cancún</h2>
+            <p>
+              Contamos con banco de trabajo equipado con herramientas de medición, microscopio, tester de fuentes y equipo antiestático para realizar diagnósticos profundos y reparaciones seguras de computadoras en Cancún:
+            </p>
+            <ul class="pcc-local-list">
+              <li><strong>Ubicación:</strong> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</li>
+              <li><strong>Horario:</strong> Lunes a Domingo con cita previa programada para atención dedicada sin filas.</li>
+              <li><strong>Contacto directo:</strong> +52 998 669 0777 (WhatsApp y llamadas).</li>
+              <li><strong>Zonas atendidas:</strong> Cancún Centro, Huayacán, Cumbres, Zona Hotelera, Puerto Cancún, Bonfil, Polígono Sur y alrededores.</li>
+            </ul>
+          </div>
+          <div class="pcc-local-cta-col">
+            <div class="pcc-local-action-card">
+              <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+              <h3>¿Deseas traer tu equipo a revisión?</h3>
+              <p>Escríbenos para agendar tu horario de recepción en taller y recibir atención inmediata.</p>
+              <a class="pcc-btn pcc-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="local_cta">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Agendar cita por WhatsApp
+              </a>
             </div>
-            <h3>{item.label}</h3>
-            <p>{item.desc}</p>
-            <span class="card-cta">{item.cta}</span>
-          </a>
-        ))}
+          </div>
+        </div>
       </div>
+    </section>
+
+    <!-- ==================== 11. FAQ SECTION ==================== -->
+    <FaqSection
+      id="faq-correctivo"
+      title="Preguntas frecuentes sobre reparación y mantenimiento correctivo"
+      description="Respuestas técnicas transparentes a las dudas más comunes de nuestros clientes en Cancún sobre fallas de hardware, software, diagnóstico y garantías:"
+      items={correctiveFaqs}
+      titleColor="#071F3A"
+      descriptionColor="#071F3A"
+      questionColor="#071F3A"
+    />
+
+    <!-- ==================== 12. FINAL CTA & CONTACT ==================== -->
+    <section id="contacto" class="pcc-section pcc-cta-final" aria-labelledby="cta-final-title">
+      <div class="container">
+        <div class="pcc-cta-final__box">
+          <span class="pcc-kicker pcc-kicker--light">Diagnóstico y Reparación Confiable</span>
+          <h2 id="cta-final-title">¿Tu computadora presenta una falla y necesitas repararla?</h2>
+          <p>
+            Envíanos los síntomas que presenta tu equipo. Te orientamos sobre las pruebas técnicas necesarias y te entregamos un presupuesto previo claro antes de comprar refacciones o intervenir tu PC.
+          </p>
+          <div class="pcc-cta-final__buttons">
+            <a class="pcc-btn pcc-btn--primary pcc-btn--lg" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="final_cta_whatsapp">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar falla por WhatsApp
+            </a>
+            <a class="pcc-btn pcc-btn--secondary pcc-btn--lg" href="#ticket-form" data-event-placement="final_cta_ticket">
+              <i class="fa-solid fa-ticket" aria-hidden="true"></i> Crear ticket de servicio
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="ticket-form">
+      <ServiceTicketSection service={service} category={category} />
     </div>
-  </section>
-
-  <!-- FORMULARIO TICKET -->
-  <ServiceTicketSection
-    id="ticket"
-    defaultDevice="PC Escritorio"
-    defaultService="Mantenimiento correctivo"
-    title="Agenda la reparación o correctivo de tu PC"
-    subtitle="Descríbenos qué le ocurre a tu computadora, si no prende, si se apaga sola o si marca pantallas azules. Te atenderemos de inmediato."
-  />
-
-  <!-- RELATED SERVICES GENERIC -->
-  <RelatedServicesSection
-    category={category}
-    service={service}
-    title="Más servicios para PC y Laptop"
-    eyebrow="Taller técnico profesional"
-    items={relatedServices}
-    compact={true}
-    initialLimit={6}
-  />
-
-  <!-- FAQS -->
-  <FaqSection
-    id="faq"
-    title="Preguntas frecuentes sobre mantenimiento correctivo de PC en Cancún"
-    description="Aclaramos tus dudas sobre diagnósticos, precios de mano de obra, garantías por escrito y tiempo de reparación de tu PC."
-    items={pcCorrectiveFaqs}
-    viewMoreHref="/preguntas-frecuentes"
-    viewMoreLabel="Ver todas las preguntas frecuentes"
-    ariaLabel="Preguntas frecuentes sobre reparación de computadoras en Cancún"
-    backgroundColor="#0B1120"
-    titleColor="#F8FAFC"
-    descriptionColor="#CBD5E1"
-    questionColor="#0F2A4A"
-  />
-
-  <!-- COMENTARIOS Y CONTACTO -->
-  <CommentsSection dark={true} viewMoreHref="/comentarios" />
-  <ContactSection />
+    <CommentsSection />
+    <ContactSection />
+  </main>
   <Footer />
 </div>
 
-<style is:global>
+<style>
+  /* ==================== VARIABLES Y SCOPE ==================== */
   .pc-corrective-page {
-    background: #080A10;
-    color: #E2E8F0;
-    font-family: 'Inter', sans-serif;
+    --azul-oscuro: #071F3A;
+    --azul-muted: #334155;
+    --azul-borde: #e2e8f0;
+    --azul-glow: #38bdf8;
+    --verde-cta: #16a34a;
+    font-family: 'Red Hat Display', sans-serif;
+    color: var(--azul-oscuro);
+    background: #ffffff;
     overflow-x: hidden;
   }
 
-  .pcm-hero {
-    position: relative;
-    padding: clamp(64px, 8vw, 112px) 0 72px;
-    background:
-      radial-gradient(circle at 10% 10%, rgba(217, 119, 6, 0.22), transparent 35%),
-      radial-gradient(circle at 85% 15%, rgba(239, 68, 68, 0.16), transparent 32%),
-      linear-gradient(135deg, #05060A 0%, #080A10 54%, #111827 100%);
+  /* Forzar estricto azul oscuro en todos los textos fuera del hero */
+  .pc-corrective-page main,
+  .pc-corrective-page main p,
+  .pc-corrective-page main h2,
+  .pc-corrective-page main h3,
+  .pc-corrective-page main h4,
+  .pc-corrective-page main li,
+  .pc-corrective-page main span,
+  .pc-corrective-page main strong {
+    color: var(--azul-oscuro);
   }
 
-  .pcm-hero-glow {
+  /* ==================== 1. HERO SECTION (SIMÉTRICO) ==================== */
+  .pcc-hero {
+    position: relative;
+    background: linear-gradient(135deg, #071F3A 0%, #0c2b4e 55%, #071829 100%);
+    color: #ffffff;
+    padding: clamp(36px, 5vw, 70px) 0 clamp(44px, 6vw, 80px);
+    overflow: hidden;
+  }
+  .pcc-hero-glow {
     position: absolute;
-    bottom: -150px;
+    top: -120px;
     right: -100px;
-    width: 450px;
-    height: 450px;
-    border-radius: 999px;
-    background: rgba(217, 119, 6, 0.08);
-    filter: blur(50px);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.16) 0%, rgba(7, 31, 58, 0) 70%);
     pointer-events: none;
   }
 
-  .pcm-hero-grid {
+  /* Grid móvil: H1 -> Visual -> Copy -> CTAs -> Trust */
+  .pcc-hero__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-    gap: clamp(28px, 5vw, 64px);
+    grid-template-areas:
+      "eyebrow"
+      "title"
+      "media"
+      "summary"
+      "actions"
+      "trust";
+    grid-template-columns: 1fr;
+    gap: 18px;
     align-items: center;
   }
+  .pcc-hero__eyebrow-wrap { grid-area: eyebrow; }
+  .pcc-hero__title { grid-area: title; }
+  .pcc-hero__visual-wrap {
+    grid-area: media;
+    width: 100%;
+    max-width: 540px;
+    justify-self: center;
+  }
+  .pcc-hero__summary {
+    grid-area: summary;
+    max-width: 660px;
+  }
+  .pcc-hero__actions {
+    grid-area: actions;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  .pcc-hero__trust { grid-area: trust; }
 
-  .pcm-kicker,
-  .pcm-eyebrow {
+  .pcc-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #F59E0B;
-    font-weight: 900;
+    margin: 0;
+    color: #67e8f9 !important;
+    font-size: 0.78rem;
+    font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    font-size: 0.78rem;
   }
-
-  .pcm-hero h1 {
-    margin: 14px 0 14px;
-    color: #FFFFFF;
+  .pcc-hero h1 {
+    margin: 6px 0 10px;
+    font-size: clamp(1.95rem, 4.2vw, 3.1rem);
+    font-weight: 900;
+    line-height: 1.14;
+    color: #ffffff !important;
     font-family: 'Kanit', sans-serif;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    font-size: clamp(2.3rem, 5.5vw, 4.8rem);
   }
-
-  .pcm-hero h2 {
-    color: #FCD34D;
-    font-size: clamp(1.1rem, 2.3vw, 1.5rem);
-    line-height: 1.35;
-    max-width: 760px;
-    margin: 0 0 18px;
-    font-weight: 500;
+  .pcc-hero h1 span {
+    display: block;
   }
-
-  .pcm-hero p {
-    color: #94A3B8;
-    line-height: 1.68;
-    font-size: 1.02rem;
-    margin: 0 0 24px;
+  .pcc-hero h1 span:last-child {
+    color: #38bdf8 !important;
   }
-
-  .pcm-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .pcm-badges span {
-    border: 1px solid rgba(217, 119, 6, 0.22);
-    background: rgba(8, 10, 16, 0.78);
-    color: #E2E8F0;
-    border-radius: 999px;
-    padding: 8px 12px;
-    font-size: 0.82rem;
+  .pcc-lead {
+    margin: 0 0 10px;
+    font-size: clamp(1.05rem, 1.8vw, 1.22rem);
     font-weight: 700;
+    line-height: 1.45;
+    color: #ffffff !important;
+  }
+  .pcc-description {
+    margin: 0;
+    font-size: 0.96rem;
+    line-height: 1.65;
+    color: #cbd5e1 !important;
   }
 
-  .pcm-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .pcm-primary,
-  .pcm-secondary {
+  /* Botones Hero */
+  .pcc-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 50px;
-    padding: 14px 20px;
-    border-radius: 14px;
+    min-height: 48px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 800;
     text-decoration: none;
-    font-weight: 950;
-    transition: transform 180ms ease, box-shadow 180ms ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
   }
-
-  .pcm-primary {
-    background: #D97706;
-    color: #FFFFFF !important;
-    box-shadow: 0 15px 35px rgba(217, 119, 6, 0.28);
+  .pcc-btn--primary {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(22, 163, 74, 0.3);
   }
-
-  .pcm-primary:hover {
-    background: #B45309;
+  .pcc-btn--primary:hover {
+    background: #15803d !important;
     transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(22, 163, 74, 0.4);
   }
-
-  .pcm-secondary {
-    background: rgba(15, 23, 42, 0.78);
-    color: #FFFFFF !important;
-    border: 1px solid rgba(217, 119, 6, 0.26);
-  }
-
-  .pcm-secondary:hover {
-    background: rgba(15, 23, 42, 0.95);
-    border-color: rgba(217, 119, 6, 0.45);
-    transform: translateY(-2px);
-  }
-
-  .pcm-hero-panel {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 30px;
-    padding: 16px;
-    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
-  }
-
-  .pcm-visual-img {
-    position: relative;
-    border-radius: 22px;
-    overflow: hidden;
-    height: 220px;
-  }
-
-  .pcm-img-hero {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .pcm-img-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(8, 10, 16, 0.9) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .pcm-diag-panel {
-    position: absolute;
-    inset: auto 16px 16px;
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 12px;
-    align-items: center;
-    background: rgba(15, 23, 42, 0.88);
+  .pcc-btn--secondary {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.22);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(217, 119, 6, 0.25);
-    padding: 12px;
-    border-radius: 16px;
+  }
+  .pcc-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-color: #38bdf8;
+    color: #38bdf8 !important;
+    transform: translateY(-2px);
+  }
+  .pcc-btn--lg {
+    min-height: 52px;
+    padding: 14px 30px;
+    font-size: 1.02rem;
   }
 
-  .pcm-diag-panel .diag-log {
+  /* Badges de Confianza */
+  .pcc-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pcc-badges li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0 !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .pcc-badges li i { color: #38bdf8; }
+
+  /* Visual Stage Hero */
+  .pcc-visual-stage {
+    margin: 0;
+    width: 100%;
+    border-radius: 18px;
+    background: rgba(6, 22, 38, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+    padding: 16px;
+    overflow: hidden;
+  }
+  .pcc-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 540 / 440;
+  }
+  .pcc-visual-caption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.76rem;
+    color: #94a3b8 !important;
+  }
+  .pcc-caption-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #e2e8f0 !important;
+    font-weight: 700;
+  }
+  .pcc-step-num {
+    display: inline-grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff !important;
+    font-size: 0.68rem;
+  }
+  .pcc-caption-sep {
+    color: #64748b !important;
+    font-weight: 800;
+  }
+
+  /* Desktop 2-column layout (52% copy / 48% visual) */
+  @media (min-width: 1000px) {
+    .pcc-hero {
+      padding: clamp(54px, 6.5vw, 84px) 0;
+      min-height: 560px;
+      display: grid;
+      align-items: center;
+    }
+    .pcc-hero__grid {
+      grid-template-areas:
+        "eyebrow media"
+        "title   media"
+        "summary media"
+        "actions media"
+        "trust   media";
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+      gap: 16px 40px;
+    }
+    .pcc-hero__visual-wrap {
+      max-width: 520px;
+    }
+  }
+
+  /* ==================== ESTILOS COMUNES DE SECCIÓN ==================== */
+  .pcc-section {
+    padding: clamp(48px, 6vw, 76px) 0;
+  }
+  .pcc-heading {
+    margin-bottom: clamp(28px, 4vw, 44px);
+  }
+  .pcc-heading--center {
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .pcc-kicker {
+    display: inline-block;
+    color: #0284c7 !important;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .pcc-kicker--light {
+    color: #38bdf8 !important;
+  }
+  .pcc-heading h2 {
+    font-size: clamp(1.75rem, 3.2vw, 2.35rem);
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 0 0 12px;
+    font-family: 'Kanit', sans-serif;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-heading p {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--azul-muted) !important;
+    margin: 0;
+  }
+  .pcc-text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7 !important;
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: color 0.15s ease, gap 0.15s ease;
+  }
+  .pcc-text-link:hover {
+    color: #0369a1 !important;
+    gap: 10px;
+  }
+
+  /* ==================== 2. SÍNTOMAS COMUNES ==================== */
+  .pcc-symptoms-section {
+    background: #ffffff;
+  }
+  .pcc-symptoms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 20px;
+  }
+  .pcc-symptom-card {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    padding: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #f8fafc;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   }
-
-  .pcm-diag-panel .diag-log span {
-    font-size: 0.72rem;
-    font-weight: 700;
+  .pcc-symptom-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(7, 31, 58, 0.08);
+    border-color: #bae6fd;
   }
-
-  .pcm-diag-panel .diag-log .text-success { color: #10B981; }
-  .pcm-diag-panel .diag-log .text-danger { color: #EF4444; }
-
-  .pcm-diag-panel .diag-action span {
-    display: block;
-    font-size: 0.7rem;
-    color: #94A3B8;
-    text-transform: uppercase;
-    font-weight: 700;
+  .pcc-symptom-card__header {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 14px;
   }
-
-  .pcm-diag-panel .diag-action strong {
-    display: block;
-    color: #FBBF24;
-    font-family: 'Kanit', sans-serif;
+  .pcc-symptom-card__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0284c7 !important;
     font-size: 1.15rem;
-    line-height: 1.1;
-    margin-top: 1px;
+    flex-shrink: 0;
   }
-
-  .pcm-panel-info {
-    padding: 18px 4px 14px;
-    display: grid;
-    gap: 4px;
+  .pcc-symptom-card__icon i { color: #0284c7; }
+  .pcc-symptom-card__titles h3 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--azul-oscuro) !important;
   }
-
-  .pcm-panel-info span {
+  .pcc-symptom-subtitle {
     font-size: 0.8rem;
+    color: #64748b !important;
+    line-height: 1.35;
+    display: block;
+  }
+  .pcc-symptom-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .pcc-symptom-card__field {
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+  .pcc-symptom-card__field strong {
+    display: block;
+    font-size: 0.76rem;
     text-transform: uppercase;
-    font-weight: 900;
-    color: #F59E0B;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
+    color: #475569 !important;
+    margin-bottom: 2px;
+  }
+  .pcc-symptom-card__field p {
+    margin: 0;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-symptom-card__field--warning {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    border-left: 3px solid #0284c7;
+  }
+  .pcc-symptom-card__footer {
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .pcc-symptoms-cta {
+    margin-top: 36px;
+    padding: 24px;
+    border-radius: 14px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .pcc-symptoms-cta p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--azul-oscuro) !important;
   }
 
-  .pcm-panel-info strong {
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.9rem;
-    color: #FFFFFF;
-    line-height: 1;
+  /* ==================== 3. COMPONENTES QUE REPARAMOS ==================== */
+  .pcc-components-section {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
   }
-
-  .pcm-panel-info small {
-    font-size: 0.82rem;
-    color: #94A3B8;
-    line-height: 1.4;
-  }
-
-  .pcm-features-list {
-    list-style: none;
-    padding: 0;
-    margin: 4px 0 0;
+  .pcc-components-grid {
     display: grid;
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  .pcc-component-card {
+    padding: 24px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.03);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .pcc-component-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(7, 31, 58, 0.07);
+  }
+  .pcc-component-card__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0284c7 !important;
+    font-size: 1.2rem;
+    margin-bottom: 14px;
+  }
+  .pcc-component-card__icon i { color: #0284c7; }
+  .pcc-component-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-component-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--azul-muted) !important;
   }
 
-  .pcm-features-list li {
+  /* ==================== 4. DIAGNÓSTICO VS MANTENIMIENTO CORRECTIVO ==================== */
+  .pcc-triage-section {
+    background: #ffffff;
+  }
+  .pcc-triage-card {
+    padding: clamp(28px, 4vw, 44px);
+    border-radius: 20px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+  }
+  .pcc-triage-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .pcc-triage-col {
+    padding: 22px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #dcfce7;
+    display: flex;
+    flex-direction: column;
+  }
+  .pcc-triage-col__header {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #CBD5E1;
+    margin-bottom: 12px;
   }
-
-  .pcm-features-list li i {
-    color: #F59E0B;
-  }
-
-  /* SECTION STANDARD */
-  .pcm-section {
-    padding: clamp(56px, 7vw, 92px) 0;
-    background: #080A10;
-  }
-
-  .pcm-local-bg {
-    background: linear-gradient(180deg, #0A0D18 0%, #080A10 100%);
-    border-top: 1px solid rgba(217, 119, 6, 0.08);
-    border-bottom: 1px solid rgba(217, 119, 6, 0.08);
-  }
-
-  .pcm-dark-bg {
-    background: #0B1120 !important;
-  }
-
-  .pcm-split-grid,
-  .pcm-local-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
-    gap: clamp(28px, 5vw, 64px);
-    align-items: center;
-  }
-
-  .pcm-eyebrow {
-    color: #F59E0B;
-    font-weight: 900;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-  }
-
-  .pcm-section h2 {
-    font-family: 'Kanit', sans-serif;
-    color: #FFFFFF;
-    font-size: clamp(1.8rem, 3.5vw, 3.20rem);
-    margin: 12px 0 16px;
-    line-height: 1.1;
-  }
-
-  .pcm-large-text {
-    font-size: 1.05rem;
-    line-height: 1.7;
-    font-weight: 600;
-    color: #E2E8F0;
-  }
-
-  .pcm-section p {
-    color: #94A3B8;
-    line-height: 1.68;
-    margin-bottom: 14px;
-  }
-
-  .pcm-local-card {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(217, 119, 6, 0.18);
-    border-radius: 24px;
-    padding: 32px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  }
-
-  .pcm-local-card i {
-    font-size: 2.2rem;
-    color: #F59E0B;
-    margin-bottom: 14px;
-  }
-
-  .pcm-local-card h3 {
-    font-family: 'Kanit', sans-serif;
-    color: #FFFFFF;
+  .pcc-triage-col__header i {
+    color: #16a34a;
     font-size: 1.25rem;
-    margin: 0 0 10px;
   }
-
-  .pcm-local-card p {
-    color: #94A3B8;
-    font-size: 0.92rem;
-    line-height: 1.6;
+  .pcc-triage-col__header h3 {
     margin: 0;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-triage-col p {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--azul-muted) !important;
+    margin: 0 0 16px;
+    flex: 1;
   }
 
-  /* SYMPTOMS GRID */
-  .pcm-symptom-grid {
+  /* ==================== 5. HARDWARE VS SOFTWARE ==================== */
+  .pcc-compare-section {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+  .pcc-compare-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
   }
-
-  .pcm-symptom-card {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 24px;
-    padding: 24px;
-    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  .pcc-compare-card {
+    padding: clamp(24px, 3.5vw, 36px);
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 6px 20px rgba(7, 31, 58, 0.04);
   }
-
-  .pcm-symptom-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(217, 119, 6, 0.4);
-    box-shadow: 0 15px 35px rgba(217, 119, 6, 0.08);
-  }
-
-  .pcm-symptom-card i {
-    width: 44px;
-    height: 44px;
-    display: inline-grid;
-    place-items: center;
-    background: rgba(217, 119, 6, 0.08);
-    color: #F59E0B;
-    border-radius: 12px;
-    font-size: 1.2rem;
+  .pcc-compare-card__header {
     margin-bottom: 16px;
   }
-
-  .pcm-symptom-card h3 {
-    font-family: 'Kanit', sans-serif;
-    color: #FFFFFF;
-    font-size: 1.12rem;
-    margin: 0 0 8px;
+  .pcc-compare-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: #e0f2fe;
+    color: #0284c7 !important;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 8px;
   }
-
-  .pcm-symptom-card p {
-    color: #94A3B8;
-    font-size: 0.9rem;
-    line-height: 1.55;
+  .pcc-compare-badge--sw {
+    background: #fef3c7;
+    color: #d97706 !important;
+  }
+  .pcc-compare-card h3 {
     margin: 0;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-compare-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .pcc-compare-list li {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--azul-muted) !important;
+  }
+  .pcc-compare-list strong {
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-compare-footer {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
   }
 
-  /* TIMELINE PROCESS (LIGHT THEME) */
-  .pcm-process-section {
-    background: #FFFFFF !important;
-    border-top: 1px solid rgba(217, 119, 6, 0.08);
-    border-bottom: 1px solid rgba(217, 119, 6, 0.08);
+  /* ==================== 6. DECISIÓN: REPARAR VS PC NUEVA ==================== */
+  .pcc-decision-section {
+    background: #ffffff;
   }
-
-  .pcm-process-section .pcm-eyebrow {
-    color: #D97706;
+  .pcc-decision-box {
+    padding: clamp(24px, 4vw, 44px);
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
   }
-
-  .pcm-process-section h2 {
-    color: #0F2A4A;
-  }
-
-  .pcm-process-section .pcm-large-text {
-    color: #1E3A8A;
-  }
-
-  .pcm-process-section p {
-    color: #475569;
-  }
-
-  .pcm-timeline {
+  .pcc-decision-grid {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .pcc-decision-card {
+    padding: 24px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+  .pcc-decision-card--yes {
+    border-top: 4px solid #16a34a;
+  }
+  .pcc-decision-card--no {
+    border-top: 4px solid #ef4444;
+  }
+  .pcc-decision-card__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .pcc-decision-card--yes .pcc-decision-card__header i { color: #16a34a; font-size: 1.25rem; }
+  .pcc-decision-card--no .pcc-decision-card__header i { color: #ef4444; font-size: 1.25rem; }
+  .pcc-decision-card h3 {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 900;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-decision-card ul {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pcc-decision-card li {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--azul-muted) !important;
+  }
+  .pcc-decision-footer {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  /* ==================== 7. PROCESO TÉCNICO EN 6 PASOS ==================== */
+  .pcc-process-section {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+  .pcc-process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .pcc-step-card {
+    padding: 24px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.03);
+    position: relative;
+    overflow: hidden;
+  }
+  .pcc-step-card__num {
+    display: inline-block;
+    font-size: 1.8rem;
+    font-weight: 900;
+    font-family: 'Kanit', sans-serif;
+    color: #bae6fd !important;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .pcc-step-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-step-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--azul-muted) !important;
+  }
+
+  /* ==================== 8. PROTOCOLO DE PRUEBAS ==================== */
+  .pcc-testing-section {
+    background: #ffffff;
+  }
+  .pcc-testing-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  @media (min-width: 960px) {
+    .pcc-testing-layout {
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: start;
+    }
+  }
+  .pcc-tests-list {
+    display: flex;
+    flex-direction: column;
     gap: 16px;
     margin-top: 24px;
   }
-
-  .pcm-timeline-item {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 18px;
-    background: #F8FAFC;
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 20px;
-    padding: 20px;
-  }
-
-  .pcm-timeline-num {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
+  .pcc-test-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #F59E0B, #D97706);
-    color: #FFFFFF;
-    font-family: 'Kanit', sans-serif;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+  .pcc-test-item i {
+    color: #0284c7;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .pcc-test-item strong {
+    display: block;
+    font-size: 0.95rem;
     font-weight: 800;
+    color: var(--azul-oscuro) !important;
+    margin-bottom: 4px;
   }
-
-  .pcm-timeline-content h3 {
-    font-family: 'Kanit', sans-serif;
-    color: #0F2A4A;
-    font-size: 1.05rem;
-    margin: 0 0 6px;
-  }
-
-  .pcm-timeline-content p {
-    color: #475569;
-    font-size: 0.88rem;
+  .pcc-test-item p {
+    margin: 0;
+    font-size: 0.86rem;
     line-height: 1.5;
+    color: var(--azul-muted) !important;
+  }
+  .pcc-note-card {
+    padding: clamp(24px, 4vw, 36px);
+    border-radius: 18px;
+    background: linear-gradient(135deg, #071F3A 0%, #0d3b66 100%);
+    color: #ffffff;
+    box-shadow: 0 16px 36px rgba(7, 31, 58, 0.14);
+  }
+  .pcc-note-card i {
+    color: #38bdf8;
+    font-size: 2rem;
+    margin-bottom: 12px;
+    display: inline-block;
+  }
+  .pcc-note-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #ffffff !important;
+    font-family: 'Kanit', sans-serif;
+  }
+  .pcc-note-card p {
+    margin: 0 0 18px;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: #cbd5e1 !important;
+  }
+  .pcc-note-points {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pcc-note-points span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #e2e8f0 !important;
+  }
+  .pcc-note-points i {
+    color: #10b981;
+    font-size: 0.9rem;
     margin: 0;
   }
 
-  .pcm-split-visual {
+  /* ==================== 9. DERIVACIÓN A SERVICIOS ESPECIALIZADOS ==================== */
+  .pcc-related-section {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+  .pcc-related-grid {
     display: grid;
-    place-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
   }
-
-  .pcm-visual-card {
-    background: #F8FAFC;
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 28px;
-    padding: 16px;
-    width: 100%;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.05);
-  }
-
-  .pcm-visual-card img {
-    width: 100%;
-    height: auto;
-    border-radius: 18px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .pcm-visual-card .visual-badge {
-    display: grid;
-    grid-template-columns: auto 1fr;
+  .pcc-related-card {
+    display: flex;
+    align-items: center;
     gap: 14px;
-    padding: 18px 4px 4px;
-    align-items: center;
-  }
-
-  .pcm-visual-card .visual-badge i {
-    width: 44px;
-    height: 44px;
-    display: inline-grid;
-    place-items: center;
+    padding: 18px;
     border-radius: 12px;
-    background: rgba(217, 119, 6, 0.08);
-    color: #D97706;
-    font-size: 1.25rem;
-  }
-
-  .pcm-visual-card .visual-badge strong {
-    display: block;
-    color: #0F2A4A;
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.05rem;
-    line-height: 1.2;
-  }
-
-  .pcm-visual-card .visual-badge span {
-    display: block;
-    font-size: 0.82rem;
-    color: #475569;
-    line-height: 1.35;
-    margin-top: 2px;
-  }
-
-  /* COMPAT STRIP */
-  .pcm-compat-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 14px;
-  }
-
-  .pcm-compat-strip span {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid rgba(217, 119, 6, 0.18);
-    background: rgba(15, 23, 42, 0.85);
-    color: #FFFFFF;
-    padding: 12px 18px;
-    border-radius: 999px;
-    font-weight: 800;
-    font-size: 0.88rem;
-  }
-
-  /* RELATED SERVICES REDISENADAS (LIGHT BACKGROUND) */
-  .pcm-links-section {
-    background: #F8FAFC !important;
-  }
-
-  .pcm-links-section .pcm-eyebrow {
-    color: #D97706;
-  }
-
-  .pcm-links-section h2 {
-    color: #0F172A;
-  }
-
-  .pcm-links-section .pcm-center-desc {
-    color: #475569;
-  }
-
-  .pcm-links-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-  }
-
-  .pcm-link-card {
-    background: #FFFFFF;
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    border-radius: 24px;
-    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    min-height: 250px;
-    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.04);
-    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1), border-color 220ms ease, box-shadow 220ms ease;
+    box-shadow: 0 2px 8px rgba(7, 31, 58, 0.02);
+    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
   }
-
-  .pcm-link-card:hover {
-    transform: translateY(-5px);
-    border-color: #D97706;
-    box-shadow: 0 25px 50px rgba(217, 119, 6, 0.08);
+  .pcc-related-card:hover {
+    transform: translateY(-2px);
+    border-color: #38bdf8;
+    box-shadow: 0 8px 20px rgba(7, 31, 58, 0.08);
   }
-
-  .pcm-link-card .card-icon-wrap {
-    width: 44px;
-    height: 44px;
+  .pcc-related-card__icon {
     display: inline-grid;
     place-items: center;
-    background: rgba(217, 119, 6, 0.08);
-    color: #D97706;
-    border-radius: 12px;
-    font-size: 1.25rem;
-    margin-bottom: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #e0f2fe;
+    color: #0284c7 !important;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .pcc-related-card__icon i { color: #0284c7; }
+  .pcc-related-card__info {
+    flex: 1;
+  }
+  .pcc-related-card__info h3 {
+    margin: 0 0 3px;
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-related-card__info p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--azul-muted) !important;
+  }
+  .pcc-related-card__arrow {
+    color: #94a3b8 !important;
+    font-size: 1.1rem;
+    font-weight: 800;
+    transition: transform 0.16s ease, color 0.16s ease;
+  }
+  .pcc-related-card:hover .pcc-related-card__arrow {
+    transform: translateX(4px);
+    color: #0284c7 !important;
   }
 
-  .pcm-link-card h3 {
+  /* ==================== 10. TALLER LOCAL EN CANCÚN ==================== */
+  .pcc-local-section {
+    background: #ffffff;
+  }
+  .pcc-local-box {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: clamp(24px, 4vw, 40px);
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+  @media (min-width: 900px) {
+    .pcc-local-box {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+    }
+  }
+  .pcc-local-text h2 {
+    margin: 0 0 12px;
+    font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+    font-weight: 900;
+    color: var(--azul-oscuro) !important;
     font-family: 'Kanit', sans-serif;
-    color: #0F172A;
-    font-size: 1.12rem;
-    margin: 0 0 8px;
-    line-height: 1.25;
   }
-
-  .pcm-link-card p {
-    color: #475569;
-    font-size: 0.88rem;
-    line-height: 1.55;
+  .pcc-local-text p {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--azul-muted) !important;
     margin: 0 0 16px;
   }
-
-  .pcm-link-card .card-cta {
-    margin-top: auto;
-    color: #D97706;
+  .pcc-local-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pcc-local-list li {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--azul-muted) !important;
+  }
+  .pcc-local-list strong {
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-local-action-card {
+    padding: 24px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #bae6fd;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .pcc-local-action-card i {
+    color: #0284c7;
+    font-size: 2rem;
+  }
+  .pcc-local-action-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
     font-weight: 800;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: var(--azul-oscuro) !important;
+  }
+  .pcc-local-action-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--azul-muted) !important;
   }
 
-  .pc-corrective-page :global(.svc-related) {
-    background: #080A10 !important;
+  /* ==================== 11. FAQ ==================== */
+  .pcc-faq-section {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
   }
 
-  .pc-corrective-page :global(.svc-related .ux-eyebrow) {
-    color: #F59E0B !important;
+  /* ==================== 12. FINAL CTA ==================== */
+  .pcc-cta-final {
+    background: linear-gradient(135deg, #071F3A 0%, #0c2f55 100%);
+    color: #ffffff;
+    text-align: center;
   }
-
-  .pc-corrective-page :global(.svc-related .ux-h2),
-  .pc-corrective-page :global(.svc-related .related-card h4) {
-    color: #FFFFFF !important;
+  .pcc-cta-final__box {
+    max-width: 780px;
+    margin: 0 auto;
   }
-
-  .pc-corrective-page :global(.svc-related .related-card) {
-    background: rgba(15, 23, 42, 0.86) !important;
-    border-color: rgba(148, 163, 184, 0.16) !important;
+  .pcc-cta-final h2 {
+    font-size: clamp(1.85rem, 3.4vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 8px 0 14px;
+    color: #ffffff !important;
+    font-family: 'Kanit', sans-serif;
   }
-
-  .pc-corrective-page :global(.svc-related .related-card p) {
-    color: #94A3B8 !important;
+  .pcc-cta-final p {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: #cbd5e1 !important;
+    margin: 0 0 28px;
   }
-
-  .pc-corrective-page :global(.svc-related .related-card span),
-  .pc-corrective-page :global(.svc-related .related-card i) {
-    color: #F59E0B !important;
-  }
-
-  .pc-corrective-page :global(.comments-section-container) {
-    background: #080A10 !important;
-  }
-
-  .pc-corrective-page :global(.contact) {
-    background: #0B1120 !important;
-  }
-
-  /* MEDIA QUERIES RESPONSIVE */
-  @media (max-width: 980px) {
-    .pcm-hero-grid,
-    .pcm-local-grid,
-    .pcm-split-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .pcm-symptom-grid,
-    .pcm-links-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 640px) {
-    .pcm-symptom-grid,
-    .pcm-links-grid,
-    .pcm-compat-strip {
-      grid-template-columns: 1fr;
-    }
-
-    .pcm-compat-strip span {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .pcm-hero h1 {
-      font-size: clamp(2rem, 10vw, 3rem);
-    }
-
-    .pcm-diag-panel {
-      grid-template-columns: 1fr;
-      text-align: center;
-    }
-
-    .pcm-diag-panel .diag-action {
-      margin-top: 6px;
-    }
-
-    .pcm-timeline-item {
-      grid-template-columns: 1fr;
-    }
+  .pcc-cta-final__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
   }
 </style>

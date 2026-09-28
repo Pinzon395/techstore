@@ -149,32 +149,34 @@ svg.fa-icon {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   GLOBAL MOBILE BREATHING ROOM FIX
-   El .container original tenía clamp(30px,3vw,20px) invertido
-   lo que causaba ~11px de padding en iPhone (375px → 3vw=11.25px).
-   Este override garantiza mínimo 20px en ambos lados.
+   GLOBAL BREATHING ROOM (GUTTER SYSTEM)
+   Desktop / Tablet >= 769px : 40px
+   Mobile            <= 768px : 20px
    ══════════════════════════════════════════════════════════════ */
-
-.container {
-  padding-inline: clamp(20px, 4.5vw, 40px);
+:root {
+  --page-gutter: 40px;
 }
 
-/* Más aire en móvil pequeño */
-@media (max-width: 480px) {
-  .container {
-    padding-inline: 20px;
+@media (max-width: 768px) {
+  :root {
+    --page-gutter: 20px;
   }
 }
 
-/* px-container: de 16px a 20px mínimo en móvil */
+.container {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+}
+
 .px-container {
-  width: min(100% - 40px, 1200px);
+  width: min(calc(100% - (var(--page-gutter) * 2)), 1200px);
   margin-inline: auto;
 }
 
-@media (max-width: 480px) {
-  .px-container {
-    width: calc(100% - 40px);
-  }
+.nav-container {
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left)) !important;
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right)) !important;
 }
 

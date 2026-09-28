@@ -272,8 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? '<option value="">Selecciona un horario...</option>' + availableOptions.join('')
                 : '<option value="">Día lleno o sin horarios disponibles</option>';
             if (appointmentHint) {
+                const isDiag = appointmentTypeKey(appointmentType.value) === 'diagnostico';
                 appointmentHint.textContent = availableOptions.length
-                    ? 'Horario con reserva temporal. Diagnóstico desde $600 MXN (abonables a tu reparación si la aceptas).'
+                    ? (isDiag
+                        ? 'Horario con reserva. El diagnóstico comienza desde $600 MXN y cubre únicamente revisión; reparaciones y refacciones se cotizan por separado.'
+                        : 'Horario con reserva temporal para tu visita.')
                     : 'Este día está lleno o no tiene horarios disponibles para el tipo de visita seleccionado.';
             }
         } catch (err) {

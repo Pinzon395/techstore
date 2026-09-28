@@ -40,7 +40,7 @@ test('prioriza Mi Jornada y conserva el análisis bajo demanda', async ({ page }
     await expect(page.locator('#admin-page-title')).toHaveText('Mi jornada');
     await expect(page.locator('#journey-title')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Atención ahora' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Próximas 24 horas' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Hoy', exact: true })).toBeVisible();
     await expect(page.locator('#dashboard-period-label')).toHaveText(report.period.label);
 
     await page.locator('.journey-analysis > summary').click();

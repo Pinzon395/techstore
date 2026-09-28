@@ -22,15 +22,75 @@ export async function getStaticPaths() {
 
 const { item, complements = [], similar = [] } = Astro.props as any;
 const currentPrice = String(item.sale_price ?? item.base_price);
-const hasSale = item.sale_price != null && Number(item.sale_price) < Number(item.base_price);
+const basePrice = Number(item.base_price || 0);
+const effectivePrice = Number(currentPrice || 0);
+const hasSale = item.sale_price != null && Number(item.sale_price) < basePrice;
+const savingsAmount = hasSale ? basePrice - effectivePrice : 0;
+const savingsPercent = hasSale && basePrice > 0 ? Math.round((savingsAmount / basePrice) * 100) : 0;
+
 const availableQuantity = Math.max(0, Number(item.stock_quantity || 0) - Number(item.reserved_quantity || 0));
 const available = item.status === 'ACTIVE' && Boolean(item.allow_purchase) && (!item.track_stock || availableQuantity > 0);
 const sold = item.status === 'SOLD';
 const image = item.image_url || '/assets/images/tienda-hero-pixon.webp';
 const canonical = `https://pixon.com.mx/tienda/${item.slug}`;
-const title = item.seo_title || `${item.name} en Cancún | Pixon PC`;
-const description = item.seo_description || item.short_description || `${item.name} disponible en Pixon PC Cancún. Consulta condición, garantía y disponibilidad real.`;
-const money = (value: any) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: item.currency || 'MXN' }).format(Number(value || 0));
+
+const displayName = item.name.includes('Cancún') ? item.name : `${item.name} en Cancún`;
+const title = item.seo_title || `${displayName} | Pixon PC`;
+const description = item.seo_description || item.short_description || `${item.name} disponible en Pixon PC Cancún. Garantía por escrito y soporte técnico local.`;
+const money = (value: any) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: item.currency || 'MXN', maximumFractionDigits: 0 }).format(Number(value || 0));
+
+const TYPE_CONFIG: Record<string, { label: string; icon: string }> = {
+  EQUIPMENT: { label: 'Equipo Completo', icon: 'fa-solid fa-desktop' },
+  SERVICE: { label: 'Servicio Técnico', icon: 'fa-solid fa-screwdriver-wrench' },
+  HARDWARE: { label: 'Componente / Hardware', icon: 'fa-solid fa-microchip' },
+  PRODUCT: { label: 'Producto', icon: 'fa-solid fa-box' },
+  BUNDLE: { label: 'Paquete de Servicio', icon: 'fa-solid fa-layer-group' },
+};
+
+const CONDITION_CONFIG: Record<string, { label: string; icon: string }> = {
+  NEW: { label: 'Nuevo de Fábrica', icon: 'fa-solid fa-sparkles' },
+  REFURBISHED: { label: 'Reacondicionado Certificado', icon: 'fa-solid fa-arrows-rotate' },
+  USED: { label: 'Seminuevo Garantizado', icon: 'fa-solid fa-certificate' },
+  OPEN_BOX: { label: 'Caja Abierta (Excelente)', icon: 'fa-solid fa-box-open' },
+  NOT_APPLICABLE: { label: 'Garantizado en Taller', icon: 'fa-solid fa-shield-check' },
+};
+
+const typeInfo = TYPE_CONFIG[item.item_type] || { label: 'Tecnología', icon: 'fa-solid fa-tag' };
+const conditionInfo = CONDITION_CONFIG[item.condition_code] || { label: 'Garantizado', icon: 'fa-solid fa-shield-check' };
+
+const ATTRIBUTE_ICONS: Record<string, string> = {
+  cpu_model: 'fa-solid fa-microchip',
+  gpu_model: 'fa-solid fa-gamepad',
+  ram_capacity_gb: 'fa-solid fa-memory',
+  ram_type: 'fa-solid fa-memory',
+  ram_speed_mhz: 'fa-solid fa-gauge-high',
+  storage_capacity_gb: 'fa-solid fa-hard-drive',
+  storage_interface: 'fa-solid fa-hard-drive',
+  operating_system: 'fa-brands fa-windows',
+  screen_size_inches: 'fa-solid fa-tv',
+  screen_refresh_hz: 'fa-solid fa-bolt',
+  battery_health_percent: 'fa-solid fa-battery-half',
+  service_duration_minutes: 'fa-solid fa-clock',
+  service_warranty_days: 'fa-solid fa-shield-halved',
+  psu_watts: 'fa-solid fa-bolt',
+  gpu_vram_gb: 'fa-solid fa-gamepad',
+  motherboard_model: 'fa-solid fa-chess-board',
+  case_model: 'fa-solid fa-box',
+  cooling_type: 'fa-solid fa-fan',
+  what_is_included: 'fa-solid fa-list-check',
+  compatible_equipment: 'fa-solid fa-laptop',
+};
+
+const LOCAL_ZONES = [
+  'Cancún Centro', 'Zona Hotelera', 'Huayacán', 'Cumbres', 'Bonfil',
+  'Polígono Sur', 'Puerto Cancún', 'Av. Tulum', 'Bonampak',
+  'Puerto Juárez', 'Supermanzanas', 'Haciendas'
+];
+
+// Split description into structured lines/paragraphs
+const descriptionRaw = item.description || item.short_description || '';
+const descriptionChunks = descriptionRaw.split(/\n\n+/).map((c: string) => c.trim()).filter(Boolean);
+
 const productSchema = {
   '@context': 'https://schema.org',
   '@type': item.item_type === 'SERVICE' ? 'Service' : 'Product',
@@ -42,7 +102,7 @@ const productSchema = {
   offers: {
     '@type': 'Offer',
     url: canonical,
-    priceCurrency: item.currency,
+    priceCurrency: item.currency || 'MXN',
     price: currentPrice,
     availability: available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     itemCondition: item.condition_code === 'NEW' ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition',
@@ -58,66 +118,387 @@ const productSchema = {
 <Base title={title} description={description} canonical={canonical} image={image} schema={[productSchema]} extraStyles={[storeCss]} preloadSprite={true}>
   <Navbar />
   <main class="store-page store-detail-page">
-    <div class="store-shell"><Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Tienda', href: '/tienda' }, { label: item.name }]} /></div>
+    <div class="store-shell">
+      <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Tienda', href: '/tienda' }, { label: item.name }]} />
+    </div>
+
     <section class:list={["product-detail", sold && "is-sold"]} aria-labelledby="product-title">
       <div class="store-shell product-detail-grid">
+        <!-- Gallery Column -->
         <div class="product-gallery">
           <div class="product-main-image">
             <img src={image} alt={item.media?.[0]?.alt_text || item.name} width="900" height="700" fetchpriority="high" decoding="async" />
             {sold && <span class="product-sold-stamp">VENDIDO</span>}
           </div>
-          {item.media?.length > 1 && <div class="product-thumbnails" aria-label="Galería del producto">
-            {item.media.map((media: any, index: number) => <button type="button" class:list={[index === 0 && 'is-active']} data-product-image={media.url} data-product-alt={media.alt_text || item.name}><img src={media.url} alt="" width="96" height="72" loading="lazy" /></button>)}
-          </div>}
-        </div>
-        <div class="product-buy-panel">
-          <div class="product-badges">
-            {item.badges?.map((badge: any) => <span>{badge.label}</span>)}
-            <span>{item.condition_code === 'NEW' ? 'Nuevo' : item.condition_code === 'REFURBISHED' ? 'Reacondicionado' : item.condition_code === 'USED' ? 'Usado' : 'Pixon PC'}</span>
-          </div>
-          <h1 id="product-title">{item.name} en Cancún</h1>
-          <p class="product-lead">{item.short_description}</p>
-          <div class="product-price-block">
-            {hasSale && <del>{money(item.base_price)}</del>}
-            <strong>{money(currentPrice)}</strong>
-            {hasSale && <span>Ahorras {money(Number(item.base_price) - Number(currentPrice))}</span>}
-          </div>
-          <dl class="product-quick-facts">
-            <div><dt>Disponibilidad</dt><dd>{sold ? 'Vendido' : available ? 'Disponible' : 'No disponible'}</dd></div>
-            <div><dt>Condición</dt><dd>{item.condition_code?.replaceAll('_', ' ')}</dd></div>
-            <div><dt>Garantía</dt><dd>{item.warranty_text || 'Consulta cobertura según el artículo'}</dd></div>
-          </dl>
-          {sold ? (
-            <div class="product-sold-message"><h2>Esta oferta ya encontró dueño.</h2><p>La publicación permanece visible como referencia real. Revisa equipos disponibles o solicita uno similar.</p><a class="store-action store-action-primary" href="/tienda">Ver equipos disponibles</a></div>
-          ) : (
-            <div class="product-buy-actions">
-              <button class="store-action store-action-primary" type="button" data-add-to-cart data-item-id={item.id} data-item-slug={item.slug} data-item-name={item.name} data-item-price={currentPrice} data-item-currency={item.currency} data-item-image={image} data-item-type={item.item_type} data-item-max={item.track_stock ? Math.max(1, availableQuantity) : 100} disabled={!available}>{available ? (item.track_stock && availableQuantity === 1 ? 'Agregar última unidad' : 'Agregar al carrito') : 'No disponible'}</button>
-              <a class="store-action store-action-secondary" href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola Pixon PC, quiero consultar ${item.name} (${item.slug}).`)}`} target="_blank" rel="noopener noreferrer">Consultar antes de comprar</a>
+          {item.media?.length > 1 && (
+            <div class="product-thumbnails" aria-label="Galería del producto">
+              {item.media.map((media: any, index: number) => (
+                <button type="button" class:list={[index === 0 && 'is-active']} data-product-image={media.url} data-product-alt={media.alt_text || item.name}>
+                  <img src={media.url} alt="" width="96" height="72" loading="lazy" />
+                </button>
+              ))}
             </div>
           )}
-          <ul class="product-trust-list">
-            <li>Precio y stock revalidados al confirmar</li>
-            <li>Entrega con cita previa o entrega local sujeta a confirmación</li>
-            <li>Condiciones y garantía documentadas antes de confirmar la compra</li>
-            <li>Garantía documentada cuando corresponda</li>
-          </ul>
 
-          <a class="product-policy-link" href="/politica-de-envios-y-devoluciones">Ver condiciones de entrega y garantía</a>
+          <!-- Trust Strip Under Gallery -->
+          <div class="product-gallery-trust-strip">
+            <div class="trust-pill">
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+              <div>
+                <strong>Garantía por escrito</strong>
+                <small>{item.warranty_text || 'Respaldo directo en taller'}</small>
+              </div>
+            </div>
+            <div class="trust-pill">
+              <i class="fa-solid fa-shop" aria-hidden="true"></i>
+              <div>
+                <strong>Taller en Cancún</strong>
+                <small>Cto. Hacienda Chimay, 77539</small>
+              </div>
+            </div>
+            <div class="trust-pill">
+              <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+              <div>
+                <strong>Pruebas de estrés</strong>
+                <small>Rendimiento y térmicas validadas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buy Panel / Buy Box -->
+        <div class="product-buy-panel">
+          <!-- Badges & Category Header -->
+          <div class="product-meta-header">
+            <span class="product-badge-type">
+              <i class={typeInfo.icon} aria-hidden="true"></i> {typeInfo.label}
+            </span>
+            <span class="product-badge-condition">
+              <i class={conditionInfo.icon} aria-hidden="true"></i> {conditionInfo.label}
+            </span>
+            <span class:list={["product-badge-stock", sold ? "is-sold" : available ? "in-stock" : "out-of-stock"]}>
+              <span class="stock-dot"></span> {sold ? "Vendido" : available ? (item.track_stock && availableQuantity === 1 ? "¡Última unidad en Cancún!" : "En Stock Cancún") : "Por pedido"}
+            </span>
+            {item.badges?.map((badge: any) => (
+              <span class="product-badge-promo">
+                <i class="fa-solid fa-bolt" aria-hidden="true"></i> {badge.label}
+              </span>
+            ))}
+          </div>
+
+          <!-- Main H1 -->
+          <h1 id="product-title">{displayName}</h1>
+
+          <!-- SKU & Verification Row -->
+          <div class="product-sku-row">
+            <span>SKU: <strong>{item.sku || `PIX-${item.id}`}</strong></span>
+            <span>•</span>
+            <span>Publicación verificada en Cancún</span>
+          </div>
+
+          <!-- Short Lead -->
+          <p class="product-lead">{item.short_description}</p>
+
+          <!-- Price Block -->
+          <div class="product-price-block">
+            <div class="product-price-main">
+              <strong>{money(effectivePrice)}</strong>
+              {hasSale && <del>{money(basePrice)}</del>}
+              {hasSale && (
+                <span class="product-discount-pill">
+                  <i class="fa-solid fa-tag" aria-hidden="true"></i> Ahorras {money(savingsAmount)} (-{savingsPercent}%)
+                </span>
+              )}
+            </div>
+            <div class="product-price-tax-note">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              <span>Precio final en pesos mexicanos (MXN) • Pago contra entrega, SPEI o tarjeta</span>
+            </div>
+          </div>
+
+          <!-- Quick Facts 2x2 Grid -->
+          <div class="product-quick-facts-grid">
+            <div class="quick-fact-card">
+              <div class="quick-fact-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>
+              <div class="quick-fact-content">
+                <span class="quick-fact-label">Disponibilidad</span>
+                <strong class="quick-fact-value">{sold ? 'Vendido' : available ? (item.track_stock && availableQuantity === 1 ? 'Última unidad' : 'En Stock Cancún') : 'Agotado'}</strong>
+                <small>Entrega hoy o recolección</small>
+              </div>
+            </div>
+            <div class="quick-fact-card">
+              <div class="quick-fact-icon"><i class="fa-solid fa-certificate" aria-hidden="true"></i></div>
+              <div class="quick-fact-content">
+                <span class="quick-fact-label">Condición</span>
+                <strong class="quick-fact-value">{conditionInfo.label}</strong>
+                <small>Probado y verificado</small>
+              </div>
+            </div>
+            <div class="quick-fact-card">
+              <div class="quick-fact-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+              <div class="quick-fact-content">
+                <span class="quick-fact-label">Garantía</span>
+                <strong class="quick-fact-value">{item.warranty_text || '1 año con Pixon PC'}</strong>
+                <small>Póliza escrita sellada</small>
+              </div>
+            </div>
+            <div class="quick-fact-card">
+              <div class="quick-fact-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
+              <div class="quick-fact-content">
+                <span class="quick-fact-label">Ubicación</span>
+                <strong class="quick-fact-value">Taller Cancún</strong>
+                <small>Cto. Hacienda Chimay</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buy Actions -->
+          {sold ? (
+            <div class="product-sold-message">
+              <h2>Esta oferta ya encontró dueño</h2>
+              <p>La publicación permanece visible como referencia real de catálogo. Revisa equipos disponibles o solicita un ensamble personalizado.</p>
+              <a class="store-action store-action-primary" href="/tienda">Ver equipos disponibles en catálogo</a>
+            </div>
+          ) : (
+            <div class="product-buy-actions">
+              <button
+                class="store-action store-action-primary"
+                type="button"
+                data-add-to-cart
+                data-item-id={item.id}
+                data-item-slug={item.slug}
+                data-item-name={item.name}
+                data-item-price={currentPrice}
+                data-item-currency={item.currency}
+                data-item-image={image}
+                data-item-type={item.item_type}
+                data-item-max={item.track_stock ? Math.max(1, availableQuantity) : 100}
+                disabled={!available}
+              >
+                <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                {available ? (item.track_stock && availableQuantity === 1 ? 'Agregar última unidad al carrito' : 'Agregar al carrito') : 'No disponible'}
+              </button>
+
+              <a
+                class="store-action store-action-whatsapp"
+                href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola Pixon PC, me interesa adquirir o consultar disponibilidad de: ${item.name} (${item.slug}). ¿Sigue disponible en taller?`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar disponibilidad por WhatsApp
+              </a>
+
+              <a class="product-ticket-link" href="/tickets">
+                <i class="fa-solid fa-ticket" aria-hidden="true"></i> ¿Requieres cotización especial o factura? Crear ticket
+              </a>
+            </div>
+          )}
+
+          <!-- Enclosed Payment & Assurance Box -->
+          <div class="product-trust-box">
+            <div class="product-payments-accepted">
+              <span class="payments-title"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Métodos de pago aceptados:</span>
+              <div class="payment-methods-pills">
+                <span class="payment-pill"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Efectivo al recibir</span>
+                <span class="payment-pill"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Transferencia SPEI</span>
+                <span class="payment-pill"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Tarjeta en taller físico</span>
+              </div>
+            </div>
+
+            <div class="trust-box-divider"></div>
+
+            <ul class="product-trust-checklist">
+              <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Inspección técnica y pruebas de estrés validadas en Cancún.</span></li>
+              <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Retiro directo en taller o entrega acordada en Cancún y alrededores.</span></li>
+              <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Póliza de garantía por escrito entregada con tu compra.</span></li>
+              <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Soporte técnico directo sin intermediarios ni llamadas en espera.</span></li>
+            </ul>
+
+            <a class="product-policy-link" href="/politica-de-envios-y-devoluciones">
+              <span>Ver condiciones detalladas de entrega y garantía</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- Product Technical Information & Scope -->
     <section class="store-shell product-information" aria-labelledby="product-specs-title">
-      <article><h2 id="product-specs-title">Especificaciones y estado</h2><p>{item.description || item.short_description}</p>
-        {item.attributes?.length ? <dl class="product-spec-table">{item.attributes.map((attribute: any) => <div><dt>{attribute.label}</dt><dd>{typeof attribute.value === 'object' ? JSON.stringify(attribute.value) : String(attribute.value ?? '')}{attribute.unit ? ` ${attribute.unit}` : ''}</dd></div>)}</dl> : <p>Solicita la ficha completa si necesitas validar compatibilidad o detalles técnicos.</p>}
+      <!-- Left Column: Specs & Description -->
+      <article class="product-info-sheet">
+        <h2 id="product-specs-title">
+          <i class="fa-solid fa-microchip" aria-hidden="true"></i> Ficha Técnica y Especificaciones
+        </h2>
+
+        <div class="product-description-formatted">
+          {descriptionChunks.map((chunk: string) => {
+            const lines = chunk.split('\n').map((l: string) => l.trim()).filter(Boolean);
+            const bullets = lines.filter((l: string) => l.startsWith('- '));
+            if (bullets.length > 0) {
+              const header = lines[0].endsWith(':') ? lines[0] : null;
+              const items = bullets.map((b: string) => b.replace(/^-\s*/, ''));
+              return (
+                <div>
+                  {header && <p><strong>{header}</strong></p>}
+                  <ul class="scope-checklist" style="margin-bottom: 1rem;">
+                    {items.map((b: string) => (
+                      <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>{b}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            }
+            return <p>{chunk}</p>;
+          })}
+        </div>
+
+        {item.attributes?.length > 0 && (
+          <div class="product-spec-grid" aria-label="Especificaciones del hardware">
+            {item.attributes.map((attr: any) => (
+              <div class="product-spec-card">
+                <i class={ATTRIBUTE_ICONS[attr.key] || 'fa-solid fa-circle-info'} aria-hidden="true"></i>
+                <div>
+                  <span class="product-spec-label">{attr.label}</span>
+                  <strong class="product-spec-val">
+                    {typeof attr.value === 'object'
+                      ? (Array.isArray(attr.value) ? attr.value.join(', ') : JSON.stringify(attr.value))
+                      : String(attr.value ?? '')}
+                    {attr.unit ? ` ${attr.unit}` : ''}
+                  </strong>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </article>
-      <aside><h2>Qué incluye</h2><p>La entrega incluye únicamente lo descrito en esta publicación. Confirma accesorios, instalación y alcance del servicio antes de pagar.</p><a href="/tickets">Crear ticket de consulta</a></aside>
+
+      <!-- Right Column: Purchase Scope & Cancun Delivery -->
+      <aside class="product-scope-aside">
+        <!-- What's included card -->
+        <div class="scope-card">
+          <h3><i class="fa-solid fa-box-check" aria-hidden="true"></i> ¿Qué incluye tu compra?</h3>
+          <ul class="scope-checklist">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Equipo / Servicio 100% probado en banco de diagnóstico.</span></li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Cable de alimentación o accesorios correspondientes.</span></li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Póliza de garantía por escrito con fecha y sello de Pixon PC.</span></li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Windows y controladores optimizados, listo para usarse.</span></li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Asesoría y soporte posventa directo en taller.</span></li>
+          </ul>
+        </div>
+
+        <!-- Local Delivery & Coverage in Cancun -->
+        <div class="scope-card">
+          <h3><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> Entrega y Cobertura en Cancún</h3>
+          <p style="font-size: 0.84rem; color: var(--store-ink); line-height: 1.5; margin: 0 0 0.5rem;">
+            Puedes recolectar personalmente en taller o solicitar entrega segura en las principales zonas de Cancún:
+          </p>
+          <div class="local-delivery-zones">
+            {LOCAL_ZONES.map((zone) => <span class="zone-tag">{zone}</span>)}
+          </div>
+          <div class="nap-contact-box">
+            <span><strong>Taller Pixon PC:</strong> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+            <span><strong>Atención técnica:</strong> +52 998 669 0777</span>
+            <span><strong>Horario:</strong> Lunes a Sábado con cita o recolección programada</span>
+          </div>
+        </div>
+
+        <!-- Consultation Card -->
+        <div class="scope-card" style="background: #f8fcfe;">
+          <h3><i class="fa-solid fa-comments" aria-hidden="true"></i> ¿Dudas antes de comprar?</h3>
+          <p style="font-size: 0.84rem; color: #3f596d; line-height: 1.5; margin: 0 0 0.85rem;">
+            Escríbenos directamente o crea un ticket para validar compatibilidad, solicitar mejoras de RAM/SSD o pedir factura con IVA.
+          </p>
+          <div style="display: grid; gap: 0.5rem;">
+            <a class="store-action store-action-whatsapp" href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola Pixon PC, tengo una duda sobre: ${item.name} (${item.slug}).`)}`} target="_blank" rel="noopener noreferrer" style="min-height: 42px; font-size: 0.85rem;">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chatear por WhatsApp
+            </a>
+            <a class="home-store-btn-details" href="/tickets" style="min-height: 42px; font-size: 0.85rem; justify-content: center;">
+              <i class="fa-solid fa-ticket" aria-hidden="true"></i> Crear ticket de soporte
+            </a>
+          </div>
+        </div>
+      </aside>
     </section>
 
-    {complements.length > 0 && !sold && <section class="store-shell product-complements" aria-labelledby="complements-title"><header><h2 id="complements-title">Servicios complementarios</h2><p>Agrega soporte profesional; el total definitivo se valida en checkout.</p></header><div class="product-complement-grid">{complements.map((service: any) => <label><input type="checkbox" data-complement-id={service.id} data-complement-slug={service.slug} data-complement-name={service.name} data-complement-price={service.sale_price ?? service.base_price} data-complement-currency={service.currency} /><span><strong>{service.name}</strong><small>{money(service.sale_price ?? service.base_price)}</small></span></label>)}</div><p class="product-complement-total">Total visual: <strong id="product-visual-total">{money(currentPrice)}</strong></p></section>}
+    <!-- Complements -->
+    {complements.length > 0 && !sold && (
+      <section class="store-shell product-complements" aria-labelledby="complements-title">
+        <header>
+          <h2 id="complements-title">Servicios complementarios</h2>
+          <p>Agrega soporte profesional y optimización; el total definitivo se valida en checkout.</p>
+        </header>
+        <div class="product-complement-grid">
+          {complements.map((service: any) => (
+            <label>
+              <input
+                type="checkbox"
+                data-complement-id={service.id}
+                data-complement-slug={service.slug}
+                data-complement-name={service.name}
+                data-complement-price={service.sale_price ?? service.base_price}
+                data-complement-currency={service.currency}
+              />
+              <span>
+                <strong>{service.name}</strong>
+                <small>{money(service.sale_price ?? service.base_price)}</small>
+              </span>
+            </label>
+          ))}
+        </div>
+        <p class="product-complement-total">
+          Total visual con complementos: <strong id="product-visual-total">{money(currentPrice)}</strong>
+        </p>
+      </section>
+    )}
 
-    {similar.length > 0 && <section class="store-shell product-similar" aria-labelledby="similar-title"><header><h2 id="similar-title">Alternativas disponibles</h2><a href="/tienda">Ver todo el catálogo →</a></header><div class="home-store-grid">{similar.map((candidate: any) => <article class="home-store-card"><a class="home-store-card-media" href={`/tienda/${candidate.slug}`}><img src={candidate.image_url || '/assets/images/tienda-hero-pixon.webp'} alt={candidate.name} width="420" height="300" loading="lazy" /></a><div class="home-store-card-body"><h3><a href={`/tienda/${candidate.slug}`}>{candidate.name}</a></h3><strong>{money(candidate.sale_price ?? candidate.base_price)}</strong></div></article>)}</div></section>}
+    <!-- Similar Items -->
+    {similar.length > 0 && (
+      <section class="store-shell product-similar" aria-labelledby="similar-title">
+        <header>
+          <h2 id="similar-title">Alternativas disponibles</h2>
+          <a href="/tienda">Ver todo el catálogo →</a>
+        </header>
+        <div class="home-store-grid">
+          {similar.map((candidate: any) => (
+            <article class="home-store-card store-product-card">
+              <a class="store-card-media" href={`/tienda/${candidate.slug}`}>
+                <img src={candidate.image_url || '/assets/images/tienda-hero-pixon.webp'} alt={candidate.name} width="420" height="300" loading="lazy" />
+                <div class="store-card-flags">
+                  <div class="store-card-flags-left">
+                    <span class="store-card-flag flag-available">
+                      <span class="stock-dot"></span> En Stock Cancún
+                    </span>
+                  </div>
+                </div>
+              </a>
+              <div class="store-card-body">
+                <h3><a href={`/tienda/${candidate.slug}`}>{candidate.name}</a></h3>
+                <p class="store-card-description">{candidate.short_description || 'Equipo garantizado en Cancún.'}</p>
+                <div class="store-card-price-row">
+                  <div class="store-card-price-numbers">
+                    <span class="store-card-price">{money(candidate.sale_price ?? candidate.base_price)}</span>
+                    {candidate.sale_price && Number(candidate.sale_price) < Number(candidate.base_price) && (
+                      <del class="store-card-original">{money(candidate.base_price)}</del>
+                    )}
+                  </div>
+                </div>
+                <div class="store-card-actions">
+                  <a class="home-store-btn-details" href={`/tienda/${candidate.slug}`}>
+                    Ver detalles <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                  </a>
+                  <a class="home-store-btn-wa" href={`https://wa.me/529986690777?text=${encodeURIComponent(`Hola Pixon PC, me interesa: ${candidate.name}`)}`} target="_blank" rel="noopener noreferrer" title="Consultar por WhatsApp">
+                    <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
   </main>
+
   <CartDrawer showLauncher={true} />
   <Footer />
   <script src="/scripts/store-cart.js?v=20260819-1" is:inline defer></script>

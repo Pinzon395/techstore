@@ -1,0 +1,503 @@
+---
+interface Props {
+  variant?: 'homevisit' | 'preventive';
+  class?: string;
+}
+
+const { variant = 'preventive', class: className = '' } = Astro.props;
+const isHomeVisit = variant === 'homevisit';
+---
+
+<figure class:list={['homevisit-visual', { 'homevisit-visual--preventive': !isHomeVisit }, className]} aria-hidden="true">
+  <svg
+    viewBox={isHomeVisit ? "0 0 640 380" : "330 50 340 255"}
+    focusable="false"
+    class:list={['homevisit-story-svg', { 'homevisit-story-svg--preventive': !isHomeVisit }]}
+  >
+    <defs>
+      <linearGradient id="hv-card-bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#092543" />
+        <stop offset="60%" stop-color="#071b30" />
+        <stop offset="100%" stop-color="#051424" />
+      </linearGradient>
+      <linearGradient id="hv-pin-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#38bdf8" />
+        <stop offset="100%" stop-color="#0284c7" />
+      </linearGradient>
+      <linearGradient id="hv-house-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#0e3a63" />
+        <stop offset="100%" stop-color="#08233d" />
+      </linearGradient>
+      <linearGradient id="hv-screen-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#d8f8fc" />
+        <stop offset="100%" stop-color="#7dd3fc" />
+      </linearGradient>
+      <linearGradient id="hv-pc-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#14426d" />
+        <stop offset="100%" stop-color="#081e33" />
+      </linearGradient>
+      <linearGradient id="hv-check-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#10b981" />
+        <stop offset="100%" stop-color="#047857" />
+      </linearGradient>
+      <linearGradient id="hv-sheen-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
+        <stop offset="50%" stop-color="#ffffff" stop-opacity="0.35" />
+        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+      </linearGradient>
+
+      <filter id="hv-shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#010e1a" flood-opacity="0.5" />
+      </filter>
+      <filter id="hv-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.9" />
+      </filter>
+      <filter id="hv-glow-green" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#10b981" flood-opacity="0.95" />
+      </filter>
+      {isHomeVisit && (
+        <filter id="hv-door-glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#38bdf8" flood-opacity="0.8" />
+        </filter>
+      )}
+    </defs>
+
+    {isHomeVisit ? (
+      <>
+        <!-- Main Canvas Frame -->
+        <rect class="hv-canvas" x="8" y="8" width="624" height="364" rx="20" fill="url(#hv-card-bg)" stroke="#1e4e79" stroke-width="1.5" stroke-opacity="0.65" />
+
+        <!-- Subtle Radial Depth Glow behind customer home -->
+        <ellipse cx="485" cy="200" rx="140" ry="120" fill="#0c3254" opacity="0.35" />
+
+        <!-- Background Technical Grid Lines -->
+        <g class="hv-grid-decor" opacity="0.16">
+          <line x1="8" y1="285" x2="632" y2="285" stroke="#38bdf8" stroke-width="1" />
+          <line x1="8" y1="120" x2="632" y2="120" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+          <line x1="8" y1="190" x2="632" y2="190" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+        </g>
+
+        <!-- Travel Pathway Curve (From Pixon Hub to Customer Home) -->
+        <path class="hv-path-base" d="M 85 282 Q 220 305 355 282 T 475 282" fill="none" stroke="#0e3d66" stroke-width="7" stroke-linecap="round" />
+        <path class="hv-path-trail" d="M 85 282 Q 220 305 355 282 T 475 282" fill="none" stroke="url(#hv-pin-grad)" stroke-width="3.5" stroke-linecap="round" pathLength="100" />
+
+        <!-- STAGE 1: Pixon PC Origin Hub (Left) -->
+        <g class="hv-origin-hub">
+          <circle class="hv-pulse-ring" cx="80" cy="250" r="22" fill="none" stroke="#38bdf8" stroke-width="2" />
+          <ellipse cx="80" cy="282" rx="34" ry="9" fill="#041221" />
+          <ellipse cx="80" cy="280" rx="24" ry="6" fill="#0d426d" />
+          <g class="hv-pin-marker" filter="url(#hv-shadow)">
+            <path d="M 80 200 C 64 200 51 213 51 229 C 51 251 80 274 80 274 C 80 274 109 251 109 229 C 109 213 96 200 80 200 Z" fill="url(#hv-pin-grad)" />
+            <circle cx="80" cy="227" r="11" fill="#ffffff" />
+            <path d="M 75 224 L 85 224 M 80 219 L 80 229 M 76 233 L 84 233" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" />
+          </g>
+        </g>
+
+        <!-- STAGE 2: Customer Home Architecture (Right) -->
+        <g class="hv-destination-home" filter="url(#hv-shadow)">
+          <path d="M 370 95 L 505 35 L 610 82 V 282 H 370 Z" fill="url(#hv-house-grad)" stroke="#1d5485" stroke-width="1.5" />
+          <path d="M 360 98 L 505 32 L 620 85" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <rect x="415" y="75" width="65" height="42" rx="4" fill="#0c2e4f" stroke="#1d5485" stroke-width="1" />
+          <line x1="447" y1="75" x2="447" y2="117" stroke="#1d5485" stroke-width="1" />
+          <line x1="415" y1="96" x2="480" y2="96" stroke="#1d5485" stroke-width="1" />
+          <g class="hv-door-entrance">
+            <rect x="376" y="210" width="22" height="72" rx="2" fill="#08233f" stroke="#22d3ee" stroke-width="1.2" />
+            <rect class="hv-door-light" x="378" y="212" width="18" height="68" rx="1" fill="#38bdf8" opacity="0" filter="url(#hv-door-glow)" />
+          </g>
+          <rect x="400" y="232" width="200" height="9" rx="3" fill="#1b4d79" stroke="#38bdf8" stroke-width="1" />
+          <rect x="410" y="241" width="6" height="41" rx="2" fill="#0c2c4a" />
+          <rect x="585" y="241" width="6" height="41" rx="2" fill="#0c2c4a" />
+        </g>
+      </>
+    ) : (
+      <>
+        <!-- Preventive Mode: Frame & Atmosphere for Workstation -->
+        <rect class="hv-canvas" x="330" y="50" width="340" height="255" rx="18" fill="url(#hv-card-bg)" stroke="#1e4e79" stroke-width="1.5" stroke-opacity="0.65" />
+        <ellipse cx="500" cy="180" rx="130" ry="85" fill="#0c3254" opacity="0.45" />
+        <g class="hv-grid-decor" opacity="0.16">
+          <line x1="330" y1="282" x2="670" y2="282" stroke="#38bdf8" stroke-width="1" />
+          <line x1="330" y1="120" x2="670" y2="120" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+          <line x1="330" y1="190" x2="670" y2="190" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
+        </g>
+        <ellipse cx="500" cy="283" rx="110" ry="7" fill="#041221" opacity="0.65" />
+        <!-- Workstation Desk Base -->
+        <rect x="400" y="232" width="200" height="9" rx="3" fill="#1b4d79" stroke="#38bdf8" stroke-width="1" />
+        <rect x="410" y="241" width="6" height="41" rx="2" fill="#0c2c4a" />
+        <rect x="585" y="241" width="6" height="41" rx="2" fill="#0c2c4a" />
+      </>
+    )}
+
+    <!-- SHARED WORKSTATION EQUIPMENT (Identical coordinates & structure) -->
+    <g class="hv-workstation" filter="url(#hv-shadow)">
+      <!-- Modern PC Gamer Tower -->
+      <g class="hv-pc-tower">
+        <rect x="515" y="130" width="82" height="102" rx="8" fill="url(#hv-pc-grad)" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.85" />
+        <rect x="523" y="140" width="66" height="82" rx="4" fill="#05192c" stroke="#174b77" stroke-width="1" />
+        <rect class="hv-heatsink-block" x="528" y="146" width="30" height="30" rx="3" fill="#0c3254" stroke="#f59e0b" stroke-width="1" />
+        
+        <circle class="hv-fan-ring" cx="543" cy="161" r="10" fill="#061c30" stroke="#38bdf8" stroke-width="1.5" />
+        <g class="hv-fan-blades hv-fan-blades--cpu">
+          <line x1="543" y1="153" x2="543" y2="169" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" />
+          <line x1="535" y1="161" x2="551" y2="161" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" />
+        </g>
+
+        <rect x="528" y="188" width="56" height="14" rx="3" fill="#0f3d66" stroke="#38bdf8" stroke-width="1" />
+
+        <circle class="hv-fan-ring" cx="578" cy="158" r="9" fill="#07223b" stroke="#38bdf8" stroke-width="1.2" />
+        <circle class="hv-fan-ring" cx="578" cy="192" r="9" fill="#07223b" stroke="#38bdf8" stroke-width="1.2" />
+        <g class="hv-fan-blades hv-fan-blades--front1">
+          <line x1="578" y1="151" x2="578" y2="165" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
+          <line x1="571" y1="158" x2="585" y2="158" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
+        </g>
+        <g class="hv-fan-blades hv-fan-blades--front2">
+          <line x1="578" y1="185" x2="578" y2="199" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
+          <line x1="571" y1="192" x2="585" y2="192" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
+        </g>
+
+        <circle class="hv-pc-power-led" cx="585" cy="136" r="2" fill="#38bdf8" />
+      </g>
+
+      <!-- Laptop Setup -->
+      <g class="hv-laptop">
+        <path d="M 405 232 L 485 232 L 480 224 L 410 224 Z" fill="#0d3558" stroke="#1d588a" stroke-width="1" />
+        <rect x="412" y="162" width="68" height="62" rx="4" fill="#07233d" stroke="#22d3ee" stroke-width="1.3" />
+        <rect class="hv-laptop-screen" x="417" y="167" width="58" height="47" rx="2" fill="url(#hv-screen-grad)" />
+        <path class="hv-screen-waveform" d="M 420 190 L 428 190 L 433 180 L 439 198 L 444 186 L 450 190 L 472 190" fill="none" stroke="#0369a1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+
+      <!-- Cleaning Light Sheen Sweep across PC & Laptop -->
+      <rect class="hv-sheen-sweep" x="390" y="125" width="220" height="115" rx="6" fill="url(#hv-sheen-grad)" opacity="0" />
+    </g>
+
+    <!-- STAGE 4 (Only for Home Visit): Technician Actor -->
+    {isHomeVisit && (
+      <g class="hv-technician-actor">
+        <ellipse class="hv-tech-shadow" cx="0" cy="0" rx="34" ry="7" fill="#010d18" opacity="0.7" />
+        <g class="hv-tech-body">
+          <g class="hv-arm hv-arm--left">
+            <line x1="-13" y1="-68" x2="-23" y2="-44" stroke="#0369a1" stroke-width="7" stroke-linecap="round" />
+          </g>
+          <g class="hv-leg hv-leg--left">
+            <line x1="-9" y1="-32" x2="-13" y2="-6" stroke="#082f49" stroke-width="8" stroke-linecap="round" />
+            <path d="M -18 -6 L -3 -6" stroke="#0284c7" stroke-width="5" stroke-linecap="round" />
+          </g>
+          <g class="hv-leg hv-leg--right">
+            <line x1="9" y1="-32" x2="13" y2="-6" stroke="#0c4a6e" stroke-width="8" stroke-linecap="round" />
+            <path d="M 9 -6 L 24 -6" stroke="#38bdf8" stroke-width="5" stroke-linecap="round" />
+          </g>
+          <path d="M -16 -70 C -16 -75 -6 -78 0 -78 C 6 -78 16 -75 16 -70 L 14 -32 L -14 -32 Z" fill="#0284c7" stroke="#0369a1" stroke-width="1.5" />
+          <path d="M -9 -70 L 0 -50 L 9 -70" fill="none" stroke="#38bdf8" stroke-width="2.4" />
+          <rect x="-14" y="-34" width="28" height="5" rx="1.5" fill="#0c3254" />
+          <circle cx="0" cy="-92" r="16" fill="#fed7aa" />
+          <path d="M -14 -97 C -14 -107 10 -107 15 -97 L 22 -92 L 14 -90 Z" fill="#0369a1" />
+          <g class="hv-arm hv-arm--right">
+            <line x1="13" y1="-68" x2="23" y2="-46" stroke="#0284c7" stroke-width="7" stroke-linecap="round" />
+            <g class="hv-tech-kit" transform="translate(18, -48)">
+              <rect x="0" y="0" width="30" height="21" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="1.8" />
+              <path d="M 8 0 V -6 C 8 -8 11 -10 15 -10 C 19 -10 22 -8 22 -6 V 0" fill="none" stroke="#b45309" stroke-width="2.5" />
+              <line x1="0" y1="10" x2="30" y2="10" stroke="#b45309" stroke-width="1.4" />
+              <rect x="12" y="8" width="6" height="5" rx="1" fill="#fef08a" />
+            </g>
+          </g>
+        </g>
+      </g>
+    )}
+
+    <!-- SHARED CLEANING EFFECTS (Dust & Airflow) -->
+    <g class="hv-cleaning-effects">
+      <g class="hv-dust-particles" fill="#f59e0b">
+        <circle class="hv-dust-fleck" cx="548" cy="165" r="2.5" />
+        <circle class="hv-dust-fleck" cx="562" cy="178" r="2" />
+        <circle class="hv-dust-fleck" cx="540" cy="195" r="2.5" />
+        <circle class="hv-dust-fleck" cx="528" cy="170" r="1.5" />
+        <circle class="hv-dust-fleck" cx="572" cy="155" r="2" />
+        <circle class="hv-dust-fleck" cx="582" cy="190" r="1.8" />
+        <circle class="hv-dust-fleck" cx="440" cy="205" r="2.2" />
+        <circle class="hv-dust-fleck" cx="456" cy="216" r="1.8" />
+        <circle class="hv-dust-fleck" cx="426" cy="198" r="1.5" />
+        <circle class="hv-dust-fleck" cx="550" cy="182" r="2" />
+        <circle class="hv-dust-fleck" cx="536" cy="155" r="1.8" />
+        <circle class="hv-dust-fleck" cx="468" cy="208" r="2.2" />
+      </g>
+
+      <g class="hv-airflow-streams">
+        <path class="hv-air-stream hv-air-stream--1" d="M 485 165 C 515 145 545 150 600 155" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+        <path class="hv-air-stream hv-air-stream--2" d="M 485 190 C 520 180 550 180 605 185" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" />
+        <path class="hv-air-stream hv-air-stream--3" d="M 485 215 C 515 210 545 205 600 210" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+        <path class="hv-air-stream hv-air-stream--4" d="M 395 205 C 425 195 450 195 480 205" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" />
+      </g>
+    </g>
+
+    <!-- SHARED READY STATE (Sparkles & Success Check Badge) -->
+    <g class="hv-ready-state">
+      <g class="hv-gleams">
+        <path class="hv-gleam hv-gleam--1" d="M 515 130 Q 515 125 510 125 Q 515 125 515 120 Q 515 125 520 125 Q 515 125 515 130 Z" fill="#ffffff" filter="url(#hv-glow-cyan)" />
+        <path class="hv-gleam hv-gleam--2" d="M 595 225 Q 595 220 590 220 Q 595 220 595 215 Q 595 220 600 220 Q 595 220 595 225 Z" fill="#ffffff" filter="url(#hv-glow-cyan)" />
+      </g>
+
+      <g class="hv-success-badge" filter="url(#hv-glow-green)">
+        <circle cx="565" cy="100" r="20" fill="url(#hv-check-grad)" stroke="#ffffff" stroke-width="2.5" />
+        <path d="M 555 100 L 562 107 L 576 93" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+    </g>
+  </svg>
+</figure>
+
+<style is:global>
+  /* Base SVG framing */
+  .homevisit-visual {
+    width: 100%;
+    margin: 0;
+  }
+  .homevisit-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 14px 28px rgba(3, 14, 26, 0.45));
+  }
+
+  /* Preventive Variant: Focused Workstation Hero */
+  .homevisit-visual--preventive {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .homevisit-story-svg--preventive {
+    aspect-ratio: 340 / 255;
+  }
+
+  /* SVG Animation Elements (13-second loop) */
+  .hv-pulse-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hv-pulse-fx 13s cubic-bezier(0.2, 0.8, 0.25, 1) infinite;
+  }
+  .hv-pin-marker {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: hv-pin-fx 13s cubic-bezier(0.22, 0.8, 0.28, 1) infinite;
+  }
+  .hv-path-trail {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: hv-path-fx 13s ease-in-out infinite;
+  }
+
+  /* Prominent Technician Actor (2.2x scale) */
+  .hv-technician-actor {
+    animation: hv-tech-travel 13s cubic-bezier(0.35, 0.05, 0.2, 1) infinite;
+  }
+  .hv-tech-body {
+    animation: hv-tech-bob 0.48s ease-in-out infinite alternate;
+  }
+  .hv-leg--left {
+    transform-box: fill-box;
+    transform-origin: top center;
+    animation: hv-leg-left-cycle 0.48s ease-in-out infinite alternate;
+  }
+  .hv-leg--right {
+    transform-box: fill-box;
+    transform-origin: top center;
+    animation: hv-leg-right-cycle 0.48s ease-in-out infinite alternate;
+  }
+  .hv-arm--left {
+    transform-box: fill-box;
+    transform-origin: top center;
+    animation: hv-arm-left-cycle 0.48s ease-in-out infinite alternate;
+  }
+  .hv-arm--right {
+    transform-box: fill-box;
+    transform-origin: top center;
+    animation: hv-arm-right-cycle 0.48s ease-in-out infinite alternate;
+  }
+  .hv-tech-kit {
+    transform-box: fill-box;
+    transform-origin: top center;
+    animation: hv-kit-sway 0.48s ease-in-out infinite alternate;
+  }
+
+  /* House Door Entrance Glow */
+  .hv-door-light {
+    animation: hv-door-glow-fx 13s ease-in-out infinite;
+  }
+
+  /* Workstation Focus Zoom */
+  .hv-workstation {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hv-workstation-focus 13s cubic-bezier(0.3, 0.05, 0.2, 1) infinite;
+  }
+  .hv-heatsink-block {
+    animation: hv-thermal-fx 13s ease-in-out infinite;
+  }
+  .hv-fan-blades {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hv-fans-spin 13s linear infinite;
+  }
+  .hv-laptop-screen {
+    animation: hv-screen-pulse 13s ease-in-out infinite;
+  }
+
+  /* Cleaning Phase: Dust & Airflow */
+  .hv-dust-particles {
+    animation: hv-dust-dissipate 13s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+  }
+  .hv-air-stream {
+    stroke-dasharray: 40 80;
+    stroke-dashoffset: 120;
+    animation: hv-airflow-fx 13s linear infinite;
+  }
+  .hv-air-stream--2 { animation-delay: 90ms; }
+  .hv-air-stream--3 { animation-delay: 180ms; }
+  .hv-air-stream--4 { animation-delay: 140ms; }
+
+  /* Sheen Sweep & Sparkles & Ready Check */
+  .hv-sheen-sweep {
+    animation: hv-sheen-fx 13s ease-in-out infinite;
+  }
+  .hv-gleam {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hv-gleam-fx 13s ease-in-out infinite;
+  }
+  .hv-gleam--2 { animation-delay: 140ms; }
+  .hv-success-badge {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hv-check-pop 13s cubic-bezier(0.18, 0.9, 0.32, 1.25) infinite;
+  }
+
+  /* ==================== KEYFRAME DEFINITIONS ==================== */
+  /* Stage 1: Pixon Pin & Pulse */
+  @keyframes hv-pulse-fx {
+    0%, 2% { opacity: 0; transform: scale(0.6); }
+    5% { opacity: 0.9; transform: scale(1.35); }
+    8%, 100% { opacity: 0; transform: scale(1.6); }
+  }
+
+  @keyframes hv-pin-fx {
+    0% { opacity: 0; transform: translateY(-8px) scale(0.9); }
+    6%, 35% { opacity: 1; transform: translateY(0) scale(1); }
+    40%, 100% { opacity: 0.75; transform: translateY(0) scale(0.95); }
+  }
+
+  /* Stage 2: Route Trail Draws (8% - 15%) */
+  @keyframes hv-path-fx {
+    0%, 7% { stroke-dashoffset: 100; opacity: 0; }
+    8% { opacity: 0.95; }
+    15%, 45% { stroke-dashoffset: 0; opacity: 0.85; }
+    50%, 94% { stroke-dashoffset: 0; opacity: 0.45; }
+    98%, 100% { stroke-dashoffset: -100; opacity: 0; }
+  }
+
+  /* Stage 3: Technician Walks (15% - 38%), Arrives (38% - 43%), Enters Home (43% - 48%) */
+  @keyframes hv-tech-travel {
+    0%, 14% { opacity: 0; transform: translate(75px, 280px); }
+    15% { opacity: 1; transform: translate(75px, 280px); }
+    38%, 43% { opacity: 1; transform: translate(360px, 280px); }
+    48% { opacity: 0; transform: translate(378px, 280px) scale(0.92); }
+    100% { opacity: 0; transform: translate(378px, 280px); }
+  }
+
+  @keyframes hv-tech-bob {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-3px); }
+  }
+
+  @keyframes hv-leg-left-cycle {
+    0% { transform: rotate(16deg); }
+    100% { transform: rotate(-16deg); }
+  }
+
+  @keyframes hv-leg-right-cycle {
+    0% { transform: rotate(-16deg); }
+    100% { transform: rotate(16deg); }
+  }
+
+  @keyframes hv-arm-left-cycle {
+    0% { transform: rotate(-14deg); }
+    100% { transform: rotate(14deg); }
+  }
+
+  @keyframes hv-arm-right-cycle {
+    0% { transform: rotate(14deg); }
+    100% { transform: rotate(-14deg); }
+  }
+
+  @keyframes hv-kit-sway {
+    0% { transform: rotate(-5deg); }
+    100% { transform: rotate(5deg); }
+  }
+
+  @keyframes hv-door-glow-fx {
+    0%, 37% { opacity: 0; }
+    40%, 46% { opacity: 0.95; }
+    50%, 100% { opacity: 0; }
+  }
+
+  /* Stage 4: Workstation Focus Zoom (48% - 94%) */
+  @keyframes hv-workstation-focus {
+    0%, 46% { transform: translate(0, 0) scale(1); }
+    52%, 92% { transform: translate(-18px, -4px) scale(1.08); }
+    97%, 100% { transform: translate(0, 0) scale(1); }
+  }
+
+  @keyframes hv-thermal-fx {
+    0%, 52% { stroke: #f59e0b; }
+    55%, 72% { stroke: #f59e0b; }
+    76%, 92% { stroke: #38bdf8; }
+    96%, 100% { stroke: #f59e0b; }
+  }
+
+  /* Stage 5: Fans Spin & Dust Clears (55% - 74%) */
+  @keyframes hv-fans-spin {
+    0%, 52% { transform: rotate(0deg); }
+    55% { transform: rotate(90deg); }
+    74% { transform: rotate(2160deg); }
+    88%, 94% { transform: rotate(2700deg); }
+    98%, 100% { transform: rotate(2880deg); }
+  }
+
+  @keyframes hv-screen-pulse {
+    0%, 44% { opacity: 0.4; }
+    50%, 92% { opacity: 1; }
+    96%, 100% { opacity: 0.4; }
+  }
+
+  @keyframes hv-dust-dissipate {
+    0%, 53% { opacity: 0.95; transform: translate(0, 0) scale(1); }
+    62% { opacity: 0.8; transform: translate(22px, -14px) scale(0.9); }
+    70% { opacity: 0.25; transform: translate(52px, -30px) scale(0.45); }
+    74%, 100% { opacity: 0; transform: translate(70px, -40px) scale(0); }
+  }
+
+  @keyframes hv-airflow-fx {
+    0%, 53% { opacity: 0; stroke-dashoffset: 120; }
+    57% { opacity: 0.95; }
+    76% { opacity: 0.95; stroke-dashoffset: -120; }
+    82%, 100% { opacity: 0; stroke-dashoffset: -160; }
+  }
+
+  /* Stage 6: Sheen Sweep (82% - 90%) & Sparkles & Ready Check (90% - 96%) */
+  @keyframes hv-sheen-fx {
+    0%, 81% { opacity: 0; transform: translateX(-140px) skewX(-20deg); }
+    83% { opacity: 0.75; }
+    88% { opacity: 0.75; transform: translateX(120px) skewX(-20deg); }
+    90%, 100% { opacity: 0; transform: translateX(140px) skewX(-20deg); }
+  }
+
+  @keyframes hv-gleam-fx {
+    0%, 84% { opacity: 0; transform: scale(0.2); }
+    87%, 93% { opacity: 1; transform: scale(1.25) rotate(15deg); }
+    96%, 100% { opacity: 0; transform: scale(0.2); }
+  }
+
+  @keyframes hv-check-pop {
+    0%, 88% { opacity: 0; transform: translateY(10px) scale(0.4); }
+    91% { opacity: 1; transform: translateY(-4px) scale(1.15); }
+    93%, 96% { opacity: 1; transform: translateY(0) scale(1); }
+    99%, 100% { opacity: 0; transform: translateY(-4px) scale(0.8); }
+  }
+</style>

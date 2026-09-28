@@ -52,7 +52,7 @@ try {
     const onError = (error) => errors.push(error.message);
     page.on('pageerror', onError);
     const response = await page.goto(`http://127.0.0.1:4323${route}`, { waitUntil: 'domcontentloaded', timeout: 15_000 });
-    await page.waitForTimeout(40);
+    await page.waitForSelector('h1', { timeout: 1500 }).catch(() => {});
     const metrics = await page.evaluate(() => ({
       h1: document.querySelectorAll('h1').length,
       scrollWidth: document.documentElement.scrollWidth,

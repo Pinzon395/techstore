@@ -1,0 +1,2437 @@
+---
+// IphoneAdvancedRepairView.astro — Reparación avanzada de iPhone en Cancún
+// Placa lógica, cortos, daño por líquido, alimentación y microsoldadura | Pixon PC
+const { service, category } = Astro.props;
+
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+// WhatsApp prefill exacto según requerimientos
+const waMsg = encodeURIComponent(
+  'Hola Pixon PC. Necesito revisar un iPhone.\n\n' +
+  'Modelo:\n' +
+  'Falla:\n' +
+  '¿Enciende?:\n' +
+  '¿Se mojó?:\n' +
+  '¿Se calienta?:\n' +
+  '¿Fue reparado antes?:\n' +
+  'Zona:'
+);
+
+const waLink = `https://wa.me/529986690777?text=${waMsg}`;
+
+// ── 1. Síntomas de falla compleja / electrónica ──────────────────────────────
+const fallasAvanzadas = [
+  {
+    id: 'no-enciende',
+    icon: 'fa-power-off',
+    badge: 'Alimentación / Placa',
+    h3: 'iPhone que no enciende',
+    desc: 'El equipo puede tener una falla de alimentación, batería, línea principal, corto, corrosión o daño en placa. Se requiere medición técnica antes de determinar la causa exacta.',
+    action: 'Requiere medición de consumo',
+    urgent: false,
+  },
+  {
+    id: 'huele-quemado',
+    icon: 'fa-fire-flame-curved',
+    badge: 'Peligro de corto',
+    h3: 'Huele a quemado o humo',
+    desc: 'Deja de cargarlo o encenderlo de inmediato. Un olor a quemado puede indicar sobrecalentamiento extremo, componente carbonizado o corto activo en la placa lógica.',
+    action: 'Solicitar revisión urgente',
+    urgent: true,
+  },
+  {
+    id: 'mojado',
+    icon: 'fa-droplet',
+    badge: 'Daño por líquido',
+    h3: 'Se mojó o cayó al agua',
+    desc: 'No continúes encendiéndolo ni lo conectes a corriente. El líquido provoca corrosión galvánica y cortocircuitos incluso después de que el exterior parece completamente seco.',
+    action: 'No encender ni cargar',
+    urgent: true,
+  },
+  {
+    id: 'se-calienta',
+    icon: 'fa-temperature-arrow-up',
+    badge: 'Fuga de corriente',
+    h3: 'Se calienta anormalmente',
+    desc: 'No todo calentamiento significa el mismo problema. Puede estar relacionado con batería, línea de alimentación, corto, controlador de carga, software o placa. Se confirma mediante revisión con cámara térmica.',
+    action: 'Diagnóstico térmico',
+    urgent: false,
+  },
+  {
+    id: 'reinicios',
+    icon: 'fa-rotate',
+    badge: 'Intermitencia',
+    h3: 'Reinicios constantes',
+    desc: 'Reinicios continuos pueden deberse a alimentación inestable, periféricos dañados (flex de sensor, cámara frontal, auricular), software o daño electrónico. No asumir placa sin pruebas previas.',
+    action: 'Descarte por etapas',
+    urgent: false,
+  },
+  {
+    id: 'bootloop',
+    icon: 'fa-spinner',
+    badge: 'Arranque bloqueado',
+    h3: 'Se queda en la manzana (Boot loop)',
+    desc: 'Separamos con pruebas si es un fallo del sistema iOS / partición corrupta de memoria NAND o si una línea de comunicación I2C está bloqueada por hardware.',
+    action: 'Diagnóstico software vs hardware',
+    urgent: false,
+  },
+  {
+    id: 'no-carga',
+    icon: 'fa-plug-circle-xmark',
+    badge: 'Gestión de carga',
+    h3: 'No carga o marca falso contacto',
+    desc: 'No siempre significa cambiar el puerto de carga. Puede ser cable, puerto sucio, batería degradada, controlador de carga (Tristar/Hydra/Tigris), línea de sensado o placa.',
+    action: 'Medición de línea de carga',
+    urgent: false,
+  },
+  {
+    id: 'corto-circuito',
+    icon: 'fa-bolt',
+    badge: 'Falla electrónica',
+    h3: 'Cortocircuito en placa',
+    desc: 'Un corto significa que una línea de alimentación está derivando energía a tierra de forma incorrecta. Localizamos mediante mediciones y cámara térmica qué componente específico lo está provocando.',
+    action: 'Localización a nivel componente',
+    urgent: true,
+  },
+];
+
+// ── 2. Protocolo de diagnóstico por etapas (No es adivinar) ───────────────────
+const etapasDiagnostico = [
+  {
+    num: '01',
+    icon: 'fa-clipboard-user',
+    title: 'Historia de la falla',
+    desc: 'Registramos si hubo caída, exposición a líquidos, uso de cargadores de auto genéricos o reparaciones previas.',
+  },
+  {
+    num: '02',
+    icon: 'fa-microscope',
+    title: 'Inspección visual minuciosa',
+    desc: 'Revisamos bajo microscopio el estado físico del chasis, blindajes, tornillos internos y conectores FPC.',
+  },
+  {
+    num: '03',
+    icon: 'fa-droplet-slash',
+    title: 'Sellos de humedad LCI',
+    desc: 'Inspeccionamos los sensores de contacto de líquidos y buscamos signos tempranos de salitre o sulfatación.',
+  },
+  {
+    num: '04',
+    icon: 'fa-wave-square',
+    title: 'Medición de voltajes clave',
+    desc: 'Medimos en modo diodo y voltaje las líneas maestras de alimentación (V_BAT, V_MAIN y líneas secundarias).',
+  },
+  {
+    num: '05',
+    icon: 'fa-gauge-high',
+    title: 'Consumo con fuente DC',
+    desc: 'Conectamos a fuente de laboratorio regulada para analizar la curva de consumo en miliamperios en tiempo real.',
+  },
+  {
+    num: '06',
+    icon: 'fa-fire',
+    title: 'Inspección térmica infrarroja',
+    desc: 'Ubicamos con cámara térmica el componente exacto que disipa calor anormal o presenta fuga a tierra.',
+  },
+  {
+    num: '07',
+    icon: 'fa-puzzle-piece',
+    title: 'Aislamiento de periféricos',
+    desc: 'Desconectamos cámaras, flexes y sensores para confirmar que la falla radique en la placa y no en un módulo.',
+  },
+  {
+    num: '08',
+    icon: 'fa-file-invoice-dollar',
+    title: 'Determinación de viabilidad',
+    desc: 'Te explicamos con total transparencia la causa localizada, riesgo, tiempo estimado y cotización cerrada antes de reparar.',
+  },
+];
+
+// ── 3. Casos técnicos reales documentados ──────────────────────────────────────
+const casosReales = [
+  {
+    modelo: 'iPhone 12 Pro',
+    falla: 'Completamente apagado tras golpe seco en Cancún Centro',
+    sintoma: 'No encendía ni respondía al cargador. Consumo instantáneo anormal de 1.9A en fuente de poder de laboratorio.',
+    diagnostico: 'Detección con cámara térmica de condensador cerámico SMD C3100 en cortocircuito a tierra en la línea VDD_MAIN.',
+    intervencion: 'Retiro y reemplazo del microcomponente bajo microscopio trinocular, saneamiento de línea y encendido normal con 100% de fotos y archivos conservados.',
+    resultado: 'Reparación a nivel componente exitosa sin cambiar la placa completa.',
+  },
+  {
+    modelo: 'iPhone 13',
+    falla: 'Caída accidental a alberca en hotel de Zona Hotelera',
+    sintoma: 'El equipo se apagó al cabo de 2 horas. Presentaba sulfatación incipiente en conectores de display y módulo TrueDepth.',
+    diagnostico: 'Líquido penetró por auricular; sulfato provocó falso contacto en línea de alimentación del backlight y cortocircuito en sensor.',
+    intervencion: 'Descontaminación técnica, saneamiento químico de corrosión y reconstrucción de 2 micro-pistas con microhilo de 0.02 mm.',
+    resultado: 'Equipo encendiendo y operando con normalidad. Se advirtió al cliente sobre riesgos futuros.',
+  },
+  {
+    modelo: 'iPhone 11',
+    falla: 'Dejó de cargar y no prende tras conectar a cargador de automóvil',
+    sintoma: 'Consumo de carga 0.00A en medidor USB. La batería estaba completamente agotada pero sana.',
+    diagnostico: 'Sobrevoltaje causó fallo destructivo en el circuito integrado de gestión de carga (IC Tristar/Hydra).',
+    intervencion: 'Extracción del circuito integrado dañado con tobera de calor regulada a 340°C, limpieza de pads y microsoldadura de nuevo IC compatible.',
+    resultado: 'Ciclo de carga restaurado a 1.4A estables y encendido inmediato.',
+  },
+];
+
+// ── 4. Servicios modulares relacionados (Separación semántica clara) ───────────
+const serviciosRelacionados = [
+  {
+    href: '/servicios/telefono/reparacion-pantalla-iphone',
+    icon: 'fa-mobile-screen',
+    title: 'Cambio de pantalla iPhone',
+    desc: '¿Solo se estrelló el cristal o falló el touch? Reparación modular directa de pantalla con opciones OLED.',
+    badge: 'Modular',
+  },
+  {
+    href: '/servicios/telefono/cambio-bateria-iphone',
+    icon: 'fa-battery-half',
+    title: 'Cambio de batería iPhone',
+    desc: 'Si tu batería se descarga rápido, se apaga al 20% o se infló, realizamos reemplazo con diagnóstico previo.',
+    badge: 'Modular',
+  },
+  {
+    href: '/servicios/telefono/reparacion-humedad-iphone',
+    icon: 'fa-droplet',
+    title: 'Atención por humedad iPhone',
+    desc: 'Servicio prioritario de secado técnico, descontaminación y desulfatación cuando el equipo acaba de mojarse.',
+    badge: 'Humedad',
+  },
+  {
+    href: '/servicios/telefono/reparacion-carga-iphone',
+    icon: 'fa-plug',
+    title: 'Centro de carga iPhone',
+    desc: 'Limpieza y sustitución de flex o puerto Lightning / USB-C cuando hay falso contacto físico en el conector.',
+    badge: 'Modular',
+  },
+  {
+    href: '/servicios/telefono/reparacion-face-id-iphone',
+    icon: 'fa-face-smile',
+    title: 'Reparación de Face ID',
+    desc: 'Revisión y calibración de sensores de profundidad TrueDepth y cámara infrarroja cuando Face ID se desactiva.',
+    badge: 'Sensores',
+  },
+  {
+    href: '/servicios/telefono/diagnostico-iphone',
+    icon: 'fa-stethoscope',
+    title: 'Diagnóstico integral iPhone',
+    desc: 'Evaluación general por software y hardware para determinar el origen de fallas intermitentes o desconocidas.',
+    badge: 'Revisión',
+  },
+];
+
+// ── 5. Preguntas Frecuentes (Completas y sin contradicciones) ─────────────────
+const faqItems = [
+  {
+    question: '¿Por qué mi iPhone no enciende?',
+    answer: 'Un iPhone que no enciende puede tener múltiples orígenes: batería agotada por debajo del umbral de arranque, puerto de carga sucio o dañado, pantalla sin retroiluminación, cortocircuito en líneas principales o fallo de placa lógica. En Pixon PC conectamos el equipo a una fuente de laboratorio para medir el consumo eléctrico exacto y determinar la causa antes de abrir o cambiar piezas.',
+  },
+  {
+    question: '¿Reparan iPhone mojado en Cancún?',
+    answer: 'Sí, pero con un protocolo honesto. Un equipo mojado no se trata como un diagnóstico normal de $600: primero requiere desensamble, descontaminación técnica y control de corrosión. Después de este saneamiento se evalúa si requiere reparación electrónica de placa o sustitución de piezas. No prometemos garantías milagrosas porque el daño por líquido depende del tiempo transcurrido y los minerales del agua.',
+  },
+  {
+    question: '¿Qué significa que mi iPhone esté en corto?',
+    answer: 'Significa que un componente electrónico (generalmente un condensador, diodo o circuito integrado) se degradó internamente y está conectando la línea positiva de alimentación directamente a tierra (GND). Esto hace que la energía de la batería se descargue instantáneamente en forma de calor y que las protecciones del teléfono impidan que encienda.',
+  },
+  {
+    question: '¿Reparan la placa lógica o la cambian completa?',
+    answer: 'Cuando técnicamente es viable, reparamos a nivel componente: localizamos el microcomponente dañado en la placa y lo reemplazamos mediante microsoldadura. Esto es mucho más accesible que cambiar la placa lógica completa y permite en la gran mayoría de casos conservar toda tu información y el emparejamiento original de fábrica.',
+  },
+  {
+    question: '¿Qué es la microsoldadura?',
+    answer: 'Es una técnica de laboratorio que permite intervenir componentes microscópicos (del tamaño de un grano de arena) en la placa lógica utilizando microscopio trinocular, aleaciones de estaño de punto de fusión controlado y toberas de aire caliente de precisión. Se utiliza para soldar circuitos integrados, microfiltros y puentear pistas rotas.',
+  },
+  {
+    question: 'Mi iPhone huele a quemado, ¿lo puedo seguir cargando?',
+    answer: 'No. Bajo ninguna circunstancia intentes cargarlo ni forzar el encendido. El olor a quemado indica que un componente superó los límites térmicos y sufrió daño físico. Continuar suministrando corriente eléctrica puede quemar capas internas de la placa lógica o dañar de forma irreversible la memoria NAND o el procesador.',
+  },
+  {
+    question: '¿Cuánto cuesta el diagnóstico técnico de iPhone?',
+    answer: 'El diagnóstico técnico para fallas avanzadas comienza desde $600 MXN. Cubre la revisión técnica especializada, desensamble, mediciones de consumo en laboratorio y la formulación del presupuesto. El costo puede variar según la complejidad del despiece y la gravedad de la falla; y se informa al cliente con total claridad antes de proceder.',
+  },
+  {
+    question: '¿El diagnóstico incluye la reparación?',
+    answer: 'No. El diagnóstico cubre el tiempo, instrumental y evaluación técnica necesaria para identificar la causa raíz de la falla. La reparación, refacciones necesarias, limpieza química por humedad o trabajos de microsoldadura se cotizan por separado para que tú decidas si deseas autorizar la intervención.',
+  },
+  {
+    question: '¿Cuánto tarda una reparación de placa lógica?',
+    answer: 'El tiempo depende de la complejidad de la falla. Un diagnóstico inicial suele tomar entre 24 y 48 horas de observación y mediciones en laboratorio. Si la reparación es viable y se autoriza, el trabajo a nivel componente suele completarse en 2 a 5 días hábiles, incluyendo las pruebas de estabilidad térmica posteriores.',
+  },
+  {
+    question: '¿Se pueden recuperar mis fotos y archivos si la placa está dañada?',
+    answer: 'En muchos casos sí. En iOS la información está encriptada y vive en la memoria NAND, la cual depende de que el procesador y las líneas de alimentación funcionen para desencriptar los datos. Si el procesador y la NAND están intactos, el objetivo del trabajo de placa es restaurar la alimentación eléctrica para extraer o conservar tu información.',
+  },
+  {
+    question: '¿Qué garantía tiene una reparación de placa?',
+    answer: 'La garantía aplicable se confirma según la reparación realizada y los componentes intervenidos, y se entrega por escrito. En reparaciones a nivel componente se garantiza el circuito sustituido. En equipos con daño por líquido o corrosión severa, las garantías se especifican según el alcance del saneamiento.',
+  },
+  {
+    question: '¿Qué pasa si otro técnico ya abrió o manipuló mi iPhone?',
+    answer: 'Podemos revisarlo, pero la intervención previa modifica el diagnóstico y el riesgo: componentes desalineados, tornillos traspasados en placa (long-screw damage), blindajes arrancados o pistas rotas pueden complicar la reparación. Lo evaluamos con honestidad y te explicamos el estado real antes de cotizar.',
+  },
+  {
+    question: '¿Pueden atenderme si estoy hospedado en un hotel de Cancún?',
+    answer: 'Sí. Puedes contactarnos por WhatsApp desde tu hotel (en Zona Hotelera, Puerto Cancún, Costa Mujeres, etc.) para una evaluación inicial y coordinar la recepción de tu equipo. Ten en cuenta que la reparación de placa y microsoldadura no se realiza en habitaciones de hotel; requiere obligatoriamente el banco de trabajo y microscopio de nuestro taller.',
+  },
+];
+---
+
+<div class="iar-wrapper" id="iphone-advanced-repair-page">
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 1 · HERO TÉCNICO INTERACTIVO (Único H1)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-hero" id="hero" aria-labelledby="hero-h1">
+    <div class="iar-hero-ambient" aria-hidden="true"></div>
+    <div class="container iar-hero-grid">
+
+      <div class="iar-hero-eyebrow-wrap">
+        <div class="iar-eyebrow-pill">
+          <span class="iar-pill-pulse"></span>
+          <span>REPARACIÓN AVANZADA · IPHONE · CANCÚN</span>
+        </div>
+      </div>
+
+      <h1 id="hero-h1" class="iar-h1">
+        Reparación de iPhone en Cancún
+      </h1>
+
+      <!-- Columna Visual: Simulación Técnica de Diagnóstico Electrónico -->
+      <div class="iar-hero-visual">
+        <div class="iar-board-card" id="iar-board-simulator">
+          <!-- Cabecera de telemetría de laboratorio -->
+          <div class="iar-sim-header">
+            <div class="iar-sim-status">
+              <span class="iar-status-led"></span>
+              <span>BANCO DE PRUEBAS · DIAGNÓSTICO DC</span>
+            </div>
+            <span class="iar-sim-target">Apple iPhone Logic Board</span>
+          </div>
+
+          <!-- Representación de la Placa Lógica y Medición -->
+          <div class="iar-sim-screen">
+            <svg class="iar-board-svg" viewBox="0 0 340 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <defs>
+                <!-- Gradiente de calor térmico para hotspot de corto -->
+                <radialGradient id="thermal-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ef4444" stop-opacity="0.9" />
+                  <stop offset="40%" stop-color="#f97316" stop-opacity="0.6" />
+                  <stop offset="75%" stop-color="#eab308" stop-opacity="0.25" />
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient id="trace-flow" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="50%" stop-color="#ef4444" />
+                  <stop offset="100%" stop-color="#f97316" />
+                </linearGradient>
+              </defs>
+
+              <!-- Silueta esquemática de placa iPhone (Forma en L) -->
+              <path class="iar-pcb-outline" d="M 40,30 L 300,30 L 300,160 L 220,160 L 220,370 L 40,370 Z" />
+
+              <!-- Pistas de cobre y buses de alimentación -->
+              <path class="iar-trace iar-trace--main" d="M 60,60 L 140,60 L 140,110 L 240,110" />
+              <path class="iar-trace iar-trace--vmain" d="M 140,110 L 140,240 L 180,240" />
+              <path class="iar-trace iar-trace--sub1" d="M 70,160 L 140,160" />
+              <path class="iar-trace iar-trace--sub2" d="M 80,290 L 170,290 L 170,240" />
+              <path class="iar-trace iar-trace--sub3" d="M 170,330 L 170,300" />
+
+              <!-- Puntos de prueba / Test Points (TP) -->
+              <circle cx="60" cy="60" r="3.5" class="iar-tp" />
+              <circle cx="240" cy="110" r="3.5" class="iar-tp" />
+              <circle cx="140" cy="180" r="3.5" class="iar-tp" />
+              <circle cx="80" cy="290" r="3.5" class="iar-tp" />
+
+              <!-- Microchips principales estilizados -->
+              <!-- SoC / CPU A-Series Bionic -->
+              <g class="iar-chip-group iar-chip--cpu" transform="translate(60, 80)">
+                <rect width="64" height="64" rx="6" class="iar-chip-rect" />
+                <text x="32" y="34" class="iar-chip-label" text-anchor="middle">A-BIONIC</text>
+                <text x="32" y="47" class="iar-chip-sub" text-anchor="middle">CPU / GPU</text>
+              </g>
+
+              <!-- PMIC (Gestión de Energía) -->
+              <g class="iar-chip-group iar-chip--pmic" transform="translate(150, 60)">
+                <rect width="48" height="38" rx="4" class="iar-chip-rect" />
+                <text x="24" y="22" class="iar-chip-label" text-anchor="middle">PMIC</text>
+                <text x="24" y="31" class="iar-chip-sub" text-anchor="middle">POWER</text>
+              </g>
+
+              <!-- NAND Flash Memory -->
+              <g class="iar-chip-group iar-chip--nand" transform="translate(60, 180)">
+                <rect width="56" height="74" rx="5" class="iar-chip-rect" />
+                <text x="28" y="40" class="iar-chip-label" text-anchor="middle">NAND</text>
+                <text x="28" y="52" class="iar-chip-sub" text-anchor="middle">NVMe</text>
+              </g>
+
+              <!-- IC de Carga (Tristar / Hydra) -->
+              <g class="iar-chip-group iar-chip--charge" transform="translate(60, 290)">
+                <rect width="44" height="34" rx="4" class="iar-chip-rect" />
+                <text x="22" y="20" class="iar-chip-label" text-anchor="middle">HYDRA</text>
+                <text x="22" y="28" class="iar-chip-sub" text-anchor="middle">CHARGER</text>
+              </g>
+
+              <!-- Componentes SMD pasivos (Resistencias y Condensadores) -->
+              <rect x="135" y="235" width="10" height="6" rx="1.5" class="iar-smd" />
+              <rect x="150" y="235" width="10" height="6" rx="1.5" class="iar-smd" />
+              <rect x="165" y="235" width="12" height="7" rx="2" class="iar-smd iar-smd--short" />
+
+              <!-- Hotspot térmico infrarrojo sobre el componente en corto -->
+              <circle cx="171" cy="238" r="28" fill="url(#thermal-glow)" class="iar-thermal-spot" />
+
+              <!-- Agujas de prueba / Probes del multímetro de precisión -->
+              <g class="iar-probe iar-probe--pos" transform="translate(162, 210)">
+                <path d="M 0,0 L 8,26" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" />
+                <circle cx="8" cy="26" r="2" fill="#ffffff" />
+              </g>
+              <g class="iar-probe iar-probe--neg" transform="translate(182, 210)">
+                <path d="M 0,0 L -8,26" stroke="#000000" stroke-width="2.2" stroke-linecap="round" />
+                <circle cx="-8" cy="26" r="2" fill="#ffffff" />
+              </g>
+            </svg>
+
+            <!-- Medidor Digital HUD Flotante -->
+            <div class="iar-hud-box">
+              <div class="iar-hud-metric">
+                <span class="iar-hud-label">LÍNEA MONITOREADA</span>
+                <strong class="iar-hud-val">VDD_MAIN / PP_BATT</strong>
+              </div>
+              <div class="iar-hud-metric">
+                <span class="iar-hud-label">CONSUMO FUENTE</span>
+                <strong class="iar-hud-val iar-hud-val--alert">1.85 A (ANORMAL)</strong>
+              </div>
+              <div class="iar-hud-status">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <span>Cortocircuito a tierra localizado</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pie del simulador con botón de replay interactivo -->
+          <div class="iar-sim-footer">
+            <button type="button" class="iar-sim-replay-btn" id="iar-replay-btn" aria-label="Reiniciar simulación de diagnóstico">
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+              <span>Simular diagnóstico electrónico</span>
+            </button>
+            <span class="iar-sim-note">Detección por infrarrojo y consumo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna de Contenido Secundario, CTAs & Confianza -->
+      <div class="iar-hero-summary iar-hero-text">
+        <p class="iar-hero-subtitle">
+          Fallas de placa, cortos, daño por líquido y microsoldadura.
+        </p>
+
+        <p class="iar-hero-body">
+          Si tu iPhone no enciende, se mojó, huele a quemado, se calienta o presenta una falla electrónica, revisamos alimentación, cortos, corrosión y placa antes de recomendar una reparación.
+        </p>
+      </div>
+
+      <!-- Grupo de 3 CTAs principales (Regla 7) -->
+      <div class="iar-hero-ctas">
+        <a href="#ticket-diagnostico" class="iar-btn iar-btn--primary">
+          <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+          <span>SOLICITAR DIAGNÓSTICO</span>
+        </a>
+        <a href={waLink} target="_blank" rel="noopener noreferrer" class="iar-btn iar-btn--whatsapp">
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+          <span>CONTAR MI FALLA POR WHATSAPP</span>
+        </a>
+        <a href="#fallas" class="iar-btn iar-btn--outline">
+          <span>VER QUÉ FALLAS REPARAMOS</span>
+          <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <!-- 4 Señales de Confianza Estrictas & Microcopy -->
+      <div class="iar-hero-trust-wrap">
+        <div class="iar-trust-quad" aria-label="Garantías del servicio">
+          <div class="iar-tq-item">
+            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+            <span>Diagnóstico electrónico</span>
+          </div>
+          <div class="iar-tq-item">
+            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
+            <span>Reparación de placa cuando aplica</span>
+          </div>
+          <div class="iar-tq-item">
+            <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
+            <span>Cotización antes de reparar</span>
+          </div>
+          <div class="iar-tq-item">
+            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+            <span>Atención con cita previa</span>
+          </div>
+        </div>
+
+        <p class="iar-hero-microcopy">
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          <span>No cargues ni enciendas el equipo si se mojó o huele a quemado. El diagnóstico técnico comienza desde $600 MXN.</span>
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 2 · BANNER ORIENTADOR (Diferencia Semántica < 5 Segundos)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-router-bar" aria-label="Selector rápido de intención">
+    <div class="container iar-router-grid">
+      <!-- Card 1: Pantalla modular -->
+      <a href="/servicios/telefono/reparacion-pantalla-iphone" class="iar-rcard">
+        <div class="iar-rcard-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+        <div class="iar-rcard-info">
+          <strong>¿Solo se rompió la pantalla?</strong>
+          <p>Cristal estrellado, manchas OLED, líneas o touch sin respuesta. Cambio de display modular.</p>
+        </div>
+        <span class="iar-rcard-link">Ir a pantallas <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+
+      <!-- Card 2: Reparación Avanzada (Activa) -->
+      <div class="iar-rcard iar-rcard--active">
+        <div class="iar-rcard-icon"><i class="fa-solid fa-microchip"></i></div>
+        <div class="iar-rcard-info">
+          <div class="iar-rcard-tag">Estás aquí</div>
+          <strong>Reparación avanzada de iPhone</strong>
+          <p>No enciende, se mojó, huele a quemado, reinicios en bucle, corto en placa o microsoldadura.</p>
+        </div>
+      </div>
+
+      <!-- Card 3: Batería -->
+      <a href="/servicios/telefono/cambio-bateria-iphone" class="iar-rcard">
+        <div class="iar-rcard-icon"><i class="fa-solid fa-battery-half"></i></div>
+        <div class="iar-rcard-info">
+          <strong>¿Problema con la batería?</strong>
+          <p>Condición baja en iOS, el teléfono se apaga con 30% o la batería se infló. Reemplazo de módulo.</p>
+        </div>
+        <span class="iar-rcard-link">Ir a batería <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 3 · ¿QUÉ SIGNIFICA EL DIAGNÓSTICO TÉCNICO? (Política Clara)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-policy-section" aria-labelledby="policy-h2">
+    <div class="container">
+      <div class="iar-policy-box">
+        <div class="iar-policy-header">
+          <span class="iar-kicker"><i class="fa-solid fa-scale-balanced"></i> TRANSPARENCIA Y POLÍTICA DE SERVICIO</span>
+          <h2 id="policy-h2" class="iar-h2">¿Qué cubre el diagnóstico técnico de iPhone?</h2>
+        </div>
+
+        <div class="iar-policy-content">
+          <div class="iar-policy-main">
+            <p class="iar-policy-lead">
+              El diagnóstico técnico comienza desde <strong>$600 MXN</strong> y cubre la revisión especializada necesaria para identificar la causa raíz de la falla y preparar una cotización certera.
+            </p>
+            <p class="iar-policy-sub">
+              <strong>El diagnóstico es estrictamente diagnóstico.</strong> No incluye la reparación, piezas de repuesto, limpieza química profunda por salitre ni mano de obra de soldadura; estos conceptos se cotizan por separado para que tú decidas con total libertad antes de invertir.
+            </p>
+          </div>
+
+          <div class="iar-policy-grid">
+            <div class="iar-pitem">
+              <i class="fa-solid fa-circle-check iar-pitem-check" aria-hidden="true"></i>
+              <div>
+                <strong>Revisión de consumo en laboratorio</strong>
+                <p>Medición con fuente DC estabilizada para detectar fugas o sobreconsumo.</p>
+              </div>
+            </div>
+            <div class="iar-pitem">
+              <i class="fa-solid fa-circle-check iar-pitem-check" aria-hidden="true"></i>
+              <div>
+                <strong>Inspección visual y microscópica</strong>
+                <p>Verificación de blindajes, pistas, soldaduras, caídas y corrosión galvánica.</p>
+              </div>
+            </div>
+            <div class="iar-pitem">
+              <i class="fa-solid fa-circle-check iar-pitem-check" aria-hidden="true"></i>
+              <div>
+                <strong>Costo variable según complejidad</strong>
+                <p>El valor base inicia en $600 MXN; equipos con salitre o intervenidos se evalúan por caso.</p>
+              </div>
+            </div>
+            <div class="iar-pitem">
+              <i class="fa-solid fa-circle-check iar-pitem-check" aria-hidden="true"></i>
+              <div>
+                <strong>Cero reparaciones sin autorización</strong>
+                <p>No se aplica ninguna soldadura ni se cambia ningún componente sin tu visto bueno.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 4 · ¿QUÉ FALLA PRESENTA TU IPHONE? (Catálogo de Síntomas)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-symptoms-section" id="fallas" aria-labelledby="fallas-h2">
+    <div class="container">
+      <div class="iar-sec-head">
+        <span class="iar-kicker"><i class="fa-solid fa-stethoscope"></i> CATÁLOGO DE SÍNTOMAS AVANZADOS</span>
+        <h2 id="fallas-h2" class="iar-h2">¿Qué falla presenta tu iPhone?</h2>
+        <p class="iar-sec-desc">
+          Cuando una falla no se resuelve simplemente cambiando una pantalla o batería, se requiere un análisis electrónico metódico. Selecciona tu caso:
+        </p>
+      </div>
+
+      <div class="iar-symptoms-grid">
+        {fallasAvanzadas.map((f) => (
+          <article class={`iar-scard ${f.urgent ? 'iar-scard--urgent' : ''}`} id={`falla-${f.id}`}>
+            <div class="iar-scard-top">
+              <span class="iar-scard-badge">{f.badge}</span>
+              <div class="iar-scard-icon">
+                <i class={`fa-solid ${f.icon}`} aria-hidden="true"></i>
+              </div>
+            </div>
+            <h3 class="iar-scard-h3">{f.h3}</h3>
+            <p class="iar-scard-desc">{f.desc}</p>
+            <div class="iar-scard-action">
+              <i class={f.urgent ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-arrow-right'} aria-hidden="true"></i>
+              <span>{f.action}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="iar-symptoms-callout">
+        <div class="iar-callout-icon"><i class="fa-brands fa-whatsapp"></i></div>
+        <div class="iar-callout-body">
+          <strong>¿Tu iPhone presenta una combinación de varias de estas fallas?</strong>
+          <p>Envíanos el modelo exacto, qué ocurrió y si tuvo contacto con agua. Te orientamos antes de que lo muevas.</p>
+        </div>
+        <a href={waLink} target="_blank" rel="noopener noreferrer" class="iar-btn iar-btn--whatsapp iar-callout-btn">
+          <i class="fa-brands fa-whatsapp"></i> Consultar falla
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 5 · ¿CÓMO LO DIAGNOSTICAMOS? — NO ES ADIVINAR
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-protocol-section" aria-labelledby="protocol-h2">
+    <div class="container">
+      <div class="iar-sec-head">
+        <span class="iar-kicker"><i class="fa-solid fa-microscope"></i> METODOLOGÍA CIENTÍFICA DE BANCO</span>
+        <h2 id="protocol-h2" class="iar-h2">¿Cómo diagnosticamos tu iPhone? No es adivinar</h2>
+        <p class="iar-sec-desc">
+          No cambiamos piezas al azar para ver si enciende. Seguimos un protocolo técnico de 8 etapas para aislar la causa precisa con instrumental calibrado de laboratorio:
+        </p>
+      </div>
+
+      <div class="iar-protocol-grid">
+        {etapasDiagnostico.map((e) => (
+          <div class="iar-pcard">
+            <div class="iar-pcard-header">
+              <span class="iar-pcard-num">{e.num}</span>
+              <div class="iar-pcard-icon"><i class={`fa-solid ${e.icon}`}></i></div>
+            </div>
+            <h3 class="iar-pcard-h3">{e.title}</h3>
+            <p class="iar-pcard-desc">{e.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <!-- Instrumental Real de Laboratorio -->
+      <div class="iar-tools-banner">
+        <div class="iar-tools-head">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+          <strong>Equipamiento técnico real de banco en Pixon PC Cancún</strong>
+        </div>
+        <div class="iar-tools-tags">
+          <span class="iar-tool-pill"><i class="fa-solid fa-wave-square"></i> Multímetro digital de precisión</span>
+          <span class="iar-tool-pill"><i class="fa-solid fa-plug"></i> Fuente de alimentación DC regulada</span>
+          <span class="iar-tool-pill"><i class="fa-solid fa-fire"></i> Cámara térmica infrarroja</span>
+          <span class="iar-tool-pill"><i class="fa-solid fa-microscope"></i> Microscopio trinocular de alta resolución</span>
+          <span class="iar-tool-pill"><i class="fa-solid fa-bolt"></i> Estación de soldadura JBC</span>
+          <span class="iar-tool-pill"><i class="fa-solid fa-wind"></i> Tobera de calor termocontrolada</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 6 · MICROSOLDADURA Y REPARACIÓN DE PLACA LÓGICA
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-board-section" aria-labelledby="board-h2">
+    <div class="container">
+      <div class="iar-board-wrapper">
+        <div class="iar-board-info">
+          <span class="iar-kicker"><i class="fa-solid fa-microchip"></i> REPARACIÓN A NIVEL COMPONENTE</span>
+          <h2 id="board-h2" class="iar-h2">Microsoldadura y reparación de placa iPhone</h2>
+          <p class="iar-board-lead">
+            Cuando técnicamente es viable, realizamos reparación a nivel componente. En lugar de forzar el reemplazo completo de la placa madre, reemplazamos únicamente el microcomponente defectuoso.
+          </p>
+
+          <div class="iar-board-points">
+            <div class="iar-bpoint">
+              <i class="fa-solid fa-check"></i>
+              <div>
+                <strong>Cortos en líneas de alimentación</strong>
+                <p>Detección y sustitución de condensadores cerámicos SMD en fuga en las líneas principales V_MAIN o V_BAT.</p>
+              </div>
+            </div>
+            <div class="iar-bpoint">
+              <i class="fa-solid fa-check"></i>
+              <div>
+                <strong>Circuitos integrados de gestión (PMIC e IC de carga)</strong>
+                <p>Reemplazo de controladores de energía y módulos Tristar/Hydra que no permiten recibir carga o regular voltajes.</p>
+              </div>
+            </div>
+            <div class="iar-bpoint">
+              <i class="fa-solid fa-check"></i>
+              <div>
+                <strong>Reconstrucción de pistas fisuradas</strong>
+                <p>Puentedo con microhilo de cobre de 0.02 mm bajo microscopio cuando un golpe arrancó pads de la placa.</p>
+              </div>
+            </div>
+            <div class="iar-bpoint">
+              <i class="fa-solid fa-check"></i>
+              <div>
+                <strong>Enfoque en recuperación de información</strong>
+                <p>Si el equipo sufrió un daño severo y tu prioridad son tus fotos y archivos, enfocamos el esfuerzo en energizar la placa lo necesario para hacer el respaldo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="iar-board-limits">
+          <div class="iar-limits-card">
+            <div class="iar-limits-title">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>Criterio honesto: Cuándo NO es viable</span>
+            </div>
+            <p>
+              No prometemos reparar cualquier chip sin medir. Existen escenarios donde una reparación de placa no es técnicamente recomendable:
+            </p>
+            <ul>
+              <li><strong>Procesador A-Series fisurado:</strong> Si el golpe fracturó el silicio del procesador, la reparación no es viable.</li>
+              <li><strong>Placa partida o doblada:</strong> Múltiples capas internas rotas que impiden reconstruir pistas de forma confiable.</li>
+              <li><strong>Corrosión marina total:</strong> Si el agua salada disolvió capas internas completas, el costo supera el valor del teléfono.</li>
+            </ul>
+            <div class="iar-limits-badge">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Te decimos la verdad técnica antes de que gastes dinero</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 7 · PROTOCOLO PARA IPHONE MOJADO (Daño por Líquido)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-liquid-section" aria-labelledby="liquid-h2">
+    <div class="container">
+      <div class="iar-liquid-box">
+        <div class="iar-liquid-header">
+          <div class="iar-liquid-tag"><i class="fa-solid fa-droplet"></i> ATENCIÓN ESPECIAL CANCÚN</div>
+          <h2 id="liquid-h2" class="iar-h2">¿Tu iPhone se mojó en el mar, alberca o bebidas?</h2>
+          <p class="iar-liquid-desc">
+            En Cancún, la humedad, el salitre y el agua clorada son enemigos silenciosos. Un iPhone mojado <strong>NO</strong> se trata automáticamente como un diagnóstico normal de $600:
+          </p>
+        </div>
+
+        <div class="iar-liquid-steps">
+          <div class="iar-lstep">
+            <span class="iar-lstep-badge">Fase 1</span>
+            <strong>Descontaminación técnica</strong>
+            <p>Apertura inmediata, desconexión de batería, retiro de humedad visible y limpieza química especializada para detener la corrosión galvánica.</p>
+          </div>
+          <div class="iar-lstep">
+            <span class="iar-lstep-badge">Fase 2</span>
+            <strong>Inspección y control de salitre</strong>
+            <p>Revisión bajo microscopio de conectores FPC, pistas y blindajes. No todo equipo requiere ultrasonido; solo se aplica en placas desmontadas cuando la salinidad lo exige.</p>
+          </div>
+          <div class="iar-lstep">
+            <span class="iar-lstep-badge">Fase 3</span>
+            <strong>Evaluación de diagnóstico</strong>
+            <p>Una vez que la placa está limpia y libre de cortocircuitos activos, se evalúa si requiere diagnóstico adicional o sustitución de componentes dañados.</p>
+          </div>
+        </div>
+
+        <div class="iar-liquid-alert">
+          <div class="iar-alert-icon"><i class="fa-solid fa-hand"></i></div>
+          <div class="iar-alert-text">
+            <strong>ADVERTENCIAS CRÍTICAS DE SEGURIDAD:</strong>
+            <p><strong>NO ENCENDER · NO CONECTAR AL CARGADOR · NO USAR SECADORA · NO METER EN ARROZ.</strong></p>
+            <span>El arroz no detiene la corrosión galvánica y la secadora empuja el agua hacia los blindajes internos. Tráelo a revisión lo antes posible.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 8 · CASOS REALES DOCUMENTADOS (Evidencia de Laboratorio)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-cases-section" aria-labelledby="cases-h2">
+    <div class="container">
+      <div class="iar-sec-head">
+        <span class="iar-kicker"><i class="fa-solid fa-file-waveform"></i> EVIDENCIA DE BANCO TÉCNICO</span>
+        <h2 id="cases-h2" class="iar-h2">Casos reales documentados de reparación de placa</h2>
+        <p class="iar-sec-desc">
+          Casos reales atendidos en nuestro laboratorio técnico de Cancún con mediciones comprobables (sin datos sensibles de clientes):
+        </p>
+      </div>
+
+      <div class="iar-cases-grid">
+        {casosReales.map((c, idx) => (
+          <article class="iar-case-card">
+            <div class="iar-case-top">
+              <span class="iar-case-num">CASO #{idx + 1}</span>
+              <strong class="iar-case-model">{c.modelo}</strong>
+            </div>
+            <h3 class="iar-case-h3">{c.falla}</h3>
+            <div class="iar-case-details">
+              <div class="iar-cdetail">
+                <strong>Síntoma reportado:</strong>
+                <p>{c.sintoma}</p>
+              </div>
+              <div class="iar-cdetail">
+                <strong>Diagnóstico de banco:</strong>
+                <p>{c.diagnostico}</p>
+              </div>
+              <div class="iar-cdetail">
+                <strong>Intervención técnica:</strong>
+                <p>{c.intervencion}</p>
+              </div>
+            </div>
+            <div class="iar-case-res">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              <span>{c.resultado}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 9 · ¿VALE LA PENA REPARARLO? — TRANSPARENCIA TOTAL
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-worth-section" aria-labelledby="worth-h2">
+    <div class="container">
+      <div class="iar-worth-card">
+        <div class="iar-sec-head">
+          <span class="iar-kicker"><i class="fa-solid fa-chart-line"></i> CRITERIO DE DECISIÓN HONESTO</span>
+          <h2 id="worth-h2" class="iar-h2">¿Vale la pena reparar tu iPhone?</h2>
+          <p class="iar-sec-desc">
+            Después del diagnóstico determinamos con total claridad qué falla existe, qué componentes se requieren, el costo estimado y si económicamente tiene sentido para ti reparar el dispositivo.
+          </p>
+        </div>
+
+        <div class="iar-worth-timeline">
+          <div class="iar-wstep">
+            <div class="iar-wstep-dot">1</div>
+            <strong>Diagnóstico técnico</strong>
+            <span>Desde $600 MXN. Medición en laboratorio y aislamiento de la falla.</span>
+          </div>
+          <div class="iar-wstep">
+            <div class="iar-wstep-dot">2</div>
+            <strong>Cotización cerrada</strong>
+            <span>Presupuesto exacto, tiempo estimado y riesgos explicados.</span>
+          </div>
+          <div class="iar-wstep">
+            <div class="iar-wstep-dot">3</div>
+            <strong>Autorización previa</strong>
+            <span>Tú decides si procede. No intervenimos sin tu consentimiento expreso.</span>
+          </div>
+          <div class="iar-wstep">
+            <div class="iar-wstep-dot">4</div>
+            <strong>Reparación en banco</strong>
+            <span>Sustitución de componentes bajo microscopio y limpieza térmica.</span>
+          </div>
+          <div class="iar-wstep">
+            <div class="iar-wstep-dot">5</div>
+            <strong>Pruebas de estrés</strong>
+            <span>Validación de carga, llamadas, cámaras, temperatura y estabilidad.</span>
+          </div>
+          <div class="iar-wstep">
+            <div class="iar-wstep-dot">6</div>
+            <strong>Entrega con garantía</strong>
+            <span>Garantía por escrito sobre la reparación efectuada.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 10 · COBERTURA LOCAL EN CANCÚN Y ATENCIÓN A HOTELES
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-local-section" aria-labelledby="local-h2">
+    <div class="container">
+      <div class="iar-sec-head">
+        <span class="iar-kicker"><i class="fa-solid fa-location-dot"></i> COBERTURA LOCAL Y TURISMO</span>
+        <h2 id="local-h2" class="iar-h2">Reparación de iPhone en Cancún y Zona Hotelera</h2>
+        <p class="iar-sec-desc">
+          Atención en taller técnico con cita previa y orientación ágil por WhatsApp para residentes y visitantes:
+        </p>
+      </div>
+
+      <div class="iar-local-grid">
+        <div class="iar-lcard">
+          <div class="iar-lcard-icon"><i class="fa-solid fa-city"></i></div>
+          <h3 class="iar-lcard-h3">Cancún Centro y zonas residenciales</h3>
+          <p>
+            Atendemos equipos de Cancún Centro, Av. Huayacán, Cumbres, Bonfil, Polígono Sur, Bonampak, Av. Tulum, Supermanzanas y Haciendas. Diagnóstico cara a cara con cita.
+          </p>
+        </div>
+
+        <div class="iar-lcard">
+          <div class="iar-lcard-icon"><i class="fa-solid fa-hotel"></i></div>
+          <h3 class="iar-lcard-h3">Zona Hotelera, Puerto Cancún y Turistas</h3>
+          <p>
+            Si tu iPhone falló durante tus vacaciones, podemos orientarte por WhatsApp para recibirlo en taller. Las reparaciones de placa requieren obligatoriamente el banco de microscopía del laboratorio.
+          </p>
+        </div>
+
+        <div class="iar-lcard">
+          <div class="iar-lcard-icon"><i class="fa-solid fa-globe"></i></div>
+          <h3 class="iar-lcard-h3">English Speaking Visitors</h3>
+          <p>
+            Traveling in Cancun? We speak English and provide reliable diagnosis for water damage, no power, and board repairs.
+          </p>
+          <a href="/en/phone-repair" class="iar-lcard-link">
+            Advanced iPhone repair in Cancun <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 11 · SERVICIOS MODULARES RELACIONADOS
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-related-section" aria-labelledby="related-h2">
+    <div class="container">
+      <div class="iar-sec-head">
+        <span class="iar-kicker"><i class="fa-solid fa-arrows-split-up-and-left"></i> ECOSISTEMA TÉCNICO IPHONE</span>
+        <h2 id="related-h2" class="iar-h2">¿Tu falla es más sencilla o modular?</h2>
+        <p class="iar-sec-desc">
+          Si el problema no radica en la placa lógica, contamos con servicios especializados para cada componente modular:
+        </p>
+      </div>
+
+      <div class="iar-related-grid">
+        {serviciosRelacionados.map((s) => (
+          <a href={s.href} class="iar-rel-card">
+            <div class="iar-rel-top">
+              <div class="iar-rel-icon"><i class={`fa-solid ${s.icon}`}></i></div>
+              <span class="iar-rel-badge">{s.badge}</span>
+            </div>
+            <h3 class="iar-rel-h3">{s.title}</h3>
+            <p class="iar-rel-desc">{s.desc}</p>
+            <span class="iar-rel-arrow">Ver servicio <i class="fa-solid fa-arrow-right"></i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 12 · TICKET DE SERVICIO Y DIAGNÓSTICO
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div id="ticket-diagnostico">
+    <ServiceTicketSection
+      defaultDevice="iPhone"
+      defaultService="Diagnóstico / reparación avanzada"
+      title="Crear ticket de diagnóstico avanzado para iPhone"
+      subtitle="Describe el síntoma exacto, modelo y si tuvo contacto con líquidos o manipulación previa. Te responderemos con la ruta técnica antes de recibir tu equipo."
+    />
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 13 · PREGUNTAS FRECUENTES (FAQ Completa)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <FaqSection
+    id="faq-iphone-avanzado"
+    title="Preguntas frecuentes — Reparación avanzada de iPhone en Cancún"
+    description="Respuestas claras y honestas sobre costos de diagnóstico, microsoldadura, placa dañada y equipos mojados en Cancún."
+    items={faqItems}
+    backgroundColor="#071F3A"
+    questionColor="#f8fafc"
+    titleColor="#f8fafc"
+    descriptionColor="#cfe7f6"
+    faqAccent="#38bdf8"
+    sectionClass="iar-faq-dark"
+  />
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 14 · OPINIONES DE CLIENTES
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-comments-section">
+    <CommentsSection
+      title="Opiniones de clientes — Diagnóstico y reparación de iPhone"
+      description="Clientes que recibieron diagnóstico técnico fundamentado y reparación real en Cancún."
+      dark={false}
+    />
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 15 · CTA FINAL DE CONVERSIÓN (Regla 131)
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <section class="iar-final-cta" aria-labelledby="final-cta-h2">
+    <div class="container">
+      <div class="iar-fcta-box">
+        <span class="iar-kicker iar-kicker--light"><i class="fa-solid fa-stethoscope"></i> ATENCIÓN TÉCNICA PERSONALIZADA</span>
+        <h2 id="final-cta-h2" class="iar-fcta-h2">
+          ¿Tu iPhone tiene una falla que no parece un simple cambio de pieza?
+        </h2>
+        <p class="iar-fcta-body">
+          Cuéntanos qué ocurrió, si enciende y si tuvo contacto con líquido. Podemos indicarte cuál es el siguiente paso y el costo estimado de diagnóstico antes de recibirlo en taller.
+        </p>
+
+        <div class="iar-fcta-buttons">
+          <a href="#ticket-diagnostico" class="iar-btn iar-btn--white">
+            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+            <span>SOLICITAR DIAGNÓSTICO</span>
+          </a>
+          <a href={waLink} target="_blank" rel="noopener noreferrer" class="iar-btn iar-btn--whatsapp-solid">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+            <span>CONTAR MI FALLA POR WHATSAPP</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SECCIÓN 16 · CONTACTO Y UBICACIÓN
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="iar-contact-shell">
+    <ContactSection id="ubicacion" />
+  </div>
+
+</div>
+
+<Footer />
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     ESTILOS CSS OPTIMIZADOS Y RIGUROSOS SEGÚN AGENTS.MD
+═════════════════════════════════════════════════════════════════════════ -->
+<style is:global>
+/* Variables y tokens de diseño */
+.iar-wrapper {
+  --azul-oscuro: #071F3A;
+  --azul-intermedio: #0d2d52;
+  --azul-claro: #38bdf8;
+  --azul-acento: #0284c7;
+  --gris-fondo: #f8fafc;
+  --gris-borde: #e2e8f0;
+  --gris-texto: #071F3A;
+  --verde-wa: #25d366;
+  --verde-wa-hover: #1eb857;
+  --rojo-alerta: #ef4444;
+  --ambar-aviso: #f59e0b;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--azul-oscuro);
+  background: #ffffff;
+  line-height: 1.6;
+  width: 100%;
+  overflow-x: clip;
+}
+
+/* Todos los textos fuera del hero usan estrictamente azul oscuro según AGENTS.MD */
+.iar-wrapper h2,
+.iar-wrapper h3,
+.iar-wrapper p,
+.iar-wrapper span,
+.iar-wrapper strong,
+.iar-wrapper div {
+  color: var(--azul-oscuro);
+}
+
+/* Excepciones de contraste estrictamente permitidas */
+.iar-hero * {
+  color: #ffffff !important;
+}
+.iar-fcta-box * {
+  color: #ffffff !important;
+}
+.iar-faq-dark * {
+  color: #f8fafc !important;
+}
+
+/* Tipografía base y Kickers */
+.iar-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--azul-acento) !important;
+  margin-bottom: 10px;
+}
+.iar-kicker--light {
+  color: #7dd3fc !important;
+}
+.iar-h2 {
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--azul-oscuro) !important;
+  letter-spacing: -0.01em;
+}
+.iar-sec-head {
+  max-width: 800px;
+  margin-bottom: 36px;
+}
+.iar-sec-desc {
+  font-size: 1.02rem;
+  color: var(--azul-oscuro) !important;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── HERO TÉCNICO ──────────────────────────────────────────────────────── */
+.iar-hero {
+  position: relative;
+  background: radial-gradient(circle at 85% 20%, rgba(2, 132, 199, 0.22), transparent 45%),
+              linear-gradient(140deg, #020710 0%, #071F3A 65%, #08213f 100%);
+  padding: clamp(64px, 7vw, 92px) 0 64px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.iar-hero-ambient {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.12), transparent 70%);
+  pointer-events: none;
+}
+.iar-hero-grid {
+  display: grid;
+  grid-template-areas:
+    "eyebrow media"
+    "title   media"
+    "summary media"
+    "actions media"
+    "trust   media";
+  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-rows: auto auto auto auto auto;
+  gap: 12px 40px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.iar-hero-eyebrow-wrap { grid-area: eyebrow; }
+.iar-h1                { grid-area: title; }
+.iar-hero-visual       { grid-area: media; align-self: center; }
+.iar-hero-summary      { grid-area: summary; }
+.iar-hero-ctas         { grid-area: actions; }
+.iar-hero-trust-wrap   { grid-area: trust; }
+.iar-eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(2, 132, 199, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+.iar-eyebrow-pill span {
+  color: #7dd3fc !important;
+}
+.iar-pill-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+.iar-h1 {
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(2rem, 4.4vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff !important;
+  margin: 0 0 14px;
+  letter-spacing: -0.02em;
+}
+.iar-hero-subtitle {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #93c5fd !important;
+  line-height: 1.45;
+  margin: 0 0 14px;
+}
+.iar-hero-body {
+  font-size: 0.98rem;
+  color: rgba(255, 255, 255, 0.88) !important;
+  line-height: 1.65;
+  margin: 0 0 24px;
+  max-width: 620px;
+}
+
+/* 4 Señales de confianza */
+.iar-trust-quad {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.iar-tq-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+.iar-tq-item i {
+  color: #38bdf8 !important;
+  font-size: 1rem;
+}
+.iar-tq-item span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #f1f5f9 !important;
+}
+
+/* CTAs del Hero */
+.iar-hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.iar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.iar-btn--primary {
+  background: #0284c7;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+}
+.iar-btn--primary:hover {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+.iar-btn--whatsapp {
+  background: var(--verde-wa);
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+}
+.iar-btn--whatsapp:hover {
+  background: var(--verde-wa-hover);
+  transform: translateY(-1px);
+}
+.iar-btn--outline {
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff !important;
+}
+.iar-btn--outline:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+}
+.iar-hero-microcopy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65) !important;
+  margin: 0;
+}
+.iar-hero-microcopy i {
+  color: #38bdf8 !important;
+}
+
+/* Tarjeta del Simulador de Placa */
+.iar-board-card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  width: 100%;
+}
+.iar-sim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 14px;
+}
+.iar-sim-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.iar-status-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+  animation: ledBlink 1.6s infinite;
+}
+@keyframes ledBlink {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.iar-sim-target {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+.iar-sim-screen {
+  position: relative;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 10px;
+  overflow: hidden;
+}
+.iar-board-svg {
+  width: 100%;
+  height: 260px;
+  display: block;
+}
+.iar-pcb-outline {
+  fill: #091322;
+  stroke: #1e3a5f;
+  stroke-width: 1.5;
+}
+.iar-trace {
+  fill: none;
+  stroke: #1e40af;
+  stroke-width: 1.6;
+  stroke-dasharray: 4 3;
+}
+.iar-trace--main {
+  stroke: #38bdf8;
+  animation: tracePulse 2s linear infinite;
+}
+.iar-trace--vmain {
+  stroke: url(#trace-flow);
+  stroke-width: 2.2;
+}
+@keyframes tracePulse {
+  to { stroke-dashoffset: -28; }
+}
+.iar-tp {
+  fill: #eab308;
+  stroke: #facc15;
+  stroke-width: 1;
+}
+.iar-chip-rect {
+  fill: #0f243e;
+  stroke: #38bdf8;
+  stroke-width: 1.2;
+}
+.iar-chip-label {
+  font-family: 'Kanit', sans-serif;
+  font-size: 8.5px;
+  font-weight: 800;
+  fill: #ffffff;
+}
+.iar-chip-sub {
+  font-size: 6.5px;
+  font-weight: 600;
+  fill: #7dd3fc;
+}
+.iar-smd {
+  fill: #64748b;
+  stroke: #94a3b8;
+  stroke-width: 0.8;
+}
+.iar-smd--short {
+  fill: #ef4444;
+  stroke: #f87171;
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 6px #ef4444);
+}
+.iar-thermal-spot {
+  animation: thermalPulse 2.4s ease-in-out infinite alternate;
+}
+@keyframes thermalPulse {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+/* HUD Digital */
+.iar-hud-box {
+  margin-top: 10px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.iar-hud-metric {
+  display: flex;
+  flex-direction: column;
+}
+.iar-hud-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8 !important;
+}
+.iar-hud-val {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #f8fafc !important;
+}
+.iar-hud-val--alert {
+  color: #f87171 !important;
+}
+.iar-hud-status {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fca5a5 !important;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-top: 6px;
+}
+.iar-hud-status i {
+  color: #ef4444 !important;
+}
+
+/* Pie del simulador con botón de replay */
+.iar-sim-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+.iar-sim-replay-btn {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e0f2fe !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.iar-sim-replay-btn:hover {
+  background: rgba(56, 189, 248, 0.3);
+  border-color: #38bdf8;
+}
+.iar-sim-replay-btn i {
+  color: #38bdf8 !important;
+}
+.iar-sim-note {
+  font-size: 0.7rem;
+  color: #94a3b8 !important;
+}
+
+/* ── BANNER ORIENTADOR (< 5 SEG) ────────────────────────────────────────── */
+.iar-router-bar {
+  background: #f1f5f9;
+  padding: 22px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.iar-router-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+.iar-rcard {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 16px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+.iar-rcard:hover {
+  border-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+.iar-rcard--active {
+  background: #ffffff;
+  border: 2px solid #0284c7;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.12);
+  position: relative;
+}
+.iar-rcard-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+.iar-rcard-info strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.iar-rcard-info p {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin: 0;
+}
+.iar-rcard-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #0284c7;
+  color: #ffffff !important;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.iar-rcard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0284c7 !important;
+  margin-top: 12px;
+}
+
+/* ── POLÍTICA DE DIAGNÓSTICO ───────────────────────────────────────────── */
+.iar-policy-section {
+  padding: 60px 0;
+  background: #ffffff;
+}
+.iar-policy-box {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-left: 5px solid #0284c7;
+  border-radius: 16px;
+  padding: 36px;
+}
+.iar-policy-header {
+  margin-bottom: 24px;
+}
+.iar-policy-lead {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.iar-policy-sub {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin-bottom: 28px;
+}
+.iar-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 24px;
+}
+.iar-pitem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.iar-pitem-check {
+  color: #10b981 !important;
+  font-size: 1.2rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.iar-pitem strong {
+  display: block;
+  font-size: 0.92rem;
+  margin-bottom: 2px;
+}
+.iar-pitem p {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ── SÍNTOMAS ──────────────────────────────────────────────────────────── */
+.iar-symptoms-section {
+  padding: 64px 0;
+  background: #f8fafc;
+}
+.iar-symptoms-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.iar-scard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+.iar-scard:hover {
+  transform: translateY(-2px);
+  border-color: #0284c7;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+.iar-scard--urgent {
+  border-top: 4px solid #ef4444;
+}
+.iar-scard-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.iar-scard-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b !important;
+  letter-spacing: 0.04em;
+}
+.iar-scard--urgent .iar-scard-badge {
+  color: #dc2626 !important;
+}
+.iar-scard-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+.iar-scard--urgent .iar-scard-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444 !important;
+}
+.iar-scard-h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 10px;
+}
+.iar-scard-desc {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0 0 16px;
+  flex: 1;
+}
+.iar-scard-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0284c7 !important;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+}
+.iar-scard--urgent .iar-scard-action {
+  color: #dc2626 !important;
+}
+
+.iar-symptoms-callout {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.iar-callout-icon {
+  font-size: 2rem;
+  color: var(--verde-wa) !important;
+  flex-shrink: 0;
+}
+.iar-callout-body {
+  flex: 1;
+}
+.iar-callout-body strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+.iar-callout-body p {
+  font-size: 0.88rem;
+  margin: 0;
+}
+.iar-callout-btn {
+  flex-shrink: 0;
+}
+
+/* ── PROTOCOLO DE DIAGNÓSTICO ─────────────────────────────────────────── */
+.iar-protocol-section {
+  padding: 64px 0;
+  background: #ffffff;
+}
+.iar-protocol-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.iar-pcard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+}
+.iar-pcard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.iar-pcard-num {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #cbd5e1 !important;
+}
+.iar-pcard-icon {
+  color: #0284c7 !important;
+  font-size: 1.1rem;
+}
+.iar-pcard-h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.iar-pcard-desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.iar-tools-banner {
+  background: #071F3A;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.iar-tools-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff !important;
+  font-size: 0.95rem;
+}
+.iar-tools-head i, .iar-tools-head strong {
+  color: #ffffff !important;
+}
+.iar-tools-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.iar-tool-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f1f5f9 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.iar-tool-pill i {
+  color: #38bdf8 !important;
+}
+
+/* ── MICROSOLDADURA Y PLACA ────────────────────────────────────────────── */
+.iar-board-section {
+  padding: 64px 0;
+  background: #f8fafc;
+}
+.iar-board-wrapper {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 36px;
+  align-items: flex-start;
+}
+.iar-board-lead {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+.iar-board-points {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.iar-bpoint {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+}
+.iar-bpoint > i {
+  color: #10b981 !important;
+  font-size: 1rem;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.iar-bpoint strong {
+  display: block;
+  font-size: 0.92rem;
+  margin-bottom: 2px;
+}
+.iar-bpoint p {
+  font-size: 0.84rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.iar-limits-card {
+  background: #ffffff;
+  border: 1.5px solid #fecaca;
+  border-radius: 16px;
+  padding: 28px;
+}
+.iar-limits-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #b91c1c !important;
+  margin-bottom: 12px;
+}
+.iar-limits-title i, .iar-limits-title span {
+  color: #b91c1c !important;
+}
+.iar-limits-card p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.iar-limits-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.iar-limits-card li {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 18px;
+}
+.iar-limits-card li::before {
+  content: "•";
+  color: #ef4444;
+  font-weight: bold;
+  position: absolute;
+  left: 4px;
+}
+.iar-limits-badge {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #991b1b !important;
+}
+.iar-limits-badge i, .iar-limits-badge span {
+  color: #991b1b !important;
+}
+
+/* ── PROTOCOLO PARA IPHONE MOJADO ──────────────────────────────────────── */
+.iar-liquid-section {
+  padding: 64px 0;
+  background: #ffffff;
+}
+.iar-liquid-box {
+  background: #f0f9ff;
+  border: 1.5px solid #bae6fd;
+  border-radius: 20px;
+  padding: 36px;
+}
+.iar-liquid-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #0284c7;
+  color: #ffffff !important;
+  padding: 4px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.iar-liquid-tag i {
+  color: #ffffff !important;
+}
+.iar-liquid-desc {
+  font-size: 1rem;
+  line-height: 1.65;
+  margin: 0 0 28px;
+  max-width: 800px;
+}
+.iar-liquid-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.iar-lstep {
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 20px;
+}
+.iar-lstep-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #0284c7 !important;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.iar-lstep strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+.iar-lstep p {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.iar-liquid-alert {
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.iar-alert-icon i {
+  color: #ef4444 !important;
+  font-size: 1.6rem;
+  margin-top: 2px;
+}
+.iar-alert-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #991b1b !important;
+  margin-bottom: 4px;
+}
+.iar-alert-text p {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #b91c1c !important;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+}
+.iar-alert-text span {
+  font-size: 0.84rem;
+  color: #7f1d1d !important;
+  line-height: 1.5;
+}
+
+/* ── CASOS REALES ──────────────────────────────────────────────────────── */
+.iar-cases-section {
+  padding: 64px 0;
+  background: #f8fafc;
+}
+.iar-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.iar-case-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.iar-case-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.iar-case-num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #64748b !important;
+  letter-spacing: 0.05em;
+}
+.iar-case-model {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0284c7 !important;
+}
+.iar-case-h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 16px;
+}
+.iar-case-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.iar-cdetail strong {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: #64748b !important;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+.iar-cdetail p {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.iar-case-res {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #065f46 !important;
+}
+.iar-case-res i, .iar-case-res span {
+  color: #065f46 !important;
+}
+
+/* ── ¿VALE LA PENA REPARARLO? ───────────────────────────────────────────── */
+.iar-worth-section {
+  padding: 64px 0;
+  background: #ffffff;
+}
+.iar-worth-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 36px;
+}
+.iar-worth-timeline {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-top: 32px;
+}
+.iar-wstep {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.iar-wstep-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff !important;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.iar-wstep strong {
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+.iar-wstep span {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+/* ── COBERTURA LOCAL ───────────────────────────────────────────────────── */
+.iar-local-section {
+  padding: 64px 0;
+  background: #f8fafc;
+}
+.iar-local-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.iar-lcard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+}
+.iar-lcard-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7 !important;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.iar-lcard-h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.iar-lcard p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin: 0 0 14px;
+  flex: 1;
+}
+.iar-lcard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0284c7 !important;
+  text-decoration: none;
+}
+.iar-lcard-link:hover {
+  text-decoration: underline;
+}
+
+/* ── SERVICIOS RELACIONADOS ────────────────────────────────────────────── */
+.iar-related-section {
+  padding: 64px 0;
+  background: #ffffff;
+}
+.iar-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.iar-rel-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+.iar-rel-card:hover {
+  border-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+.iar-rel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.iar-rel-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7 !important;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iar-rel-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b !important;
+}
+.iar-rel-h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.iar-rel-desc {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  margin: 0 0 16px;
+  flex: 1;
+}
+.iar-rel-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0284c7 !important;
+}
+
+/* ── FINAL CTA ─────────────────────────────────────────────────────────── */
+.iar-final-cta {
+  padding: 64px 0;
+  background: #ffffff;
+}
+.iar-fcta-box {
+  background: linear-gradient(135deg, #071F3A 0%, #030a14 100%);
+  border-radius: 20px;
+  padding: clamp(36px, 5vw, 60px) clamp(24px, 5vw, 56px);
+  text-align: center;
+  color: #ffffff;
+}
+.iar-fcta-h2 {
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 16px;
+  color: #ffffff !important;
+}
+.iar-fcta-body {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  max-width: 680px;
+  margin: 0 auto 32px;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+.iar-fcta-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.iar-btn--white {
+  background: #ffffff;
+  color: #071F3A !important;
+  font-weight: 800;
+}
+.iar-btn--white * {
+  color: #071F3A !important;
+}
+.iar-btn--white:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+.iar-btn--whatsapp-solid {
+  background: var(--verde-wa);
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.iar-btn--whatsapp-solid:hover {
+  background: var(--verde-wa-hover);
+  transform: translateY(-1px);
+}
+
+/* ── RESPONSIVE Y GUTTERS ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .iar-symptoms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .iar-protocol-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .iar-cases-grid {
+    grid-template-columns: 1fr;
+  }
+  .iar-worth-timeline {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .iar-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .iar-liquid-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .iar-hero-grid {
+    grid-template-areas:
+      "eyebrow"
+      "title"
+      "media"
+      "summary"
+      "actions"
+      "trust";
+    grid-template-columns: 1fr;
+    gap: 16px;
+    text-align: center;
+  }
+  .iar-hero-eyebrow-wrap {
+    display: flex;
+    justify-content: center;
+  }
+  .iar-router-grid {
+    grid-template-columns: 1fr;
+  }
+  .iar-board-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .iar-policy-grid {
+    grid-template-columns: 1fr;
+  }
+  .iar-local-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .iar-symptoms-grid {
+    grid-template-columns: 1fr;
+  }
+  .iar-protocol-grid {
+    grid-template-columns: 1fr;
+  }
+  .iar-worth-timeline {
+    grid-template-columns: 1fr;
+  }
+  .iar-related-grid {
+    grid-template-columns: 1fr;
+  }
+  .iar-symptoms-callout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .iar-symptoms-callout .iar-callout-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .iar-hero-ctas {
+    flex-direction: column;
+    width: 100%;
+  }
+  .iar-hero-ctas .iar-btn {
+    width: 100%;
+  }
+  .iar-trust-quad {
+    grid-template-columns: 1fr;
+  }
+  .iar-fcta-buttons {
+    flex-direction: column;
+  }
+  .iar-fcta-buttons .iar-btn {
+    width: 100%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .iar-status-led,
+  .iar-trace--main,
+  .iar-thermal-spot {
+    animation: none !important;
+  }
+}
+</style>
+
+<script>
+  // Script ligero para reiniciar animación de diagnóstico en el simulador
+  function initSimulator() {
+    const replayBtn = document.getElementById('iar-replay-btn');
+    const boardSimulator = document.getElementById('iar-board-simulator');
+    if (!replayBtn || !boardSimulator) return;
+
+    replayBtn.addEventListener('click', () => {
+      boardSimulator.classList.remove('iar-sim--replay');
+      void boardSimulator.offsetWidth; // Force reflow
+      boardSimulator.classList.add('iar-sim--replay');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSimulator);
+  } else {
+    initSimulator();
+  }
+</script>

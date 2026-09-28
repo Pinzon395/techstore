@@ -3,6 +3,14 @@
 const crypto = require('crypto');
 const { addDays, cancunToday, resolveDashboardPeriod } = require('./period');
 
+// Eventos de conversion_events que representan una interaccion util con un
+// CTA (no cualquier click de DOM). Ver public/scripts/tracker.js.
+const CLICK_EVENT_NAMES = Object.freeze(['whatsapp_click', 'phone_click', 'ticket_start', 'ticket_submit', 'add_to_cart', 'checkout_start']);
+const CLICK_EVENTS_SQL_LIST = CLICK_EVENT_NAMES.map((name) => `'${name}'`).join(',');
+// Piso minimo de vistas para que una pagina entre al ranking de "bajo CTR":
+// evita mezclar paginas casi sin trafico con paginas realmente desatendidas.
+const LOW_CTR_MIN_VIEWS = 20;
+
 const RECOGNIZED_COMMERCE_STATUSES = Object.freeze(['PAID', 'PREPARING', 'READY', 'COMPLETED']);
 const RECOGNIZED_LEGACY_STATUSES = Object.freeze(['paid', 'processing', 'shipped', 'delivered']);
 const ACTIVE_REPAIR_STATUSES = Object.freeze(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready']);
@@ -16,7 +24,8 @@ const METRIC_DEFINITIONS = Object.freeze({
     operating_profit: 'Utilidad bruta menos gastos registrados. No se muestra si faltan costos o el registro de gastos.',
     average_ticket: 'Ventas registradas divididas entre operaciones con importe real.',
     new_customers: 'Clientes cuya primera aparición confiable en usuarios, tickets u órdenes ocurre dentro del periodo.',
-    visitors: 'Sesiones únicas del sitio público registradas por el tracker propio de Pixon PC; excluye rutas administrativas.'
+    visitors: 'Sesiones únicas del sitio público registradas por el tracker propio de Pixon PC; excluye rutas administrativas.',
+    clicks: 'Interacciones útiles registradas por el tracker propio: WhatsApp, llamada, inicio/envío de ticket, carrito y checkout. No incluye clicks decorativos.'
 });
 
 const COUNT_FORMAT = 'integer';
@@ -244,11 +253,11 @@ class DashboardService {
                 message: 'Las piezas actuales no registran estados de compra, pago y recepción; solo se muestran conteos verificables.'
             }] : []),
             ...sectionErrors,
-            {
+            ...(traffic.conversions?.state === 'empty' ? [{
                 key: 'web_conversions',
                 state: 'partial',
-                message: 'El tracker propio registra páginas y sesiones. WhatsApp, llamadas y formularios aún no tienen eventos enlazados a una sesión.'
-            }
+                message: traffic.conversions.reason
+            }] : [])
         ];
 
         return {
@@ -638,23 +647,50 @@ class DashboardService {
              GROUP BY b.bucket`,
             boundsParams(period)
         );
+        const [clickRows] = await this.pool.execute(
+            `${boundsCte()}
+             SELECT b.bucket, COUNT(ce.id) clicks
+             FROM bounds b LEFT JOIN conversion_events ce ON ce.created_at >= b.start_at AND ce.created_at < b.end_at
+                AND ce.event_name IN (${CLICK_EVENTS_SQL_LIST})
+                AND COALESCE(ce.path,'') NOT LIKE '/admin%'
+             GROUP BY b.bucket`,
+            boundsParams(period)
+        );
         const [[coverage]] = await this.pool.execute("SELECT COUNT(*) total FROM page_views WHERE COALESCE(path,'') NOT LIKE '/admin%'");
-        const [topPages, referrers] = await Promise.all([
+        const [[clicksCoverage]] = await this.pool.execute(
+            `SELECT COUNT(*) total FROM conversion_events WHERE event_name IN (${CLICK_EVENTS_SQL_LIST}) AND COALESCE(path,'') NOT LIKE '/admin%'`
+        );
+        const normalizedPath = (col) => `CASE WHEN TRIM(TRAILING '/' FROM SUBSTRING_INDEX(${col},'?',1)) = '' THEN '/'
+                        ELSE TRIM(TRAILING '/' FROM SUBSTRING_INDEX(${col},'?',1)) END`;
+        const [pagePerformance, referrers] = await Promise.all([
             this.pool.execute(
-                `SELECT CASE WHEN TRIM(TRAILING '/' FROM SUBSTRING_INDEX(path,'?',1)) = '' THEN '/'
-                        ELSE TRIM(TRAILING '/' FROM SUBSTRING_INDEX(path,'?',1)) END path,
-                        COUNT(*) views,
+                `SELECT pv.path, pv.views, pv.visitors, COALESCE(ce.clicks, 0) clicks
+                 FROM (
+                    SELECT ${normalizedPath('path')} path, COUNT(*) views,
                         COUNT(DISTINCT COALESCE(session_id,CONCAT('view-',id))) visitors
-                 FROM page_views WHERE created_at >= ? AND created_at < ?
-                   AND COALESCE(path,'') NOT LIKE '/admin%'
-                 GROUP BY path ORDER BY views DESC LIMIT 8`,
-                [period.from, period.toExclusive]
+                    FROM page_views WHERE created_at >= ? AND created_at < ?
+                      AND COALESCE(path,'') NOT LIKE '/admin%'
+                    GROUP BY path
+                 ) pv
+                 LEFT JOIN (
+                    SELECT ${normalizedPath('path')} path, COUNT(*) clicks
+                    FROM conversion_events WHERE created_at >= ? AND created_at < ?
+                      AND event_name IN (${CLICK_EVENTS_SQL_LIST})
+                      AND COALESCE(path,'') NOT LIKE '/admin%'
+                    GROUP BY path
+                 ) ce ON ce.path = pv.path
+                 ORDER BY pv.views DESC LIMIT 200`,
+                [period.from, period.toExclusive, period.from, period.toExclusive]
             ).then(([result]) => result),
             this.pool.execute(
                 `SELECT CASE
                         WHEN referrer IS NULL OR referrer = '' THEN 'Directo / desconocido'
                         WHEN referrer LIKE '%google.%' THEN 'Google'
                         WHEN referrer LIKE '%facebook.%' OR referrer LIKE '%instagram.%' THEN 'Meta'
+                        -- Trafico de entornos de desarrollo (localhost, IPs locales, puertos de
+                        -- astro dev/preview): no es un origen real, se agrupa aparte para no
+                        -- contaminar "Origen" con ruido interno (ver #21).
+                        WHEN referrer LIKE '%localhost%' OR referrer LIKE '%127.0.0.1%' THEN 'Entorno de desarrollo (interno)'
                         ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(referrer,'/',3),'//',-1)
                     END source, COUNT(*) views
                  FROM page_views WHERE created_at >= ? AND created_at < ?
@@ -664,16 +700,38 @@ class DashboardService {
             ).then(([result]) => result)
         ]);
         const bucket = rowsByBucket(rows);
+        const clickBucket = rowsByBucket(clickRows);
+
+        const pages = pagePerformance.map((row) => ({
+            path: row.path, views: numeric(row.views), visitors: numeric(row.visitors), clicks: numeric(row.clicks),
+            ctr: numeric(row.views) > 0 ? numeric(row.clicks) / numeric(row.views) : 0
+        }));
+        const topPages = [...pages].sort((a, b) => b.views - a.views).slice(0, 8);
+        const topClickPages = [...pages].filter((p) => p.clicks > 0).sort((a, b) => b.clicks - a.clicks).slice(0, 8);
+        const lowClickPages = [...pages]
+            .filter((p) => p.views >= LOW_CTR_MIN_VIEWS)
+            .sort((a, b) => a.ctr - b.ctr)
+            .slice(0, 8);
+        // Nota: paginas con 0 vistas nunca entran a lowClickPages (piso LOW_CTR_MIN_VIEWS),
+        // para no mezclarlas con paginas de bajo CTR que sí reciben tráfico real.
+
         return {
             metrics: {
                 views: metric({ value: bucket.current.views, previous: bucket.previous.views, coverage: coverage.total,
                     definition: 'Páginas vistas del sitio público registradas por el tracker propio.', source: 'page_views sin rutas /admin' }),
                 visitors: metric({ value: bucket.current.visitors, previous: bucket.previous.visitors, coverage: coverage.total,
-                    definition: METRIC_DEFINITIONS.visitors, source: 'page_views.session_id sin rutas /admin' })
+                    definition: METRIC_DEFINITIONS.visitors, source: 'page_views.session_id sin rutas /admin' }),
+                clicks: metric({ value: clickBucket.current.clicks, previous: clickBucket.previous.clicks, coverage: clicksCoverage.total,
+                    definition: METRIC_DEFINITIONS.clicks, source: 'conversion_events sin rutas /admin',
+                    emptyLabel: 'Tracking activo, sin clicks registrados aún' })
             },
-            top_pages: topPages.map((row) => ({ path: row.path, views: numeric(row.views), visitors: numeric(row.visitors) })),
+            top_pages: topPages.map(({ path, views, visitors }) => ({ path, views, visitors })),
+            top_click_pages: topClickPages.map(({ path, views, clicks }) => ({ path, views, clicks })),
+            low_click_pages: lowClickPages.map(({ path, views, clicks, ctr }) => ({ path, views, clicks, ctr: Number((ctr * 100).toFixed(1)) })),
             referrers: referrers.map((row) => ({ source: row.source, views: numeric(row.views) })),
-            conversions: { state: 'not_configured', reason: 'No hay eventos propios enlazados para WhatsApp, llamadas y formularios.' }
+            conversions: numeric(clicksCoverage.total) > 0
+                ? { state: 'value', reason: null }
+                : { state: 'empty', reason: 'El tracker de clicks está activo (WhatsApp, llamada, ticket, carrito) pero aún no registra eventos.' }
         };
     }
 

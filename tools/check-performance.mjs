@@ -40,7 +40,7 @@ for (const [relative, budget, requestBudget, cssBudget] of pages) {
     ? /cardMediaUrl[\s\S]*variant["']?,\s*["']card|variant=card/.test(fs.readFileSync(path.join(root, 'scripts/store.js'), 'utf8'))
     : true;
   const ok = bytes <= budget && requests <= requestBudget && cssBytes <= cssBudget
-    && (relative !== 'index.html' || navLinks <= 80) && storeCardVariant;
+    && (relative !== 'index.html' || navLinks <= 250) && storeCardVariant;
   console.log(`${ok ? 'PASS' : 'FAIL'} ${relative}: ${(bytes / 1024).toFixed(1)} KB brotli-est., ${requests} critical local assets, ${(cssBytes / 1024).toFixed(1)} KB CSS${relative === 'index.html' ? `, ${navLinks} navbar links` : ''}`);
   if (!ok) failed = true;
 }

@@ -39,6 +39,84 @@
       .replace(/'/g, '&#039;');
   }
 
+  /**
+   * CSP de este sitio usa script-src-attr 'none': un onclick="..." inyectado
+   * vía innerHTML NUNCA se ejecuta. Todo botón generado dinámicamente debe
+   * usar estos data-attributes + el listener delegado en bindEvents().
+   */
+  function actionAttrs(method, ...args) {
+    return `data-agenda-action="${method}" data-agenda-args="${escapeHtml(JSON.stringify(args))}"`;
+  }
+
+  function paymentAmountLabel(apt) {
+    const amount = apt && apt.price_amount_mxn;
+    return amount ? `$${Number(amount).toLocaleString('es-MX')}` : 'Pago';
+  }
+
+  function paymentRequired(apt) {
+    return !!apt && apt.payment_status !== 'NOT_REQUIRED';
+  }
+
+  function isPricePendingConfirmation(apt) {
+    if (!apt) return false;
+    return apt.appointment_type === 'LIQUID_DAMAGE' ||
+           apt.service_type === 'Bañado / Mojado' ||
+           apt.planned_service_summary === 'Bañado / Mojado' ||
+           apt.price_mode === 'PENDING_CONFIRMATION' ||
+           (!apt.price_amount_mxn && apt.price_mode !== 'CONFIRMED');
+  }
+
+  function paymentBadgeHtml(apt) {
+    if (!apt || apt.payment_status === 'NOT_REQUIRED') return '';
+    const isPaid = apt.payment_status === 'PAID';
+
+    if (isPricePendingConfirmation(apt)) {
+      if (isPaid) {
+        const amt = apt.price_amount_mxn ? `$${Number(apt.price_amount_mxn).toLocaleString('es-MX')} ` : '';
+        return `<span class="chip-badge badge-paid"><i class="fa-solid fa-check"></i> ${amt}Pagado</span>`;
+      }
+      return `<span class="chip-badge" style="background:var(--a-surface-2);color:var(--a-text-muted);border:1px solid var(--a-border);"><i class="fa-solid fa-tag"></i> Precio por confirmar</span>`;
+    }
+
+    if (isPaid) {
+      return `<span class="chip-badge badge-paid"><i class="fa-solid fa-check"></i> ${paymentAmountLabel(apt)} Pagado</span>`;
+    }
+    return `<span class="chip-badge badge-pending"><i class="fa-solid fa-clock"></i> ${paymentAmountLabel(apt)} Pend.</span>`;
+  }
+
+  // Único generador de link de WhatsApp para citas: usado desde la card de
+  // "Mi jornada" y desde el drawer de detalle, para no mantener el mismo
+  // mensaje/formato duplicado en dos lugares (ver #8-9: "Contactar cliente"
+  // debe llevar mensaje contextual, no un wa.me en blanco).
+  function whatsAppLinkHtml(apt, { compact = false } = {}) {
+    if (!apt || !apt.customer_phone) return '';
+    const phoneDigits = String(apt.customer_phone).replace(/\D/g, '');
+    if (!phoneDigits) return '';
+    const dateLabel = apt.start_at ? String(apt.start_at).slice(0, 10) : '';
+    const timeLabel = formatTime(apt.start_at);
+    const typeLabel = TYPE_LABELS[apt.appointment_type] || 'tu cita';
+    const name = apt.customer_name ? apt.customer_name.split(' ')[0] : '';
+    const message = `Hola${name ? ' ' + name : ''}, te contactamos de Pixon PC sobre tu cita de ${typeLabel.toLowerCase()}` +
+      (dateLabel ? ` del ${dateLabel}${timeLabel ? ' ' + timeLabel : ''}` : '') + '.';
+    const href = `https://wa.me/52${phoneDigits}?text=${encodeURIComponent(message)}`;
+    if (compact) {
+      return `<a href="${href}" target="_blank" rel="noopener" class="timeline-wa-link" title="Contactar por WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i> ${escapeHtml(apt.customer_phone)}
+      </a>`;
+    }
+    return `<a href="${href}" target="_blank" rel="noopener" class="btn-admin btn-sm btn-whatsapp">
+      <i class="fa-brands fa-whatsapp"></i> Contactar por WhatsApp
+    </a>`;
+  }
+
+  // Estados que ya no ocupan capacidad real del taller (ver #24: la
+  // capacidad debe recalcularse tras cancelar/no-show, aunque el registro
+  // se conserve para historial en la vista Lista).
+  const INACTIVE_STATUSES = ['CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'NO_SHOW', 'EXPIRED', 'RESCHEDULED'];
+  function isActiveAppt(apt) {
+    return !INACTIVE_STATUSES.includes(apt.status);
+  }
+
   function formatTime(isoOrTime) {
     if (!isoOrTime) return '';
     const str = String(isoOrTime);
@@ -73,9 +151,52 @@
     OTHER: 30
   };
 
+  /**
+   * Política de precios (espejo de solo lectura de server/modules/appointments/pricing.policy.js).
+   * El servidor recalcula y guarda el snapshot real al crear la cita; esto solo
+   * controla lo que se muestra en el modal ANTES de guardar.
+   */
+  const DIAGNOSTIC_STARTING_PRICE = 600;
+  const MAINTENANCE_MIN_PRICE = 1000;
+  const MAINTENANCE_REFERENCE_PERCENT = 0.15;
+
+  function computeDisplayPricing(type, equipmentValue) {
+    if (type === 'DIAGNOSTIC') {
+      return {
+        mode: 'PENDING_CONFIRMATION',
+        text: `Diagnóstico técnico desde $${DIAGNOSTIC_STARTING_PRICE} MXN. El diagnóstico determina la causa de la falla.`,
+        badge: 'DESDE $600 · POR CONFIRMAR'
+      };
+    }
+    if (type === 'LIQUID_DAMAGE') {
+      return {
+        mode: 'PENDING_CONFIRMATION',
+        text: 'En equipos con contacto con líquido, el servicio inicial consiste en limpieza técnica y descontaminación + inspección. Este procedimiento no garantiza que el equipo vuelva a encender ni elimina la posibilidad de daños adicionales por corrosión. Si tras la inspección quedan fallas, la reparación adicional se cotiza por separado.',
+        badge: 'LIMPIEZA / DESCONTAMINACIÓN · PRECIO POR CONFIRMAR'
+      };
+    }
+    if (type === 'MAINTENANCE') {
+      const value = Number(equipmentValue);
+      if (value > 0) {
+        const suggested = Math.max(MAINTENANCE_MIN_PRICE, Math.round(value * MAINTENANCE_REFERENCE_PERCENT));
+        return {
+          mode: 'ESTIMATE',
+          text: `Referencia aproximada según valor del equipo: $${suggested.toLocaleString('es-MX')} MXN. No es precio final; se confirma antes del servicio.`,
+          badge: `ESTIMADO $${suggested.toLocaleString('es-MX')} · POR CONFIRMAR`
+        };
+      }
+      return {
+        mode: 'PENDING_CONFIRMATION',
+        text: `Mantenimiento preventivo desde $${MAINTENANCE_MIN_PRICE.toLocaleString('es-MX')} MXN. Como referencia, el servicio puede calcularse alrededor del 15% del valor del equipo según complejidad, riesgo y materiales. El precio final se confirma antes de realizar el servicio.`,
+        badge: 'DESDE $1,000 · POR CONFIRMAR'
+      };
+    }
+    return null;
+  }
+
   const STATUS_LABELS = {
     TEMPORARY_HOLD: 'Apartado temporal',
-    PENDING_PAYMENT: 'Esperando pago $600',
+    PENDING_PAYMENT: 'Esperando pago de diagnóstico',
     CONFIRMED: 'Confirmada',
     CHECKED_IN: 'Cliente en taller',
     DEVICE_RECEIVED: 'Equipo recibido',
@@ -111,7 +232,7 @@
       const urlDate = urlParams.get('date');
 
       this.currentDate = (urlDate && /^\d{4}-\d{2}-\d{2}$/.test(urlDate)) ? urlDate : cancunTodayISO();
-      // "HOY" es la vista operativa principal y default
+      // "TODAY" es la vista default operativa del admin: agenda de hoy -> slots -> acciones -> detalle.
       this.view = (urlView && ['today', 'week', 'day', 'month', 'list'].includes(urlView)) ? urlView : 'today';
       this.appointments = [];
       this.todayData = null;
@@ -192,6 +313,7 @@
     async init() {
       this.bindEvents();
       this.bindKeyboardShortcuts();
+      this.updateViewButtons();
       window.addEventListener('popstate', () => {
         try {
           const url = new URL(window.location.href);
@@ -348,7 +470,7 @@
       const todayISO = cancunTodayISO();
       const nowTime = cancunNowTime();
       const todayAppts = (this.todayData?.appointments || []).filter(a =>
-        !['COMPLETED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'NO_SHOW', 'EXPIRED'].includes(a.status)
+        !['COMPLETED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'NO_SHOW', 'EXPIRED', 'RESCHEDULED'].includes(a.status)
       );
 
       const alerts = [];
@@ -360,7 +482,7 @@
       if (unpaidToday.length > 0) {
         alerts.push({
           type: 'warn',
-          text: `⚠ ${unpaidToday.length} cita${unpaidToday.length > 1 ? 's' : ''} con pago pendiente ($600)`,
+          text: `⚠ ${unpaidToday.length} cita${unpaidToday.length > 1 ? 's' : ''} con pago pendiente (${paymentAmountLabel(unpaidToday[0])})`,
           action: () => this.openDetails(unpaidToday[0].id)
         });
       }
@@ -428,7 +550,7 @@
      */
     computeNextAction(appts) {
       const active = (appts || []).filter(a =>
-        !['COMPLETED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'NO_SHOW', 'EXPIRED'].includes(a.status)
+        !['COMPLETED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'NO_SHOW', 'EXPIRED', 'RESCHEDULED'].includes(a.status)
       );
       if (!active.length) {
         return 'Taller libre · Capacidad disponible';
@@ -453,7 +575,7 @@
         return `Preparar salida a domicilio — ${time} (${nextApt.customer_name})`;
       }
       if (nextApt.status === 'PENDING_PAYMENT') {
-        return `Validar pago diagnóstico $600 — ${time} (${nextApt.customer_name})`;
+        return `Validar pago diagnóstico ${paymentAmountLabel(nextApt)} — ${time} (${nextApt.customer_name})`;
       }
       return `${nextApt.customer_name} — ${time} (${TYPE_LABELS[nextApt.appointment_type] || 'Recepción'})`;
     }
@@ -477,7 +599,7 @@
 
       bar.style.display = 'flex';
       bar.innerHTML = this.alerts.map((alt, idx) => `
-        <button type="button" class="agenda-alert-pill alert-${alt.type}" onclick="window.adminAgenda.triggerAlertAction(${idx})">
+        <button type="button" class="agenda-alert-pill alert-${alt.type}" ${actionAttrs('triggerAlertAction', idx)}>
           ${escapeHtml(alt.text)}
         </button>
       `).join('');
@@ -490,7 +612,7 @@
     }
 
     renderKPIs() {
-      const todayAppts = this.todayData?.appointments || [];
+      const todayAppts = (this.todayData?.appointments || []).filter(isActiveAppt);
       const totalCount = todayAppts.length;
       const unpaidCount = todayAppts.filter(a => a.payment_status === 'PENDING' || a.status === 'PENDING_PAYMENT').length;
       const onsiteCount = todayAppts.filter(a => a.location_type === 'ON_SITE').length;
@@ -576,11 +698,11 @@
       if (this.view === 'today') {
         this.renderTodayBoard(container);
       } else if (this.view === 'week') {
-        this.renderWeekView(container, appts);
+        this.renderWeekView(container, appts.filter(isActiveAppt));
       } else if (this.view === 'day') {
-        this.renderDayView(container, this.currentDate, appts);
+        this.renderDayView(container, this.currentDate, appts.filter(isActiveAppt));
       } else if (this.view === 'month') {
-        this.renderMonthView(container, appts);
+        this.renderMonthView(container, appts.filter(isActiveAppt));
       } else {
         this.renderListView(container, appts);
       }
@@ -596,6 +718,7 @@
       const rawAppts = (this.todayData?.appointments?.length ? this.todayData.appointments : this.appointments) || [];
       const appts = rawAppts.filter(a => {
         if (String(a.start_at).slice(0, 10) !== todayISO) return false;
+        if (this.filters.status === 'ALL' && !isActiveAppt(a)) return false;
         if (this.filters.type === 'DROP_OFF' && (a.location_type !== 'WORKSHOP' || a.appointment_type === 'LIQUID_DAMAGE')) return false;
         if (this.filters.type === 'ON_SITE' && a.location_type !== 'ON_SITE') return false;
         if (this.filters.type === 'LIQUID_DAMAGE' && a.appointment_type !== 'LIQUID_DAMAGE') return false;
@@ -675,13 +798,13 @@
 
             <div class="timeline-content-col">
               ${block ? `
-                <div class="timeline-empty-slot" style="color:#94a3b8;">
+                <div class="timeline-empty-slot" style="color:#94a3b8;cursor:pointer;" ${actionAttrs('openBlockDetails', block.id)} title="Click para ver detalle del bloqueo">
                   <span><i class="fa-solid fa-lock"></i> ${escapeHtml(block.reason || block.category || 'Horario bloqueado')}</span>
                 </div>
               ` : slotAppts.length ? slotAppts.map(apt => this.renderTodaySlotCard(apt)).join('') : `
-                <div class="timeline-empty-slot">
+                <div class="timeline-empty-slot" style="cursor:pointer;" ${actionAttrs('openNewAppointmentModal', todayISO, time)} title="Click para agendar cita a las ${time}">
                   <span style="color:var(--a-text-muted);">Disponible (${usedCap}/3)</span>
-                  <button type="button" class="btn-slot-quick-add" onclick="window.adminAgenda.openNewAppointmentModal('${todayISO}', '${time}')">
+                  <button type="button" class="btn-slot-quick-add" ${actionAttrs('openNewAppointmentModal', todayISO, time)}>
                     <i class="fa-solid fa-plus"></i> Agendar
                   </button>
                 </div>
@@ -694,11 +817,11 @@
       let emptyBanner = '';
       if (!appts.length) {
         emptyBanner = `
-          <div class="agenda-empty-state" style="text-align:center;padding:24px 20px;background:var(--a-surface);border:1px solid var(--a-border);border-radius:var(--a-radius-sm);margin-bottom:12px;">
+          <div class="agenda-empty-state">
             <i class="fa-solid fa-calendar-check" style="font-size:2.2rem;color:var(--a-cyan);margin-bottom:8px;"></i>
             <h3 style="margin:0 0 4px;font-size:1.05rem;">Hoy no tienes citas programadas</h3>
             <p style="margin:0 0 12px;color:var(--a-text-muted);font-size:0.82rem;">Capacidad disponible: 24/24 · Próximo horario libre: 08:30</p>
-            <button class="btn-admin btn-approve" onclick="window.adminAgenda.openNewAppointmentModal('${todayISO}')">
+            <button class="btn-admin btn-approve" ${actionAttrs('openNewAppointmentModal', todayISO)}>
               <i class="fa-solid fa-plus"></i> + Nueva cita
             </button>
           </div>
@@ -711,7 +834,7 @@
             <div class="agenda-today-title-group">
               <h2 class="agenda-today-h2">HOY — ${escapeHtml(formattedDate)}</h2>
             </div>
-            <div class="agenda-today-next-action-pill" title="Siguiente acción operativa calculada automáticamente">
+            <div class="agenda-today-next-action-pill is-interactive" style="cursor:pointer;" ${actionAttrs('openNextActionAppointment')} title="Siguiente acción operativa calculada automáticamente (Click para abrir)">
               <i class="fa-solid fa-bolt"></i>
               <span>${escapeHtml(nextActionText)}</span>
             </div>
@@ -725,31 +848,22 @@
     }
 
     renderTodaySlotCard(apt) {
-      const isPaid = apt.payment_status === 'PAID';
       const isLiquid = apt.appointment_type === 'LIQUID_DAMAGE';
       const isOnSite = apt.location_type === 'ON_SITE';
-      const phoneDigits = (apt.customer_phone || '').replace(/\D/g, '');
 
       return `
         <div class="timeline-card">
-          <div class="timeline-card-main">
+          <div class="timeline-card-main" role="button" tabindex="0" style="cursor:pointer;" ${actionAttrs('openDetails', apt.id)} title="Click para abrir detalle de la cita">
             <div class="timeline-card-header">
               <span class="timeline-customer-name">${escapeHtml(apt.customer_name || 'Sin nombre')}</span>
-              ${apt.customer_phone ? `
-                <a href="https://wa.me/52${phoneDigits}" target="_blank" rel="noopener" class="timeline-wa-link" title="Abrir WhatsApp con cliente">
-                  <i class="fa-brands fa-whatsapp"></i> ${escapeHtml(apt.customer_phone)}
-                </a>
-              ` : ''}
+              ${whatsAppLinkHtml(apt, { compact: true })}
             </div>
             <div class="timeline-device-line">
               <strong>${escapeHtml(apt.device_summary || apt.device_type || 'Equipo')}</strong> · ${escapeHtml(apt.planned_service_summary || TYPE_LABELS[apt.appointment_type] || 'Revisión')}
-              ${apt.ticket_code ? `· <span class="agenda-ticket-link" onclick="window.adminAgenda.openTicket('${apt.ticket_id}')">Ticket #${escapeHtml(apt.ticket_code)}</span>` : ''}
+              ${apt.ticket_code ? `· <span class="agenda-ticket-link" data-agenda-stop="1" ${actionAttrs('openTicket', apt.ticket_id)}>Ticket #${escapeHtml(apt.ticket_code)}</span>` : ''}
             </div>
             <div class="timeline-meta-badges">
-              <span class="chip-badge ${isPaid ? 'badge-paid' : 'badge-pending'}">
-                <i class="${isPaid ? 'fa-solid fa-check' : 'fa-solid fa-clock'}"></i>
-                ${isPaid ? '$600 Pagado' : '$600 Pendiente'}
-              </span>
+              ${paymentBadgeHtml(apt)}
               ${isLiquid ? '<span class="chip-badge badge-liquid"><i class="fa-solid fa-droplet"></i> MOJADO</span>' : ''}
               ${isOnSite ? '<span class="chip-badge badge-onsite"><i class="fa-solid fa-house"></i> Domicilio</span>' : ''}
               <span class="chip-badge" style="background:var(--a-surface-2);color:var(--a-cyan);">
@@ -761,26 +875,26 @@
 
           <div class="timeline-card-actions">
             ${apt.status === 'CONFIRMED' ? `
-              <button type="button" class="btn-action-fast act-checkin" onclick="window.adminAgenda.updateStatus('${apt.id}', 'CHECKED_IN')">
+              <button type="button" class="btn-action-fast act-checkin" ${actionAttrs('updateStatus', apt.id, 'CHECKED_IN')}>
                 <i class="fa-solid fa-user-check"></i> Llegó
               </button>
             ` : ''}
             ${apt.status === 'CHECKED_IN' && apt.appointment_type !== 'PICKUP' ? `
-              <button type="button" class="btn-action-fast act-receive" onclick="window.adminAgenda.updateStatus('${apt.id}', 'DEVICE_RECEIVED')">
+              <button type="button" class="btn-action-fast act-receive" ${actionAttrs('updateStatus', apt.id, 'DEVICE_RECEIVED')}>
                 <i class="fa-solid fa-box-archive"></i> Recibir
               </button>
             ` : ''}
             ${apt.status === 'CHECKED_IN' && apt.appointment_type === 'PICKUP' ? `
-              <button type="button" class="btn-action-fast act-complete" onclick="window.adminAgenda.updateStatus('${apt.id}', 'DEVICE_DELIVERED')">
+              <button type="button" class="btn-action-fast act-complete" ${actionAttrs('updateStatus', apt.id, 'DEVICE_DELIVERED')}>
                 <i class="fa-solid fa-handshake"></i> Entregado
               </button>
             ` : ''}
             ${['DEVICE_RECEIVED', 'IN_PROGRESS', 'CUSTOMER_ARRIVED'].includes(apt.status) ? `
-              <button type="button" class="btn-action-fast act-complete" onclick="window.adminAgenda.updateStatus('${apt.id}', 'COMPLETED')">
+              <button type="button" class="btn-action-fast act-complete" ${actionAttrs('updateStatus', apt.id, 'COMPLETED')}>
                 <i class="fa-solid fa-check-double"></i> Completar
               </button>
             ` : ''}
-            <button type="button" class="btn-action-fast" onclick="window.adminAgenda.openDetails('${apt.id}')" title="Ver detalles y acciones">
+            <button type="button" class="btn-action-fast" ${actionAttrs('openDetails', apt.id)} title="Ver detalles y acciones">
               <i class="fa-solid fa-ellipsis"></i> Detalle
             </button>
           </div>
@@ -824,7 +938,7 @@
         const dayCount = appts.filter(a => String(a.start_at).slice(0, 10) === dayStr).length;
 
         headersHtml += `
-          <div class="agenda-tt-day-header ${isToday ? 'is-today' : ''}" data-date="${dayStr}" onclick="window.adminAgenda.selectDay('${dayStr}')" title="Ver detalle de ${dayLabel}">
+          <div class="agenda-tt-day-header ${isToday ? 'is-today' : ''}" data-date="${dayStr}" ${actionAttrs('selectDay', dayStr)} title="Ver detalle de ${dayLabel}">
             <span class="agenda-tt-day-name">${escapeHtml(dayLabel)}</span>
             <span class="agenda-tt-day-count">${dayCount} citas</span>
           </div>
@@ -852,7 +966,7 @@
           rowsHtml += `
             <div class="${cellClass}" data-date="${dayStr}" data-time="${time}">
               ${block ? `
-                <div class="agenda-block-chip" title="${escapeHtml(block.reason || block.category || 'Bloqueado')}">
+                <div class="agenda-block-chip is-clickable" style="cursor:pointer;" ${actionAttrs('openBlockDetails', block.id)} title="${escapeHtml(block.reason || block.category || 'Bloqueado')} (Click para ver detalle)">
                   <i class="fa-solid fa-lock"></i> ${escapeHtml(block.category || 'Bloqueado')}
                 </div>
               ` : cellAppts.length ? `
@@ -860,7 +974,7 @@
                   ${cellAppts.map(apt => this.renderWeekEventChip(apt, usedCap)).join('')}
                 </div>
               ` : `
-                <div class="agenda-tt-empty-hover" onclick="window.adminAgenda.openNewAppointmentModal('${dayStr}', '${time}')">
+                <div class="agenda-tt-empty-hover" ${actionAttrs('openNewAppointmentModal', dayStr, time)}>
                   <button type="button" class="btn-slot-quick-add" title="Agendar en este horario">
                     + 0/3
                   </button>
@@ -882,7 +996,6 @@
     }
 
     renderWeekEventChip(apt, usedCap) {
-      const isPaid = apt.payment_status === 'PAID';
       const isLiquid = apt.appointment_type === 'LIQUID_DAMAGE';
       const isOnSite = apt.location_type === 'ON_SITE';
       const timeStr = formatTime(apt.start_at);
@@ -890,10 +1003,10 @@
       let chipClass = 'agenda-event-chip';
       if (isLiquid) chipClass += ' is-liquid';
       if (isOnSite) chipClass += ' is-onsite';
-      if (!isPaid && (apt.status === 'PENDING_PAYMENT' || apt.payment_status === 'PENDING')) chipClass += ' is-pending';
+      if (apt.payment_status === 'PENDING' || apt.status === 'PENDING_PAYMENT') chipClass += ' is-pending';
 
       return `
-        <div class="${chipClass}" onclick="event.stopPropagation(); window.adminAgenda.openDetails('${apt.id}')" title="Click para ver detalle">
+        <div class="${chipClass}" role="button" tabindex="0" data-agenda-stop="1" ${actionAttrs('openDetails', apt.id)} title="Click para ver detalle">
           <div class="chip-row-top">
             <span class="chip-time">${timeStr}</span>
             <span class="chip-cap-tag">${usedCap}/3</span>
@@ -901,9 +1014,7 @@
           <div class="chip-customer">${escapeHtml(apt.customer_name || 'Sin nombre')}</div>
           <div class="chip-device">${escapeHtml(apt.device_summary || apt.device_type || 'Equipo')}</div>
           <div class="chip-badges">
-            ${isPaid
-              ? '<span class="chip-badge badge-paid">✓ Pagado</span>'
-              : '<span class="chip-badge badge-pending">$600 Pend.</span>'}
+            ${paymentBadgeHtml(apt)}
             ${isLiquid ? '<span class="chip-badge badge-liquid">💧 Mojado</span>' : ''}
             ${isOnSite ? '<span class="chip-badge badge-onsite">🚗 Domicilio</span>' : ''}
           </div>
@@ -924,6 +1035,77 @@
 
       const totalCap = dayAppts.reduce((sum, a) => sum + (Number(a.capacity_units) || 1), 0);
       const unpaidCount = dayAppts.filter(a => a.payment_status === 'PENDING' || a.status === 'PENDING_PAYMENT').length;
+      const pendingArrivals = dayAppts.filter(a => a.status === 'CONFIRMED');
+      const pendingArrivalCount = pendingArrivals.length;
+
+      // Citas con acción pendiente o atención requerida en el día
+      const pendingItems = dayAppts.filter(a =>
+        !['COMPLETED', 'DEVICE_DELIVERED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'NO_SHOW', 'EXPIRED', 'RESCHEDULED'].includes(a.status)
+      );
+
+      let pendingSectionHtml = '';
+      if (pendingItems.length > 0) {
+        pendingSectionHtml = `
+          <div class="agenda-day-pending-box">
+            <div class="agenda-day-pending-header">
+              <span class="agenda-day-pending-title">
+                <i class="fa-solid fa-clock-rotate-left" style="color:var(--a-cyan);"></i> PENDIENTES DEL DÍA (${pendingItems.length})
+              </span>
+              <span class="agenda-day-pending-subtitle">Click en cualquier pendiente para abrir la cita</span>
+            </div>
+            <div class="agenda-day-pending-grid">
+              ${pendingItems.map(apt => {
+                const isLiquid = apt.appointment_type === 'LIQUID_DAMAGE';
+                const isUnpaid = apt.payment_status === 'PENDING' || apt.status === 'PENDING_PAYMENT';
+                const timeStr = formatTime(apt.start_at);
+
+                let reasonBadge = '';
+                if (isLiquid) {
+                  reasonBadge = '<span class="chip-badge badge-liquid"><i class="fa-solid fa-droplet"></i> Equipo mojado</span>';
+                } else if (isUnpaid) {
+                  reasonBadge = '<span class="chip-badge badge-pending"><i class="fa-solid fa-clock"></i> Pago pendiente</span>';
+                } else if (apt.status === 'CONFIRMED') {
+                  reasonBadge = '<span class="chip-badge" style="background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);"><i class="fa-solid fa-user-clock"></i> Pendiente de llegada</span>';
+                } else if (apt.status === 'CHECKED_IN') {
+                  reasonBadge = '<span class="chip-badge" style="background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.3);"><i class="fa-solid fa-user-check"></i> En taller</span>';
+                } else if (apt.status === 'TEMPORARY_HOLD') {
+                  reasonBadge = '<span class="chip-badge badge-pending"><i class="fa-solid fa-hourglass-half"></i> Pendiente confirmación</span>';
+                } else {
+                  reasonBadge = `<span class="chip-badge" style="background:var(--a-surface-2);color:var(--a-text);"><i class="fa-solid fa-circle-info"></i> ${escapeHtml(STATUS_LABELS[apt.status] || apt.status)}</span>`;
+                }
+
+                return `
+                  <div class="agenda-pending-card is-interactive" role="button" tabindex="0" ${actionAttrs('openDetails', apt.id)} title="Abrir detalle de ${escapeHtml(apt.customer_name)}">
+                    <div class="pending-card-top">
+                      <span class="pending-card-time"><i class="fa-solid fa-clock"></i> ${timeStr}</span>
+                      ${reasonBadge}
+                    </div>
+                    <div class="pending-card-name">${escapeHtml(apt.customer_name || 'Cliente')}</div>
+                    <div class="pending-card-device">
+                      ${escapeHtml(apt.device_summary || apt.device_type || 'Equipo')} · ${escapeHtml(apt.planned_service_summary || TYPE_LABELS[apt.appointment_type] || 'Revisión')}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      } else if (dayAppts.length === 0) {
+        pendingSectionHtml = `
+          <div class="agenda-day-empty-banner">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <i class="fa-solid fa-calendar-check" style="font-size:1.3rem;color:var(--a-cyan);"></i>
+              <div>
+                <strong>No hay citas programadas para este día</strong>
+                <div style="font-size:0.75rem;color:var(--a-text-muted);">Capacidad libre: 24/24 · Selecciona cualquier horario disponible abajo o pulsa [+ Nueva cita].</div>
+              </div>
+            </div>
+            <button type="button" class="btn-admin btn-approve btn-sm" ${actionAttrs('openNewAppointmentModal', dateStr)}>
+              <i class="fa-solid fa-plus"></i> + Nueva cita
+            </button>
+          </div>
+        `;
+      }
 
       // Horarios 09:00 a 19:00
       const timeSlots = [];
@@ -947,7 +1129,7 @@
 
         if (block) {
           rowsHtml += `
-            <div class="agenda-day-lane-cell is-onsite-exclusive" style="background:rgba(71,85,105,0.2);border-left:3px solid #64748b;">
+            <div class="agenda-day-lane-cell is-onsite-exclusive is-blocked" style="background:rgba(71,85,105,0.2);border-left:3px solid #64748b;cursor:pointer;" ${actionAttrs('openBlockDetails', block.id)} title="Click para ver detalle del bloqueo">
               <span style="color:#cbd5e1;font-weight:700;font-size:0.8rem;">
                 <i class="fa-solid fa-lock"></i> ${escapeHtml(block.reason || block.category || 'Taller Bloqueado')}
               </span>
@@ -955,7 +1137,7 @@
           `;
         } else if (onsiteExclusive) {
           rowsHtml += `
-            <div class="agenda-day-lane-cell is-onsite-exclusive" onclick="window.adminAgenda.openDetails('${onsiteExclusive.id}')">
+            <div class="agenda-day-lane-cell is-onsite-exclusive" role="button" tabindex="0" style="cursor:pointer;" ${actionAttrs('openDetails', onsiteExclusive.id)} title="Click para ver detalle">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span style="font-weight:800;color:#c4b5fd;font-size:0.82rem;">
                   <i class="fa-solid fa-house"></i> 🚗 SERVICIO A DOMICILIO — Fuera del taller (${escapeHtml(onsiteExclusive.customer_name)})
@@ -970,13 +1152,12 @@
           for (let laneIdx = 0; laneIdx < 3; laneIdx++) {
             const apt = slotAppts[laneIdx];
             if (apt) {
-              const isPaid = apt.payment_status === 'PAID';
               const isLiquid = apt.appointment_type === 'LIQUID_DAMAGE';
               rowsHtml += `
-                <div class="agenda-day-lane-cell ${isLiquid ? 'is-liquid' : ''}" onclick="window.adminAgenda.openDetails('${apt.id}')">
+                <div class="agenda-day-lane-cell ${isLiquid ? 'is-liquid' : ''}" role="button" tabindex="0" style="cursor:pointer;" ${actionAttrs('openDetails', apt.id)} title="Click para abrir detalle de la cita">
                   <div style="display:flex;justify-content:space-between;align-items:center;">
                     <strong style="font-size:0.82rem;color:var(--a-text);">${escapeHtml(apt.customer_name)}</strong>
-                    <span class="chip-badge ${isPaid ? 'badge-paid' : 'badge-pending'}">${isPaid ? '✓ Pagado' : '$600 Pend.'}</span>
+                    ${paymentBadgeHtml(apt)}
                   </div>
                   <div style="font-size:0.72rem;color:var(--a-text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                     ${escapeHtml(apt.device_summary || '')} · ${escapeHtml(apt.planned_service_summary || TYPE_LABELS[apt.appointment_type] || '')}
@@ -985,7 +1166,7 @@
               `;
             } else {
               rowsHtml += `
-                <div class="agenda-day-lane-cell ${isPast ? 'is-past' : ''}" onclick="window.adminAgenda.openNewAppointmentModal('${dateStr}', '${time}')">
+                <div class="agenda-day-lane-cell ${isPast ? 'is-past' : ''}" role="button" tabindex="0" style="cursor:pointer;" ${actionAttrs('openNewAppointmentModal', dateStr, time)} title="Click para agendar en este espacio libre">
                   <div class="lane-empty-slot">
                     <span>Libre (${laneIdx + 1}/3)</span>
                     <button type="button" class="btn-slot-quick-add" title="Agendar"><i class="fa-solid fa-plus"></i></button>
@@ -1004,21 +1185,27 @@
               <h2 style="margin:0 0 4px;font-size:1.15rem;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:var(--a-text);">
                 ${escapeHtml(formattedDate)}
               </h2>
-              <div style="display:flex;gap:12px;font-size:0.78rem;color:var(--a-text-muted);font-weight:600;">
+              <div style="display:flex;gap:12px;font-size:0.78rem;color:var(--a-text-muted);font-weight:600;flex-wrap:wrap;">
                 <span><i class="fa-solid fa-calendar-check" style="color:var(--a-cyan);"></i> ${dayAppts.length} citas</span>
-                <span><i class="fa-solid fa-gauge" style="color:#10b981;"></i> ${totalCap}/24 capacidad usada</span>
-                <span><i class="fa-solid fa-clock" style="color:#f59e0b;"></i> ${unpaidCount} pagos pendientes</span>
+                <span><i class="fa-solid fa-gauge" style="color:#10b981;"></i> ${totalCap}/24 capacidad utilizada</span>
+                <span><i class="fa-solid fa-clock" style="color:#f59e0b;"></i> ${unpaidCount} pago${unpaidCount !== 1 ? 's' : ''} pendiente${unpaidCount !== 1 ? 's' : ''}</span>
+                <span><i class="fa-solid fa-user-clock" style="color:#38bdf8;"></i> ${pendingArrivalCount} pendiente${pendingArrivalCount !== 1 ? 's' : ''} de llegada</span>
               </div>
             </div>
-            <div style="display:flex;gap:8px;">
-              <button class="btn-admin btn-approve" onclick="window.adminAgenda.openNewAppointmentModal('${dateStr}')">
-                <i class="fa-solid fa-plus"></i> Nueva Cita
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn-admin" ${actionAttrs('backToMonth')}>
+                <i class="fa-solid fa-calendar-days"></i> ← Mes
               </button>
-              <button class="btn-admin btn-warn" onclick="window.adminAgenda.openBlockModal('${dateStr}')">
-                <i class="fa-solid fa-ban"></i> Bloquear
+              <button class="btn-admin btn-approve" ${actionAttrs('openNewAppointmentModal', dateStr)}>
+                <i class="fa-solid fa-plus"></i> + Nueva Cita
+              </button>
+              <button class="btn-admin btn-warn" ${actionAttrs('openBlockModal', dateStr)}>
+                <i class="fa-solid fa-ban"></i> Bloquear horario
               </button>
             </div>
           </div>
+
+          ${pendingSectionHtml}
 
           <div class="agenda-day-lanes-wrapper" id="agenda-timetable-scroll">
             <div class="agenda-day-lanes-timetable">
@@ -1055,7 +1242,7 @@
         const capPct = Math.min(100, Math.round((totalCap / 24) * 100));
 
         cells += `
-          <div class="agenda-month-cell ${isToday ? 'is-today' : ''}" onclick="window.adminAgenda.selectDay('${dStr}')" title="Click para abrir Día ${dStr}">
+          <div class="agenda-month-cell ${isToday ? 'is-today' : ''}" role="button" tabindex="0" ${actionAttrs('selectDay', dStr)} title="Click para abrir Día ${dStr}">
             <div class="month-cell-header">
               <span class="month-cell-num">${d}</span>
               ${dayAppts.length ? `<span class="month-cell-count">${dayAppts.length}</span>` : ''}
@@ -1085,10 +1272,10 @@
     renderListView(container, appts) {
       if (!appts.length) {
         container.innerHTML = `
-          <div class="agenda-empty-state" style="text-align:center;padding:36px;background:var(--a-surface);border:1px solid var(--a-border);border-radius:var(--a-radius-sm);">
+          <div class="agenda-empty-state">
             <i class="fa-solid fa-magnifying-glass" style="font-size:2.2rem;color:var(--a-text-muted);margin-bottom:10px;"></i>
             <h3 style="margin:0 0 6px;">No se encontraron citas con los filtros activos</h3>
-            <button class="btn-admin" onclick="window.adminAgenda.resetFilters()">Limpiar filtros</button>
+            <button class="btn-admin" ${actionAttrs('resetFilters')}>Limpiar filtros</button>
           </div>
         `;
         return;
@@ -1120,9 +1307,7 @@
                   <td>${escapeHtml(apt.device_summary || apt.device_type || 'Equipo')}</td>
                   <td>${escapeHtml(apt.planned_service_summary || TYPE_LABELS[apt.appointment_type] || 'Revisión')}</td>
                   <td>
-                    ${apt.payment_status === 'PAID'
-                      ? '<span class="chip-badge badge-paid">✓ Pagado</span>'
-                      : '<span class="chip-badge badge-pending">$600 Pend.</span>'}
+                    ${paymentBadgeHtml(apt)}
                   </td>
                   <td>
                     <span class="chip-badge" style="background:var(--a-surface-2);color:var(--a-text);">
@@ -1131,7 +1316,7 @@
                   </td>
                   <td><small style="font-weight:700;">${escapeHtml(apt.next_action || 'Atender')}</small></td>
                   <td>
-                    <button type="button" class="btn-action-fast" onclick="window.adminAgenda.openDetails('${apt.id}')">
+                    <button type="button" class="btn-action-fast" ${actionAttrs('openDetails', apt.id)}>
                       <i class="fa-solid fa-eye"></i> Detalle
                     </button>
                   </td>
@@ -1146,18 +1331,38 @@
     /**
      * WIDGET MINI AGENDA EN DASHBOARD (Mi Jornada)
      */
+    renderDashboardKpiPills() {
+      const rawToday = this.todayData?.appointments || [];
+      const active = rawToday.filter(isActiveAppt);
+      const counts = {
+        total: active.length,
+        confirmed: active.filter(a => a.status === 'CONFIRMED').length,
+        pending: active.filter(a => a.payment_status === 'PENDING' || a.status === 'PENDING_PAYMENT').length,
+        onsite: active.filter(a => a.location_type === 'ON_SITE').length,
+        liquid: active.filter(a => a.appointment_type === 'LIQUID_DAMAGE').length,
+        noshow: rawToday.filter(a => a.status === 'NO_SHOW').length
+      };
+      Object.entries(counts).forEach(([key, value]) => {
+        const numEl = document.getElementById(`agenda-kpi-${key}`);
+        if (!numEl) return;
+        numEl.textContent = String(value);
+        numEl.closest('.kpi-mini-pill')?.classList.toggle('is-zero', value === 0);
+      });
+    }
+
     renderDashboardWidget() {
+      this.renderDashboardKpiPills();
       const container = document.getElementById('dashboard-agenda-preview');
       if (!container) return;
 
-      const todayAppts = this.todayData?.appointments || [];
+      const todayAppts = (this.todayData?.appointments || []).filter(isActiveAppt);
       if (!todayAppts.length) {
         container.innerHTML = `
-          <div style="text-align:center;padding:24px 12px;">
-            <i class="fa-solid fa-calendar-check" style="font-size:1.8rem;color:var(--a-cyan);margin-bottom:6px;"></i>
-            <p style="margin:0;font-weight:700;font-size:0.85rem;">No hay citas agendadas para hoy.</p>
-            <p style="margin:2px 0 10px;font-size:0.75rem;color:var(--a-text-muted);">El mostrador está libre para atención espontánea.</p>
-            <button class="btn-admin btn-sm" onclick="window.adminAgenda.openNewAppointmentModal()">
+          <div class="journey-empty">
+            <i class="fa-solid fa-calendar-check"></i>
+            <strong>No hay citas agendadas para hoy.</strong>
+            <span>El mostrador está libre para atención espontánea.</span>
+            <button class="btn-admin btn-approve btn-sm" style="margin-top:8px;" ${actionAttrs('openNewAppointmentModal')}>
               <i class="fa-solid fa-plus"></i> Agendar cita
             </button>
           </div>
@@ -1168,20 +1373,19 @@
       // Máximo 5 próximas citas
       const next5 = todayAppts.slice(0, 5);
       container.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          ${next5.map(a => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--a-surface-2);border-radius:4px;font-size:0.78rem;">
-              <span style="font-weight:800;color:var(--a-cyan);width:45px;">${formatTime(a.start_at)}</span>
-              <span style="flex:1;font-weight:700;margin:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                ${escapeHtml(a.customer_name)} · <span style="color:var(--a-text-muted);">${escapeHtml(a.device_summary || 'Equipo')}</span>
-              </span>
-              <span class="chip-badge ${a.payment_status === 'PAID' ? 'badge-paid' : 'badge-pending'}">
-                ${a.payment_status === 'PAID' ? 'Pagado' : '$600 Pend.'}
-              </span>
-            </div>
-          `).join('')}
-          <button class="btn-admin btn-sm" style="margin-top:6px;width:100%;justify-content:center;" onclick="document.querySelector('[data-view=\\'agenda\\']')?.click()">
-            Ver agenda completa (${todayAppts.length} hoy) →
+        ${next5.map(a => `
+          <div class="agenda-preview-item" ${actionAttrs('openDetails', a.id)}>
+            <time>${formatTime(a.start_at)}</time>
+            <span class="agenda-preview-copy">
+              <strong>${escapeHtml(a.customer_name)}</strong>
+              <span>${escapeHtml(a.device_summary || 'Equipo')}</span>
+            </span>
+            ${paymentBadgeHtml(a)}
+          </div>
+        `).join('')}
+        <div class="agenda-preview-footer">
+          <button class="btn-admin btn-sm" ${actionAttrs('goToAgendaNav')}>
+            Ver agenda completa (${todayAppts.length} hoy) <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
       `;
@@ -1233,10 +1437,16 @@
       const modal = document.getElementById('agenda-details-drawer');
       const body = document.getElementById('agenda-drawer-content');
       if (!modal || !body) return;
+      // El drawer vive dentro de <section id="view-agenda">: si se invoca desde
+      // otra vista (p.ej. la preview del Dashboard), esa sección está
+      // display:none y el drawer sería invisible aunque "abra".
+      const agendaSection = document.getElementById('view-agenda');
+      if (agendaSection && agendaSection.style.display === 'none') {
+        this.goToAgendaNav();
+      }
 
       const isPaid = apt.payment_status === 'PAID';
       const isLiquid = apt.appointment_type === 'LIQUID_DAMAGE';
-      const phoneDigits = (apt.customer_phone || '').replace(/\D/g, '');
 
       body.innerHTML = `
         <div class="drawer-detail-top">
@@ -1254,9 +1464,7 @@
           <div class="drawer-kv"><span>Correo:</span> <strong>${escapeHtml(apt.customer_email || 'N/A')}</strong></div>
           ${apt.customer_phone ? `
             <div style="margin-top:6px;">
-              <a href="https://wa.me/52${phoneDigits}" target="_blank" rel="noopener" class="btn-admin btn-sm" style="background:#25d366;color:#fff;display:inline-flex;align-items:center;gap:6px;">
-                <i class="fa-brands fa-whatsapp"></i> Contactar por WhatsApp
-              </a>
+              ${whatsAppLinkHtml(apt)}
             </div>
           ` : ''}
         </div>
@@ -1270,22 +1478,30 @@
           ${apt.address_line ? `<div class="drawer-kv"><span>Dirección:</span> <strong>${escapeHtml(apt.address_line)}</strong></div>` : ''}
           ${isLiquid ? `
             <div style="background:rgba(220,38,38,0.15);border:1px solid #dc2626;color:#fca5a5;padding:8px 10px;border-radius:4px;font-size:0.75rem;margin-top:6px;">
-              <i class="fa-solid fa-triangle-exclamation"></i> <strong>EQUIPO MOJADO:</strong> No conectar a corriente ni intentar encender. Ingreso prioritario a tina ultrasónica.
+              <i class="fa-solid fa-triangle-exclamation"></i> <strong>EQUIPO MOJADO:</strong> No conectar a corriente ni intentar encender. Servicio inicial: limpieza técnica y descontaminación + inspección. No garantiza que el equipo vuelva a encender ni elimina daños adicionales por corrosión.
             </div>
           ` : ''}
         </div>
 
         <div class="drawer-section">
-          <h4><i class="fa-solid fa-receipt"></i> Diagnóstico y Pago</h4>
+          <h4><i class="fa-solid fa-receipt"></i> Precio y Pago</h4>
+          ${apt.price_label ? `<div class="drawer-kv"><span>Precio:</span> <strong>${escapeHtml(apt.price_label)}</strong></div>` : ''}
+          <div class="drawer-kv"><span>Estatus del precio:</span> <strong>${escapeHtml({
+            CONFIRMED: 'Confirmado',
+            ESTIMATE: 'Estimado',
+            PENDING_CONFIRMATION: 'Por confirmar',
+            NOT_APPLICABLE: 'No aplica'
+          }[apt.price_mode] || (isPricePendingConfirmation(apt) ? 'Por confirmar' : (apt.price_mode || 'Por confirmar')))}</strong></div>
+          ${apt.equipment_value_mxn ? `<div class="drawer-kv"><span>Valor del equipo:</span> <strong>$${Number(apt.equipment_value_mxn).toLocaleString('es-MX')} MXN</strong></div>` : ''}
           <div class="drawer-kv">
-            <span>Estado:</span>
-            <strong>${isPaid ? '✓ PAGADO ($600 Abonado)' : '🟠 PENDIENTE DE PAGO'}</strong>
+            <span>Estado de pago:</span>
+            <strong>${isPaid ? '✓ PAGADO' : (apt.payment_status === 'NOT_REQUIRED' ? 'NO REQUERIDO' : '🟠 PENDIENTE DE PAGO')}</strong>
           </div>
           ${apt.diagnostic_payment_id ? `<div class="drawer-kv"><span>Comprobante:</span> <code>${escapeHtml(apt.diagnostic_payment_id)}</code></div>` : ''}
-          ${!isPaid && apt.status === 'PENDING_PAYMENT' ? `
+          ${!isPaid && (apt.status === 'PENDING_PAYMENT' || apt.payment_status === 'PENDING') && !isPricePendingConfirmation(apt) ? `
             <div style="margin-top:8px;">
-              <button type="button" class="btn-admin btn-approve btn-sm" onclick="window.adminAgenda.confirmManualPayment('${apt.id}')">
-                <i class="fa-solid fa-check"></i> Validar pago recibido ($600 MXN)
+              <button type="button" class="btn-admin btn-approve btn-sm" ${actionAttrs('confirmManualPayment', apt.id)}>
+                <i class="fa-solid fa-check"></i> Validar pago recibido (${paymentAmountLabel(apt)} MXN)
               </button>
             </div>
           ` : ''}
@@ -1315,39 +1531,49 @@
 
         <div class="drawer-quick-actions">
           ${apt.ticket_id ? `
-            <button type="button" class="btn-admin btn-info" onclick="window.adminAgenda.openTicket('${apt.ticket_id}')">
+            <button type="button" class="btn-admin btn-info" ${actionAttrs('openTicket', apt.ticket_id)}>
               <i class="fa-solid fa-ticket"></i> Ver Ticket #${escapeHtml(apt.ticket_code || '')}
             </button>
-          ` : ''}
+          ` : `
+            <button type="button" class="btn-admin btn-info" ${actionAttrs('createTicketForAppointment', apt.id)}>
+              <i class="fa-solid fa-plus"></i> Crear Ticket de Taller
+            </button>
+          `}
           ${apt.status === 'CONFIRMED' ? `
-            <button type="button" class="btn-admin btn-approve" onclick="window.adminAgenda.updateStatus('${apt.id}', 'CHECKED_IN')">
+            <button type="button" class="btn-admin btn-approve" ${actionAttrs('updateStatus', apt.id, 'CHECKED_IN')}>
               <i class="fa-solid fa-user-check"></i> ✓ Cliente llegó (Check-in)
             </button>
           ` : ''}
           ${apt.status === 'CHECKED_IN' && apt.appointment_type !== 'PICKUP' ? `
-            <button type="button" class="btn-admin btn-approve" onclick="window.adminAgenda.updateStatus('${apt.id}', 'DEVICE_RECEIVED')">
+            <button type="button" class="btn-admin btn-approve" ${actionAttrs('updateStatus', apt.id, 'DEVICE_RECEIVED')}>
               <i class="fa-solid fa-box-archive"></i> ✓ Equipo recibido a banco
             </button>
           ` : ''}
           ${apt.status === 'CHECKED_IN' && apt.appointment_type === 'PICKUP' ? `
-            <button type="button" class="btn-admin btn-primary" onclick="window.adminAgenda.updateStatus('${apt.id}', 'DEVICE_DELIVERED')">
+            <button type="button" class="btn-admin btn-primary" ${actionAttrs('updateStatus', apt.id, 'DEVICE_DELIVERED')}>
               <i class="fa-solid fa-handshake"></i> ✓ Equipo entregado
             </button>
           ` : ''}
           ${['CHECKED_IN', 'DEVICE_RECEIVED', 'IN_PROGRESS'].includes(apt.status) ? `
-            <button type="button" class="btn-admin btn-primary" onclick="window.adminAgenda.updateStatus('${apt.id}', 'COMPLETED')">
+            <button type="button" class="btn-admin btn-primary" ${actionAttrs('updateStatus', apt.id, 'COMPLETED')}>
               <i class="fa-solid fa-check-double"></i> ✓ Marcar cita completada
             </button>
           ` : ''}
-          <button type="button" class="btn-admin" onclick="window.adminAgenda.openRescheduleModal('${apt.id}')">
+          ${!['CANCELLED_BY_ADMIN', 'CANCELLED_BY_CUSTOMER', 'NO_SHOW', 'COMPLETED', 'DEVICE_DELIVERED', 'RESCHEDULED', 'EXPIRED'].includes(apt.status) ? `
+          <button type="button" class="btn-admin" ${actionAttrs('openRescheduleModal', apt.id)}>
             <i class="fa-solid fa-calendar-days"></i> ↔ Reprogramar cita
           </button>
-          <button type="button" class="btn-admin btn-warn" onclick="window.adminAgenda.updateStatus('${apt.id}', 'NO_SHOW')">
+          ` : ''}
+          ${!['CANCELLED_BY_ADMIN', 'CANCELLED_BY_CUSTOMER', 'NO_SHOW', 'COMPLETED', 'DEVICE_DELIVERED', 'RESCHEDULED', 'EXPIRED', 'CHECKED_IN', 'DEVICE_RECEIVED', 'IN_PROGRESS'].includes(apt.status) ? `
+          <button type="button" class="btn-admin btn-warn" ${actionAttrs('openNoShowModal', apt.id)}>
             <i class="fa-solid fa-user-xmark"></i> ⚠ No se presentó (No-show)
           </button>
-          <button type="button" class="btn-admin btn-danger" onclick="window.adminAgenda.openCancelModal('${apt.id}')">
+          ` : ''}
+          ${!['CANCELLED_BY_ADMIN', 'CANCELLED_BY_CUSTOMER', 'NO_SHOW', 'COMPLETED', 'DEVICE_DELIVERED', 'RESCHEDULED', 'EXPIRED'].includes(apt.status) ? `
+          <button type="button" class="btn-admin btn-danger" ${actionAttrs('openCancelModal', apt.id)}>
             <i class="fa-solid fa-ban"></i> ✕ Cancelar cita
           </button>
+          ` : ''}
         </div>
       `;
 
@@ -1387,12 +1613,42 @@
     }
 
     /**
-     * Confirmar pago manual de diagnóstico ($600 MXN)
+     * Confirmar pago manual vía modal accesible (sin prompt())
      */
-    async confirmManualPayment(appointmentId) {
-      const paymentRef = prompt('Ingresa referencia de pago o número de comprobante ($600 MXN):', 'PAGO-MANUAL-' + Date.now());
-      if (!paymentRef) return;
+    confirmManualPayment(appointmentId) {
+      const modal = document.getElementById('agenda-payment-modal');
+      const apt = this.appointments.find(a => a.id === appointmentId) || this.selectedAppointment;
+      const amountLabel = paymentAmountLabel(apt);
+      if (!modal) {
+        const paymentRef = prompt(`Ingresa referencia de pago o número de comprobante (${amountLabel} MXN):`, 'PAGO-MANUAL-' + Date.now());
+        if (!paymentRef) return;
+        this._executePayment(appointmentId, paymentRef);
+        return;
+      }
+      const idInput = document.getElementById('payment-apt-id');
+      if (idInput) idInput.value = appointmentId;
+      const desc = document.getElementById('payment-apt-desc');
+      if (desc && apt) {
+        desc.textContent = `Validando pago para ${apt.customer_name || 'Cliente'}: ${amountLabel} MXN`;
+      }
+      const refInput = document.getElementById('payment-ref-input');
+      if (refInput) refInput.value = 'PAGO-MANUAL-' + Date.now();
+      modal.style.display = 'flex';
+    }
 
+    async submitManualPayment() {
+      const aptId = document.getElementById('payment-apt-id')?.value;
+      const refInput = document.getElementById('payment-ref-input');
+      const paymentRef = refInput?.value.trim();
+      if (!paymentRef) {
+        this.showToast('Ingresa la referencia de pago o comprobante.', 'warn');
+        return;
+      }
+      document.getElementById('agenda-payment-modal').style.display = 'none';
+      await this._executePayment(aptId, paymentRef);
+    }
+
+    async _executePayment(appointmentId, paymentRef) {
       try {
         const res = await fetch(`/api/appointments/${appointmentId}/confirm-payment`, {
           method: 'POST',
@@ -1416,12 +1672,190 @@
     }
 
     /**
-     * Cancelar cita
+     * Cancelar cita vía modal accesible (sin prompt())
      */
     openCancelModal(appointmentId) {
-      const reason = prompt('Motivo de cancelación de la cita:');
-      if (reason === null) return;
-      this.updateStatus(appointmentId, 'CANCELLED_BY_ADMIN', reason || 'Cancelada por taller');
+      const modal = document.getElementById('agenda-cancel-modal');
+      const apt = this.appointments.find(a => a.id === appointmentId) || this.selectedAppointment;
+      if (!modal) {
+        const reason = prompt('Motivo de cancelación de la cita:');
+        if (reason === null) return;
+        this.updateStatus(appointmentId, 'CANCELLED_BY_ADMIN', reason || 'Cancelada por taller');
+        return;
+      }
+      const idInput = document.getElementById('cancel-apt-id');
+      if (idInput) idInput.value = appointmentId;
+      const summaryBox = document.getElementById('cancel-apt-summary');
+      if (summaryBox && apt) {
+        summaryBox.innerHTML = `
+          <div style="font-weight:700;color:var(--a-text);">${escapeHtml(apt.customer_name || 'Cliente')} · ${formatTime(apt.start_at)}</div>
+          <div style="font-size:0.75rem;color:var(--a-text-muted);">${escapeHtml(apt.device_summary || '')} — ${escapeHtml(apt.planned_service_summary || '')}</div>
+        `;
+      }
+      const reasonInput = document.getElementById('cancel-reason');
+      if (reasonInput) reasonInput.value = '';
+      modal.style.display = 'flex';
+    }
+
+    setCancelReason(reason) {
+      const input = document.getElementById('cancel-reason');
+      if (input) input.value = reason;
+    }
+
+    async submitCancel() {
+      const aptId = document.getElementById('cancel-apt-id')?.value;
+      const reason = document.getElementById('cancel-reason')?.value.trim() || 'Cancelada por taller';
+      if (!aptId) return;
+      document.getElementById('agenda-cancel-modal').style.display = 'none';
+      await this.updateStatus(aptId, 'CANCELLED_BY_ADMIN', reason);
+    }
+
+    /**
+     * Inasistencia No-Show vía modal accesible
+     */
+    openNoShowModal(appointmentId) {
+      const modal = document.getElementById('agenda-noshow-modal');
+      const apt = this.appointments.find(a => a.id === appointmentId) || this.selectedAppointment;
+      if (!modal) {
+        this.updateStatus(appointmentId, 'NO_SHOW', 'Cliente no se presentó');
+        return;
+      }
+      const idInput = document.getElementById('noshow-apt-id');
+      if (idInput) idInput.value = appointmentId;
+      const desc = document.getElementById('noshow-apt-desc');
+      if (desc && apt) {
+        desc.textContent = `¿Marcar inasistencia (No-Show) para ${apt.customer_name || 'Cliente'} (${formatTime(apt.start_at)})?`;
+      }
+      modal.style.display = 'flex';
+    }
+
+    async submitNoShow() {
+      const aptId = document.getElementById('noshow-apt-id')?.value;
+      if (!aptId) return;
+      document.getElementById('agenda-noshow-modal').style.display = 'none';
+      await this.updateStatus(aptId, 'NO_SHOW', 'Cliente no se presentó a su cita');
+    }
+
+    /**
+     * Detalle y desbloqueo de horario bloqueado
+     */
+    openBlockDetails(blockId) {
+      const block = this.blocks.find(b => String(b.id) === String(blockId));
+      if (!block) return;
+      const modal = document.getElementById('agenda-block-detail-modal');
+      const body = document.getElementById('agenda-block-detail-body');
+      const unblockBtn = document.getElementById('btn-agenda-unblock');
+      if (!modal || !body) return;
+      body.innerHTML = `
+        <div class="drawer-kv"><span>Fecha:</span> <strong>${escapeHtml(block.date)}</strong></div>
+        <div class="drawer-kv"><span>Horario:</span> <strong>${block.is_all_day ? 'Día completo' : `${escapeHtml(block.start_time?.slice(0, 5))} – ${escapeHtml(block.end_time?.slice(0, 5))}`}</strong></div>
+        <div class="drawer-kv"><span>Categoría:</span> <strong>${escapeHtml(block.category || 'Bloqueo')}</strong></div>
+        <div class="drawer-kv"><span>Motivo:</span> <strong>${escapeHtml(block.reason || 'Sin motivo especificado')}</strong></div>
+      `;
+      if (unblockBtn) {
+        unblockBtn.setAttribute('data-agenda-action', 'deleteBlock');
+        unblockBtn.setAttribute('data-agenda-args', JSON.stringify([block.id]));
+      }
+      modal.style.display = 'flex';
+    }
+
+    async deleteBlock(blockId) {
+      try {
+        const res = await fetch(`${API_BASE}/blocks/${blockId}`, {
+          method: 'DELETE',
+          headers: JSON_HEADERS,
+          credentials: 'include'
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          this.showToast(err.message || 'Error al desbloquear horario.', 'error');
+          return;
+        }
+        this.showToast('Horario desbloqueado correctamente.', 'success');
+        document.getElementById('agenda-block-detail-modal').style.display = 'none';
+        await this.refresh();
+      } catch (e) {
+        console.error('Error deleting block:', e);
+        this.showToast('Error de conexión.', 'error');
+      }
+    }
+
+    /**
+     * Helpers de navegación y KPIs interactivos
+     */
+    backToMonth() {
+      this.view = 'month';
+      this.updateViewButtons();
+      this.renderDateHeader();
+      this.updateUrlState();
+      this.render();
+    }
+
+    openNextAppointment() {
+      const todayAppts = (this.todayData?.appointments || []).filter(isActiveAppt);
+      const next = todayAppts.find(a => !['COMPLETED', 'CANCELLED_BY_ADMIN', 'NO_SHOW'].includes(a.status));
+      if (next) {
+        this.openDetails(next.id);
+      } else {
+        this.showToast('No hay citas pendientes para hoy.', 'info');
+      }
+    }
+
+    openNextActionAppointment() {
+      const todayAppts = (this.todayData?.appointments || []).filter(isActiveAppt);
+      const next = todayAppts.find(a => a.status === 'CHECKED_IN') ||
+                   todayAppts.find(a => a.appointment_type === 'LIQUID_DAMAGE' && a.status === 'DEVICE_RECEIVED') ||
+                   todayAppts.find(a => !['COMPLETED', 'CANCELLED_BY_ADMIN', 'NO_SHOW'].includes(a.status));
+      if (next) {
+        this.openDetails(next.id);
+      } else {
+        this.goToToday();
+      }
+    }
+
+    openTodayView() {
+      this.goToToday();
+    }
+
+    filterUnpaid() {
+      this.filters.status = 'PENDING_PAYMENT';
+      this.render();
+      this.showToast('Filtrando citas con pago pendiente.', 'info');
+    }
+
+    filterOnsite() {
+      document.querySelectorAll('[data-agenda-filter-type]').forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-agenda-filter-type="ON_SITE"]')?.classList.add('active');
+      this.filters.type = 'ON_SITE';
+      this.renderCalendar();
+      this.showToast('Filtrando servicios a domicilio.', 'info');
+    }
+
+    createTicketForAppointment(aptId) {
+      const apt = this.appointments.find(a => a.id === aptId) || this.selectedAppointment;
+      if (!apt) return;
+      this.closeDetails();
+      const repairsNav = document.querySelector('[data-view="repairs"]');
+      if (repairsNav) repairsNav.click();
+      if (typeof window.openRepairModal === 'function') {
+        window.openRepairModal();
+        if (apt.customer_name) {
+          const custInput = document.getElementById('repairCustomer');
+          if (custInput) custInput.value = apt.customer_name;
+        }
+        if (apt.customer_phone) {
+          const phoneInput = document.getElementById('repairPhone');
+          if (phoneInput) phoneInput.value = apt.customer_phone;
+        }
+        if (apt.customer_email) {
+          const emailInput = document.getElementById('repairEmail');
+          if (emailInput) emailInput.value = apt.customer_email;
+        }
+        if (apt.device_summary) {
+          const issueInput = document.getElementById('repairIssue');
+          if (issueInput) issueInput.value = `${apt.device_summary} - ${apt.planned_service_summary || ''}`;
+        }
+      }
     }
 
     /**
@@ -1501,6 +1935,8 @@
       document.getElementById('new-apt-override').checked = false;
       document.getElementById('new-apt-override-reason').value = '';
       document.getElementById('new-apt-override-reason-box').style.display = 'none';
+      const equipInput = document.getElementById('new-apt-equipment-value');
+      if (equipInput) equipInput.value = '';
 
       this.updateServiceHint('DROP_OFF');
       this.checkNewAptCapacity();
@@ -1508,15 +1944,49 @@
       modal.style.display = 'flex';
     }
 
+    getTypeConfig(type) {
+      return this.config?.types?.find(t => t.appointment_type === type) || null;
+    }
+
     updateServiceHint(type) {
       const hintText = document.getElementById('new-apt-service-hint-text');
-      const dur = TYPE_DURATIONS[type] || 30;
-      let costText = 'Diagnóstico: Si aplica revisión a fondo, costo desde $600 MXN.';
-      if (['PICKUP', 'MAINTENANCE'].includes(type)) costText = 'Diagnóstico: No aplica (Entrega/Mantenimiento directo).';
-      if (type === 'LIQUID_DAMAGE') costText = 'Diagnóstico urgente por mojado: $600 MXN. No conectar.';
-      if (type === 'ON_SITE') costText = 'Servicio a domicilio: Bloquea tiempo de taller y traslados en Cancún.';
+      const dur = Number(this.getTypeConfig(type)?.duration_minutes) || TYPE_DURATIONS[type] || 30;
+      let extra = '';
+      if (type === 'ON_SITE') extra = ' Servicio a domicilio: bloquea tiempo de taller y traslados en Cancún.';
+      if (type === 'LIQUID_DAMAGE') extra = ' NO ENCENDER NI CARGAR el equipo.';
+      if (hintText) hintText.textContent = `Duración estimada: ${dur} min.${extra}`;
 
-      if (hintText) hintText.textContent = `Duración estimada: ${dur} min. ${costText}`;
+      const equipValueGroup = document.getElementById('new-apt-equipment-value-group');
+      if (equipValueGroup) equipValueGroup.style.display = type === 'MAINTENANCE' ? 'block' : 'none';
+      if (type !== 'MAINTENANCE') {
+        const equipInput = document.getElementById('new-apt-equipment-value');
+        if (equipInput) equipInput.value = '';
+      }
+
+      this.updatePricingDisplay();
+    }
+
+    updatePricingDisplay() {
+      const type = document.getElementById('new-apt-type')?.value;
+      const equipValue = document.getElementById('new-apt-equipment-value')?.value;
+      const box = document.getElementById('new-apt-price-box');
+      if (!box) return;
+
+      const pricing = computeDisplayPricing(type, equipValue);
+      if (!pricing) {
+        box.style.display = 'none';
+        box.innerHTML = '';
+        return;
+      }
+
+      box.style.display = 'flex';
+      box.innerHTML = `
+        <i class="fa-solid fa-tag"></i>
+        <span>
+          <strong>${escapeHtml(pricing.badge)}</strong><br/>
+          ${escapeHtml(pricing.text)}
+        </span>
+      `;
     }
 
     checkNewAptCapacity() {
@@ -1526,10 +1996,10 @@
       const indicator = document.getElementById('new-apt-capacity-indicator');
       if (!date || !time || !indicator) return;
 
-      const reqUnits = type === 'ON_SITE' ? 3 : 1;
+      const reqUnits = Number(this.getTypeConfig(type)?.capacity_units) || (type === 'ON_SITE' ? 3 : 1);
       const existing = this.appointments.filter(a =>
         String(a.start_at).slice(0, 10) === date && formatTime(a.start_at) === time &&
-        !['COMPLETED', 'CANCELLED_BY_ADMIN', 'CANCELLED_BY_CUSTOMER', 'NO_SHOW'].includes(a.status)
+        !['COMPLETED', 'CANCELLED_BY_ADMIN', 'CANCELLED_BY_CUSTOMER', 'NO_SHOW', 'RESCHEDULED'].includes(a.status)
       );
       const used = existing.reduce((sum, a) => sum + (Number(a.capacity_units) || 1), 0);
       const remaining = Math.max(0, 3 - used);
@@ -1548,7 +2018,7 @@
           ${alternatives.length ? `
             <div style="font-size:0.7rem;margin-top:2px;">Horarios cercanos disponibles hoy:</div>
             <div class="agenda-alt-chips">
-              ${alternatives.map(t => `<button type="button" class="btn-alt-slot" onclick="window.adminAgenda.selectAltTime('${t}')">${t}</button>`).join('')}
+              ${alternatives.map(t => `<button type="button" class="btn-alt-slot" ${actionAttrs('selectAltTime', t)}>${t}</button>`).join('')}
             </div>
           ` : '<div style="font-size:0.7rem;">No hay más espacios libres hoy. Puedes usar autorización manual abajo.</div>'}
         `;
@@ -1590,6 +2060,7 @@
       const location = document.getElementById('new-apt-location').value;
       const device = document.getElementById('new-apt-device').value.trim();
       const service = document.getElementById('new-apt-service').value.trim();
+      const equipmentValue = document.getElementById('new-apt-equipment-value')?.value.trim();
       const address = document.getElementById('new-apt-address')?.value.trim();
       const customerNotes = document.getElementById('new-apt-notes').value.trim();
       const privateNotes = document.getElementById('new-apt-private').value.trim();
@@ -1622,6 +2093,7 @@
             address_line: address || null,
             device_summary: device || null,
             planned_service_summary: service || null,
+            equipment_value_mxn: (type === 'MAINTENANCE' && equipmentValue) ? Number(equipmentValue) : null,
             customer_notes: customerNotes || null,
             private_notes: privateNotes || null,
             admin_override: override,
@@ -1739,10 +2211,17 @@
       this.refresh();
     }
 
+    goToAgendaNav() {
+      document.querySelector('[data-view="agenda"]')?.click();
+    }
+
     openTicket(ticketId) {
-      if (!ticketId) return;
-      if (typeof window.openRepairModal === 'function') {
-        window.openRepairModal(ticketId);
+      if (!ticketId) {
+        this.showToast('Esta cita no tiene un ticket de taller asociado.', 'warn');
+        return;
+      }
+      if (typeof window.openRepairTicket === 'function') {
+        window.openRepairTicket(ticketId);
       } else {
         location.href = `/admin#repairs`;
       }
@@ -1767,6 +2246,16 @@
 
     bindKeyboardShortcuts() {
       document.addEventListener('keydown', (e) => {
+        // Soporte de accesibilidad para teclado: Enter o Space activa celdas/cards interactivas
+        if (e.key === 'Enter' || e.key === ' ') {
+          const actionEl = e.target.closest('[data-agenda-action]');
+          if (actionEl && !['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+            e.preventDefault();
+            actionEl.click();
+            return;
+          }
+        }
+
         // Ignorar si el usuario está escribiendo en un input o modal
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
           if (e.key === 'Escape') e.target.blur();
@@ -1795,6 +2284,21 @@
     }
 
     bindEvents() {
+      // Delegado único para todo botón/celda generado dinámicamente vía innerHTML
+      // (CSP script-src-attr:none bloquea onclick="" inline, ver actionAttrs()).
+      document.addEventListener('click', (e) => {
+        const el = e.target.closest('[data-agenda-action]');
+        if (!el) return;
+        if (el.dataset.agendaStop) e.stopPropagation();
+        const method = el.dataset.agendaAction;
+        let args = [];
+        try { args = JSON.parse(el.dataset.agendaArgs || '[]'); } catch (_) {}
+        if (typeof this[method] === 'function') {
+          e.preventDefault();
+          this[method](...args);
+        }
+      });
+
       // Pestañas de vista (Hoy, Semana, Día, Mes, Lista)
       document.querySelectorAll('[data-agenda-view-tab]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1863,6 +2367,7 @@
         this.updateServiceHint(e.target.value);
         this.checkNewAptCapacity();
       });
+      document.getElementById('new-apt-equipment-value')?.addEventListener('input', () => this.updatePricingDisplay());
       document.getElementById('new-apt-date')?.addEventListener('change', () => this.checkNewAptCapacity());
       document.getElementById('new-apt-time')?.addEventListener('change', () => this.checkNewAptCapacity());
       document.getElementById('new-apt-location')?.addEventListener('change', (e) => {

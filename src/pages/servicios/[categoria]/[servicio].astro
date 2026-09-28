@@ -10,7 +10,7 @@ import RelatedServicesSection from '../../../components/RelatedServicesSection.a
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import { SERVICE_ROUTES } from '../../../data/services';
 import { getServiceFlags } from '../../../lib/service-page-rules';
-import { resolveServiceView } from '../../../lib/service-view-registry';
+import { resolveServiceView, getServiceViewName } from '../../../lib/service-view-registry';
 import { getServiceSeoMeta } from '../../../lib/service-seo';
 import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
 
@@ -84,6 +84,7 @@ const {
   isPhoneNoPower,
   isPhoneLiquidDamage,
   isIphoneService,
+  isIphoneAdvancedRepair,
   isIphoneScreenRepair,
   isIphoneBatteryReplacement,
   isSamsungBatteryReplacement,
@@ -101,6 +102,7 @@ const {
   usesLegacyServiceStyles,
 } = serviceFlags;
 const CustomView = await resolveServiceView(serviceFlags, category, service);
+const activeViewName = getServiceViewName(serviceFlags, category, service) || (useServiceDetailView ? 'ServiceDetailView' : 'none');
 // SEO LOCAL H1 / TITLE
 const {
   seoKeyword,
@@ -432,10 +434,15 @@ const pageSchema = [
     { hreflang: 'es-MX', href: canonical },
     { hreflang: 'en', href: 'https://pixon.com.mx/en/iphone-battery-replacement' },
     { hreflang: 'x-default', href: canonical },
+  ] : isIphoneAdvancedRepair ? [
+    { hreflang: 'es-MX', href: canonical },
+    { hreflang: 'en', href: 'https://pixon.com.mx/en/phone-repair' },
+    { hreflang: 'x-default', href: canonical },
   ] : undefined}
   image={isLaptopPreventiveMaintenance ? '/assets/images/laptop-feliz-limpia.webp' : isPhoneLiquidDamage ? service.featuredImage : undefined}
   schema={pageSchema}
   bodyClass="service-page"
+  activeView={activeViewName}
   ogTitle={isLaptopKeyboardReplacement ? 'Cambio de teclado de laptop en Cancún | Pixon PC' : finalSeoTitle}
   ogDescription={isIphoneMicrophoneRepair ? 'Servicio técnico de iPhone en Cancún para micrófono, llamadas sin voz, WhatsApp, notas de voz, video sin audio, Siri, humedad y flex de carga.' : isIphoneButtonsRepair ? 'Servicio técnico de iPhone en Cancún para botón power, volumen, silencio, Home, botones hundidos, flex, golpes, humedad y falsos contactos.' : isIphoneDiagnostic ? 'Diagnóstico iPhone en Cancún para no prende, no carga, pantalla negra, logo Apple, batería, Face ID, cámara, audio, humedad, software y placa.' : isIphoneSpeakerRepair ? 'Servicio técnico de iPhone en Cancún para audio bajo, bocina distorsionada, auricular sin sonido, rejilla tapada o fallas por humedad.' : isIphoneChargeRepair ? 'Servicio técnico de iPhone en Cancún para equipos que no cargan, cargan lento, marcan líquido o tienen falso contacto.' : isLaptopKeyboardReplacement ? 'Reparamos teclados de laptop en Cancún con revisión de flex, líquido, conector, backlit y garantía por escrito.' : finalDescription}
 >
@@ -451,7 +458,7 @@ const pageSchema = [
     /* Override cualquier background blanco que venga del layout base */
     main, .main-content, #main, .page-wrapper { background-color: #0B1120 !important; }
   </style>
-  {usesLegacyServiceStyles && <link rel="stylesheet" href="/styles/service-legacy.css" />}
+  {!CustomView && usesLegacyServiceStyles && <link rel="stylesheet" href="/styles/service-legacy.css" />}
   <Navbar />
   {isLaptopScreenReplacement && <div class="screen-navbar-offset" aria-hidden="true"></div>}
 
@@ -496,13 +503,7 @@ const pageSchema = [
             </div>
           )}
 
-          {isPcUpgrade && (
-            <div class="pc-upgrade-hero-copy">
-              <span class="pc-upgrade-kicker"><i class="fa-solid fa-microchip"></i> Upgrade de PC en Cancun</span>
-              <h1>Haz que tu PC responda como nueva <span>SSD, RAM y GPU sin comprar otra</span></h1>
-              <p>Revisamos cuello de botella, compatibilidad de motherboard, fuente y gabinete para recomendar solo la pieza que realmente va a mejorar tu equipo.</p>
-            </div>
-          )}
+
 
           {isPrinterInkToner && (
             <div class="printer-ink-hero-copy">
@@ -931,13 +932,7 @@ const pageSchema = [
             </div>
           )}
 
-          {isPcUpgrade && (
-            <div class="pc-upgrade-tags" aria-label="Detalles del upgrade de PC">
-              <span><i class="fa-solid fa-hard-drive"></i> SSD SATA o NVMe</span>
-              <span><i class="fa-solid fa-memory"></i> RAM compatible por placa</span>
-              <span><i class="fa-solid fa-gauge-high"></i> Benchmark antes/despues</span>
-            </div>
-          )}
+
 
           {isPcFormat && (
             <div class="pc-format-tags" aria-label="Detalles del formateo de PC">
@@ -1129,10 +1124,10 @@ const pageSchema = [
             ) : (
               <>
                 <a href={`https://wa.me/529986690777?text=${waMessage}`} target="_blank" class={`ux-btn-primary ${isLaptopKeyboardReplacement ? '' : 'pulse'}`}>
-                  <i class="fa-brands fa-whatsapp"></i> {isPcFormat ? 'Cotizar formateo por WhatsApp' : isLaptopKeyboardReplacement ? 'Cotizar cambio de teclado' : isLaptopThermalPaste ? 'Cotizar mantenimiento termico' : isPcUpgrade ? 'Cotizar upgrade de PC' : isPrinterMaintenance ? 'Cotizar mantenimiento' : isPrinterInkToner ? 'Cotizar por WhatsApp' : isPrinterDiagnostic ? 'Agendar diagnóstico' : isPrinterConnectivity ? 'Configurar mi impresora' : isPrinterRollers ? 'Cotizar rodillos' : isPrinterJams ? 'Cotizar atasco' : isConsoleHdmi ? 'Cotizar reparación HDMI' : 'Cotizar Servicio'}
+                  <i class="fa-brands fa-whatsapp"></i> {isPcFormat ? 'Cotizar formateo por WhatsApp' : isLaptopKeyboardReplacement ? 'Cotizar cambio de teclado' : isLaptopThermalPaste ? 'Cotizar mantenimiento termico' : isPrinterMaintenance ? 'Cotizar mantenimiento' : isPrinterInkToner ? 'Cotizar por WhatsApp' : isPrinterDiagnostic ? 'Agendar diagnóstico' : isPrinterConnectivity ? 'Configurar mi impresora' : isPrinterRollers ? 'Cotizar rodillos' : isPrinterJams ? 'Cotizar atasco' : isConsoleHdmi ? 'Cotizar reparación HDMI' : 'Cotizar Servicio'}
                 </a>
-                <a href={isPcFormat ? '#que-incluye-formateo' : isLaptopThermalPaste ? '#paquetes-mantenimiento' : isPcUpgrade ? '#upgrade-ruta' : isPrinterMaintenance ? '#mantenimiento-impresora' : isPrinterDiagnostic ? '#diagnostico-impresora' : isPrinterConnectivity ? '#configuracion-impresora' : isPrinterRollers ? '#rodillos-impresora' : isPrinterJams ? '#atascos-impresora' : isConsoleHdmi ? '#diagnostico-hdmi' : '#proceso'} class="ux-btn-secondary" data-screen-scroll={isLaptopKeyboardReplacement ? 'proceso' : undefined}>
-                  {isPcFormat ? 'Ver qué incluye' : isLaptopKeyboardReplacement ? 'Ver diagnóstico antes de cambiar pieza' : isLaptopThermalPaste ? 'Ver paquetes' : isPcUpgrade ? 'Ver ruta de upgrade' : isPrinterMaintenance ? 'Ver mantenimiento' : isPrinterInkToner ? 'Ver proceso' : isPrinterDiagnostic ? 'Ver revisión técnica' : isPrinterConnectivity ? 'Ver configuración' : isPrinterRollers ? 'Ver señales de falla' : isPrinterJams ? 'Ver revisión del atasco' : isConsoleHdmi ? 'Ver diagnóstico' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
+                <a href={isPcFormat ? '#que-incluye-formateo' : isLaptopThermalPaste ? '#paquetes-mantenimiento' : isPrinterMaintenance ? '#mantenimiento-impresora' : isPrinterDiagnostic ? '#diagnostico-impresora' : isPrinterConnectivity ? '#configuracion-impresora' : isPrinterRollers ? '#rodillos-impresora' : isPrinterJams ? '#atascos-impresora' : isConsoleHdmi ? '#diagnostico-hdmi' : '#proceso'} class="ux-btn-secondary" data-screen-scroll={isLaptopKeyboardReplacement ? 'proceso' : undefined}>
+                  {isPcFormat ? 'Ver qué incluye' : isLaptopKeyboardReplacement ? 'Ver diagnóstico antes de cambiar pieza' : isLaptopThermalPaste ? 'Ver paquetes' : isPrinterMaintenance ? 'Ver mantenimiento' : isPrinterInkToner ? 'Ver proceso' : isPrinterDiagnostic ? 'Ver revisión técnica' : isPrinterConnectivity ? 'Ver configuración' : isPrinterRollers ? 'Ver señales de falla' : isPrinterJams ? 'Ver revisión del atasco' : isConsoleHdmi ? 'Ver diagnóstico' : 'Ver Proceso'} <i class="fa-solid fa-arrow-down"></i>
                 </a>
               </>
             )}
@@ -1210,28 +1205,6 @@ const pageSchema = [
                 <span><i class="fa-solid fa-flask"></i> Pasta premium</span>
                 <span><i class="fa-solid fa-wind"></i> Disipador limpio</span>
                 <span><i class="fa-solid fa-chart-line"></i> Reporte final</span>
-              </div>
-            </div>
-          ) : isPcUpgrade ? (
-            <div class="pc-upgrade-hero-card">
-              <div class="pc-upgrade-card-top">
-                <span>Desde</span>
-                <strong>$800 MXN + pieza</strong>
-                <small>Instalacion, clonado o configuracion segun el upgrade aprobado.</small>
-              </div>
-              <div class="pc-upgrade-build">
-                <div class="pc-case" aria-hidden="true">
-                  <span></span><span></span><span></span>
-                </div>
-                <div class="pc-upgrade-build-copy">
-                  <strong>Primero medimos, luego compramos</strong>
-                  <p>CPU, RAM, disco, GPU, fuente y temperatura. Asi no gastas en piezas que no van a cambiar el rendimiento.</p>
-                </div>
-              </div>
-              <div class="pc-upgrade-metrics">
-                <div><span>Arranque</span><strong>15s</strong></div>
-                <div><span>RAM</span><strong>16-64GB</strong></div>
-                <div><span>SSD</span><strong>1-2TB</strong></div>
               </div>
             </div>
           ) : isPrinterMaintenance ? (
@@ -1482,7 +1455,7 @@ const pageSchema = [
             <div class="phone-diagnostic-card">
               <div class="phone-diagnostic-card-head">
                 <span>Diagnóstico completo</span>
-                <strong>GRATIS si autorizas reparación</strong>
+                <strong>Desde $600 MXN</strong>
               </div>
               <div class="phone-diagnostic-device" aria-hidden="true">
                 <i class="fa-solid fa-mobile-screen-button"></i>
@@ -1498,7 +1471,7 @@ const pageSchema = [
                 <li><i class="fa-solid fa-check"></i> Software, reinicios y errores de sistema</li>
                 <li><i class="fa-solid fa-check"></i> Cotización clara antes de reparar</li>
               </ul>
-              <p>Si el equipo requiere apertura, limpieza por líquido o prueba extendida, te lo explicamos antes de continuar.</p>
+              <p>El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.</p>
             </div>
           ) : isPhoneScreenReplacement ? (
             <div class="phone-screen-hero-card">
@@ -3232,135 +3205,7 @@ const pageSchema = [
     )}
 
     <!-- 1.7 ESPECIALISTAS (Patron Reparaciones) -->
-    {isPcUpgrade && (
-      <>
-        <section class="pc-upgrade-map-section" id="upgrade-ruta">
-          <div class="container">
-            <div class="pc-upgrade-section-head">
-              <span class="ux-eyebrow">Ruta de upgrade</span>
-              <h2>Primero encontramos que esta frenando tu PC</h2>
-              <p>No todos necesitan lo mismo. Una PC lenta puede mejorar con SSD, RAM, limpieza, Windows limpio o GPU; por eso validamos el cuello de botella antes de cotizar piezas.</p>
-            </div>
-            <div class="pc-upgrade-map-grid">
-              <div><i class="fa-solid fa-hard-drive"></i><strong>Disco al 100%</strong><span>SSD SATA o NVMe con clonado.</span></div>
-              <div><i class="fa-solid fa-memory"></i><strong>RAM saturada</strong><span>16, 32 o 64 GB segun chipset.</span></div>
-              <div><i class="fa-solid fa-gamepad"></i><strong>GPU limitada</strong><span>Compatibilidad con fuente y gabinete.</span></div>
-              <div><i class="fa-solid fa-temperature-half"></i><strong>Temperatura alta</strong><span>Si calienta, primero se estabiliza.</span></div>
-            </div>
-          </div>
-        </section>
 
-        <section class="pc-upgrade-parts-section">
-          <div class="container pc-upgrade-parts-layout">
-            <div>
-              <span class="ux-eyebrow">Piezas correctas</span>
-              <h2>SSD, RAM y GPU se eligen por compatibilidad, no por marca bonita</h2>
-              <p>Revisamos ranuras M.2, tipo de memoria, velocidad soportada, espacio del gabinete, consumo de energia y version de BIOS antes de recomendar una pieza.</p>
-            </div>
-            <div class="pc-upgrade-parts-list">
-              <div><span>01</span><strong>SSD NVMe / SATA</strong><p>Mejora arranque, carga de programas y respuesta general.</p></div>
-              <div><span>02</span><strong>Memoria RAM</strong><p>Reduce trabas al trabajar, jugar, editar o usar varias apps.</p></div>
-              <div><span>03</span><strong>Tarjeta grafica</strong><p>Para gaming, 3D, edicion y monitores de alta resolucion.</p></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="pc-upgrade-clone-section">
-          <div class="container pc-upgrade-clone-panel">
-            <div class="pc-upgrade-clone-visual">
-              <span>HDD</span>
-              <i class="fa-solid fa-arrow-right"></i>
-              <span>SSD</span>
-            </div>
-            <div>
-              <span class="ux-eyebrow">Migracion segura</span>
-              <h2>Clonamos tu Windows para que no pierdas programas ni archivos</h2>
-              <p>Antes de tocar el disco hacemos respaldo o imagen según el caso. Si el sistema está sano, clonamos tu Windows actual al SSD nuevo; si está dañado, recomendamos instalación limpia.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="pc-upgrade-gaming-section">
-          <div class="container pc-upgrade-gaming-layout">
-            <div>
-              <span class="ux-eyebrow">Gaming y trabajo</span>
-              <h2>Upgrade pensado para el uso real: oficina, gaming, arquitectura o edicion</h2>
-              <p>No es lo mismo abrir Excel que editar video, renderizar, jugar o correr maquinas virtuales. Ajustamos la recomendacion al uso real para que el dinero se note.</p>
-            </div>
-            <div class="pc-upgrade-use-grid">
-              <div><i class="fa-solid fa-briefcase"></i><strong>Oficina</strong><span>SSD + 16 GB RAM.</span></div>
-              <div><i class="fa-solid fa-headset"></i><strong>Gaming</strong><span>GPU + RAM + fuente revisada.</span></div>
-              <div><i class="fa-solid fa-cube"></i><strong>3D / CAD</strong><span>RAM alta, GPU y almacenamiento rapido.</span></div>
-              <div><i class="fa-solid fa-video"></i><strong>Edicion</strong><span>SSD rapido, cache y memoria suficiente.</span></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="pc-upgrade-power-section">
-          <div class="container pc-upgrade-power-inner">
-            <div>
-              <span class="ux-eyebrow">Compatibilidad electrica</span>
-              <h2>Una GPU nueva exige revisar fuente, conectores y flujo de aire</h2>
-              <p>Antes de instalar tarjeta grafica revisamos watts reales, conectores PCIe, espacio fisico, ventilacion y temperatura. Un upgrade mal elegido puede volver inestable la PC.</p>
-            </div>
-            <div class="pc-upgrade-power-meter">
-              <div><span>Fuente</span><strong>450W-850W</strong></div>
-              <div><span>PCIe</span><strong>x16</strong></div>
-              <div><span>Temp</span><strong>OK</strong></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="pc-upgrade-benchmark-section">
-          <div class="container">
-            <div class="pc-upgrade-section-head">
-              <span class="ux-eyebrow">Pruebas reales</span>
-              <h2>Entregamos el equipo probado, no solo armado</h2>
-              <p>Despues del upgrade validamos arranque, velocidad de disco, estabilidad, temperatura y rendimiento. Si se clona el sistema, revisamos que tus programas y archivos sigan en su lugar.</p>
-            </div>
-            <div class="pc-upgrade-benchmark-grid">
-              <div><strong>CrystalDiskMark</strong><span>Velocidad de SSD.</span></div>
-              <div><strong>MemTest</strong><span>Estabilidad de RAM.</span></div>
-              <div><strong>3DMark / Stress</strong><span>GPU y temperatura.</span></div>
-              <div><strong>Windows Check</strong><span>Arranque y drivers.</span></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="pc-upgrade-decision-section">
-          <div class="container pc-upgrade-decision-panel">
-            <div>
-              <span class="ux-eyebrow">Decisi?n honesta</span>
-              <h2>Si no conviene actualizar, te lo decimos antes de gastar</h2>
-              <p>Hay PCs donde un SSD revive el equipo y otras donde conviene armar una nueva. Comparamos costo, antiguedad, fuente, placa y uso para darte una ruta clara.</p>
-            </div>
-            <a href="/ensambles" class="pc-upgrade-secondary-link">
-              <i class="fa-solid fa-computer"></i> Ver ensambles si conviene cambiar de PC
-            </a>
-          </div>
-        </section>
-
-        <section class="pc-upgrade-support-section">
-          <div class="container pc-upgrade-support-grid">
-            <a href="#faq" class="pc-upgrade-support-card">
-              <i class="fa-solid fa-circle-question"></i>
-              <strong>FAQ de upgrade</strong>
-              <span>Resuelve dudas de SSD, RAM, GPU, clonado y compatibilidad.</span>
-            </a>
-            <a href="#comentarios" class="pc-upgrade-support-card">
-              <i class="fa-solid fa-star"></i>
-              <strong>Comentarios</strong>
-              <span>Revisa experiencias reales de clientes con PCs reparadas o mejoradas.</span>
-            </a>
-            <a href="#ubicacion" class="pc-upgrade-support-card">
-              <i class="fa-solid fa-location-dot"></i>
-              <strong>Ubicacion</strong>
-              <span>Trae tu PC al taller en Cancún para diagnóstico y cotización clara.</span>
-            </a>
-          </div>
-        </section>
-      </>
-    )}
 
     {isLaptopThermalPaste && (
       <>
@@ -3375,21 +3220,21 @@ const pageSchema = [
               <a href="/paquetes?section=paquetes" class="thermal-package-card">
                 <span class="thermal-package-tag">Uso diario</span>
                 <h3>Mantenimiento Estandar</h3>
-                <strong>$450 MXN</strong>
+                <strong>$675 MXN</strong>
                 <p>Limpieza interna, ventilador, chasis y pasta termica de calidad para laptops de oficina, escuela y casa.</p>
                 <small>2-4 horas - pago unico</small>
               </a>
               <a href="/paquetes?section=paquetes" class="thermal-package-card is-featured">
                 <span class="thermal-package-tag">Mas recomendado</span>
                 <h3>Paquete Pro Gamer</h3>
-                <strong>$850 MXN</strong>
+                <strong>$1,275 MXN</strong>
                 <p>Para equipos gaming, edicion o uso intensivo: limpieza profunda, compuesto de mayor transferencia y revision termica.</p>
                 <small>24-48 horas - mejor balance</small>
               </a>
               <a href="/paquetes?section=paquetes" class="thermal-package-card">
                 <span class="thermal-package-tag">Alta gama</span>
                 <h3>Paquete Elite</h3>
-                <strong>$1,299 MXN</strong>
+                <strong>$1,949 MXN</strong>
                 <p>Para workstations y laptops exigentes: documentacion antes/despues, limpieza avanzada y optimizacion de eficiencia.</p>
                 <small>2-4 dias - servicio detallado</small>
               </a>

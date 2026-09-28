@@ -6,6 +6,16 @@ require('dotenv').config();
 
 const BASE_URL = process.env.ADMIN_PREVIEW_URL || 'http://127.0.0.1:4322/admin/admin.html';
 
+function cancunTodayISO() {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Cancun',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date());
+  const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  return `${m.year}-${m.month}-${m.day}`;
+}
+const TODAY = cancunTodayISO();
+
 const mockTodayAppts = [
   {
     id: 'apt-1',
@@ -14,8 +24,8 @@ const mockTodayAppts = [
     customer_email: 'juan@gmail.com',
     appointment_type: 'DROP_OFF',
     location_type: 'WORKSHOP',
-    start_at: '2026-09-08T10:00:00.000Z',
-    end_at: '2026-09-08T10:20:00.000Z',
+    start_at: `${TODAY}T10:00:00.000Z`,
+    end_at: `${TODAY}T10:20:00.000Z`,
     capacity_units: 1,
     status: 'CONFIRMED',
     payment_status: 'PAID',
@@ -29,8 +39,8 @@ const mockTodayAppts = [
     customer_phone: '9982223344',
     appointment_type: 'LIQUID_DAMAGE',
     location_type: 'WORKSHOP',
-    start_at: '2026-09-08T10:00:00.000Z',
-    end_at: '2026-09-08T10:30:00.000Z',
+    start_at: `${TODAY}T10:00:00.000Z`,
+    end_at: `${TODAY}T10:30:00.000Z`,
     capacity_units: 1,
     status: 'CHECKED_IN',
     payment_status: 'PAID',
@@ -44,8 +54,8 @@ const mockTodayAppts = [
     customer_phone: '9983334455',
     appointment_type: 'ON_SITE',
     location_type: 'ON_SITE',
-    start_at: '2026-09-08T13:00:00.000Z',
-    end_at: '2026-09-08T15:00:00.000Z',
+    start_at: `${TODAY}T13:00:00.000Z`,
+    end_at: `${TODAY}T15:00:00.000Z`,
     capacity_units: 3,
     status: 'CONFIRMED',
     payment_status: 'PENDING',
@@ -60,8 +70,8 @@ const mockTodayAppts = [
     customer_phone: '9984445566',
     appointment_type: 'DROP_OFF',
     location_type: 'WORKSHOP',
-    start_at: '2026-09-08T10:00:00.000Z',
-    end_at: '2026-09-08T10:30:00.000Z',
+    start_at: `${TODAY}T10:00:00.000Z`,
+    end_at: `${TODAY}T10:30:00.000Z`,
     capacity_units: 1,
     status: 'CONFIRMED',
     payment_status: 'PAID',

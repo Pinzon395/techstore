@@ -4,6 +4,12 @@ import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import CartDrawer from '../../components/store/CartDrawer.astro';
 import storeCss from '../../styles/store.css?url';
+
+const LOCAL_ZONES = [
+  'Cancún Centro', 'Zona Hotelera', 'Huayacán', 'Cumbres', 'Bonfil',
+  'Polígono Sur', 'Puerto Cancún', 'Av. Tulum', 'Bonampak',
+  'Puerto Juárez', 'Supermanzanas', 'Haciendas'
+];
 ---
 
 <Base
@@ -23,64 +29,208 @@ import storeCss from '../../styles/store.css?url';
 
     <section class="store-shell runtime-product-loading" id="runtime-product-loading" role="status">
       <span class="store-spinner" aria-hidden="true"></span>
-      <p>Consultando precio, contenido y disponibilidad…</p>
+      <p>Consultando precio, especificaciones y disponibilidad…</p>
     </section>
 
     <section class="store-shell runtime-product-error" id="runtime-product-error" hidden aria-labelledby="runtime-error-title">
       <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
       <h2 id="runtime-error-title">No pudimos abrir esta publicación</h2>
       <p id="runtime-error-message">La publicación no está disponible o cambió de dirección.</p>
-      <div><a class="store-action store-action-primary" href="/tienda">Volver a la tienda</a><a class="store-action store-action-secondary" href="/tickets">Crear ticket de consulta</a></div>
+      <div>
+        <a class="store-action store-action-primary" href="/tienda">Volver a la tienda</a>
+        <a class="store-action store-action-secondary" href="/tickets">Crear ticket de consulta</a>
+      </div>
     </section>
 
     <div id="runtime-product-content" hidden>
       <section class="product-detail" aria-labelledby="product-title">
         <div class="store-shell product-detail-grid">
+          <!-- Gallery Column -->
           <div class="product-gallery">
             <div class="product-main-image">
               <img id="runtime-product-image" src="/assets/images/tienda-hero-pixon.webp" alt="" width="900" height="700" fetchpriority="high" decoding="async" />
               <span class="product-sold-stamp" id="runtime-sold-stamp" hidden>VENDIDO</span>
             </div>
             <div class="product-thumbnails" id="runtime-product-thumbnails" aria-label="Galería de la publicación" hidden></div>
+
+            <!-- Trust Strip Under Gallery -->
+            <div class="product-gallery-trust-strip">
+              <div class="trust-pill">
+                <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                <div>
+                  <strong>Garantía por escrito</strong>
+                  <small id="runtime-trust-warranty">Respaldo directo en taller</small>
+                </div>
+              </div>
+              <div class="trust-pill">
+                <i class="fa-solid fa-shop" aria-hidden="true"></i>
+                <div>
+                  <strong>Taller en Cancún</strong>
+                  <small>Cto. Hacienda Chimay, 77539</small>
+                </div>
+              </div>
+              <div class="trust-pill">
+                <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                <div>
+                  <strong>Pruebas de estrés</strong>
+                  <small>Rendimiento y térmicas validadas</small>
+                </div>
+              </div>
+            </div>
           </div>
 
+          <!-- Buy Box / Buy Panel -->
           <div class="product-buy-panel">
-            <div class="product-badges" id="runtime-product-badges"></div>
+            <div class="product-meta-header" id="runtime-product-badges"></div>
+
             <h1 id="product-title">Publicación de Pixon PC</h1>
+
+            <div class="product-sku-row">
+              <span id="runtime-product-sku">SKU: PIX-000</span>
+              <span>•</span>
+              <span>Publicación verificada en Cancún</span>
+            </div>
+
             <p class="product-lead" id="runtime-product-lead"></p>
+
             <div class="product-price-block">
-              <del id="runtime-product-original-price" hidden></del>
-              <strong id="runtime-product-price">Precio a consultar</strong>
-              <span id="runtime-product-saving" hidden></span>
+              <div class="product-price-main">
+                <strong class="product-main-price" id="runtime-product-price">Precio a consultar</strong>
+                <del id="runtime-product-original-price" hidden></del>
+                <span class="product-discount-pill" id="runtime-product-saving" hidden></span>
+              </div>
+              <div class="product-price-tax-note">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <span>Precio final en pesos mexicanos (MXN) • Pago contra entrega, SPEI o tarjeta</span>
+              </div>
             </div>
-            <dl class="product-quick-facts">
-              <div><dt>Disponibilidad</dt><dd id="runtime-product-availability">Consultando…</dd></div>
-              <div><dt>Condición</dt><dd id="runtime-product-condition">—</dd></div>
-              <div><dt>Garantía</dt><dd id="runtime-product-warranty">—</dd></div>
-            </dl>
+
+            <div class="product-quick-facts-grid">
+              <div class="quick-fact-card">
+                <div class="quick-fact-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>
+                <div class="quick-fact-content">
+                  <span class="quick-fact-label">Disponibilidad</span>
+                  <strong class="quick-fact-value" id="runtime-product-availability">Consultando…</strong>
+                  <small>Entrega hoy o recolección</small>
+                </div>
+              </div>
+              <div class="quick-fact-card">
+                <div class="quick-fact-icon"><i class="fa-solid fa-certificate" aria-hidden="true"></i></div>
+                <div class="quick-fact-content">
+                  <span class="quick-fact-label">Condición</span>
+                  <strong class="quick-fact-value" id="runtime-product-condition">—</strong>
+                  <small>Probado y verificado</small>
+                </div>
+              </div>
+              <div class="quick-fact-card">
+                <div class="quick-fact-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+                <div class="quick-fact-content">
+                  <span class="quick-fact-label">Garantía</span>
+                  <strong class="quick-fact-value" id="runtime-product-warranty">—</strong>
+                  <small>Póliza escrita sellada</small>
+                </div>
+              </div>
+              <div class="quick-fact-card">
+                <div class="quick-fact-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
+                <div class="quick-fact-content">
+                  <span class="quick-fact-label">Ubicación</span>
+                  <strong class="quick-fact-value">Taller Cancún</strong>
+                  <small>Cto. Hacienda Chimay</small>
+                </div>
+              </div>
+            </div>
+
             <div class="product-buy-actions">
-              <button class="store-action store-action-primary" id="runtime-add-to-cart" type="button" data-add-to-cart disabled>Consultando disponibilidad…</button>
-              <a class="store-action store-action-secondary" id="runtime-product-whatsapp" href="https://wa.me/529986690777" target="_blank" rel="noopener noreferrer">Consultar antes de comprar</a>
+              <button class="store-action store-action-primary" id="runtime-add-to-cart" type="button" data-add-to-cart disabled>
+                <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> Consultando disponibilidad…
+              </button>
+              <a class="store-action store-action-whatsapp" id="runtime-product-whatsapp" href="https://wa.me/529986690777" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar antes de comprar por WhatsApp
+              </a>
+              <a class="product-ticket-link" href="/tickets">
+                <i class="fa-solid fa-ticket" aria-hidden="true"></i> ¿Requieres cotización especial o factura? Crear ticket
+              </a>
             </div>
-            <ul class="product-trust-list">
-              <li>El servidor valida nuevamente precio y stock al confirmar.</li>
-              <li>Atención local de Pixon PC en Cancún.</li>
-              <li>Garantía documentada cuando corresponda.</li>
-            </ul>
+
+            <!-- Enclosed Payment & Assurance Box -->
+            <div class="product-trust-box">
+              <div class="product-payments-accepted">
+                <span class="payments-title"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Métodos de pago aceptados:</span>
+                <div class="payment-methods-pills">
+                  <span class="payment-pill"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Efectivo al recibir</span>
+                  <span class="payment-pill"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Transferencia SPEI</span>
+                  <span class="payment-pill"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Tarjeta en taller físico</span>
+                </div>
+              </div>
+
+              <div class="trust-box-divider"></div>
+
+              <ul class="product-trust-checklist">
+                <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Inspección técnica y pruebas de estrés validadas en Cancún.</span></li>
+                <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Retiro directo en taller o entrega acordada en Cancún y alrededores.</span></li>
+                <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Póliza de garantía por escrito entregada con tu compra.</span></li>
+                <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Soporte técnico directo sin intermediarios ni demoras.</span></li>
+              </ul>
+
+              <a class="product-policy-link" href="/politica-de-envios-y-devoluciones">
+                <span>Ver condiciones detalladas de entrega y garantía</span>
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
+      <!-- Technical Sheet & Scope Section -->
       <section class="store-shell product-information" aria-labelledby="runtime-product-specs-title">
-        <article>
-          <h2 id="runtime-product-specs-title">Especificaciones y estado</h2>
-          <p id="runtime-product-description"></p>
-          <dl class="product-spec-table" id="runtime-product-attributes"></dl>
+        <article class="product-info-sheet">
+          <h2 id="runtime-product-specs-title">
+            <i class="fa-solid fa-microchip" aria-hidden="true"></i> Ficha Técnica y Especificaciones
+          </h2>
+          <div class="product-description-formatted" id="runtime-product-description"></div>
+          <div class="product-spec-grid" id="runtime-product-attributes"></div>
         </article>
-        <aside>
-          <h2>Antes de confirmar</h2>
-          <p>La entrega incluye únicamente lo descrito en esta publicación. Confirma accesorios, compatibilidad, instalación y alcance del servicio antes de pagar.</p>
-          <a href="/tickets">Crear ticket de consulta</a>
+
+        <aside class="product-scope-aside">
+          <div class="scope-card">
+            <h3><i class="fa-solid fa-box-check" aria-hidden="true"></i> ¿Qué incluye tu compra?</h3>
+            <ul class="scope-checklist">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Equipo / Servicio 100% probado en banco de diagnóstico.</span></li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Cable de alimentación o accesorios correspondientes.</span></li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Póliza de garantía por escrito con fecha y sello de Pixon PC.</span></li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Windows y controladores optimizados, listo para usarse.</span></li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Asesoría y soporte posventa directo en taller.</span></li>
+            </ul>
+          </div>
+
+          <div class="scope-card">
+            <h3><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> Entrega y Cobertura en Cancún</h3>
+            <p style="font-size: 0.84rem; color: var(--store-ink); line-height: 1.5; margin: 0 0 0.5rem;">
+              Puedes recolectar personalmente en taller o solicitar entrega segura en Cancún:
+            </p>
+            <div class="local-delivery-zones">
+              {LOCAL_ZONES.map((zone) => <span class="zone-tag">{zone}</span>)}
+            </div>
+            <div class="nap-contact-box">
+              <span><strong>Taller Pixon PC:</strong> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+              <span><strong>Atención técnica:</strong> +52 998 669 0777</span>
+            </div>
+          </div>
+
+          <div class="scope-card" style="background: #f8fcfe;">
+            <h3><i class="fa-solid fa-comments" aria-hidden="true"></i> ¿Dudas antes de comprar?</h3>
+            <p style="font-size: 0.84rem; color: #3f596d; line-height: 1.5; margin: 0 0 0.85rem;">
+              Escríbenos directamente o crea un ticket para validar compatibilidad, solicitar mejoras de RAM/SSD o pedir factura con IVA.
+            </p>
+            <div style="display: grid; gap: 0.5rem;">
+              <a class="store-action store-action-whatsapp" href="https://wa.me/529986690777" target="_blank" rel="noopener noreferrer" style="min-height: 42px; font-size: 0.85rem;">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chatear por WhatsApp
+              </a>
+              <a class="home-store-btn-details" href="/tickets" style="min-height: 42px; font-size: 0.85rem; justify-content: center;">
+                <i class="fa-solid fa-ticket" aria-hidden="true"></i> Crear ticket de soporte
+              </a>
+            </div>
+          </div>
         </aside>
       </section>
     </div>

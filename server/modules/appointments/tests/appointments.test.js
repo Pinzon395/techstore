@@ -157,10 +157,14 @@ function createMockPool(initialData = {}) {
                 private_notes: params[19],
                 planned_service_summary: params[20],
                 device_summary: params[21],
-                address_line: params[22],
-                rescheduled_from_id: params[23],
-                created_by: params[24],
-                idempotency_key: params[25]
+                equipment_value_mxn: params[22],
+                price_amount_mxn: params[23],
+                price_mode: params[24],
+                price_label: params[25],
+                address_line: params[26],
+                rescheduled_from_id: params[27],
+                created_by: params[28],
+                idempotency_key: params[29]
               };
               appointments.push(newApt);
               return [{ insertId: newApt.id }];
@@ -188,11 +192,15 @@ function createMockPool(initialData = {}) {
               private_notes: params[19],
               planned_service_summary: params[20],
               device_summary: params[21],
-              address_line: params[22],
-              idempotency_key: params[23],
-              admin_override: params[24],
-              admin_override_reason: params[25],
-              created_by: params[26]
+              equipment_value_mxn: params[22],
+              price_amount_mxn: params[23],
+              price_mode: params[24],
+              price_label: params[25],
+              address_line: params[26],
+              idempotency_key: params[27],
+              admin_override: params[28],
+              admin_override_reason: params[29],
+              created_by: params[30]
             };
             appointments.push(newApt);
             return [{ insertId: newApt.id }];

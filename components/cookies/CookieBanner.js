@@ -73,34 +73,36 @@ function injectBannerStyles() {
         /* Cookie Banner — Pixon PC */
         #pixon-cookie-banner {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 990;
-            width: min(340px, calc(100vw - 40px));
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+            left: 24px;
+            z-index: 995;
+            width: min(360px, calc(100vw - 48px));
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 14px;
+            box-shadow: 0 10px 32px rgba(7, 31, 58, 0.16), 0 1px 3px rgba(0, 0, 0, 0.05);
             padding: 16px;
-            font-family: 'Red Hat Display', sans-serif;
-            animation: bannerFadeIn 0.4s ease both;
+            font-family: 'Red Hat Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            animation: bannerCardSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(7, 31, 58, 0.08);
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease;
         }
 
-        @keyframes bannerFadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes bannerCardSlideIn {
+            from { opacity: 0; transform: translateY(14px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
         #pixon-cookie-banner.hide {
-            animation: bannerFadeOut 0.3s ease forwards;
+            animation: bannerCardSlideOut 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes bannerFadeOut {
-            to { opacity: 0; transform: translateY(10px); }
+        @keyframes bannerCardSlideOut {
+            to { opacity: 0; transform: translateY(18px); pointer-events: none; }
         }
 
         .pixon-cb-header {
@@ -143,15 +145,15 @@ function injectBannerStyles() {
         }
 
         .pixon-cb-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            padding: 7px 13px;
+            border-radius: 7px;
+            font-size: 0.76rem;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
             border: none;
             transition: all 0.2s ease;
-            line-height: 1;
+            line-height: 1.1;
         }
 
         .pixon-cb-btn--accept {
@@ -180,20 +182,15 @@ function injectBannerStyles() {
             font-family: inherit;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 640px) {
             #pixon-cookie-banner {
-                bottom: 80px; /* Separación del botón de WhatsApp */
-                left: 50%;
-                transform: translateX(-50%);
-                width: calc(100vw - 32px);
-                padding: 14px;
-            }
-            @keyframes bannerFadeIn {
-                from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-                to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-            }
-            @keyframes bannerFadeOut {
-                to { opacity: 0; transform: translateX(-50%) translateY(10px); }
+                bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+                left: 16px;
+                right: 16px;
+                width: auto;
+                max-width: calc(100vw - 32px);
+                margin: 0 auto;
+                padding: 14px 16px;
             }
         }
     `;
@@ -233,6 +230,7 @@ function mountBanner() {
     `;
 
     document.body.appendChild(banner);
+    window.dispatchEvent(new CustomEvent('pixon:layout-change'));
 
     /* Evento: Aceptar todo */
     document.getElementById('pixon-cb-accept').addEventListener('click', () => {
@@ -259,7 +257,11 @@ function hideBanner() {
     const banner = document.getElementById('pixon-cookie-banner');
     if (!banner) return;
     banner.classList.add('hide');
-    setTimeout(() => banner.remove(), 350);
+    window.dispatchEvent(new CustomEvent('pixon:layout-change'));
+    setTimeout(() => {
+        banner.remove();
+        window.dispatchEvent(new CustomEvent('pixon:layout-change'));
+    }, 350);
 }
 
 /* ── 7. Helper: ejecutar en tiempo idle (fallback Safari) ── */

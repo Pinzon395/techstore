@@ -85,13 +85,17 @@
 
     if (isEn) availability = sold ? 'Sold' : item.status === 'RESERVED' ? 'Reserved' : purchasable ? (tracked && availableQuantity === 1 ? 'Last unit' : 'Available') : 'Unavailable';
     document.getElementById('runtime-breadcrumb-name').textContent = item.name;
-    document.getElementById('product-title').textContent = item.name + ' en Cancún';
+    document.getElementById('product-title').textContent = item.name.includes('Cancún') ? item.name : item.name + ' en Cancún';
+    var skuEl = document.getElementById('runtime-product-sku');
+    if (skuEl) skuEl.textContent = 'SKU: ' + (item.sku || 'PIX-' + item.id);
     document.getElementById('runtime-product-lead').textContent = item.short_description || '';
     document.getElementById('runtime-product-description').textContent = item.description || item.short_description || 'Solicita la ficha completa para validar los detalles de esta publicación.';
     document.getElementById('runtime-product-price').textContent = money(currentPrice, currency);
     document.getElementById('runtime-product-availability').textContent = availability;
     document.getElementById('runtime-product-condition').textContent = conditionLabel(item.condition);
-    document.getElementById('runtime-product-warranty').textContent = item.warranty_text || 'Consulta cobertura según la publicación';
+    document.getElementById('runtime-product-warranty').textContent = item.warranty_text || '1 año con Pixon PC';
+    var trustWarr = document.getElementById('runtime-trust-warranty');
+    if (trustWarr) trustWarr.textContent = item.warranty_text || 'Respaldo directo en taller';
     document.getElementById('runtime-sold-stamp').hidden = !sold;
 
     var original = document.getElementById('runtime-product-original-price');
@@ -100,20 +104,57 @@
     original.hidden = !hasSale;
     saving.hidden = !hasSale;
     if (hasSale) {
+      var diff = basePrice - currentPrice;
+      var pct = Math.round((diff / basePrice) * 100);
       original.textContent = money(basePrice, currency);
-      saving.textContent = 'Ahorras ' + money(basePrice - currentPrice, currency);
+      saving.innerHTML = '<i class="fa-solid fa-tag" aria-hidden="true"></i> Ahorras ' + money(diff, currency) + ' (-' + pct + '%)';
     }
 
     var badges = document.getElementById('runtime-product-badges');
     badges.replaceChildren();
-    (item.badges || []).slice(0, 3).forEach(function (badge) {
-      var span = document.createElement('span');
-      span.textContent = badge.label || badge.name || String(badge);
-      badges.appendChild(span);
+
+    // Type chip
+    var typeSpan = document.createElement('span');
+    typeSpan.className = 'product-badge-type';
+    typeSpan.innerHTML = '<i class="' + (item.item_type === 'SERVICE' ? 'fa-solid fa-screwdriver-wrench' : 'fa-solid fa-desktop') + '" aria-hidden="true"></i> ' + (item.item_type === 'SERVICE' ? 'Servicio Técnico' : 'Equipo');
+    badges.appendChild(typeSpan);
+
+    // Condition chip
+    var condSpan = document.createElement('span');
+    condSpan.className = 'product-badge-condition';
+    condSpan.innerHTML = '<i class="fa-solid fa-shield-check" aria-hidden="true"></i> ' + conditionLabel(item.condition);
+    badges.appendChild(condSpan);
+
+    // Stock badge
+    var stockSpan = document.createElement('span');
+    stockSpan.className = 'product-badge-stock ' + (sold ? 'is-sold' : purchasable ? 'in-stock' : 'out-of-stock');
+    stockSpan.innerHTML = (sold ? '' : '<span class="stock-dot"></span> ') + (sold ? 'Vendido' : 'En Stock Cancún');
+    badges.appendChild(stockSpan);
+
+    (item.badges || []).slice(0, 2).forEach(function (badge) {
+      var promoSpan = document.createElement('span');
+      promoSpan.className = 'product-badge-promo';
+      promoSpan.innerHTML = '<i class="fa-solid fa-bolt" aria-hidden="true"></i> ' + (badge.label || badge.name || String(badge));
+      badges.appendChild(promoSpan);
     });
-    var conditionBadge = document.createElement('span');
-    conditionBadge.textContent = conditionLabel(item.condition) || 'Pixon PC';
-    badges.appendChild(conditionBadge);
+
+    var ATTRIBUTE_ICONS = {
+      cpu_model: 'fa-solid fa-microchip',
+      gpu_model: 'fa-solid fa-gamepad',
+      ram_capacity_gb: 'fa-solid fa-memory',
+      ram_type: 'fa-solid fa-memory',
+      ram_speed_mhz: 'fa-solid fa-gauge-high',
+      storage_capacity_gb: 'fa-solid fa-hard-drive',
+      storage_interface: 'fa-solid fa-hard-drive',
+      operating_system: 'fa-brands fa-windows',
+      screen_size_inches: 'fa-solid fa-tv',
+      screen_refresh_hz: 'fa-solid fa-bolt',
+      battery_health_percent: 'fa-solid fa-battery-half',
+      service_duration_minutes: 'fa-solid fa-clock',
+      service_warranty_days: 'fa-solid fa-shield-halved',
+      psu_watts: 'fa-solid fa-bolt',
+      gpu_vram_gb: 'fa-solid fa-gamepad'
+    };
 
     var attributes = document.getElementById('runtime-product-attributes');
     attributes.replaceChildren();
@@ -121,18 +162,27 @@
       var label = attribute.label || attribute.name || attribute.key;
       var value = valueLabel(attribute);
       if (!label || !value) return;
-      var row = document.createElement('div');
-      var dt = document.createElement('dt');
-      var dd = document.createElement('dd');
-      dt.textContent = label;
-      dd.textContent = value;
-      row.append(dt, dd);
-      attributes.appendChild(row);
+      var card = document.createElement('div');
+      card.className = 'product-spec-card';
+      var iconName = ATTRIBUTE_ICONS[attribute.key] || 'fa-solid fa-circle-info';
+      var icon = document.createElement('i');
+      icon.className = iconName;
+      icon.setAttribute('aria-hidden', 'true');
+      var wrap = document.createElement('div');
+      var sLabel = document.createElement('span');
+      sLabel.className = 'product-spec-label';
+      sLabel.textContent = label;
+      var sVal = document.createElement('strong');
+      sVal.className = 'product-spec-val';
+      sVal.textContent = value;
+      wrap.append(sLabel, sVal);
+      card.append(icon, wrap);
+      attributes.appendChild(card);
     });
 
     var add = document.getElementById('runtime-add-to-cart');
     add.disabled = !purchasable;
-    add.textContent = purchasable ? (tracked && availableQuantity === 1 ? 'Agregar última unidad' : 'Agregar al carrito') : availability;
+    add.innerHTML = '<i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> ' + (purchasable ? (tracked && availableQuantity === 1 ? 'Agregar última unidad al carrito' : 'Agregar al carrito') : availability);
     add.dataset.itemId = String(item.id);
     add.dataset.itemSlug = item.slug;
     add.dataset.itemName = item.name;
@@ -146,7 +196,7 @@
     document.getElementById('runtime-product-whatsapp').href = 'https://wa.me/529986690777?text=' + encodeURIComponent(message);
     renderGallery(item);
 
-    document.title = (item.seo && item.seo.title) || item.name + ' en Cancún | Pixon PC';
+    document.title = (item.seo && item.seo.title) || (item.name.includes('Cancún') ? item.name : item.name + ' en Cancún') + ' | Pixon PC';
     var canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) canonical.href = location.origin + '/tienda/' + encodeURIComponent(item.slug);
     loading.hidden = true;

@@ -47,6 +47,56 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
     }
   });
 
+  // 2b. Public Month Summary - ZERO PII
+  // Returns aggregated availability status per calendar day.
+  // Response: { month: "2026-09", days: [{ date, status: "AVAILABLE"|"LIMITED"|"FULL"|"CLOSED", available_slots: N }] }
+  // Privacy guarantee: no appointment objects are returned; only computed slot counts.
+  router.get('/availability/month', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'no-store');
+      const { month, type = 'DROP_OFF' } = req.query;
+      if (!month || !/^\d{4}-\d{2}$/.test(String(month))) {
+        return res.status(400).json({ success: false, message: 'Parámetro month inválido. Formato: YYYY-MM' });
+      }
+
+      const [year, mo] = month.split('-').map(Number);
+      const daysInMonth = new Date(Date.UTC(year, mo, 0)).getUTCDate();
+
+      // Run per-day availability checks in parallel (capped at 31 days)
+      const dayPromises = Array.from({ length: daysInMonth }, (_, i) => {
+        const d = String(i + 1).padStart(2, '0');
+        const dateStr = `${month}-${d}`;
+        return service.capacityEngine.calculateDayAvailability({
+          date: dateStr,
+          appointmentType: type,
+          requestedDuration: null
+        }).then(result => {
+          if (!result.is_open) {
+            return { date: dateStr, status: 'CLOSED', available_slots: 0 };
+          }
+          const total = result.total_slots || 0;
+          const avail = result.available_slots || 0;
+          let status;
+          if (avail === 0) {
+            status = 'FULL';
+          } else if (avail <= Math.max(1, Math.ceil(total * 0.3))) {
+            status = 'LIMITED';
+          } else {
+            status = 'AVAILABLE';
+          }
+          return { date: dateStr, status, available_slots: avail };
+        }).catch(() => ({ date: `${month}-${d}`, status: 'CLOSED', available_slots: 0 }));
+      });
+
+      const days = await Promise.all(dayPromises);
+      res.json({ success: true, month, days });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+
+
   // 3. Create Hold / Booking
   router.post('/hold', async (req, res) => {
     try {
@@ -54,7 +104,7 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
       const {
         ticket_id, customer_id, customer_name, customer_email, customer_phone,
         appointment_type, service_type, location_type, date, time,
-        customer_notes, address_line, device_summary
+        customer_notes, address_line, device_summary, equipment_value_mxn
       } = req.body;
 
       const appointment = await service.hold({
@@ -71,6 +121,7 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
         customerNotes: customer_notes,
         addressLine: address_line,
         deviceSummary: device_summary,
+        equipmentValueMxn: equipment_value_mxn,
         idempotencyKey,
         actorId: req.user?.id || null,
         actorRole: req.user?.role === 'admin' ? 'ADMIN' : 'CUSTOMER'
@@ -203,7 +254,7 @@ function createAdminAppointmentRouter({ pool, requireAdmin }) {
         ticket_id, customer_id, customer_name, customer_email, customer_phone,
         appointment_type, service_type, location_type, resource_id,
         date, time, customer_notes, private_notes, planned_service_summary,
-        device_summary, address_line, admin_override, admin_override_reason
+        device_summary, equipment_value_mxn, address_line, admin_override, admin_override_reason
       } = req.body;
 
       const appointment = await service.hold({
@@ -222,6 +273,7 @@ function createAdminAppointmentRouter({ pool, requireAdmin }) {
         privateNotes: private_notes,
         plannedServiceSummary: planned_service_summary,
         deviceSummary: device_summary,
+        equipmentValueMxn: equipment_value_mxn,
         addressLine: address_line,
         adminOverride: Boolean(admin_override),
         adminOverrideReason: admin_override_reason,

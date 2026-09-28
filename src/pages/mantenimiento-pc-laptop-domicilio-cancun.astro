@@ -6,23 +6,105 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import FaqSection from '../components/FaqSection.astro';
 import ServiceTicketSection from '../components/ServiceTicketSection.astro';
 import HomeVisitMaintenanceForm from '../components/HomeVisitMaintenanceForm.astro';
+import MaintenanceComputerAnimation from '../components/MaintenanceComputerAnimation.astro';
 import { buildBreadcrumbSchema } from '../lib/schema';
+import { confirmedPolicyCopy, commercialCopy } from '../lib/business';
 
 const canonical = 'https://pixon.com.mx/mantenimiento-pc-laptop-domicilio-cancun';
 const title = 'Mantenimiento PC y Laptop a Domicilio en Cancún | Pixon PC';
-const description = 'Mantenimiento de PC y laptop a domicilio en Cancún mediante cita previa. Limpieza, temperaturas y pasta térmica. Zona Hotelera y otras zonas según disponibilidad.';
+const description = 'Mantenimiento de PC y laptop a domicilio en Cancún. Coordinamos una visita a tu casa, departamento u oficina con cita previa. Cotiza según equipo, zona y complejidad.';
 
-const whatsappMessage = `Hola Pixon PC. Quiero agendar mantenimiento de PC o laptop a domicilio en Cancún.
+const whatsappMessage = `Hola Pixon PC. Quiero cotizar mantenimiento preventivo a domicilio en Cancún.
 
-Equipo:
-Marca/modelo:
-Síntoma:
-Zona:
-Casa / oficina / hotel:
-Horario aproximado:
-¿Requiere cita en Zona Hotelera, Costa Mujeres o Playa Mujeres?:`;
+Tipo de equipo: 
+Marca/modelo: 
+CPU/GPU si la conozco: 
+Síntoma: 
+Zona o residencial: 
+Casa/departamento/oficina: 
+Último mantenimiento: 
+¿Equipo gamer o gama alta?: `;
 
 const whatsappUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappMessage)}`;
+
+const faqs = [
+  {
+    question: '¿Dan mantenimiento de PC a domicilio en Cancún?',
+    answer: 'Sí. Realizamos mantenimiento preventivo, limpieza profunda, desobstrucción de ventiladores y sustitución de pasta térmica para computadoras de escritorio, torres y PC gamer directamente en tu domicilio, oficina, departamento o privada residencial en Cancún mediante cita previa.',
+  },
+  {
+    question: '¿Dan mantenimiento de laptop a domicilio en Cancún?',
+    answer: 'Sí. Atendemos laptops de home office, trabajo corporativo y laptops gamer en sitio para limpieza interna de ventiladores, ductos disipadores y revisión térmica, siempre que el diseño del chasis y la arquitectura del modelo permitan una intervención limpia y segura fuera del laboratorio.',
+  },
+  {
+    question: '¿Cuánto cuesta el mantenimiento a domicilio en Cancún?',
+    answer: 'El servicio de mantenimiento preventivo a domicilio parte desde un precio de referencia de $1,000 MXN. El costo final se confirma antes de programar la visita según la distancia de la zona, el tipo y gama del equipo (básico, gamer o workstation), la complejidad de desarmado, el riesgo de manipulación y los materiales térmicos requeridos.',
+  },
+  {
+    question: '¿Cobran traslado según la zona de Cancún?',
+    answer: 'El presupuesto final incluye la intervención técnica y puede considerar un cargo de traslado según la distancia y logística de acceso (por ejemplo en Zona Hotelera, Puerto Cancún, Costa Mujeres, Playa Mujeres o desarrollos alejados del centro urbano). Cualquier cargo se informa con total claridad antes de agendar.',
+  },
+  {
+    question: '¿Qué incluye el mantenimiento de PC y laptop a domicilio?',
+    answer: 'Incluye desensamble seguro según modelo, retiro de polvo y pelusa compactada con aire regulado y brochas antiestáticas, limpieza de ventiladores y filtros, despeje de disipadores, revisión de temperaturas operativas, renovación de pasta térmica de alta conductividad cuando corresponde y validación funcional antes de concluir la visita.',
+  },
+  {
+    question: '¿Cambian pasta térmica a domicilio?',
+    answer: 'Sí, cuando la condición del disipador o las temperaturas lo ameritan. Aplicamos compuestos térmicos de alta conductividad para procesador (CPU) y tarjeta gráfica (GPU). En equipos con metal líquido de fábrica o diseños especiales de fábrica, confirmamos previamente el protocolo técnico.',
+  },
+  {
+    question: '¿Trabajan con PC gamer y laptops gamer a domicilio?',
+    answer: 'Sí. Atendemos ensambles gamer (gabinetes con cristal templado, radiadores de refrigeración líquida AIO de 120mm a 360mm, tarjetas RTX/Radeon) y laptops gamer (ASUS ROG/TUF, Lenovo Legion, MSI, Alienware, Acer Predator, HP Omen/Victus) con materiales térmicos adecuados para soportar altas cargas de trabajo.',
+  },
+  {
+    question: '¿Atienden equipos de alta gama y workstations?',
+    answer: 'Sí. Coordinamos mantenimiento en sitio para estaciones de trabajo de render, edición 4K, arquitectura, modelado 3D e inteligencia artificial. Estos equipos exigen mayor tiempo de desmontaje, revisión de múltiples ventiladores, disipadores densos y cuidado riguroso de componentes de alto valor.',
+  },
+  {
+    question: '¿Pueden realizar el mantenimiento frente a mí?',
+    answer: 'Sí. Siempre que el espacio en tu domicilio u oficina cuente con una superficie firme y segura, el mantenimiento se efectúa a la vista, con protectores antiestáticos y explicando de forma transparente el estado interno del equipo y las tareas que se van realizando.',
+  },
+  {
+    question: '¿Qué pasa si mi equipo llega funcionando y después del mantenimiento ya no enciende? ¿Qué cubre la garantía?',
+    answer: 'Nuestro principio de responsabilidad es estricto: documentamos el funcionamiento del equipo antes del servicio. Si el equipo se recibe funcionando y durante el mantenimiento Pixon PC provoca directamente un daño atribuible a la intervención técnica, nos responsabilizamos de corregir ese daño para devolver el equipo a su condición funcional previa o mejor. Esta garantía no cubre fallas preexistentes, daños ocultos previos, baterías degradadas, sectores defectuosos en SSD/HDD previos a la visita, caídas posteriores, derrames de líquidos posteriores ni manipulaciones ajenas tras el servicio.',
+  },
+  {
+    question: '¿Atienden en Puerto Cancún?',
+    answer: 'Sí. Coordinamos visitas técnicas mediante cita previa para departamentos, oficinas y condominios en Puerto Cancún (incluyendo desarrollos como Novo Cancún, Shark Tower y SLS Residences). Previo a la cita, validamos los datos necesarios para el pase de acceso en caseta.',
+  },
+  {
+    question: '¿Atienden en Isla Dorada?',
+    answer: 'Sí. Brindamos servicio a domicilio en residencias y condominios de Isla Dorada en Zona Hotelera. Programamos la visita con anticipación y coordinamos previamente los datos que requiera el control de acceso del residencial.',
+  },
+  {
+    question: '¿Dan mantenimiento en Lagos del Sol?',
+    answer: 'Sí. Atendemos residencias en Lagos del Sol (sectores como La Española, Flamingos y Jazmines) para PC gamer, laptops y estaciones de trabajo con registro y coordinación previa de acceso vehicular.',
+  },
+  {
+    question: '¿Atienden Residencial Cumbres y Vía Cumbres?',
+    answer: 'Sí. Cubrimos tanto Residencial Cumbres como Vía Cumbres sobre Av. Huayacán mediante citas programadas para computadoras de escritorio, setups gaming y laptops de trabajo.',
+  },
+  {
+    question: '¿Atienden Aqua Residencial, Arbolada y Palmaris?',
+    answer: 'Sí. Atendemos de forma regular privadas del corredor Huayacán como Aqua Residencial, Arbolada Residencial, Residencial Palmaris y Residencial Río con aviso previo a caseta.',
+  },
+  {
+    question: '¿Atienden Playa Mujeres y La Amada?',
+    answer: 'Sí. Coordinamos visitas técnicas para laptops, computadoras y home office en condominios residenciales y departamentos en Playa Mujeres y La Amada bajo confirmación previa de agenda.',
+  },
+  {
+    question: '¿Atienden en Zona Hotelera de Cancún?',
+    answer: 'Sí. Realizamos visitas programadas a lo largo de Blvd. Kukulcán (km 0 al km 25) para residentes, turistas en hoteles y oficinas de servicio, respetando las políticas de acceso de cada inmueble.',
+  },
+  {
+    question: '¿Cómo se coordina el acceso a privadas y condominios?',
+    answer: 'Por seguridad de los residentes, nunca prometemos acceso sin autorización. Una vez confirmada la cita técnica y el tipo de equipo, te proporcionamos los datos del técnico para que generes el pase en caseta o notifiques a vigilancia antes de nuestra llegada.',
+  },
+  {
+    question: '¿Necesitan mi dirección exacta para cotizar?',
+    answer: 'No. Para cotizar únicamente requerimos saber el tipo de equipo, marca/modelo, síntomas y tu zona general o residencial (ej. Puerto Cancún, Cumbres, Huayacán). La dirección exacta y número exterior se solicita únicamente cuando decides confirmar la cita.',
+  },
+];
 
 const schema = [
   {
@@ -36,16 +118,25 @@ const schema = [
     provider: { '@id': 'https://pixon.com.mx/#business' },
     areaServed: [
       { '@type': 'City', name: 'Cancún' },
-      { '@type': 'Place', name: 'Cancún Centro' },
-      { '@type': 'Place', name: 'Zona Hotelera de Cancún' },
       { '@type': 'Place', name: 'Puerto Cancún' },
-      { '@type': 'Place', name: 'Huayacán' },
-      { '@type': 'Place', name: 'Cumbres' },
-      { '@type': 'Place', name: 'Costa Mujeres' },
+      { '@type': 'Place', name: 'Isla Dorada' },
+      { '@type': 'Place', name: 'Lagos del Sol' },
+      { '@type': 'Place', name: 'Residencial Cumbres' },
+      { '@type': 'Place', name: 'Vía Cumbres' },
+      { '@type': 'Place', name: 'Aqua Residencial' },
+      { '@type': 'Place', name: 'Arbolada Residencial' },
+      { '@type': 'Place', name: 'Residencial Palmaris' },
+      { '@type': 'Place', name: 'Residencial Río' },
       { '@type': 'Place', name: 'Playa Mujeres' },
-      { '@type': 'Place', name: 'Punta Sam' },
+      { '@type': 'Place', name: 'La Amada' },
+      { '@type': 'Place', name: 'Costa Mujeres' },
+      { '@type': 'Place', name: 'Zona Hotelera de Cancún' },
+      { '@type': 'Place', name: 'Huayacán' },
+      { '@type': 'Place', name: 'Cancún Centro' },
       { '@type': 'Place', name: 'Polígono Sur' },
       { '@type': 'Place', name: 'Bonfil' },
+      { '@type': 'Place', name: 'Punta Sam' },
+      { '@type': 'Place', name: 'Puerto Juárez' },
     ],
   },
   buildBreadcrumbSchema([
@@ -54,73 +145,6 @@ const schema = [
     { name: 'Mantenimiento a domicilio', url: canonical },
   ]),
 ].filter(Boolean) as object[];
-
-const faqs = [
-  {
-    question: '¿Dan mantenimiento de PC a domicilio en Cancún?',
-    answer: 'Sí. Realizamos mantenimiento preventivo, limpieza interna, revisión de ventiladores y pasta térmica para computadoras de escritorio y PC gamer directamente en tu domicilio, oficina o departamento mediante cita previa y confirmación de viabilidad técnica en sitio.',
-  },
-  {
-    question: '¿Atienden laptops a domicilio en Cancún?',
-    answer: 'Sí. Atendemos laptops de trabajo, home office y laptops gamer en sitio para limpieza de ventiladores, disipadores y revisión térmica, siempre que el diseño del chasis y el desarmado permitan trabajar de forma segura fuera del laboratorio.',
-  },
-  {
-    question: '¿Atienden Zona Hotelera de Cancún?',
-    answer: 'Sí. Coordinamos visitas técnicas mediante cita previa en la Zona Hotelera (km 0 al km 25 de Blvd. Kukulcán) para huéspedes en hoteles, condominios, departamentos y oficinas, respetando las normas de acceso de cada propiedad.',
-  },
-  {
-    question: '¿Pueden ir a mi hotel o resort?',
-    answer: 'Sí. Evaluamos la atención para huéspedes y turistas en hoteles de Cancún, Zona Hotelera, Costa Mujeres y Playa Mujeres. La coordinación se realiza por WhatsApp con cita previa; no ingresamos a habitaciones sin autorización y acordamos el punto de recepción según las reglas del hotel.',
-  },
-  {
-    question: '¿Atienden Costa Mujeres?',
-    answer: 'Sí. Brindamos servicio en Costa Mujeres mediante cita previa y confirmación de disponibilidad para hoteles, condominios y personal corporativo de la zona.',
-  },
-  {
-    question: '¿Atienden Playa Mujeres?',
-    answer: 'Sí. Atendemos solicitudes en Playa Mujeres para laptops y computadoras en resorts, condominios y residenciales con cita previa confirmada.',
-  },
-  {
-    question: '¿Atienden Punta Sam y zona norte de Cancún?',
-    answer: 'Sí. Cubrimos Punta Sam, Puerto Juárez y corredores residenciales de la zona norte previa validación de agenda y tipo de servicio.',
-  },
-  {
-    question: '¿Trabajan únicamente con cita previa?',
-    answer: 'Sí. Todo nuestro servicio a domicilio se programa con cita previa para asegurar la asignación del técnico, las herramientas adecuadas para tu modelo y la confirmación de la zona antes de solicitar tu dirección exacta.',
-  },
-  {
-    question: '¿Cómo agendo una visita a domicilio?',
-    answer: 'Puedes llenar el formulario de esta página o escribirnos directamente por WhatsApp indicando qué equipo tienes (PC o laptop), marca/modelo, qué síntoma presenta y tu zona. Te confirmamos si es viable en sitio y acordamos día y horario.',
-  },
-  {
-    question: '¿Necesitan mi dirección completa para cotizar?',
-    answer: 'No. Para cotizar únicamente necesitamos saber el tipo de equipo, síntomas y tu zona general (ej. Cumbres, Zona Hotelera, Huayacán). La dirección exacta se solicita únicamente después de que confirmes que deseas agendar la cita.',
-  },
-  {
-    question: '¿Cobran traslado según la zona?',
-    answer: 'El costo del servicio incluye la intervención técnica y puede contemplar un cargo de traslado o viático según la distancia (por ejemplo en Zona Hotelera, Costa Mujeres o Playa Mujeres). Cualquier costo se informa de manera transparente antes de agendar.',
-  },
-  {
-    question: '¿Pueden realizar el mantenimiento frente al cliente?',
-    answer: 'Sí. Cuando el espacio y las condiciones del lugar lo permiten, el mantenimiento se realiza a la vista en tu casa u oficina, con orden, protección de la superficie y explicación de cada paso.',
-  },
-  {
-    question: '¿Pueden recoger el equipo si requiere taller?',
-    answer: 'Sí. Si al diagnosticar encontramos una falla compleja (como daño en placa madre, líquido, microsoldadura o desarmado que requiere maquinaria especial), te explicamos la situación y podemos coordinar la recolección segura a nuestro taller.',
-  },
-  {
-    question: '¿Atienden PC gamer y laptop gamer?',
-    answer: 'Sí. Atendemos mantenimiento de PC gamer (gabinetes, radiadores, AIO, ventiladores, pasta térmica) y laptops gamer (ASUS ROG/TUF, Lenovo Legion, MSI, Alienware, Acer Predator, HP Omen/Victus) con materiales térmicos de alto rendimiento.',
-  },
-  {
-    question: '¿Cambian pasta térmica a domicilio?',
-    answer: 'Sí, cuando la condición térmica del procesador o disipador lo requiere. Aplicamos compuestos térmicos de alta conductividad para CPU y GPU. En casos con metal líquido de fábrica o diseños especiales, confirmamos previamente el procedimiento.',
-  },
-  {
-    question: '¿Cuánto cuesta el servicio a domicilio?',
-    answer: 'El precio depende del tipo de computadora (laptop estándar, PC de oficina, PC gamer o workstation), la complejidad del desarmado, los materiales requeridos y la zona de visita. Escríbenos por WhatsApp con tu modelo para darte una cotización cerrada y sin sorpresas.',
-  },
-];
 ---
 
 <Base
@@ -141,284 +165,16 @@ const faqs = [
     <!-- ==================== 1. HERO ==================== -->
     <header class="homevisit-hero" aria-labelledby="homevisit-title">
       <div class="container homevisit-hero__grid">
-        <div class="homevisit-hero__copy">
+        <div class="homevisit-hero__eyebrow-wrap">
           <p class="homevisit-eyebrow">
             <i class="fa-solid fa-location-dot" aria-hidden="true"></i> SERVICIO TÉCNICO A DOMICILIO · CANCÚN · CITA PREVIA
           </p>
-          <h1 id="homevisit-title">Mantenimiento de PC y Laptop a Domicilio en Cancún</h1>
-          <p class="homevisit-hero__lead">
-            Vamos a tu casa, departamento, hotel u oficina para realizar mantenimiento de PC y laptop cuando el procedimiento puede hacerse de forma segura en sitio. Atención mediante cita previa en Cancún y zonas de cobertura.
-          </p>
-          <p class="homevisit-hero__support">
-            Limpieza interna, ventilación, temperaturas y pasta térmica según el equipo.
-          </p>
-          <div class="homevisit-hero__actions">
-            <a class="homevisit-btn homevisit-btn--primary" href="#solicitar-visita">
-              <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Solicitar cita a domicilio
-            </a>
-            <a class="homevisit-btn homevisit-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="homevisit-hero">
-              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar por WhatsApp
-            </a>
-          </div>
-          <ul class="homevisit-hero__trust" aria-label="Garantías del servicio">
-            <li><i class="fa-solid fa-check"></i> PC y Laptop</li>
-            <li><i class="fa-solid fa-check"></i> Servicio por cita</li>
-            <li><i class="fa-solid fa-check"></i> Zona Hotelera</li>
-            <li><i class="fa-solid fa-check"></i> Cancún</li>
-          </ul>
         </div>
 
+        <h1 id="homevisit-title" class="homevisit-hero__title">Mantenimiento de PC y Laptop a Domicilio en Cancún</h1>
+
         <div class="homevisit-hero__visual-container">
-          <!-- Visual SVG Animation (No text inside) -->
-          <figure class="homevisit-visual" aria-hidden="true">
-            <svg viewBox="0 0 640 380" focusable="false" class="homevisit-story-svg">
-              <defs>
-                <linearGradient id="hv-card-bg" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#092543" />
-                  <stop offset="60%" stop-color="#071b30" />
-                  <stop offset="100%" stop-color="#051424" />
-                </linearGradient>
-                <linearGradient id="hv-pin-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#38bdf8" />
-                  <stop offset="100%" stop-color="#0284c7" />
-                </linearGradient>
-                <linearGradient id="hv-house-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#0e3a63" />
-                  <stop offset="100%" stop-color="#08233d" />
-                </linearGradient>
-                <linearGradient id="hv-screen-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#d8f8fc" />
-                  <stop offset="100%" stop-color="#7dd3fc" />
-                </linearGradient>
-                <linearGradient id="hv-pc-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#14426d" />
-                  <stop offset="100%" stop-color="#081e33" />
-                </linearGradient>
-                <linearGradient id="hv-check-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="100%" stop-color="#047857" />
-                </linearGradient>
-                <linearGradient id="hv-sheen-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
-                  <stop offset="50%" stop-color="#ffffff" stop-opacity="0.35" />
-                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-                </linearGradient>
-
-                <filter id="hv-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#010e1a" flood-opacity="0.5" />
-                </filter>
-                <filter id="hv-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.9" />
-                </filter>
-                <filter id="hv-glow-green" x="-30%" y="-30%" width="160%" height="160%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#10b981" flood-opacity="0.95" />
-                </filter>
-                <filter id="hv-door-glow" x="-40%" y="-40%" width="180%" height="180%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#38bdf8" flood-opacity="0.8" />
-                </filter>
-              </defs>
-
-              <!-- Main Canvas Frame -->
-              <rect class="hv-canvas" x="8" y="8" width="624" height="364" rx="20" fill="url(#hv-card-bg)" stroke="#1e4e79" stroke-width="1.5" stroke-opacity="0.65" />
-
-              <!-- Subtle Radial Depth Glow behind customer home -->
-              <ellipse cx="485" cy="200" rx="140" ry="120" fill="#0c3254" opacity="0.35" />
-
-              <!-- Background Technical Grid Lines -->
-              <g class="hv-grid-decor" opacity="0.16">
-                <line x1="8" y1="285" x2="632" y2="285" stroke="#38bdf8" stroke-width="1" />
-                <line x1="8" y1="120" x2="632" y2="120" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
-                <line x1="8" y1="190" x2="632" y2="190" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="6 8" />
-              </g>
-
-              <!-- Travel Pathway Curve (From Pixon Hub to Customer Home) -->
-              <path class="hv-path-base" d="M 85 282 Q 220 305 355 282 T 475 282" fill="none" stroke="#0e3d66" stroke-width="7" stroke-linecap="round" />
-              <path class="hv-path-trail" d="M 85 282 Q 220 305 355 282 T 475 282" fill="none" stroke="url(#hv-pin-grad)" stroke-width="3.5" stroke-linecap="round" pathLength="100" />
-
-              <!-- STAGE 1: Pixon PC Origin Hub (Left) -->
-              <g class="hv-origin-hub">
-                <!-- Single Clean Pulse Ring at start -->
-                <circle class="hv-pulse-ring" cx="80" cy="250" r="22" fill="none" stroke="#38bdf8" stroke-width="2" />
-                <!-- Ground Base Shadow -->
-                <ellipse cx="80" cy="282" rx="34" ry="9" fill="#041221" />
-                <ellipse cx="80" cy="280" rx="24" ry="6" fill="#0d426d" />
-                <!-- Pixon Landmark Pin -->
-                <g class="hv-pin-marker" filter="url(#hv-shadow)">
-                  <path d="M 80 200 C 64 200 51 213 51 229 C 51 251 80 274 80 274 C 80 274 109 251 109 229 C 109 213 96 200 80 200 Z" fill="url(#hv-pin-grad)" />
-                  <circle cx="80" cy="227" r="11" fill="#ffffff" />
-                  <!-- Pixon Tech Emblem -->
-                  <path d="M 75 224 L 85 224 M 80 219 L 80 229 M 76 233 L 84 233" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" />
-                </g>
-              </g>
-
-              <!-- STAGE 2: Customer Home Architecture (Right) -->
-              <g class="hv-destination-home" filter="url(#hv-shadow)">
-                <!-- Architectural House Contour -->
-                <path d="M 370 95 L 505 35 L 610 82 V 282 H 370 Z" fill="url(#hv-house-grad)" stroke="#1d5485" stroke-width="1.5" />
-                <path d="M 360 98 L 505 32 L 620 85" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                
-                <!-- Modern Interior Window -->
-                <rect x="415" y="75" width="65" height="42" rx="4" fill="#0c2e4f" stroke="#1d5485" stroke-width="1" />
-                <line x1="447" y1="75" x2="447" y2="117" stroke="#1d5485" stroke-width="1" />
-                <line x1="415" y1="96" x2="480" y2="96" stroke="#1d5485" stroke-width="1" />
-
-                <!-- Entrance Door with Arrival Glow -->
-                <g class="hv-door-entrance">
-                  <rect x="376" y="210" width="22" height="72" rx="2" fill="#08233f" stroke="#22d3ee" stroke-width="1.2" />
-                  <rect class="hv-door-light" x="378" y="212" width="18" height="68" rx="1" fill="#38bdf8" opacity="0" filter="url(#hv-door-glow)" />
-                </g>
-
-                <!-- Modern Workstation Desk -->
-                <rect x="400" y="232" width="200" height="9" rx="3" fill="#1b4d79" stroke="#38bdf8" stroke-width="1" />
-                <rect x="410" y="241" width="6" height="41" rx="2" fill="#0c2c4a" />
-                <rect x="585" y="241" width="6" height="41" rx="2" fill="#0c2c4a" />
-              </g>
-
-              <!-- STAGE 3: Workstation Equipment (PC Tower + Laptop) with Focus Zoom -->
-              <g class="hv-workstation" filter="url(#hv-shadow)">
-                <!-- Modern PC Gamer Tower -->
-                <g class="hv-pc-tower">
-                  <!-- Chassis -->
-                  <rect x="515" y="130" width="82" height="102" rx="8" fill="url(#hv-pc-grad)" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.85" />
-                  <!-- Tempered Glass Panel -->
-                  <rect x="523" y="140" width="66" height="82" rx="4" fill="#05192c" stroke="#174b77" stroke-width="1" />
-                  <!-- Motherboard & Heatsink Thermal block -->
-                  <rect class="hv-heatsink-block" x="528" y="146" width="30" height="30" rx="3" fill="#0c3254" stroke="#f59e0b" stroke-width="1" />
-                  
-                  <!-- CPU Cooler Fan with spinning blades -->
-                  <circle class="hv-fan-ring" cx="543" cy="161" r="10" fill="#061c30" stroke="#38bdf8" stroke-width="1.5" />
-                  <g class="hv-fan-blades hv-fan-blades--cpu">
-                    <line x1="543" y1="153" x2="543" y2="169" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" />
-                    <line x1="535" y1="161" x2="551" y2="161" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" />
-                  </g>
-
-                  <!-- GPU Bracket -->
-                  <rect x="528" y="188" width="56" height="14" rx="3" fill="#0f3d66" stroke="#38bdf8" stroke-width="1" />
-                  
-                  <!-- Front Dual RGB Cooling Fans -->
-                  <circle class="hv-fan-ring" cx="578" cy="158" r="9" fill="#07223b" stroke="#38bdf8" stroke-width="1.2" />
-                  <circle class="hv-fan-ring" cx="578" cy="192" r="9" fill="#07223b" stroke="#38bdf8" stroke-width="1.2" />
-                  <g class="hv-fan-blades hv-fan-blades--front1">
-                    <line x1="578" y1="151" x2="578" y2="165" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
-                    <line x1="571" y1="158" x2="585" y2="158" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
-                  </g>
-                  <g class="hv-fan-blades hv-fan-blades--front2">
-                    <line x1="578" y1="185" x2="578" y2="199" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
-                    <line x1="571" y1="192" x2="585" y2="192" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" />
-                  </g>
-
-                  <!-- Power LED -->
-                  <circle class="hv-pc-power-led" cx="585" cy="136" r="2" fill="#38bdf8" />
-                </g>
-
-                <!-- Laptop Setup -->
-                <g class="hv-laptop">
-                  <!-- Base / Keyboard -->
-                  <path d="M 405 232 L 485 232 L 480 224 L 410 224 Z" fill="#0d3558" stroke="#1d588a" stroke-width="1" />
-                  <!-- Screen Lid -->
-                  <rect x="412" y="162" width="68" height="62" rx="4" fill="#07233d" stroke="#22d3ee" stroke-width="1.3" />
-                  <!-- Screen Display Area -->
-                  <rect class="hv-laptop-screen" x="417" y="167" width="58" height="47" rx="2" fill="url(#hv-screen-grad)" />
-                  <!-- Diagnostic Waveform on Screen -->
-                  <path class="hv-screen-waveform" d="M 420 190 L 428 190 L 433 180 L 439 198 L 444 186 L 450 190 L 472 190" fill="none" stroke="#0369a1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                </g>
-
-                <!-- Cleaning Light Sheen Sweep across PC & Laptop -->
-                <rect class="hv-sheen-sweep" x="390" y="125" width="220" height="115" rx="6" fill="url(#hv-sheen-grad)" opacity="0" />
-              </g>
-
-              <!-- STAGE 4: PROMINENT ENLARGED TECHNICIAN (~125px tall, geometric tech style) -->
-              <g class="hv-technician-actor">
-                <!-- Ground Shadow following tech -->
-                <ellipse class="hv-tech-shadow" cx="0" cy="0" rx="34" ry="7" fill="#010d18" opacity="0.7" />
-                
-                <!-- Bobbing Body Container -->
-                <g class="hv-tech-body">
-                  <!-- Left Arm (moves opposite to left leg) -->
-                  <g class="hv-arm hv-arm--left">
-                    <line x1="-13" y1="-68" x2="-23" y2="-44" stroke="#0369a1" stroke-width="7" stroke-linecap="round" />
-                  </g>
-
-                  <!-- Left Leg (Scissor Walk) -->
-                  <g class="hv-leg hv-leg--left">
-                    <line x1="-9" y1="-32" x2="-13" y2="-6" stroke="#082f49" stroke-width="8" stroke-linecap="round" />
-                    <path d="M -18 -6 L -3 -6" stroke="#0284c7" stroke-width="5" stroke-linecap="round" />
-                  </g>
-
-                  <!-- Right Leg (Scissor Walk) -->
-                  <g class="hv-leg hv-leg--right">
-                    <line x1="9" y1="-32" x2="13" y2="-6" stroke="#0c4a6e" stroke-width="8" stroke-linecap="round" />
-                    <path d="M 9 -6 L 24 -6" stroke="#38bdf8" stroke-width="5" stroke-linecap="round" />
-                  </g>
-
-                  <!-- Torso / Tech Uniform Shirt & Vest -->
-                  <path d="M -16 -70 C -16 -75 -6 -78 0 -78 C 6 -78 16 -75 16 -70 L 14 -32 L -14 -32 Z" fill="#0284c7" stroke="#0369a1" stroke-width="1.5" />
-                  <!-- Tech Vest Detail & Belt -->
-                  <path d="M -9 -70 L 0 -50 L 9 -70" fill="none" stroke="#38bdf8" stroke-width="2.4" />
-                  <rect x="-14" y="-34" width="28" height="5" rx="1.5" fill="#0c3254" />
-
-                  <!-- Head with Cap Visor -->
-                  <circle cx="0" cy="-92" r="16" fill="#fed7aa" />
-                  <path d="M -14 -97 C -14 -107 10 -107 15 -97 L 22 -92 L 14 -90 Z" fill="#0369a1" />
-
-                  <!-- Right Arm holding Toolkit Briefcase -->
-                  <g class="hv-arm hv-arm--right">
-                    <line x1="13" y1="-68" x2="23" y2="-46" stroke="#0284c7" stroke-width="7" stroke-linecap="round" />
-                    
-                    <!-- Technician Toolkit Briefcase -->
-                    <g class="hv-tech-kit" transform="translate(18, -48)">
-                      <rect x="0" y="0" width="30" height="21" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="1.8" />
-                      <path d="M 8 0 V -6 C 8 -8 11 -10 15 -10 C 19 -10 22 -8 22 -6 V 0" fill="none" stroke="#b45309" stroke-width="2.5" />
-                      <line x1="0" y1="10" x2="30" y2="10" stroke="#b45309" stroke-width="1.4" />
-                      <rect x="12" y="8" width="6" height="5" rx="1" fill="#fef08a" />
-                    </g>
-                  </g>
-                </g>
-              </g>
-
-              <!-- STAGE 5: Cleaning Particles & Airflow Streams -->
-              <g class="hv-cleaning-effects">
-                <!-- 12 Fine Dust Particles blowing away -->
-                <g class="hv-dust-particles" fill="#f59e0b">
-                  <circle class="hv-dust-fleck" cx="548" cy="165" r="2.5" />
-                  <circle class="hv-dust-fleck" cx="562" cy="178" r="2" />
-                  <circle class="hv-dust-fleck" cx="540" cy="195" r="2.5" />
-                  <circle class="hv-dust-fleck" cx="528" cy="170" r="1.5" />
-                  <circle class="hv-dust-fleck" cx="572" cy="155" r="2" />
-                  <circle class="hv-dust-fleck" cx="582" cy="190" r="1.8" />
-                  <circle class="hv-dust-fleck" cx="440" cy="205" r="2.2" />
-                  <circle class="hv-dust-fleck" cx="456" cy="216" r="1.8" />
-                  <circle class="hv-dust-fleck" cx="426" cy="198" r="1.5" />
-                  <circle class="hv-dust-fleck" cx="550" cy="182" r="2" />
-                  <circle class="hv-dust-fleck" cx="536" cy="155" r="1.8" />
-                  <circle class="hv-dust-fleck" cx="468" cy="208" r="2.2" />
-                </g>
-
-                <!-- High-Velocity Airflow Vector Streams -->
-                <g class="hv-airflow-streams">
-                  <path class="hv-air-stream hv-air-stream--1" d="M 485 165 C 515 145 545 150 600 155" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
-                  <path class="hv-air-stream hv-air-stream--2" d="M 485 190 C 520 180 550 180 605 185" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" />
-                  <path class="hv-air-stream hv-air-stream--3" d="M 485 215 C 515 210 545 205 600 210" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
-                  <path class="hv-air-stream hv-air-stream--4" d="M 395 205 C 425 195 450 195 480 205" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" />
-                </g>
-              </g>
-
-              <!-- STAGE 6: Ready State & Sparkles & Green Checkmark -->
-              <g class="hv-ready-state">
-                <!-- Sparkle Twinkles -->
-                <g class="hv-gleams">
-                  <path class="hv-gleam hv-gleam--1" d="M 515 130 Q 515 125 510 125 Q 515 125 515 120 Q 515 125 520 125 Q 515 125 515 130 Z" fill="#ffffff" filter="url(#hv-glow-cyan)" />
-                  <path class="hv-gleam hv-gleam--2" d="M 595 225 Q 595 220 590 220 Q 595 220 595 215 Q 595 220 600 220 Q 595 220 595 225 Z" fill="#ffffff" filter="url(#hv-glow-cyan)" />
-                </g>
-
-                <!-- Prominent Success Check Badge -->
-                <g class="hv-success-badge" filter="url(#hv-glow-green)">
-                  <circle cx="565" cy="100" r="20" fill="url(#hv-check-grad)" stroke="#ffffff" stroke-width="2.5" />
-                  <path d="M 555 100 L 562 107 L 576 93" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
-                </g>
-              </g>
-            </svg>
-          </figure>
+          <MaintenanceComputerAnimation variant="homevisit" />
 
           <!-- Unified Semantic Process Timeline (Vertical List from Top to Bottom) -->
           <ol class="service-process" aria-label="Proceso de atención y mantenimiento a domicilio">
@@ -467,8 +223,80 @@ const faqs = [
             </li>
           </ol>
         </div>
+
+        <div class="homevisit-hero__summary homevisit-hero__copy">
+          <p class="homevisit-hero__lead">
+            Vamos a tu casa, departamento, oficina o residencial para realizar mantenimiento preventivo de PC, laptop, equipos gamer y workstations cuando el procedimiento puede realizarse de forma segura en sitio. Atención mediante cita previa en Cancún y zonas de cobertura.
+          </p>
+          <p class="homevisit-hero__support">
+            Limpieza interna profunda, disipadores, ventiladores, temperaturas y pasta térmica según el equipo y la zona.
+          </p>
+        </div>
+
+        <div class="homevisit-hero__actions">
+          <a class="homevisit-btn homevisit-btn--primary" href="#solicitar-visita">
+            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Solicitar mantenimiento a domicilio
+          </a>
+          <a class="homevisit-btn homevisit-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="homevisit-hero">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar por WhatsApp
+          </a>
+        </div>
+
+        <div class="homevisit-hero__trust-wrap">
+          <ul class="homevisit-hero__trust" aria-label="Garantías del servicio">
+            <li><i class="fa-solid fa-check"></i> PC · Laptop · Gaming</li>
+            <li><i class="fa-solid fa-check"></i> Servicio a domicilio</li>
+            <li><i class="fa-solid fa-check"></i> Cita previa</li>
+            <li><i class="fa-solid fa-check"></i> Cancún</li>
+          </ul>
+          <p class="homevisit-hero__micro-zones">Puerto Cancún · Cumbres · Huayacán · Zona Hotelera y más</p>
+        </div>
       </div>
     </header>
+
+    <!-- ==================== 1B. CUÁNDO CONVIENE Y BENEFICIOS REALES ==================== -->
+    <section class="homevisit-section homevisit-section--soft" aria-labelledby="conviene-title">
+      <div class="container">
+        <div class="homevisit-heading homevisit-heading--center">
+          <p class="homevisit-kicker">¿Es Para Ti?</p>
+          <h2 id="conviene-title">¿Cuándo conviene el mantenimiento a domicilio y qué ganas con él?</h2>
+          <p>El servicio en sitio no sustituye al taller en todos los casos, pero resuelve bien situaciones concretas y trae ventajas reales frente a trasladar el equipo:</p>
+        </div>
+
+        <div class="homevisit-card-grid">
+          <article>
+            <i class="fa-solid fa-weight-hanging" aria-hidden="true"></i>
+            <h3>Equipo difícil de transportar</h3>
+            <p>Torres pesadas, PC gamer voluminosas o workstations que no fueron pensadas para cargarse hasta un taller.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-building-user" aria-hidden="true"></i>
+            <h3>Home office o negocio activo</h3>
+            <p>Cuando desconectar el equipo implica detener trabajo, videollamadas o la operación diaria.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-hotel" aria-hidden="true"></i>
+            <h3>Hotel o sin vehículo disponible</h3>
+            <p>Huéspedes, turistas o residentes sin una forma práctica de trasladar el equipo.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+            <h3>Quieres ver el procedimiento</h3>
+            <p>Clientes que prefieren observar el mantenimiento y resolver dudas directamente con el técnico.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-wind" aria-hidden="true"></i>
+            <h3>Se revisa en su entorno real</h3>
+            <p>El airflow y la ventilación se evalúan en la ubicación donde el equipo trabaja todos los días, no en un banco de pruebas ajeno.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-comments" aria-hidden="true"></i>
+            <h3>Explicas el síntoma directamente</h3>
+            <p>Describes el comportamiento del equipo en el momento y lugar donde ocurre, sin intermediarios ni traducir el problema por teléfono.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
     <!-- ==================== 2. TÉCNICO A DOMICILIO EN CANCÚN ==================== -->
     <section class="homevisit-section" aria-labelledby="tecnico-domicilio-title">
@@ -486,11 +314,31 @@ const faqs = [
             <i class="fa-solid fa-desktop" aria-hidden="true"></i>
             <h3>Servicio técnico de PC a domicilio en Cancún</h3>
             <p>Atención directa para computadoras de escritorio, ensambles a medida, equipos de trabajo y torres gamer con herramientas especializadas en sitio.</p>
+            <div class="homevisit-sublevels">
+              <div>
+                <h4>Diagnóstico y pruebas térmicas en sitio</h4>
+                <p>Verificamos temperaturas operativas, estado de la pasta térmica y estabilidad de voltajes en tu espacio de trabajo.</p>
+              </div>
+              <div>
+                <h4>Herramientas profesionales para ensambles</h4>
+                <p>Llevamos aire regulado, brochas antiestáticas, pasta de alto rendimiento y kit de desarmado seguro para torres.</p>
+              </div>
+            </div>
           </article>
           <article>
             <i class="fa-solid fa-laptop" aria-hidden="true"></i>
             <h3>Servicio técnico de laptop a domicilio en Cancún</h3>
             <p>Mantenimiento preventivo, limpieza térmica y optimización de flujo de aire para laptops corporativas, de estudio y portátiles de alto rendimiento.</p>
+            <div class="homevisit-sublevels">
+              <div>
+                <h4>Desensamble limpio sin maltratar el chasis</h4>
+                <p>Apertura cuidadosa de tapas y bisagras con espátulas antiestáticas y protección de componentes internos.</p>
+              </div>
+              <div>
+                <h4>Despeje de turbinas blower y disipación</h4>
+                <p>Eliminación de obstrucciones por pelusa y salitre para restaurar la ventilación sin ruidos forzados.</p>
+              </div>
+            </div>
           </article>
           <article>
             <i class="fa-solid fa-building-user" aria-hidden="true"></i>
@@ -568,30 +416,72 @@ const faqs = [
           <article>
             <h3>Limpieza de PC de escritorio</h3>
             <p>Despeje de ventiladores frontales, traseros y superiores, filtros antipolvo, fuente de poder y componentes internos de la torre.</p>
+            <div class="homevisit-sublevels">
+              <div>
+                <h4>Gabinete y filtros de aire</h4>
+                <p>Despeje de mallas magnéticas, paneles de ventilación y bahías donde se acumula polvo y pelusa.</p>
+              </div>
+              <div>
+                <h4>Fuente de poder y conexiones</h4>
+                <p>Limpieza profunda del ventilador de la fuente y verificación de cables sin obstruir el flujo de aire.</p>
+              </div>
+              <div>
+                <h4>Ranuras y periféricos</h4>
+                <p>Soplado de puertos USB, salidas de video y ranuras PCIe libres de humedad y salitre.</p>
+              </div>
+            </div>
           </article>
           <article>
             <h3>Limpieza de laptop</h3>
             <p>Apertura cuidadosa de tapa inferior, limpieza de turbinas blower, ductos de cobre y rejillas de escape sin forzar seguros plásticos.</p>
+            <div class="homevisit-sublevels">
+              <div>
+                <h4>Apertura y carcasas</h4>
+                <p>Desensamble metódico cuidando seguros plásticos, anclajes de tornillos y flexores delicados.</p>
+              </div>
+              <div>
+                <h4>Turbinas blower y ductos</h4>
+                <p>Extracción de pelusa compactada entre las microaspas de ventilación y difusores de cobre.</p>
+              </div>
+              <div>
+                <h4>Teclado y tomas de aire</h4>
+                <p>Despeje de orificios de entrada de aire bajo el chasis para restituir el flujo de succión natural.</p>
+              </div>
+            </div>
           </article>
           <article>
             <h3>Limpieza de PC gamer</h3>
             <p>Atención minuciosa a disipadores de tarjeta gráfica, radiadores de refrigeración líquida y sincronización de ventiladores ARGB.</p>
+            <div class="homevisit-sublevels">
+              <div>
+                <h4>Tarjeta gráfica (GPU)</h4>
+                <p>Limpieza detallada de ventiladores y bloques de aletas de aluminio en tarjetas de alto consumo.</p>
+              </div>
+              <div>
+                <h4>Radiadores y AIO</h4>
+                <p>Despeje de polvo atrapado entre aletas densas en radiadores de 120mm a 360mm.</p>
+              </div>
+              <div>
+                <h4>Presión interna y airflow</h4>
+                <p>Optimización del flujo de entrada y salida para disipar el calor en sesiones de juego intensas.</p>
+              </div>
+            </div>
           </article>
           <article>
             <h3>Limpieza de laptop gamer</h3>
             <p>Mantenimiento a sistemas de doble y triple turbina, cámaras de vapor y disipadores densos que acumulan pelusa en jornadas largas.</p>
             <div class="homevisit-sublevels">
               <div>
-                <h4>Ventiladores y disipadores</h4>
-                <p>Limpieza profunda de aspas y aletas metálicas para máxima extracción.</p>
+                <h4>Sistemas multi-turbina</h4>
+                <p>Limpieza a fondo de turbinas dobles o triples que operan a altas RPM bajo carga térmica continua.</p>
               </div>
               <div>
-                <h4>Filtros y entradas de aire</h4>
-                <p>Lavado o soplado en seco de mallas y tomas de aire inferiores.</p>
+                <h4>Cámaras de vapor y disipadores</h4>
+                <p>Despeje de rejillas de escape traseras y laterales para evitar caídas de cuadros por thermal throttling.</p>
               </div>
               <div>
-                <h4>Radiadores y AIO cuando aplica</h4>
-                <p>Despeje de polvo atrapado entre aletas de radiadores de 120mm a 360mm.</p>
+                <h4>Filtros y tomas inferiores</h4>
+                <p>Remoción de suciedad adherida por humedad en las ranuras de succión de aire del chasis.</p>
               </div>
             </div>
           </article>
@@ -619,7 +509,7 @@ const faqs = [
           </article>
           <article>
             <h3>PC gamer</h3>
-            <p>Mantenimiento enfocado en disipación para sesiones intensas de juego, preservando temperaturas óptimas en procesador y tarjeta de video.</p>
+            <p>Mantenimiento enfocado en disipación para sesiones intensas de juego, buscando estabilizar la temperatura de procesador y tarjeta de video.</p>
           </article>
           <article>
             <h3>Workstation y equipos de alto rendimiento</h3>
@@ -677,23 +567,23 @@ const faqs = [
         <div class="homevisit-signal-grid">
           <article>
             <h3>Ventiladores trabajando al máximo</h3>
-            <p>Si los ventiladores suenan como turbina de avión incluso sin abrir programas pesados, el sistema no logra disipar el calor residual.</p>
+            <p>Si los ventiladores operan a altas RPM incluso sin tareas pesadas, el sistema no logra evacuar el calor residual acumulado en los disipadores.</p>
           </article>
           <article>
-            <h3>Thermal throttling</h3>
-            <p>El procesador baja automáticamente su velocidad de reloj para no quemarse, provocando tirones, congelamientos y lentitud extrema.</p>
+            <h3>Thermal throttling y tirones</h3>
+            <p>El procesador o la tarjeta gráfica reducen de forma automática su frecuencia de reloj para no sobrecalentarse, provocando congelamientos y pérdida de fluidez.</p>
           </article>
           <article>
-            <h3>Apagados por temperatura</h3>
-            <p>El equipo se corta de golpe como medida de protección térmica al superar los 95°C–100°C en CPU o GPU.</p>
+            <h3>Apagados por protección térmica</h3>
+            <p>El equipo se corta súbitamente como mecanismo de salvaguarda cuando los sensores superan el límite de temperatura especificado por el fabricante de la CPU o GPU.</p>
           </article>
           <article>
-            <h3>Caídas de FPS en PC gamer o laptop gamer</h3>
-            <p>Juegos que inician fluidos y tras 15 minutos sufren caídas drásticas de cuadros por saturación térmica en disipadores.</p>
+            <h3>Inestabilidad de FPS por calor</h3>
+            <p>Juegos que inician estables y tras varios minutos sufren caídas drásticas de fotogramas (stuttering térmico) debido a disipadores saturados de polvo.</p>
           </article>
           <article class="homevisit-signal-grid__wide">
             <h3>Computadora lenta: no siempre es falta de limpieza</h3>
-            <p>Si las temperaturas son normales pero el sistema responde lento, el origen puede ser disco duro dañado, falta de memoria RAM, malware o fallas de Windows. Te explicamos el diagnóstico real sin vender servicios innecesarios.</p>
+            <p>Si las temperaturas se mantienen dentro de los rangos correctos pero el sistema responde con lentitud, la causa puede residir en un SSD degradado, falta de RAM, malware o archivos corruptos de Windows. Te explicamos el diagnóstico real sin cobrar intervenciones innecesarias.</p>
           </article>
         </div>
       </div>
@@ -740,10 +630,19 @@ const faqs = [
           <p class="homevisit-kicker">Presupuesto Claro</p>
           <h2 id="price-title">¿Cuánto cuesta el mantenimiento de PC o laptop a domicilio en Cancún?</h2>
           <p>
-            No manejamos tarifas inventadas ni costos ocultos. El costo final se determina con base en el tipo de equipo, la complejidad del desarmado y la zona de Cancún para darte una cotización transparente antes de acudir.
+            El mantenimiento preventivo a domicilio cuenta con un precio de referencia base desde $1,000 MXN. Este valor sirve como punto de partida y de referencia técnica; el costo definitivo no es idéntico para cualquier computadora, ya que se determina según la distancia, zona o privada residencial de Cancún, la gama y valor del equipo, la complejidad de desarmado, el riesgo y los materiales requeridos.
           </p>
+          <div class="homevisit-price-scope-box">
+            <h4>¿Por qué un equipo de alta gama o workstation requiere una cotización diferenciada?</h4>
+            <p>
+              Un equipo gamer o estación de trabajo cuenta con mayor cantidad de ventiladores, tarjetas gráficas dedicadas de gran volumen, disipadores densos o radiadores AIO, componentes térmicos adicionales (como thermal pads milimétricos en VRM y VRAM) y mayor riesgo de manipulación. Esto exige mayor tiempo de intervención, pruebas térmicas bajo carga y estricta documentación inicial y final.
+            </p>
+            <p>
+              <strong>Laptop vs. PC de escritorio:</strong> No asumimos que una laptop siempre sea más económica de intervenir. Una laptop gamer ultrafina con cámara de vapor, múltiples turbinas blower o placa invertida puede exigir un procedimiento mucho más complejo y delicado que una torre modular estándar de escritorio.
+            </p>
+          </div>
           <a class="homevisit-text-cta" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            Consultar costo exacto por WhatsApp <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+            Consultar cotización para mi equipo por WhatsApp <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
           </a>
         </div>
 
@@ -751,29 +650,29 @@ const faqs = [
           <article>
             <span>01</span>
             <div>
-              <h3>Precio según tipo de equipo</h3>
-              <p>Una PC de oficina estándar, una laptop ultrafina o una torre gamer con refrigeración líquida tienen requerimientos de tiempo y herramientas distintos.</p>
+              <h3>Tipo y gama del equipo</h3>
+              <p>PC de escritorio estándar, laptop de home office, ensamble gamer con AIO o workstation para modelado 3D, arquitectura y edición de video 4K.</p>
             </div>
           </article>
           <article>
             <span>02</span>
             <div>
-              <h3>Precio según dificultad de desarmado</h3>
-              <p>Equipos con accesos modulares rápidos frente a laptops que requieren retirar tarjeta madre completa para acceder al disipador.</p>
+              <h3>Dificultad de desarmado</h3>
+              <p>Chasis modulares de acceso rápido frente a portátiles o gabinetes compactos ITX que requieren desmontar tarjeta madre para acceder al disipador.</p>
             </div>
           </article>
           <article>
             <span>03</span>
             <div>
-              <h3>Material térmico requerido</h3>
-              <p>Uso de pastas térmicas de grado estándar vs compuestos de alta conductividad para procesadores de alto consumo energético.</p>
+              <h3>Materiales térmicos requeridos</h3>
+              <p>Compuestos térmicos de alta densidad conductiva para CPU/GPU, thermal pads con espesor milimétrico exacto o metal líquido de fábrica si aplica.</p>
             </div>
           </article>
           <article>
             <span>04</span>
             <div>
-              <h3>Cargo de visita según zona</h3>
-              <p>El traslado se informa previamente según la ubicación (ej. Cancún Centro, Huayacán, Zona Hotelera, Costa Mujeres o Playa Mujeres).</p>
+              <h3>Distancia y zona residencial</h3>
+              <p>Ubicación de la visita (ej. Cancún Centro, Huayacán, Cumbres, Puerto Cancún, Isla Dorada, Lagos del Sol, Costa Mujeres o Playa Mujeres).</p>
             </div>
           </article>
         </div>
@@ -840,6 +739,40 @@ const faqs = [
       </div>
     </section>
 
+    <!-- ==================== 10B. CÓMO PREPARAR TU EQUIPO ==================== -->
+    <section class="homevisit-section" aria-labelledby="preparar-title">
+      <div class="container">
+        <div class="homevisit-heading homevisit-heading--center">
+          <p class="homevisit-kicker">Antes de la Visita</p>
+          <h2 id="preparar-title">Cómo preparar tu PC o laptop para la visita de mantenimiento</h2>
+          <p>Unos minutos de preparación agilizan el trabajo del técnico en tu casa, oficina o hotel:</p>
+        </div>
+
+        <div class="homevisit-card-grid">
+          <article>
+            <i class="fa-solid fa-plug" aria-hidden="true"></i>
+            <h3>Espacio estable y contacto eléctrico</h3>
+            <p>Ubica una superficie firme cerca de una toma de corriente accesible para desarmar el equipo con seguridad.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-door-open" aria-hidden="true"></i>
+            <h3>Acceso al equipo</h3>
+            <p>Ten la PC o laptop disponible y desconectada de accesorios que no formen parte de la revisión.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+            <h3>Guarda el trabajo abierto</h3>
+            <p>Cierra o guarda documentos y programas antes de la visita por si el equipo requiere reiniciarse durante las pruebas.</p>
+          </article>
+          <article>
+            <i class="fa-solid fa-key" aria-hidden="true"></i>
+            <h3>Contraseña solo si se necesita</h3>
+            <p>Solo la solicitamos cuando una prueba de software específica realmente la requiere; nunca para la limpieza física.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <!-- ==================== 11. ¿DOMICILIO O TALLER? ==================== -->
     <section class="homevisit-section homevisit-section--soft" aria-labelledby="domicilio-o-taller-title">
       <div class="container homevisit-split">
@@ -870,7 +803,7 @@ const faqs = [
               </div>
               <div>
                 <h4>Daño por líquido</h4>
-                <p>Equipos mojados con agua salada o refresco que necesitan tina ultrasónica y desoxidación química.</p>
+                <p>Equipos mojados con agua salada o refresco que pueden requerir procedimientos de laboratorio, como limpieza ultrasónica y desoxidación química, según el nivel de contaminación y daño.</p>
               </div>
               <div>
                 <h4>GPU o procedimientos especializados</h4>
@@ -889,38 +822,40 @@ const faqs = [
       </div>
     </section>
 
-    <!-- ==================== 12. PC GAMER A DOMICILIO ==================== -->
+    <!-- ==================== 12. PC GAMER Y HARDWARE PREMIUM ==================== -->
     <section class="homevisit-section" aria-labelledby="gamer-pc-title">
       <div class="container homevisit-feature">
         <div class="homevisit-feature__visual">
-          <img src="/assets/images/pc-gamer-gama-alta.webp" alt="Mantenimiento de PC gamer a domicilio en Cancún" width="1200" height="800" loading="lazy" decoding="async" />
-          <span><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Cuidado especializado para rigs gamer</span>
+          <img src="/assets/images/pc-gamer-gama-alta.webp" alt="Mantenimiento de PC gamer y workstations a domicilio en Cancún" width="1200" height="800" loading="lazy" decoding="async" />
+          <span><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Cuidado especializado para rigs gamer y workstations</span>
         </div>
         <div class="homevisit-heading">
           <p class="homevisit-kicker">Gaming y Alto Rendimiento</p>
-          <h2 id="gamer-pc-title">Mantenimiento de PC gamer a domicilio en Cancún</h2>
-          <p>Un rig gamer acumula polvo con rapidez debido al alto caudal de aire de sus ventiladores. Cuidamos cada componente de tu ensamble:</p>
+          <h2 id="gamer-pc-title">Mantenimiento para PC gamer, workstations y equipos de alto rendimiento a domicilio</h2>
+          <p>
+            Un ensamble gamer o estación de trabajo de alta gama exige mayor cuidado, herramientas antiestáticas y más tiempo de intervención. Atenderlo en tu espacio elimina el riesgo de trasladar gabinetes pesados con paneles de cristal templado, desarmar cableados multimonitor y exponer tarjetas gráficas pesadas a vibraciones de transporte.
+          </p>
 
           <div class="homevisit-gamer-points">
             <div>
-              <h3>CPU y GPU</h3>
-              <p>Limpieza de disipadores principales y renovación térmica para evitar caídas de frecuencia en juegos pesados.</p>
+              <h3>CPU Intel Core i7/i9 y Ryzen 7/9</h3>
+              <p>Desmontaje minucioso de disipadores de alto TDP y renovación de pasta térmica seca para recuperar frecuencias turbo sostenidas.</p>
             </div>
             <div>
-              <h3>Airflow y ventiladores</h3>
-              <p>Revisión de presión positiva/negativa y despeje de aspas para reducir turbulencias y ruido.</p>
+              <h3>Tarjetas gráficas dedicadas RTX y Radeon</h3>
+              <p>Limpieza de aspas, marcos y disipadores densos; inspección de thermal pads en fases VRM y memorias VRAM cuando corresponde.</p>
             </div>
             <div>
-              <h3>Radiador y AIO</h3>
-              <p>Desobstrucción de aletas en radiadores de enfriamiento líquido para que el líquido circule con temperatura controlada.</p>
+              <h3>Radiadores y refrigeración líquida AIO</h3>
+              <p>Desobstrucción profunda de aletas en radiadores de 120mm a 360mm para maximizar el flujo de aire y optimizar la transferencia de calor del refrigerante.</p>
             </div>
             <div>
-              <h3>Temperaturas y FPS</h3>
-              <p>Benchmarks de prueba para constatar que los fotogramas se mantengan estables sin caídas por calor.</p>
+              <h3>Workstations 3D, arquitectura e IA local</h3>
+              <p>Mantenimiento a estaciones de render, AutoCAD, Blender y edición 4K con múltiples unidades NVMe y ventilación continua.</p>
             </div>
           </div>
           <a class="homevisit-text-cta" href="/ensambles">
-            Ver servicios y optimizaciones para PC Gamer <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            Ver servicios y configuraciones para PC Gamer <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </a>
         </div>
       </div>
@@ -960,8 +895,51 @@ const faqs = [
       </div>
     </section>
 
-    <!-- ==================== 14. MANTENIMIENTO PARA HOME OFFICE ==================== -->
-    <section class="homevisit-section" aria-labelledby="home-office-title">
+    <!-- ==================== 14. GARANTÍA Y RESPONSABILIDAD TÉCNICA ==================== -->
+    <section class="homevisit-section" aria-labelledby="garantia-title">
+      <div class="container homevisit-split">
+        <div class="homevisit-heading">
+          <p class="homevisit-kicker">Compromiso y Claridad</p>
+          <h2 id="garantia-title">Garantía y protocolo de responsabilidad técnica en mantenimiento</h2>
+          <p>
+            <strong>Principio central:</strong> Si tu equipo llegó funcionando, no debe ser entregado en peor condición funcional por una intervención directamente atribuible a Pixon PC.
+          </p>
+          <p>
+            Documentamos el funcionamiento del equipo antes del servicio. Si el equipo se recibe funcionando y durante el mantenimiento Pixon PC provoca directamente un daño atribuible a la intervención técnica, nos responsabilizamos de corregir ese daño para devolver el equipo a su condición funcional previa o mejor.
+          </p>
+          <div class="homevisit-guarantee-note">
+            <h4>Alcance técnico honesto (sin promesas universales falsas)</h4>
+            <p>
+              Esta responsabilidad ampara de forma directa el procedimiento técnico realizado durante la visita. No constituye una garantía universal sobre piezas ajenas ni cubre fallas preexistentes, defectos intermitentes previos, desgaste natural de componentes, baterías degradadas, sectores dañados en discos SSD/HDD anteriores a la visita, daños por caídas posteriores, derrame de líquidos posterior, sobretensiones eléctricas ni alteraciones efectuadas por terceros o el usuario tras el servicio.
+            </p>
+          </div>
+        </div>
+
+        <div class="homevisit-compare" aria-label="Protocolo de validación técnica">
+          <article>
+            <h3><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Documentación previa a la intervención</h3>
+            <ul>
+              <li>Comprobación de encendido y señal de video</li>
+              <li>Revisión del estado físico visible, bisagras y tornillería</li>
+              <li>Lectura inicial de temperaturas operativas y ventiladores</li>
+              <li>Registro de síntomas reportados por el usuario</li>
+            </ul>
+          </article>
+          <article>
+            <h3><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Validación posterior a la entrega</h3>
+            <ul>
+              <li>Comprobación de arranque correcto del sistema operativo</li>
+              <li>Verificación de sensores térmicos en reposo y carga controlada</li>
+              <li>Inspección acústica de ventiladores y flujo de aire restaurado</li>
+              <li>Recomendaciones de uso y cuidados según el entorno de Cancún</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 15. MANTENIMIENTO PARA HOME OFFICE ==================== -->
+    <section class="homevisit-section homevisit-section--soft" aria-labelledby="home-office-title">
       <div class="container homevisit-split">
         <div class="homevisit-heading">
           <p class="homevisit-kicker">Productividad y Trabajo Remoto</p>
@@ -1000,191 +978,163 @@ const faqs = [
       </div>
     </section>
 
-    <!-- ==================== 15. SECCIÓN LOCAL PRINCIPAL: ZONAS ==================== -->
-    <section class="homevisit-section homevisit-section--soft" aria-labelledby="coverage-title">
+    <!-- ==================== 16. SECCIÓN RESIDENCIAL PREMIUM ==================== -->
+    <section class="homevisit-section" aria-labelledby="residenciales-title">
       <div class="container">
         <div class="homevisit-heading homevisit-heading--center">
-          <p class="homevisit-kicker">Áreas de Cobertura</p>
-          <h2 id="coverage-title">Mantenimiento de PC y laptop a domicilio en Cancún y zonas de cobertura</h2>
+          <p class="homevisit-kicker">Cobertura Residencial en Cancún</p>
+          <h2 id="residenciales-title">Mantenimiento de PC y laptop en residenciales de Cancún</h2>
           <p>
-            Atendemos solicitudes mediante cita previa en Cancún y zonas de cobertura. Primero confirmamos el tipo de equipo, la zona y la viabilidad del trabajo en sitio; después coordinamos la dirección y horario.
+            Servicio a domicilio mediante cita previa para casas, residencias, departamentos y condominios privados. Atendemos equipos familiares, home office, PC gamer y estaciones de trabajo difíciles de mover. Para privadas y desarrollos con acceso controlado, coordinamos previamente la visita y los datos que requiera el acceso del residencial.
           </p>
         </div>
 
-        <div class="homevisit-zones-grid">
-          <article class="homevisit-zone-card">
-            <div class="homevisit-zone-card__icon"><i class="fa-solid fa-city" aria-hidden="true"></i></div>
-            <div>
-              <h3>Cancún Centro y zona urbana</h3>
-              <p>Atención directa en Cancún Centro, Av. Tulum, Bonampak, Supermanzanas (SM 1 a SM 50), Haciendas y Polígono Sur mediante cita previa programada.</p>
-            </div>
+        <div class="homevisit-residential-grid">
+          <!-- TIER A: MÁXIMA PRIORIDAD -->
+          <article class="homevisit-residential-card homevisit-residential-card--tier-a">
+            <span class="homevisit-badge-tier">Tier A · Privadas</span>
+            <h3>Puerto Cancún</h3>
+            <p>Servicio mediante cita previa para PC, laptop, PC gamer y workstations en departamentos, condominios y oficinas de Puerto Cancún (como Novo Cancún, Shark Tower y SLS Residences). Coordinamos con antelación el registro en caseta.</p>
           </article>
 
-          <article class="homevisit-zone-card">
-            <div class="homevisit-zone-card__icon"><i class="fa-solid fa-tree-city" aria-hidden="true"></i></div>
-            <div>
-              <h3>Huayacán, Cumbres y sur de Cancún</h3>
-              <p>Cobertura para corredores residenciales de Av. Huayacán, Residencial Cumbres, Aqua, Arbolada, Jardines del Sur, Santa Fe y Bonfil.</p>
-            </div>
+          <article class="homevisit-residential-card homevisit-residential-card--tier-a">
+            <span class="homevisit-badge-tier">Tier A · Zona Hotelera</span>
+            <h3>Isla Dorada</h3>
+            <p>Atención directa en residencias y condominios de Isla Dorada en Zona Hotelera. Coordinamos previamente la visita y los datos que requiera el acceso del residencial.</p>
           </article>
 
-          <article class="homevisit-zone-card">
-            <div class="homevisit-zone-card__icon"><i class="fa-solid fa-ship" aria-hidden="true"></i></div>
-            <div>
-              <h3>Puerto Cancún y Puerto Juárez</h3>
-              <p>Servicio para departamentos, oficinas y condominios en Puerto Cancún, Plaza Las Américas y zona costera de Puerto Juárez.</p>
-            </div>
+          <article class="homevisit-residential-card homevisit-residential-card--tier-a">
+            <span class="homevisit-badge-tier">Tier A · Residencial</span>
+            <h3>Lagos del Sol</h3>
+            <p>Mantenimiento a domicilio para PC, laptop gamer y estaciones de trabajo en Lagos del Sol (sectores como La Española, Flamingos y Jazmines). Programación con pase de acceso vehicular.</p>
           </article>
 
-          <article class="homevisit-zone-card">
-            <div class="homevisit-zone-card__icon"><i class="fa-solid fa-hotel" aria-hidden="true"></i></div>
-            <div>
-              <h3>Zona Hotelera de Cancún</h3>
-              <p>Atención para hoteles, resorts, departamentos y condominios a lo largo de Blvd. Kukulcán (km 0 al km 25) con coordinación previa.</p>
-            </div>
+          <article class="homevisit-residential-card homevisit-residential-card--tier-a">
+            <span class="homevisit-badge-tier">Tier A · Condominios</span>
+            <h3>Playa Mujeres y La Amada</h3>
+            <p>Servicio técnico para laptops, computadoras y home office en condominios, residencias y desarrollos de Playa Mujeres y La Amada bajo cita confirmada.</p>
           </article>
 
-          <article class="homevisit-zone-card">
-            <div class="homevisit-zone-card__icon"><i class="fa-solid fa-umbrella-beach" aria-hidden="true"></i></div>
-            <div>
-              <h3>Costa Mujeres y Playa Mujeres</h3>
-              <p>Cobertura especializada para complejos hoteleros, residenciales y turistas en Costa Mujeres y Playa Mujeres bajo agenda confirmada.</p>
-            </div>
+          <!-- TIER B: CUMBRES / HUAYACÁN -->
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Huayacán</span>
+            <h3>Residencial Cumbres</h3>
+            <p>Servicio directo en casa para PC de escritorio, laptops corporativas y ensambles gamer en Residencial Cumbres con acceso autorizado.</p>
           </article>
 
-          <article class="homevisit-zone-card">
-            <div class="homevisit-zone-card__icon"><i class="fa-solid fa-compass" aria-hidden="true"></i></div>
-            <div>
-              <h3>Punta Sam y zona norte de Cancún</h3>
-              <p>Servicio para residenciales y negocios en la zona de Punta Sam y el corredor costero norte de Cancún.</p>
-            </div>
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Huayacán</span>
+            <h3>Vía Cumbres</h3>
+            <p>Atención técnica en sitio para torres gaming y laptops de trabajo en el desarrollo residencial Vía Cumbres.</p>
           </article>
+
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Huayacán</span>
+            <h3>Aqua Residencial</h3>
+            <p>Limpieza interna, optimización de ventilación y sustitución térmica para equipos en Aqua Residencial previa cita.</p>
+          </article>
+
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Huayacán</span>
+            <h3>Arbolada Residencial</h3>
+            <p>Mantenimiento preventivo y control de temperaturas para computadoras familiares y de trabajo en Residencial Arbolada.</p>
+          </article>
+
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Huayacán</span>
+            <h3>Residencial Palmaris y Río</h3>
+            <p>Servicio técnico a domicilio para PC y laptop en Residencial Palmaris y Residencial Río con registro previo en vigilancia.</p>
+          </article>
+
+          <!-- TIER C -->
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Costera</span>
+            <h3>Zona Hotelera de Cancún</h3>
+            <p>Atención para hoteles, resorts, departamentos y condominios a lo largo de Blvd. Kukulcán (km 0 al km 25) con coordinación previa.</p>
+          </article>
+
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Urbana Sur</span>
+            <h3>Huayacán y Polígono Sur</h3>
+            <p>Cobertura para Jardines del Sur, Santa Fe, Cancún Centro, Av. Tulum, Bonampak y Supermanzanas mediante cita previa.</p>
+          </article>
+
+          <article class="homevisit-residential-card">
+            <span class="homevisit-badge-sub">Zona Norte</span>
+            <h3>Costa Mujeres y Punta Sam</h3>
+            <p>Servicio para residencias, hoteles y departamentos del corredor costero norte bajo validación previa de agenda.</p>
+          </article>
+        </div>
+
+        <div class="homevisit-access-box">
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          <div>
+            <h4>Protocolo de acceso a residenciales y privadas</h4>
+            <p>
+              Por seguridad de cada desarrollo privado, no afirmamos ingresar sin autorización previa. Para visitas en Isla Dorada, Lagos del Sol, Puerto Cancún, Cumbres, Aqua o Arbolada, solicitamos tus datos y confirmamos el pase de acceso en caseta antes de acudir.
+            </p>
+          </div>
+          <a class="homevisit-btn homevisit-btn--primary" href="#solicitar-visita">
+            Confirmar cobertura en mi residencial
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- ==================== 16. ZONA HOTELERA EN DETALLE ==================== -->
-    <section class="homevisit-section" aria-labelledby="zh-title">
+    <!-- ==================== 17. HOTELES Y TURISMO: ZONA HOTELERA, COSTA MUJERES, PLAYA MUJERES ==================== -->
+    <section class="homevisit-section homevisit-section--soft" aria-labelledby="hoteles-title">
       <div class="container">
         <div class="homevisit-heading">
-          <p class="homevisit-kicker">Corredor Turístico</p>
-          <h2 id="zh-title">Mantenimiento de PC y laptop a domicilio en Zona Hotelera de Cancún</h2>
-          <p>Servicio técnico para laptops y computadoras en resorts, condominios frente al mar y centros de trabajo en Blvd. Kukulcán:</p>
+          <p class="homevisit-kicker">Corredor Turístico y Zona Continental</p>
+          <h2 id="hoteles-title">Mantenimiento de PC y laptop para hoteles y turistas en Zona Hotelera, Costa Mujeres y Playa Mujeres</h2>
+          <p>Atendemos resorts, condominios y oficinas a lo largo de Blvd. Kukulcán (km 0 al km 25) y el litoral de Costa Mujeres y Playa Mujeres, siempre mediante cita previa y respetando las reglas de acceso de cada propiedad.</p>
         </div>
 
         <div class="homevisit-card-grid homevisit-card-grid--four">
           <article>
-            <i class="fa-solid fa-hotel" aria-hidden="true"></i>
-            <h3>Servicio técnico para huéspedes de hotel</h3>
-            <p>¿Tu laptop de trabajo o viaje se calentó o falló durante tus vacaciones? Coordinamos la revisión técnica ágil en tu hotel.</p>
-          </article>
-          <article>
-            <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
-            <h3>Laptop de trabajo durante vacaciones</h3>
-            <p>Soporte para nómadas digitales y ejecutivos que requieren su equipo 100% operativo sin desplazarse por la ciudad.</p>
+            <i class="fa-solid fa-plane-arrival" aria-hidden="true"></i>
+            <h3>Huéspedes y nómadas digitales</h3>
+            <p>¿Tu laptop de viaje o trabajo falló durante tus vacaciones? Atendemos ejecutivos y nómadas que necesitan seguir operando sin desplazarse por la ciudad.</p>
           </article>
           <article>
             <i class="fa-solid fa-building" aria-hidden="true"></i>
-            <h3>PC o laptop en condominio o departamento</h3>
-            <p>Visitas a condominios residenciales de Zona Hotelera para mantenimiento preventivo y optimización térmica.</p>
+            <h3>Condominios y oficinas</h3>
+            <p>Visitas a departamentos, oficinas administrativas y áreas de servicio en complejos hoteleros y residenciales de las tres zonas.</p>
           </article>
           <article>
             <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
-            <h3>Atención mediante cita previa en Zona Hotelera</h3>
-            <p>Coordinamos la logística de acceso y tiempo de visita de forma puntual.</p>
-            <div class="homevisit-sublevels">
-              <div>
-                <h4>Coordinación por WhatsApp</h4>
-                <p>Confirmamos equipo, síntoma y punto de encuentro con facilidad.</p>
-              </div>
-              <div>
-                <h4>Acceso sujeto a las reglas del hotel o propiedad</h4>
-                <p>Respetamos las políticas de seguridad y recepción de cada complejo.</p>
-              </div>
-              <div>
-                <h4>Recolección cuando el trabajo no puede realizarse en sitio</h4>
-                <p>Si el equipo requiere laboratorio, gestionamos el traslado seguro.</p>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== 17. COSTA MUJERES ==================== -->
-    <section class="homevisit-section homevisit-section--soft" aria-labelledby="cm-title">
-      <div class="container">
-        <div class="homevisit-heading">
-          <p class="homevisit-kicker">Zona Continental</p>
-          <h2 id="cm-title">Mantenimiento de PC y laptop en Costa Mujeres</h2>
-          <p>
-            Atendemos solicitudes en Costa Mujeres mediante cita previa y confirmación de disponibilidad. Para hoteles y resorts, coordinamos la recepción o servicio según las reglas de acceso de cada propiedad.
-          </p>
-        </div>
-
-        <div class="homevisit-card-grid homevisit-card-grid--four">
-          <article>
-            <i class="fa-solid fa-hotel" aria-hidden="true"></i>
-            <h3>Servicio técnico para hoteles en Costa Mujeres</h3>
-            <p>Atención para laptops corporativas y de huéspedes en resorts de lujo a lo largo del litoral de Costa Mujeres.</p>
-          </article>
-          <article>
-            <i class="fa-solid fa-laptop" aria-hidden="true"></i>
-            <h3>Mantenimiento de laptop en Costa Mujeres</h3>
-            <p>Limpieza de ventiladores, cambio de pasta térmica y revisión de temperaturas para portátiles expuestas al ambiente costero.</p>
-          </article>
-          <article>
-            <i class="fa-solid fa-desktop" aria-hidden="true"></i>
-            <h3>Mantenimiento de PC en Costa Mujeres</h3>
-            <p>Servicio preventivo para equipos de cómputo en oficinas administrativas, recepción y áreas de servicio hotelero.</p>
+            <h3>Coordinación de acceso por WhatsApp</h3>
+            <p>Confirmamos equipo, síntoma y punto de encuentro con anticipación, validando filtros de seguridad, casetas y políticas de recepción.</p>
           </article>
           <article>
             <i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i>
-            <h3>Recolección o atención en sitio según el equipo</h3>
-            <p>Evaluamos si el mantenimiento puede realizarse en tus instalaciones o si conviene recolección programada al taller.</p>
+            <h3>Cuándo se recomienda recolección</h3>
+            <p>Si el trabajo requiere laboratorio o instrumental especializado de microelectrónica, te lo explicamos y coordinamos el traslado seguro al taller.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- ==================== 18. PLAYA MUJERES ==================== -->
-    <section class="homevisit-section" aria-labelledby="pm-title">
-      <div class="container">
-        <div class="homevisit-heading">
-          <p class="homevisit-kicker">Complejo Exclusivo</p>
-          <h2 id="pm-title">Mantenimiento de computadora y laptop en Playa Mujeres</h2>
-          <p>Servicio técnico para residentes, turistas y negocios en Playa Mujeres bajo esquema de cita previa:</p>
+    <!-- ==================== 18. TRANSICIÓN A PÁGINA GENÉRICA ==================== -->
+    <section class="homevisit-section" aria-label="Mantenimiento en laboratorio">
+      <div class="container homevisit-trans-box">
+        <div class="homevisit-trans-box__content">
+          <p class="homevisit-kicker">Mantenimiento en Laboratorio</p>
+          <h3>¿Solo buscas información sobre mantenimiento preventivo de computadora?</h3>
+          <p>
+            Si prefieres trasladar tu equipo a nuestras instalaciones o requieres una intervención integral con instrumental de laboratorio (para fallas complejas, microelectrónica o mantenimiento general estándar), consulta nuestro servicio especializado en taller.
+          </p>
         </div>
-
-        <div class="homevisit-card-grid homevisit-card-grid--four">
-          <article>
-            <i class="fa-solid fa-hotel" aria-hidden="true"></i>
-            <h3>Servicio para hoteles y resorts</h3>
-            <p>Asistencia técnica programada para equipamiento informático en propiedades hoteleras y clubes de playa.</p>
-          </article>
-          <article>
-            <i class="fa-solid fa-plane-arrival" aria-hidden="true"></i>
-            <h3>Atención a laptop de turistas</h3>
-            <p>Solución rápida a problemas de sobrecalentamiento o apagados para visitantes que requieren su laptop durante la estancia.</p>
-          </article>
-          <article>
-            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
-            <h3>Servicio mediante cita previa</h3>
-            <p>Agendamiento previo por WhatsApp para coordinar el traslado y el tiempo de servicio con exactitud.</p>
-          </article>
-          <article>
-            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-            <h3>Confirmación de acceso y horario</h3>
-            <p>Validamos los filtros de seguridad y casetas de acceso con anticipación para un ingreso fluido.</p>
-          </article>
-        </div>
+        <a class="homevisit-btn homevisit-btn--primary" href="/mantenimiento-preventivo-computadora">
+          Ver mantenimiento preventivo de computadoras en Cancún <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
       </div>
     </section>
 
-    <!-- ==================== 19. FORMULARIO DE CITA PREVIA ==================== -->
+    <!-- ==================== 17. FORMULARIO DE CITA PREVIA ==================== -->
     <HomeVisitMaintenanceForm />
 
-    <!-- ==================== 20. PREGUNTAS FRECUENTES ==================== -->
+    <!-- ==================== 18. PREGUNTAS FRECUENTES ==================== -->
     <FaqSection
       title="Preguntas frecuentes sobre mantenimiento a domicilio en Cancún"
       description="Respuestas directas sobre visita técnica mediante cita previa, precios, cobertura en Zona Hotelera, Costa Mujeres, Playa Mujeres y protocolos."
@@ -1196,7 +1146,7 @@ const faqs = [
       backgroundColor="#ffffff"
     />
 
-    <!-- ==================== 21. TICKET FORM ==================== -->
+    <!-- ==================== 19. TICKET FORM ==================== -->
     <ServiceTicketSection
       id="homevisit-ticket"
       defaultService="mantenimiento de PC o laptop a domicilio"
@@ -1243,11 +1193,23 @@ const faqs = [
   }
   .homevisit-hero__grid {
     display: grid;
+    grid-template-areas:
+      "eyebrow media"
+      "title   media"
+      "summary media"
+      "actions media"
+      "trust   media";
     grid-template-columns: minmax(0, 1.18fr) minmax(300px, .82fr);
+    grid-template-rows: auto auto auto auto auto;
     align-items: center;
-    gap: clamp(28px, 5vw, 76px);
+    gap: 12px clamp(28px, 4vw, 56px);
   }
-  .homevisit-hero__copy { max-width: 690px; }
+  .homevisit-hero__eyebrow-wrap { grid-area: eyebrow; }
+  .homevisit-hero__title        { grid-area: title; margin: 0; }
+  .homevisit-hero__visual-container { grid-area: media; align-self: center; }
+  .homevisit-hero__summary      { grid-area: summary; max-width: 690px; }
+  .homevisit-hero__actions      { grid-area: actions; }
+  .homevisit-hero__trust-wrap   { grid-area: trust; }
   .homevisit-eyebrow {
     display: inline-flex;
     align-items: center;
@@ -1342,6 +1304,14 @@ const faqs = [
     font-weight: 800;
   }
   .homevisit-hero__trust i { color: #67d9e9; }
+  .homevisit-hero__micro-zones {
+    margin: 14px 0 0;
+    color: #a5eff7;
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
 
   /* Hero Visual & Narrative Animation */
   .homevisit-hero__visual-container {
@@ -1352,253 +1322,7 @@ const faqs = [
     max-width: 630px;
     margin: 0 auto;
   }
-  .homevisit-visual {
-    width: 100%;
-    margin: 0;
-  }
-  .homevisit-visual svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-    filter: drop-shadow(0 14px 28px rgba(3, 14, 26, 0.45));
-  }
-
-  /* SVG Animation Elements (13-second loop) */
-  .hv-pulse-ring {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: hv-pulse-fx 13s cubic-bezier(0.2, 0.8, 0.25, 1) infinite;
-  }
-  .hv-pin-marker {
-    transform-box: fill-box;
-    transform-origin: center bottom;
-    animation: hv-pin-fx 13s cubic-bezier(0.22, 0.8, 0.28, 1) infinite;
-  }
-  .hv-path-trail {
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    animation: hv-path-fx 13s ease-in-out infinite;
-  }
-
-  /* Prominent Technician Actor (2.2x scale) */
-  .hv-technician-actor {
-    animation: hv-tech-travel 13s cubic-bezier(0.35, 0.05, 0.2, 1) infinite;
-  }
-  .hv-tech-body {
-    animation: hv-tech-bob 0.48s ease-in-out infinite alternate;
-  }
-  .hv-leg--left {
-    transform-box: fill-box;
-    transform-origin: top center;
-    animation: hv-leg-left-cycle 0.48s ease-in-out infinite alternate;
-  }
-  .hv-leg--right {
-    transform-box: fill-box;
-    transform-origin: top center;
-    animation: hv-leg-right-cycle 0.48s ease-in-out infinite alternate;
-  }
-  .hv-arm--left {
-    transform-box: fill-box;
-    transform-origin: top center;
-    animation: hv-arm-left-cycle 0.48s ease-in-out infinite alternate;
-  }
-  .hv-arm--right {
-    transform-box: fill-box;
-    transform-origin: top center;
-    animation: hv-arm-right-cycle 0.48s ease-in-out infinite alternate;
-  }
-  .hv-tech-kit {
-    transform-box: fill-box;
-    transform-origin: top center;
-    animation: hv-kit-sway 0.48s ease-in-out infinite alternate;
-  }
-
-  /* House Door Entrance Glow */
-  .hv-door-light {
-    animation: hv-door-glow-fx 13s ease-in-out infinite;
-  }
-
-  /* Workstation Focus Zoom */
-  .hv-workstation {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: hv-workstation-focus 13s cubic-bezier(0.3, 0.05, 0.2, 1) infinite;
-  }
-  .hv-heatsink-block {
-    animation: hv-thermal-fx 13s ease-in-out infinite;
-  }
-  .hv-fan-blades {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: hv-fans-spin 13s linear infinite;
-  }
-  .hv-laptop-screen {
-    animation: hv-screen-pulse 13s ease-in-out infinite;
-  }
-
-  /* Cleaning Phase: Dust & Airflow */
-  .hv-dust-particles {
-    animation: hv-dust-dissipate 13s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
-  }
-  .hv-air-stream {
-    stroke-dasharray: 40 80;
-    stroke-dashoffset: 120;
-    animation: hv-airflow-fx 13s linear infinite;
-  }
-  .hv-air-stream--2 { animation-delay: 90ms; }
-  .hv-air-stream--3 { animation-delay: 180ms; }
-  .hv-air-stream--4 { animation-delay: 140ms; }
-
-  /* Sheen Sweep & Sparkles & Ready Check */
-  .hv-sheen-sweep {
-    animation: hv-sheen-fx 13s ease-in-out infinite;
-  }
-  .hv-gleam {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: hv-gleam-fx 13s ease-in-out infinite;
-  }
-  .hv-gleam--2 { animation-delay: 140ms; }
-  .hv-success-badge {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: hv-check-pop 13s cubic-bezier(0.18, 0.9, 0.32, 1.25) infinite;
-  }
-
-  /* ==================== KEYFRAME DEFINITIONS ==================== */
-  /* Stage 1: Pixon Pin & Pulse */
-  @keyframes hv-pulse-fx {
-    0%, 2% { opacity: 0; transform: scale(0.6); }
-    5% { opacity: 0.9; transform: scale(1.35); }
-    8%, 100% { opacity: 0; transform: scale(1.6); }
-  }
-
-  @keyframes hv-pin-fx {
-    0% { opacity: 0; transform: translateY(-8px) scale(0.9); }
-    6%, 35% { opacity: 1; transform: translateY(0) scale(1); }
-    40%, 100% { opacity: 0.75; transform: translateY(0) scale(0.95); }
-  }
-
-  /* Stage 2: Route Trail Draws (8% - 15%) */
-  @keyframes hv-path-fx {
-    0%, 7% { stroke-dashoffset: 100; opacity: 0; }
-    8% { opacity: 0.95; }
-    15%, 45% { stroke-dashoffset: 0; opacity: 0.85; }
-    50%, 94% { stroke-dashoffset: 0; opacity: 0.45; }
-    98%, 100% { stroke-dashoffset: -100; opacity: 0; }
-  }
-
-  /* Stage 3: Technician Walks (15% - 38%), Arrives (38% - 43%), Enters Home (43% - 48%) */
-  @keyframes hv-tech-travel {
-    0%, 14% { opacity: 0; transform: translate(75px, 280px); }
-    15% { opacity: 1; transform: translate(75px, 280px); }
-    38%, 43% { opacity: 1; transform: translate(360px, 280px); }
-    48% { opacity: 0; transform: translate(378px, 280px) scale(0.92); }
-    100% { opacity: 0; transform: translate(378px, 280px); }
-  }
-
-  @keyframes hv-tech-bob {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-3px); }
-  }
-
-  @keyframes hv-leg-left-cycle {
-    0% { transform: rotate(16deg); }
-    100% { transform: rotate(-16deg); }
-  }
-
-  @keyframes hv-leg-right-cycle {
-    0% { transform: rotate(-16deg); }
-    100% { transform: rotate(16deg); }
-  }
-
-  @keyframes hv-arm-left-cycle {
-    0% { transform: rotate(-14deg); }
-    100% { transform: rotate(14deg); }
-  }
-
-  @keyframes hv-arm-right-cycle {
-    0% { transform: rotate(14deg); }
-    100% { transform: rotate(-14deg); }
-  }
-
-  @keyframes hv-kit-sway {
-    0% { transform: rotate(-5deg); }
-    100% { transform: rotate(5deg); }
-  }
-
-  @keyframes hv-door-glow-fx {
-    0%, 37% { opacity: 0; }
-    40%, 46% { opacity: 0.95; }
-    50%, 100% { opacity: 0; }
-  }
-
-  /* Stage 4: Workstation Focus Zoom (48% - 94%) */
-  @keyframes hv-workstation-focus {
-    0%, 46% { transform: translate(0, 0) scale(1); }
-    52%, 92% { transform: translate(-18px, -4px) scale(1.08); }
-    97%, 100% { transform: translate(0, 0) scale(1); }
-  }
-
-  @keyframes hv-thermal-fx {
-    0%, 52% { stroke: #f59e0b; }
-    55%, 72% { stroke: #f59e0b; }
-    76%, 92% { stroke: #38bdf8; }
-    96%, 100% { stroke: #f59e0b; }
-  }
-
-  /* Stage 5: Fans Spin & Dust Clears (55% - 74%) */
-  @keyframes hv-fans-spin {
-    0%, 52% { transform: rotate(0deg); }
-    55% { transform: rotate(90deg); }
-    74% { transform: rotate(2160deg); }
-    88%, 94% { transform: rotate(2700deg); }
-    98%, 100% { transform: rotate(2880deg); }
-  }
-
-  @keyframes hv-screen-pulse {
-    0%, 44% { opacity: 0.4; }
-    50%, 92% { opacity: 1; }
-    96%, 100% { opacity: 0.4; }
-  }
-
-  @keyframes hv-dust-dissipate {
-    0%, 53% { opacity: 0.95; transform: translate(0, 0) scale(1); }
-    62% { opacity: 0.8; transform: translate(22px, -14px) scale(0.9); }
-    70% { opacity: 0.25; transform: translate(52px, -30px) scale(0.45); }
-    74%, 100% { opacity: 0; transform: translate(70px, -40px) scale(0); }
-  }
-
-  @keyframes hv-airflow-fx {
-    0%, 53% { opacity: 0; stroke-dashoffset: 120; }
-    57% { opacity: 0.95; }
-    76% { opacity: 0.95; stroke-dashoffset: -120; }
-    82%, 100% { opacity: 0; stroke-dashoffset: -160; }
-  }
-
-  /* Stage 6: Sheen Sweep (82% - 90%) & Sparkles & Ready Check (90% - 96%) */
-  @keyframes hv-sheen-fx {
-    0%, 81% { opacity: 0; transform: translateX(-140px) skewX(-20deg); }
-    83% { opacity: 0.75; }
-    88% { opacity: 0.75; transform: translateX(120px) skewX(-20deg); }
-    90%, 100% { opacity: 0; transform: translateX(140px) skewX(-20deg); }
-  }
-
-  @keyframes hv-gleam-fx {
-    0%, 84% { opacity: 0; transform: scale(0.2); }
-    87%, 93% { opacity: 1; transform: scale(1.25) rotate(15deg); }
-    96%, 100% { opacity: 0; transform: scale(0.2); }
-  }
-
-  @keyframes hv-check-pop {
-    0%, 88% { opacity: 0; transform: translateY(10px) scale(0.4); }
-    91% { opacity: 1; transform: translateY(-4px) scale(1.15); }
-    93%, 96% { opacity: 1; transform: translateY(0) scale(1); }
-    99%, 100% { opacity: 0; transform: translateY(-4px) scale(0.8); }
-  }
-
-  /* ==================== UNIFIED PROCESS TIMELINE (VERTICAL LIST) ==================== */
+  /* Unified Semantic Process Timeline (Vertical List) */
   .service-process {
     position: relative;
     display: flex;
@@ -1746,13 +1470,24 @@ const faqs = [
   }
 
   /* Common Sections */
+  :global(main.homevisit-page) section.homevisit-section,
+  section.homevisit-section,
   .homevisit-section {
     padding: clamp(54px, 7vw, 88px) 0;
-    background: #fff;
+    background-color: #ffffff !important;
     color: #071F3A;
   }
-  .homevisit-section--soft { background: #eef9fb; }
-  .homevisit-section--navy { background: #071F3A; color: #fff; }
+  :global(main.homevisit-page) section.homevisit-section--soft,
+  section.homevisit-section--soft,
+  .homevisit-section--soft {
+    background-color: #eef9fb !important;
+  }
+  :global(main.homevisit-page) section.homevisit-section--navy,
+  section.homevisit-section--navy,
+  .homevisit-section--navy {
+    background-color: #071F3A !important;
+    color: #ffffff !important;
+  }
 
   .homevisit-heading { max-width: 820px; }
   .homevisit-heading--center { margin-right: auto; margin-left: auto; text-align: center; }
@@ -1864,6 +1599,7 @@ const faqs = [
     line-height: 1.3;
   }
   .homevisit-sublevels p {
+    color: #071F3A;
     font-size: 0.82rem;
     line-height: 1.45;
   }
@@ -2213,21 +1949,207 @@ const faqs = [
     line-height: 1.55;
   }
 
+  /* Price Scope Box */
+  .homevisit-price-scope-box {
+    margin: 20px 0 16px;
+    padding: 18px 20px;
+    background: #ffffff;
+    border: 1px solid #cce7ee;
+    border-left: 4px solid #08799a;
+    border-radius: 12px;
+  }
+  .homevisit-price-scope-box h4 {
+    margin: 0 0 8px;
+    color: #071F3A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 800;
+  }
+  .homevisit-price-scope-box p {
+    margin: 0 0 8px;
+    color: #071F3A;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  .homevisit-price-scope-box p:last-child { margin-bottom: 0; }
+
+  /* Guarantee Note */
+  .homevisit-guarantee-note {
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: #eef9fb;
+    border: 1px solid #cbe9ef;
+    border-radius: 12px;
+  }
+  .homevisit-guarantee-note h4 {
+    margin: 0 0 6px;
+    color: #08799a;
+    font-size: 0.92rem;
+    font-weight: 850;
+  }
+  .homevisit-guarantee-note p {
+    margin: 0;
+    color: #071F3A;
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  /* Residential Grid */
+  .homevisit-residential-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: clamp(26px, 4vw, 40px);
+  }
+  .homevisit-residential-card {
+    position: relative;
+    border: 1px solid #d2e8ee;
+    border-radius: 16px;
+    padding: 22px;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(7,31,58,.04);
+    display: flex;
+    flex-direction: column;
+    transition: transform 180ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms cubic-bezier(.23, 1, .32, 1), border-color 180ms ease;
+  }
+  .homevisit-residential-card--tier-a {
+    border-color: #9cdbe8;
+    background: linear-gradient(180deg, #f7fdff 0%, #ffffff 100%);
+    box-shadow: 0 10px 24px rgba(7,31,58,.07);
+  }
+  .homevisit-badge-tier {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 4px 8px;
+    background: #071F3A;
+    color: #67d9e9;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .homevisit-badge-sub {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 3px 8px;
+    background: #eef9fb;
+    color: #08799a;
+    font-size: 0.72rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .homevisit-residential-card h3 {
+    margin: 0 0 8px;
+    color: #071F3A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.25;
+  }
+  .homevisit-residential-card p {
+    margin: 0;
+    color: #071F3A;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    flex-grow: 1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .homevisit-residential-card:hover {
+      border-color: #72cde0;
+      box-shadow: 0 14px 28px rgba(7,31,58,.1);
+      transform: translateY(-3px);
+    }
+  }
+
+  /* Access protocol box */
+  .homevisit-access-box {
+    margin-top: 28px;
+    padding: 22px 26px;
+    background: #f0fafc;
+    border: 1px solid #cbe9ef;
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: center;
+    gap: 20px;
+  }
+  .homevisit-access-box > i {
+    font-size: 1.8rem;
+    color: #08799a;
+  }
+  .homevisit-access-box h4 {
+    margin: 0 0 4px;
+    color: #071F3A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .homevisit-access-box p {
+    margin: 0;
+    color: #071F3A;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  /* Transition to generic page box */
+  .homevisit-trans-box {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 28px 32px;
+    background: #ffffff;
+    border: 1px solid #cce7ee;
+    border-radius: 18px;
+    box-shadow: 0 9px 24px rgba(7,31,58,.05);
+  }
+  .homevisit-trans-box__content h3 {
+    margin: 0 0 8px;
+    color: #071F3A;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+  .homevisit-trans-box__content p {
+    margin: 0;
+    color: #071F3A;
+    font-size: 0.94rem;
+    line-height: 1.6;
+  }
+
   /* Responsive */
   @media (max-width: 1024px) {
     .homevisit-card-grid--four { grid-template-columns: repeat(2, 1fr); }
     .homevisit-signal-grid { grid-template-columns: repeat(2, 1fr); }
     .homevisit-process { grid-template-columns: repeat(2, 1fr); }
+    .homevisit-residential-grid { grid-template-columns: repeat(2, 1fr); }
+    .homevisit-access-box { grid-template-columns: 36px 1fr; }
+    .homevisit-access-box a { grid-column: 1 / -1; }
+    .homevisit-trans-box { grid-template-columns: 1fr; }
     .homevisit-process li:nth-child(2n) { border-right: 0; }
     .homevisit-process li:nth-last-child(-n+2) { border-bottom: 0; }
   }
 
   @media (max-width: 860px) {
-    .homevisit-hero__grid,
+    .homevisit-hero__grid {
+      grid-template-areas:
+        "eyebrow"
+        "title"
+        "media"
+        "summary"
+        "actions"
+        "trust";
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
     .homevisit-split,
     .homevisit-feature { grid-template-columns: 1fr; }
     .homevisit-hero__copy { max-width: 100%; }
-    .homevisit-hero__visual-container { max-width: 540px; }
+    .homevisit-hero__visual-container { max-width: 540px; margin: 0 auto; width: 100%; }
     .homevisit-card-grid { grid-template-columns: repeat(2, 1fr); }
     .homevisit-sublevels-box { grid-template-columns: 1fr; }
     .homevisit-gamer-points, .homevisit-office-points { grid-template-columns: 1fr; }
@@ -2250,6 +2172,9 @@ const faqs = [
     .homevisit-process li { border-right: 0; border-bottom: 1px solid #c9e5eb; }
     .homevisit-process li:last-child { border-bottom: 0; }
     .homevisit-zones-grid { grid-template-columns: 1fr; }
+    .homevisit-residential-grid { grid-template-columns: 1fr; }
+    .homevisit-access-box { grid-template-columns: 1fr; }
+    .homevisit-access-box > i { display: none; }
     .homevisit-zone-card { grid-template-columns: 1fr; }
     .homevisit-zone-card__icon { display: none; }
   }

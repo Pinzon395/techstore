@@ -756,7 +756,7 @@ export const consolaCategory: ServiceCategory = {
         whyUs: [
           { icon: 'fa-fan',                title: 'Refacciones Originales', desc: 'No instalamos ventiladores genéricos ruidosos. Usamos piezas Nidec o Delta, idénticas a las de fábrica para mantener el flujo de aire exacto.' },
           { icon: 'fa-microchip',          title: 'Protección al Procesador',desc: 'Un ventilador dañado quema tu APU. Nuestro servicio previene el fatal daño de "Luz Roja" o "Luz Azul" asegurando la refrigeración correcta.' },
-          { icon: 'fa-spray-can-sparkles', title: 'Limpieza Nivel Quirúrgico',desc: 'Al desarmar la consola para cambiar el ventilador, te incluimos totalmente gratis la limpieza del sistema térmico, eliminando capas de polvo.' },
+          { icon: 'fa-spray-can-sparkles', title: 'Limpieza Nivel Quirúrgico',desc: 'Al desarmar la consola para cambiar el ventilador, te incluimos la limpieza profunda del sistema térmico, eliminando capas de polvo.' },
           { icon: 'fa-flask',              title: 'Nueva Pasta Térmica',    desc: 'Cerramos el ensamble aplicando pasta térmica premium (Arctic MX-4) o re-aplicando Metal Líquido en el caso de la PS5 para 0 Throttling.' },
         ],
         process: [
@@ -818,15 +818,15 @@ export const consolaCategory: ServiceCategory = {
         slug: 'diagnostico',
         label: 'Diagnóstico',
         seoKeyword: 'Diagnóstico técnico de consolas en Cancún',
-        hook: 'Tu PS5/Xbox/Switch tiene un problema y no entiendes qué es. Diagnóstico técnico real con reporte por escrito. GRATIS si reparas con nosotros.',
-        intro: 'Revisión completa para identificar el problema sin costo. Te decimos exactamente qué tiene tu consola.',
-        bullets: ['Test de encendido, video, audio, conectividad', 'Revisión térmica', 'Reporte por escrito con fotos', 'GRATIS si autorizas reparación', 'Sin compromiso'],
-        fromPrice: 'GRATIS', eta: '1-2 h', warranty: 'Reporte por escrito',
+        hook: 'Tu PS5/Xbox/Switch tiene un problema y no entiendes qué es. Diagnóstico técnico real con reporte por escrito. Desde $600 MXN según complejidad.',
+        intro: 'Revisión completa para identificar el problema con reporte técnico. Te decimos exactamente qué tiene tu consola y qué opciones existen.',
+        bullets: ['Test de encendido, video, audio, conectividad', 'Revisión térmica y de placa', 'Reporte por escrito con fotos', 'Diagnóstico desde $600 MXN', 'Reparación y piezas se cotizan aparte'],
+        fromPrice: 'Desde $600 MXN', eta: '1-2 h', warranty: 'Reporte por escrito',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico real',  desc: 'No "es la placa" sin pruebas. Test sistemático.' },
           { icon: 'fa-file-contract',    title: 'Reporte por escrito',desc: 'Por WhatsApp con fotos y explicación clara.' },
           { icon: 'fa-handshake',        title: 'Sin compromiso',     desc: 'Te decimos qué tiene; tú decides si reparas.' },
-          { icon: 'fa-piggy-bank',       title: 'GRATIS al reparar',  desc: 'Si autorizas la reparación, el diagnóstico no se cobra.' },
+          { icon: 'fa-microchip',        title: 'Costo solo de revisión',desc: 'Cubre únicamente el diagnóstico técnico; las reparaciones se cotizan por separado.' },
         ],
         process: [
           { title: 'Recepción',     desc: 'Anotamos la falla reportada y datos de contacto.' },
@@ -843,7 +843,7 @@ export const consolaCategory: ServiceCategory = {
         ],
         compatibleBrands: ['Cualquier PlayStation', 'Cualquier Xbox', 'Cualquier Nintendo Switch', 'Consolas retro'],
         faqs: [
-          { question: `¿El diagnóstico de consola realmente es gratis?`, answer: `Sí, se bonifica si autorizas la reparación con nosotros. Si decides no reparar, cobramos una cuota de revisión por el tiempo técnico invertido. El objetivo es darte una causa real con pruebas, no solo decirte que cambies piezas.` },
+          { question: `¿Cuánto cuesta el diagnóstico de consola?`, answer: `El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.` },
           { question: `¿Qué tan rápido entregan el diagnóstico?`, answer: `Una revisión básica puede tomar de <strong>1 a 2 horas</strong>, pero fallas intermitentes, apagados o problemas de video pueden requerir pruebas más largas. Si hay cola de trabajo, normalmente queda dentro de 24 horas con reporte por WhatsApp.` },
           { question: `¿Qué incluye el reporte?`, answer: `Incluye síntoma confirmado, pruebas realizadas, causa probable, fotos si aplica, costo estimado, tiempo de reparación y recomendación honesta. Si conviene no reparar por costo o riesgo, también te lo decimos antes de que gastes.` },
           { question: `¿Hacen diagnóstico a domicilio?`, answer: `Para consolas casi siempre recomendamos taller porque ahí podemos probar fuente, video, HDMI, temperatura y controles con mejor equipo. Podemos hacer visita en Cancún con costo para revisión inicial, pero abrir y reparar se hace con más seguridad en taller.` },

@@ -1,30 +1,50 @@
 /**
  * PWA Registration - Pixon PC
- * Registra el Service Worker y aplica actualizaciones sin dejar cache vieja.
+ * Registra el Service Worker y aplica actualizaciones inmediatas sin requerir borrar cookies.
  */
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js?v=20260620-1', {
+      const registration = await navigator.serviceWorker.register('/sw.js?v=20260916-062820', {
         scope: '/'
       });
-      console.log('[PWA] Service Worker registered:', registration.scope);
 
+      // Solicitar actualización activa al registrar
+      registration.update().catch(() => {});
+
+      // Escuchar si hay un nuevo worker instalándose
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('[PWA] New version available, applying automatically');
+            console.log('[PWA] Nueva versión disponible. Activando...');
             newWorker.postMessage({ type: 'CLEAR_CACHE' });
             newWorker.postMessage({ type: 'SKIP_WAITING' });
-            window.location.reload();
           }
         });
       });
+
+      // Si el controlador cambia (nueva versión tomó el mando), recargar una sola vez
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('[PWA] Controlador actualizado. Recargando página...');
+          window.location.reload();
+        }
+      });
+
+      // Actualizar periódicamente si la pestaña vuelve a ser visible
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          registration.update().catch(() => {});
+        }
+      });
+
     } catch (error) {
-      console.error('[PWA] Service Worker registration failed:', error);
+      console.error('[PWA] Fallo de registro de Service Worker:', error);
     }
   });
 }
@@ -33,14 +53,13 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
   deferredPrompt = event;
-  console.log('[PWA] Install prompt available');
 });
 
 async function installPWA() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
-  console.log('[PWA] Install prompt outcome:', outcome);
+  console.log('[PWA] Resultado de instalación:', outcome);
   deferredPrompt = null;
 }
 

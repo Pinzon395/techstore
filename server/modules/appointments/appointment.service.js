@@ -10,6 +10,7 @@ const {
 } = require('./types');
 const { CapacityEngine, timeToMinutes, minutesToTime } = require('./capacity.engine');
 const emailService = require('../../services/email.service');
+const { computePricing } = require('./pricing.policy');
 
 function cancunNow() {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -73,6 +74,7 @@ class AppointmentService {
     privateNotes = null,
     plannedServiceSummary = null,
     deviceSummary = null,
+    equipmentValueMxn = null,
     addressLine = null,
     idempotencyKey = null,
     adminOverride = false,
@@ -184,6 +186,10 @@ class AppointmentService {
 
       const effectiveResourceId = resourceId || (isExclusive ? 'res-field-service' : 'res-workshop-main');
 
+      // Snapshot de precio: se fija en la cita al crearla y no se recalcula
+      // retroactivamente si la politica general cambia despues (ver #109/#110).
+      const pricing = computePricing(appointmentType, equipmentValueMxn);
+
       await connection.execute(
         `INSERT INTO appointments (
           id, ticket_id, customer_id, customer_name, customer_email, customer_phone,
@@ -191,7 +197,8 @@ class AppointmentService {
           start_at, end_at, duration_minutes, capacity_units,
           status, payment_status, reservation_expires_at,
           priority, customer_notes, private_notes,
-          planned_service_summary, device_summary, address_line,
+          planned_service_summary, device_summary, equipment_value_mxn,
+          price_amount_mxn, price_mode, price_label, address_line,
           idempotency_key, admin_override, admin_override_reason,
           created_by
         ) VALUES (
@@ -201,6 +208,7 @@ class AppointmentService {
           ?, ?, ?,
           ?, ?, ?,
           ?, ?, ?,
+          ?, ?, ?, ?,
           ?, ?, ?,
           ?
         )`,
@@ -210,7 +218,8 @@ class AppointmentService {
           startAt, endAt, duration, capacityUnits,
           status, paymentStatus, reservationExpiresAt,
           typeConfig?.default_priority || 'NORMAL', customerNotes, privateNotes,
-          plannedServiceSummary, deviceSummary, addressLine,
+          plannedServiceSummary, deviceSummary, equipmentValueMxn || null,
+          pricing.amount, pricing.mode, pricing.label, addressLine,
           idempotencyKey, adminOverride ? 1 : 0, adminOverrideReason,
           actorId
         ]
@@ -221,7 +230,9 @@ class AppointmentService {
         capacityUnits,
         startAt,
         requiresPayment,
-        adminOverride
+        adminOverride,
+        priceMode: pricing.mode,
+        priceAmount: pricing.amount
       });
 
       await connection.commit();
@@ -341,7 +352,8 @@ class AppointmentService {
           start_at, end_at, duration_minutes, capacity_units,
           status, payment_status, diagnostic_payment_id, payment_disposition,
           priority, customer_notes, private_notes,
-          planned_service_summary, device_summary, address_line,
+          planned_service_summary, device_summary, equipment_value_mxn,
+          price_amount_mxn, price_mode, price_label, address_line,
           rescheduled_from_id, created_by, idempotency_key
         ) VALUES (
           ?, ?, ?, ?, ?, ?,
@@ -350,6 +362,7 @@ class AppointmentService {
           'CONFIRMED', ?, ?, ?,
           ?, ?, ?,
           ?, ?, ?,
+          ?, ?, ?, ?,
           ?, ?, ?
         )`,
         [
@@ -358,7 +371,8 @@ class AppointmentService {
           newStartAt, newEndAt, duration, oldApt.capacity_units,
           paymentStatus, oldApt.diagnostic_payment_id, paymentDisposition,
           oldApt.priority, oldApt.customer_notes, oldApt.private_notes,
-          oldApt.planned_service_summary, oldApt.device_summary, oldApt.address_line,
+          oldApt.planned_service_summary, oldApt.device_summary, oldApt.equipment_value_mxn,
+          oldApt.price_amount_mxn, oldApt.price_mode, oldApt.price_label, oldApt.address_line,
           appointmentId, actor, idempotencyKey
         ]
       );

@@ -61,6 +61,7 @@ export function getServiceSeoMeta(
     isPhoneDiagnostic,
     isPhoneNoPower,
     isIphoneService,
+    isIphoneAdvancedRepair,
     isIphoneScreenRepair,
     isIphoneBatteryReplacement,
     isSamsungBatteryReplacement,
@@ -101,8 +102,10 @@ export function getServiceSeoMeta(
                   ? "Recuperación de datos en Cancún | PC, SSD, HDD y archivos borrados"
                   : isPcVirusMalware
                     ? "Eliminación de virus y malware en Cancún | PC lenta y anuncios"
-                    : isPcInstallComponents
-                      ? "Instalación de componentes PC en Cancún | SSD, RAM, GPU y fuente"
+                    : isPcUpgrade
+                      ? "Upgrade de PC en Cancún | SSD, RAM, GPU y Componentes | Pixon PC"
+                      : isPcInstallComponents
+                        ? "Instalación de componentes PC en Cancún | SSD, RAM, GPU y fuente"
                       : isLaptopDataRecovery
                         ? "Recuperación de datos de laptop en Cancún | SSD, HDD, NVMe y Borrado"
                         : isLaptopThermalPaste
@@ -172,33 +175,33 @@ export function getServiceSeoMeta(
                                                                                         ? "Cambio de batería iPhone en Cancún | Pixon PC"
                                                                                         : isSamsungBatteryReplacement
                                                                                           ? "Cambio de batería Samsung en Cancún | Galaxy | Pixon PC"
-                                                                                        : isIphoneCameraRepair
-                                                                                          ? "Reparación de cámara iPhone en Cancún | Pixon PC"
-                                                                                          : isIphoneFaceIdRepair
-                                                                                            ? "Reparación de Face ID iPhone en Cancún | Pixon PC"
-                                                                                            : isIphoneHumidityRepair
-                                                                                              ? "Reparación de iPhone mojado en Cancún | Pixon PC"
-                                                                                              : isIphoneChargeRepair
-                                                                                                ? "Reparación de carga iPhone en Cancún | Pixon PC"
-                                                                                                : isIphoneSpeakerRepair
-                                                                                                  ? "Reparación de bocina iPhone en Cancún | Pixon PC"
-                                                                                                  : isIphoneScreenRepair
-                                                                                                    ? "Reparación de Pantalla iPhone en Cancún | Cambio de Display OLED"
-                                                                                                    : isIphoneDiagnostic
-                                                                                                      ? "Diagnóstico iPhone en Cancún | No prende, no carga, pantalla negra"
-                                                                                                      : isIphoneButtonsRepair
-                                                                                                        ? "Reparación de botones iPhone en Cancún | Power, volumen y mute"
-                                                                                                        : isIphoneMicrophoneRepair
-                                                                                                          ? "Reparación de micrófono iPhone en Cancún | Llamadas, WhatsApp y video"
-                                                                                                          : isLaptopKeyboardReplacement
-                                                                                                            ? "Cambio de teclado de laptop en Cancún | Pixon PC"
-                                                                                                            : isIphoneService
-                                                                                                              ? `${seoKeyword} | Pixon PC`
-                                                                                                              : isLaptopLocalReplacement
-                                                                                                                ? `${seoKeyword} con garantía | Pixon PC`
-                                                                                                                : (seoKeyword.toLowerCase().includes('cancún') || seoKeyword.toLowerCase().includes('cancun'))
-                                                                                                                  ? `${seoKeyword} | Pixon PC`
-                                                                                                                  : `${seoKeyword} en Cancún | Pixon PC`;
+                                                                                          : isIphoneCameraRepair
+                                                                                            ? "Reparación de cámara iPhone en Cancún | Pixon PC"
+                                                                                            : isIphoneFaceIdRepair
+                                                                                              ? "Reparación de Face ID iPhone en Cancún | Pixon PC"
+                                                                                              : isIphoneHumidityRepair
+                                                                                                ? "Reparación de iPhone mojado en Cancún | Pixon PC"
+                                                                                                : isIphoneChargeRepair
+                                                                                                  ? "Reparación de carga iPhone en Cancún | Pixon PC"
+                                                                                                  : isIphoneSpeakerRepair
+                                                                                                    ? "Reparación de bocina iPhone en Cancún | Pixon PC"
+                                                                                                    : isIphoneScreenRepair
+                                                                                                      ? "Cambio de Pantalla iPhone en Cancún | OLED y Diagnóstico | Pixon PC"
+                                                                                                      : isIphoneDiagnostic
+                                                                                                        ? "Diagnóstico iPhone en Cancún | No prende, no carga, pantalla negra"
+                                                                                                        : isIphoneButtonsRepair
+                                                                                                          ? "Reparación de botones iPhone en Cancún | Power, volumen y mute"
+                                                                                                          : isIphoneMicrophoneRepair
+                                                                                                            ? "Reparación de micrófono iPhone en Cancún | Llamadas, WhatsApp y video"
+                                                                                                            : isLaptopKeyboardReplacement
+                                                                                                              ? "Cambio de teclado de laptop en Cancún | Pixon PC"
+                                                                                                              : isIphoneAdvancedRepair
+                                                                                                                ? "Reparación Avanzada de iPhone en Cancún | Placa y Microsoldadura | Pixon PC"
+                                                                                                                : isLaptopLocalReplacement
+                                                                                                                  ? `${seoKeyword} con garantía | Pixon PC`
+                                                                                                                  : (seoKeyword.toLowerCase().includes('cancún') || seoKeyword.toLowerCase().includes('cancun'))
+                                                                                                                    ? `${seoKeyword} | Pixon PC`
+                                                                                                                    : `${seoKeyword} en Cancún | Pixon PC`;
   const description = isPcFormat
     ? "Formateo de PC en Cancún desde $750 MXN. Windows limpio, respaldo de archivos, drivers, paquetería básica y optimización."
     : isPcNoEnciende
@@ -217,6 +220,8 @@ export function getServiceSeoMeta(
                   ? "Recuperación de datos en Cancún | PC, SSD, HDD y archivos borrados"
                   : isPcVirusMalware
                     ? "Eliminación de virus y malware en Cancún | PC lenta y anuncios"
+                    : isPcUpgrade
+                      ? "Mejora tu PC en Cancún con un upgrade de SSD, RAM, GPU, CPU o almacenamiento. Revisamos compatibilidad, cuello de botella, fuente, motherboard y rendimiento antes de recomendar componentes."
                     : isPcInstallComponents
                       ? "Instalación de componentes PC en Cancún para SSD, RAM, GPU, fuente, ventiladores, WiFi y capturadoras. Revisión de compatibilidad, BIOS, cableado y pruebas."
                       : isLaptopDataRecovery
@@ -280,33 +285,35 @@ export function getServiceSeoMeta(
                                                                                 ? "Cambio de flex, botón power, volumen, home, mute y botones laterales de celular en Cancún. Revisamos flex, humedad, carcasa y placa antes de cotizar."
                                                                                 : isPhoneDiagnostic
                                                                                   ? "Diagnóstico de celulares en Cancún para fallas de pantalla, batería, carga, audio, cámaras, humedad, placa y software. Revisamos antes de cambiar piezas."
-                                                                                : isIphoneBatteryReplacement
-                                                                                  ? "Cambio de batería iPhone en Cancún. Revisamos salud, descarga rápida, apagados, calentamiento y carga antes de instalar una batería compatible. Cotiza por WhatsApp."
-                                                                                  : isSamsungBatteryReplacement
-                                                                                    ? "Cambio de batería Samsung Galaxy en Cancún para equipos que se descargan rápido, se apagan, se calientan o tienen batería inflada. Diagnóstico de carga, consumo y garantía."
-                                                                                    : isIphoneCameraRepair
-                                                                                      ? "Reparación de cámara iPhone en Cancún con diagnóstico de cámara frontal, trasera, enfoque, manchas, lente roto, humedad y garantía por escrito."
-                                                                                      : isIphoneFaceIdRepair
-                                                                                        ? "Reparación de Face ID iPhone en Cancún. Diagnóstico de cámara TrueDepth, sensores infrarrojos, flex y humedad antes de cotizar. Garantía por escrito."
-                                                                                        : isIphoneHumidityRepair
-                                                                                          ? "Reparación de iPhone mojado en Cancún. Diagnóstico por humedad, limpieza ultrasónica, revisión de placa lógica, batería, pantalla, carga, cámaras y Face ID."
-                                                                                          : isIphoneChargeRepair
-                                                                                            ? "Reparamos puerto de carga iPhone en Cancún. Revisamos Lightning, USB-C, batería, humedad, cable, adaptador y flex antes de cotizar."
-                                                                                            : isIphoneSpeakerRepair
-                                                                                              ? "Reparación de bocina iPhone en Cancún para audio bajo, bocina distorsionada, auricular sin sonido, rejilla tapada, humedad, flex y llamadas."
-                                                                                              : isIphoneScreenRepair
-                                                                                                ? "Reparamos pantallas de iPhone en Cancún: cristal roto, touch, líneas, manchas, pantalla negra y display. OLED, OEM e Incell según modelo. Cotiza por WhatsApp."
-                                                                                                : isIphoneDiagnostic
-                                                                                                  ? "Diagnóstico iPhone en Cancún para equipos que no prenden, no cargan, tienen pantalla negra, batería dañada, Face ID, cámara, audio, humedad, software o placa."
-                                                                                                  : isIphoneButtonsRepair
-                                                                                                    ? "Reparación de botones iPhone en Cancún para power, volumen, silencio, Home, botón lateral, flex, carcasa, humedad, golpes y falsos contactos."
-                                                                                                    : isIphoneMicrophoneRepair
-                                                                                                      ? "Reparación de micrófono iPhone en Cancún para llamadas sin voz, WhatsApp sin audio, notas de voz, video sin sonido, Siri, flex de carga, humedad y placa."
-                                                                                                      : isLaptopKeyboardReplacement
-                                                                                                        ? "Cambio y reparación de teclado de laptop en Cancún. Revisamos flex, conector, líquido, backlit y compatibilidad antes de instalar."
-                                                                                                        : service.intro
-                                                                                                          ? `${service.intro} Cotización gratis, diagnóstico claro y reparación profesional en Cancún.`
-                                                                                                          : `Servicio especializado de ${service.label} para ${category.title} en Cancún. Diagnóstico profundo, garantía por escrito y cobertura local en ${primaryLocalAreas}.`;
+                                                                                  : isIphoneBatteryReplacement
+                                                                                    ? "Cambio de batería iPhone en Cancún. Revisamos salud, descarga rápida, apagados, calentamiento y carga antes de instalar una batería compatible. Cotiza por WhatsApp."
+                                                                                    : isSamsungBatteryReplacement
+                                                                                      ? "Cambio de batería Samsung Galaxy en Cancún para equipos que se descargan rápido, se apagan, se calientan o tienen batería inflada. Diagnóstico de carga, consumo y garantía."
+                                                                                      : isIphoneCameraRepair
+                                                                                        ? "Reparación de cámara iPhone en Cancún con diagnóstico de cámara frontal, trasera, enfoque, manchas, lente roto, humedad y garantía por escrito."
+                                                                                        : isIphoneFaceIdRepair
+                                                                                          ? "Reparación de Face ID iPhone en Cancún. Diagnóstico de cámara TrueDepth, sensores infrarrojos, flex y humedad antes de cotizar. Garantía por escrito."
+                                                                                          : isIphoneHumidityRepair
+                                                                                            ? "Reparación de iPhone mojado en Cancún. Diagnóstico por humedad, limpieza ultrasónica, revisión de placa lógica, batería, pantalla, carga, cámaras y Face ID."
+                                                                                            : isIphoneChargeRepair
+                                                                                              ? "Reparamos puerto de carga iPhone en Cancún. Revisamos Lightning, USB-C, batería, humedad, cable, adaptador y flex antes de cotizar."
+                                                                                              : isIphoneSpeakerRepair
+                                                                                                ? "Reparación de bocina iPhone en Cancún para audio bajo, bocina distorsionada, auricular sin sonido, rejilla tapada, humedad, flex y llamadas."
+                                                                                                : isIphoneScreenRepair
+                                                                                                  ? "Pantalla rota, estrellada, negra, con líneas o touch sin respuesta. Cambio de pantalla iPhone en Cancún con cotización por modelo, opciones OLED y diagnóstico previo. Garantía por escrito."
+                                                                                                  : isIphoneDiagnostic
+                                                                                                    ? "Diagnóstico iPhone en Cancún para equipos que no prenden, no cargan, tienen pantalla negra, batería dañada, Face ID, cámara, audio, humedad, software o placa."
+                                                                                                    : isIphoneButtonsRepair
+                                                                                                      ? "Reparación de botones iPhone en Cancún para power, volumen, silencio, Home, botón lateral, flex, carcasa, humedad, golpes y falsos contactos."
+                                                                                                      : isIphoneMicrophoneRepair
+                                                                                                        ? "Reparación de micrófono iPhone en Cancún para llamadas sin voz, WhatsApp sin audio, notas de voz, video sin sonido, Siri, flex de carga, humedad y placa."
+                                                                                                        : isIphoneAdvancedRepair
+                                                                                                          ? "¿Tu iPhone no enciende, se mojó, huele a quemado o tiene una falla de placa? Diagnóstico avanzado de cortos, humedad, microsoldadura y alimentación en Cancún. Cotiza por WhatsApp."
+                                                                                                          : isLaptopKeyboardReplacement
+                                                                                                            ? "Cambio y reparación de teclado de laptop en Cancún. Revisamos flex, conector, líquido, backlit y compatibilidad antes de instalar."
+                                                                                                            : service.intro
+                                                                                                               ? `${service.intro} Cotización clara, diagnóstico técnico profesional y reparación confiable en Cancún.`
+                                                                                                              : `Servicio especializado de ${service.label} para ${category.title} en Cancún. Diagnóstico profundo, garantía por escrito y cobertura local en ${primaryLocalAreas}.`;
   const finalSeoTitle = service.metaTitle || seoTitle;
   const finalDescription = service.metaDescription || description;
   const faqServiceContext =
@@ -324,7 +331,9 @@ export function getServiceSeoMeta(
   const genericFaqTitle = `Preguntas frecuentes sobre ${service.label} de ${faqServiceContext} en Cancún`;
 
   const waMessage = encodeURIComponent(
-    isPcFormat
+    isPcCorrectiveMaintenance
+      ? "Hola Pixon PC.\nMi computadora presenta una falla.\n\nEquipo: (PC / PC Gamer / Workstation / Mini PC)\nSíntoma: (No enciende / No da imagen / Se apaga / Se reinicia / Se congela / Pantalla azul / Ruido / No detecta disco / Otro)\nDesde cuándo ocurre:\nQué estaba haciendo cuando falló:"
+      : isPcFormat
       ? "Hola, quiero cotizar formateo de PC en Cancún con respaldo, Windows, drivers y optimización."
       : isPcDiagnostic
         ? "Hola, quiero agendar diagnóstico de PC en Cancún. Mi computadora presenta una falla y quiero saber qué tiene antes de reparar."

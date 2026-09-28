@@ -27,93 +27,165 @@ import '../../styles/admin.css';
     <p>Verificando permisos…</p>
   </div>
 
-  <div class="admin-shell sb-collapsed" id="admin-shell">
+  <div class="admin-shell" id="admin-shell">
 
     <!-- ═══════════════════════════════════════════════════════════════
-         SIDEBAR — colapsada por default (solo iconos + logo circular).
-         Al hover, se expande temporalmente mostrando textos.
+         SIDEBAR — interactiva (expandible, colapsable, grupos, tooltips)
     ═══════════════════════════════════════════════════════════════ -->
-    <aside class="admin-sidebar" id="admin-sidebar" data-collapsed="true">
-      <a href="/" class="admin-brand" aria-label="Inicio Pixon PC" title="Pixon PC">
-        <img src="/LOGOCIRCULAR.png" alt="Pixon PC" width="36" height="36" />
-      </a>
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <a href="/" class="admin-brand" aria-label="Inicio Pixon PC" title="Pixon PC">
+          <img src="/LOGOCIRCULAR.png" alt="Pixon PC" width="36" height="36" />
+          <span class="admin-brand-text">Pixon <span>PC</span></span>
+        </a>
+        <button type="button" class="admin-sidebar-mobile-close" id="adminSidebarMobileClose" aria-label="Cerrar menú">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <button type="button" class="admin-sb-toggle" id="adminSbToggle" aria-label="Contraer o expandir barra lateral" title="Contraer / Expandir menú">
+        <i class="fa-solid fa-chevron-left" id="adminSbToggleIcon" aria-hidden="true"></i>
+      </button>
 
       <nav class="admin-nav" aria-label="Navegación admin">
-        <div class="nav-group">
-          <p class="nav-section-title">Hoy</p>
-          <button class="nav-link active" type="button" data-view="dashboard" title="Mi jornada" aria-controls="view-dashboard" aria-current="page">
+        <div class="nav-single-item">
+          <button class="nav-link active" type="button" data-view="dashboard" data-tooltip="Dashboard" title="Dashboard" aria-controls="view-dashboard" aria-current="page">
             <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gauge-high" /></svg>
-            <span class="nav-link-label">Mi jornada</span>
-          </button>
-          <button class="nav-link" type="button" data-view="agenda" title="Agenda operativa" aria-controls="view-agenda">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-calendar-days" /></svg>
-            <span class="nav-link-label">Agenda</span>
-          </button>
-          <button class="nav-link" type="button" data-notifications-focus title="Notificaciones" aria-controls="notificationsDropdown">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bell" /></svg>
-            <span class="nav-link-label">Notificaciones</span>
+            <span class="nav-link-label">Dashboard</span>
           </button>
         </div>
 
-        <div class="nav-group">
-          <p class="nav-section-title">Operación</p>
-          <button class="nav-link" type="button" data-view="repairs" title="Taller" aria-controls="view-repairs">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-screwdriver-wrench" /></svg>
-            <span class="nav-link-label">Taller</span>
+        <div class="nav-group" data-nav-group="hoy">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-hoy">
+            <span class="nav-section-title">Hoy</span>
+            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
           </button>
-          <button class="nav-link" type="button" data-view="commerce-orders" title="Pedidos" aria-controls="view-commerce-orders"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bag-shopping" /></svg><span class="nav-link-label">Pedidos</span><span class="badge warn" id="nav-badge-orders" style="display:none;">0</span></button>
-          <button class="nav-link" type="button" data-view="commerce-payments" title="Pagos" aria-controls="view-commerce-payments"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg><span class="nav-link-label">Pagos</span></button>
-          <button class="nav-link" type="button" data-view="commerce-inventory" title="Inventario" aria-controls="view-commerce-inventory"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-boxes-stacked" /></svg><span class="nav-link-label">Inventario</span></button>
-          <button class="nav-link" type="button" data-view="builds" title="Ensambles" aria-controls="view-builds"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-microchip" /></svg><span class="nav-link-label">Ensambles</span></button>
+          <div class="nav-group-items" id="nav-group-items-hoy">
+            <button class="nav-link" type="button" data-view="dashboard" data-tooltip="Mi jornada" title="Mi jornada" aria-controls="view-dashboard">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gauge-high" /></svg>
+              <span class="nav-link-label">Mi jornada</span>
+            </button>
+            <button class="nav-link" type="button" data-view="agenda" data-tooltip="Agenda" title="Agenda operativa" aria-controls="view-agenda">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-calendar-days" /></svg>
+              <span class="nav-link-label">Agenda</span>
+            </button>
+            <button class="nav-link" type="button" data-notifications-focus data-tooltip="Notificaciones" title="Notificaciones" aria-controls="notificationsDropdown">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bell" /></svg>
+              <span class="nav-link-label">Notificaciones</span>
+            </button>
+          </div>
         </div>
 
-        <div class="nav-group nav-group-commerce" data-commerce-group>
-          <div class="nav-section-row"><p class="nav-section-title">Comercio</p><button type="button" class="nav-group-toggle" data-commerce-toggle aria-expanded="false" aria-controls="commerce-nav-items" title="Mostrar comercio"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span class="sr-only">Mostrar comercio</span></button></div>
-          <div id="commerce-nav-items" class="nav-group-items" hidden>
-            <button class="nav-link" type="button" data-view="commerce" title="Resumen comercial" aria-controls="view-commerce"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-cart-shopping" /></svg><span class="nav-link-label">Resumen comercial</span></button>
-            <button class="nav-link" type="button" data-view="commerce-store" title="Catálogo" aria-controls="view-commerce-store"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-store" /></svg><span class="nav-link-label">Catálogo</span></button>
-            <button class="nav-link" type="button" data-view="commerce-dashboard" title="Ventas" aria-controls="view-commerce-dashboard"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-chart-line" /></svg><span class="nav-link-label">Ventas</span></button>
-            <button class="nav-link" type="button" data-view="commerce-promotions" title="Promociones" aria-controls="view-commerce-promotions"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-tags" /></svg><span class="nav-link-label">Promociones</span></button>
-            <button class="nav-link" type="button" data-view="commerce-settings" title="Métodos de pago" aria-controls="view-commerce-settings"><svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg><span class="nav-link-label">Métodos de pago</span></button>
+        <div class="nav-group" data-nav-group="operacion">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-operacion">
+            <span class="nav-section-title">Operación</span>
+            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="nav-group-items" id="nav-group-items-operacion">
+            <button class="nav-link" type="button" data-view="repairs" data-tooltip="Taller" title="Taller" aria-controls="view-repairs">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-screwdriver-wrench" /></svg>
+              <span class="nav-link-label">Taller</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-orders" data-tooltip="Pedidos" title="Pedidos" aria-controls="view-commerce-orders">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bag-shopping" /></svg>
+              <span class="nav-link-label">Pedidos</span>
+              <span class="badge warn" id="nav-badge-orders" style="display:none;">0</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-payments" data-tooltip="Pagos" title="Pagos" aria-controls="view-commerce-payments">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg>
+              <span class="nav-link-label">Pagos</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-inventory" data-tooltip="Inventario" title="Inventario" aria-controls="view-commerce-inventory">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-boxes-stacked" /></svg>
+              <span class="nav-link-label">Inventario</span>
+            </button>
+            <button class="nav-link" type="button" data-view="builds" data-tooltip="Ensambles" title="Ensambles" aria-controls="view-builds">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-microchip" /></svg>
+              <span class="nav-link-label">Ensambles</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-group" data-nav-group="comercio">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="false" aria-controls="nav-group-items-comercio">
+            <span class="nav-section-title">Comercio</span>
+            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
+          </button>
+          <div id="nav-group-items-comercio" class="nav-group-items" hidden>
+            <button class="nav-link" type="button" data-view="commerce" data-tooltip="Resumen comercial" title="Resumen comercial" aria-controls="view-commerce">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-cart-shopping" /></svg>
+              <span class="nav-link-label">Resumen comercial</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-store" data-tooltip="Catálogo" title="Catálogo" aria-controls="view-commerce-store">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-store" /></svg>
+              <span class="nav-link-label">Catálogo</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-dashboard" data-tooltip="Ventas" title="Ventas" aria-controls="view-commerce-dashboard">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-chart-line" /></svg>
+              <span class="nav-link-label">Ventas</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-promotions" data-tooltip="Promociones" title="Promociones" aria-controls="view-commerce-promotions">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-tags" /></svg>
+              <span class="nav-link-label">Promociones</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-settings" data-tooltip="Métodos de pago" title="Métodos de pago" aria-controls="view-commerce-settings">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg>
+              <span class="nav-link-label">Métodos de pago</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-group" data-nav-group="clientes">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-clientes">
+            <span class="nav-section-title">Clientes</span>
+            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="nav-group-items" id="nav-group-items-clientes">
+            <button class="nav-link" type="button" data-view="comments" data-tooltip="Comentarios" title="Comentarios" aria-controls="view-comments">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-comments" /></svg>
+              <span class="nav-link-label">Comentarios</span>
+              <span class="badge warn" id="nav-badge-comments" style="display:none;">0</span>
+            </button>
+            <button class="nav-link" type="button" data-view="users" data-tooltip="Usuarios" title="Usuarios" aria-controls="view-users">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-users-gear" /></svg>
+              <span class="nav-link-label">Usuarios</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-group" data-nav-group="contenido">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-contenido">
+            <span class="nav-section-title">Contenido</span>
+            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="nav-group-items" id="nav-group-items-contenido">
+            <button class="nav-link" type="button" data-view="faqs" data-tooltip="Preguntas Frecuentes" title="Preguntas Frecuentes" aria-controls="view-faqs">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-circle-question" /></svg>
+              <span class="nav-link-label">Preguntas Frecuentes</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-group" data-nav-group="configuracion">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-configuracion">
+            <span class="nav-section-title">Configuración</span>
+            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="nav-group-items" id="nav-group-items-configuracion">
+            <button class="nav-link" type="button" data-view="repairs" data-repair-panel="config" data-tooltip="Config. agenda" title="Configuración de agenda" aria-controls="view-repairs">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-sliders" /></svg>
+              <span class="nav-link-label">Config. agenda</span>
+            </button>
+            <button class="nav-link" type="button" data-view="preferences" data-tooltip="Preferencias" title="Preferencias" aria-controls="view-preferences">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gear" /></svg>
+              <span class="nav-link-label">Preferencias</span>
+            </button>
           </div>
         </div>
 
         <div class="nav-group">
-          <p class="nav-section-title">Clientes</p>
-          <button class="nav-link" type="button" data-view="comments" title="Comentarios" aria-controls="view-comments">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-comments" /></svg>
-            <span class="nav-link-label">Comentarios</span>
-            <span class="badge warn" id="nav-badge-comments" style="display:none;">0</span>
-          </button>
-          <button class="nav-link" type="button" data-view="users" title="Usuarios" aria-controls="view-users">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-users-gear" /></svg>
-            <span class="nav-link-label">Usuarios</span>
-          </button>
-        </div>
-
-        <div class="nav-group">
-          <p class="nav-section-title">Contenido</p>
-          <button class="nav-link" type="button" data-view="faqs" title="Preguntas Frecuentes" aria-controls="view-faqs">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-circle-question" /></svg>
-            <span class="nav-link-label">Preguntas Frecuentes</span>
-          </button>
-        </div>
-
-        <div class="nav-group">
-          <p class="nav-section-title">Configuración</p>
-          <button class="nav-link" type="button" data-view="repairs" data-repair-panel="config" title="Configuración de agenda" aria-controls="view-repairs">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-sliders" /></svg>
-            <span class="nav-link-label">Config. agenda</span>
-          </button>
-          <button class="nav-link" type="button" data-view="preferences" title="Preferencias" aria-controls="view-preferences">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gear" /></svg>
-            <span class="nav-link-label">Preferencias</span>
-          </button>
-        </div>
-
-        <div class="nav-group">
           <p class="nav-section-title">Secundario</p>
-          <a href="/" class="nav-link" target="_blank" rel="noopener" title="Ver sitio público">
+          <a href="https://pixon.com.mx/" class="nav-link" target="_blank" rel="noopener noreferrer" title="Ver sitio público" data-tooltip="Ver sitio público">
             <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-arrow-right" /></svg>
             <span class="nav-link-label">Ver sitio público</span>
           </a>
@@ -130,7 +202,7 @@ import '../../styles/admin.css';
       </div>
 
       <!-- Logout separado y con peso visual distinto al menú -->
-      <a href="/auth/logout" class="admin-logout" title="Cerrar sesión">
+      <a href="/auth/logout" class="admin-logout" title="Cerrar sesión" data-tooltip="Cerrar sesión">
         <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-power-off" /></svg>
         <span class="admin-logout-text">Cerrar sesión</span>
       </a>
@@ -190,29 +262,27 @@ import '../../styles/admin.css';
               <button type="button" class="journey-primary-action" data-view-target="repairs" data-open-repair><i class="fa-solid fa-plus" aria-hidden="true"></i> Nuevo ticket</button>
             </header>
             <div class="journey-grid">
-              <article class="journey-panel journey-panel-attention" aria-labelledby="journey-attention-title">
+              <article class="journey-panel" aria-labelledby="journey-attention-title">
                 <header class="journey-panel-header"><div><span class="journey-kicker">Prioridad operativa</span><h3 id="journey-attention-title">Atención ahora</h3></div><button type="button" class="journey-link" data-view-target="repairs">Ver taller <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></header>
                 <div id="journey-attention" class="journey-list" aria-live="polite" aria-busy="true"><div class="journey-loading">Preparando prioridades…</div></div>
               </article>
-              <article class="journey-panel journey-panel-agenda-wide" aria-labelledby="journey-agenda-title">
+              <article class="journey-panel" aria-labelledby="journey-agenda-title">
                 <header class="journey-panel-header">
                   <div>
-                    <span class="journey-kicker">Agenda Operativa del Día</span>
-                    <h3 id="journey-agenda-title">Citas y Disponibilidad Hoy</h3>
+                    <span class="journey-kicker">Agenda operativa</span>
+                    <h3 id="journey-agenda-title">Hoy</h3>
                   </div>
-                  <div style="display:flex;gap:10px;align-items:center;">
-                    <span id="agenda-kpi-next-slot" class="agenda-next-slot-pill" title="Próximo horario con capacidad libre">Buscando disponibilidad…</span>
-                    <button type="button" class="journey-link" data-view-target="agenda">Abrir agenda grande <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
-                  </div>
+                  <button type="button" class="journey-link" data-view-target="agenda">Abrir <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                 </header>
                 <div class="agenda-kpi-compact-strip">
-                  <div class="kpi-mini-pill"><span class="kpi-mini-num" id="agenda-kpi-total">0</span> <small>Hoy</small></div>
-                  <div class="kpi-mini-pill is-confirmed"><span class="kpi-mini-num" id="agenda-kpi-confirmed">0</span> <small>Confirmadas</small></div>
-                  <div class="kpi-mini-pill is-pending"><span class="kpi-mini-num" id="agenda-kpi-pending">0</span> <small>Esperando $600</small></div>
-                  <div class="kpi-mini-pill is-onsite"><span class="kpi-mini-num" id="agenda-kpi-onsite">0</span> <small>A Domicilio</small></div>
-                  <div class="kpi-mini-pill is-liquid"><span class="kpi-mini-num" id="agenda-kpi-liquid">0</span> <small>Equipos Mojados</small></div>
-                  <div class="kpi-mini-pill is-noshow"><span class="kpi-mini-num" id="agenda-kpi-noshow">0</span> <small>No-Shows</small></div>
+                  <div class="kpi-mini-pill is-total"><span class="kpi-mini-num" id="agenda-kpi-total">0</span><small>Citas</small></div>
+                  <div class="kpi-mini-pill is-confirmed"><span class="kpi-mini-num" id="agenda-kpi-confirmed">0</span><small>Confirmadas</small></div>
+                  <div class="kpi-mini-pill is-pending"><span class="kpi-mini-num" id="agenda-kpi-pending">0</span><small>Pago pend.</small></div>
+                  <div class="kpi-mini-pill is-onsite"><span class="kpi-mini-num" id="agenda-kpi-onsite">0</span><small>Domicilio</small></div>
+                  <div class="kpi-mini-pill is-liquid"><span class="kpi-mini-num" id="agenda-kpi-liquid">0</span><small>Mojados</small></div>
+                  <div class="kpi-mini-pill is-noshow"><span class="kpi-mini-num" id="agenda-kpi-noshow">0</span><small>No-show</small></div>
                 </div>
+                <p class="agenda-preview-label">Próximas citas</p>
                 <div id="dashboard-agenda-preview" class="dashboard-agenda-container" aria-live="polite">
                   <div class="journey-loading">Cargando agenda operativa…</div>
                 </div>
@@ -530,7 +600,7 @@ import '../../styles/admin.css';
           <div class="admin-section-header agenda-main-header">
             <div>
               <h2>Agenda Operativa y Capacidad de Taller</h2>
-              <p class="admin-page-sub">Monitoreo multicliente en tiempo real, reservas temporales y diagnóstico prepagado.</p>
+              <p class="admin-page-sub">Monitoreo multicliente en tiempo real, capacidad de taller y precios por tipo de servicio.</p>
             </div>
             <div class="agenda-header-actions">
               <button class="btn-admin btn-approve" type="button" id="agenda-btn-new">
@@ -550,27 +620,27 @@ import '../../styles/admin.css';
 
           <!-- Resumen superior: máximo 5 indicadores clave + Siguiente Acción -->
           <div class="agenda-summary-strip">
-            <div class="agenda-summary-card">
+            <div class="agenda-summary-card is-interactive" role="button" tabindex="0" data-agenda-action="switchView" data-agenda-args='["today"]' title="Ver citas de hoy (Click para ir a Hoy)">
               <div class="asc-label">Hoy</div>
               <div class="asc-val" id="agenda-kpi-today-count">0 citas</div>
             </div>
-            <div class="agenda-summary-card">
+            <div class="agenda-summary-card is-interactive" role="button" tabindex="0" data-agenda-action="openNextAppointment" title="Abrir próxima cita del día">
               <div class="asc-label">Próxima</div>
               <div class="asc-val" id="agenda-kpi-next-apt">--</div>
             </div>
-            <div class="agenda-summary-card">
+            <div class="agenda-summary-card is-interactive" role="button" tabindex="0" data-agenda-action="switchView" data-agenda-args='["day"]' title="Ver capacidad de hoy en vista Día">
               <div class="asc-label">Capacidad Hoy</div>
               <div class="asc-val" id="agenda-kpi-capacity-used">0/12 usada</div>
             </div>
-            <div class="agenda-summary-card">
+            <div class="agenda-summary-card is-interactive" role="button" tabindex="0" data-agenda-action="filterUnpaid" title="Filtrar citas con pago pendiente">
               <div class="asc-label">Pendiente Pago</div>
               <div class="asc-val asc-val-pending" id="agenda-kpi-unpaid-count">0 citas</div>
             </div>
-            <div class="agenda-summary-card">
+            <div class="agenda-summary-card is-interactive" role="button" tabindex="0" data-agenda-action="filterOnsite" title="Filtrar citas a domicilio">
               <div class="asc-label">A Domicilio</div>
               <div class="asc-val asc-val-onsite" id="agenda-kpi-onsite-count">0 visitas</div>
             </div>
-            <div class="agenda-summary-card agenda-next-action-card">
+            <div class="agenda-summary-card agenda-next-action-card is-interactive" role="button" tabindex="0" data-agenda-action="openNextActionAppointment" title="Abrir cita de la siguiente acción operativa">
               <div class="asc-label"><i class="fa-solid fa-bolt"></i> Siguiente acción</div>
               <div class="asc-next-action-text" id="agenda-kpi-next-action-summary">Analizando agenda…</div>
             </div>
@@ -581,8 +651,8 @@ import '../../styles/admin.css';
             <div class="agenda-nav-controls">
               <div class="agenda-view-tabs" role="tablist" aria-label="Modo de vista de agenda">
                 <button type="button" class="agenda-tab active" data-agenda-view-tab="today" role="tab" aria-selected="true"><i class="fa-solid fa-list-check"></i> Hoy (Operativo)</button>
-                <button type="button" class="agenda-tab" data-agenda-view-tab="week" role="tab" aria-selected="false"><i class="fa-solid fa-calendar-week"></i> Semana</button>
                 <button type="button" class="agenda-tab" data-agenda-view-tab="day" role="tab" aria-selected="false"><i class="fa-solid fa-calendar-day"></i> Día</button>
+                <button type="button" class="agenda-tab" data-agenda-view-tab="week" role="tab" aria-selected="false"><i class="fa-solid fa-calendar-week"></i> Semana</button>
                 <button type="button" class="agenda-tab" data-agenda-view-tab="month" role="tab" aria-selected="false"><i class="fa-solid fa-calendar"></i> Mes</button>
                 <button type="button" class="agenda-tab" data-agenda-view-tab="list" role="tab" aria-selected="false"><i class="fa-solid fa-table-list"></i> Lista</button>
               </div>
@@ -630,7 +700,7 @@ import '../../styles/admin.css';
               <div class="legend-group">
                 <span class="legend-title">Estados:</span>
                 <span class="legend-item"><span class="legend-dot dot-confirmed"></span> Confirmada</span>
-                <span class="legend-item"><span class="legend-dot dot-pending"></span> $600 Pendiente</span>
+                <span class="legend-item"><span class="legend-dot dot-pending"></span> Pago pendiente</span>
                 <span class="legend-item"><span class="legend-dot dot-onsite"></span> Domicilio</span>
                 <span class="legend-item"><span class="legend-dot dot-liquid"></span> 💧 Mojado (Urgente)</span>
               </div>
@@ -711,11 +781,20 @@ import '../../styles/admin.css';
                   </div>
                 </div>
 
-                <!-- Info automática de Diagnóstico y Duración -->
+                <!-- Info automática de Duración -->
                 <div id="new-apt-service-hint" class="agenda-service-hint-box">
                   <i class="fa-solid fa-circle-info"></i>
-                  <span id="new-apt-service-hint-text">Duración estimada: 20 min. Diagnóstico: Si aplica revisión exhaustiva, costo desde $600 MXN.</span>
+                  <span id="new-apt-service-hint-text">Duración estimada: 20 min.</span>
                 </div>
+
+                <!-- Valor estimado del equipo (solo Mantenimiento preventivo) -->
+                <div class="admin-form-group" id="new-apt-equipment-value-group" style="display:none;">
+                  <label for="new-apt-equipment-value">Valor estimado del equipo (MXN, opcional)</label>
+                  <input type="number" id="new-apt-equipment-value" class="admin-input" min="0" step="100" placeholder="Ej: 20000" />
+                </div>
+
+                <!-- Precio: confirmado / estimado / por confirmar -->
+                <div id="new-apt-price-box" class="agenda-service-hint-box" style="display:none;"></div>
 
                 <!-- Paso 3: Fecha, Hora y Verificación de Capacidad en tiempo real -->
                 <div class="agenda-form-row">
@@ -793,7 +872,7 @@ import '../../styles/admin.css';
               <div class="agenda-modal-body">
                 <div class="drawer-alert drawer-alert-info">
                   <i class="fa-solid fa-circle-info"></i>
-                  <strong>Auditoría operativa:</strong> La cita original permanecerá en el historial con estado <em>REPROGRAMADA</em>. Se generará la nueva cita vinculada y el diagnóstico prepagado ($600 MXN) se transfiere automáticamente.
+                  <strong>Auditoría operativa:</strong> La cita original permanecerá en el historial con estado <em>REPROGRAMADA</em>. Se generará la nueva cita vinculada; si existe un pago ya validado, se transfiere automáticamente y el precio de la cita no se recalcula.
                 </div>
                 <input type="hidden" id="reschedule-apt-id" />
                 <div class="agenda-form-row">
@@ -888,6 +967,109 @@ import '../../styles/admin.css';
             </div>
           </div>
 
+          <!-- Modal de Cancelación de Cita con Motivo Contextual -->
+          <div id="agenda-cancel-modal" class="agenda-modal-overlay" style="display:none;">
+            <div class="agenda-modal-backdrop" data-close-agenda-modal></div>
+            <div class="agenda-modal-dialog">
+              <div class="agenda-modal-header">
+                <h3><i class="fa-solid fa-ban"></i> Cancelar Cita</h3>
+                <button type="button" class="agenda-modal-close" data-close-agenda-modal aria-label="Cerrar">&times;</button>
+              </div>
+              <div class="agenda-modal-body">
+                <input type="hidden" id="cancel-apt-id" />
+                <div id="cancel-apt-summary" class="agenda-service-hint-box" style="margin-bottom:12px;"></div>
+                <div class="admin-form-group">
+                  <label for="cancel-reason">Motivo de la cancelación *</label>
+                  <input type="text" id="cancel-reason" class="admin-input" required placeholder="Ej: Cliente canceló por imprevisto..." />
+                </div>
+                <div class="admin-form-group">
+                  <label>Motivos frecuentes:</label>
+                  <div class="agenda-quick-block-presets">
+                    <button type="button" class="btn-preset" data-agenda-action="setCancelReason" data-agenda-args='["Cancelado a petición del cliente"]'>A petición del cliente</button>
+                    <button type="button" class="btn-preset" data-agenda-action="setCancelReason" data-agenda-args='["Equipo ya reparado por su cuenta"]'>Ya resuelto</button>
+                    <button type="button" class="btn-preset" data-agenda-action="setCancelReason" data-agenda-args='["Falta de refacción disponible"]'>Sin refacción</button>
+                    <button type="button" class="btn-preset" data-agenda-action="setCancelReason" data-agenda-args='["Taller cerrado por imprevisto"]'>Taller no disponible</button>
+                  </div>
+                </div>
+              </div>
+              <div class="agenda-modal-footer">
+                <button type="button" class="btn-admin" data-close-agenda-modal>Cerrar</button>
+                <button type="button" class="btn-admin btn-danger" data-agenda-action="submitCancel">
+                  <i class="fa-solid fa-ban"></i> Confirmar Cancelación
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal de No-Show / Inasistencia -->
+          <div id="agenda-noshow-modal" class="agenda-modal-overlay" style="display:none;">
+            <div class="agenda-modal-backdrop" data-close-agenda-modal></div>
+            <div class="agenda-modal-dialog">
+              <div class="agenda-modal-header">
+                <h3><i class="fa-solid fa-user-xmark"></i> Marcar Inasistencia (No-Show)</h3>
+                <button type="button" class="agenda-modal-close" data-close-agenda-modal aria-label="Cerrar">&times;</button>
+              </div>
+              <div class="agenda-modal-body">
+                <input type="hidden" id="noshow-apt-id" />
+                <p id="noshow-apt-desc" style="font-size:0.9rem;color:var(--a-text);margin:0 0 12px;"></p>
+                <div class="drawer-alert drawer-alert-warn" style="font-size:0.8rem;">
+                  <i class="fa-solid fa-triangle-exclamation"></i> La capacidad del taller quedará liberada inmediatamente. El registro histórico se conserva para auditoría y estadísticas.
+                </div>
+              </div>
+              <div class="agenda-modal-footer">
+                <button type="button" class="btn-admin" data-close-agenda-modal>Cancelar</button>
+                <button type="button" class="btn-admin btn-warn" data-agenda-action="submitNoShow">
+                  <i class="fa-solid fa-user-xmark"></i> Confirmar No-Show
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal de Detalle y Desbloqueo de Horario -->
+          <div id="agenda-block-detail-modal" class="agenda-modal-overlay" style="display:none;">
+            <div class="agenda-modal-backdrop" data-close-agenda-modal></div>
+            <div class="agenda-modal-dialog">
+              <div class="agenda-modal-header">
+                <h3><i class="fa-solid fa-lock"></i> Detalle de Horario Bloqueado</h3>
+                <button type="button" class="agenda-modal-close" data-close-agenda-modal aria-label="Cerrar">&times;</button>
+              </div>
+              <div class="agenda-modal-body" id="agenda-block-detail-body">
+                <!-- Se llena dinámicamente -->
+              </div>
+              <div class="agenda-modal-footer">
+                <button type="button" class="btn-admin" data-close-agenda-modal>Cerrar</button>
+                <button type="button" class="btn-admin btn-danger" id="btn-agenda-unblock">
+                  <i class="fa-solid fa-lock-open"></i> Desbloquear Horario
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal de Validación de Pago Manual -->
+          <div id="agenda-payment-modal" class="agenda-modal-overlay" style="display:none;">
+            <div class="agenda-modal-backdrop" data-close-agenda-modal></div>
+            <div class="agenda-modal-dialog">
+              <div class="agenda-modal-header">
+                <h3><i class="fa-solid fa-receipt"></i> Validar Pago Recibido</h3>
+                <button type="button" class="agenda-modal-close" data-close-agenda-modal aria-label="Cerrar">&times;</button>
+              </div>
+              <div class="agenda-modal-body">
+                <input type="hidden" id="payment-apt-id" />
+                <p id="payment-apt-desc" style="font-size:0.9rem;color:var(--a-text);margin:0 0 12px;"></p>
+                <div class="admin-form-group">
+                  <label for="payment-ref-input">Referencia de transferencia / comprobante *</label>
+                  <input type="text" id="payment-ref-input" class="admin-input" required placeholder="Ej: TRANSF-SPEI-984321..." />
+                </div>
+              </div>
+              <div class="agenda-modal-footer">
+                <button type="button" class="btn-admin" data-close-agenda-modal>Cancelar</button>
+                <button type="button" class="btn-admin btn-approve" data-agenda-action="submitManualPayment">
+                  <i class="fa-solid fa-check"></i> Validar y Confirmar Cita
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Contenedor flotante de notificaciones Toast (reemplaza alerts invasivos) -->
           <div id="agenda-toast-container" class="agenda-toast-container" aria-live="polite"></div>
         </section>
@@ -914,10 +1096,16 @@ import '../../styles/admin.css';
           <div class="admin-section-header">
             <h2>Moderación de Comentarios</h2>
           </div>
+          <div id="google-sync-status" class="google-sync-status">
+            <span class="status-badge status-pending">Cargando estado de Google…</span>
+          </div>
           <div class="filters">
             <button class="filter-btn active" type="button" data-filter="all">Todos</button>
             <button class="filter-btn" type="button" data-filter="pending">Pendientes</button>
-            <button class="filter-btn" type="button" data-filter="approved">Aprobados</button>
+            <button class="filter-btn" type="button" data-filter="approved">Publicadas</button>
+            <button class="filter-btn" type="button" data-filter="hidden">Ocultas</button>
+            <button class="filter-btn" type="button" data-filter="google">Google</button>
+            <button class="filter-btn" type="button" data-filter="local">Locales</button>
           </div>
           <div class="admin-grid" id="comments-grid"></div>
         </section>
@@ -985,6 +1173,30 @@ import '../../styles/admin.css';
           </div>
           <div class="admin-filter-summary" id="faqFilterSummary">Categorias comprimidas. Abre una para ver sus preguntas.</div>
           <div id="faqs-container"></div>
+        </section>
+
+        <!-- ═══ VISTA PREFERENCIAS ═══ -->
+        <section id="view-preferences" class="admin-section" style="display:none;">
+          <div class="admin-section-header">
+            <h2>Preferencias del Sistema</h2>
+          </div>
+          <div class="preferences-grid">
+            <div class="preferences-card">
+              <h3 style="margin-top:0; font-size:1.1rem; color:var(--a-text);"><i class="fa-solid fa-store"></i> Datos del Negocio (NAP Cancún)</h3>
+              <div class="drawer-kv"><span>Negocio:</span> <strong>Pixon PC</strong></div>
+              <div class="drawer-kv"><span>Dirección:</span> <strong>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</strong></div>
+              <div class="drawer-kv"><span>Teléfono / WA:</span> <strong>+52 998 669 0777</strong></div>
+              <div class="drawer-kv"><span>Email:</span> <strong>pixonpc@gmail.com</strong></div>
+              <div class="drawer-kv"><span>Zona Horaria:</span> <strong>America/Cancun (UTC-5)</strong></div>
+            </div>
+            <div class="preferences-card">
+              <h3 style="margin-top:0; font-size:1.1rem; color:var(--a-text);"><i class="fa-solid fa-sliders"></i> Operación y Capacidad</h3>
+              <div class="drawer-kv"><span>Capacidad por slot:</span> <strong>3 unidades simultáneas</strong></div>
+              <div class="drawer-kv"><span>Intervalo de slot:</span> <strong>30 minutos</strong></div>
+              <div class="drawer-kv"><span>Horario operativo:</span> <strong>08:30 – 19:00</strong></div>
+              <div class="drawer-kv"><span>Políticas de precio:</span> <strong>Diagnóstico desde $600 · Mantenimiento desde $1,000 / 15% · Mojado por confirmar</strong></div>
+            </div>
+          </div>
         </section>
 
       </div>
@@ -1214,35 +1426,33 @@ import '../../styles/admin.css';
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       SIDEBAR INTERACTIONS — hover-expand + tab switching + mobile
+       SIDEBAR INTERACTIONS — toggle + tab switching + groups + mobile
   ═══════════════════════════════════════════════════════════════ -->
   <script is:inline>
     (function () {
       const shell = document.getElementById('admin-shell');
       const sidebar = document.getElementById('admin-sidebar');
+      const sbToggle = document.getElementById('adminSbToggle');
       const mobileToggle = document.getElementById('adminMobileToggle');
+      const mobileClose = document.getElementById('adminSidebarMobileClose');
       const pageTitle = document.getElementById('admin-page-title');
       const subtitle  = document.getElementById('admin-subtitle');
 
-      // Hover-expand: en desktop, al pasar el cursor sobre la sidebar se expande.
-      // Al salir, vuelve a colapsada. En mobile se ignora (se usa toggle).
-      let hoverTimer = null;
-      function isDesktop() { return window.innerWidth >= 1024; }
+      // 1. Estado colapsado de sidebar persistido en localStorage (Desktop)
+      const SIDEBAR_COLLAPSED_KEY = 'admin_sidebar_collapsed';
+      try {
+        const savedCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+        if (savedCollapsed === 'true' && window.innerWidth >= 1024) {
+          shell?.classList.add('sb-collapsed');
+        } else {
+          shell?.classList.remove('sb-collapsed');
+        }
+      } catch (_) {}
 
-      sidebar.addEventListener('mouseenter', () => {
-        if (!isDesktop()) return;
-        clearTimeout(hoverTimer);
-        shell.classList.remove('sb-collapsed');
-        shell.classList.add('sb-hover');
-      });
-      sidebar.addEventListener('mouseleave', () => {
-        if (!isDesktop()) return;
-        clearTimeout(hoverTimer);
-        // Pequeño delay para evitar flicker al salir y volver a entrar
-        hoverTimer = setTimeout(() => {
-          shell.classList.add('sb-collapsed');
-          shell.classList.remove('sb-hover');
-        }, 180);
+      sbToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isCollapsed = shell.classList.toggle('sb-collapsed');
+        try { localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(isCollapsed)); } catch (_) {}
       });
 
       // Tab switching
@@ -1262,9 +1472,11 @@ import '../../styles/admin.css';
         comments:  { title: 'Comentarios',          sub: 'Modera reseñas pendientes y aprobadas.' },
         users:     { title: 'Usuarios',             sub: 'Lista de usuarios registrados y roles.' },
         faqs:      { title: 'Preguntas Frecuentes', sub: 'Gestiona FAQs y revisa búsquedas sin respuesta.' },
+        preferences: { title: 'Preferencias',       sub: 'Configuración general del sistema y datos operativos.' },
       };
 
       const COMMERCE_ROUTES = {
+        dashboard: '/admin',
         agenda: '/admin/agenda',
         commerce: '/admin/commerce',
         'commerce-store': '/admin/commerce/store',
@@ -1285,6 +1497,7 @@ import '../../styles/admin.css';
           if (isActive) l.setAttribute('aria-current', 'page');
           else l.removeAttribute('aria-current');
         });
+        ensureActiveGroupExpanded();
         document.querySelectorAll('.commerce-module-card[data-view-target]').forEach(card => {
           if (card.dataset.viewTarget === view) card.setAttribute('aria-current', 'page');
           else card.removeAttribute('aria-current');
@@ -1299,8 +1512,11 @@ import '../../styles/admin.css';
         }
         if (window.innerWidth < 1024) shell.classList.remove('sb-open');
         try { sessionStorage.setItem('admin_view', view); } catch (_) {}
-        const nextUrl = COMMERCE_ROUTES[view] || ('/admin#' + view);
-        if (location.pathname + location.hash !== nextUrl) {
+        const isHtmlFile = location.pathname.endsWith('.html');
+        const nextUrl = isHtmlFile
+          ? (location.pathname + '#' + view)
+          : (COMMERCE_ROUTES[view] || ('/admin#' + view));
+        if (!options.skipHistory && location.pathname + location.hash !== nextUrl) {
           const method = options.replace ? 'replaceState' : 'pushState';
           history[method]({ adminView: view }, '', nextUrl);
         }
@@ -1317,18 +1533,67 @@ import '../../styles/admin.css';
         });
       });
 
-      const commerceToggle = document.querySelector('[data-commerce-toggle]');
-      const commerceItems = document.getElementById('commerce-nav-items');
-      function setCommerceOpen(open) {
-        if (!commerceToggle || !commerceItems) return;
-        commerceToggle.setAttribute('aria-expanded', String(open));
-        commerceItems.hidden = !open;
-        commerceToggle.title = open ? 'Ocultar comercio' : 'Mostrar comercio';
-        try { localStorage.setItem('admin_commerce_open', open ? '1' : '0'); } catch (_) {}
+      // Secciones del sidebar colapsables por su propio encabezado (sin
+      // botón "Mostrar X" aparte). Estado persistido en localStorage.
+      const NAV_GROUP_STORAGE_KEY = 'admin_nav_group_state';
+      function readNavGroupState() {
+        try { return JSON.parse(localStorage.getItem(NAV_GROUP_STORAGE_KEY) || '{}'); } catch (_) { return {}; }
       }
-      commerceToggle?.addEventListener('click', () => setCommerceOpen(commerceToggle.getAttribute('aria-expanded') !== 'true'));
-      try { setCommerceOpen(localStorage.getItem('admin_commerce_open') === '1'); } catch (_) {}
-      document.querySelectorAll('[data-notifications-focus]').forEach((button) => button.addEventListener('click', () => document.getElementById('notificationsBellBtn')?.click()));
+      function writeNavGroupState(state) {
+        try { localStorage.setItem(NAV_GROUP_STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+      }
+      function setNavGroupOpen(groupEl, open, { persist = true } = {}) {
+        const header = groupEl.querySelector('[data-group-toggle]');
+        const items = groupEl.querySelector('.nav-group-items');
+        if (!header || !items) return;
+        header.setAttribute('aria-expanded', String(open));
+        items.hidden = !open;
+        if (persist) {
+          const state = readNavGroupState();
+          state[groupEl.dataset.navGroup] = open;
+          writeNavGroupState(state);
+        }
+      }
+      const navGroupState = readNavGroupState();
+      document.querySelectorAll('.nav-group[data-nav-group]').forEach((groupEl) => {
+        const header = groupEl.querySelector('[data-group-toggle]');
+        const groupKey = groupEl.dataset.navGroup;
+        const saved = navGroupState[groupKey];
+        const defaultOpen = header?.getAttribute('aria-expanded') === 'true';
+        setNavGroupOpen(groupEl, typeof saved === 'boolean' ? saved : defaultOpen, { persist: false });
+        header?.addEventListener('click', () => {
+          setNavGroupOpen(groupEl, header.getAttribute('aria-expanded') !== 'true');
+        });
+      });
+
+      // Si la vista activa vive dentro de un grupo colapsado, expandirlo para
+      // que el item activo siempre sea visible.
+      function ensureActiveGroupExpanded() {
+        const activeLink = document.querySelector('.nav-link[data-view].active, .nav-link[data-view][aria-current="page"]');
+        const group = activeLink?.closest('.nav-group[data-nav-group]');
+        if (group && group.querySelector('[data-group-toggle]')?.getAttribute('aria-expanded') !== 'true') {
+          setNavGroupOpen(group, true);
+        }
+      }
+      ensureActiveGroupExpanded();
+      document.querySelectorAll('[data-notifications-focus]').forEach((button) => button.addEventListener('click', () => {
+        document.getElementById('notificationsBellBtn')?.click();
+        if (window.innerWidth < 1024) shell.classList.remove('sb-open');
+      }));
+
+      // Bloque de usuario / perfil interactivo
+      const userBlock = document.getElementById('admin-user-block');
+      userBlock?.setAttribute('role', 'button');
+      userBlock?.setAttribute('tabindex', '0');
+      userBlock?.setAttribute('title', 'Preferencias de cuenta');
+      const goToProfile = () => switchView('preferences');
+      userBlock?.addEventListener('click', goToProfile);
+      userBlock?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          goToProfile();
+        }
+      });
 
       document.querySelectorAll('[data-view-target]').forEach(button => {
         button.addEventListener('click', (event) => {
@@ -1342,7 +1607,8 @@ import '../../styles/admin.css';
 
       // Restaurar última vista
       try {
-        const routeView = ROUTE_VIEWS[location.pathname.replace(/\/$/, '') || '/admin'];
+        const isHtmlFile = location.pathname.endsWith('.html');
+        const routeView = !isHtmlFile && ROUTE_VIEWS[location.pathname.replace(/\/$/, '') || '/admin'];
         const hashView = location.hash.slice(1);
         const saved = sessionStorage.getItem('admin_view');
         if (routeView) switchView(routeView, { replace: true });
@@ -1350,15 +1616,21 @@ import '../../styles/admin.css';
         else if (saved && VIEW_TITLES[saved]) switchView(saved, { replace: true });
       } catch (_) {}
 
-      window.addEventListener('popstate', () => {
-        const view = ROUTE_VIEWS[location.pathname.replace(/\/$/, '')] || location.hash.slice(1) || 'dashboard';
-        switchView(VIEW_TITLES[view] ? view : 'dashboard', { replace: true });
+      // Manejo de Back / Forward del navegador
+      window.addEventListener('popstate', (e) => {
+        const isHtmlFile = location.pathname.endsWith('.html');
+        const viewFromState = e.state?.adminView;
+        const view = viewFromState || (!isHtmlFile && ROUTE_VIEWS[location.pathname.replace(/\/$/, '')]) || location.hash.slice(1) || 'dashboard';
+        switchView(VIEW_TITLES[view] ? view : 'dashboard', { replace: true, skipHistory: true });
       });
 
-      // Mobile toggle
+      // Mobile drawer toggling and auto-close
       mobileToggle?.addEventListener('click', (e) => {
         e.stopPropagation();
         shell.classList.toggle('sb-open');
+      });
+      mobileClose?.addEventListener('click', () => {
+        shell.classList.remove('sb-open');
       });
       document.addEventListener('click', (e) => {
         if (window.innerWidth < 1024 && shell.classList.contains('sb-open')) {
@@ -1373,6 +1645,7 @@ import '../../styles/admin.css';
           mobileToggle?.focus();
         }
       });
+
 
       // Llenar el bloque de usuario en sidebar tan pronto como /api/me responda.
       fetch('/api/me', { credentials: 'include' })

@@ -29,6 +29,8 @@ const createHealthRoutes = require('./routes/health.routes');
 const createCommerceModule = require('./modules/commerce');
 const { DashboardService } = require('./modules/dashboard/dashboard.service');
 const { createAppointmentRouter, createAdminAppointmentRouter } = require('./modules/appointments/appointment.routes');
+const { createGoogleReviewsModule } = require('./modules/reviews/google-reviews.routes');
+const { startGoogleReviewsSyncWorker } = require('./jobs/google-reviews-sync.worker');
 const {
     cleanText,
     cleanMultilineText,
@@ -352,6 +354,10 @@ async function bootstrap() {
     }));
 
     app.use('/api/track/view', express.text({ type: '*/*', limit: '10kb' }));
+    // navigator.sendBeacon() envía Content-Type: text/plain, no application/json;
+    // sin este parser, express.json() ignora el body y TODO evento de conversión
+    // (whatsapp_click, phone_click, add_to_cart, etc.) se pierde en silencio.
+    app.use('/api/track/event', express.text({ type: '*/*', limit: '10kb' }));
     // Los proveedores firman los bytes exactos; debe ejecutarse antes de express.json.
     app.use('/api/commerce/webhooks', express.raw({ type: 'application/json', limit: '1mb' }));
     app.use(express.json({ limit: '10kb' }));
@@ -386,43 +392,39 @@ async function bootstrap() {
     // La diferencia es solo cache: dev = 0, prod = larga.
     // Para ver cambios: correr `npm run build` (o `npm run build:astro` solo).
     const isProd = process.env.NODE_ENV === 'production';
-    if (!isProd) {
-        app.use(staticSkipAdmin(express.static(distPath, {
-            index: false,
-            maxAge: 0,
-            etag: false,
-            redirect: false,
-            setHeaders: setUtf8StaticHeaders
-        })));
-    } else {
-        app.use(staticSkipAdmin(express.static(distPath, {
-            maxAge: '1y',
-            etag: true,
-            index: false,
-            redirect: false,
-            setHeaders: (res, filePath) => {
-                setUtf8StaticHeaders(res, filePath);
-                const p = filePath.replace(/\\/g, '/');
-                if (/\.(html?)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400');
-                } else if (/\/_astro\/.+\.[A-Za-z0-9_-]{8,}\.(js|css|mjs)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-                } else if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-                } else if (/\/(styles|scripts|components)\/.+\.(js|css|mjs)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
-                } else if (/\/(sw|cache-buster)\.js$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-                } else if (/\/sitemap\.(xml|xsl)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
-                } else if (/\/(manifest\.json|robots\.txt)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-                } else if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(p)) {
-                    res.setHeader('Cache-Control', 'public, max-age=2592000, s-maxage=604800, stale-while-revalidate=2592000');
-                }
-            }
-        })));
+    function applyStaticHeaders(res, filePath) {
+        setUtf8StaticHeaders(res, filePath);
+        const p = filePath.replace(/\\/g, '/');
+        if (/\.(html?)$/i.test(p)) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        } else if (/\/_astro\/.+\.[A-Za-z0-9_-]{8,}\.(js|css|mjs)$/i.test(p)) {
+            res.setHeader('Cache-Control', isProd ? 'public, max-age=31536000, immutable' : 'no-cache, max-age=0');
+        } else if (/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/i.test(p)) {
+            res.setHeader('Cache-Control', isProd ? 'public, max-age=31536000, immutable' : 'no-cache, max-age=0');
+        } else if (/\/(styles|scripts|components)\/.+\.(js|css|mjs)$/i.test(p)) {
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
+        } else if (/\/(sw|cache-buster)\.js$/i.test(p) || /\/version\.json$/i.test(p)) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        } else if (/\/sitemap\.(xml|xsl)$/i.test(p)) {
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
+        } else if (/\/(manifest\.json|robots\.txt)$/i.test(p)) {
+            res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+        } else if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(p)) {
+            res.setHeader('Cache-Control', isProd ? 'public, max-age=2592000, s-maxage=604800, stale-while-revalidate=2592000' : 'no-cache, max-age=0');
+        }
     }
+
+    app.use(staticSkipAdmin(express.static(distPath, {
+        maxAge: isProd ? '1y' : 0,
+        etag: isProd,
+        index: false,
+        redirect: false,
+        setHeaders: applyStaticHeaders
+    })));
 
     app.get('/robots.txt', (_req, res) => {
         const file = path.join(distPath, 'robots.txt');
@@ -489,6 +491,11 @@ async function bootstrap() {
         windowMs: 10 * 60 * 1000,
         max: 6,
         message: 'Demasiados comentarios enviados. Espera unos minutos.'
+    });
+    const googleReviewsSyncLimiter = createLimiter({
+        windowMs: 10 * 60 * 1000,
+        max: 5,
+        message: 'Demasiadas sincronizaciones manuales. Espera unos minutos.'
     });
     const ticketLimiter = createLimiter({
         windowMs: 10 * 60 * 1000,
@@ -619,13 +626,18 @@ async function bootstrap() {
     app.use((req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
         if (req.path.startsWith('/auth/')) return next();
-        // /api/track/view es fire-and-forget vía navigator.sendBeacon que NO
-        // permite setear headers custom. Es lectura-pasiva (no muta cuentas
-        // ni privilegios), por lo que no necesita CSRF.
-        if (req.path === '/api/track/view') return next();
+        // /api/track/view y /api/track/event son fire-and-forget vía
+        // navigator.sendBeacon(), que NO permite setear headers custom.
+        // Ambos son analítica anónima (no mutan cuentas ni privilegios),
+        // por lo que no necesitan CSRF.
+        if (req.path === '/api/track/view' || req.path === '/api/track/event') return next();
         // Los webhooks no usan sesion/cookie: su autenticidad se verifica con la
         // firma criptografica propia del proveedor y el evento es idempotente.
         if (req.path.startsWith('/api/commerce/webhooks/')) return next();
+        // Igual que los webhooks de commerce: Google Cloud Pub/Sub no tiene
+        // sesion/cookie propia. Se autentica con un token en la query string
+        // (ver google-reviews.pubsub.js), no con este header.
+        if (req.path === '/api/reviews/pubsub') return next();
         if (!isTrustedRequestOrigin(req)) {
             return res.status(403).json({ error: 'CSRF: origen no permitido' });
         }
@@ -682,6 +694,21 @@ async function bootstrap() {
 
     app.use('/api/appointments', appointmentPublic.router);
     app.use('/api/admin/appointments', appointmentAdminRouter);
+
+    // Reseñas reales de Google Business Profile: sync (Pub/Sub + cron de
+    // respaldo) + moderación admin + endpoint público de solo-aprobadas.
+    const googleReviews = createGoogleReviewsModule({
+        pool: getDB(),
+        requireAdmin,
+        rateLimiter: googleReviewsSyncLimiter,
+        dbEmitter
+    });
+    app.use('/api/reviews', googleReviews.publicRouter);
+    app.use('/api/admin/google-reviews', googleReviews.adminRouter);
+    const googleReviewsSyncWorker = startGoogleReviewsSyncWorker({
+        pool: getDB(),
+        syncService: googleReviews.syncService
+    });
 
     // Auto-expiración periódica de apartados impagos (cada 5 minutos)
     const holdCleanupInterval = setInterval(() => {
@@ -932,219 +959,9 @@ async function bootstrap() {
         res.json(comments);
     }));
 
-    /* ─────────────────────────────────────────────────────────
-       GOOGLE PLACES API → Reseñas reales de Google Maps
-       Cacheado 1h en memoria (Places API es billable, ~$17/1000 calls)
-    ───────────────────────────────────────────────────────── */
-    const googleReviewsCache = { data: null, expires: 0 };
-    const GOOGLE_REVIEWS_TTL = 60 * 60 * 1000; // 1 hora
-    const GOOGLE_REVIEW_SHARE_URL = 'https://share.google/RdsuiK10TObYQxIne';
-    const GOOGLE_PLACE_QUERY = 'Pixon PC, Cto. Hacienda Chimay, 77539 Cancún, Q.R., México';
-
-    function googlePlacesJson(url, { method = 'GET', headers = {}, body } = {}) {
-        return new Promise((resolve, reject) => {
-            const https = require('https');
-            const request = https.request(url, { method, headers }, response => {
-                let payload = '';
-                response.setEncoding('utf8');
-                response.on('data', chunk => { payload += chunk; });
-                response.on('end', () => {
-                    let data;
-                    try {
-                        data = payload ? JSON.parse(payload) : {};
-                    } catch (error) {
-                        reject(new Error('Google Places devolvió una respuesta inválida.'));
-                        return;
-                    }
-                    if (response.statusCode < 200 || response.statusCode >= 300) {
-                        const message = data?.error?.message || `Google Places respondió HTTP ${response.statusCode}`;
-                        reject(new Error(message));
-                        return;
-                    }
-                    resolve(data);
-                });
-            });
-            request.setTimeout(8000, () => request.destroy(new Error('La consulta a Google Places excedió el tiempo permitido.')));
-            request.on('error', reject);
-            if (body) request.write(JSON.stringify(body));
-            request.end();
-        });
-    }
-
-    async function sendGoogleReviews(req, res) {
-        const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-        let placeId = process.env.GOOGLE_PLACE_ID;
-        const defaultPayload = {
-            source: 'unconfigured',
-            configured: false,
-            place_id: placeId || null,
-            google_maps_uri: GOOGLE_REVIEW_SHARE_URL,
-            reviews_url: GOOGLE_REVIEW_SHARE_URL,
-            write_review_url: GOOGLE_REVIEW_SHARE_URL,
-            reviews: [],
-            rating: 0,
-            total: 0,
-            hint: 'Configura GOOGLE_PLACES_API_KEY para mostrar reseñas reales de Google Maps.'
-        };
-
-        if (!apiKey) return res.json(defaultPayload);
-
-        if (googleReviewsCache.data && Date.now() < googleReviewsCache.expires) {
-            return res.json({ ...googleReviewsCache.data, cached: true });
-        }
-
-        try {
-            if (!placeId) {
-                const search = await googlePlacesJson('https://places.googleapis.com/v1/places:searchText', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Goog-Api-Key': apiKey,
-                        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress'
-                    },
-                    body: {
-                        textQuery: GOOGLE_PLACE_QUERY,
-                        languageCode: 'es',
-                        regionCode: 'MX'
-                    }
-                });
-                placeId = search.places?.[0]?.id;
-                if (!placeId) throw new Error('No se encontró la ficha de Pixon PC. Configura GOOGLE_PLACE_ID para fijar la ficha correcta.');
-            }
-
-            const place = await googlePlacesJson(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?languageCode=es`, {
-                headers: {
-                    'X-Goog-Api-Key': apiKey,
-                    'X-Goog-FieldMask': 'id,displayName,rating,userRatingCount,reviews,googleMapsUri,googleMapsLinks'
-                }
-            });
-            const reviews = (place.reviews || []).map((review, index) => ({
-                id: review.name || `google-${review.publishTime || index}`,
-                name: review.authorAttribution?.displayName || 'Cliente de Google',
-                text: review.text?.text || review.originalText?.text || '',
-                rating: review.rating || 0,
-                relative_time: review.relativePublishTimeDescription || '',
-                published_at: review.publishTime || '',
-                profile_photo_url: review.authorAttribution?.photoUri || '',
-                google_maps_uri: review.googleMapsUri || ''
-            })).filter(review => review.text);
-
-            const payload = {
-                source: 'google',
-                configured: true,
-                place_id: place.id || placeId,
-                place_name: place.displayName?.text || 'Pixon PC',
-                rating: place.rating || 0,
-                total: place.userRatingCount || 0,
-                google_maps_uri: place.googleMapsUri || GOOGLE_REVIEW_SHARE_URL,
-                reviews_url: place.googleMapsLinks?.reviewsUri || place.googleMapsUri || GOOGLE_REVIEW_SHARE_URL,
-                write_review_url: place.googleMapsLinks?.writeAReviewUri || place.googleMapsUri || GOOGLE_REVIEW_SHARE_URL,
-                reviews
-            };
-
-            googleReviewsCache.data = payload;
-            googleReviewsCache.expires = Date.now() + GOOGLE_REVIEWS_TTL;
-            return res.json(payload);
-        } catch (error) {
-            logError(error, req, 'google-places');
-            return res.json({
-                ...defaultPayload,
-                source: 'error',
-                configured: true,
-                place_id: placeId || null,
-                error: error.message
-            });
-        }
-    }
-
-    app.get('/api/reviews/google', ah(async (_req, res) => {
-        return sendGoogleReviews(_req, res);
-
-        const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-        const placeId = process.env.GOOGLE_PLACE_ID;
-
-        // Si no hay API key configurada, devolver respuesta clara para el frontend
-        if (!apiKey || !placeId) {
-            return res.json({
-                source: 'unconfigured',
-                configured: false,
-                place_id: placeId || null,
-                reviews: [],
-                rating: 0,
-                total: 0,
-                hint: 'Configura GOOGLE_PLACES_API_KEY y GOOGLE_PLACE_ID en .env para mostrar reseñas reales de Google Maps.'
-            });
-        }
-
-        // Servir desde caché si aún es válido (evita llamadas billables repetidas)
-        if (googleReviewsCache.data && Date.now() < googleReviewsCache.expires) {
-            return res.json({ ...googleReviewsCache.data, cached: true });
-        }
-
-        try {
-            const https = require('https');
-            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=name,rating,reviews,user_ratings_total&language=es&key=${apiKey}`;
-
-            const data = await new Promise((resolve, reject) => {
-                https.get(url, (resp) => {
-                    let body = '';
-                    resp.on('data', (chunk) => body += chunk);
-                    resp.on('end', () => {
-                        try { resolve(JSON.parse(body)); }
-                        catch (e) { reject(e); }
-                    });
-                }).on('error', reject);
-            });
-
-            if (data.status !== 'OK') {
-                return res.json({
-                    source: 'error',
-                    configured: true,
-                    place_id: placeId,
-                    error: data.status,
-                    error_message: data.error_message || null,
-                    reviews: [], rating: 0, total: 0
-                });
-            }
-
-            const result = data.result;
-            const reviews = (result.reviews || []).map(r => ({
-                id: `google-${r.time}`,
-                name: r.author_name,
-                text: r.text,
-                rating: r.rating,
-                relative_time: r.relative_time_description,
-                time: r.time,
-                profile_photo_url: r.profile_photo_url,
-                source: 'google',
-                verified: true
-            }));
-
-            const payload = {
-                source: 'google',
-                configured: true,
-                place_id: placeId,
-                place_name: result.name,
-                rating: result.rating,
-                total: result.user_ratings_total,
-                reviews
-            };
-
-            googleReviewsCache.data = payload;
-            googleReviewsCache.expires = Date.now() + GOOGLE_REVIEWS_TTL;
-
-            res.json(payload);
-        } catch (err) {
-            logError(err, _req, 'google-places');
-            res.json({
-                source: 'error',
-                configured: true,
-                place_id: placeId,
-                error: err.message,
-                reviews: [], rating: 0, total: 0
-            });
-        }
-    }));
+    // Reseñas de Google: ver createGoogleReviewsModule() más abajo.
+    // Fuente real = Business Profile API (accounts.locations.reviews.list),
+    // sincronizada y moderada en admin — ya no es un passthrough de Places API.
 
     app.get('/api/comments/stream', (req, res) => {
         res.setHeader('Content-Type', 'text/event-stream; charset=UTF-8');
@@ -1447,7 +1264,7 @@ async function bootstrap() {
         const eventName = cleanText(payload.event, 48);
         const pagePath = cleanText(payload.path, 300);
         const locale = cleanText(payload.locale, 2).toLowerCase();
-        const allowed = new Set(['whatsapp_click', 'phone_click', 'ticket_start', 'ticket_submit', 'add_to_cart', 'checkout_start', 'order_created', 'language_switch']);
+        const allowed = new Set(['whatsapp_click', 'phone_click', 'ticket_start', 'ticket_submit', 'add_to_cart', 'checkout_start', 'order_created', 'language_switch', 'maintenance_preventive_quote_click', 'maintenance_preventive_include_click', 'maintenance_preventive_home_crosslink']);
         if (!allowed.has(eventName) || !pagePath.startsWith('/') || pagePath.startsWith('//') || !['es', 'en'].includes(locale)) {
             return res.status(400).json({ error: 'invalid conversion event' });
         }
@@ -1974,7 +1791,9 @@ async function bootstrap() {
 
             const sendFileOptions = {
                 headers: {
-                    'Cache-Control': 'public, max-age=600, s-maxage=86400, stale-while-revalidate=86400'
+                    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
                 }
             };
 
@@ -2077,6 +1896,7 @@ Alternativa para arrancar en otro puerto:
         console.log(`[server] ${signal} recibido; cerrando conexiones nuevas.`);
         commerce.stopMaintenance();
         emailOutboxWorker.stop();
+        googleReviewsSyncWorker.stop();
         clearInterval(holdCleanupInterval);
         server.close(async () => {
             try { await getDB().end(); } catch (error) { console.error('[server] Error cerrando MariaDB:', error.message); }

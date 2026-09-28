@@ -56,6 +56,7 @@ export interface ServiceFlags {
   isPhoneNoPower: boolean;
   isPhoneLiquidDamage: boolean;
   isIphoneService: boolean;
+  isIphoneAdvancedRepair: boolean;
   isIphoneScreenRepair: boolean;
   isIphoneBatteryReplacement: boolean;
   isSamsungBatteryReplacement: boolean;
@@ -130,6 +131,7 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
   const isPhoneNoPower = category.slug === 'telefono' && service.slug === 'celular-no-prende';
   const isPhoneLiquidDamage = category.slug === 'telefono' && service.slug === 'celular-mojado';
   const isIphoneService = category.slug === 'telefono' && (service.slug === 'reparacion-iphone' || service.slug.endsWith('-iphone'));
+  const isIphoneAdvancedRepair = category.slug === 'telefono' && service.slug === 'reparacion-iphone';
   const isIphoneScreenRepair = category.slug === 'telefono' && service.slug === 'reparacion-pantalla-iphone';
   const isIphoneBatteryReplacement = category.slug === 'telefono' && service.slug === 'cambio-bateria-iphone';
   const isSamsungBatteryReplacement = category.slug === 'telefono' && service.slug === 'cambio-bateria-samsung';
@@ -147,7 +149,6 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
     isLaptopScreenReplacement ||
     isLaptopKeyboardReplacement ||
     isPcFormat ||
-    isPcUpgrade ||
     isPrinterService ||
     isConsoleCleaning ||
     isConsoleHdmi ||
@@ -213,6 +214,7 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
     isPhoneNoPower,
     isPhoneLiquidDamage,
     isIphoneService,
+    isIphoneAdvancedRepair,
     isIphoneScreenRepair,
     isIphoneBatteryReplacement,
     isSamsungBatteryReplacement,

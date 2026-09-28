@@ -86,7 +86,12 @@ if (document.querySelector('#commentForm, .comment-form-container')) {
       }, 1200);
     };
 
-    scheduleHeroVideo();
+    const conn = navigator.connection;
+    const skipHeroVideo = document.documentElement.classList.contains('low-end-mode') ||
+      (conn && (conn.saveData || /2g|3g/.test(conn.effectiveType || '')));
+    if (!skipHeroVideo) {
+      scheduleHeroVideo();
+    }
 
     if ('IntersectionObserver' in window) {
       const heroVideoObserver = new IntersectionObserver((entries) => {

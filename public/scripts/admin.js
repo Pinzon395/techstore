@@ -2,6 +2,8 @@
 
 const API_BASE = '/api';
 let allComments = [];
+let allGoogleReviews = [];
+let googleSyncStatus = null;
 let allRepairs = [];
 let allBuilds = [];
 let currentFilter = 'all'; // all, pending, approved
@@ -125,7 +127,89 @@ async function fetchComments() {
     } catch (err) {
         showAdminNotice('Error: ' + err.message, 'error');
     }
+    // Independiente del resultado de los comentarios locales: si esto falla
+    // (p. ej. Google no configurado todavía) no debe romper la vista.
+    await Promise.all([fetchGoogleReviews(), fetchGoogleSyncStatus()]);
 }
+
+async function fetchGoogleReviews() {
+    try {
+        const res = await fetch(`${API_BASE}/admin/google-reviews`, INCLUDE_CREDENTIALS);
+        if (!res.ok) throw new Error('Error al cargar reseñas de Google');
+        allGoogleReviews = await res.json();
+        renderComments();
+    } catch (err) {
+        allGoogleReviews = [];
+        console.error('[google-reviews]', err.message);
+    }
+}
+
+async function fetchGoogleSyncStatus() {
+    try {
+        const res = await fetch(`${API_BASE}/admin/google-reviews/status`, INCLUDE_CREDENTIALS);
+        if (!res.ok) throw new Error('No se pudo consultar el estado de sincronización');
+        googleSyncStatus = await res.json();
+    } catch (err) {
+        googleSyncStatus = null;
+        console.error('[google-reviews]', err.message);
+    }
+    renderGoogleSyncStatus();
+}
+
+const GOOGLE_STATUS_LABEL = {
+    CONNECTED: { text: 'Conectado', cls: 'status-approved' },
+    NEEDS_LOCATION: { text: 'Falta accountId/locationId', cls: 'status-pending' },
+    NEEDS_AUTHORIZATION: { text: 'Necesita autorización', cls: 'status-pending' },
+    NOT_CONFIGURED: { text: 'No configurado', cls: 'status-pending' }
+};
+
+function renderGoogleSyncStatus() {
+    const box = document.getElementById('google-sync-status');
+    if (!box) return;
+    if (!googleSyncStatus) {
+        box.innerHTML = '<span class="status-badge status-pending">Sin datos</span>';
+        return;
+    }
+    const label = GOOGLE_STATUS_LABEL[googleSyncStatus.status] || GOOGLE_STATUS_LABEL.NOT_CONFIGURED;
+    const lastSync = googleSyncStatus.lastSyncedAt
+        ? new Date(googleSyncStatus.lastSyncedAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+        : 'nunca';
+    const errorBadge = googleSyncStatus.lastSyncStatus === 'ERROR'
+        ? `<span class="status-badge status-pending" title="${escapeHtml(googleSyncStatus.lastError || '')}"><i class="fa-solid fa-triangle-exclamation"></i> Error</span>`
+        : '';
+    const authorizeBtn = (googleSyncStatus.status === 'NEEDS_AUTHORIZATION')
+        ? `<a class="btn-admin btn-approve" href="${API_BASE}/admin/google-reviews/oauth/start"><i class="fa-brands fa-google"></i> Autorizar con Google</a>`
+        : '';
+    box.innerHTML = `
+        <span class="status-badge ${label.cls}">${escapeHtml(label.text)}</span>
+        ${errorBadge}
+        <span style="color:var(--a-text-dim); font-size:.78rem;">Última sincronización: ${lastSync}</span>
+        ${authorizeBtn}
+        <button class="btn-admin btn-outline" type="button" onclick="syncGoogleReviews(event)"><i class="fa-solid fa-rotate"></i> Sincronizar Google</button>
+    `;
+}
+
+window.syncGoogleReviews = async function (evt) {
+    const btn = evt?.target?.closest('button');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sincronizando…'; }
+    try {
+        const res = await fetch(`${API_BASE}/admin/google-reviews/sync`, { method: 'POST', headers: CSRF_HEADER, credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            if (data.reason === 'EXTERNAL_REQUIRED') {
+                showAdminNotice('Google todavía no está autorizado/configurado. Revisa el estado arriba.', 'error');
+            } else {
+                throw new Error(data.message || `Error al sincronizar (HTTP ${res.status})`);
+            }
+        } else {
+            showAdminNotice(`Sincronizado: ${data.total} reseñas, ${data.newlyPending} nuevas pendientes.`, 'success');
+        }
+    } catch (err) {
+        showAdminNotice(err.message, 'error');
+    } finally {
+        await Promise.all([fetchGoogleReviews(), fetchGoogleSyncStatus()]);
+    }
+};
 
 async function fetchUsers() {
     try {
@@ -175,23 +259,59 @@ function renderUsers(users) {
     });
 }
 
+/** Normaliza comentarios locales y reseñas de Google a una forma común para la grilla. */
+function buildUnifiedCommentsList() {
+    const local = allComments.map(c => ({
+        uid: `local-${c.id}`,
+        id: c.id,
+        source: 'LOCAL',
+        name: c.name,
+        email: c.user_email || null,
+        stars: c.stars,
+        text: c.text,
+        created_at: c.created_at,
+        status: c.approved === 1 ? 'approved' : 'pending',
+        review_url: null,
+        reply: null
+    }));
+    const google = allGoogleReviews.map(r => ({
+        uid: `google-${r.id}`,
+        id: r.id,
+        source: 'GOOGLE',
+        name: r.name,
+        email: null,
+        stars: r.stars,
+        text: r.text,
+        created_at: r.created_at,
+        status: r.status === 'APPROVED' ? 'approved' : (r.status === 'HIDDEN' ? 'hidden' : (r.status === 'REMOVED' ? 'removed' : 'pending')),
+        review_url: r.review_url,
+        reply: r.reply
+    }));
+    return [...google, ...local];
+}
+
 function renderComments() {
     const grid = document.getElementById('comments-grid');
     grid.innerHTML = '';
 
-    let filtered = allComments;
-    if (currentFilter === 'pending') filtered = allComments.filter(c => c.approved === 0);
-    if (currentFilter === 'approved') filtered = allComments.filter(c => c.approved === 1);
+    const unified = buildUnifiedCommentsList();
+    let filtered = unified;
+    if (currentFilter === 'pending') filtered = unified.filter(c => c.status === 'pending');
+    if (currentFilter === 'approved') filtered = unified.filter(c => c.status === 'approved');
+    if (currentFilter === 'hidden') filtered = unified.filter(c => c.status === 'hidden');
+    if (currentFilter === 'google') filtered = unified.filter(c => c.source === 'GOOGLE' && c.status !== 'removed');
+    if (currentFilter === 'local') filtered = unified.filter(c => c.source === 'LOCAL');
+    if (currentFilter === 'all') filtered = unified.filter(c => c.status !== 'removed');
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div id="empty-state">No hay comentarios en esta categoría.</div>`;
+        grid.innerHTML = `<div id="empty-state">Sin reseñas pendientes.</div>`;
         return;
     }
 
     filtered.forEach(c => {
-        const date = new Date(c.created_at).toLocaleString('es-MX', { 
-            day: '2-digit', month: 'short', year: 'numeric', 
-            hour: '2-digit', minute: '2-digit' 
+        const date = new Date(c.created_at).toLocaleString('es-MX', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
         });
 
         let starsHtml = '';
@@ -199,39 +319,80 @@ function renderComments() {
             starsHtml += i <= c.stars ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
         }
 
-        const isApproved = c.approved === 1;
+        const statusMeta = {
+            approved: { cls: 'status-approved', icon: 'fa-check', text: 'Publicado' },
+            pending: { cls: 'status-pending', icon: 'fa-clock', text: 'Pendiente' },
+            hidden: { cls: 'status-pending', icon: 'fa-eye-slash', text: 'Oculto' }
+        }[c.status] || { cls: 'status-pending', icon: 'fa-clock', text: 'Pendiente' };
+
+        const sourceBadge = c.source === 'GOOGLE'
+            ? '<span class="status-badge" style="background:#e8f0fe; color:#1a73e8;"><i class="fa-brands fa-google"></i> Google</span>'
+            : '<span class="status-badge" style="background:#f1f5f9; color:#475569;">Local</span>';
+
+        const actions = c.source === 'GOOGLE' ? `
+                ${c.status !== 'approved' ? `<button class="btn-admin btn-approve" onclick="approveGoogleReview(${c.id})"><i class="fa-solid fa-check"></i> Aprobar</button>` : ''}
+                ${c.status !== 'hidden' ? `<button class="btn-admin btn-delete" onclick="hideGoogleReview(${c.id})"><i class="fa-solid fa-eye-slash"></i> Ocultar</button>` : ''}
+                ${c.review_url ? `<a class="btn-admin btn-outline" href="${escapeHtml(c.review_url)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en Google</a>` : ''}
+            ` : `
+                ${c.status !== 'approved' ? `<button class="btn-admin btn-approve" onclick="approveComment(${c.id})"><i class="fa-solid fa-check"></i> Aprobar</button>` : ''}
+                <button class="btn-admin btn-delete" onclick="deleteComment(${c.id})"><i class="fa-solid fa-trash"></i> Eliminar</button>
+            `;
 
         const card = document.createElement('div');
-        card.className = `admin-card ${isApproved ? 'approved' : 'pending'}`;
+        card.className = `admin-card ${c.status === 'approved' ? 'approved' : 'pending'}`;
         card.innerHTML = `
             <div class="card-header">
                 <div>
                     <div class="card-user">${escapeHtml(c.name)}</div>
-                    <div class="card-email"><i class="fa-solid fa-envelope"></i> ${escapeHtml(c.user_email || 'Sin correo')}</div>
+                    <div class="card-email">${c.email ? `<i class="fa-solid fa-envelope"></i> ${escapeHtml(c.email)}` : sourceBadge}</div>
                 </div>
-                <div class="status-badge ${isApproved ? 'status-approved' : 'status-pending'}">
-                    ${isApproved ? '<i class="fa-solid fa-check"></i> Aprobado' : '<i class="fa-solid fa-clock"></i> Pendiente'}
+                <div class="status-badge ${statusMeta.cls}">
+                    <i class="fa-solid ${statusMeta.icon}"></i> ${statusMeta.text}
                 </div>
             </div>
             <div>
                 <div class="card-stars">${starsHtml}</div>
-                <div class="card-date">${date}</div>
+                <div class="card-date">${date}${c.source === 'GOOGLE' ? ' · Reseña verificada de Google' : ''}</div>
             </div>
             <div class="card-text" onclick="this.classList.toggle('expanded')" title="Haz clic para expandir o contraer">${escapeHtml(c.text)}</div>
-            <div class="card-actions">
-                ${!isApproved ? `
-                <button class="btn-admin btn-approve" onclick="approveComment(${c.id})">
-                    <i class="fa-solid fa-check"></i> Aprobar
-                </button>
-                ` : ''}
-                <button class="btn-admin btn-delete" onclick="deleteComment(${c.id})">
-                    <i class="fa-solid fa-trash"></i> Eliminar
-                </button>
-            </div>
+            ${c.reply ? `<div class="card-text" style="background:#f8fafc; font-size:.85rem;"><strong>Respuesta de Pixon PC:</strong> ${escapeHtml(c.reply.text)}</div>` : ''}
+            <div class="card-actions">${actions}</div>
         `;
         grid.appendChild(card);
     });
 }
+
+window.approveGoogleReview = async function (id) {
+    if (!confirmAdminAction('¿Aprobar esta reseña de Google para que aparezca públicamente?')) return;
+    try {
+        const res = await fetch(`${API_BASE}/admin/google-reviews/${id}/approve`, { method: 'POST', headers: CSRF_HEADER, credentials: 'include' });
+        if (!res.ok) {
+            const err = await res.json().catch(() => null);
+            throw new Error(err?.message || `Error al aprobar (HTTP ${res.status})`);
+        }
+        const row = allGoogleReviews.find(r => r.id === id);
+        if (row) row.status = 'APPROVED';
+        renderComments();
+    } catch (err) {
+        showAdminNotice(err.message, 'error');
+    }
+};
+
+window.hideGoogleReview = async function (id) {
+    if (!confirmAdminAction('¿Ocultar esta reseña de la web? No se borra de Google ni de tu base de datos.')) return;
+    try {
+        const res = await fetch(`${API_BASE}/admin/google-reviews/${id}/hide`, { method: 'POST', headers: CSRF_HEADER, credentials: 'include' });
+        if (!res.ok) {
+            const err = await res.json().catch(() => null);
+            throw new Error(err?.message || `Error al ocultar (HTTP ${res.status})`);
+        }
+        const row = allGoogleReviews.find(r => r.id === id);
+        if (row) row.status = 'HIDDEN';
+        renderComments();
+    } catch (err) {
+        showAdminNotice(err.message, 'error');
+    }
+};
 
 window.approveComment = async function(id) {
     if (!confirmAdminAction('¿Seguro que deseas aprobar este comentario para que aparezca públicamente?')) return;
@@ -282,7 +443,23 @@ function connectSSE() {
 
         sse.onmessage = (e) => {
             try {
-                const newComment = JSON.parse(e.data);
+                const payload = JSON.parse(e.data);
+                if (payload.type === 'google_review') {
+                    // Reseña de Google sincronizada como PENDING: recarga desde
+                    // el admin (la fila real ya vive en google_reviews) en vez
+                    // de intentar reconstruirla a mano en el cliente.
+                    fetchGoogleReviews();
+                    window.PixonDashboard?.refresh({ quiet: true });
+                    addNotification({
+                        id: `new-google-review-${payload.review_id}`,
+                        title: `Nueva reseña de Google pendiente`,
+                        text: `Reseña de ${payload.name} (${payload.stars}★) requiere aprobación.`,
+                        time: payload.created_at || new Date().toISOString(),
+                        read: false
+                    });
+                    return;
+                }
+                const newComment = payload;
                 // Evitar duplicados
                 if (!allComments.some(c => c.id === newComment.id)) {
                     allComments.unshift(newComment); // Añadir al principio
@@ -1347,6 +1524,11 @@ async function openRepairTicket(ticketId, triggerEl = null) {
     body.innerHTML = '<div class="empty-state">Cargando información completa del ticket...</div>';
     try {
         const res = await fetch(`${API_BASE}/admin/tickets/${encodeURIComponent(ticketId)}`, { cache: 'no-store', credentials: 'include' });
+        if (res.status === 404) {
+            const notFoundErr = new Error('ticket not found');
+            notFoundErr.isNotFound = true;
+            throw notFoundErr;
+        }
         if (!res.ok) throw new Error(`load failed: ${res.status}`);
         const data = await res.json();
         const ticket = data.ticket || data.repair || data;
@@ -1360,6 +1542,12 @@ async function openRepairTicket(ticketId, triggerEl = null) {
         if (firstInput) firstInput.focus();
     } catch (err) {
         console.error('No se pudo cargar el detalle por endpoint; usando datos ya cargados en tabla.', err);
+        if (err && err.isNotFound) {
+            if (title) title.textContent = 'Ticket no disponible';
+            if (meta) meta.innerHTML = '';
+            body.innerHTML = '<div class="empty-state">El ticket asociado a esta cita ya no existe o no está disponible.</div>';
+            return;
+        }
         if (fallbackTicket) {
             renderRepairDetailModal(fallbackTicket);
             await Promise.allSettled([
@@ -1862,10 +2050,10 @@ function activateGlobalSearchResult(index = globalSearchIndex) {
 
 function renderMyJourney() {
     const attention = document.getElementById('journey-attention');
-    const upcoming = document.getElementById('journey-upcoming');
+    const upcoming = document.getElementById('journey-upcoming') || document.getElementById('dashboard-agenda-preview');
     const summary = document.getElementById('journey-summary-grid');
     const date = document.getElementById('journey-date');
-    if (!attention || !upcoming || !summary) return;
+    if (!attention || !summary) return;
     const today = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Cancun' }).format(new Date());
     if (date) date.textContent = today.charAt(0).toUpperCase() + today.slice(1);
     const active = allRepairs.filter((ticket) => !['delivered', 'cancelled', 'eliminado'].includes(ticket.status));
@@ -1885,8 +2073,10 @@ function renderMyJourney() {
     const now = Date.now();
     const nextDay = now + 86400000;
     const appointments = allRepairs.filter((ticket) => ticket.appointment_datetime || (ticket.appointment_date && ticket.appointment_time)).map((ticket) => ({ ticket, at: new Date(ticket.appointment_datetime || `${ticket.appointment_date}T${ticket.appointment_time}`) })).filter((entry) => !Number.isNaN(entry.at.getTime()) && entry.at.getTime() >= now - 1800000 && entry.at.getTime() <= nextDay).sort((a, b) => a.at - b.at);
-    upcoming.innerHTML = appointments.length ? appointments.map(({ ticket, at }) => `<button type="button" class="journey-timeline-item" data-ticket-open="${ticket.id}"><time>${at.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Cancun' })}</time><span><strong>${escapeHtml(`${ticket.device_type || 'Equipo'}${ticket.device_model ? ` · ${ticket.device_model}` : ''}`)}</strong><small>${escapeHtml(getRepairClientName(ticket))} · ${escapeHtml(APPOINTMENT_STATUS_LABELS[ticket.appointment_status] || 'Cita')}</small></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>`).join('') : '<div class="journey-empty"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i><strong>Sin citas en las próximas 24 horas.</strong><span>La agenda disponible aparecerá aquí.</span></div>';
-    upcoming.setAttribute('aria-busy', 'false');
+    if (upcoming && !document.getElementById('dashboard-agenda-preview')) {
+        upcoming.innerHTML = appointments.length ? appointments.map(({ ticket, at }) => `<button type="button" class="journey-timeline-item" data-ticket-open="${ticket.id}"><time>${at.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Cancun' })}</time><span><strong>${escapeHtml(`${ticket.device_type || 'Equipo'}${ticket.device_model ? ` · ${ticket.device_model}` : ''}`)}</strong><small>${escapeHtml(getRepairClientName(ticket))} · ${escapeHtml(APPOINTMENT_STATUS_LABELS[ticket.appointment_status] || 'Cita')}</small></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>`).join('') : '<div class="journey-empty"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i><strong>Sin citas en las próximas 24 horas.</strong><span>La agenda disponible aparecerá aquí.</span></div>';
+        upcoming.setAttribute('aria-busy', 'false');
+    }
 
     const totalPending = active.reduce((sum, ticket) => sum + (Number(ticket.final_cost ?? ticket.estimated_cost) || 0), 0);
     const metrics = [

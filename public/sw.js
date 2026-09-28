@@ -1,64 +1,42 @@
 /**
  * PWA Service Worker - Pixon PC
- * Maneja cache offline y mejora rendimiento
+ * Maneja cache offline y garantiza actualización inmediata de contenido.
  */
 
-const CACHE_NAME = 'pixon-20260620-1';
+const CACHE_NAME = 'pixon-20260916-062820';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
   '/manifest.json',
-  '/assets/logos/Logo.svg',
+  '/favicon.png',
   '/LOGOCIRCULAR.png'
 ];
 
-const CACHE_STRATEGIES = {
-  // Páginas que se cachean y sirven desde cache
-  pages: [
-    '/',
-    '/reparaciones',
-    '/paquetes',
-    '/contacto'
-  ],
-  // Recursos que se cachean al primer acceso
-  resources: [
-    /\.(?:woff2?|png|jpg|jpeg|webp|avif|svg|ico)$/,
-    /\/_astro\/.*\.(?:js|css)$/,
-    /\/assets\//
-  ]
-};
-
-// Install - Cache assets estáticos
+// Install - Cache mínimo esencial para PWA offline, nunca HTML de páginas
 self.addEventListener('install', (event) => {
-  console.log('[PWA] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[PWA] Caching static assets');
       return cache.addAll(STATIC_ASSETS);
     })
   );
   self.skipWaiting();
 });
 
-// Activate - Limpiar caches viejos
+// Activate - Borrar de inmediato todas las cachés anteriores
 self.addEventListener('activate', (event) => {
-  console.log('[PWA] Activating...');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((names) => {
       return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => {
-            console.log('[PWA] Deleting old cache:', name);
+        names.map((name) => {
+          if (name !== CACHE_NAME) {
+            console.log('[SW] Eliminando caché obsoleta:', name);
             return caches.delete(name);
-          })
+          }
+        })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch - Estrategia cache-first para estáticos, network-first para APIs
+// Fetch - Estrategias según el tipo de recurso
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -66,36 +44,48 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // Skip API requests - network first
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .catch(() => {
-          return new Response(JSON.stringify({ error: 'Offline' }), {
-            status: 503,
-            headers: { 'Content-Type': 'application/json' }
-          });
-        })
-    );
+  // Skip API requests and Auth routes - siempre red directa
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/')) {
     return;
   }
 
   // Skip external requests
   if (url.origin !== location.origin) return;
 
-  // Cache-first para recursos estáticos
-  if (isStaticResource(url.pathname)) {
+  // 1. Navegación / Páginas HTML: SIEMPRE RED PRIMERO (Network-First estricto)
+  // Los clientes nunca deben ver HTML viejo si hay conexión a internet
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => {
+          // Solo si no hay internet (offline), intentar servir desde caché
+          return caches.match(request).then((cached) => {
+            return cached || caches.match('/offline.html') || new Response(
+              '<h1>Sin conexión a internet</h1><p>Verifica tu conexión para cargar Pixon PC.</p>',
+              { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+            );
+          });
+        })
+    );
+    return;
+  }
+
+  // 2. Recursos con hash de Vite/Astro (_astro/* con hash largo): Cache-First seguro
+  if (/\/_astro\/.+\.[A-Za-z0-9_-]{8,}\.(?:js|css)$/.test(url.pathname)) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        if (cached) {
-          return cached;
-        }
+        if (cached) return cached;
         return fetch(request).then((response) => {
-          if (response.ok) {
+          if (response && response.status === 200) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, clone);
-            });
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
           return response;
         });
@@ -104,31 +94,37 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first para páginas
+  // 3. Scripts públicos, version.json o archivos dinámicos: Network-First (siempre frescos)
+  if (url.pathname.endsWith('.json') || url.pathname.startsWith('/scripts/') || url.pathname.startsWith('/styles/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // 4. Otros recursos estáticos (imágenes, fuentes): Stale-While-Revalidate
   event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok && response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
-          });
+    caches.match(request).then((cached) => {
+      const fetchPromise = fetch(request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
-        return response;
-      })
-      .catch(() => {
-        return caches.match(request).then((cached) => {
-          return cached || caches.match('/');
-        });
-      })
+        return networkResponse;
+      }).catch(() => null);
+
+      return cached || fetchPromise;
+    })
   );
 });
 
-function isStaticResource(pathname) {
-  return CACHE_STRATEGIES.resources.some(regex => regex.test(pathname));
-}
-
-// Handle messages from client
+// Mensajes desde el cliente
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();

@@ -39,7 +39,8 @@ export const diagnosticPolicy = {
   startingPriceMXN: 600,
   prepaid: true,
   requiredForBooking: true,
-  creditedToRepair: true,
+  coversDiagnosisOnly: true,
+  repairsQuotedSeparately: true,
 } as const;
 
 // ─── Warranty ───────────────────────────────────────────────
@@ -65,18 +66,19 @@ export const liquidDamagePolicy = {
 // ─── Preventive Maintenance (Computer) ──────────────────────
 export const computerPreventiveMaintenance = {
   pricingMode: 'EQUIPMENT_VALUE_REFERENCE' as const,
-  referencePercentage: 0.20,
+  referencePercentage: 0.15,
+  startingPriceMXN: 1000,
   /** Manual override per case is allowed. */
   manualQuoteOverride: true,
 } as const;
 
 export const confirmedPolicyCopy = {
   es: {
-    maintenance: 'El mantenimiento preventivo se cotiza de acuerdo con el valor, diseño, complejidad y nivel de intervención del equipo. Como referencia, el servicio puede calcularse alrededor del 20% del valor del equipo.',
+    maintenance: 'El mantenimiento preventivo se cotiza desde $1,000 MXN. Como referencia, el servicio puede calcularse alrededor del 15% del valor del equipo según complejidad, riesgo y materiales; el costo final se confirma antes de realizar el servicio.',
     liquidDamage: 'El servicio inicial por daño de líquido corresponde a limpieza técnica, descontaminación e inspección; no constituye una reparación garantizada. Debido a que el líquido puede causar daños progresivos, ocultos o irreversibles, no podemos garantizar que el equipo vuelva a encender, permanezca funcionando, recupere datos o que no aparezcan fallas posteriores. Cualquier reparación necesaria después de la limpieza se diagnostica y cotiza por separado.',
   },
   en: {
-    maintenance: "Preventive maintenance is quoted according to the equipment's value, design, complexity and required level of intervention. As a reference, service pricing may be calculated at around 20% of the equipment's value.",
+    maintenance: "Preventive maintenance is quoted starting at $1,000 MXN. As a reference, service pricing may be calculated at around 15% of the equipment's value depending on complexity, risk and materials; the final cost is confirmed before the service is performed.",
     liquidDamage: 'Initial liquid-damage service covers technical cleaning, decontamination and inspection; it is not a guaranteed repair. Because liquid exposure can cause progressive, hidden or irreversible damage, we cannot guarantee that the device will power on, remain operational, recover data or avoid future faults. Any repair required after cleaning is diagnosed and quoted separately.',
   },
 } as const;
@@ -113,7 +115,7 @@ export const defaultPaymentMethods: Record<PaymentMethodKey, boolean> = {
 export const commercialCopy = {
   es: {
     appointment: 'Atención únicamente con cita previa.',
-    diagnostic: 'El diagnóstico técnico inicia desde $600 MXN. El pago del diagnóstico se realiza por adelantado para confirmar la cita, el día y la hora de atención; si aceptas la reparación cotizada, se abona al monto final.',
+    diagnostic: 'El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.',
     warranty: 'La garantía aplicable se confirma según la reparación y la pieza instalada.',
     liquidDamage: 'El servicio por daño de líquido corresponde inicialmente a limpieza e inspección. Debido a que el líquido puede causar daños progresivos o irreversibles, no se garantiza que el equipo vuelva a encender ni que no aparezcan fallas posteriores. Cualquier reparación necesaria después de la limpieza se diagnostica y cotiza por separado.',
     turnaround: 'El tiempo estimado se confirma después de la revisión.',
@@ -124,7 +126,7 @@ export const commercialCopy = {
   },
   en: {
     appointment: 'Service by appointment only.',
-    diagnostic: 'Diagnostics start at MXN $600. Diagnostic payment is required in advance to confirm the appointment date and time; if the repair quote is accepted, it is credited toward the final repair total.',
+    diagnostic: 'Diagnostics start from MXN $600 and may vary depending on device type and inspection complexity. This fee covers diagnosis only; any repair, parts or additional work are quoted separately.',
     warranty: 'Applicable warranty terms are confirmed according to the repair and installed part.',
     liquidDamage: 'Liquid-damage service initially covers cleaning and inspection. Because liquid exposure can cause progressive or irreversible damage, powering on the device or preventing future failures cannot be guaranteed. Any repair required after cleaning is diagnosed and quoted separately.',
     turnaround: 'Estimated turnaround is confirmed after inspection.',

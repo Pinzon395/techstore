@@ -14,11 +14,14 @@
     return ({ PRODUCT: 'Producto', EQUIPMENT: 'Equipo', HARDWARE: 'Hardware', SERVICE: 'Servicio', BUNDLE: 'Paquete' })[type] || 'Producto';
   }
 
-  function getConditionLabel(condition) {
-    if (isEn()) {
-      return ({ NEW: 'New', USED: 'Used', REFURBISHED: 'Refurbished', OPEN_BOX: 'Open box', FOR_PARTS: 'For parts', NOT_APPLICABLE: 'N/A' })[condition] || condition;
+  function getConditionLabel(condition, type) {
+    if (type === 'SERVICE' || condition === 'NOT_APPLICABLE') {
+      return isEn() ? 'Guaranteed' : 'Garantizado';
     }
-    return ({ NEW: 'Nuevo', USED: 'Usado', REFURBISHED: 'Reacondicionado', OPEN_BOX: 'Caja abierta', FOR_PARTS: 'Para refacciones', NOT_APPLICABLE: 'No aplica' })[condition] || condition;
+    if (isEn()) {
+      return ({ NEW: 'New', USED: 'Used', REFURBISHED: 'Refurbished', OPEN_BOX: 'Open box', FOR_PARTS: 'For parts', NOT_APPLICABLE: 'Guaranteed' })[condition] || condition;
+    }
+    return ({ NEW: 'Nuevo', USED: 'Usado', REFURBISHED: 'Reacondicionado', OPEN_BOX: 'Caja abierta', FOR_PARTS: 'Para refacciones', NOT_APPLICABLE: 'Garantizado' })[condition] || condition;
   }
 
   const TYPE_LABELS = {
@@ -230,6 +233,44 @@
   }
 
 
+  function getHighlights(item) {
+    const slug = (item.slug || '').toLowerCase();
+    if (slug.indexOf('rtx-3060') !== -1 || slug.indexOf('pc-gamer') !== -1) {
+      return [
+        { icon: 'fa-solid fa-microchip', text: 'Ryzen 5 5600' },
+        { icon: 'fa-solid fa-gamepad', text: 'RTX 3060 12GB' },
+        { icon: 'fa-solid fa-memory', text: '16GB RAM Dual' },
+        { icon: 'fa-solid fa-hard-drive', text: '1TB SSD NVMe' }
+      ];
+    }
+    if (slug.indexOf('arctic-mx4') !== -1 || slug.indexOf('mantenimiento') !== -1) {
+      return [
+        { icon: 'fa-solid fa-temperature-arrow-down', text: 'Pasta Arctic MX-4' },
+        { icon: 'fa-solid fa-spray-can-sparkles', text: 'Limpieza antiestática' },
+        { icon: 'fa-solid fa-fan', text: 'Soplado de turbinas' },
+        { icon: 'fa-solid fa-chart-line', text: 'Pruebas térmicas' }
+      ];
+    }
+    if (slug.indexOf('laptop') !== -1 || slug.indexOf('matebook') !== -1) {
+      return [
+        { icon: 'fa-solid fa-microchip', text: 'Ryzen 5 3500U' },
+        { icon: 'fa-solid fa-tv', text: 'Pantalla 15.6" FHD' },
+        { icon: 'fa-solid fa-memory', text: '8GB RAM' },
+        { icon: 'fa-solid fa-shield-halved', text: 'Garantía escrita' }
+      ];
+    }
+    if (Array.isArray(item.attributes) && item.attributes.length) {
+      return item.attributes.slice(0, 4).map(function (a) {
+        return { icon: 'fa-solid fa-check', text: (a.label || a.name) + ': ' + (a.value || '') };
+      });
+    }
+    return [
+      { icon: 'fa-solid fa-shield-halved', text: isEn() ? 'Written warranty' : 'Garantía por escrito' },
+      { icon: 'fa-solid fa-shop', text: isEn() ? 'Cancun workshop' : 'Taller físico Cancún' },
+      { icon: 'fa-solid fa-truck', text: isEn() ? 'Local delivery' : 'Entrega local Cancún' }
+    ];
+  }
+
   function createMedia(item) {
     const media = element(item.slug ? 'a' : 'div', 'store-card-media');
     if (item.slug) {
@@ -252,9 +293,39 @@
     }
 
     const flags = element('div', 'store-card-flags');
-    const statusFlag = element('span', 'store-card-flag', availability(item));
-    flags.appendChild(statusFlag);
-    item.badges.forEach((badge) => flags.appendChild(element('span', 'store-card-flag is-sale', badge)));
+    const flagsLeft = element('div', 'store-card-flags-left');
+    const flagsRight = element('div', 'store-card-flags-right');
+
+    const isSold = item.status === 'SOLD';
+    const statusFlag = element('span', 'store-card-flag ' + (isSold ? 'flag-sold' : 'flag-available'));
+    if (!isSold) {
+      const dot = element('span', 'stock-dot');
+      statusFlag.appendChild(dot);
+      statusFlag.appendChild(document.createTextNode(' ' + availability(item)));
+    } else {
+      statusFlag.textContent = availability(item);
+    }
+    flagsLeft.appendChild(statusFlag);
+
+    if (item.badges && item.badges.length) {
+      const bLabel = item.badges[0];
+      const availText = availability(item).toLowerCase();
+      // Avoid redundant / duplicate badges (e.g. "Última unidad" on left and "Últimas unidades" on right)
+      if (!availText.includes('unidad') || !bLabel.toLowerCase().includes('unidad')) {
+        const promoClass = bLabel.toLowerCase().includes('mega') ? 'flag-promo'
+          : bLabel.toLowerCase().includes('recom') ? 'flag-recommended'
+          : 'flag-warning';
+        const promoFlag = element('span', 'store-card-flag ' + promoClass);
+        const icon = element('i', promoClass === 'flag-promo' ? 'fa-solid fa-bolt' : promoClass === 'flag-recommended' ? 'fa-solid fa-star' : 'fa-solid fa-box-open');
+        icon.setAttribute('aria-hidden', 'true');
+        promoFlag.appendChild(icon);
+        promoFlag.appendChild(document.createTextNode(' ' + bLabel));
+        flagsRight.appendChild(promoFlag);
+      }
+    }
+
+    flags.appendChild(flagsLeft);
+    flags.appendChild(flagsRight);
     media.appendChild(flags);
     return media;
   }
@@ -267,9 +338,23 @@
 
     const body = element('div', 'store-card-body');
     const meta = element('div', 'store-card-meta');
-    meta.appendChild(element('span', '', getTypeLabel(item.type)));
-    meta.appendChild(element('span', '', getConditionLabel(item.condition)));
+
+    const typeChip = element('span', 'store-card-type-chip');
+    const typeIcon = element('i', item.type === 'SERVICE' ? 'fa-solid fa-screwdriver-wrench' : item.type === 'EQUIPMENT' ? 'fa-solid fa-desktop' : 'fa-solid fa-tag');
+    typeIcon.setAttribute('aria-hidden', 'true');
+    typeChip.appendChild(typeIcon);
+    typeChip.appendChild(document.createTextNode(' ' + getTypeLabel(item.type)));
+    meta.appendChild(typeChip);
+
+    const condChip = element('span', 'store-card-cond-chip');
+    const condIcon = element('i', 'fa-solid fa-shield-check');
+    condIcon.setAttribute('aria-hidden', 'true');
+    condChip.appendChild(condIcon);
+    condChip.appendChild(document.createTextNode(' ' + getConditionLabel(item.condition, item.type)));
+    meta.appendChild(condChip);
+
     body.appendChild(meta);
+
     const heading = element('h3');
     if (item.slug) {
       const headingLink = element('a', '', item.name);
@@ -279,28 +364,55 @@
       heading.textContent = item.name;
     }
     body.appendChild(heading);
+
+    const specsRow = element('div', 'store-card-specs');
+    const highlights = getHighlights(item);
+    highlights.forEach((h) => {
+      const chip = element('span', 'store-card-spec-chip');
+      const sIcon = element('i', h.icon);
+      sIcon.setAttribute('aria-hidden', 'true');
+      chip.appendChild(sIcon);
+      chip.appendChild(document.createTextNode(' ' + h.text));
+      specsRow.appendChild(chip);
+    });
+    body.appendChild(specsRow);
+
     body.appendChild(element('p', 'store-card-description', item.shortDescription));
 
     const priceRow = element('div', 'store-card-price-row');
-    priceRow.appendChild(element('span', 'store-card-price', money(item.currentPrice, item.currency)));
+    const priceNumbers = element('div', 'store-card-price-numbers');
+    priceNumbers.appendChild(element('span', 'store-card-price', money(item.currentPrice, item.currency)));
     if (item.basePrice !== null && item.currentPrice !== null && item.basePrice > item.currentPrice) {
-      priceRow.appendChild(element('span', 'store-card-original', money(item.basePrice, item.currency)));
-      priceRow.appendChild(element('span', 'store-card-saving', (isEn() ? 'Save ' : 'Ahorras ') + money(item.basePrice - item.currentPrice, item.currency)));
+      priceNumbers.appendChild(element('del', 'store-card-original', money(item.basePrice, item.currency)));
     }
+    priceRow.appendChild(priceNumbers);
+
+    if (item.basePrice !== null && item.currentPrice !== null && item.basePrice > item.currentPrice) {
+      const saving = item.basePrice - item.currentPrice;
+      const pct = Math.round((saving / item.basePrice) * 100);
+      const saveEl = element('span', 'store-card-saving');
+      const tagIcon = element('i', 'fa-solid fa-tag');
+      tagIcon.setAttribute('aria-hidden', 'true');
+      saveEl.appendChild(tagIcon);
+      saveEl.appendChild(document.createTextNode(' ' + (isEn() ? 'Save ' : 'Ahorras ') + money(saving, item.currency) + ' (-' + pct + '%)'));
+      priceRow.appendChild(saveEl);
+    }
+
+    const subnote = element('div', 'store-card-subnote');
+    const subIcon = element('i', 'fa-solid fa-shield-halved');
+    subIcon.setAttribute('aria-hidden', 'true');
+    subnote.appendChild(subIcon);
+    subnote.appendChild(document.createTextNode(isEn() ? ' Pixon PC warranty in Cancun • Local delivery' : ' Garantía Pixon PC en Cancún • Entrega local'));
+    priceRow.appendChild(subnote);
+
     body.appendChild(priceRow);
 
     const actions = element('div', 'store-card-actions');
-    if (item.slug) {
-      const detail = element('a', '', isEn() ? 'View details' : 'Ver detalles');
-      detail.href = (isEn() ? '/en/store/item?slug=' : '/tienda/') + encodeURIComponent(item.slug);
-      detail.setAttribute('aria-label', (isEn() ? 'View details of ' : 'Ver detalles de ') + item.name);
-      actions.appendChild(detail);
-    }
     const isSold = Boolean(options && options.sold) || item.status === 'SOLD';
     const purchasable = !isSold && item.status === 'ACTIVE' && item.allowPurchase
       && (!item.trackStock || item.stock === null || item.stock > 0);
     if (purchasable) {
-      const add = element('button', 'store-card-add', isEn() ? 'Add to Cart' : 'Agregar');
+      const add = element('button', 'store-card-add');
       add.type = 'button';
       add.dataset.addToCart = '';
       add.dataset.itemId = String(item.id);
@@ -312,13 +424,31 @@
       add.dataset.itemType = item.type;
       add.dataset.itemMax = String(item.trackStock && item.stock !== null ? Math.max(1, item.stock) : 100);
       add.setAttribute('aria-label', (isEn() ? 'Add ' : 'Agregar ') + item.name + (isEn() ? ' to cart' : ' al carrito'));
+
+      const cartIcon = element('i', 'fa-solid fa-cart-shopping');
+      cartIcon.setAttribute('aria-hidden', 'true');
+      add.appendChild(cartIcon);
+      add.appendChild(document.createTextNode(isEn() ? ' Add to Cart' : ' Agregar al carrito'));
       actions.appendChild(add);
     }
-    const quote = element('a', '');
+
+    if (item.slug) {
+      const detail = element('a', 'store-card-btn-details');
+      detail.href = (isEn() ? '/en/store/item?slug=' : '/tienda/') + encodeURIComponent(item.slug);
+      detail.setAttribute('aria-label', (isEn() ? 'View details of ' : 'Ver detalles de ') + item.name);
+      detail.appendChild(document.createTextNode(isEn() ? 'View details ' : 'Ver detalles '));
+      const arrIcon = element('i', 'fa-solid fa-arrow-right');
+      arrIcon.setAttribute('aria-hidden', 'true');
+      detail.appendChild(arrIcon);
+      actions.appendChild(detail);
+    }
+
+    const quote = element('a', 'store-card-btn-wa');
     quote.href = isSold ? '#catalogo-tienda' : item.allowQuote ? whatsappUrl(item) : '/contacto';
     if (!isSold && item.allowQuote) {
       quote.target = '_blank';
       quote.rel = 'noopener noreferrer';
+      quote.title = isEn() ? 'Inquire on WhatsApp' : 'Consultar por WhatsApp';
       quote.setAttribute('aria-label', isEn() ? ('Inquire about ' + item.name + ' on WhatsApp') : ('Consultar ' + item.name + ' por WhatsApp'));
       appendIcon(quote, 'fa-brands fa-whatsapp');
     } else {
@@ -329,7 +459,6 @@
     body.appendChild(actions);
     card.appendChild(body);
     return card;
-
   }
 
   function readMeta(meta, itemCount) {

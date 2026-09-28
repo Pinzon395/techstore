@@ -324,6 +324,7 @@
         maxQuantity: trigger.dataset.itemMax
       }, 1);
       window.pixonTrackEvent?.('add_to_cart');
+      openDrawer(trigger);
     }
     if (event.target.closest('[data-cart-open]')) openDrawer();
     if (event.target.closest('[data-cart-close]')) closeDrawer();

@@ -1,0 +1,1981 @@
+---
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const whatsappMessage = `Hola Pixon PC. Quiero mejorar / actualizar mi PC en Cancún.
+
+Uso principal: (Gaming / Trabajo de oficina / Edición de video / Modelado 3D o Arquitectura / Streaming / Programación / Otro)
+Componentes actuales (si los conoces):
+- Procesador: 
+- Tarjeta gráfica: 
+- Memoria RAM: 
+- Almacenamiento actual: (HDD mecánico / SSD SATA / SSD NVMe)
+- Fuente de poder: 
+¿No conoces tus componentes?: (Sí / No)
+
+¿Qué deseas mejorar principalmente?: (Velocidad general / Más FPS en juegos / Multitarea sin trabas / Espacio de almacenamiento / Render / No estoy seguro)
+Componentes que ya tienes o piensas adquirir: `;
+
+const whatsappUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappMessage)}`;
+
+// Cuello de botella: síntomas vs limitación real vs solución
+const bottleneckItems = [
+  {
+    icon: 'fa-hard-drive',
+    tag: 'Almacenamiento',
+    symptom: 'Windows tarda minutos en iniciar y los programas abren lento',
+    limitation: 'Disco mecánico HDD o SSD saturado / degradado',
+    analysis: 'Verificamos tiempo de respuesta al 100% en disco, estado SMART y ranuras SATA o M.2 NVMe disponibles.',
+    recommendation: 'Instalación de SSD NVMe PCIe o SSD SATA con migración o instalación limpia de sistema.',
+    linkHref: '#componente-ssd',
+    linkText: 'Ver detalles de SSD',
+  },
+  {
+    icon: 'fa-memory',
+    tag: 'Memoria RAM',
+    symptom: 'La computadora se congela al tener muchas pestañas o varias apps abiertas',
+    limitation: 'Memoria RAM insuficiente que satura la memoria física y recurre a memoria virtual en disco',
+    analysis: 'Revisamos ranuras DIMM libres, generación DDR4 / DDR5, soporte de placa madre y configuración dual channel.',
+    recommendation: 'Ampliación a 16 GB, 32 GB o 64 GB en dual channel con frecuencias y latencias compatibles.',
+    linkHref: '#componente-ram',
+    linkText: 'Ver opciones de RAM',
+  },
+  {
+    icon: 'fa-gamepad',
+    tag: 'Tarjeta Gráfica GPU',
+    symptom: 'Juegos con bajos FPS, tirones constantes en 1080p o render 3D demorado',
+    limitation: 'Gráficos integrados básicos o tarjeta de video desfasada para los motores gráficos actuales',
+    analysis: 'Evaluamos potencia en watts de la fuente, cables PCIe / 12V-2x6, espacio en gabinete y balance con el CPU.',
+    recommendation: 'Instalación de tarjeta gráfica dedicada (GeForce RTX o Radeon RX) con fuente compatible.',
+    linkHref: '#componente-gpu',
+    linkText: 'Ver tarjetas gráficas',
+  },
+  {
+    icon: 'fa-microchip',
+    tag: 'Procesador CPU',
+    symptom: 'El procesador se mantiene al 100% de uso constante y limita a la tarjeta de video',
+    limitation: 'CPU de pocos núcleos o generación antigua que genera cuello de botella (bottleneck)',
+    analysis: 'Verificamos socket de motherboard, soporte de chipset, versión de BIOS y capacidad térmica del disipador.',
+    recommendation: 'Upgrade a procesador de mayor gama dentro del socket actual o evaluación de cambio de plataforma.',
+    linkHref: '#componente-cpu',
+    linkText: 'Ver procesadores',
+  },
+  {
+    icon: 'fa-bolt',
+    tag: 'Fuente y Energía',
+    symptom: 'La PC se apaga sola bajo carga de juego o render tras agregar componentes',
+    limitation: 'Fuente de poder genérica o insuficiente para la demanda de watts y picos transitorios',
+    analysis: 'Medimos riel de 12V, conectores dedicados necesarios y margen de seguridad eléctrica.',
+    recommendation: 'Reemplazo por fuente de poder certificada 80 Plus con protecciones activas y conectores adecuados.',
+    linkHref: '#componente-fuente',
+    linkText: 'Ver fuentes de poder',
+  },
+];
+
+// Componentes individuales para cards simétricas
+const upgradeComponents = [
+  {
+    id: 'componente-ssd',
+    icon: 'fa-solid fa-hard-drive',
+    name: 'SSD NVMe M.2 y SATA',
+    whatImproves: 'Tiempos de arranque de Windows, apertura instantánea de programas y velocidad de transferencia de archivos pesados.',
+    whenNeeded: 'Cuando tu PC aún utiliza disco duro mecánico HDD o tu SSD actual está saturado al 90% de su capacidad.',
+    compatibility: 'Revisamos ranuras M.2 físicas, líneas PCIe Gen 3.0 / 4.0 / 5.0, puertos SATA III y soporte de arranque en BIOS.',
+  },
+  {
+    id: 'componente-ram',
+    icon: 'fa-solid fa-memory',
+    name: 'Memoria RAM DDR4 y DDR5',
+    whatImproves: 'Fluidez al trabajar con múltiples programas en simultáneo, navegación pesada, estabilidad en juegos y renderizado.',
+    whenNeeded: 'Cuando el Administrador de Tareas muestra memoria al 85%+ y notas trabas o lentitud al alternar aplicaciones.',
+    compatibility: 'Comprobamos generación DDR4 vs DDR5 (no intercambiables), slots libres, perfiles XMP / EXPO y frecuencias soportadas.',
+  },
+  {
+    id: 'componente-gpu',
+    icon: 'fa-solid fa-gamepad',
+    name: 'Tarjeta Gráfica Dedicada (GPU)',
+    whatImproves: 'Salto drástico de fotogramas por segundo (FPS) en juegos, aceleración gráfica en edición de video y render 3D.',
+    whenNeeded: 'Para jugar en 1080p, 1440p o 4K, activar Ray Tracing, hacer streaming o renderizar proyectos complejos de video.',
+    compatibility: 'Validamos potencia real y cables de la fuente, longitud y slots en gabinete, ranura PCIe x16 y balance con CPU.',
+  },
+  {
+    id: 'componente-cpu',
+    icon: 'fa-solid fa-microchip',
+    name: 'Procesador (CPU)',
+    whatImproves: 'Velocidad de cálculo general, tiempos de exportación y eliminación del cuello de botella sobre la GPU en gaming.',
+    whenNeeded: 'Cuando tu CPU opera al 100% mientras la tarjeta gráfica trabaja a medio gas, o necesitas más núcleos para trabajar.',
+    compatibility: 'Confirmamos socket (AM4, AM5, LGA1700, etc.), soporte del chipset, actualización de BIOS y disipación térmica.',
+  },
+  {
+    id: 'componente-fuente',
+    icon: 'fa-solid fa-bolt',
+    name: 'Fuente de Poder (PSU)',
+    whatImproves: 'Estabilidad eléctrica garantizada, protección contra picos de voltaje y soporte para GPUs y CPUs de alto consumo.',
+    whenNeeded: 'Al instalar una tarjeta gráfica más potente, agregar múltiples unidades o reemplazar fuentes genéricas sin certificación.',
+    compatibility: 'Analizamos wattage real en riel de 12V, conectores PCIe de 8 pines o 12VHPWR / 12V-2x6 y formato ATX / SFX.',
+  },
+  {
+    id: 'componente-motherboard',
+    icon: 'fa-solid fa-chess-board',
+    name: 'Tarjeta Madre y Plataforma',
+    whatImproves: 'Acceso a nuevas generaciones de procesadores, soporte DDR5, puertos PCIe veloces y conectividad moderna.',
+    whenNeeded: 'Cuando el procesador deseado requiere un socket diferente o necesitas más ranuras M.2 NVMe y puertos de expansión.',
+    compatibility: 'Validamos factor de forma (ATX, Micro-ATX, Mini-ITX), compatibilidad de gabinete, fases VRM y puertos frontales.',
+  },
+  {
+    id: 'componente-almacenamiento',
+    icon: 'fa-solid fa-server',
+    name: 'Almacenamiento Secundario Masivo',
+    whatImproves: 'Capacidad amplia para instalar docenas de juegos modernos, almacenar metraje de video 4K o respaldos locales.',
+    whenNeeded: 'Cuando el almacenamiento principal se queda sin espacio libre y no quieres borrar programas para instalar nuevos.',
+    compatibility: 'Evaluamos puertos SATA disponibles, bahías de montaje en gabinete o ranuras secundarias M.2 en la placa madre.',
+  },
+  {
+    id: 'componente-enfriamiento',
+    icon: 'fa-solid fa-fan',
+    name: 'Refrigeración y Flujo de Aire',
+    whatImproves: 'Control térmico para evitar estrangulamiento térmico (thermal throttling) y mantener frecuencias de boost estables.',
+    whenNeeded: 'Al instalar un CPU o GPU de mayor consumo térmico o cuando el ventilador de stock suena como turbina bajo carga.',
+    compatibility: 'Verificamos altura máxima de disipadores por aire en gabinete, soporte de radiadores AIO (240/360mm) y socket.',
+  },
+];
+
+// Triage: Dónde pertenece cada intención
+const triageScenarios = [
+  {
+    situation: 'Tu PC funciona bien pero quieres más velocidad, mejores gráficos o más espacio',
+    verdict: 'Upgrade de PC',
+    verdictClass: 'verdict-upgrade',
+    explanation: 'Evaluamos qué componente está limitando el rendimiento y te proponemos la mejor ruta de mejora.',
+    actionHref: '#cuello-botella',
+    actionText: 'Ruta de upgrade',
+  },
+  {
+    situation: 'Ya compraste la tarjeta gráfica, RAM o SSD y necesitas que la instalen con pruebas',
+    verdict: 'Instalación de componentes',
+    verdictClass: 'verdict-specialized',
+    explanation: 'Montaje profesional de piezas que tú ya adquiriste, con gestión de cableado, BIOS y drivers.',
+    actionHref: '/servicios/pc/instalacion-componentes',
+    actionText: 'Ver instalación',
+  },
+  {
+    situation: 'La PC se apaga de repente, da pantalla azul, reinicia sola o no da video',
+    verdict: 'Diagnóstico técnico',
+    verdictClass: 'verdict-repair',
+    explanation: 'No compres piezas antes de diagnosticar: aislamos la falla para comprobar si es placa, fuente o software.',
+    actionHref: '/servicios/pc/diagnostico',
+    actionText: 'Ver diagnóstico de PC',
+  },
+  {
+    situation: 'Tu equipo tiene más de 8 o 10 años y actualizarlo exige cambiar todas las piezas',
+    verdict: 'Armado de PC nueva',
+    verdictClass: 'verdict-new',
+    explanation: 'Cuando la plataforma ya no tiene margen de mejora, armar un equipo nuevo aprovecha mejor tu presupuesto.',
+    actionHref: '/ensambles',
+    actionText: 'Ver ensambles de PC',
+  },
+  {
+    situation: 'El hardware es rápido pero Windows está lento, lleno de basura o con sospecha de virus',
+    verdict: 'Optimización de software',
+    verdictClass: 'verdict-opt',
+    explanation: 'Ajuste de Windows, limpieza de inicio, drivers y optimización sin necesidad de comprar componentes.',
+    actionHref: '/optimizacion',
+    actionText: 'Ver optimización',
+  },
+  {
+    situation: 'El equipo que deseas mejorar es una computadora portátil o laptop',
+    verdict: 'Upgrade de Laptop',
+    verdictClass: 'verdict-specialized',
+    explanation: 'Revisamos si tu laptop permite ampliar SSD o RAM según su modelo y ranuras internas.',
+    actionHref: '/servicios/laptop/upgrade',
+    actionText: 'Ver upgrade laptop',
+  },
+];
+
+// FAQs profundas
+const upgradeFaqs = [
+  {
+    question: '¿Qué componente debo mejorar primero en mi PC?',
+    answer: 'Depende de qué uso le des y cuál sea el componente limitante. Si tu computadora aún utiliza disco duro mecánico, cambiar a un SSD NVMe o SATA es la mejora más notoria. Si juegas y tienes bajos FPS, la tarjeta gráfica suele ser el límite. Si trabajas con muchas ventanas, programas de edición o máquinas virtuales y el equipo se congela, ampliar la memoria RAM es la prioridad.',
+  },
+  {
+    question: '¿SSD o memoria RAM: cuál acelera más una computadora lenta?',
+    answer: 'Si la PC todavía arranca desde un disco duro tradicional, el SSD ofrece una transformación inmediata: el equipo enciende en segundos y los programas abren sin esperas. Si ya cuentas con un SSD pero tu memoria RAM se mantiene rebasando el 85-90% de uso, ampliar la memoria evitará que Windows recurra al archivo de paginación lento en disco.',
+  },
+  {
+    question: '¿Cómo sé si mi PC soporta un SSD M.2 NVMe?',
+    answer: 'Es necesario revisar el modelo exacto de la tarjeta madre para verificar si cuenta con una ranura M.2 física y si las líneas PCIe admiten protocolo NVMe o únicamente SATA. Si tu tarjeta madre es más antigua y no tiene puerto M.2, un SSD SATA de 2.5 pulgadas ofrece una mejora excelente usando los puertos SATA convencionales.',
+  },
+  {
+    question: '¿Mi motherboard soporta memoria RAM DDR5?',
+    answer: 'Las memorias DDR4 y DDR5 no son intercambiables físicamente ni eléctricamente: cada una tiene una muesca en posición distinta y voltajes diferentes. Tu motherboard soporta únicamente una de las dos generaciones. Si tu placa es DDR4, solo podrás instalar módulos DDR4; pasar a DDR5 requiere cambiar tarjeta madre y procesador compatible.',
+  },
+  {
+    question: '¿Cuánta memoria RAM soporta mi computadora?',
+    answer: 'El límite máximo de memoria RAM lo determina la combinación del procesador, el chipset y la tarjeta madre, así como el número de ranuras DIMM disponibles (generalmente 2 o 4 ranuras). Validamos la capacidad máxima soportada por tu plataforma para garantizar que el equipo sea 100% estable.',
+  },
+  {
+    question: '¿Puedo mezclar memorias RAM de diferentes marcas o frecuencias?',
+    answer: 'Técnicamente la computadora puede arrancar si son del mismo tipo de DDR, pero todas las memorias trabajarán forzadas a la velocidad del módulo más lento y existe riesgo de microinestabilidades o pérdida del dual channel. Siempre recomendamos instalar kits emparejados con idénticas frecuencias y latencias para asegurar estabilidad.',
+  },
+  {
+    question: '¿Puedo instalar otro SSD sin quitar el disco que ya tengo?',
+    answer: 'Sí. En computadoras de escritorio es muy común mantener el disco o SSD actual y agregar un segundo SSD NVMe o SATA como unidad secundaria dedicada a almacenar juegos, archivos de edición o respaldos masivos, sin necesidad de formatear ni retirar tu unidad principal.',
+  },
+  {
+    question: '¿Mi PC soporta una tarjeta gráfica (GPU) más potente?',
+    answer: 'Para instalar una GPU nueva revisamos tres factores esenciales: la potencia y calidad de tu fuente de poder (con conectores PCIe suficientes), el espacio físico disponible dentro del gabinete (longitud y grosor de ranuras) y el equilibrio con tu procesador para evitar cuellos de botella severos.',
+  },
+  {
+    question: '¿Una tarjeta gráfica nueva necesita cambiar la fuente de poder?',
+    answer: 'Si tu fuente actual es genérica, no cuenta con los conectores PCIe de 8 pines o 12V-2x6 requeridos, o su potencia en watts es muy ajustada para el consumo máximo de la nueva GPU, sí se requiere cambiarla por una fuente certificada con protecciones eléctricas activas para evitar apagados repentinos.',
+  },
+  {
+    question: '¿Qué es el cuello de botella (bottleneck) entre CPU y GPU?',
+    answer: 'Ocurre cuando un componente es mucho más potente que el otro y debe esperar a que el componente lento termine sus cálculos. Por ejemplo, si instalas una tarjeta gráfica de gama alta junto a un procesador antiguo de 4 núcleos, la GPU no podrá entregar todos sus fotogramas porque el procesador estará saturado al 100%.',
+  },
+  {
+    question: '¿Puedo cambiar solamente el procesador sin cambiar la motherboard?',
+    answer: 'Sí, siempre que el nuevo procesador comparta el mismo socket y el chipset de la placa madre sea compatible mediante una actualización de BIOS previa. Si buscas un procesador de una generación que utiliza un socket diferente (por ejemplo, pasar de AM4 a AM5 en AMD, o de LGA1200 a LGA1700 en Intel), se requiere cambiar placa y en muchos casos memoria RAM.',
+  },
+  {
+    question: '¿Puedo conservar mi Windows, programas y archivos al cambiar de SSD?',
+    answer: 'Cuando el disco origen y el sistema están en condiciones adecuadas, podemos valorar la clonación al nuevo almacenamiento. Antes se confirma el procedimiento, el estado de salud del disco y la estrategia de respaldo previo para proteger tus datos.',
+  },
+  {
+    question: '¿Se pierden mis archivos personales durante el upgrade?',
+    answer: 'No. En un upgrade de memoria RAM, tarjeta gráfica, fuente o procesador, tus archivos almacenados en los discos no se tocan. Al cambiar de disco de almacenamiento, realizamos clonado directo o respaldamos tu información antes de cualquier procedimiento para garantizar su integridad.',
+  },
+  {
+    question: '¿Qué componente conviene mejorar para jugar: CPU o GPU?',
+    answer: 'En la gran mayoría de videojuegos modernos a resolución 1080p, 1440p o 4K, la tarjeta gráfica (GPU) es el componente que mayor impacto tiene sobre los FPS. Sin embargo, en títulos competitivos de altos fotogramas (como CS2, Valorant o Fortnite) o cuando el CPU actual ya está al 100%, el procesador cobra enorme relevancia.',
+  },
+  {
+    question: '¿Qué componentes son clave para edición de video y render 3D?',
+    answer: 'La edición fluida y el renderizado requieren un balance de tres piezas: abundante memoria RAM (mínimo 32 GB para video 4K o 3D) para no agotar la memoria al cargar líneas de tiempo complejas, un SSD NVMe veloz como disco de trabajo (scratch disk) y una GPU con suficiente memoria VRAM para aceleración por hardware.',
+  },
+  {
+    question: '¿Qué upgrade ayuda a ejecutar modelos de Inteligencia Artificial locales?',
+    answer: 'La ejecución de modelos de IA locales (como LLMs o Stable Diffusion) depende de forma crítica de la cantidad de memoria de video (VRAM) de la tarjeta gráfica y del ancho de banda de la memoria RAM del sistema. Evaluamos qué GPU con 12 GB, 16 GB o más de VRAM es compatible con tu fuente y gabinete.',
+  },
+  {
+    question: '¿Cómo sé si conviene actualizar mi PC o armar una completamente nueva?',
+    answer: 'Si cambiando uno o dos componentes (como un SSD y más RAM, o una GPU y fuente) logras el rendimiento deseado con una inversión contenida, el upgrade vale totalmente la pena. Si para mejorar tu equipo necesitas cambiar procesador, placa madre, RAM, fuente, cooler y gabinete, suele ser más inteligente armar una PC nueva con garantía completa.',
+  },
+  {
+    question: '¿Las piezas instaladas cuentan con garantía?',
+    answer: 'Sí. Todos los componentes nuevos instalados cuentan con la garantía oficial del fabricante (que suele ser de 1 a 5 años según la marca y pieza) y nuestro trabajo de instalación y configuración cuenta con garantía técnica por escrito.',
+  },
+  {
+    question: '¿Realizan pruebas después de instalar los componentes?',
+    answer: 'Sí. Las pruebas se adaptan a la pieza instalada: validamos velocidades de lectura y escritura en SSD, reconocimiento y estabilidad en RAM con perfiles activos, temperaturas y voltajes bajo carga sostenida en GPU y CPU, y verificación de entrega eléctrica estable en la fuente.',
+  },
+  {
+    question: '¿Cómo solicito una cotización de upgrade en Cancún?',
+    answer: 'Puedes escribirnos por WhatsApp indicándonos qué equipo tienes (o los componentes que conozcas), para qué lo usas y qué problema o mejora buscas. Te orientamos sobre las opciones viables y te entregamos un presupuesto previo claro antes de adquirir cualquier pieza.',
+  },
+];
+
+const relatedServices = [
+  {
+    href: '/servicios/pc/instalacion-componentes',
+    icon: 'fa-solid fa-screwdriver-wrench',
+    title: 'Instalación de componentes',
+    desc: 'Si ya compraste tu tarjeta gráfica, memoria RAM o SSD, realizamos el montaje profesional con pruebas.',
+  },
+  {
+    href: '/servicios/pc/diagnostico',
+    icon: 'fa-solid fa-stethoscope',
+    title: 'Diagnóstico técnico de PC',
+    desc: 'Si tu equipo presenta fallas, apagados o pantallas azules, aislamos el origen antes de cambiar piezas.',
+  },
+  {
+    href: '/servicios/pc/tarjeta-video-gpu',
+    icon: 'fa-solid fa-display',
+    title: 'Servicio técnico de GPU',
+    desc: 'Diagnóstico, mantenimiento térmico y revisión electrónica para tarjetas gráficas NVIDIA y AMD.',
+  },
+  {
+    href: '/servicios/pc/fuente-poder',
+    icon: 'fa-solid fa-plug-circle-bolt',
+    title: 'Fuente de poder de PC',
+    desc: 'Comprobación de watts reales, riel de 12V y sustitución por fuentes certificadas.',
+  },
+  {
+    href: '/servicios/pc/refrigeracion',
+    icon: 'fa-solid fa-fan',
+    title: 'Refrigeración y ventilación',
+    desc: 'Disipadores de alto rendimiento, ventiladores de gabinete y sistemas líquidos AIO para mantener temperaturas seguras.',
+  },
+  {
+    href: '/ensambles',
+    icon: 'fa-solid fa-computer',
+    title: 'Armado de PC nueva',
+    desc: 'Cuando el upgrade ya no es rentable, diseñamos tu nueva PC gamer o workstation por piezas.',
+  },
+  {
+    href: '/optimizacion',
+    icon: 'fa-solid fa-bolt',
+    title: 'Optimización de Windows',
+    desc: 'Ajuste de sistema, inicio limpio y configuración de drivers para complementar tu hardware nuevo.',
+  },
+  {
+    href: '/mantenimiento-preventivo-computadora',
+    icon: 'fa-solid fa-broom',
+    title: 'Mantenimiento preventivo',
+    desc: 'Limpieza interna de polvo, disipadores y renovación de pasta térmica en Cancún.',
+  },
+  {
+    href: '/servicios/laptop/upgrade',
+    icon: 'fa-solid fa-laptop',
+    title: 'Upgrade de Laptop',
+    desc: 'Ampliación de almacenamiento SSD y memoria RAM en computadoras portátiles.',
+  },
+];
+---
+
+<div class="pc-upgrade-page">
+  <!-- ==================== 1. HERO SECTION SIMÉTRICO ==================== -->
+  <header class="pcup-hero" aria-labelledby="pcup-hero-title">
+    <div class="pcup-hero-glow" aria-hidden="true"></div>
+    <div class="container pcup-hero__grid">
+      <!-- 1. Eyebrow -->
+      <div class="pcup-hero__eyebrow-wrap">
+        <p class="pcup-eyebrow">
+          <i class="fa-solid fa-microchip" aria-hidden="true"></i> UPGRADE DE PC · ASESORÍA DE HARDWARE Y COMPATIBILIDAD · CANCÚN
+        </p>
+      </div>
+
+      <!-- 2. H1 -->
+      <h1 id="pcup-hero-title" class="pcup-hero__title">
+        <span>Upgrade de PC en Cancún:</span>
+        <span>mejora SSD, RAM, GPU y componentes</span>
+      </h1>
+
+      <!-- 3. Visual de Upgrade (Inmediatamente debajo del H1 en mobile, a la derecha en desktop) -->
+      <div class="pcup-hero__visual-wrap">
+        <figure class="pcup-visual-stage" aria-label="Arquitectura de componentes actualizables en una PC">
+          <svg class="pcup-svg" viewBox="0 0 540 440" width="540" height="440" role="img" aria-label="Esquema técnico de torre de PC y componentes de upgrade">
+            <defs>
+              <linearGradient id="pcup-case-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0f2942" />
+                <stop offset="100%" stop-color="#071829" />
+              </linearGradient>
+              <linearGradient id="pcup-mobo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0d3b66" />
+                <stop offset="100%" stop-color="#09223a" />
+              </linearGradient>
+              <linearGradient id="pcup-card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#143859" />
+                <stop offset="100%" stop-color="#0b2138" />
+              </linearGradient>
+              <filter id="pcup-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <!-- Gabinete / Chasis de la PC -->
+            <rect x="70" y="30" width="400" height="380" rx="20" fill="url(#pcup-case-grad)" stroke="#1e4e79" stroke-width="2" />
+            <rect x="85" y="45" width="370" height="350" rx="14" fill="#061626" stroke="#123555" stroke-width="1.5" />
+
+            <!-- Placa Madre (Motherboard) interna -->
+            <rect x="100" y="60" width="260" height="320" rx="8" fill="url(#pcup-mobo-grad)" stroke="#1a5585" stroke-width="1" />
+
+            <!-- CPU Socket & Cooler Fan -->
+            <g class="pcup-cpu-unit" transform="translate(180, 120)">
+              <rect x="-45" y="-45" width="90" height="90" rx="8" fill="#08233a" stroke="#38bdf8" stroke-width="2" />
+              <circle cx="0" cy="0" r="32" fill="#061a2c" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 2" />
+              <path d="M-20 -20 L20 20 M-20 20 L20 -20 M0 -28 L0 28 M-28 0 L28 0" stroke="#0ea5e9" stroke-width="2" opacity="0.8" />
+              <circle cx="0" cy="0" r="10" fill="#38bdf8" />
+              <text x="0" y="4" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#071f3a" text-anchor="middle">CPU</text>
+            </g>
+
+            <!-- RAM DIMM Slots (Dual Channel) -->
+            <g class="pcup-ram-slots" transform="translate(250, 75)">
+              <rect x="0" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#10b981" stroke-width="1.5" />
+              <rect x="14" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#38bdf8" stroke-width="1.5" />
+              <rect x="28" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#10b981" stroke-width="1.5" />
+              <rect x="42" y="0" width="10" height="90" rx="2" fill="#08233a" stroke="#38bdf8" stroke-width="1.5" />
+              <rect x="15" y="10" width="8" height="15" fill="#38bdf8" />
+              <rect x="15" y="35" width="8" height="15" fill="#38bdf8" />
+              <rect x="15" y="60" width="8" height="15" fill="#38bdf8" />
+              <rect x="43" y="10" width="8" height="15" fill="#38bdf8" />
+              <rect x="43" y="35" width="8" height="15" fill="#38bdf8" />
+              <rect x="43" y="60" width="8" height="15" fill="#38bdf8" />
+            </g>
+
+            <!-- M.2 NVMe SSD Slot -->
+            <g class="pcup-m2-slot" transform="translate(130, 200)">
+              <rect x="0" y="0" width="100" height="24" rx="4" fill="#0c2944" stroke="#f59e0b" stroke-width="1.5" />
+              <rect x="6" y="5" width="22" height="14" rx="2" fill="#f59e0b" />
+              <text x="17" y="15" font-size="7.5" font-family="'Kanit', sans-serif" font-weight="900" fill="#061a2c" text-anchor="middle">NVMe</text>
+              <rect x="34" y="7" width="14" height="10" rx="1" fill="#cbd5e1" opacity="0.6" />
+              <rect x="52" y="7" width="14" height="10" rx="1" fill="#cbd5e1" opacity="0.6" />
+              <rect x="70" y="7" width="14" height="10" rx="1" fill="#cbd5e1" opacity="0.6" />
+            </g>
+
+            <!-- PCIe x16 Slot & GPU dedicada -->
+            <g class="pcup-gpu-slot" transform="translate(110, 245)">
+              <rect x="0" y="0" width="230" height="60" rx="6" fill="#092036" stroke="#38bdf8" stroke-width="2" />
+              <circle cx="55" cy="30" r="20" fill="#061626" stroke="#0ea5e9" stroke-width="1.5" />
+              <circle cx="115" cy="30" r="20" fill="#061626" stroke="#0ea5e9" stroke-width="1.5" />
+              <circle cx="175" cy="30" r="20" fill="#061626" stroke="#0ea5e9" stroke-width="1.5" />
+              <path d="M43 18 L67 42 M43 42 L67 18" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+              <path d="M103 18 L127 42 M103 42 L127 18" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+              <path d="M163 18 L187 42 M163 42 L187 18" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+              <text x="218" y="34" font-size="8" font-family="'Kanit', sans-serif" font-weight="900" fill="#38bdf8" text-anchor="end">GPU RTX / RX</text>
+            </g>
+
+            <!-- PSU Chamber -->
+            <g class="pcup-psu-bay" transform="translate(95, 325)">
+              <rect x="0" y="0" width="160" height="60" rx="6" fill="#081e33" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3" />
+              <circle cx="40" cy="30" r="18" fill="#051322" stroke="#64748b" stroke-width="1.2" />
+              <text x="90" y="34" font-size="9" font-family="'Kanit', sans-serif" font-weight="800" fill="#94a3b8">PSU 12V</text>
+            </g>
+
+            <!-- Circuit trace glow lines -->
+            <path d="M 270 200 L 270 245" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 3" opacity="0.8" />
+            <path d="M 180 165 L 180 200" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.8" />
+            <path d="M 175 325 L 175 305" stroke="#10b981" stroke-width="2" opacity="0.7" />
+
+            <!-- Floating Badge: Compatibilidad -->
+            <g class="pcup-float-badge pcup-float-badge--top" transform="translate(355, 45)">
+              <rect x="0" y="0" width="165" height="52" rx="10" fill="url(#pcup-card-grad)" stroke="#38bdf8" stroke-width="1.5" filter="url(#pcup-glow)" />
+              <circle cx="22" cy="26" r="12" fill="#0284c7" />
+              <path d="M 17 26 L 20 29 L 27 22" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <text x="42" y="22" font-size="10" font-family="'Kanit', sans-serif" font-weight="800" fill="#ffffff">COMPATIBILIDAD</text>
+              <text x="42" y="37" font-size="8.5" fill="#bae6fd">Validación antes de compra</text>
+            </g>
+
+            <!-- Floating Badge: Rendimiento -->
+            <g class="pcup-float-badge pcup-float-badge--bot" transform="translate(345, 335)">
+              <rect x="0" y="0" width="175" height="52" rx="10" fill="url(#pcup-card-grad)" stroke="#10b981" stroke-width="1.5" filter="url(#pcup-glow)" />
+              <circle cx="22" cy="26" r="12" fill="#059669" />
+              <text x="22" y="30" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">⚡</text>
+              <text x="42" y="22" font-size="10" font-family="'Kanit', sans-serif" font-weight="800" fill="#ffffff">RENDIMIENTO REAL</text>
+              <text x="42" y="37" font-size="8.5" fill="#a7f3d0">Pruebas tras instalación</text>
+            </g>
+          </svg>
+
+          <figcaption class="pcup-visual-caption">
+            <span class="pcup-caption-step"><strong class="pcup-step-num">1</strong> Detección de límite</span>
+            <span class="pcup-caption-sep" aria-hidden="true">→</span>
+            <span class="pcup-caption-step"><strong class="pcup-step-num">2</strong> Compatibilidad</span>
+            <span class="pcup-caption-sep" aria-hidden="true">→</span>
+            <span class="pcup-caption-step"><strong class="pcup-step-num">3</strong> Upgrade y pruebas</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <!-- 4. Subcopy / Resumen -->
+      <div class="pcup-hero__summary">
+        <p class="pcup-lead">No cambies piezas a ciegas. Mejoramos tu computadora con hardware compatible y probado.</p>
+        <p class="pcup-description">
+          Revisamos qué está limitando tu equipo y comprobamos compatibilidad entre motherboard, procesador CPU, memoria RAM, tarjeta gráfica GPU, almacenamiento y fuente de poder antes de recomendar un upgrade en Cancún.
+        </p>
+      </div>
+
+      <!-- 5. CTAs -->
+      <div class="pcup-hero__actions">
+        <a class="pcup-btn pcup-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="hero_primary">
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Quiero mejorar mi PC
+        </a>
+        <a class="pcup-btn pcup-btn--secondary" href="#cuello-botella">
+          Revisar compatibilidad <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+
+      <!-- 6. Trust Badges -->
+      <div class="pcup-hero__trust">
+        <ul class="pcup-badges" aria-label="Ventajas del servicio de upgrade">
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Compatibilidad primero</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> SSD · RAM · GPU · CPU</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> PC Gamer y Workstation</li>
+          <li><i class="fa-solid fa-check" aria-hidden="true"></i> Pruebas tras el upgrade</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main id="upgrade-content">
+    <!-- ==================== 2. ¿QUÉ COMPONENTE MEJORAR PRIMERO? (CUELLO DE BOTELLA) ==================== -->
+    <section id="cuello-botella" class="pcup-section pcup-bottleneck" aria-labelledby="bottleneck-title">
+      <div class="container">
+        <div class="pcup-heading pcup-heading--center">
+          <span class="pcup-kicker">Análisis de rendimiento</span>
+          <h2 id="bottleneck-title">¿Qué componente debes mejorar primero en tu PC?</h2>
+          <p>
+            La mayoría de los usuarios no sabe si necesita más memoria, cambiar a un SSD, mejor tarjeta gráfica o un procesador nuevo. El gasto inteligente no consiste en comprar la pieza más cara, sino en quitar el cuello de botella (bottleneck) que realmente frena tu flujo de trabajo o tus juegos.
+          </p>
+        </div>
+
+        <div class="pcup-bottleneck-grid">
+          {bottleneckItems.map((item) => (
+            <article class="pcup-bottleneck-card">
+              <div class="pcup-bottleneck-card__header">
+                <div class="pcup-bottleneck-card__icon" aria-hidden="true">
+                  <i class={`fa-solid ${item.icon}`}></i>
+                </div>
+                <span class="pcup-bottleneck-card__badge">{item.tag}</span>
+              </div>
+              <h3 class="pcup-bottleneck-card__symptom">"{item.symptom}"</h3>
+              <div class="pcup-bottleneck-card__body">
+                <div class="pcup-bottleneck-card__field">
+                  <strong>Limitación probable:</strong>
+                  <p>{item.limitation}</p>
+                </div>
+                <div class="pcup-bottleneck-card__field">
+                  <strong>Qué revisamos en taller:</strong>
+                  <p>{item.analysis}</p>
+                </div>
+                <div class="pcup-bottleneck-card__field pcup-bottleneck-card__field--solution">
+                  <strong>Ruta de upgrade recomendada:</strong>
+                  <p>{item.recommendation}</p>
+                </div>
+              </div>
+              <div class="pcup-bottleneck-card__footer">
+                <a href={item.linkHref} class="pcup-card-link">
+                  {item.linkText} <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div class="pcup-bottleneck-note">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <div>
+            <strong>¿Tu computadora presenta apagados, pantallazos azules o no enciende?</strong>
+            <p>
+              Si tu equipo tiene fallas intermitentes, se apaga solo o muestra errores de pantalla azul de Windows, el problema no se resuelve comprando piezas al azar. En esos casos corresponde un <a href="/servicios/pc/diagnostico">diagnóstico técnico de PC</a> para ubicar la falla real antes de considerar cualquier upgrade.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. COMPONENTES QUE ACTUALIZAMOS ==================== -->
+    <section id="componentes" class="pcup-section pcup-components-section" aria-labelledby="components-title">
+      <div class="container">
+        <div class="pcup-heading pcup-heading--center">
+          <span class="pcup-kicker">Ecosistema de Hardware</span>
+          <h2 id="components-title">Componentes que actualizamos en tu computadora</h2>
+          <p>
+            No nos limitamos a cambiar una pieza aislada. Comprobamos la compatibilidad integral de tu equipo para que cada componente nuevo rinda al 100% sin generar inestabilidad ni temperaturas excesivas.
+          </p>
+        </div>
+
+        <div class="pcup-components-grid">
+          {upgradeComponents.map((comp) => (
+            <article class="pcup-component-card" id={comp.id}>
+              <div class="pcup-component-card__header">
+                <div class="pcup-component-card__icon" aria-hidden="true">
+                  <i class={comp.icon}></i>
+                </div>
+                <h3>{comp.name}</h3>
+              </div>
+              <div class="pcup-component-card__content">
+                <div class="pcup-component-card__block">
+                  <span class="pcup-block-label">¿Qué mejora?</span>
+                  <p>{comp.whatImproves}</p>
+                </div>
+                <div class="pcup-component-card__block">
+                  <span class="pcup-block-label">¿Cuándo conviene?</span>
+                  <p>{comp.whenNeeded}</p>
+                </div>
+                <div class="pcup-component-card__block pcup-component-card__block--compat">
+                  <span class="pcup-block-label">Compatibilidad que validamos</span>
+                  <p>{comp.compatibility}</p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div class="pcup-components-cta">
+          <p>¿Tienes dudas sobre si tu placa madre o gabinete aceptan la pieza que quieres?</p>
+          <a class="pcup-btn pcup-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="components_cta">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar compatibilidad por WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. CASOS DE USO: GAMING, CREADORES Y TRABAJO ==================== -->
+    <section id="casos-uso" class="pcup-section pcup-usecases" aria-labelledby="usecases-title">
+      <div class="container">
+        <div class="pcup-heading">
+          <span class="pcup-kicker">Enfoque por Necesidad</span>
+          <h2 id="usecases-title">Upgrade pensado para tu uso real: Gaming, Creadores y Trabajo</h2>
+          <p>
+            Un equipo para hojas de cálculo en oficina no tiene las mismas demandas que una PC gamer para títulos AAA o una estación de trabajo para renderizado 3D y arquitectura en Cancún.
+          </p>
+        </div>
+
+        <div class="pcup-usecases-grid">
+          <!-- Panel 1: PC Gamer -->
+          <article class="pcup-usecase-card pcup-usecase-card--gaming">
+            <div class="pcup-usecase-card__header">
+              <span class="pcup-usecase-badge"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Gaming y Streaming</span>
+              <h3>Upgrade para PC Gamer en Cancún</h3>
+            </div>
+            <p class="pcup-usecase-intro">
+              Buscamos tiempos de fotograma (frametimes) estables, eliminación de tirones (microstuttering) y salto de rendimiento en resoluciones 1080p, 1440p o 4K competitivo.
+            </p>
+            <ul class="pcup-feature-list">
+              <li>
+                <strong>Más FPS y estabilidad:</strong> El impacto depende del componente que limite tu juego, resolución y configuración gráfica; no prometemos números mágicos sin medir tu equipo.
+              </li>
+              <li>
+                <strong>Verificación de fuente y 12V:</strong> GPUs modernas exigen rieles de 12V estables y conectores dedicados (PCIe de 8 pines o 12V-2x6) para evitar apagados durante picos de potencia.
+              </li>
+              <li>
+                <strong>Control térmico en Cancún:</strong> El calor de Cancún exige que el flujo de aire del gabinete y la disipación del CPU soporten la carga térmica agregada de la nueva tarjeta gráfica.
+              </li>
+            </ul>
+            <div class="pcup-usecase-footer">
+              <a href="/servicios/pc/tarjeta-video-gpu" class="pcup-text-link">
+                Ver servicio especializado de GPU <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+
+          <!-- Panel 2: Productividad y Creadores -->
+          <article class="pcup-usecase-card pcup-usecase-card--work">
+            <div class="pcup-usecase-card__header">
+              <span class="pcup-usecase-badge"><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Creadores y Workstations</span>
+              <h3>Edición de video, 3D, Arquitectura e IA</h3>
+            </div>
+            <p class="pcup-usecase-intro">
+              Optimizado para Premiere Pro, DaVinci Resolve, After Effects, AutoCAD, Revit, Blender, máquinas virtuales y ejecución de modelos de inteligencia artificial locales.
+            </p>
+            <ul class="pcup-feature-list">
+              <li>
+                <strong>Capacidad de RAM profesional:</strong> 32 GB o 64 GB en dual/quad channel para manejar líneas de tiempo multicámara, render 3D y evitar que el software se cuelgue al exportar.
+              </li>
+              <li>
+                <strong>Almacenamiento NVMe de alto flujo:</strong> Configuración de SSD principal para sistema y SSD secundario de alta velocidad como disco de caché y metraje 4K (scratch disk).
+              </li>
+              <li>
+                <strong>VRAM dedicada para render e IA:</strong> Tarjetas gráficas con 12 GB, 16 GB o más de VRAM para cargar pesos de modelos locales y procesamiento por GPU sin cuellos de botella.
+              </li>
+            </ul>
+            <div class="pcup-usecase-footer">
+              <a href="/optimizacion" class="pcup-text-link">
+                Ver optimización de Windows y software <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. TRIAGE: ¿UPGRADE, REPARACIÓN O PC NUEVA? ==================== -->
+    <section id="triage" class="pcup-section pcup-triage" aria-labelledby="triage-title">
+      <div class="container">
+        <div class="pcup-heading pcup-heading--center">
+          <span class="pcup-kicker">Claridad Técnica</span>
+          <h2 id="triage-title">¿Tu equipo necesita un upgrade, un diagnóstico o armar una PC nueva?</h2>
+          <p>
+            Para que no inviertas en el servicio equivocado, te ayudamos a identificar la ruta precisa según el estado actual de tu computadora:
+          </p>
+        </div>
+
+        <div class="pcup-triage-grid">
+          {triageScenarios.map((sc) => (
+            <div class="pcup-triage-card">
+              <div class="pcup-triage-card__status">
+                <span class={`pcup-verdict-pill ${sc.verdictClass}`}>{sc.verdict}</span>
+              </div>
+              <h3 class="pcup-triage-card__situation">{sc.situation}</h3>
+              <p class="pcup-triage-card__desc">{sc.explanation}</p>
+              <div class="pcup-triage-card__action">
+                <a href={sc.actionHref} class="pcup-triage-btn">
+                  {sc.actionText} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. PROCESO DE UPGRADE EN 5 PASOS ==================== -->
+    <section id="proceso" class="pcup-section pcup-process" aria-labelledby="process-title">
+      <div class="container">
+        <div class="pcup-heading pcup-heading--center">
+          <span class="pcup-kicker">Metodología Transparente</span>
+          <h2 id="process-title">Nuestro proceso de upgrade: de la revisión a la prueba final</h2>
+          <p>
+            Trabajamos con un procedimiento ordenado para que conozcas exactamente qué componentes convienen, su costo y el resultado esperado antes de comprar cualquier pieza.
+          </p>
+        </div>
+
+        <div class="pcup-process-steps">
+          <div class="pcup-step-card">
+            <span class="pcup-step-card__num">01</span>
+            <h3>Evaluación de requerimientos</h3>
+            <p>Entendemos el uso real de tu computadora: juegos que juegas, programas de trabajo, resolución deseada o necesidad de espacio.</p>
+          </div>
+
+          <div class="pcup-step-card">
+            <span class="pcup-step-card__num">02</span>
+            <h3>Revisión de hardware actual</h3>
+            <p>Identificamos qué pieza está frenando al resto de los componentes para no sustituir piezas que todavía tienen vida útil.</p>
+          </div>
+
+          <div class="pcup-step-card">
+            <span class="pcup-step-card__num">03</span>
+            <h3>Validación de compatibilidad</h3>
+            <p>Comprobamos socket de CPU, ranuras M.2/SATA, generación DDR, soporte de BIOS, cables de fuente y espacio en gabinete.</p>
+          </div>
+
+          <div class="pcup-step-card">
+            <span class="pcup-step-card__num">04</span>
+            <h3>Presupuesto previo claro</h3>
+            <p>Te presentamos las opciones de componentes recomendados y la mano de obra de instalación antes de ordenar o intervenir.</p>
+          </div>
+
+          <div class="pcup-step-card">
+            <span class="pcup-step-card__num">05</span>
+            <h3>Montaje y pruebas de estrés</h3>
+            <p>Instalación limpia en banco de trabajo, gestión de cableado, clonado si aplica y pruebas de estabilidad bajo carga.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. PROTOCOLO DE PRUEBAS Y CLONADO SEGURO ==================== -->
+    <section id="pruebas" class="pcup-section pcup-testing" aria-labelledby="testing-title">
+      <div class="container">
+        <div class="pcup-testing-layout">
+          <div>
+            <span class="pcup-kicker">Rigor Técnico</span>
+            <h2 id="testing-title">Entregamos el equipo probado y estable, no solo con piezas montadas</h2>
+            <p>
+              Las pruebas dependen del componente instalado. No asumimos que una pieza funciona solo porque la computadora encendió; validamos el comportamiento real del hardware bajo demanda:
+            </p>
+
+            <div class="pcup-tests-list">
+              <div class="pcup-test-item">
+                <i class="fa-solid fa-hard-drive" aria-hidden="true"></i>
+                <div>
+                  <strong>Pruebas de SSD y almacenamiento:</strong>
+                  <p>Medición de velocidades de lectura/escritura secuencial y aleatoria, verificación SMART y temperatura del controlador M.2.</p>
+                </div>
+              </div>
+              <div class="pcup-test-item">
+                <i class="fa-solid fa-memory" aria-hidden="true"></i>
+                <div>
+                  <strong>Pruebas de Memoria RAM:</strong>
+                  <p>Reconocimiento íntegro de capacidad, activación de perfil XMP / EXPO en BIOS y test de estabilidad para descartar errores de memoria.</p>
+                </div>
+              </div>
+              <div class="pcup-test-item">
+                <i class="fa-solid fa-gamepad" aria-hidden="true"></i>
+                <div>
+                  <strong>Pruebas de Tarjeta Gráfica GPU:</strong>
+                  <p>Instalación limpia de drivers oficiales, prueba de estrés bajo carga gráfica, medición de temperaturas de núcleo/hotspot y consumo en watts.</p>
+                </div>
+              </div>
+              <div class="pcup-test-item">
+                <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                <div>
+                  <strong>Pruebas de Procesador y Fuente:</strong>
+                  <p>Verificación de frecuencias de boost del CPU, voltajes estables en el riel de 12V y comportamiento térmico del disipador.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="pcup-clone-panel">
+            <div class="pcup-clone-panel__header">
+              <i class="fa-solid fa-clone" aria-hidden="true"></i>
+              <h3>Clonación y migración segura de Windows</h3>
+            </div>
+            <p>
+              Cuando el disco de origen y el sistema operativo se encuentran en condiciones adecuadas, podemos valorar la clonación directa al nuevo almacenamiento SSD para conservar tus programas, archivos y configuraciones.
+            </p>
+            <div class="pcup-clone-warning">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <p>
+                Antes se confirma el estado de salud del disco previo y la estrategia de respaldo. Si el sistema de origen presenta sectores dañados o corrupción de Windows, te recomendamos una instalación limpia con respaldo previo para que tu hardware nuevo trabaje al 100%.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 8. ¿CONVIENE ACTUALIZAR O ARMAR UNA PC NUEVA? ==================== -->
+    <section id="decision" class="pcup-section pcup-decision" aria-labelledby="decision-title">
+      <div class="container">
+        <div class="pcup-decision-panel">
+          <div class="pcup-decision-copy">
+            <span class="pcup-kicker">Decisión Honesta</span>
+            <h2 id="decision-title">¿Conviene actualizar tu PC o armar una nueva?</h2>
+            <p>
+              No siempre conviene seguir invirtiendo en una computadora existente. Si para lograr tu objetivo necesitas cambiar placa madre, procesador, memoria RAM, fuente de poder y gabinete, comprar piezas sueltas puede resultar más caro que armar un equipo nuevo desde cero con componentes modernos y garantía completa.
+            </p>
+            <p>
+              En Pixon PC analizamos la plataforma de tu equipo, su antigüedad y la posibilidad de reutilizar piezas viables. Si el upgrade no tiene sentido económico, te lo decimos con total transparencia.
+            </p>
+          </div>
+          <div class="pcup-decision-cta">
+            <div class="pcup-decision-box">
+              <i class="fa-solid fa-computer" aria-hidden="true"></i>
+              <h3>¿Prefieres armar un equipo desde cero?</h3>
+              <p>Diseñamos ensambles de PC gamer y workstations a la medida según tu presupuesto y uso real en Cancún.</p>
+              <a href="/ensambles" class="pcup-btn pcup-btn--secondary">
+                Ver ensambles de PC en Cancún <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 9. SERVICIOS RELACIONADOS ==================== -->
+    <section id="relacionados" class="pcup-section pcup-related" aria-labelledby="related-title">
+      <div class="container">
+        <div class="pcup-heading">
+          <span class="pcup-kicker">Ecosistema Técnico Pixon PC</span>
+          <h2 id="related-title">Servicios relacionados para tu computadora en Cancún</h2>
+          <p>
+            Conecta tu necesidad con el servicio técnico exacto de nuestro taller:
+          </p>
+        </div>
+
+        <div class="pcup-related-grid">
+          {relatedServices.map((rel) => (
+            <a href={rel.href} class="pcup-related-card">
+              <div class="pcup-related-card__icon" aria-hidden="true">
+                <i class={rel.icon}></i>
+              </div>
+              <div class="pcup-related-card__content">
+                <h3>{rel.title}</h3>
+                <p>{rel.desc}</p>
+              </div>
+              <span class="pcup-related-card__arrow" aria-hidden="true">
+                <i class="fa-solid fa-arrow-right"></i>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 10. NAP LOCAL Y CONTACTO FÍSICO ==================== -->
+    <section id="taller-local" class="pcup-section pcup-nap-section">
+      <div class="container pcup-nap-grid">
+        <div>
+          <span class="pcup-kicker">Taller Físico en Cancún</span>
+          <h2>Servicio técnico y upgrade de computadoras en Cancún</h2>
+          <p>
+            Atención especializada para computadoras de escritorio, PC gamer y estaciones de trabajo en taller físico bajo cita previa programada.
+          </p>
+        </div>
+        <address class="pcup-address-box">
+          <strong>Pixon PC</strong>
+          <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+          <span><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp: <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">+52 998 669 0777</a></span>
+          <span><i class="fa-solid fa-envelope" aria-hidden="true"></i> Correo: <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></span>
+          <span><i class="fa-solid fa-clock" aria-hidden="true"></i> Horario: Lunes a Domingo con cita previa</span>
+        </address>
+      </div>
+    </section>
+
+    <!-- ==================== 11. PREGUNTAS FRECUENTES FAQ ==================== -->
+    <FaqSection
+      id="faq-upgrade"
+      title="Preguntas frecuentes sobre upgrade de PC en Cancún"
+      description="Respuestas técnicas y claras sobre compatibilidad de SSD, memoria RAM, tarjetas gráficas GPU, fuentes de poder, clonado y mejora de componentes en Cancún."
+      items={upgradeFaqs}
+      titleColor="#071F3A"
+      descriptionColor="#071F3A"
+      questionColor="#071F3A"
+    />
+
+    <!-- ==================== 12. FINAL CTA CON FORMULARIO ==================== -->
+    <section id="contacto" class="pcup-final" aria-labelledby="final-cta-title">
+      <div class="container pcup-final__inner">
+        <div>
+          <p class="pcup-final-kicker">Atención Personalizada</p>
+          <h2 id="final-cta-title">¿No sabes qué componente mejorar primero en tu PC?</h2>
+          <span>
+            Envíanos las especificaciones de tu PC actual y para qué la usas. Revisamos compatibilidad y te proponemos una ruta de upgrade clara antes de comprar piezas.
+          </span>
+        </div>
+        <div class="pcup-final__actions">
+          <a class="pcup-btn pcup-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-wa-link data-event-placement="final_cta">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Revisar mi PC para upgrade
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ticket de Servicio -->
+    <ServiceTicketSection
+      id="ticket"
+      defaultDevice="PC"
+      defaultService="Upgrade de PC"
+      sourcePage="/servicios/pc/upgrade"
+    />
+
+    <CommentsSection />
+    <ContactSection />
+    <Footer />
+  </main>
+</div>
+
+<style is:global>
+  /* ==================== VARIABLES Y TIPOGRAFÍA GLOBALES ==================== */
+  .pc-upgrade-page {
+    --azul-oscuro: #071F3A;
+    --upgrade-cyan: #38bdf8;
+    --upgrade-blue: #0284c7;
+    --upgrade-green: #10b981;
+    --upgrade-amber: #f59e0b;
+    background: #f8fafc;
+    color: var(--azul-oscuro);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+
+  /* Forzar estrictamente color azul oscuro en todos los textos fuera del hero y del final CTA */
+  .pc-upgrade-page main :is(p, h2, h3, h4, span, a, li, label, strong, summary, button):not(.pcup-btn--primary):not(.pcup-verdict-pill):not(.pcup-usecase-badge):not(.pcup-step-card__num) {
+    color: var(--azul-oscuro, #071F3A);
+  }
+
+  .pc-upgrade-page .pcup-section {
+    padding: clamp(48px, 6.5vw, 84px) 0;
+  }
+
+  .pcup-heading {
+    max-width: 820px;
+    margin-bottom: clamp(32px, 4.5vw, 48px);
+  }
+  .pcup-heading--center {
+    margin-inline: auto;
+    text-align: center;
+  }
+  .pcup-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #0369a1 !important;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .pcup-heading h2 {
+    margin: 4px 0 12px;
+    font-size: clamp(1.85rem, 3.4vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.18;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-heading p {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: #334155 !important;
+    margin: 0;
+  }
+
+  /* ==================== 1. HERO SECTION ==================== */
+  .pcup-hero {
+    position: relative;
+    padding: clamp(40px, 6vw, 64px) 0 clamp(48px, 7vw, 76px);
+    background: radial-gradient(ellipse at 85% 45%, #123951 0, #071f3a 65%);
+    color: #ffffff;
+    overflow: hidden;
+  }
+  .pcup-hero-glow {
+    position: absolute;
+    top: -150px;
+    right: -100px;
+    width: 650px;
+    height: 650px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(2, 132, 199, 0) 70%);
+    pointer-events: none;
+  }
+  .pcup-hero__grid {
+    display: grid;
+    grid-template-areas:
+      "eyebrow"
+      "title"
+      "media"
+      "summary"
+      "actions"
+      "trust";
+    grid-template-columns: 1fr;
+    gap: 18px;
+    align-items: center;
+  }
+  .pcup-hero__eyebrow-wrap,
+  .pcup-eyebrow-wrap { grid-area: eyebrow; }
+  .pcup-hero__title { grid-area: title; }
+  .pcup-hero__visual-wrap {
+    grid-area: media;
+    width: 100%;
+    max-width: 540px;
+    justify-self: center;
+  }
+  .pcup-hero__summary {
+    grid-area: summary;
+    max-width: 660px;
+  }
+  .pcup-hero__actions {
+    grid-area: actions;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  .pcup-hero__trust { grid-area: trust; }
+
+  .pcup-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #67e8f9 !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pcup-hero h1 {
+    margin: 6px 0 10px;
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.12;
+    color: #ffffff !important;
+  }
+  .pcup-hero h1 span {
+    display: block;
+  }
+  .pcup-hero h1 span:last-child {
+    color: #38bdf8 !important;
+  }
+  .pcup-lead {
+    margin: 0 0 10px;
+    font-size: clamp(1.08rem, 1.8vw, 1.25rem);
+    font-weight: 700;
+    line-height: 1.45;
+    color: #ffffff !important;
+  }
+  .pcup-description {
+    margin: 0;
+    font-size: 0.96rem;
+    line-height: 1.65;
+    color: #cbd5e1 !important;
+  }
+
+  /* Botones Hero */
+  .pcup-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+  .pcup-btn--primary {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(22, 163, 74, 0.3);
+  }
+  .pcup-btn--primary:hover {
+    background: #15803d !important;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(22, 163, 74, 0.4);
+  }
+  .pcup-btn--secondary {
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff !important;
+  }
+  .pcup-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #67e8f9;
+    color: #67e8f9 !important;
+    transform: translateY(-2px);
+  }
+
+  .pcup-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pcup-badges li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0 !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .pcup-badges li i { color: #38bdf8; }
+
+  /* Visual Stage Hero */
+  .pcup-visual-stage {
+    margin: 0;
+    width: 100%;
+    border-radius: 18px;
+    background: rgba(6, 22, 38, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+    padding: 16px;
+    overflow: hidden;
+  }
+  .pcup-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 540 / 440;
+  }
+  .pcup-visual-caption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.76rem;
+    color: #94a3b8 !important;
+  }
+  .pcup-caption-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #e2e8f0 !important;
+    font-weight: 700;
+  }
+  .pcup-step-num {
+    display: inline-grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff !important;
+    font-size: 0.68rem;
+  }
+  .pcup-caption-sep {
+    color: #64748b !important;
+    font-weight: 800;
+  }
+
+  /* Desktop 2-column layout */
+  @media (min-width: 1000px) {
+    .pcup-hero {
+      padding: clamp(56px, 7vw, 90px) 0;
+      min-height: 560px;
+      display: grid;
+      align-items: center;
+    }
+    .pcup-hero__grid {
+      grid-template-areas:
+        "eyebrow media"
+        "title   media"
+        "summary media"
+        "actions media"
+        "trust   media";
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+      gap: 16px 40px;
+    }
+    .pcup-hero__visual-wrap {
+      max-width: 520px;
+    }
+  }
+
+  /* ==================== 2. CUELLO DE BOTELLA ==================== */
+  .pcup-bottleneck {
+    background: #ffffff;
+  }
+  .pcup-bottleneck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .pcup-bottleneck-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border: 1px solid #dbeafe;
+    border-radius: 16px;
+    background: #f8fafc;
+    box-shadow: 0 4px 16px rgba(7, 31, 58, 0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .pcup-bottleneck-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(7, 31, 58, 0.08);
+  }
+  .pcup-bottleneck-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .pcup-bottleneck-card__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 1.25rem;
+  }
+  .pcup-bottleneck-card__badge {
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: #e2e8f0;
+    color: #071F3A !important;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .pcup-bottleneck-card__symptom {
+    margin: 0 0 14px;
+    font-size: 1.08rem;
+    font-weight: 800;
+    line-height: 1.35;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-bottleneck-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-grow: 1;
+    margin-bottom: 16px;
+  }
+  .pcup-bottleneck-card__field strong {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b !important;
+    margin-bottom: 2px;
+  }
+  .pcup-bottleneck-card__field p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: #334155 !important;
+  }
+  .pcup-bottleneck-card__field--solution {
+    padding: 10px 12px;
+    border-left: 3px solid #0284c7;
+    border-radius: 6px;
+    background: #f0f9ff;
+  }
+  .pcup-bottleneck-card__field--solution strong {
+    color: #0284c7 !important;
+  }
+  .pcup-bottleneck-card__footer {
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .pcup-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7 !important;
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: gap 0.15s ease;
+  }
+  .pcup-card-link:hover {
+    gap: 10px;
+    color: #071F3A !important;
+  }
+
+  .pcup-bottleneck-note {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-top: 28px;
+    padding: 20px 24px;
+    border: 1px solid #fed7aa;
+    border-radius: 14px;
+    background: #fff7ed;
+  }
+  .pcup-bottleneck-note i {
+    color: #ea580c;
+    font-size: 1.3rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .pcup-bottleneck-note strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.98rem;
+    color: #9a3412 !important;
+  }
+  .pcup-bottleneck-note p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #7c2d12 !important;
+  }
+  .pcup-bottleneck-note a {
+    color: #c2410c !important;
+    font-weight: 800;
+    text-decoration: underline;
+  }
+
+  /* ==================== 3. COMPONENTES GRID ==================== */
+  .pcup-components-section {
+    background: #f1f5f9;
+  }
+  .pcup-components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  .pcup-component-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.03);
+    transition: transform 0.18s ease, border-color 0.18s ease;
+  }
+  .pcup-component-card:hover {
+    transform: translateY(-2px);
+    border-color: #38bdf8;
+    box-shadow: 0 10px 24px rgba(7, 31, 58, 0.07);
+  }
+  .pcup-component-card__header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .pcup-component-card__icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #071F3A;
+    color: #38bdf8;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  .pcup-component-card__header h3 {
+    margin: 0;
+    font-size: 1.08rem;
+    font-weight: 800;
+    line-height: 1.3;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-component-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex-grow: 1;
+  }
+  .pcup-block-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #0369a1 !important;
+    margin-bottom: 3px;
+  }
+  .pcup-component-card__block p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #334155 !important;
+  }
+  .pcup-component-card__block--compat {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+  .pcup-component-card__block--compat .pcup-block-label {
+    color: #047857 !important;
+  }
+  .pcup-components-cta {
+    margin-top: 36px;
+    padding: 24px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .pcup-components-cta p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+
+  /* ==================== 4. CASOS DE USO ==================== */
+  .pcup-usecases {
+    background: #ffffff;
+  }
+  .pcup-usecases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  .pcup-usecase-card {
+    padding: 32px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+  .pcup-usecase-card--gaming {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+  }
+  .pcup-usecase-card--work {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+  }
+  .pcup-usecase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .pcup-usecase-card--gaming .pcup-usecase-badge {
+    background: #dcfce7;
+    color: #15803d !important;
+  }
+  .pcup-usecase-card--work .pcup-usecase-badge {
+    background: #e0f2fe;
+    color: #0369a1 !important;
+  }
+  .pcup-usecase-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-usecase-intro {
+    margin: 0 0 18px;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: #334155 !important;
+  }
+  .pcup-feature-list {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-grow: 1;
+  }
+  .pcup-feature-list li {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: #334155 !important;
+    position: relative;
+    padding-left: 20px;
+  }
+  .pcup-feature-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #0f766e;
+    font-weight: 900;
+  }
+  .pcup-usecase-footer {
+    padding-top: 14px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  .pcup-text-link {
+    color: #0369a1 !important;
+    font-size: 0.92rem;
+    font-weight: 800;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pcup-text-link:hover {
+    text-decoration: underline;
+  }
+
+  /* ==================== 5. TRIAGE GRID ==================== */
+  .pcup-triage {
+    background: #f8fafc;
+  }
+  .pcup-triage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .pcup-triage-card {
+    padding: 22px;
+    border: 1px solid #d0e2f2;
+    border-radius: 14px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 10px rgba(7, 31, 58, 0.03);
+  }
+  .pcup-triage-card__status {
+    margin-bottom: 10px;
+  }
+  .pcup-verdict-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .verdict-upgrade { background: #dbeafe; color: #1e40af !important; }
+  .verdict-specialized { background: #e0e7ff; color: #3730a3 !important; }
+  .verdict-repair { background: #fee2e2; color: #991b1b !important; }
+  .verdict-new { background: #fef3c7; color: #92400e !important; }
+  .verdict-opt { background: #dcfce7; color: #166534 !important; }
+
+  .pcup-triage-card__situation {
+    margin: 0 0 8px;
+    font-size: 1.02rem;
+    font-weight: 800;
+    line-height: 1.35;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-triage-card__desc {
+    margin: 0 0 16px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #475569 !important;
+    flex-grow: 1;
+  }
+  .pcup-triage-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #071F3A !important;
+    font-size: 0.86rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  .pcup-triage-btn:hover {
+    background: #071F3A;
+    color: #ffffff !important;
+  }
+
+  /* ==================== 6. PROCESO ==================== */
+  .pcup-process {
+    background: #ffffff;
+  }
+  .pcup-process-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .pcup-step-card {
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f8fafc;
+    position: relative;
+  }
+  .pcup-step-card__num {
+    display: inline-block;
+    font-size: 1.8rem;
+    font-weight: 900;
+    font-family: 'Kanit', sans-serif;
+    color: #0284c7 !important;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .pcup-step-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-step-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #475569 !important;
+  }
+
+  /* ==================== 7. TESTING Y CLONADO ==================== */
+  .pcup-testing {
+    background: #f8fafc;
+  }
+  .pcup-testing-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 36px;
+    align-items: start;
+  }
+  .pcup-tests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .pcup-test-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+  .pcup-test-item i {
+    color: #0284c7;
+    font-size: 1.25rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .pcup-test-item strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.94rem;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-test-item p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.48;
+    color: #475569 !important;
+  }
+
+  .pcup-clone-panel {
+    padding: 28px;
+    border: 1px solid #cbd5e1;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 6px 20px rgba(7, 31, 58, 0.04);
+  }
+  .pcup-clone-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .pcup-clone-panel__header i {
+    color: #0f766e;
+    font-size: 1.4rem;
+  }
+  .pcup-clone-panel__header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-clone-panel p {
+    margin: 0 0 16px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #334155 !important;
+  }
+  .pcup-clone-warning {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 10px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+  }
+  .pcup-clone-warning i {
+    color: #b45309;
+    font-size: 1.15rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .pcup-clone-warning p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: #92400e !important;
+  }
+
+  /* ==================== 8. DECISIÓN: UPGRADE VS PC NUEVA ==================== */
+  .pcup-decision {
+    background: #ffffff;
+  }
+  .pcup-decision-panel {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 36px;
+    align-items: center;
+    padding: 36px;
+    border-radius: 20px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+  }
+  .pcup-decision-copy h2 {
+    margin: 4px 0 12px;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    font-weight: 900;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-decision-copy p {
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #334155 !important;
+  }
+  .pcup-decision-box {
+    padding: 28px;
+    border-radius: 16px;
+    background: #071F3A;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pcup-decision-box i {
+    font-size: 1.8rem;
+    color: #38bdf8;
+  }
+  .pcup-decision-box h3 {
+    margin: 0;
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #ffffff !important;
+  }
+  .pcup-decision-box p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #cbd5e1 !important;
+  }
+
+  /* ==================== 9. RELACIONADOS ==================== */
+  .pcup-related {
+    background: #f8fafc;
+  }
+  .pcup-related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .pcup-related-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    text-decoration: none;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .pcup-related-card:hover {
+    transform: translateY(-2px);
+    border-color: #38bdf8;
+    box-shadow: 0 8px 20px rgba(7, 31, 58, 0.06);
+  }
+  .pcup-related-card__icon {
+    font-size: 1.3rem;
+    color: #0284c7;
+  }
+  .pcup-related-card__content h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-related-card__content p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: #64748b !important;
+  }
+  .pcup-related-card__arrow {
+    align-self: flex-end;
+    font-size: 0.85rem;
+    color: #0284c7;
+    margin-top: auto;
+  }
+
+  /* ==================== 10. NAP LOCAL ==================== */
+  .pcup-nap-section {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .pcup-nap-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .pcup-nap-grid h2 {
+    margin: 6px 0 10px;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-nap-grid p {
+    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: #475569 !important;
+  }
+  .pcup-address-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px 24px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    font-style: normal;
+  }
+  .pcup-address-box strong {
+    font-size: 1.1rem;
+    color: var(--azul-oscuro, #071F3A) !important;
+  }
+  .pcup-address-box span {
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #334155 !important;
+  }
+  .pcup-address-box span i { color: #0284c7; }
+  .pcup-address-box a {
+    color: #0284c7 !important;
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  /* ==================== 12. FINAL CTA ==================== */
+  .pcup-final {
+    padding: clamp(52px, 7vw, 84px) 0;
+    background: #071F3A !important;
+    color: #ffffff !important;
+  }
+  .pcup-final__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+  }
+  .pcup-final-kicker {
+    margin: 0;
+    color: #38bdf8 !important;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pcup-final h2 {
+    margin: 8px 0 10px;
+    color: #ffffff !important;
+    font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .pcup-final span {
+    display: block;
+    max-width: 680px;
+    color: #cbd5e1 !important;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* Responsive Breakpoints & Mobile Order */
+  @media (max-width: 999px) {
+    .pcup-testing-layout,
+    .pcup-decision-panel,
+    .pcup-nap-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .pcup-hero__grid {
+      gap: 14px;
+    }
+    .pcup-hero__actions {
+      flex-direction: column;
+    }
+    .pcup-btn {
+      width: 100%;
+    }
+    .pcup-decision-panel {
+      padding: 24px;
+    }
+    .pcup-components-cta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .pcup-components-cta .pcup-btn {
+      width: 100%;
+    }
+    .pcup-final__inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .pcup-final__actions {
+      width: 100%;
+    }
+    .pcup-final__actions .pcup-btn {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pc-upgrade-page * {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>

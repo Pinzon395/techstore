@@ -9,7 +9,8 @@ test('confirmed commercial policy invariants remain explicit', () => {
   assert.match(source, /prepaid:\s*true/);
   assert.match(source, /appointmentOnly:\s*true/);
   assert.match(source, /pricingMode:\s*'EQUIPMENT_VALUE_REFERENCE'/);
-  assert.match(source, /referencePercentage:\s*0\.20/);
+  assert.match(source, /referencePercentage:\s*0\.15/);
+  assert.match(source, /startingPriceMXN:\s*1000/);
   assert.match(source, /coversServiceCausedDamage:\s*true/);
   assert.match(source, /coversPreExistingFaults:\s*false/);
   assert.match(source, /cleaningIsRepair:\s*false/);

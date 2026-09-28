@@ -359,9 +359,20 @@
         </div>`;
     }
 
-    function renderRankedItems(items = [], labelKey, valueKey, empty) {
+    function renderRankedItems(items = [], labelKey, valueKey, empty, isPath = false) {
         if (!items.length) return `<p class="dashboard-empty">${escapeHtml(empty)}</p>`;
-        return `<ol class="dashboard-ranked-list">${items.map((item) => `<li><span title="${escapeHtml(item[labelKey] || 'Sin clasificar')}">${escapeHtml(item[labelKey] || 'Sin clasificar')}</span><strong>${numberFormatter.format(item[valueKey] || 0)}</strong></li>`).join('')}</ol>`;
+        const max = Math.max(1, ...items.map((item) => Number(item[valueKey]) || 0));
+        return `<ol class="dashboard-ranked-list">${items.map((item) => {
+            const value = Number(item[valueKey]) || 0;
+            const pct = Math.round((value / max) * 100);
+            const label = escapeHtml(item[labelKey] || 'Sin clasificar');
+            // Las rutas del propio sitio son un link real a la pagina publica;
+            // el origen (referrer) no lo es, no debe parecer clickeable (#24).
+            const labelHtml = isPath
+                ? `<a href="${label}" target="_blank" rel="noopener" title="Abrir ${label} en el sitio público">${label}</a>`
+                : `<span title="${label}">${label}</span>`;
+            return `<li style="--bar:${pct}%">${labelHtml}<strong>${numberFormatter.format(value)}</strong></li>`;
+        }).join('')}</ol>`;
     }
 
     function renderInventory() {
@@ -395,16 +406,25 @@
             sectionError(container, 'tráfico web');
             return;
         }
-        document.querySelector('[data-dashboard-summary="traffic"]').textContent = `${metricValue(traffic.metrics.visitors)} visitantes`;
+        document.querySelector('[data-dashboard-summary="traffic"]').textContent = `${metricValue(traffic.metrics.visitors)} visitantes · ${metricValue(traffic.metrics.clicks)} clicks útiles`;
+        const lowClickRows = (traffic.low_click_pages || []);
         container.innerHTML = `<div class="dashboard-detail-grid">
             ${metricRow('Páginas vistas', traffic.metrics.views)}
             ${metricRow('Visitantes', traffic.metrics.visitors)}
+            ${metricRow('Clicks útiles', traffic.metrics.clicks)}
         </div>
         <div class="dashboard-split-list">
-            <section><h4>Páginas principales</h4>${renderRankedItems(traffic.top_pages, 'path', 'views', 'Sin visitas en este periodo.')}</section>
+            <section><h4>Páginas más visitadas</h4>${renderRankedItems(traffic.top_pages, 'path', 'views', 'Sin visitas en este periodo.', true)}</section>
+            <section><h4>Páginas con más clicks</h4>${renderRankedItems(traffic.top_click_pages, 'path', 'clicks', 'Sin clicks útiles en este periodo.', true)}</section>
             <section><h4>Origen</h4>${renderRankedItems(traffic.referrers, 'source', 'views', 'Sin referencias identificables.')}</section>
         </div>
-        ${traffic.conversions.state === 'not_configured' ? `<p class="dashboard-config-note">Conversiones: ${escapeHtml(traffic.conversions.reason)}</p>` : ''}`;
+        <section class="dashboard-attention-list">
+            <h4>Necesitan atención (tráfico sin clicks)</h4>
+            ${lowClickRows.length
+                ? `<ol class="dashboard-ranked-list">${lowClickRows.map((row) => `<li><a href="${escapeHtml(row.path)}" target="_blank" rel="noopener" title="Abrir ${escapeHtml(row.path)} en el sitio público">${escapeHtml(row.path)}</a><strong>${row.ctr}% CTR</strong><small>${numberFormatter.format(row.views)} vistas · ${numberFormatter.format(row.clicks)} clicks</small></li>`).join('')}</ol>`
+                : `<p class="dashboard-empty">Ninguna página con tráfico suficiente (≥ 20 vistas) tiene CTR bajo en este periodo.</p>`}
+        </section>
+        ${traffic.conversions.state === 'empty' ? `<p class="dashboard-config-note">${escapeHtml(traffic.conversions.reason)}</p>` : ''}`;
     }
 
     function renderQuality() {

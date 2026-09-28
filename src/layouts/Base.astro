@@ -26,6 +26,8 @@ interface Props {
   robots?: string;
   extraStyles?: string[];
   alternateLinks?: Array<{ hreflang: string; href: string }>;
+  activeView?: string;
+  allowFaqSchema?: boolean;
 }
 
 const {
@@ -39,9 +41,11 @@ const {
   preloadSprite = false,
   ogTitle = title,
   ogDescription = description,
-  robots = 'index, follow',
+  robots,
   extraStyles = [],
   alternateLinks = [],
+  activeView,
+  allowFaqSchema = false,
 } = Astro.props;
 
 const siteUrl = business.siteUrl;
@@ -196,7 +200,7 @@ const mergeSchemaList = (baseSchema: any[], pageItems: any[]) => {
 };
 
 const allSchema = cleanSchemaList(mergeSchemaList(defaultSchema, schema))
-  .filter((item) => item && !isFaqSchema(item));
+  .filter((item) => item && (allowFaqSchema || !isFaqSchema(item)));
 const htmlLang = lang === 'en' ? 'en' : 'es-MX';
 ---
 
@@ -231,14 +235,16 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
   <meta name="twitter:description" content={ogDescription}>
   <meta name="twitter:image" content={fullImage}>
 
-  <style is:inline>:root{--bg-main:#f8f9fc;--bg-darker:#fff;--bg-card:#fff;--border-color:#e2e8f0;--primary:#3b82f6;--primary-hover:#2563eb;--secondary:#6366f1;--accent:#8b5cf6;--gold:#f59e0b;--text-main:#0f172a;--text-muted:#475569;--font-heading:'Kanit',sans-serif;--font-main:'Red Hat Display',sans-serif;--section-padding:40px 0;--transition:all .3s ease}*{margin:0;padding:0;box-sizing:border-box}body{background-color:var(--bg-main);color:var(--text-main);line-height:1.6;font-family:var(--font-main);overflow-x:hidden}.container{max-width:1200px;margin:0 auto;padding:0 clamp(30px,3vw,20px)}.navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:8px 20px;background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.05)}.nav-container{max-width:1200px;margin:0 auto;padding:0 clamp(16px,3vw,40px);display:flex;justify-content:space-between;align-items:center;min-height:50px}.logo{font-size:1.5rem;color:var(--text-main);display:flex;align-items:center;gap:8px;font-family:var(--font-heading);text-decoration:none}.nav-menu{display:flex;gap:30px;align-items:center;list-style:none}.nav-links{font-size:.95rem;font-weight:700;color:var(--text-main);opacity:.8;text-decoration:none}.low-end-mode .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(255,255,255,.98)!important}.low-end-mode *{animation-duration:.01ms!important;transition-duration:.01ms!important}.reduced-motion .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.svc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;margin-bottom:20px;flex-shrink:0}</style>
+  <style is:inline>:root{--page-gutter-desktop:50px;--page-gutter-tablet:36px;--page-gutter-mobile:20px;--page-gutter:var(--page-gutter-desktop);--bg-main:#f8f9fc;--bg-darker:#fff;--bg-card:#fff;--border-color:#e2e8f0;--primary:#3b82f6;--primary-hover:#2563eb;--secondary:#6366f1;--accent:#8b5cf6;--gold:#f59e0b;--text-main:#0f172a;--text-muted:#475569;--font-heading:'Kanit',sans-serif;--font-main:'Red Hat Display',sans-serif;--section-padding:40px 0;--transition:all .3s ease}@media (max-width:1023px){:root{--page-gutter:var(--page-gutter-tablet)}}@media (max-width:767px){:root{--page-gutter:var(--page-gutter-mobile)}}*{margin:0;padding:0;box-sizing:border-box}body{background-color:var(--bg-main);color:var(--text-main);line-height:1.6;font-family:var(--font-main);overflow-x:hidden}.container{max-width:1200px;margin:0 auto;padding-left:max(var(--page-gutter),env(safe-area-inset-left));padding-right:max(var(--page-gutter),env(safe-area-inset-right))}.navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:8px 0;background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.05)}.nav-container{max-width:1200px;margin:0 auto;padding-left:max(var(--page-gutter),env(safe-area-inset-left));padding-right:max(var(--page-gutter),env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:center;min-height:50px}.logo{font-size:1.5rem;color:var(--text-main);display:flex;align-items:center;gap:8px;font-family:var(--font-heading);text-decoration:none}.nav-menu{display:flex;gap:30px;align-items:center;list-style:none}.nav-links{font-size:.95rem;font-weight:700;color:var(--text-main);opacity:.8;text-decoration:none}.low-end-mode .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(255,255,255,.98)!important}.low-end-mode *{animation-duration:.01ms!important;transition-duration:.01ms!important}.reduced-motion .navbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.svc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;margin-bottom:20px;flex-shrink:0}</style>
 
   <style is:inline>.skip-to-content{position:fixed;top:12px;left:12px;z-index:10000;transform:translateY(-160%);background:#0f172a;color:#fff;padding:10px 14px;border-radius:10px;font-weight:800;text-decoration:none;box-shadow:0 12px 30px rgba(15,23,42,.25)}.skip-to-content:focus{transform:translateY(0);outline:3px solid #f59e0b;outline-offset:3px}#main-content:focus{outline:none}</style>
   <link rel="stylesheet" href={globalCss}>
   {extraStyles.map((href) => <link rel="stylesheet" href={href} />)}
+  {activeView && <meta name="pixon-active-view" content={activeView} />}
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script is:inline>
@@ -310,7 +316,7 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
     })();
   </script>
   <script is:inline>
-    (function(){var e=!1;navigator.connection&&(navigator.connection.saveData&&(e=!0),/2g/.test(navigator.connection.effectiveType)&&(e=!0),navigator.connection.downlink<.5&&(e=!0));navigator.deviceMemory&&navigator.deviceMemory<2&&(e=!0);navigator.hardwareConcurrency&&navigator.hardwareConcurrency<4&&(e=!0);(/Android\s([0-9])/i.test(navigator.userAgent)&&parseInt(navigator.userAgent.match(/Android\s([0-9])/i)[1])<10)&&(e=!0);e&&document.documentElement.classList.add('low-end-mode');window.matchMedia('(prefers-reduced-motion:reduce)').matches&&document.documentElement.classList.add('reduced-motion')})();
+    (function(){var e=!1;navigator.connection&&(navigator.connection.saveData&&(e=!0),/2g/.test(navigator.connection.effectiveType)&&(e=!0),navigator.connection.downlink<.5&&(e=!0));navigator.deviceMemory&&navigator.deviceMemory<=4&&(e=!0);navigator.hardwareConcurrency&&navigator.hardwareConcurrency<4&&(e=!0);(/Android\s([0-9])/i.test(navigator.userAgent)&&parseInt(navigator.userAgent.match(/Android\s([0-9])/i)[1])<10)&&(e=!0);e&&document.documentElement.classList.add('low-end-mode');window.matchMedia('(prefers-reduced-motion:reduce)').matches&&document.documentElement.classList.add('reduced-motion')})();
   </script>
   <script is:inline>
     function smartWaRedirect(url) {
@@ -319,6 +325,7 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
     }
   </script>
   <script is:inline src="/scripts/scroll-restore.js?v=20260602-2"></script>
+  <slot name="head" />
 </head>
 <body class={bodyClass} data-pixon-lang={lang}>
   <a class="skip-to-content" href="#main-content">{lang === 'en' ? 'Skip to main content' : 'Saltar al contenido principal'}</a>
@@ -337,6 +344,7 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
   </div>
   <WhatsappFloat lang={lang} />
   <BackToTopButton />
+  <script is:inline defer src="/scripts/floating-dock.js?v=20260911-1"></script>
 
   <script>
     import '../../components/cookies/CookieBanner.js';
@@ -363,8 +371,8 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
   </script>
   <script defer src="/scripts/user-menu.js"></script>
   <script defer src="/scripts/locale-preference.js"></script>
-  <script defer src="/cache-buster.js?v=20260620-1"></script>
+  <script defer src="/cache-buster.js?v=20260926T130950Z-f9cc4f8ec193"></script>
   <script defer src="/scripts/tracker.js"></script>
-  <script defer src="/scripts/pwa-register.js?v=20260620-1"></script>
+  <script defer src="/scripts/pwa-register.js?v=20260926T130950Z-f9cc4f8ec193"></script>
 </body>
 </html>

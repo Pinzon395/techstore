@@ -1,47 +1,96 @@
 /**
- * Pixon PC — Cache Buster
+ * Pixon PC — Smart Cache Buster & Auto-Sync
  *
- * Limpia localStorage/sessionStorage/SW caches cuando la version
- * almacenada no coincide con la actual. Evita inconsistencias entre
- * el HTML servido y assets cacheados antiguos.
+ * Garantiza que todos los clientes vean los cambios y actualizaciones inmediatamente
+ * sin tener que borrar cookies ni limpiar el historial manualmente.
  *
- * Cargado con `defer` desde cada pagina HTML para que NO bloquee
- * el render inicial. Cuando la version cambia, el reload ocurre
- * despues del parse del DOM (el usuario nunca ve la version antigua).
- *
- * Para subir version del sitio: cambiar la constante CURRENT_VERSION.
+ * Preserva el carrito de compras (pixon.cart.v1) y sesiones de usuario.
  */
 (function () {
-    var CURRENT_VERSION = '20260620-1';
+    'use strict';
+
+    var CURRENT_VERSION = '20260916-062820'; // Reemplazado automáticamente en build
     var KEY = 'pixon_version';
 
-    try {
-        var userVersion = localStorage.getItem(KEY);
-        if (userVersion === CURRENT_VERSION) return;
-        if (!userVersion) {
-            localStorage.setItem(KEY, CURRENT_VERSION);
-            return;
-        }
-
-        localStorage.clear();
-        sessionStorage.clear();
-
+    function purgeOldCaches(targetVersion) {
         if ('caches' in window) {
             caches.keys().then(function (names) {
-                for (var i = 0; i < names.length; i++) caches.delete(names[i]);
-            });
+                var expected = 'pixon-' + (targetVersion || CURRENT_VERSION);
+                for (var i = 0; i < names.length; i++) {
+                    if (names[i] !== expected) {
+                        caches.delete(names[i]);
+                    }
+                }
+            }).catch(function () {});
         }
+    }
 
+    function updateServiceWorkers() {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function (regs) {
-                for (var i = 0; i < regs.length; i++) regs[i].unregister();
-            });
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (var i = 0; i < registrations.length; i++) {
+                    registrations[i].update();
+                }
+            }).catch(function () {});
+        }
+    }
+
+    function checkServerVersion() {
+        if (!navigator.onLine) return;
+        var url = '/version.json?_t=' + Date.now();
+        fetch(url, {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        })
+        .then(function (res) {
+            if (!res.ok) return null;
+            return res.json();
+        })
+        .then(function (data) {
+            if (!data || !data.version) return;
+            if (data.version !== CURRENT_VERSION) {
+                console.log('[Pixon Sync] Nueva versión detectada en servidor:', data.version, '(actual:', CURRENT_VERSION + ')');
+                purgeOldCaches(data.version);
+                updateServiceWorkers();
+                try {
+                    localStorage.setItem(KEY, data.version);
+                } catch (_) {}
+                // Recargar de forma transparente para mostrar el nuevo contenido
+                window.location.reload();
+            }
+        })
+        .catch(function () {});
+    }
+
+    try {
+        var localVer = localStorage.getItem(KEY);
+
+        // Si la versión guardada en el cliente es diferente a la del HTML entregado
+        if (localVer && localVer !== CURRENT_VERSION) {
+            purgeOldCaches(CURRENT_VERSION);
+            updateServiceWorkers();
         }
 
+        // Registrar versión actual sin borrar datos vitales del usuario (carrito, auth)
         localStorage.setItem(KEY, CURRENT_VERSION);
-        window.location.reload(true);
+
+        // Comprobación de versión remota al cargar (tras 2 segundos)
+        setTimeout(checkServerVersion, 2000);
+
+        // Comprobación cuando el usuario vuelve a enfocar la pestaña
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                checkServerVersion();
+            }
+        });
+
+        window.addEventListener('focus', function () {
+            checkServerVersion();
+        });
     } catch (e) {
-        // localStorage puede fallar en modo privado o por politicas del navegador.
-        // En ese caso simplemente no aplicamos cache-busting.
+        // En caso de restricciones de almacenamiento o navegación privada
     }
 })();
