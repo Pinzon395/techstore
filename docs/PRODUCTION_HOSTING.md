@@ -1,5 +1,7 @@
 # Producción VPS
 
+**Proveedor y plan aprobados (2026-09-28):** Hostinger, plan KVM 2 (2 vCPU / 8 GB RAM / 100 GB NVMe). No escalar a un plan mayor salvo que la línea base de recursos (ver `npm run inventory:hosting` tras cutover) muestre presión real.
+
 ## Arquitectura
 
 `Cloudflare -> cloudflared (VPS) -> 127.0.0.1:3000 -> Pixon/Express -> MariaDB 127.0.0.1`.
@@ -15,7 +17,7 @@ Jobs: la app ejecuta liberación de reservas commerce, expiración de holds de c
 1. Ubuntu LTS, usuario `pixon`, Node `22.17.0`, MariaDB y `cloudflared` instalados. Crear `/opt/pixon/{releases,shared/data}` con dueño `pixon:pixon` y modo 0750.
 2. Copiar `.env.example` a `/opt/pixon/shared/.env`, completar secretos y usar `DATA_DIR=/opt/pixon/shared/data`. Generar un `SESSION_SECRET` nuevo de al menos 32 caracteres. Nunca usar `root` para la app.
 3. Crear base y usuario local: `CREATE USER 'pixon_app'@'localhost' IDENTIFIED BY '...'; GRANT ... ON pixon_db.* TO 'pixon_app'@'localhost';`. MariaDB queda en `127.0.0.1`, sin 3306 público.
-4. Instalar `deploy/systemd/pixon.service`, `pixon-backup.service` y `pixon-backup.timer` en `/etc/systemd/system/`; ejecutar `systemctl daemon-reload && systemctl enable --now pixon pixon-backup.timer`.
+4. Instalar `deploy/systemd/pixon.service`, `pixon-backup.service`, `pixon-backup.timer`, `pixon-backup-offsite.service` y `pixon-backup-offsite.timer` en `/etc/systemd/system/`; ejecutar `systemctl daemon-reload && systemctl enable --now pixon pixon-backup.timer pixon-backup-offsite.timer` (el timer offsite queda instalado pero inerte hasta configurar `R2_BACKUP_BUCKET`).
 5. Configurar Cloudflare Tunnel con el ejemplo versionado; no exponer el puerto 3000. Cloudflare sigue siendo DNS, SSL, WAF, CDN y cache.
 
 ## Deploy
@@ -28,7 +30,9 @@ Operación: `systemctl status pixon`, `systemctl restart pixon`, `journalctl -u 
 
 ## Backup y restore
 
-El timer diario ejecuta un backup MariaDB cifrado/autenticado (`.pixonbak` + manifest) y un `tar.gz` de archivos persistentes con SHA-256. Retención local: 95 días; antes de copiar fuera del VPS, cifrar el archivo. R2 es opcional y nunca requerido para iniciar.
+El timer diario ejecuta un backup MariaDB cifrado/autenticado (`.pixonbak` + manifest) y un `tar.gz` de archivos persistentes con SHA-256. Retención local: 95 días.
+
+Un segundo timer, `pixon-backup-offsite.timer` (02:45 UTC, 30 min después del backup local), ejecuta `scripts/hosting/backup-offsite-sync.sh`: si `R2_BACKUP_BUCKET` no está configurado, no hace nada (modo solo-local, seguro por defecto). Cuando se activa, cifra el `tar.gz` de archivos con `BACKUP_OFFSITE_KEY` (el backup de DB ya viaja cifrado) y sube ambos a un bucket S3-compatible (Cloudflare R2 recomendado por costo cero de egreso). Activarlo es obligatorio antes de declarar la migración completa (un VPS que muere con su único backup adentro no es backup real) — requiere crear el bucket R2 y sus credenciales, pendiente de aprobación separada para esa cuenta.
 
 Restore DB controlado: `npm run db:backup:verify -- /ruta/archivo.pixonbak` y, solo sobre una DB objetivo confirmada, `npm run db:backup:restore -- /ruta/archivo.pixonbak --force`. Restaurar archivos en `shared/data`, verificar SHA-256, luego reiniciar Pixon.
 

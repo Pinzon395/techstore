@@ -56,6 +56,11 @@ async function initDB() {
 
     console.log(`🗄️  MariaDB conectada → ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
 
+    // Reconciliar citas huérfanas sin ticket
+    reconcileOrphanAppointments(pool).catch((err) => {
+        console.error('[reconcile] Error en reconciliación automática de citas:', err);
+    });
+
     return pool;
 }
 
@@ -701,6 +706,29 @@ async function updateRepairAdmin(id, data) {
                  VALUES (?,?,?,?,?)`,
                 [id, previous.status, nextStatus, String(data.status_comment || '').trim().slice(0, 500) || null, data.changed_by || null]
             );
+
+            // Sincronizar automáticamente con appointments si existe cita vinculada
+            if (nextStatus === 'received') {
+                await connection.execute(
+                    `UPDATE appointments SET status = 'DEVICE_RECEIVED', device_received_at = COALESCE(device_received_at, NOW()), updated_at = CURRENT_TIMESTAMP WHERE ticket_id = ? AND status IN ('CONFIRMED', 'CHECKED_IN')`,
+                    [id]
+                ).catch(() => {});
+            } else if (nextStatus === 'in_progress') {
+                await connection.execute(
+                    `UPDATE appointments SET status = 'IN_PROGRESS', updated_at = CURRENT_TIMESTAMP WHERE ticket_id = ? AND status IN ('CONFIRMED', 'CHECKED_IN', 'DEVICE_RECEIVED')`,
+                    [id]
+                ).catch(() => {});
+            } else if (nextStatus === 'delivered' || nextStatus === 'ready') {
+                await connection.execute(
+                    `UPDATE appointments SET status = 'COMPLETED', completed_at = COALESCE(completed_at, NOW()), updated_at = CURRENT_TIMESTAMP WHERE ticket_id = ? AND status NOT IN ('COMPLETED', 'DEVICE_DELIVERED')`,
+                    [id]
+                ).catch(() => {});
+            } else if (nextStatus === 'cancelled') {
+                await connection.execute(
+                    `UPDATE appointments SET status = 'CANCELLED_BY_ADMIN', cancelled_at = COALESCE(cancelled_at, NOW()), updated_at = CURRENT_TIMESTAMP WHERE ticket_id = ? AND status NOT IN ('COMPLETED', 'DEVICE_DELIVERED')`,
+                    [id]
+                ).catch(() => {});
+            }
         }
 
         const auditDiff = buildRepairDiff(previous, updated);
@@ -744,6 +772,62 @@ async function generateUniqueTicketCode(connection) {
         if (!existing) return code;
     }
     return `PIX${Date.now().toString(36).slice(-5).toUpperCase()}`;
+}
+
+async function reconcileOrphanAppointments(dbPool = pool) {
+    if (!dbPool) return;
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+        const [orphans] = await connection.execute(
+            'SELECT * FROM appointments WHERE ticket_id IS NULL FOR UPDATE'
+        );
+        for (const apt of orphans) {
+            const ticketCode = await generateUniqueTicketCode(connection);
+            const deviceType = (apt.device_summary || 'Equipo').slice(0, 40);
+            const serviceSummary = apt.planned_service_summary || apt.service_type || 'Revisión técnica';
+            const reportedIssue = [
+                `Servicio agendado: ${serviceSummary}`,
+                apt.customer_notes ? `Nota del cliente: ${apt.customer_notes}` : null,
+                apt.address_line ? `Ubicación: ${apt.address_line}` : null
+            ].filter(Boolean).join('\n');
+            const internalNotes = `Cita histórica reconciliada (${apt.location_type === 'ON_SITE' ? 'Domicilio' : 'Taller'}). Cliente: ${apt.customer_name}`;
+
+            const [repairResult] = await connection.execute(
+                `INSERT INTO repairs (
+                    ticket_code, user_id, device_type, device_brand, device_model,
+                    reported_issue, contact_phone, contact_email, priority,
+                    notes_internal, status, appointment_type, appointment_date,
+                    appointment_time, appointment_datetime, appointment_status, appointment_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    ticketCode, apt.customer_id || null, deviceType, '', '',
+                    reportedIssue, apt.customer_phone, apt.customer_email || null,
+                    'normal', internalNotes,
+                    apt.status === 'COMPLETED' ? 'ready' : (apt.status && apt.status.includes('CANCELLED') ? 'cancelled' : 'new'),
+                    apt.appointment_type || 'DROP_OFF',
+                    String(apt.start_at).slice(0, 10),
+                    String(apt.start_at).slice(11, 16),
+                    apt.start_at,
+                    apt.status === 'COMPLETED' ? 'completada' : (apt.status && apt.status.includes('CANCELLED') ? 'cancelada' : 'confirmada'),
+                    apt.start_at
+                ]
+            );
+            await connection.execute(
+                'UPDATE appointments SET ticket_id = ? WHERE id = ?',
+                [repairResult.insertId, apt.id]
+            );
+        }
+        await connection.commit();
+        if (orphans.length > 0) {
+            console.log(`[reconcile] Vinculadas ${orphans.length} citas huérfanas a tickets oficiales en repairs.`);
+        }
+    } catch (err) {
+        await connection.rollback();
+        console.error('[reconcile] Error reconciliando citas huérfanas:', err);
+    } finally {
+        connection.release();
+    }
 }
 
 async function insertRepairAdmin(data) {
@@ -1228,6 +1312,7 @@ module.exports = {
     deriveNextAction,
     generateUniqueTicketCode,
     mapRepairWithDerived,
+    reconcileOrphanAppointments,
     getAppointmentConfig,
     saveAppointmentConfig,
     getAppointmentAvailability,

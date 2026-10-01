@@ -44,6 +44,9 @@ export interface ServiceFlags {
   isMacBookBatteryReplacement: boolean;
   isMacSoftware: boolean;
   isImacMacMiniRepair: boolean;
+  isMacDiagnostic: boolean;
+  isMacBookScreenReplacement: boolean;
+  isMacBookRepair: boolean;
   isHotelSupport: boolean;
   isB2bOfficeSupport: boolean;
   isB2bWifiEmpresarial: boolean;
@@ -119,6 +122,9 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
   const isMacBookBatteryReplacement = category.slug === 'mac' && service.slug === 'cambio-bateria-macbook';
   const isMacSoftware = category.slug === 'mac' && service.slug === 'software-macos';
   const isImacMacMiniRepair = category.slug === 'mac' && service.slug === 'reparacion-imac-mac-mini';
+  const isMacDiagnostic = category.slug === 'mac' && service.slug === 'diagnostico-mac';
+  const isMacBookScreenReplacement = category.slug === 'mac' && service.slug === 'cambio-pantalla-macbook';
+  const isMacBookRepair = category.slug === 'mac' && service.slug === 'reparacion-macbook';
   const isHotelSupport = category.slug === 'b2b' && service.slug === 'soporte-hoteles';
   const isB2bOfficeSupport = category.slug === 'b2b' && service.slug === 'soporte-oficinas';
   const isB2bWifiEmpresarial = category.slug === 'b2b' && service.slug === 'wifi-empresarial';
@@ -202,6 +208,9 @@ export function getServiceFlags(category: ServiceCategory, service: ServiceItem)
     isMacBookBatteryReplacement,
     isMacSoftware,
     isImacMacMiniRepair,
+    isMacDiagnostic,
+    isMacBookScreenReplacement,
+    isMacBookRepair,
     isHotelSupport,
     isB2bOfficeSupport,
     isB2bWifiEmpresarial,

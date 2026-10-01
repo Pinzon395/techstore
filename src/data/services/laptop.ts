@@ -15,7 +15,8 @@ const laptopBrandService = (slug: string, brand: string, models: string[]) => ({
   hook: `Diagnóstico y reparación de laptops ${brand} que no encienden, se calientan, van lentas, no cargan, tienen pantalla rota, teclado fallando o daño por líquido.`,
   intro: `Servicio técnico ${brand} en Cancún con revisión por modelo para pantalla, batería, teclado, centro de carga, placa, SSD, RAM, ventilación y software.`,
   bullets: ['Diagnóstico por modelo exacto', 'Revisión de pantalla, carga, batería, teclado y placa', 'SSD/RAM y mantenimiento térmico si conviene', 'Garantía por escrito'],
-  fromPrice: '$550 MXN',
+  fromPrice: undefined,
+  hideSchemaOffer: true,
   eta: '24-72 h',
   warranty: 'Garantía por escrito según reparación',
   whyUs: [
@@ -98,7 +99,7 @@ export const laptopCategory: ServiceCategory = {
         hook: '¿Pantalla rota, con líneas, manchas, parpadeo o sin imagen? Diagnosticamos si la falla es panel, flex o video antes de cotizar.',
         intro: 'Reemplazo de display LCD, LED, FHD, táctil u OLED para laptops Windows y MacBook con piezas originales o equivalentes certificadas.',
         bullets: ['Diagnóstico técnico previo en Cancún', 'Panel original o equivalente certificado', 'Validación de flex, bisagras y tarjeta de video', 'Calibración de brillo, color y pixeles', 'Garantía 6 meses por escrito'],
-        fromPrice: '$1,800 MXN', eta: '2-5 días', warranty: '6 meses por escrito',
+        fromPrice: undefined, hideSchemaOffer: true, eta: '2-5 días', warranty: '6 meses por escrito',
         whyUs: [
           { icon: 'fa-shield-halved',     title: 'Pantalla certificada',   desc: 'Instalamos panel original o equivalente certificado; si es refurbished, te lo avisamos antes.' },
           { icon: 'fa-magnifying-glass',  title: 'Diagnóstico real',  desc: 'Confirmamos si el daño está en pantalla, flex de video, bisagra o tarjeta de video.' },
@@ -135,7 +136,7 @@ export const laptopCategory: ServiceCategory = {
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Toshiba', 'MSI', 'Samsung', 'MacBook Pro', 'MacBook Air', 'Huawei', 'Xiaomi'],
         faqs: [
-          { question: `¿Cuánto cuesta el cambio de pantalla de laptop en Cancún?`, answer: `El precio depende del modelo, tamaño, resolución, tipo de panel y disponibilidad. Un cambio estándar suele iniciar desde <strong>$1,800 MXN</strong>, pero primero confirmamos número de parte, conector, acabado y compatibilidad para evitar pedir una pantalla incorrecta.` },
+          { question: `¿Cuánto cuesta el cambio de pantalla de laptop en Cancún?`, answer: `El costo se cotiza según el modelo exacto, tamaño en pulgadas, resolución (HD, Full HD, 2K o 4K), tipo de panel (IPS, OLED o táctil) y disponibilidad de la refacción. Antes de cotizar confirmamos número de parte y conector para garantizar compatibilidad absoluta.` },
           { question: `¿Cómo sé si necesito pantalla nueva o solo flex de video?`, answer: `Hacemos prueba con monitor externo, revisión de flex, bisagras, retroiluminación y comportamiento al mover la tapa. Si la imagen externa funciona bien, puede ser panel o flex; si también falla afuera, revisamos video o placa antes de cotizar pantalla.` },
           { question: `¿Cuánto tarda cambiar una pantalla de laptop?`, answer: `Si el panel está disponible para modelos comunes HP, Dell, Lenovo, Asus o Acer, normalmente toma <strong>24 a 48 horas</strong>. Modelos táctiles, MacBook, OLED o importados pueden tomar de <strong>3 a 7 días</strong>, según disponibilidad.` },
           { question: `¿La pantalla queda igual que la original?`, answer: `Buscamos el panel compatible correcto por resolución, conector, tamaño, acabado y tipo de montaje. Cuando existe opción original o equivalente certificada, te explicamos diferencia de precio y calidad antes de comprar la pieza.` },
@@ -144,6 +145,7 @@ export const laptopCategory: ServiceCategory = {
         ],
         relatedSlugs: ['cambio-bateria', 'cambio-teclado', 'pasta-termica', 'diagnostico'],
         relatedExternal: [
+          { label: 'Pantalla de MacBook Air o Pro', href: '/servicios/mac/cambio-pantalla-macbook', icon: 'fa-laptop', desc: 'Para una MacBook, usa la landing especializada por modelo, panel, flex y retroiluminación.' },
           { label: 'Limpieza por líquido derramado', href: '/limpieza-laptop-liquido', icon: 'fa-droplet', desc: 'Si tu laptop sufrió derrame, atender ambas cosas a la vez.' },
           { label: 'Paquetes de mantenimiento',     href: '/paquetes',                 icon: 'fa-box',     desc: 'Aprovecha el desarmado para limpieza completa.' },
         ],
@@ -178,7 +180,7 @@ export const laptopCategory: ServiceCategory = {
         hook: '¿Tu teclado no responde, escribe doble, tiene teclas pegadas o se mojó? Revisamos teclado, flex, conector y posible daño por líquido antes de cotizar.',
         intro: 'Servicio local de cambio y reparación de teclado de laptop en Cancún para HP, Dell, Lenovo, Asus, Acer, MSI y MacBook. Instalamos teclado español latino, US o retroiluminado según modelo, con prueba tecla por tecla y garantía por escrito.',
         bullets: ['Diagnóstico de teclado, flex, conector y placa', 'Teclado LA-ESP con Ñ, US o backlit según modelo', 'Prueba tecla por tecla antes de entregar', 'Garantía 3 meses por escrito', 'Cotización clara por WhatsApp'],
-          fromPrice: '$1,550 MXN', eta: '24-72 h', warranty: '3 meses por escrito',
+        fromPrice: undefined, hideSchemaOffer: true, eta: '24-72 h', warranty: '3 meses por escrito',
         whyUs: [
           { icon: 'fa-keyboard',     title: 'Distribución correcta', desc: 'Confirmamos si tu laptop usa teclado español latino con Ñ, US, retroiluminado o molde especial antes de pedir la pieza.' },
           { icon: 'fa-lightbulb',    title: 'Backlit respetado',     desc: 'Si tu equipo trae iluminación, buscamos teclado backlit compatible con su flex para conservar esa función.' },
@@ -203,7 +205,7 @@ export const laptopCategory: ServiceCategory = {
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'Toshiba', 'MSI', 'MacBook Pro', 'MacBook Air'],
         faqs: [
-          { question: `¿Cuánto cuesta cambiar el teclado de una laptop en Cancún?`, answer: `El cambio inicia desde <strong>$1,550 MXN</strong>, pero el precio final depende del modelo, distribución, retroiluminación, si viene integrado al palmrest y disponibilidad. Antes de cotizar revisamos número de parte, flex, conector y señales de líquido.` },
+          { question: `¿Cuánto cuesta cambiar el teclado de una laptop en Cancún?`, answer: `El costo se cotiza según el modelo exacto de tu laptop, distribución de idioma (español latino con Ñ o US), si es retroiluminado y si viene remachado a la carcasa superior (palmrest). Antes de cotizar revisamos el número de parte, conector y flex interno para una compatibilidad perfecta.` },
           { question: `¿Cuánto tarda el cambio de teclado de laptop?`, answer: `Si el teclado está disponible, normalmente toma de <strong>24 a 72 horas</strong>. En modelos especiales, MacBook o equipos con palmrest integrado, el tiempo puede cambiar porque primero confirmamos pieza, compatibilidad y forma de instalación.` },
           { question: `¿Se puede cambiar solo una tecla?`, answer: `Depende del modelo y del daño. A veces se puede revisar mecanismo o tecla suelta, pero si la matriz está dañada, hay líquido o varias teclas fallan, suele convenir reemplazar el teclado completo para que no regrese la falla.` },
           { question: `¿Tienen teclado español latino con Ñ o teclado US?`, answer: `Sí. Validamos si tu laptop requiere español latino con Ñ, distribución US, backlit o molde especial. También revisamos número de parte y flex para evitar instalar un teclado que no coincida con símbolos, tamaño o retroiluminación.` },
@@ -237,7 +239,7 @@ export const laptopCategory: ServiceCategory = {
         hook: '¿Tu laptop dura 30 minutos desconectada o ya no carga? Recupera 4-8 horas de autonomía con batería nueva certificada.',
         intro: 'Reemplazo de batería interna por una nueva. Recuperas autonomía completa y ciclos de carga frescos.',
         bullets: ['Batería con celdas nuevas', 'Calibración de carga después del cambio', 'Reciclaje de batería vieja sin costo', 'Garantía 6 meses', 'Capacidad mayor o igual al original'],
-        fromPrice: '$950 MXN', eta: '24-48 h', warranty: '6 meses por escrito',
+        fromPrice: undefined, hideSchemaOffer: true, eta: '24-48 h', warranty: '6 meses por escrito',
         whyUs: [
           { icon: 'fa-battery-half', title: 'Capacidad real',      desc: 'mAh igual o superior al original. Sin trampas de "compatible barata".' },
           { icon: 'fa-recycle',      title: 'Reciclaje seguro',    desc: 'Tu batería vieja se desecha de forma segura con protocolos adecuados.' },
@@ -274,7 +276,7 @@ export const laptopCategory: ServiceCategory = {
         ],
         compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro', 'MacBook Air', 'Toshiba', 'Samsung'],
         faqs: [
-          { question: `¿Cuánto cuesta cambiar la batería de mi laptop?`, answer: `Normalmente queda entre <strong>$950 y $2,800 MXN</strong>, dependiendo del modelo, capacidad, disponibilidad y si es una laptop premium o MacBook. Antes revisamos ciclos, desgaste, si está inflada y compatibilidad para no instalar una batería incorrecta.` },
+          { question: `¿Cuánto cuesta cambiar la batería de mi laptop?`, answer: `El costo se cotiza según el modelo exacto, capacidad (Wh o mAh), química, disponibilidad y si se trata de batería interna o externa. Antes de cotizar revisamos ciclos de carga, compatibilidad y estado físico de la batería para instalar la refacción correcta.` },
           { question: `¿Cuánto dura una batería nueva?`, answer: `Una batería nueva suele durar <strong>3 a 5 años</strong> con uso normal. El calor de Cancún, descargas al 0% y temperaturas altas reducen su vida útil, por eso también revisamos ventilación interna si la laptop se calienta mucho.` },
           { question: `¿La batería nueva es original?`, answer: `Te explicamos si existe opción original del fabricante o equivalente certificada. Revisamos voltaje, conector, forma física y protección interna antes de instalar, porque una batería incorrecta puede dañar placa, carcasa o sistema de carga.` },
           { question: `¿Puedo seguir usando mi laptop conectada mientras espero?`, answer: `Puedes usarla conectada si solo dura poco, pero no si está inflada, se calienta demasiado o levanta touchpad/carcasa. En esos casos conviene apagarla y traerla al taller para evitar daño en placa, flex o teclado.` },
@@ -287,18 +289,18 @@ export const laptopCategory: ServiceCategory = {
         ],
       },
 
-      { slug: 'reparacion-bisagras',  label: 'Reparación Bisagras',     customUrl: '/reparacion-bisagras', intro: 'Sustitución de bisagras flojas o rotas y refuerzo de carcasa agrietada.', bullets: ['Bisagras nuevas + tornillería', 'Reforzado de chasis', 'Prueba 100 ciclos apertura/cierre', 'Garantía 6 meses'], fromPrice: '$650 MXN', eta: '2-5 días' },
+      { slug: 'reparacion-bisagras',  label: 'Reparación Bisagras',     customUrl: '/reparacion-bisagras', intro: 'Sustitución de bisagras flojas o rotas y refuerzo de carcasa agrietada.', bullets: ['Bisagras nuevas + tornillería', 'Reforzado de chasis', 'Prueba 100 ciclos apertura/cierre', 'Garantía 6 meses'], fromPrice: undefined, hideSchemaOffer: true, eta: '2-5 días' },
       {
         slug: 'mantenimiento-preventivo',
         label: 'Mantenimiento preventivo',
         seoKeyword: 'Mantenimiento preventivo de laptop en Cancún',
         h1: 'Mantenimiento preventivo de laptop en Cancún',
         metaTitle: 'Mantenimiento de laptop en Cancún | Limpieza interna',
-        metaDescription: 'Mantenimiento preventivo de laptop en Cancún desde $650 MXN: limpieza interna, revisión térmica, pasta térmica y diagnóstico. Garantía por escrito.',
+        metaDescription: 'Mantenimiento preventivo de laptop en Cancún desde $1,000 MXN. Revisamos ventilación y temperaturas; confirmamos alcance y precio antes del servicio.',
         hook: 'Servicio preventivo para laptops en Cancún que se calientan, suenan fuerte, trabajan lento o llevan más de un año sin limpieza interna. Revisamos ventilación, pasta térmica, batería, disco y sistema antes de que la falla se vuelva cara.',
         intro: 'Limpieza interna, revisión térmica y pruebas de batería, disco, ventilador y sistema para laptops de trabajo, escuela, oficina y gaming en Cancún.',
         bullets: ['Limpieza interna de ventilador, disipador y carcasa', 'Revisión de pasta térmica y cambio si aplica', 'Prueba de temperatura antes y después', 'Revisión de batería, cargador, SSD/HDD y RAM', 'Reporte claro por WhatsApp con recomendaciones', 'Servicio local en Cancún Centro, Huayacán, Cumbres, Bonampak y Zona Hotelera'],
-        fromPrice: '$650 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        fromPrice: '$1,000 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
         featuredImage: '/assets/images/laptop-feliz-limpia.webp',
         sectionImages: {
           whyUs: '/assets/images/mantenimiento-pastaternima-thermalpads.webp',
@@ -405,15 +407,16 @@ export const laptopCategory: ServiceCategory = {
       // --- Cambio de pasta térmica (extendida) ----------------------------
       {
         slug: 'pasta-termica',
-        label: 'Sobrecalentamiento y pasta térmica',
-        seoKeyword: 'Sobrecalentamiento y cambio de pasta térmica en Cancún',
-        h1: 'Sobrecalentamiento y cambio de pasta térmica en Cancún',
-        metaTitle: 'Sobrecalentamiento y pasta térmica en Cancún | Laptop y PC',
-        metaDescription: 'Diagnóstico de sobrecalentamiento y cambio de pasta térmica para laptop y PC en Cancún. Limpieza, ventiladores, disipador, thermal pads y pruebas.',
-        hook: 'Diagnóstico para laptop o PC que se calienta, hace ruido, baja rendimiento o se apaga. Revisamos la causa antes de cambiar pasta o piezas.',
-        intro: 'Mantenimiento térmico para laptop y PC con revisión de temperatura, ventiladores, disipador, pasta térmica, thermal pads y flujo de aire.',
-        bullets: ['Diagnóstico térmico inicial', 'Limpieza de disipadores y ventiladores', 'Pasta térmica compatible con el equipo', 'Prueba de estabilidad final'],
-        fromPrice: '$550 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        label: 'Cambio de pasta térmica',
+        seoKeyword: 'Cambio de pasta térmica en Cancún',
+        h1: 'Cambio de pasta térmica en Cancún',
+        metaTitle: 'Cambio de Pasta Térmica en Cancún | PC, Laptop y GPU | Pixon PC',
+        metaDescription: 'Cambio de pasta térmica para PC, laptop, equipos gamer y GPU en Cancún. Revisamos temperaturas, disipadores, ventiladores y thermal pads antes de realizar el servicio.',
+        hook: 'Servicio de cambio de pasta térmica para PC, laptop, equipos gamer, CPU y GPU en Cancún con revisión integral de disipadores, ventiladores y thermal pads.',
+        intro: 'Mantenimiento térmico especializado para PC, laptop y tarjetas gráficas en Cancún con desensamble técnico, remoción química de compuesto viejo y aplicación milimétrica.',
+        bullets: ['PC, laptop, workstation y equipos gamer', 'Compuestos de alta viscosidad anti pump-out', 'Thermal pads y masilla térmica calibrados', 'Pruebas de estrés y estabilidad térmica final'],
+        eta: '24-48 h',
+        warranty: 'Garantía por escrito según servicio',
         whyUs: [
           { icon: 'fa-temperature-arrow-down', title: 'Medición térmica', desc: 'Comparamos el comportamiento antes y después sin prometer una cifra fija.' },
           { icon: 'fa-volume-low', title: 'Revisión de ruido', desc: 'Comprobamos si el ventilador está saturado, desgastado o trabajando por otra causa.' },
@@ -421,40 +424,39 @@ export const laptopCategory: ServiceCategory = {
           { icon: 'fa-chart-line', title: 'Prueba final', desc: 'Validamos temperatura, ventilación y estabilidad antes de entregar.' },
         ],
         process: [
-          { title: '1. Test térmico',  desc: 'Medimos temperaturas iniciales con HWMonitor. Capturamos lectura de CPU/GPU en idle y carga.' },
-          { title: '2. Desarmado',     desc: 'Desarmamos hasta acceder al disipador. Limpiamos pasta vieja con alcohol isopropílico.' },
-          { title: '3. Limpieza',      desc: 'Aire comprimido en ventiladores y disipadores. Limpieza completa del sistema de refrigeración.' },
-          { title: '4. Aplicación',    desc: 'Aplicamos pasta nueva con técnica de "pea size" o "spread" según diseño del disipador.' },
-          { title: '5. Stress test',   desc: 'Cinebench R23 + FurMark 15 min. Te enviamos comparativa antes/después.' },
+          { title: '1. Test térmico',  desc: 'Medimos temperaturas y frecuencias iniciales bajo reposo y carga controlada.' },
+          { title: '2. Desensamble',     desc: 'Desensamble con protocolo antiestático, desconexión de energía y afloje gradual.' },
+          { title: '3. Limpieza química', desc: 'Remoción de pasta petrificada con alcohol isopropílico 99.9% y solventes de grado electrónico.' },
+          { title: '4. Interfaz térmica', desc: 'Aplicación de compuesto anti pump-out y calibración de thermal pads o masilla térmica.' },
+          { title: '5. Stress test',   desc: 'Prueba sostenida bajo benchmark para certificar que el equipo no sufre estrangulamiento térmico.' },
         ],
         educationalBlocks: [
           {
             eyebrow: 'Mantenimiento Óptimo',
-            title: 'Mantén tu laptop fresca',
-            intro: 'La pasta térmica nueva hace maravillas, pero el entorno y tus hábitos son clave para que la temperatura no vuelva a subir.',
-            imgSrc: '/assets/images/responsive/reparacion-mac-cancun.webp',
-            imgAlt: 'Pasta térmica en laptop',
+            title: 'Mantén tu PC o laptop fresca en Cancún',
+            intro: 'La pasta térmica nueva restaura la transferencia microscópica, pero el entorno y tus hábitos son clave para que la ventilación no vuelva a obstruirse.',
+            imgSrc: '/assets/images/mantenimiento-pastaternima-thermalpads.webp',
+            imgAlt: 'Pasta térmica y thermal pads en Cancún',
             reverse: true,
             points: [
-              { icon: 'fa-bed', title: 'No uses la cama', text: 'Usar la laptop sobre sábanas o almohadas bloquea la ventilación y la ahoga térmicamente.' },
-              { icon: 'fa-wind', title: 'Superficie dura', text: 'Úsala siempre sobre un escritorio, mesa o base enfriadora para garantizar flujo de aire.' },
-              { icon: 'fa-calendar', title: 'Limpieza periódica', text: 'La pasta seca en 18 meses. Prográmate para hacerle limpieza antes de que el ventilador empiece a sonar.' }
+              { icon: 'fa-bed', title: 'Superficie rígida', text: 'Evita colocar laptops sobre sábanas o sillones que taponen las rejillas inferiores.' },
+              { icon: 'fa-wind', title: 'Flujo de aire libre', text: 'Mantén las salidas despejadas y gabinetes de PC fuera de muebles cerrados sin ventilación.' },
+              { icon: 'fa-calendar', title: 'Revisión periódica', text: 'Si tu equipo lleva un año de uso intenso en Cancún, conviene revisar polvo y consistencia térmica.' }
             ]
           }
         ],
         commonProblems: [
-          { problem: 'Laptop quema y se siente caliente al tacto', solution: 'Pasta seca + polvo. Cambio bajará 15-25°C inmediatamente.' },
-          { problem: 'Ventilador a máxima velocidad siempre',      solution: 'Sistema térmico saturado. Limpieza + pasta nueva soluciona.' },
-          { problem: 'Apagados aleatorios al jugar o renderizar',  solution: 'Throttling térmico. Pasta nueva evita apagados por temperatura.' },
-          { problem: 'Rendimiento bajo aunque hardware es bueno',  solution: 'CPU bajando frecuencia por calor. Solucionando temp, recuperas FPS.' },
+          { problem: 'Equipo quema y se siente caliente al tacto', solution: 'Pasta seca, flujo bloqueado o pads degradados. El servicio térmico restaura la disipación.' },
+          { problem: 'Ventilador a máxima velocidad siempre', solution: 'Disipador saturado o transferencia interfacial rota. La limpieza y renovación normalizan el flujo.' },
+          { problem: 'Apagados aleatorios al jugar o renderizar', solution: 'Protección térmica PROCHOT activada. Renovamos el compuesto y comprobamos bajo carga.' },
+          { problem: 'Rendimiento bajo y caídas de FPS (Throttling)', solution: 'El procesador baja GHz para no quemarse. Al estabilizar temperaturas recupera su comportamiento esperado.' },
         ],
-        compatibleBrands: ['HP', 'Dell', 'Lenovo', 'Asus', 'Acer', 'MSI', 'MacBook Pro', 'MacBook Air', 'Razer', 'Alienware', 'Gigabyte'],
+        compatibleBrands: ['ASUS ROG', 'MSI', 'Lenovo Legion', 'Acer Nitro', 'HP Omen', 'Dell Alienware', 'PC Ensamblada Ryzen / Core'],
         faqs: [
-          { question: `¿Cada cuánto debo cambiar la pasta térmica?`, answer: `En Cancún recomendamos cada <strong>18 a 24 meses</strong> por calor, humedad y polvo. Si usas la laptop para gaming, edición o render, puede convenir cada 12 a 18 meses. También revisamos ventilador y disipador.` },
-          { question: `¿Qué pasta usan?`, answer: `Usamos pasta térmica premium tipo Arctic MX-4 o equivalente confiable según disponibilidad y equipo. Si el modelo requiere metal líquido o compuesto especial, lo cotizamos aparte porque exige aislamiento y aplicación precisa para no poner en riesgo la placa.` },
-          { question: `¿Cuánto bajan las temperaturas?`, answer: `Depende del estado inicial, diseño térmico y causa real. Comparamos mediciones antes y después, pero no prometemos una cifra fija porque un ventilador, heatpipe, disipador o carga de software también pueden limitar el resultado.` },
-          { question: `¿Es seguro abrir mi laptop para esto?`, answer: `Sí, siempre que se use herramienta correcta y cuidado antiestático. Revisamos tornillería, flex, disipador y conectores para evitar daños. Si la carcasa está frágil o hay bisagras dañadas, te avisamos antes de forzar el desarmado.` },
-          { question: `¿Vale la pena en una laptop vieja?`, answer: `Sí puede valer la pena si aún cumple tus necesidades. Bajar temperatura ayuda a evitar apagados, ruido y pérdida de rendimiento. También te decimos si conviene combinarlo con SSD, RAM o si el costo ya no justifica la inversión.` },
+          { question: `¿Cada cuánto debo cambiar la pasta térmica?`, answer: `En Cancún recomendamos revisar el equipo cada <strong>12 a 18 meses</strong> por calor, humedad y polvo. En laptops gamer y workstations con uso exigente, puede convenir cada 6 a 12 meses. La necesidad real se confirma evaluando temperaturas y estado del compuesto.` },
+          { question: `¿Qué pasta usan?`, answer: `Usamos compuestos térmicos de grado profesional y alta viscosidad anti pump-out (como Arctic MX-4, Arctic MX-6, Noctua NT-H2 y Thermal Grizzly) 100% dieléctricos. No utilizamos pastas genéricas blancas de baja duración.` },
+          { question: `¿Cuánto bajan las temperaturas?`, answer: `Depende del diseño térmico del chasis, procesador, disipador y estado previo. Comparamos mediciones reales antes y después, pero no prometemos cifras mágicas universales porque la temperatura final responde a las leyes físicas del equipo.` },
+          { question: `¿También cambian thermal pads en GPU?`, answer: `Sí. Revisamos y reemplazamos almohadillas térmicas (thermal pads) en memorias VRAM y etapas de potencia VRM calibrando el grosor milimétrico exacto para no desbalancear el contacto del disipador.` },
         ],
         relatedSlugs: ['mantenimiento-preventivo', 'cambio-bateria', 'upgrade', 'diagnostico'],
         relatedExternal: [

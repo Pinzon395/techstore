@@ -14,39 +14,58 @@ const whatsappText = encodeURIComponent('Hola, quiero agendar un diagnóstico t�
 
 const faqs = [
   { question: '¿Qué es mejor, pasta térmica o metal líquido?', answer: 'No existe una respuesta universal. La pasta térmica es compatible con la mayoría de PC, laptops y consolas, tiene bajo riesgo eléctrico y facilita el mantenimiento. El metal líquido puede transferir más calor, pero solo conviene cuando el diseño del equipo, los materiales del disipador y el aislamiento permiten aplicarlo con seguridad.' },
-  { question: '¿El metal líquido puede dañar mi laptop?', answer: 'Sí, si se derrama sobre componentes, se aplica sobre aluminio, se usa demasiado o no se aísla la zona. También puede reaccionar con ciertos materiales. Por eso revisamos el modelo, el disipador y el sistema de contención antes de recomendar metal líquido para una laptop en Cancún.' },
+  { question: '¿El metal líquido puede dañar mi laptop?', answer: 'Sí, si se derrama sobre componentes, se aplica sobre aluminio, se usa demasiado o no se aísla la zona. También puede reaccionar con ciertos materiales. Por eso revisamos el modelo, el disipador y el sistema de contención antes de recomendar metal líquido para una laptop.' },
   { question: '¿Cuándo conviene cambiar la pasta térmica?', answer: 'Cuando las pruebas muestran temperatura elevada, pérdida de frecuencia, ventiladores constantes o compuesto seco y mal distribuido. Cambiarla por calendario sin revisar ventiladores, polvo, pads y presión del disipador puede no resolver el problema.' },
   { question: '¿El metal líquido aumenta los FPS?', answer: 'No directamente. Si el procesador o la gráfica reducen frecuencia por thermal throttling, mejorar la transferencia térmica puede ayudar a sostener el rendimiento. Si el límite es GPU, CPU, RAM, configuración o el propio juego, aplicar metal líquido no aumentará los FPS.' },
   { question: '¿Pueden aplicar metal líquido en consolas?', answer: 'Revisamos consolas que utilizan metal líquido de fábrica y sistemas con pasta térmica. No convertimos automáticamente cualquier consola a metal líquido; primero confirmamos arquitectura, sellos, estado del disipador y causa real de la temperatura.' },
   { question: '¿Cuánto dura una pasta térmica de buena calidad?', answer: 'Depende de temperatura, ciclos de uso, presión, diseño del disipador y calidad del compuesto. En lugar de prometer un número fijo de años, recomendamos revisar cuando cambian ruido, temperatura o rendimiento.' },
-  { question: '¿Atienden laptops gamer en Cancún?', answer: 'Sí. Atendemos laptops gamer, PC ensambladas, workstations y equipos de oficina. Medimos CPU, GPU, hotspot cuando está disponible, ventiladores, heatpipes, pads y comportamiento bajo carga.' },
-  { question: '¿Pixon PC atiende empresas?', answer: 'Sí. Programamos mantenimiento térmico preventivo por lote para oficinas, escuelas, hoteles, agencias y negocios de Cancún, procurando reducir el tiempo fuera de operación y documentando incidencias por equipo.' },
+  { question: '¿El metal líquido conduce electricidad?', answer: 'Sí. Es una aleación metálica y puede provocar un corto circuito si toca componentes fuera del chip. Por eso solo se aplica con aislamiento adecuado, cantidad controlada y en equipos con un diseño compatible.' },
+  { question: '¿Los thermal pads y la pasta térmica hacen lo mismo?', answer: 'No. La pasta térmica cubre el contacto entre el chip principal (CPU o GPU) y el disipador. Los thermal pads cubren componentes que no tocan directamente el disipador, como memorias VRAM o el VRM. Ambos suelen coexistir en el mismo equipo.' },
 ];
 
 const comparison = [
-  ['Material', 'Compuesto térmico no metálico', 'Aleación metálica líquida'],
-  ['Conductividad térmica', 'Cualitativa: buena para la mayoría de equipos', 'Cualitativa: alta en diseños compatibles'],
-  ['Conductividad eléctrica', 'Generalmente no conductora', 'Conductora; puede causar corto si se derrama'],
-  ['Riesgo', 'Bajo cuando se aplica correctamente', 'Alto si falta aislamiento, control o compatibilidad'],
-  ['Facilidad de aplicación', 'Más sencilla y tolerante', 'Delicada; exige preparación y cantidad controlada'],
-  ['Durabilidad', 'Depende del compuesto, presión y ciclos térmicos', 'Depende del sellado, estabilidad y mantenimiento del equipo'],
-  ['Uso recomendado', 'PC, laptop, GPU y consolas con pasta de fábrica', 'Equipos diseñados para usarlo o con necesidad térmica comprobada'],
+  ['Transferencia térmica', 'Buena para la mayoría de equipos', 'Muy alta en diseños compatibles'],
+  ['Conductividad eléctrica', 'Generalmente no conductora', 'Conductora: riesgo de corto si se derrama'],
+  ['Riesgo', 'Bajo si se aplica correctamente', 'Alto sin aislamiento o compatibilidad'],
+  ['Compatibilidad', 'Prácticamente universal', 'Solo diseños y materiales compatibles'],
+  ['Aluminio', 'Compatible', 'No recomendado: puede deteriorarlo'],
+  ['Cobre', 'Compatible', 'Compatible en la mayoría de casos'],
+  ['Níquel / recubrimientos', 'Compatible', 'Depende del recubrimiento y espesor'],
+  ['CPU', 'Uso estándar en la mayoría de equipos', 'Solo con IHS o disipador compatible'],
+  ['GPU', 'Uso estándar, combinada con thermal pads', 'Uso avanzado; exige aislamiento'],
+  ['Laptop gamer', 'Opción segura y mantenible', 'Depende del diseño y el fabricante'],
+  ['PS5', 'Usada en algunas revisiones', 'De fábrica en la interfaz del APU'],
+  ['Facilidad de mantenimiento', 'Sencilla, tolerante a variaciones', 'Delicada; exige limpieza y control'],
+  ['Durabilidad', 'Depende del compuesto y los ciclos térmicos', 'Depende del sellado y la estabilidad del equipo'],
+  ['Aplicación', 'Cantidad controlada, tolerante', 'Cantidad mínima; aislamiento obligatorio'],
+  ['Precio relativo', 'Depende del compuesto: de accesible a premium', 'Generalmente mayor por material y mano de obra'],
+  ['Usuario recomendado', 'Uso general, oficina y gaming estándar', 'Usuarios avanzados con equipo compatible'],
+];
+
+const decisionRows = [
+  ['PC de oficina', 'Pasta térmica', 'RECOMENDADO'],
+  ['PC gamer', 'Pasta premium o PTM según el diseño', 'DEPENDE'],
+  ['Laptop convencional', 'Pasta térmica o material original', 'RECOMENDADO'],
+  ['Laptop gamer', 'Material original, PTM o pasta adecuada', 'DEPENDE'],
+  ['Laptop con metal líquido de fábrica', 'Mantener la arquitectura original', 'RIESGO ALTO'],
+  ['GPU', 'Pasta térmica + pads o putty según diseño', 'DEPENDE'],
+  ['PS5', 'Metal líquido donde lo define el diseño', 'DEPENDE'],
 ];
 
 const serviceLinks = [
   ['/servicios/laptop/pasta-termica', 'fa-temperature-half', 'Cambio de pasta térmica en Cancún', 'Limpieza, revisión de ventilación y aplicación según el equipo.'],
+  ['/blogs/aplicacion-metal-liquido-cancun', 'fa-flask', 'Aplicación de metal líquido en Cancún', 'Evaluación de compatibilidad de disipador, aislamiento eléctrico y renovación en taller.'],
   ['/servicios/pc/limpieza-profunda', 'fa-fan', 'Limpieza interna de laptop y PC', 'Retiro de polvo en disipadores, ventiladores, filtros y gabinete.'],
   ['/servicios/pc/tarjeta-video-gpu#mantenimiento-gpu', 'fa-microchip', 'Pasta y pads térmicos de GPU', 'Revisión de chip, hotspot, memorias, VRM y espesores compatibles.'],
   ['/servicios/laptop/mantenimiento-preventivo', 'fa-laptop', 'Mantenimiento de laptop gamer', 'Servicio térmico para equipos con CPU y GPU dedicados.'],
   ['/servicios/pc/refrigeracion', 'fa-wind', 'Revisión de ventiladores', 'Diagnóstico de ruido, RPM, bombas, airflow y montaje.'],
-  ['/optimizacion', 'fa-chart-line', 'Temperatura y rendimiento', 'Pruebas para distinguir calor, software y límites del hardware.'],
 ];
 
 const schema = [
   {
     '@context': 'https://schema.org', '@type': 'Service',
-    name: 'Pasta térmica vs metal líquido en Cancún',
-    serviceType: 'Diagnóstico y mantenimiento térmico para PC, laptop y consolas',
+    name: 'Diagnóstico térmico: pasta térmica vs metal líquido',
+    serviceType: 'Diagnóstico y mantenimiento térmico para PC, laptop, GPU y consolas',
     url: `https://pixon.com.mx${canonical}`,
     description: 'Comparativa, diagnóstico térmico, limpieza interna, cambio de pasta térmica y aplicación controlada de metal líquido en Cancún.',
     provider: { '@id': 'https://pixon.com.mx/#business' },
@@ -60,8 +79,8 @@ const schema = [
 ---
 
 <Base
-  title="Pasta térmica vs metal líquido: diferencias y cuál elegir | Pixon PC"
-  description="Compara pasta térmica vs metal líquido en Cancún. Diagnóstico térmico, mantenimiento y aplicación segura para PC, laptop y consolas."
+  title="Pasta térmica vs metal líquido: ¿cuál conviene? | Pixon PC"
+  description="Compara pasta térmica vs metal líquido: temperatura, seguridad, riesgos, duración y uso en PC, laptops gamer, GPU y PS5. Guía técnica de Pixon PC."
   canonical={canonical}
   image="/assets/images/mantenimiento-pastaternima-thermalpads.webp"
   schema={schema}
@@ -71,25 +90,342 @@ const schema = [
   <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Blogs', href: '/blogs' }, { label: 'Pasta térmica vs metal líquido' }]} />
 
   <header class="tc-hero">
-    <img src="/assets/images/mantenimiento-pastaternima-thermalpads.webp" alt="Comparativa de pasta térmica vs metal líquido para mantenimiento de computadoras en Cancún Quintana Roo" width="1600" height="900" loading="eager" />
-    <div class="tc-hero__shade"></div>
-    <div class="tc-shell tc-hero__content">
-      <span class="tc-kicker">Diagnóstico térmico en Cancún</span>
-      <h1>Pasta térmica vs metal líquido en Cancún: cuál conviene para tu PC, laptop o consola</h1>
-      <p>No elegimos el compuesto por moda. Medimos temperatura, frecuencia, ventilación y compatibilidad para recomendar una intervención segura.</p>
-      <div class="tc-actions">
-        <a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Enviar WhatsApp</a>
-        <a class="tc-btn tc-btn--ghost" href="#ticket-termico"><Icon name="clipboard-list" /> Crear ticket</a>
+    <div class="tc-shell tc-hero__grid">
+      <div class="tc-hero__copy">
+        <span class="tc-eyebrow">GUÍA TÉRMICA · PIXON PC</span>
+        <h1>Pasta térmica vs metal líquido</h1>
+        <p class="tc-hero__sub">¿Cuál enfría mejor y cuál conviene realmente?</p>
+        <p class="tc-hero__lead">
+          Comparamos transferencia térmica, seguridad y compatibilidad en PC, laptops gamer, GPU y consolas.<br class="tc-br-desktop" />
+          No elegimos por moda: medimos antes de intervenir.
+        </p>
+
+        <div class="tc-conclusions" role="region" aria-label="Conclusiones técnicas inmediatas">
+          <article class="tc-decision-card tc-decision-card--paste">
+            <div class="tc-decision-card__top">
+              <span class="tc-decision-tag tc-decision-tag--paste">Para la mayoría</span>
+              <strong class="tc-decision-name">Pasta térmica</strong>
+            </div>
+            <p class="tc-decision-desc">Segura, dieléctrica y universal en cualquier disipador de aluminio o cobre.</p>
+          </article>
+
+          <article class="tc-decision-card tc-decision-card--metal">
+            <div class="tc-decision-card__top">
+              <span class="tc-decision-tag tc-decision-tag--metal">Mayor transferencia</span>
+              <strong class="tc-decision-name">Metal líquido</strong>
+            </div>
+            <p class="tc-decision-desc">Máxima disipación térmica (73+ W/mK) en hardware de alto rendimiento compatible.</p>
+          </article>
+
+          <article class="tc-decision-card tc-decision-card--risk">
+            <div class="tc-decision-card__top">
+              <span class="tc-decision-tag tc-decision-tag--risk">Mayor riesgo</span>
+              <strong class="tc-decision-name">Metal líquido</strong>
+            </div>
+            <p class="tc-decision-desc">Conductor eléctrico: corroe aluminio y exige barrera de aislamiento físico.</p>
+          </article>
+        </div>
+
+        <div class="tc-hero__ctas">
+          <a class="tc-btn" href="#comparativa">Ver comparativa técnica</a>
+          <a class="tc-btn tc-btn--ghost" href="#ticket-termico">Solicitar diagnóstico térmico</a>
+        </div>
       </div>
-      <dl class="tc-hero__facts">
-        <div><dt>Equipos</dt><dd>PC, laptop y consolas</dd></div>
-        <div><dt>Criterio</dt><dd>Medición antes de aplicar</dd></div>
-        <div><dt>Ubicación</dt><dd>Cancún, Quintana Roo</dd></div>
-      </dl>
+
+      <div class="tc-bench" role="region" aria-label="Laboratorio de simulación térmica comparativa">
+        <input type="radio" name="tc-bench-mode" id="tc-mode-split" class="tc-bench__radio" checked />
+        <input type="radio" name="tc-bench-mode" id="tc-mode-paste" class="tc-bench__radio" />
+        <input type="radio" name="tc-bench-mode" id="tc-mode-metal" class="tc-bench__radio" />
+
+        <div class="tc-bench__header">
+          <div class="tc-bench__title">
+            <span class="tc-bench__status-dot"></span>
+            <span>BANCO TÉRMICO · ANÁLISIS DE INTERFAZ</span>
+          </div>
+          <div class="tc-bench__tabs" role="tablist" aria-label="Modo de visualización comparativa">
+            <label for="tc-mode-split" class="tc-bench__tab" tabindex="0">Comparativa dual</label>
+            <label for="tc-mode-paste" class="tc-bench__tab" tabindex="0">Pasta térmica</label>
+            <label for="tc-mode-metal" class="tc-bench__tab" tabindex="0">Metal líquido</label>
+          </div>
+        </div>
+
+        <div class="tc-bench__display">
+          <svg class="tc-bench__svg" viewBox="0 0 560 238" aria-label="Diagrama técnico comparativo de transferencia térmica">
+            <defs>
+              <pattern id="tc-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#dce6ee" stroke-width="0.75" />
+              </pattern>
+              <linearGradient id="tc-g-copper" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#9a3412" />
+                <stop offset="30%" stop-color="#ea580c" />
+                <stop offset="60%" stop-color="#fb923c" />
+                <stop offset="85%" stop-color="#c2410c" />
+                <stop offset="100%" stop-color="#7c2d12" />
+              </linearGradient>
+              <linearGradient id="tc-g-coldplate" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0f2f4d" />
+                <stop offset="50%" stop-color="#163e63" />
+                <stop offset="100%" stop-color="#0a2239" />
+              </linearGradient>
+              <linearGradient id="tc-g-paste-mat" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#475569" />
+                <stop offset="100%" stop-color="#334155" />
+              </linearGradient>
+              <linearGradient id="tc-g-liquid-metal" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f8fafc" />
+                <stop offset="50%" stop-color="#cbd5e1" />
+                <stop offset="75%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#64748b" />
+              </linearGradient>
+              <linearGradient id="tc-g-ihs" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#cbd5e1" />
+                <stop offset="50%" stop-color="#94a3b8" />
+                <stop offset="100%" stop-color="#64748b" />
+              </linearGradient>
+              <linearGradient id="tc-g-die" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0f172a" />
+                <stop offset="100%" stop-color="#020617" />
+              </linearGradient>
+              <pattern id="tc-barrier-hatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="0" x2="0" y2="8" stroke="#d97706" stroke-width="2.5" />
+              </pattern>
+              <filter id="tc-glow-paste" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#f97316" flood-opacity="0.6"/>
+              </filter>
+              <filter id="tc-glow-metal" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#ef4444" flood-opacity="0.8"/>
+              </filter>
+            </defs>
+
+            <!-- Technical grid backdrop -->
+            <rect x="15" y="6" width="530" height="226" rx="6" fill="#f8fafc" stroke="#dce6ee" stroke-width="1" />
+            <rect x="15" y="6" width="530" height="226" rx="6" fill="url(#tc-grid)" />
+
+            <!-- TOP: HEATSINK COOLER -->
+            <g class="tc-elem tc-elem--cooler">
+              <!-- Cooling fin lines -->
+              <g stroke="#cbd5e1" stroke-width="1.5">
+                <line x1="28" y1="20" x2="532" y2="20" />
+                <line x1="28" y1="27" x2="532" y2="27" />
+                <line x1="28" y1="34" x2="532" y2="34" />
+                <line x1="28" y1="41" x2="532" y2="41" />
+                <line x1="28" y1="48" x2="532" y2="48" />
+                <line x1="28" y1="55" x2="532" y2="55" />
+              </g>
+
+              <!-- Left heatpipes (Pasta) -->
+              <g class="tc-side-elem tc-side-elem--paste">
+                <rect x="75" y="14" width="18" height="46" rx="3" fill="url(#tc-g-copper)" stroke="#7c2d12" stroke-width="1" />
+                <rect x="140" y="14" width="18" height="46" rx="3" fill="url(#tc-g-copper)" stroke="#7c2d12" stroke-width="1" />
+                <rect x="205" y="14" width="18" height="46" rx="3" fill="url(#tc-g-copper)" stroke="#7c2d12" stroke-width="1" />
+              </g>
+              <!-- Right heatpipes (Metal) -->
+              <g class="tc-side-elem tc-side-elem--metal">
+                <rect x="337" y="14" width="18" height="46" rx="3" fill="url(#tc-g-copper)" stroke="#7c2d12" stroke-width="1" />
+                <rect x="402" y="14" width="18" height="46" rx="3" fill="url(#tc-g-copper)" stroke="#7c2d12" stroke-width="1" />
+                <rect x="467" y="14" width="18" height="46" rx="3" fill="url(#tc-g-copper)" stroke="#7c2d12" stroke-width="1" />
+              </g>
+
+              <!-- Cooler title pill -->
+              <rect x="190" y="6" width="180" height="15" rx="3" fill="#071f3a" />
+              <text x="280" y="17" fill="#93c5fd" font-size="7.5" font-weight="800" letter-spacing="0.08em" text-anchor="middle" font-family="system-ui, sans-serif">DISIPADOR · HEATPIPES Y ALETAS</text>
+
+              <!-- Coldplate block -->
+              <rect x="28" y="60" width="504" height="34" rx="4" fill="url(#tc-g-coldplate)" stroke="#071f3a" stroke-width="1.5" />
+              <line x1="28" y1="93" x2="532" y2="93" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.7" />
+
+              <text x="140" y="79" fill="#93c5fd" font-size="8.5" font-weight="800" letter-spacing="0.05em" text-anchor="middle" font-family="system-ui, sans-serif">BASE COBRE / NÍQUEL</text>
+              <text x="402" y="79" fill="#93c5fd" font-size="8.5" font-weight="800" letter-spacing="0.05em" text-anchor="middle" font-family="system-ui, sans-serif">BASE COBRE / NÍQUEL</text>
+            </g>
+
+            <!-- CENTER: THERMAL INTERFACE LAYER (TIM) -->
+            <!-- Left: Pasta Térmica (Thicker layer ~0.10mm, y=94 to 114) -->
+            <g class="tc-side-elem tc-side-elem--paste">
+              <rect x="40" y="94" width="228" height="20" rx="3" fill="url(#tc-g-paste-mat)" stroke="#334155" stroke-width="1" />
+              <g stroke="#64748b" stroke-width="1" stroke-dasharray="2 3" opacity="0.6">
+                <line x1="50" y1="100" x2="258" y2="100" />
+                <line x1="50" y1="107" x2="258" y2="107" />
+              </g>
+              <text x="154" y="107" fill="#f1f5f9" font-size="8.5" font-weight="800" letter-spacing="0.06em" text-anchor="middle" font-family="system-ui, sans-serif">PASTA TÉRMICA (CAPA ~0.10 mm)</text>
+              <path d="M 32 94 L 36 94 M 34 94 L 34 114 M 32 114 L 36 114" stroke="#64748b" stroke-width="1" />
+              <text x="29" y="106" fill="#475569" font-size="7.5" font-weight="700" text-anchor="end" font-family="system-ui, sans-serif">~0.1 mm</text>
+            </g>
+
+            <!-- Right: Metal Líquido (Ultra-thin layer ~0.02mm, y=94 to 102) -->
+            <g class="tc-side-elem tc-side-elem--metal">
+              <rect x="292" y="94" width="174" height="8" rx="2" fill="url(#tc-g-liquid-metal)" stroke="#94a3b8" stroke-width="1" />
+              <line x1="295" y1="97" x2="463" y2="97" stroke="#ffffff" stroke-width="1.5" opacity="0.9" />
+              <text x="378" y="101" fill="#071f3a" font-size="7.5" font-weight="900" letter-spacing="0.05em" text-anchor="middle" font-family="system-ui, sans-serif">METAL LÍQUIDO (~0.02 mm)</text>
+              <!-- Barrier gasket -->
+              <rect x="470" y="94" width="50" height="22" rx="3" fill="url(#tc-barrier-hatch)" stroke="#d97706" stroke-width="1.5" />
+              <text x="495" y="127" fill="#b45309" font-size="7" font-weight="800" letter-spacing="0.04em" text-anchor="middle" font-family="system-ui, sans-serif">BARRERA AISLANTE</text>
+            </g>
+
+            <!-- BOTTOM: CPU/GPU DIE & SUBSTRATE -->
+            <g class="tc-elem tc-elem--die">
+              <!-- Left IHS -->
+              <g class="tc-side-elem tc-side-elem--paste">
+                <rect x="40" y="114" width="228" height="32" rx="2" fill="url(#tc-g-ihs)" stroke="#475569" stroke-width="1" />
+                <text x="154" y="134" fill="#1e293b" font-size="8.5" font-weight="800" letter-spacing="0.05em" text-anchor="middle" font-family="system-ui, sans-serif">IHS / DIFUSOR TÉRMICO (NÍQUEL)</text>
+              </g>
+              <!-- Right Silicon Die -->
+              <g class="tc-side-elem tc-side-elem--metal">
+                <rect x="292" y="102" width="174" height="44" rx="2" fill="url(#tc-g-die)" stroke="#0ea5e9" stroke-width="1" />
+                <g stroke="#0284c7" stroke-width="1" opacity="0.6">
+                  <line x1="305" y1="116" x2="453" y2="116" />
+                  <line x1="305" y1="126" x2="453" y2="126" />
+                  <line x1="305" y1="136" x2="453" y2="136" />
+                </g>
+                <text x="378" y="128" fill="#38bdf8" font-size="8.5" font-weight="800" letter-spacing="0.05em" text-anchor="middle" font-family="system-ui, sans-serif">DIE DE SILICIO (CONTACTO DIRECTO)</text>
+              </g>
+
+              <!-- Substrate PCB -->
+              <rect x="28" y="146" width="504" height="26" rx="3" fill="#064e3b" stroke="#043327" stroke-width="1.5" />
+              <!-- SMD components positioned at extremes, leaving center completely clear -->
+              <g fill="#f59e0b">
+                <rect x="42" y="153" width="7" height="12" rx="1" />
+                <rect x="54" y="153" width="7" height="12" rx="1" />
+                <rect x="66" y="153" width="7" height="12" rx="1" />
+                <rect x="480" y="153" width="7" height="12" rx="1" />
+                <rect x="492" y="153" width="7" height="12" rx="1" />
+                <rect x="504" y="153" width="7" height="12" rx="1" />
+              </g>
+              <!-- BGA Solder Balls -->
+              <g fill="#94a3b8" opacity="0.8">
+                <circle cx="45" cy="176" r="2.5" />
+                <circle cx="75" cy="176" r="2.5" />
+                <circle cx="105" cy="176" r="2.5" />
+                <circle cx="135" cy="176" r="2.5" />
+                <circle cx="165" cy="176" r="2.5" />
+                <circle cx="195" cy="176" r="2.5" />
+                <circle cx="225" cy="176" r="2.5" />
+                <circle cx="255" cy="176" r="2.5" />
+                <circle cx="305" cy="176" r="2.5" />
+                <circle cx="335" cy="176" r="2.5" />
+                <circle cx="365" cy="176" r="2.5" />
+                <circle cx="395" cy="176" r="2.5" />
+                <circle cx="425" cy="176" r="2.5" />
+                <circle cx="455" cy="176" r="2.5" />
+                <circle cx="485" cy="176" r="2.5" />
+                <circle cx="515" cy="176" r="2.5" />
+              </g>
+              <text x="280" y="163" fill="#6ee7b7" font-size="8.5" font-weight="800" letter-spacing="0.08em" text-anchor="middle" font-family="system-ui, sans-serif">SUSTRATO PCB · PAQUETE DEL PROCESADOR</text>
+            </g>
+
+            <!-- CENTER SPLIT AXIS -->
+            <g class="tc-split-axis">
+              <line x1="280" y1="16" x2="280" y2="182" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 3" />
+              <rect x="266" y="86" width="28" height="16" rx="4" fill="#071f3a" stroke="#0ea5e9" stroke-width="1.5" />
+              <text x="280" y="97" fill="#38bdf8" font-size="8.5" font-weight="900" text-anchor="middle" font-family="system-ui, sans-serif">VS</text>
+            </g>
+
+            <!-- ANIMATED THERMAL FLOW VECTORS -->
+            <!-- Left: Pasta Térmica (Steady, uniform) -->
+            <g class="tc-side-elem tc-side-elem--paste">
+              <g class="tc-heat-flow tc-heat-flow--paste">
+                <g class="tc-heat-pulse tc-heat-pulse--p1">
+                  <circle cx="84" cy="138" r="3.5" fill="#f97316" filter="url(#tc-glow-paste)" />
+                  <path d="M 84 138 L 84 84" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.75" />
+                </g>
+                <g class="tc-heat-pulse tc-heat-pulse--p2">
+                  <circle cx="149" cy="138" r="3.5" fill="#f97316" filter="url(#tc-glow-paste)" />
+                  <path d="M 149 138 L 149 80" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.75" />
+                </g>
+                <g class="tc-heat-pulse tc-heat-pulse--p3">
+                  <circle cx="214" cy="138" r="3.5" fill="#f97316" filter="url(#tc-glow-paste)" />
+                  <path d="M 214 138 L 214 84" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.75" />
+                </g>
+              </g>
+              <text x="154" y="200" fill="#c2410c" font-size="8" font-weight="800" letter-spacing="0.06em" text-anchor="middle" font-family="system-ui, sans-serif">FLUJO TÉRMICO ESTABLE ↑</text>
+            </g>
+
+            <!-- Right: Metal Líquido (Fast, direct vectors) -->
+            <g class="tc-side-elem tc-side-elem--metal">
+              <g class="tc-heat-flow tc-heat-flow--metal">
+                <g class="tc-heat-pulse tc-heat-pulse--m1">
+                  <circle cx="320" cy="132" r="3.5" fill="#ef4444" filter="url(#tc-glow-metal)" />
+                  <path d="M 320 132 L 320 74" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+                </g>
+                <g class="tc-heat-pulse tc-heat-pulse--m2">
+                  <circle cx="360" cy="132" r="3.5" fill="#ef4444" filter="url(#tc-glow-metal)" />
+                  <path d="M 360 132 L 360 70" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+                </g>
+                <g class="tc-heat-pulse tc-heat-pulse--m3">
+                  <circle cx="400" cy="132" r="3.5" fill="#ef4444" filter="url(#tc-glow-metal)" />
+                  <path d="M 400 132 L 400 70" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+                </g>
+                <g class="tc-heat-pulse tc-heat-pulse--m4">
+                  <circle cx="440" cy="132" r="3.5" fill="#ef4444" filter="url(#tc-glow-metal)" />
+                  <path d="M 440 132 L 440 74" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+                </g>
+              </g>
+              <text x="378" y="200" fill="#b91c1c" font-size="8" font-weight="800" letter-spacing="0.06em" text-anchor="middle" font-family="system-ui, sans-serif">TRANSFERENCIA DIRECTA RÁPIDA ↑</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="tc-bench__specs">
+          <div class="tc-bench-spec tc-bench-spec--paste">
+            <div class="tc-bench-spec__header">
+              <strong class="tc-bench-spec__name">Pasta térmica</strong>
+              <span class="tc-bench-spec__pill tc-bench-spec__pill--paste">Uso general</span>
+            </div>
+            <ul class="tc-bench-spec__items">
+              <li><span>Espesor capa:</span> <strong>~0.10 mm (Tolerante)</strong></li>
+              <li><span>Riesgo eléctrico:</span> <strong>Dieléctrica · 0% riesgo</strong></li>
+              <li><span>Compatibilidad:</span> <strong>Aluminio, Cobre y Níquel</strong></li>
+              <li><span>Mantenimiento:</span> <strong>Sencillo y seguro</strong></li>
+            </ul>
+          </div>
+
+          <div class="tc-bench-spec tc-bench-spec--metal">
+            <div class="tc-bench-spec__header">
+              <strong class="tc-bench-spec__name">Metal líquido</strong>
+              <span class="tc-bench-spec__pill tc-bench-spec__pill--metal">Uso técnico</span>
+            </div>
+            <ul class="tc-bench-spec__items">
+              <li><span>Espesor capa:</span> <strong>~0.02 mm (Micro-contacto)</strong></li>
+              <li><span>Riesgo eléctrico:</span> <strong>Conductor · Riesgo alto</strong></li>
+              <li><span>Compatibilidad:</span> <strong>Solo Cobre/Níquel (No aluminio)</strong></li>
+              <li><span>Mantenimiento:</span> <strong>Exige barrera de sellado</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
   <main class="tc-main">
+    <section class="tc-section tc-quick-answer" id="respuesta-rapida">
+      <div class="tc-shell">
+        <span class="tc-quick-answer__tag">¿Cuál elijo?</span>
+        <div class="tc-quick-grid">
+          <article><h3>Pasta térmica</h3><p>Para la mayoría de equipos.</p></article>
+          <article><h3>Metal líquido</h3><p>Para diseños compatibles donde la mejora térmica justifica el riesgo.</p></article>
+          <article><h3>Diagnóstico</h3><p>Si no sabes cuál usa tu equipo.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-comparison" id="comparativa">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="table-columns" /><div><h2>Comparativa: pasta térmica vs metal líquido</h2><h3>Seguridad, temperatura, durabilidad y compatibilidad</h3><p>Esta tabla resume la decisión inicial. El diagnóstico del modelo sigue siendo necesario antes de elegir.</p></div></header>
+        <div class="tc-table-wrap"><table><thead><tr><th>Característica</th><th><Icon name="droplet" /> Pasta térmica</th><th><Icon name="bolt" /> Metal líquido</th></tr></thead><tbody>{comparison.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody></table></div>
+        <p class="tc-note"><strong>Cuál elegir según tu equipo:</strong> la pasta térmica cubre la mayoría de casos. El metal líquido se reserva para diseños compatibles, exigencia térmica comprobada y usuarios que aceptan un mantenimiento más delicado.</p>
+      </div>
+    </section>
+
+    <section class="tc-section tc-cools-more" id="que-enfria-mas">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="temperature-arrow-down" /><div><h2>¿Qué enfría más: pasta térmica o metal líquido?</h2><p>La conductividad térmica del compuesto es solo una parte del resultado real.</p></div></header>
+        <p>El metal líquido tiene una conductividad térmica (W/mK) más alta que la mayoría de pastas térmicas, por lo que en teoría transfiere calor más rápido entre el chip y el disipador. Sin embargo, ese dato de fábrica no determina por sí solo la temperatura final.</p>
+        <p>El resultado real también depende del contacto físico entre el IHS o el die y la base del disipador, la presión que ejerce el montaje, el estado de los heatpipes, y la capacidad del disipador y los ventiladores para expulsar ese calor hacia el aire. Un metal líquido excelente sobre un disipador sucio o mal presionado puede rendir peor que una pasta térmica de calidad bien aplicada sobre un sistema de refrigeración en buen estado.</p>
+        <p>Por eso medimos temperatura real, frecuencia y comportamiento del disipador antes de recomendar un material, en lugar de guiarnos solo por la cifra de conductividad del fabricante.</p>
+      </div>
+    </section>
+
     <section class="tc-section tc-intro">
       <div class="tc-shell tc-split">
         <div class="tc-copy">
@@ -98,14 +434,9 @@ const schema = [
           <h3>Diagnóstico térmico antes de aplicar cualquier material</h3>
           <p>La interfaz térmica une el chip con el disipador y rellena imperfecciones microscópicas. Sin embargo, una temperatura alta también puede venir de polvo, un ventilador desgastado, un heatpipe dañado, presión irregular, pads equivocados o una configuración que mantiene el procesador al máximo.</p>
           <h3>Servicio para PC, laptop, consolas y equipos corporativos en Cancún</h3>
-          <p>En Pixon PC revisamos equipos domésticos, gamer y empresariales. La comparación de pasta térmica vs metal líquido en Cancún comienza identificando el diseño original, los materiales y la carga real del equipo.</p>
+          <p>En Pixon PC revisamos equipos domésticos, gamer y empresariales. La comparación de pasta térmica vs metal líquido comienza identificando el diseño original, los materiales y la carga real del equipo.</p>
         </div>
         <figure class="tc-media"><img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Técnico de Pixon PC aplicando pasta térmica en laptop gamer en Cancún" loading="lazy" decoding="async" width="800" height="450" /><figcaption>La aplicación correcta depende del área, presión y compuesto.</figcaption></figure>
-      </div>
-      <div class="tc-shell tc-answer" role="note">
-        <strong>Respuesta corta</strong>
-        <h2>¿Metal líquido y pasta térmica son lo mismo?</h2>
-        <p>No. Ambos transfieren calor entre un chip y su disipador, pero tienen composición, conductividad eléctrica, compatibilidad y riesgos distintos. La pasta térmica suele ser la opción más tolerante; el metal líquido requiere un diseño compatible, aislamiento y aplicación controlada.</p>
       </div>
     </section>
 
@@ -119,21 +450,29 @@ const schema = [
       </div>
     </section>
 
-    <section class="tc-section tc-metal">
+    <section class="tc-section tc-metal" id="cuando-metal">
       <div class="tc-shell tc-metal__grid">
-        <div class="tc-copy"><span class="tc-icon tc-icon--dark"><Icon name="flask" /></span><h2>Cuándo sí tiene sentido usar metal líquido</h2><h3>Equipos de alto rendimiento con thermal throttling real</h3><p>Puede considerarse cuando las mediciones confirman que el contacto térmico limita frecuencias, el disipador es compatible y el fabricante utiliza o admite este material. No se recomienda solo porque una aplicación muestra una temperatura alta.</p><h3>Laptops gamer, delid y configuraciones extremas</h3><p>En equipos compactos o modificados, cada grado puede ayudar, pero el riesgo también crece. Confirmamos cobre o níquel, aislamos componentes y dejamos una cantidad controlada. Un servicio de metal líquido para laptop en Cancún debe incluir prueba de estabilidad, no solo aplicación.</p></div>
+        <div class="tc-copy"><span class="tc-icon tc-icon--dark"><Icon name="flask" /></span><h2>Cuándo sí tiene sentido usar metal líquido</h2><h3>Equipos de alto rendimiento con thermal throttling real</h3><p>Puede considerarse cuando las mediciones confirman que el contacto térmico limita frecuencias, el disipador es compatible y el fabricante utiliza o admite este material. No se recomienda solo porque una aplicación muestra una temperatura alta.</p><h3>Laptops gamer, delid y configuraciones extremas</h3><p>En equipos compactos o modificados, cada grado puede ayudar, pero el riesgo también crece. Confirmamos cobre o níquel, aislamos componentes y dejamos una cantidad controlada. Una <a href="/blogs/aplicacion-metal-liquido-cancun">aplicación profesional de metal líquido</a> debe incluir prueba de estabilidad, no solo aplicación.</p></div>
         <figure class="tc-media tc-media--dark"><img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Aplicación controlada de metal líquido en laptop gamer en Cancún Quintana Roo" loading="lazy" decoding="async" width="800" height="450" /></figure>
       </div>
     </section>
 
-    <section class="tc-section tc-paste">
+    <section class="tc-section tc-paste" id="cuando-pasta">
       <div class="tc-shell tc-split tc-split--reverse">
         <figure class="tc-media"><img src="/assets/images/laptop-feliz-limpia.webp" alt="Cambio de pasta térmica en laptop con sobrecalentamiento en Cancún" loading="lazy" decoding="async" width="800" height="450" /></figure>
-        <div class="tc-copy"><span class="tc-icon"><Icon name="shield-halved" /></span><h2>Cuándo conviene usar pasta térmica en tu equipo</h2><h3>Ideal para laptops, PC de oficina, PC gamer y consolas</h3><p>Una pasta de calidad, bien distribuida y acompañada de limpieza suele ser suficiente para recuperar una transferencia estable en equipos de uso general y alto rendimiento. También facilita futuras intervenciones sin exponer la placa a un material conductor.</p><h3>Buena opción para mantenimiento preventivo en Cancún</h3><p>El polvo fino, humedad ambiental y uso continuo pueden saturar la refrigeración. Para muchos equipos, limpiar conductos, corregir presión y renovar pasta es más sensato que cambiar a metal líquido.</p></div>
+        <div class="tc-copy"><span class="tc-icon"><Icon name="shield-halved" /></span><h2>Cuándo conviene usar pasta térmica en tu equipo</h2><h3>Ideal para laptops, PC de oficina, PC gamer y consolas</h3><p>Una pasta de calidad, bien distribuida y acompañada de limpieza suele ser suficiente para recuperar una transferencia estable en equipos de uso general y alto rendimiento. También facilita futuras intervenciones sin exponer la placa a un material conductor.</p><h3>Buena opción para mantenimiento preventivo en Cancún</h3><p>El polvo fino, humedad ambiental y uso continuo pueden saturar la refrigeración. Para muchos equipos, un <a href="/servicios/laptop/pasta-termica">servicio de cambio de pasta térmica</a> con limpieza y corrección de presión es más sensato que cambiar a metal líquido.</p></div>
       </div>
     </section>
 
-    <section class="tc-section tc-risks">
+    <section class="tc-section tc-worth-it" id="vale-la-pena">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="gauge-high" /><div><h2>¿Vale la pena usar metal líquido?</h2><p>Puede valer la pena en diseños compatibles y equipos térmicamente limitados. No es una mejora universal.</p></div></header>
+        <p>Puede valer la pena en equipos de alto rendimiento —PC gamer, laptops gamer compactas, configuraciones con overclock— cuando el diseño del disipador es compatible, existe thermal throttling comprobado y el usuario acepta un mantenimiento más delicado.</p>
+        <p>No es una mejora universal. En equipos de oficina, uso general o laptops sin margen térmico ajustado, una pasta térmica de calidad suele resolver el mismo problema con mucho menor riesgo. Tampoco compensa un disipador insuficiente, un cooler desgastado o un mal flujo de aire dentro del gabinete.</p>
+      </div>
+    </section>
+
+    <section class="tc-section tc-risks" id="riesgos">
       <div class="tc-shell">
         <header class="tc-heading"><Icon name="triangle-exclamation" /><div><h2>Riesgos del metal líquido si se aplica mal</h2><p>Una mejora potencial no justifica intervenir sin revisar compatibilidad, aislamiento y contención.</p></div></header>
         <div class="tc-risk-grid">
@@ -144,17 +483,108 @@ const schema = [
       </div>
     </section>
 
-    <section class="tc-section tc-comparison" id="comparativa">
+    <section class="tc-section tc-temp-drop" id="cuanto-baja-temperatura">
       <div class="tc-shell">
-        <header class="tc-heading"><Icon name="table-columns" /><div><h2>Comparativa: pasta térmica vs metal líquido</h2><h3>Seguridad, temperatura, durabilidad y compatibilidad</h3><p>Esta tabla resume la decisión inicial. El diagnóstico del modelo sigue siendo necesario antes de elegir.</p></div></header>
-        <div class="tc-table-wrap"><table><thead><tr><th>Punto clave</th><th><Icon name="droplet" /> Pasta térmica</th><th><Icon name="bolt" /> Metal líquido</th></tr></thead><tbody>{comparison.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody></table></div>
-        <p class="tc-note"><strong>Cuál elegir según tu equipo:</strong> la pasta térmica cubre la mayoría de casos. El metal líquido se reserva para diseños compatibles, exigencia térmica comprobada y usuarios que aceptan un mantenimiento más delicado.</p>
+        <header class="tc-heading"><Icon name="temperature-arrow-down" /><div><h2>¿Cuánto puede bajar la temperatura al cambiar pasta térmica?</h2><p>No prometemos una cifra fija: el resultado depende de varias variables al mismo tiempo.</p></div></header>
+        <ul class="tc-plain-list">
+          <li>Estado de la pasta anterior: seca, mal distribuida o correcta.</li>
+          <li>Presión y montaje del disipador.</li>
+          <li>Heatpipes y ventiladores: limpieza, desgaste, RPM.</li>
+          <li>Flujo de aire dentro del gabinete o chasis.</li>
+          <li>Potencia y frecuencia del componente.</li>
+          <li>Temperatura ambiente.</li>
+        </ul>
+        <p>Un equipo con pasta completamente seca y disipador sucio puede notar una mejora considerable; un equipo ya bien mantenido puede notar un cambio mínimo. Por eso medimos antes y después en lugar de prometer un número.</p>
       </div>
     </section>
 
-    <section class="tc-section tc-gaming">
+    <!-- EVIDENCIA TÉCNICA REAL EN BANCO DE DIAGNÓSTICO: ANTES Y DESPUÉS -->
+    <section class="tc-section tc-evidence-section" id="evidencia-degradacion-termica">
+      <div class="tc-shell">
+        <header class="tc-heading">
+          <Icon name="temperature-half" />
+          <div>
+            <h2>Evidencia real: degradación vs renovación de compuesto térmico</h2>
+            <p>El estado físico del compuesto define la resistencia térmica de contacto en CPU y GPU.</p>
+          </div>
+        </header>
+
+        <div class="tc-evidence-grid">
+          <figure class="tc-evidence-card">
+            <div class="tc-evidence-media">
+              <span class="tc-evidence-badge"><i class="fa-solid fa-camera" aria-hidden="true"></i> TRABAJO REAL PIXON PC · ANTES</span>
+              <picture>
+                <source media="(max-width: 640px)" srcset="/assets/images/real-work/pasta-termica-seca-laptop-sobrecalentamiento-sm.webp 420w, /assets/images/real-work/pasta-termica-seca-laptop-sobrecalentamiento-md.webp 720w" sizes="(max-width: 640px) 100vw, 560px" />
+                <source srcset="/assets/images/real-work/pasta-termica-seca-laptop-sobrecalentamiento.webp" />
+                <img src="/assets/images/real-work/pasta-termica-seca-laptop-sobrecalentamiento.webp" alt="Pasta térmica seca y agrietada sobre procesador" width="960" height="1280" loading="lazy" decoding="async" />
+              </picture>
+            </div>
+            <figcaption class="tc-evidence-caption">
+              <strong>Compuesto térmico petrificado (Antes):</strong> La pasta ha perdido sus solventes y elasticidad, formando grietas y bolsas de aire microscópicas que aíslan el calor en lugar de transferirlo al disipador.
+            </figcaption>
+          </figure>
+
+          <figure class="tc-evidence-card">
+            <div class="tc-evidence-media">
+              <span class="tc-evidence-badge"><i class="fa-solid fa-camera" aria-hidden="true"></i> TRABAJO REAL PIXON PC · DESPUÉS</span>
+              <picture>
+                <source media="(max-width: 640px)" srcset="/assets/images/real-work/cambio-pasta-termica-premium-laptop-pc-pixon-sm.webp 420w, /assets/images/real-work/cambio-pasta-termica-premium-laptop-pc-pixon-md.webp 720w" sizes="(max-width: 640px) 100vw, 560px" />
+                <source srcset="/assets/images/real-work/cambio-pasta-termica-premium-laptop-pc-pixon.webp" />
+                <img src="/assets/images/real-work/cambio-pasta-termica-premium-laptop-pc-pixon.webp" alt="Compuesto térmico aplicado profesionalmente sobre núcleo de procesador" width="1280" height="1280" loading="lazy" decoding="async" />
+              </picture>
+            </div>
+            <figcaption class="tc-evidence-caption">
+              <strong>Renovación de compuesto térmico (Después):</strong> Cobertura uniforme del núcleo de silicio con espesor controlado para favorecer el contacto con el disipador.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-fps" id="aumenta-fps">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="arrow-trend-up" /><div><h2>¿Cambiar la pasta térmica aumenta los FPS?</h2><p>No de forma directa. Puede recuperar rendimiento perdido por temperatura.</p></div></header>
+        <p>La pasta térmica no aumenta la potencia del CPU o la GPU. Lo que puede recuperar es el rendimiento perdido por thermal throttling: cuando el procesador o la tarjeta gráfica reducen su frecuencia (boost clock) porque la temperatura alcanza un límite de seguridad.</p>
+        <p>Si tu equipo pierde FPS, presenta frametime irregular o stuttering por temperatura, mejorar la transferencia térmica puede sostener frecuencias más altas por más tiempo. Si el límite real es la GPU, el CPU, la RAM, la configuración gráfica o el propio juego, cambiar la pasta térmica no aumentará los FPS.</p>
+      </div>
+    </section>
+
+    <section class="tc-section tc-frequency" id="cada-cuanto-cambiar">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="clock" /><div><h2>¿Cada cuánto se debe cambiar la pasta térmica?</h2><p>No existe un calendario universal; depende del compuesto, el uso y el diseño del equipo.</p></div></header>
+        <p>El momento correcto depende de: el tipo de pasta (algunas se degradan antes que otras), la temperatura y los ciclos térmicos que soporta el equipo, la presión del montaje, las horas de uso, la acumulación de polvo y el diseño térmico del equipo.</p>
+        <p>En lugar de cambiarla "cada X meses" sin revisar nada, recomendamos prestar atención a señales: temperatura en aumento, ventiladores más constantes, ruido nuevo o pérdida de rendimiento sostenida.</p>
+        <h3 id="pump-out">¿Qué es el pump-out de la pasta térmica?</h3>
+        <p>El pump-out es el desplazamiento gradual del compuesto térmico fuera del área de contacto entre el chip y el disipador, provocado por ciclos repetidos de calentamiento y enfriamiento. Es más frecuente en equipos con die expuesto directo (sin IHS) o con presión de montaje muy alta, como algunas laptops gamer y GPU.</p>
+        <p>Cuando ocurre pump-out, la temperatura puede subir de forma progresiva incluso sin cambios de uso. Por eso, en equipos con este riesgo priorizamos compuestos de alta viscosidad y anti pump-out, especialmente en el <a href="/servicios/laptop/mantenimiento-preventivo">mantenimiento térmico de laptop gamer</a> y GPU.</p>
+      </div>
+    </section>
+
+    <section class="tc-section tc-ptm" id="ptm-materiales">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="flask" /><div><h2>Pasta térmica, PTM y metal líquido: no existen solo dos opciones</h2><p>El material correcto depende del diseño térmico del equipo, no solo de la cifra de conductividad.</p></div></header>
+        <p>Aunque la comparación más buscada es "pasta vs metal líquido", los fabricantes usan otros materiales de interfaz térmica (TIM) según el diseño del equipo:</p>
+        <ul class="tc-plain-list">
+          <li><strong>Pasta térmica convencional:</strong> la opción más común y compatible; ideal para la mayoría de mantenimientos.</li>
+          <li><strong>PTM / material de cambio de fase:</strong> un pad sólido a temperatura ambiente que se comporta como líquido al calentarse, pensado para no requerir reaplicación frecuente. Honeywell PTM7950 es un ejemplo conocido en equipos gamer y algunas consolas, pero no es automáticamente superior a una pasta térmica de calidad: depende del diseño del equipo y del problema que se busca resolver.</li>
+          <li><strong>Thermal putty:</strong> masilla térmica más espesa, usada para compensar espacios irregulares.</li>
+          <li><strong>Thermal pads:</strong> almohadillas sólidas para componentes que no tienen contacto directo con el disipador principal.</li>
+          <li><strong>Metal líquido:</strong> la opción de mayor conductividad, con conductividad eléctrica y compatibilidad limitada.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="tc-section tc-pads" id="thermal-pads">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="microchip" /><div><h2>¿Thermal pads y pasta térmica hacen lo mismo?</h2><p>No. Cubren funciones distintas dentro del mismo sistema de enfriamiento.</p></div></header>
+        <p>La pasta térmica se aplica entre el chip principal (CPU o GPU) y la base del disipador. Los thermal pads son almohadillas sólidas que se usan en componentes que no tocan directamente el disipador principal, como memorias VRAM, MOSFET del VRM o chips secundarios.</p>
+        <p>Un thermal pad con el grosor incorrecto puede ser tan problemático como una mala aplicación de pasta: uno muy grueso separa el disipador del chip principal; uno muy delgado no llega a hacer contacto. En GPU esto se relaciona directamente con temperaturas de hotspot elevadas y memorias que alcanzan sus límites térmicos antes que el chip principal.</p>
+      </div>
+    </section>
+
+    <section class="tc-section tc-gaming" id="laptop-gamer">
       <div class="tc-shell tc-feature-grid">
-        <div class="tc-copy"><span class="tc-icon"><Icon name="gamepad" /></span><h2>Pasta térmica vs metal líquido en laptops gamer</h2><h3>Por qué algunas laptops bajan FPS por temperatura</h3><p>Cuando CPU o GPU alcanzan límites térmicos pueden reducir frecuencia, elevar frametime y provocar bajones de FPS. También revisamos potencia compartida, modo de ventilación, BIOS, drivers y temperatura ambiental.</p><h3>Cuándo basta con pasta premium y limpieza profunda</h3><p>Si el diseño es correcto y el problema es pasta seca, polvo o rejillas bloqueadas, un mantenimiento completo puede recuperar estabilidad sin introducir metal conductor.</p><h3>Cuándo considerar metal líquido con aislamiento</h3><p>Solo cuando el modelo, disipador y mediciones justifican el riesgo. La búsqueda “metal líquido laptop Cancún” no debe terminar en una aplicación automática.</p></div>
+        <div class="tc-copy"><span class="tc-icon"><Icon name="gamepad" /></span><h2>Pasta térmica vs metal líquido en laptops gamer</h2><h3>Por qué algunas laptops llegan a 90°C y bajan FPS por temperatura</h3><p>Cuando CPU o GPU alcanzan límites térmicos pueden reducir frecuencia, elevar frametime y provocar bajones de FPS, incluso con los ventiladores al máximo. También revisamos potencia compartida, modo de ventilación, BIOS, drivers y temperatura ambiental.</p><h3>Cuándo basta con pasta premium y limpieza profunda</h3><p>Si el diseño es correcto y el problema es pasta seca, polvo o rejillas bloqueadas, un mantenimiento completo puede recuperar estabilidad sin introducir metal conductor.</p><h3>Cuándo considerar metal líquido con aislamiento</h3><p>Solo cuando el modelo, disipador y mediciones justifican el riesgo. Buscar "metal líquido laptop" no debe terminar en una aplicación automática.</p></div>
         <figure class="tc-media tc-media--tall"><img src="/assets/images/laptop-gamer-rogstrix.webp" alt="Laptop gamer con sobrecalentamiento revisada por Pixon PC en Cancún" loading="lazy" decoding="async" width="800" height="450" /></figure>
       </div>
     </section>
@@ -162,20 +592,20 @@ const schema = [
     <section class="tc-section tc-desktop">
       <div class="tc-shell tc-split tc-split--reverse">
         <figure class="tc-media"><img src="/assets/images/mantenimiento-pc-escritorio.webp" alt="Mantenimiento de PC gamer con cambio de pasta térmica en Cancún" loading="lazy" decoding="async" width="800" height="450" /></figure>
-        <div class="tc-copy"><span class="tc-icon"><Icon name="computer" /></span><h2>Pasta térmica vs metal líquido en PC de escritorio</h2><h3>Revisión de cooler, presión, gabinete y flujo de aire</h3><p>En una PC revisamos montaje del disipador, bomba si existe refrigeración líquida, orientación de ventiladores, filtros, curvas y temperatura dentro del gabinete. Un buen compuesto no compensa un cooler insuficiente o mal instalado.</p><h3>No todo problema de temperatura se arregla cambiando pasta</h3><p>Un procesador con voltaje elevado, una bomba degradada o aire caliente recirculando requiere otra solución. El mantenimiento térmico de PC en Cancún debe incluir medición antes y después.</p></div>
+        <div class="tc-copy"><span class="tc-icon"><Icon name="computer" /></span><h2>Pasta térmica vs metal líquido en PC de escritorio</h2><h3>Revisión de cooler, presión, gabinete y flujo de aire</h3><p>En una PC revisamos montaje del disipador, bomba si existe refrigeración líquida, orientación de ventiladores, filtros, curvas y temperatura dentro del gabinete. Un buen compuesto no compensa un cooler insuficiente o mal instalado.</p><h3>No todo problema de temperatura se arregla cambiando pasta</h3><p>Un procesador con voltaje elevado, una bomba degradada o aire caliente recirculando requiere otra solución. El mantenimiento térmico de PC debe incluir medición antes y después.</p></div>
       </div>
     </section>
 
-    <section class="tc-section tc-gpu">
+    <section class="tc-section tc-gpu" id="gpu">
       <div class="tc-shell tc-gpu__layout">
         <header><span class="tc-icon tc-icon--dark"><Icon name="microchip" /></span><h2>Cambio de pasta térmica en tarjetas gráficas</h2><p>Abrir una GPU implica conservar presión uniforme y espesores exactos. No sustituimos pads sin confirmar medidas.</p></header>
-        <div class="tc-gpu__points"><article><h3>Temperatura del chip, hotspot, memorias y VRM</h3><p>La diferencia entre temperatura promedio y hotspot puede señalar contacto irregular, pasta degradada o presión deficiente.</p></article><article><h3>Pads térmicos: el detalle que muchos talleres ignoran</h3><p>Un pad demasiado grueso levanta el disipador del chip; uno delgado no alcanza memorias o VRM. Medimos y respetamos la arquitectura.</p></article></div>
+        <div class="tc-gpu__points"><article><h3>Temperatura del chip, hotspot, memorias y VRM</h3><p>Una diferencia alta entre temperatura promedio y hotspot GPU puede señalar contacto irregular, pasta degradada o presión deficiente.</p></article><article><h3>Pads térmicos: el detalle que muchos talleres ignoran</h3><p>Un pad demasiado grueso levanta el disipador del chip; uno delgado no alcanza memorias o VRM. Medimos y respetamos la arquitectura del <a href="/servicios/pc/tarjeta-video-gpu#mantenimiento-gpu">mantenimiento térmico de GPU</a>.</p></article></div>
       </div>
     </section>
 
-    <section class="tc-section tc-consoles">
+    <section class="tc-section tc-consoles" id="consolas">
       <div class="tc-shell tc-feature-grid">
-        <div class="tc-copy"><span class="tc-icon"><Icon name="headset" /></span><h2>Pasta térmica vs metal líquido en consolas PlayStation, Xbox y Nintendo</h2><h3>Ruido excesivo, apagones y calentamiento en consolas</h3><p>Revisamos polvo, ventilador, fuente, disipador y compuesto original. Apagarse puede indicar protección térmica, pero también una falla de alimentación que requiere diagnóstico diferente.</p><h3>Por qué no siempre conviene aplicar metal líquido en consolas</h3><p>Algunas generaciones lo usan de fábrica y requieren inspección de sellos y distribución. Otras fueron diseñadas para pasta térmica. Respetar el sistema original suele ser más seguro que modificarlo sin necesidad.</p></div>
+        <div class="tc-copy"><span class="tc-icon"><Icon name="headset" /></span><h2>Pasta térmica vs metal líquido en consolas PlayStation, Xbox y Nintendo</h2><h3>La PS5 utiliza metal líquido en la interfaz principal del APU</h3><p>PlayStation 5 usa metal líquido de fábrica entre el APU y su disipador. Otras consolas y generaciones pueden utilizar pasta térmica convencional, por lo que respetar el material original suele ser más seguro que modificarlo sin necesidad.</p><h3>Ruido excesivo, apagones y calentamiento en consolas</h3><p>Revisamos polvo, ventilador, fuente, disipador y compuesto original. Que la consola se apague solo puede indicar protección térmica, pero también una falla de alimentación que requiere diagnóstico diferente.</p><p>→ <a href="/servicios/consola/mantenimiento-ps5">Mantenimiento de PS5 con revisión de metal líquido</a></p></div>
         <figure class="tc-media"><img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Mantenimiento térmico de consola con pasta térmica en Cancún Quintana Roo" loading="lazy" decoding="async" width="800" height="450" /></figure>
       </div>
     </section>
@@ -184,6 +614,22 @@ const schema = [
       <div class="tc-shell tc-split tc-split--reverse">
         <figure class="tc-media"><img src="/assets/images/mantenimiento-macbook-cancun.webp" alt="Mantenimiento térmico de MacBook con pasta térmica en Cancún" loading="lazy" decoding="async" width="800" height="450" /></figure>
         <div class="tc-copy"><span class="tc-icon"><Icon name="apple" /></span><h2>Mantenimiento térmico en MacBook y laptops delgadas</h2><h3>Equipos compactos con poco margen de enfriamiento</h3><p>En chasis delgados, la temperatura puede subir rápido por rejillas pequeñas, ventiladores compactos y perfiles silenciosos. Revisamos comportamiento sostenido, no un pico aislado.</p><h3>Aplicación segura sin arriesgar la placa</h3><p>Protegemos flex, conectores y componentes cercanos. No aplicamos metal líquido si el sistema no cuenta con compatibilidad y contención adecuadas.</p></div>
+      </div>
+    </section>
+
+    <section class="tc-section tc-decision" id="decision">
+      <div class="tc-shell">
+        <header class="tc-heading"><Icon name="circle-question" /><div><h2>¿Qué debería usar mi equipo?</h2><p>Orientación inicial según el tipo de equipo. No sustituye el diagnóstico: lo confirmamos al revisarlo.</p></div></header>
+        <div class="tc-decision__list">
+          {decisionRows.map(([device, recommendation, level]) => (
+            <div class="tc-decision__row">
+              <span class="tc-decision__device">{device}</span>
+              <span class="tc-decision__rec">{recommendation}</span>
+              <span class={`tc-badge tc-badge--${level === 'RECOMENDADO' ? 'ok' : level === 'DEPENDE' ? 'mid' : 'risk'}`}>{level}</span>
+            </div>
+          ))}
+        </div>
+        <p class="tc-note">Esta tabla es una orientación inicial, no un diagnóstico. Confirmamos el material correcto al revisar tu equipo.</p>
       </div>
     </section>
 
@@ -196,14 +642,14 @@ const schema = [
 
     <section class="tc-section tc-diagnostic">
       <div class="tc-shell tc-diagnostic__grid">
-        <div class="tc-copy"><span class="tc-icon tc-icon--dark"><Icon name="stethoscope" /></span><h2>Diagnóstico antes de cambiar pasta térmica o aplicar metal líquido</h2><h3>Medimos temperatura, frecuencia y consumo real</h3><p>Registramos reposo y carga, frecuencia sostenida, potencia y ruido. El objetivo es identificar thermal throttling en Cancún con evidencia, no con una captura aislada.</p><h3>Revisamos ventiladores, disipador, polvo y pads térmicos</h3><p>La ruta térmica completa importa: entrada de aire, contacto, heatpipes, salida, firmware y ambiente.</p><h3>Te decimos si el problema es hardware, suciedad o mala configuración</h3><p>Si la pasta no es la causa, proponemos ventilador, cooler, ajuste, reparación o ninguna intervención.</p></div>
+        <div class="tc-copy"><span class="tc-icon tc-icon--dark"><Icon name="stethoscope" /></span><h2>Diagnóstico antes de cambiar pasta térmica o aplicar metal líquido</h2><h3>Medimos temperatura, frecuencia y consumo real</h3><p>Registramos reposo y carga, frecuencia sostenida, potencia y ruido. El objetivo es identificar thermal throttling con evidencia, no con una captura aislada.</p><h3>Revisamos ventiladores, disipador, polvo y pads térmicos</h3><p>La ruta térmica completa importa: entrada de aire, contacto, heatpipes, salida, firmware y ambiente.</p><h3>Te decimos si el problema es hardware, suciedad o mala configuración</h3><p>Si la pasta no es la causa, proponemos ventilador, cooler, ajuste, reparación o ninguna intervención.</p></div>
         <div class="tc-gauges" aria-label="Puntos del diagnóstico térmico"><span><Icon name="temperature-half" /><strong>Temperatura</strong></span><span><Icon name="gauge-high" /><strong>Frecuencia</strong></span><span><Icon name="bolt" /><strong>Consumo</strong></span><span><Icon name="fan" /><strong>Ventilación</strong></span></div>
       </div>
     </section>
 
     <section class="tc-section tc-process">
       <div class="tc-shell">
-        <header class="tc-heading"><Icon name="screwdriver-wrench" /><div><h2>Cómo trabajamos el mantenimiento térmico en Pixon PC</h2><p>El proceso de pasta térmica vs metal líquido Pixon PC documenta la causa antes de intervenir y valida el resultado al terminar.</p></div></header>
+        <header class="tc-heading"><Icon name="screwdriver-wrench" /><div><h2>Cómo trabajamos el mantenimiento térmico en Pixon PC</h2><p>El proceso documenta la causa antes de intervenir y valida el resultado al terminar.</p></div></header>
         <ol class="tc-process__list"><li><strong>01</strong><div><h3>Recepción del equipo y síntomas</h3><p>Modelo, uso, ruido, apagados y trabajos previos.</p></div></li><li><strong>02</strong><div><h3>Prueba de temperatura y rendimiento</h3><p>Medición controlada según el tipo de equipo.</p></div></li><li><strong>03</strong><div><h3>Limpieza interna y revisión física</h3><p>Ventiladores, disipador, pads, presión y materiales.</p></div></li><li><strong>04</strong><div><h3>Cotización clara antes de aplicar</h3><p>Explicamos opción recomendada, alcance y riesgos.</p></div></li><li><strong>05</strong><div><h3>Cambio de pasta o aplicación controlada</h3><p>Solo el material compatible y la cantidad necesaria.</p></div></li><li><strong>06</strong><div><h3>Prueba final y recomendaciones de uso</h3><p>Comparamos estabilidad y señalamos límites restantes.</p></div></li></ol>
       </div>
     </section>
@@ -222,13 +668,13 @@ const schema = [
 
     <ServiceTicketSection id="ticket-termico" defaultDevice="Laptop / PC / Consola" defaultService="Diagnóstico térmico, pasta térmica o metal líquido" title="Crear ticket de mantenimiento térmico" subtitle="Indica modelo, temperaturas, ruido, apagados, FPS y si el equipo fue intervenido anteriormente." />
 
-    <FaqSection id="faq-pasta-metal" title="Preguntas frecuentes sobre pasta térmica vs metal líquido en Cancún" description="Respuestas directas sobre seguridad, compatibilidad, rendimiento, consolas, laptops gamer y mantenimiento térmico." items={faqs} viewMoreHref="/preguntas-frecuentes" viewMoreLabel="Ver más preguntas" ariaLabel="Preguntas frecuentes sobre pasta térmica y metal líquido en Cancún" backgroundColor="#f3f8fc" titleColor="#071F3A" descriptionColor="#294963" questionColor="#071F3A" />
+    <FaqSection id="faq-pasta-metal" title="Preguntas frecuentes sobre pasta térmica vs metal líquido" description="Respuestas directas sobre seguridad, compatibilidad, rendimiento, consolas, laptops gamer y mantenimiento térmico." items={faqs} viewMoreHref="/preguntas-frecuentes" viewMoreLabel="Ver más preguntas" ariaLabel="Preguntas frecuentes sobre pasta térmica y metal líquido" backgroundColor="#f3f8fc" titleColor="#071F3A" descriptionColor="#294963" questionColor="#071F3A" />
 
     <section class="tc-section tc-reviews"><div class="tc-shell"><header class="tc-heading"><Icon name="star" /><div><h2>Clientes que confiaron en Pixon PC para mantenimiento y reparación</h2><h3>Opiniones reales sobre mantenimiento preventivo</h3><p>Las reseñas ayudan a conocer la atención, explicación técnica y seguimiento recibido por clientes en Cancún.</p></div></header></div></section>
     <CommentsSection viewMoreHref="/comentarios" />
 
     <section class="tc-final">
-      <div class="tc-shell tc-final__grid"><div><span>Diagnóstico local con cita previa</span><h2>Agenda tu diagnóstico térmico en Cancún con Pixon PC</h2><h3>Te decimos si necesitas pasta térmica, limpieza o metal líquido</h3><p>No arriesgues la placa por aplicar un material incompatible. Revisamos la causa y cotizamos antes de intervenir.</p><div class="tc-actions"><a class="tc-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Enviar WhatsApp</a><a class="tc-btn tc-btn--ghost" href="#ticket-termico"><Icon name="clipboard-list" /> Crear ticket de mantenimiento</a></div></div><address><strong>Pixon PC</strong><span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span><a href="tel:+529986690777">+52 998 669 0777</a><a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></address></div>
+      <div class="tc-shell tc-final__grid"><div><span>Diagnóstico local con cita previa</span><h2>¿Tu equipo se calienta o pierde rendimiento?</h2><p>No necesitas elegir el compuesto antes del diagnóstico. Revisamos temperaturas, ventilación, disipador y material original para decirte qué intervención tiene sentido.</p><div class="tc-actions"><a class="tc-btn" href="#ticket-termico"><Icon name="clipboard-list" /> Solicitar diagnóstico térmico</a><a class="tc-btn tc-btn--ghost" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Enviar datos por WhatsApp</a></div><p class="tc-final__micro">Cotización antes de intervenir.</p></div><address><strong>Pixon PC</strong><span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span><a href="tel:+529986690777">+52 998 669 0777</a><a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a></address></div>
     </section>
     <ContactSection />
   </main>
@@ -242,17 +688,153 @@ const schema = [
   .tc-shell{width:min(1180px,calc(100% - (var(--page-gutter) * 2)));margin:0 auto}.tc-section{padding:20px 0;content-visibility:visible!important;contain:none!important}.tc-section :where(h2,h3,p,li,span,strong,a,td,th){color:var(--ink)}.tc-svg{display:block;width:18px;height:18px;max-width:22px;max-height:22px;fill:currentColor;flex:0 0 auto}
   .tc-section h2,.tc-final h2{margin:0 0 18px;font-family:var(--font-heading);font-size:clamp(2rem,3.8vw,3.45rem);font-style:italic;font-weight:800;line-height:1.08;text-wrap:balance}.tc-section h3,.tc-final h3{margin:22px 0 8px;font-size:1.08rem;line-height:1.3;text-wrap:balance}.tc-section p,.tc-final p{max-width:72ch;margin:0;color:var(--muted);font-weight:500;line-height:1.72}.tc-split,.tc-feature-grid,.tc-metal__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.88fr);gap:clamp(36px,7vw,88px);align-items:center}.tc-split--reverse>figure{grid-column:1;grid-row:1}.tc-split--reverse>.tc-copy{grid-column:2;grid-row:1}.tc-icon{display:grid;width:42px;height:42px;margin-bottom:16px;place-items:center;border-radius:8px;color:var(--blue);background:#dceffc}.tc-icon>.tc-svg{width:18px;height:18px}.tc-icon--dark{color:#fff;background:var(--ink)}
   .tc-media{margin:0;overflow:hidden;border-radius:8px;background:#dce8f1}.tc-media img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}.tc-media--tall img{aspect-ratio:4/5}.tc-media figcaption{padding:12px 15px;color:var(--muted);font-size:.82rem;font-weight:650}.tc-heading{display:grid;grid-template-columns:48px minmax(0,780px);gap:16px;align-items:start;margin-bottom:24px}.tc-heading>.tc-svg{box-sizing:border-box;width:42px;height:42px;max-width:42px;max-height:42px;padding:11px;border-radius:8px;color:#fff;background:var(--blue)}.tc-heading h2{margin-top:0}
+  .tc-plain-list{display:grid;gap:10px;margin:16px 0;padding:0;list-style:none;max-width:72ch}.tc-plain-list li{position:relative;padding-left:20px;color:var(--muted);font-weight:500;line-height:1.6}.tc-plain-list li::before{content:"";position:absolute;left:0;top:.65em;width:7px;height:7px;border-radius:50%;background:var(--blue)}
+
+  /* Hero v3 — Thermal Engineering Laboratory Bench */
+  .tc-hero{position:relative;padding:clamp(28px,3.8vw,48px) 0 clamp(32px,4vw,52px);background:linear-gradient(180deg,#f8fafc 0%,#eef4f8 100%);border-bottom:1px solid var(--line)}
+  .tc-hero__grid{display:grid;grid-template-columns:minmax(0,.44fr) minmax(320px,.56fr);gap:clamp(24px,3.5vw,48px);align-items:center}
+  .tc-eyebrow{display:inline-block;color:var(--blue);font-size:.76rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+  .tc-hero h1{max-width:14ch;margin:10px 0 4px;color:var(--ink);font-family:var(--font-heading);font-size:clamp(2.1rem,3.4vw,2.9rem);font-style:italic;font-weight:800;line-height:1.05;text-wrap:balance}
+  .tc-hero__sub{max-width:24ch;margin:0 0 10px;color:var(--ink);font-family:var(--font-heading);font-size:clamp(1.05rem,1.5vw,1.25rem);font-weight:700;line-height:1.28;text-wrap:balance}
+  .tc-hero__lead{max-width:46ch;margin:0 0 12px;color:var(--muted);font-size:.92rem;line-height:1.55}
+  .tc-br-desktop{display:inline}
+
+  /* Mini conclusiones / Decision Badges */
+  .tc-conclusions{display:grid;gap:8px;margin:14px 0 18px;max-width:480px}
+  .tc-decision-card{display:grid;gap:3px;padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #d8e5ef;box-shadow:0 1px 3px rgba(7,31,58,.04);transition:transform 160ms ease,border-color 160ms ease}
+  .tc-decision-card:hover{border-color:#9ec2db;transform:translateX(2px)}
+  .tc-decision-card__top{display:flex;align-items:center;gap:9px}
+  .tc-decision-tag{padding:2px 7px;border-radius:4px;font-size:.65rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+  .tc-decision-tag--paste{color:#1e3a5f;background:#e2edf6}
+  .tc-decision-tag--metal{color:#854d0e;background:#fef3c7}
+  .tc-decision-tag--risk{color:#991b1b;background:#fee2e2}
+  .tc-decision-name{color:var(--ink);font-size:.9rem;font-weight:800}
+  .tc-decision-desc{margin:0!important;color:var(--muted);font-size:.81rem;line-height:1.38}
+
+  /* CTAs */
+  .tc-hero__ctas{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
+  .tc-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:11px 20px;border:1px solid var(--blue);border-radius:8px;color:#fff!important;background:var(--blue);font-weight:800;text-decoration:none;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 160ms ease}
+  .tc-btn--ghost{border-color:var(--ink);background:transparent;color:var(--ink)!important}
+  .tc-btn:active{transform:scale(.97)}
+  .tc-btn:focus-visible,.tc-bench__tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+  /* Laboratory Bench Enclosure */
+  .tc-bench{position:relative;border-radius:12px;background:#fff;border:1px solid #c9dbe7;box-shadow:0 8px 28px rgba(7,31,58,.08);overflow:hidden;display:grid}
+  .tc-bench__radio{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .tc-bench__header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:9px 14px;background:#f1f6fa;border-bottom:1px solid #dce6ee}
+  .tc-bench__title{display:inline-flex;align-items:center;gap:7px;color:var(--ink);font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  .tc-bench__status-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,.25);animation:tc-pulse 2s infinite ease-in-out}
+  @keyframes tc-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.75}}
+  .tc-bench__tabs{display:flex;gap:3px;padding:3px;border-radius:20px;background:#e2ebf1}
+  .tc-bench__tab{padding:5px 11px;border-radius:16px;color:var(--muted);font-size:.72rem;font-weight:750;letter-spacing:.02em;cursor:pointer;user-select:none;transition:background-color 160ms ease,color 160ms ease;white-space:nowrap}
+  .tc-bench__tab:hover{color:var(--ink)}
+
+  /* Tab Active States */
+  #tc-mode-split:checked ~ .tc-bench__header label[for="tc-mode-split"],
+  #tc-mode-paste:checked ~ .tc-bench__header label[for="tc-mode-paste"],
+  #tc-mode-metal:checked ~ .tc-bench__header label[for="tc-mode-metal"]{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(7,31,58,.16);font-weight:800}
+
+  #tc-mode-split:focus-visible ~ .tc-bench__header label[for="tc-mode-split"],
+  #tc-mode-paste:focus-visible ~ .tc-bench__header label[for="tc-mode-paste"],
+  #tc-mode-metal:focus-visible ~ .tc-bench__header label[for="tc-mode-metal"]{outline:2px solid var(--blue);outline-offset:2px}
+
+  /* Bench Display and SVG */
+  .tc-bench__display{padding:10px 12px 2px;background:#fff}
+  .tc-bench__svg{display:block;width:100%;height:auto;max-height:340px}
+  .tc-side-elem{transition:opacity 220ms ease,filter 220ms ease}
+
+  /* Interaction Modes */
+  #tc-mode-paste:checked ~ .tc-bench__display .tc-side-elem--paste{opacity:1}
+  #tc-mode-paste:checked ~ .tc-bench__display .tc-side-elem--metal{opacity:.22;filter:grayscale(80%)}
+  #tc-mode-paste:checked ~ .tc-bench__specs .tc-bench-spec--paste{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),0 4px 12px rgba(20,121,212,.1);background:#f0f7fd}
+  #tc-mode-paste:checked ~ .tc-bench__specs .tc-bench-spec--metal{opacity:.45}
+
+  #tc-mode-metal:checked ~ .tc-bench__display .tc-side-elem--metal{opacity:1}
+  #tc-mode-metal:checked ~ .tc-bench__display .tc-side-elem--paste{opacity:.22;filter:grayscale(80%)}
+  #tc-mode-metal:checked ~ .tc-bench__specs .tc-bench-spec--metal{border-color:#d97706;box-shadow:0 0 0 1px #d97706,0 4px 12px rgba(217,119,6,.12);background:#fffbeb}
+  #tc-mode-metal:checked ~ .tc-bench__specs .tc-bench-spec--paste{opacity:.45}
+
+  /* Thermal flow animations — Only transform & opacity */
+  @keyframes tc-flow-paste{0%{transform:translateY(0);opacity:0}25%{opacity:.95}75%{opacity:.95}100%{transform:translateY(-50px);opacity:0}}
+  @keyframes tc-flow-metal{0%{transform:translateY(0);opacity:0}20%{opacity:1}70%{opacity:1}100%{transform:translateY(-58px);opacity:0}}
+
+  .tc-heat-pulse--p1{animation:tc-flow-paste 3.2s ease-in-out infinite 0s}
+  .tc-heat-pulse--p2{animation:tc-flow-paste 3.2s ease-in-out infinite .7s}
+  .tc-heat-pulse--p3{animation:tc-flow-paste 3.2s ease-in-out infinite 1.4s}
+
+  .tc-heat-pulse--m1{animation:tc-flow-metal 1.8s ease-in-out infinite 0s}
+  .tc-heat-pulse--m2{animation:tc-flow-metal 1.8s ease-in-out infinite .35s}
+  .tc-heat-pulse--m3{animation:tc-flow-metal 1.8s ease-in-out infinite .7s}
+  .tc-heat-pulse--m4{animation:tc-flow-metal 1.8s ease-in-out infinite 1.05s}
+
+  /* Bench Specs Strip */
+  .tc-bench__specs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 12px 12px;background:#f8fafc;border-top:1px solid #e2e8f0}
+  .tc-bench-spec{display:grid;gap:4px;padding:8px 10px;border-radius:8px;background:#fff;border:1px solid #dce6ee;transition:opacity 220ms ease,border-color 220ms ease,box-shadow 220ms ease,background-color 220ms ease}
+  .tc-bench-spec__header{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-bottom:4px;border-bottom:1px solid #eef2f6}
+  .tc-bench-spec__name{color:var(--ink);font-size:.82rem;font-weight:800}
+  .tc-bench-spec__pill{padding:2px 6px;border-radius:10px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+  .tc-bench-spec__pill--paste{color:#1e3a5f;background:#e2edf6}
+  .tc-bench-spec__pill--metal{color:#b45309;background:#fef3c7}
+  .tc-bench-spec__items{display:grid;gap:2.5px;margin:0;padding:0;list-style:none}
+  .tc-bench-spec__items li{display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:.7rem;line-height:1.3}
+  .tc-bench-spec__items li span{color:var(--muted);font-weight:500}
+  .tc-bench-spec__items li strong{color:var(--ink);font-weight:700;text-align:right}
+
+  /* Low-end & Reduced Motion Guardrails */
+  @media(prefers-reduced-motion:reduce){
+    .tc-heat-pulse--p1,.tc-heat-pulse--p2,.tc-heat-pulse--p3,
+    .tc-heat-pulse--m1,.tc-heat-pulse--m2,.tc-heat-pulse--m3,.tc-heat-pulse--m4,
+    .tc-bench__status-dot{animation:none!important;opacity:.65!important;transform:none!important}
+    .tc-btn,.tc-side-elem,.tc-bench-spec,.tc-decision-card,.tc-bench__tab{transition:none!important}
+  }
+
+  .low-end-mode .tc-heat-pulse--p1,.low-end-mode .tc-heat-pulse--p2,.low-end-mode .tc-heat-pulse--p3,
+  .low-end-mode .tc-heat-pulse--m1,.low-end-mode .tc-heat-pulse--m2,.low-end-mode .tc-heat-pulse--m3,.low-end-mode .tc-heat-pulse--m4,
+  .low-end-mode .tc-bench__status-dot{animation:none!important;opacity:.65!important;transform:none!important}
+  .low-end-mode .tc-btn,.low-end-mode .tc-side-elem,.low-end-mode .tc-bench-spec,.low-end-mode .tc-decision-card,.low-end-mode .tc-bench__tab{transition:none!important}
+
+  .tc-quick-answer{background:#eef6fc}
+  .tc-quick-answer__tag{display:inline-block;margin-bottom:14px;color:var(--blue);font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  .tc-quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:8px;overflow:hidden}
+  .tc-quick-grid article{padding:20px 22px;background:#fff}
+  .tc-quick-grid h3{margin:0 0 6px;font-size:1.05rem}
+  .tc-quick-grid p{margin:0;max-width:none;font-size:.9rem}
+
   .tc-answer{margin-top:24px;padding:24px;border-left:4px solid var(--blue);background:#eef6fc}.tc-answer strong{color:var(--blue);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.tc-answer h2{margin:8px 0 10px}.tc-answer p{max-width:80ch}
-  .tc-hero{position:relative;min-height:760px;display:grid;align-items:end;overflow:hidden;background:#071f3a}.tc-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.tc-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,17,31,.95),rgba(3,17,31,.78) 53%,rgba(3,17,31,.2))}.tc-hero__content{position:relative;padding:150px 0 60px}.tc-kicker,.tc-final>div>div>span{color:#bce0fb;font-weight:800}.tc-hero h1{max-width:900px;margin:12px 0 18px;color:#fff;font-family:var(--font-heading);font-size:clamp(2.45rem,5.7vw,5.2rem);font-style:italic;font-weight:800;line-height:1.02;text-wrap:balance}.tc-hero p{max-width:700px;color:rgba(255,255,255,.84);font-size:1.08rem;line-height:1.7}.tc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.tc-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:12px 17px;border:1px solid var(--blue);border-radius:8px;color:#fff!important;background:var(--blue);font-weight:800;text-decoration:none;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 160ms ease}.tc-btn--ghost{border-color:rgba(255,255,255,.5);background:rgba(7,31,58,.58)}.tc-btn:active{transform:scale(.97)}.tc-hero__facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:760px;margin:42px 0 0;border-top:1px solid rgba(255,255,255,.25)}.tc-hero__facts div{padding:16px 18px 0 0}.tc-hero__facts dt{color:#92c9f1;font-size:.75rem;font-weight:800}.tc-hero__facts dd{margin:3px 0 0;color:#fff;font-weight:700}
-  .tc-intro,.tc-paste,.tc-desktop,.tc-mac{background:#fff}.tc-difference,.tc-gaming,.tc-consoles,.tc-related,.tc-reviews{background:var(--ice)}.tc-dual{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.tc-dual article{padding:clamp(26px,4vw,46px);background:#fff}.tc-material{display:grid;width:42px;height:42px;margin-bottom:22px;place-items:center;border-radius:50%;color:#fff;background:var(--blue)}.tc-material>.tc-svg{width:17px;height:17px}.tc-material--metal{background:var(--ink)}.tc-dual h3{margin-top:0;font-size:1.3rem}
-  .tc-metal{background:#dcecf7}.tc-metal__grid{grid-template-columns:minmax(0,1fr) minmax(320px,.75fr)}.tc-media--dark{padding:12px;background:var(--ink)}.tc-risks{background:#fff}.tc-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.tc-risk-grid article{padding:22px;border-radius:8px;background:#f3f7fa}.tc-risk-grid .tc-svg{width:25px;height:25px;color:#b42318}.tc-risk-grid h3{font-size:1.2rem}
-  .tc-comparison{background:#dcecf7!important}.tc-comparison .tc-heading>.tc-svg{color:#fff;background:var(--ink)}.tc-table-wrap{overflow-x:auto;border-radius:8px}.tc-table-wrap table{width:100%;min-width:720px;border-collapse:collapse;background:#fff}.tc-table-wrap th,.tc-table-wrap td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line)}.tc-table-wrap th{color:var(--blue);font-size:.85rem}.tc-table-wrap td:first-child{font-weight:800}.tc-note{max-width:none!important;margin-top:14px!important;padding:14px 18px;border:1px solid #9fc5df;border-radius:8px;background:#fff}
+  .tc-intro,.tc-paste,.tc-desktop,.tc-mac,.tc-worth-it,.tc-fps,.tc-pads{background:#fff}.tc-difference,.tc-gaming,.tc-consoles,.tc-related,.tc-reviews,.tc-cools-more,.tc-ptm{background:var(--ice)}.tc-dual{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.tc-dual article{padding:clamp(26px,4vw,46px);background:#fff}.tc-material{display:grid;width:42px;height:42px;margin-bottom:22px;place-items:center;border-radius:50%;color:#fff;background:var(--blue)}.tc-material>.tc-svg{width:17px;height:17px}.tc-material--metal{background:var(--ink)}.tc-dual h3{margin-top:0;font-size:1.3rem}
+
+  .tc-metal{background:#dcecf7}.tc-metal__grid{grid-template-columns:minmax(0,1fr) minmax(320px,.75fr)}.tc-media--dark{padding:12px;background:var(--ink)}.tc-risks,.tc-temp-drop,.tc-frequency{background:#fff}.tc-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.tc-risk-grid article{padding:22px;border-radius:8px;background:#f3f7fa}.tc-risk-grid .tc-svg{width:25px;height:25px;color:#b42318}.tc-risk-grid h3{font-size:1.2rem}
+
+  .tc-comparison{background:#dcecf7!important}.tc-comparison .tc-heading>.tc-svg{color:#fff;background:var(--ink)}.tc-table-wrap{overflow-x:auto;border-radius:8px}.tc-table-wrap table{width:100%;min-width:760px;border-collapse:collapse;background:#fff}.tc-table-wrap th,.tc-table-wrap td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line)}.tc-table-wrap th{color:var(--blue);font-size:.85rem}.tc-table-wrap td:first-child{font-weight:800}.tc-note{max-width:none!important;margin-top:14px!important;padding:14px 18px;border:1px solid #9fc5df;border-radius:8px;background:#fff}
+
   .tc-gpu{background:#eef6fc!important}.tc-gpu__layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:clamp(28px,5vw,64px)}.tc-gpu__points{border-top:1px solid var(--line)}.tc-gpu__points article{padding:18px 0;border-bottom:1px solid var(--line)}.tc-gpu__points h3{margin-top:0}.tc-signals{background:#fff}.tc-signal-list{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.tc-signal-list article{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:20px;background:#fff}.tc-signal-list .tc-svg{width:22px;height:22px;color:var(--blue)}.tc-signal-list h3{margin-top:0}
+
   .tc-diagnostic{background:#dcecf7}.tc-diagnostic__grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,5vw,64px);align-items:center}.tc-gauges{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tc-gauges span{display:grid;min-height:120px;padding:18px;align-content:space-between;border-radius:8px;background:#fff}.tc-gauges .tc-svg{width:27px;height:27px;color:var(--blue)}.tc-process{background:#fff}.tc-process__list{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0;padding:0;background:var(--line);list-style:none}.tc-process__list li{display:grid;grid-template-columns:36px 1fr;gap:15px;min-height:160px;padding:20px;background:#fff}.tc-process__list>li>strong{color:var(--blue)}.tc-process__list h3{margin-top:0}
+
+  .tc-decision{background:#fff}.tc-decision__list{display:grid;gap:1px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--line)}
+  .tc-decision__row{display:grid;grid-template-columns:1fr 1.4fr auto;gap:14px;align-items:center;padding:14px 18px;background:#fff}
+  .tc-decision__device{font-weight:800}.tc-decision__rec{color:var(--muted);font-size:.92rem}
+  .tc-badge{padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;justify-self:end}
+  .tc-badge--ok{color:#0a7a3d;background:#e3f6ea}.tc-badge--mid{color:#8a5a00;background:#fdf1dd}.tc-badge--risk{color:#b42318;background:#fdeceb}
+
   .tc-related__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.tc-related__grid>a{display:grid;grid-template-columns:38px 1fr;gap:14px;padding:20px;border-radius:8px;color:inherit;background:#fff;text-decoration:none}.tc-related__grid>a>.tc-svg{width:22px;height:22px;color:var(--blue)}.tc-related__grid h3{margin-top:0}.tc-related__grid span{display:inline-flex;gap:8px;margin-top:12px;color:var(--blue)!important;font-weight:800}.tc-b2b{background:#fff}.tc-b2b__grid{display:grid;grid-template-columns:1fr 330px;gap:clamp(28px,6vw,72px)}.tc-b2b aside{display:grid;gap:12px;align-content:start;padding:24px;border-radius:8px;background:#dcecf7}.tc-b2b aside a{color:var(--blue)!important}.tc-errors{background:#dcecf7}.tc-errors__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.tc-errors__grid article{padding:20px;border-radius:8px;background:#fff}.tc-errors__grid b{color:var(--blue)}
-  .tc-final{padding:clamp(72px,9vw,110px) 0;background:#dcecf7!important}.tc-final__grid{display:grid;grid-template-columns:1fr 330px;gap:60px;align-items:center}.tc-final>div>div>span{color:var(--blue)}.tc-final address{display:grid;gap:10px;padding:26px;border:1px solid #9fc5df;border-radius:8px;background:#fff;font-style:normal}.tc-final address a{color:var(--blue)!important;text-decoration:none}.tc-final .tc-btn--ghost{border-color:var(--ink);color:var(--ink)!important;background:transparent}
+
+  .tc-final{padding:clamp(72px,9vw,110px) 0;background:#dcecf7!important}.tc-final__grid{display:grid;grid-template-columns:1fr 330px;gap:60px;align-items:center}.tc-final>div>span{color:var(--blue);font-weight:800}.tc-final__micro{margin-top:14px!important;font-size:.85rem;opacity:.75}.tc-final address{display:grid;gap:10px;padding:26px;border:1px solid #9fc5df;border-radius:8px;background:#fff;font-style:normal}.tc-final address a{color:var(--blue)!important;text-decoration:none}.tc-final .tc-btn--ghost{border-color:var(--ink);color:var(--ink)!important;background:transparent}
+
+  .tc-evidence-section{background:#f8fcfe!important;border-block:1px solid #ddecfa}
+  .tc-evidence-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:24px}
+  .tc-evidence-card{margin:0;background:#fff;border:1px solid #c9dfea;border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(7,31,58,.06);display:flex;flex-direction:column}
+  .tc-evidence-media{position:relative;aspect-ratio:4/3;background:#071F3A;overflow:hidden}
+  .tc-evidence-media img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;transition:transform 300ms ease}
+  .tc-evidence-card:hover .tc-evidence-media img{transform:scale(1.03)}
+  .tc-evidence-badge{position:absolute;top:12px;left:12px;z-index:2;background:rgba(7,31,58,.88);backdrop-filter:blur(6px);color:#38bdf8;font-size:.68rem;font-weight:900;letter-spacing:.06em;padding:5px 10px;border-radius:6px;border:1px solid rgba(56,189,248,.4);display:inline-flex;align-items:center;gap:6px}
+  .tc-evidence-caption{padding:18px 20px;font-size:.88rem;color:#071F3A;line-height:1.55;border-top:1px solid #e1eff5;background:#fff;flex-grow:1}
+  .tc-evidence-caption strong{color:#071F3A}
+
   @media(hover:hover) and (pointer:fine){.tc-btn:hover{transform:translateY(-2px);background:#0e68b8}.tc-related__grid>a{transition:transform 180ms cubic-bezier(.23,1,.32,1),background-color 180ms ease}.tc-related__grid>a:hover{transform:translateY(-3px);background:#e2f1fc}}
-  @media(max-width:900px){.tc-split,.tc-feature-grid,.tc-metal__grid,.tc-gpu__layout,.tc-diagnostic__grid,.tc-b2b__grid,.tc-final__grid{grid-template-columns:1fr}.tc-split--reverse>figure,.tc-split--reverse>.tc-copy{grid-column:auto;grid-row:auto}.tc-risk-grid,.tc-process__list,.tc-related__grid{grid-template-columns:repeat(2,1fr)}.tc-errors__grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:640px){.tc-hero{min-height:720px}.tc-hero__content{padding-top:130px}.tc-hero__facts,.tc-dual,.tc-risk-grid,.tc-signal-list,.tc-gauges,.tc-process__list,.tc-related__grid,.tc-errors__grid{grid-template-columns:1fr}.tc-heading{grid-template-columns:42px 1fr;gap:12px}.tc-heading>.tc-svg{width:38px;height:38px;max-width:38px;max-height:38px;padding:10px}.tc-section{padding:20px 0}.tc-actions,.tc-actions .tc-btn{width:100%}.tc-table-wrap{margin-inline:-16px;border-radius:0}.tc-hero__facts div{padding-top:12px}.tc-hero__facts{gap:8px}.tc-b2b aside,.tc-final address{width:100%}}
-  @media(prefers-reduced-motion:reduce){.tc-btn,.tc-related__grid>a{transition:none}}
+
+  @media(max-width:900px){.tc-evidence-grid{grid-template-columns:1fr}.tc-hero__grid{grid-template-columns:1fr;gap:32px}.tc-conclusions{max-width:100%}.tc-quick-grid{grid-template-columns:1fr}.tc-split,.tc-feature-grid,.tc-metal__grid,.tc-gpu__layout,.tc-diagnostic__grid,.tc-b2b__grid,.tc-final__grid{grid-template-columns:1fr}.tc-split--reverse>figure,.tc-split--reverse>.tc-copy{grid-column:auto;grid-row:auto}.tc-risk-grid,.tc-process__list,.tc-related__grid{grid-template-columns:repeat(2,1fr)}.tc-errors__grid{grid-template-columns:repeat(2,1fr)}.tc-decision__row{grid-template-columns:1fr;gap:6px}.tc-badge{justify-self:start}}
+
+  @media(max-width:640px){.tc-hero{padding-top:36px;padding-bottom:36px}.tc-hero h1{max-width:none}.tc-hero__sub{max-width:none}.tc-br-desktop{display:none}.tc-hero__ctas,.tc-hero__ctas .tc-btn{width:100%}.tc-bench__header{flex-direction:column;align-items:flex-start}.tc-bench__tabs{width:100%;overflow-x:auto}.tc-bench__specs{grid-template-columns:1fr}.tc-dual,.tc-risk-grid,.tc-signal-list,.tc-gauges,.tc-process__list,.tc-related__grid,.tc-errors__grid{grid-template-columns:1fr}.tc-heading{grid-template-columns:42px 1fr;gap:12px}.tc-heading>.tc-svg{width:38px;height:38px;max-width:38px;max-height:38px;padding:10px}.tc-section{padding:20px 0}.tc-actions,.tc-actions .tc-btn{width:100%}.tc-table-wrap{margin-inline:-16px;border-radius:0}.tc-b2b aside,.tc-final address{width:100%}}
+  @media(prefers-reduced-motion:reduce){.tc-btn,.tc-related__grid>a,.tc-side-elem,.tc-bench__tab{transition:none}}
 </style>

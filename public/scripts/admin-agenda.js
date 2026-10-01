@@ -248,6 +248,7 @@
       };
       this.selectedAppointment = null;
       this.pollTimer = null;
+      this.initialized = false;
     }
 
     updateUrlState() {
@@ -311,6 +312,8 @@
     }
 
     async init() {
+      if (this.initialized) return this.refresh(true);
+      this.initialized = true;
       this.bindEvents();
       this.bindKeyboardShortcuts();
       this.updateViewButtons();
@@ -855,12 +858,15 @@
         <div class="timeline-card">
           <div class="timeline-card-main" role="button" tabindex="0" style="cursor:pointer;" ${actionAttrs('openDetails', apt.id)} title="Click para abrir detalle de la cita">
             <div class="timeline-card-header">
-              <span class="timeline-customer-name">${escapeHtml(apt.customer_name || 'Sin nombre')}</span>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                ${apt.ticket_code ? `<span class="agenda-folio-badge">#${escapeHtml(apt.ticket_code)}</span>` : ''}
+                <span class="timeline-customer-name">${escapeHtml(apt.customer_name || 'Sin nombre')}</span>
+              </div>
               ${whatsAppLinkHtml(apt, { compact: true })}
             </div>
             <div class="timeline-device-line">
               <strong>${escapeHtml(apt.device_summary || apt.device_type || 'Equipo')}</strong> · ${escapeHtml(apt.planned_service_summary || TYPE_LABELS[apt.appointment_type] || 'Revisión')}
-              ${apt.ticket_code ? `· <span class="agenda-ticket-link" data-agenda-stop="1" ${actionAttrs('openTicket', apt.ticket_id)}>Ticket #${escapeHtml(apt.ticket_code)}</span>` : ''}
+              ${apt.ticket_code ? `· <span class="agenda-ticket-link" data-agenda-stop="1" ${actionAttrs('openTicket', apt.ticket_id)} title="Abrir expediente en Taller"><i class="fa-solid fa-screwdriver-wrench"></i> Ver en Taller</span>` : ''}
             </div>
             <div class="timeline-meta-badges">
               ${paymentBadgeHtml(apt)}
@@ -1011,7 +1017,10 @@
             <span class="chip-time">${timeStr}</span>
             <span class="chip-cap-tag">${usedCap}/3</span>
           </div>
-          <div class="chip-customer">${escapeHtml(apt.customer_name || 'Sin nombre')}</div>
+          <div class="chip-customer">
+            ${apt.ticket_code ? `<span class="agenda-folio-badge" style="font-size:0.68rem;padding:1px 4px;margin-right:4px;">#${escapeHtml(apt.ticket_code)}</span>` : ''}
+            ${escapeHtml(apt.customer_name || 'Sin nombre')}
+          </div>
           <div class="chip-device">${escapeHtml(apt.device_summary || apt.device_type || 'Equipo')}</div>
           <div class="chip-badges">
             ${paymentBadgeHtml(apt)}
@@ -1080,7 +1089,10 @@
                       <span class="pending-card-time"><i class="fa-solid fa-clock"></i> ${timeStr}</span>
                       ${reasonBadge}
                     </div>
-                    <div class="pending-card-name">${escapeHtml(apt.customer_name || 'Cliente')}</div>
+                    <div class="pending-card-name">
+                      ${apt.ticket_code ? `<span class="agenda-folio-badge" style="font-size:0.75rem;padding:2px 6px;margin-right:6px;">#${escapeHtml(apt.ticket_code)}</span>` : ''}
+                      ${escapeHtml(apt.customer_name || 'Cliente')}
+                    </div>
                     <div class="pending-card-device">
                       ${escapeHtml(apt.device_summary || apt.device_type || 'Equipo')} · ${escapeHtml(apt.planned_service_summary || TYPE_LABELS[apt.appointment_type] || 'Revisión')}
                     </div>
@@ -1156,7 +1168,10 @@
               rowsHtml += `
                 <div class="agenda-day-lane-cell ${isLiquid ? 'is-liquid' : ''}" role="button" tabindex="0" style="cursor:pointer;" ${actionAttrs('openDetails', apt.id)} title="Click para abrir detalle de la cita">
                   <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <strong style="font-size:0.82rem;color:var(--a-text);">${escapeHtml(apt.customer_name)}</strong>
+                    <strong style="font-size:0.82rem;color:var(--a-text);">
+                      ${apt.ticket_code ? `<span class="agenda-folio-badge" style="font-size:0.68rem;padding:1px 4px;margin-right:4px;">#${escapeHtml(apt.ticket_code)}</span>` : ''}
+                      ${escapeHtml(apt.customer_name)}
+                    </strong>
                     ${paymentBadgeHtml(apt)}
                   </div>
                   <div style="font-size:0.72rem;color:var(--a-text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -1286,6 +1301,7 @@
           <table class="agenda-list-table">
             <thead>
               <tr>
+                <th>Folio</th>
                 <th>Fecha / Hora</th>
                 <th>Cliente</th>
                 <th>Equipo</th>
@@ -1299,6 +1315,12 @@
             <tbody>
               ${appts.map(apt => `
                 <tr>
+                  <td>
+                    ${apt.ticket_code ? `
+                      <span class="agenda-ticket-link" ${actionAttrs('openTicket', apt.ticket_id)} title="Abrir en Taller" style="font-weight:700;">
+                        <span class="agenda-folio-badge">#${escapeHtml(apt.ticket_code)}</span>
+                      </span>` : '<span style="color:var(--a-text-muted);font-size:0.75rem;">—</span>'}
+                  </td>
                   <td><strong>${String(apt.start_at).slice(0, 10)}</strong><br/><small style="color:var(--a-cyan);">${formatTime(apt.start_at)}</small></td>
                   <td>
                     <strong>${escapeHtml(apt.customer_name || 'Sin nombre')}</strong>
@@ -1316,9 +1338,15 @@
                   </td>
                   <td><small style="font-weight:700;">${escapeHtml(apt.next_action || 'Atender')}</small></td>
                   <td>
-                    <button type="button" class="btn-action-fast" ${actionAttrs('openDetails', apt.id)}>
-                      <i class="fa-solid fa-eye"></i> Detalle
-                    </button>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                      <button type="button" class="btn-action-fast" ${actionAttrs('openDetails', apt.id)} title="Ver detalle de cita">
+                        <i class="fa-solid fa-eye"></i> Detalle
+                      </button>
+                      ${apt.ticket_id ? `
+                      <button type="button" class="btn-action-fast" ${actionAttrs('openTicket', apt.ticket_id)} title="Abrir en Taller" style="color:var(--a-cyan);">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> Taller
+                      </button>` : ''}
+                    </div>
                   </td>
                 </tr>
               `).join('')}
@@ -1450,12 +1478,28 @@
 
       body.innerHTML = `
         <div class="drawer-detail-top">
-          <span class="drawer-status-badge" style="background:var(--a-surface-2);color:var(--a-cyan);border:1px solid var(--a-border);">
-            <i class="${STATUS_ICONS[apt.status] || 'fa-solid fa-circle-info'}"></i>
-            ${escapeHtml(STATUS_LABELS[apt.status] || apt.status)}
-          </span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap;">
+            <span class="agenda-folio-badge" style="font-size:0.92rem;padding:4px 10px;display:inline-flex;align-items:center;gap:6px;">
+              <i class="fa-solid fa-hashtag"></i> Folio #${escapeHtml(apt.ticket_code || 'ORDEN')}
+            </span>
+            <span class="drawer-status-badge" style="background:var(--a-surface-2);color:var(--a-cyan);border:1px solid var(--a-border);">
+              <i class="${STATUS_ICONS[apt.status] || 'fa-solid fa-circle-info'}"></i>
+              ${escapeHtml(STATUS_LABELS[apt.status] || apt.status)}
+            </span>
+          </div>
           <h3 class="drawer-customer-title">${escapeHtml(apt.customer_name || 'Cliente')}</h3>
           <p class="drawer-subtitle">${escapeHtml(String(apt.start_at).slice(0, 16))} (${apt.duration_minutes || 30} min · ${apt.capacity_units || 1} unid. capacidad)</p>
+        </div>
+
+        <div class="drawer-section" style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:12px;">
+          <h4 style="color:var(--a-cyan);margin-top:0;"><i class="fa-solid fa-screwdriver-wrench"></i> Taller Operativo</h4>
+          <div class="drawer-kv"><span>Folio de Orden:</span> <strong style="color:var(--a-cyan);">#${escapeHtml(apt.ticket_code || 'Sin folio')}</strong></div>
+          <div class="drawer-kv"><span>Expediente de Taller:</span>
+            ${apt.ticket_id ? `
+              <button type="button" class="btn-admin btn-sm" ${actionAttrs('openTicket', apt.ticket_id)} style="background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:4px 10px;cursor:pointer;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir en Taller (#${escapeHtml(apt.ticket_code || '')})
+              </button>` : `<span style="color:var(--a-text-muted);">Sin orden asociada</span>`}
+          </div>
         </div>
 
         <div class="drawer-section">
@@ -1532,11 +1576,11 @@
         <div class="drawer-quick-actions">
           ${apt.ticket_id ? `
             <button type="button" class="btn-admin btn-info" ${actionAttrs('openTicket', apt.ticket_id)}>
-              <i class="fa-solid fa-ticket"></i> Ver Ticket #${escapeHtml(apt.ticket_code || '')}
+              <i class="fa-solid fa-screwdriver-wrench"></i> Abrir Expediente en Taller (#${escapeHtml(apt.ticket_code || '')})
             </button>
           ` : `
             <button type="button" class="btn-admin btn-info" ${actionAttrs('createTicketForAppointment', apt.id)}>
-              <i class="fa-solid fa-plus"></i> Crear Ticket de Taller
+              <i class="fa-solid fa-plus"></i> Vincular / Crear Orden de Taller
             </button>
           `}
           ${apt.status === 'CONFIRMED' ? `
@@ -2220,6 +2264,11 @@
         this.showToast('Esta cita no tiene un ticket de taller asociado.', 'warn');
         return;
       }
+      if (typeof window.switchAdminView === 'function') {
+        window.switchAdminView('repairs');
+      } else {
+        document.querySelector('[data-view="repairs"]')?.click();
+      }
       if (typeof window.openRepairTicket === 'function') {
         window.openRepairTicket(ticketId);
       } else {
@@ -2286,7 +2335,7 @@
     bindEvents() {
       // Delegado único para todo botón/celda generado dinámicamente vía innerHTML
       // (CSP script-src-attr:none bloquea onclick="" inline, ver actionAttrs()).
-      document.addEventListener('click', (e) => {
+      document.addEventListener('click', async (e) => {
         const el = e.target.closest('[data-agenda-action]');
         if (!el) return;
         if (el.dataset.agendaStop) e.stopPropagation();
@@ -2295,7 +2344,11 @@
         try { args = JSON.parse(el.dataset.agendaArgs || '[]'); } catch (_) {}
         if (typeof this[method] === 'function') {
           e.preventDefault();
-          this[method](...args);
+          if (el.disabled) return;
+          el.disabled = true;
+          el.setAttribute('aria-busy', 'true');
+          try { await this[method](...args); }
+          finally { el.disabled = false; el.removeAttribute('aria-busy'); }
         }
       });
 
@@ -2445,6 +2498,7 @@
 
   // Instanciar globalmente
   window.adminAgenda = new AgendaManager();
+  window.agendaApp = window.adminAgenda;
   document.addEventListener('DOMContentLoaded', () => {
     window.adminAgenda.init();
   });

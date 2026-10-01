@@ -109,7 +109,7 @@ export function getServiceSeoMeta(
                       : isLaptopDataRecovery
                         ? "Recuperación de datos de laptop en Cancún | SSD, HDD, NVMe y Borrado"
                         : isLaptopThermalPaste
-                          ? "Cambio de pasta térmica para laptop en Cancún | Sobrecalentamiento"
+                          ? "Cambio de Pasta Térmica en Cancún | PC, Laptop y GPU | Pixon PC"
                           : isLaptopDiagnostic
                             ? "Diagnóstico de laptop en Cancún | Revisión profesional | Pixon PC"
                             : isDellLaptopRepair
@@ -138,7 +138,7 @@ export function getServiceSeoMeta(
                                                     ? service.metaTitle ||
                                                       "PS5 se apaga sola en Cancún | Diagnóstico PlayStation"
                                                     : isHotelSupport
-                                                      ? "Soporte TI para Hoteles en Cancún | Soporte Técnico 24/7"
+                                                      ? "Soporte TI para hoteles en Cancún | Pixon PC"
                                                       : isB2bOfficeSupport
                                                         ? "Soporte TI para oficinas en Cancún | Red, impresoras y Windows"
                                                         : isB2bWifiEmpresarial
@@ -203,7 +203,7 @@ export function getServiceSeoMeta(
                                                                                                                     ? `${seoKeyword} | Pixon PC`
                                                                                                                     : `${seoKeyword} en Cancún | Pixon PC`;
   const description = isPcFormat
-    ? "Formateo de PC en Cancún desde $750 MXN. Windows limpio, respaldo de archivos, drivers, paquetería básica y optimización."
+    ? "Formateo de PC en Cancún con revisión de archivos, Windows, controladores y pruebas finales. Solicita una cotización según el equipo y el respaldo necesario."
     : isPcNoEnciende
       ? "¿Tu PC no enciende, prende ventiladores sin imagen o se apaga al instante? Diagnóstico técnico en Cancún para fuente, tarjeta madre, RAM, GPU y cortos. Atención con cita previa."
       : isPcGpu
@@ -215,7 +215,7 @@ export function getServiceSeoMeta(
             : isPcBlueScreen
               ? "Solución de pantalla azul Windows en Cancún. Diagnóstico BSOD para PC que se reinicia, falla al jugar, marca errores de RAM, SSD, drivers, GPU, temperatura o Windows dañado."
               : isPcLentitud
-                ? "Diagnóstico de PC lenta en Cancún. Identificamos cuellos de botella por disco duro mecánico, falta de RAM, virus, temperatura o Windows. Acelera tu computadora con opciones seguras desde $300 MXN."
+                ? "Diagnóstico de PC lenta en Cancún. Revisamos disco, RAM, programas, temperatura y Windows antes de recomendar una solución y cotizarla."
                 : isPcDataRecovery
                   ? "Recuperación de datos en Cancún | PC, SSD, HDD y archivos borrados"
                   : isPcVirusMalware
@@ -225,9 +225,9 @@ export function getServiceSeoMeta(
                     : isPcInstallComponents
                       ? "Instalación de componentes PC en Cancún para SSD, RAM, GPU, fuente, ventiladores, WiFi y capturadoras. Revisión de compatibilidad, BIOS, cableado y pruebas."
                       : isLaptopDataRecovery
-                        ? "Rescate de archivos, fotos y documentos desde laptops que no encienden, discos dañados, SSD corruptos, borrado accidental o formateo en Cancún. Proceso seguro, rápido y confidencial desde $650 MXN."
+                        ? "Recuperación de archivos de laptops en Cancún. Revisamos el estado del disco o SSD, el riesgo para los datos y las opciones antes de cotizar el trabajo."
                         : isLaptopThermalPaste
-                          ? "Cambio de pasta térmica para laptop en Cancún desde $550 MXN. Solución para sobrecalentamiento, ventilador fuerte, apagados, bajo rendimiento, laptop gamer, HP, Dell, Lenovo, Asus, MSI y MacBook."
+                          ? "Cambio de pasta térmica para PC, laptop, equipos gamer y GPU en Cancún. Revisamos temperaturas, disipadores, ventiladores y thermal pads antes de realizar el servicio."
                           : isLaptopDiagnostic
                             ? "Diagnóstico de laptop en Cancún para equipos que no encienden, no cargan, van lentos, se calientan, tienen pantalla negra, humedad, fallas de Windows o datos en riesgo."
                             : isHpLaptopRepair
@@ -243,7 +243,7 @@ export function getServiceSeoMeta(
                                       : isPrinterRollers
                                         ? "Cambio y reparación de rodillos de impresora en Cancún. Corregimos fallas de alimentación, papel atorado, hojas dobles y bandejas que no jalan."
                                         : isPrinterJams
-                                          ? "Reparación de atascos de impresora en Cancún desde $450 MXN. Revisamos ruta de papel, sensores, rodillos, bandejas y alimentación para evitar fallas repetidas."
+                                          ? "Reparación de atascos de impresora en Cancún. Revisamos ruta de papel, sensores, rodillos y bandejas; cotizamos según el modelo y la pieza necesaria."
                                           : isConsolePreventiveMaintenance
                                             ? "Mantenimiento preventivo y limpieza de consolas en Cancún. Evita sobrecalentamiento en PS5, Xbox Series X, Nintendo Switch y portátiles con pasta térmica nueva y limpieza interna."
                                             : isPs5LiquidMetalCleaning
@@ -252,7 +252,7 @@ export function getServiceSeoMeta(
                                                 ? service.metaDescription ||
                                                   "Diagnóstico para PS5 que se apaga sola en Cancún al jugar. Revisamos temperatura, polvo, ventilador, metal líquido, fuente, consumo y placa antes de cotizar."
                                                 : isHotelSupport
-                                                  ? "Soporte técnico y TI para hoteles en Cancún y Zona Hotelera. Soporte 24/7 para recepción, reservas, PMS Opera/Sabre, impresoras de tickets, redes WiFi Hotspot y mantenimiento preventivo por lote."
+                                                  ? "Soporte técnico y TI para hoteles en Cancún y Zona Hotelera. Revisamos equipos, impresoras y redes para definir alcance, tiempos y cotización antes de intervenir."
                                                   : isB2bOfficeSupport
                                                     ? "Soporte TI para oficinas en Cancún para PCs, laptops, impresoras, red, Windows y respaldos. Atención para administración, contabilidad y operación local."
                                                     : isB2bWifiEmpresarial
@@ -331,7 +331,9 @@ export function getServiceSeoMeta(
   const genericFaqTitle = `Preguntas frecuentes sobre ${service.label} de ${faqServiceContext} en Cancún`;
 
   const waMessage = encodeURIComponent(
-    isPcCorrectiveMaintenance
+    isLaptopThermalPaste
+      ? "Hola Pixon PC.\nQuiero cotizar cambio de pasta térmica.\n\nEquipo:\nPC / Laptop / PC Gamer / Laptop Gamer / GPU\n\nMarca y modelo:\n\nSíntoma:\nSe calienta /\nVentiladores fuertes /\nPierde rendimiento /\nSe apaga /\nMantenimiento /\nOtro\n\nÚltimo mantenimiento:\nMenos de 1 año /\nMás de 1 año /\nNo recuerdo\n\nMaterial actual si lo sabe:\nPasta / Metal líquido / No sé."
+      : isPcCorrectiveMaintenance
       ? "Hola Pixon PC.\nMi computadora presenta una falla.\n\nEquipo: (PC / PC Gamer / Workstation / Mini PC)\nSíntoma: (No enciende / No da imagen / Se apaga / Se reinicia / Se congela / Pantalla azul / Ruido / No detecta disco / Otro)\nDesde cuándo ocurre:\nQué estaba haciendo cuando falló:"
       : isPcFormat
       ? "Hola, quiero cotizar formateo de PC en Cancún con respaldo, Windows, drivers y optimización."

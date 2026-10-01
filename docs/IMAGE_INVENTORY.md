@@ -1,7 +1,7 @@
 # Image Inventory
 
-Generated: 2026-09-14T04:16:30.597Z
-Images scanned: 213
+Generated: 2026-10-01T16:29:38.806Z
+Images scanned: 298
 Heavy threshold: 300 KB
 
 ## Largest Images
@@ -20,34 +20,34 @@ Heavy threshold: 300 KB
 | 492 | /assets/images/formateo-windows-cancun.jpeg | yes | 0 |
 | 406 | /assets/images/ensamble-pc-gamer-cancun.jpeg | yes | 0 |
 | 209 | /assets/images/microscopio-flexor.jpg | yes | 0 |
+| 194 | /assets/images/microsoldadura-componente-quemado-corto-circuito.webp | yes | 2 |
+| 194 | /assets/images/real-work/microsoldadura-componente-quemado-corto-circuito.webp | yes | 2 |
+| 194 | /assets/images/responsive/microsoldadura-componente-quemado-corto-circuito.webp | yes | 2 |
 | 193 | /assets/images/optimizacion-pc-cancun.png | yes | 0 |
-| 189 | /assets/images/mantenimiento-pc-escritorio.webp | yes | 25 |
+| 189 | /assets/images/mantenimiento-pc-escritorio.webp | yes | 24 |
 | 187 | /assets/images/cambio-pantalla-laptop.webp | yes | 5 |
 | 185 | /assets/images/mantenimiento-pastaternima-thermalpads.webp | yes | 14 |
 | 170 | /assets/images/microscopio-flexor.webp | yes | 7 |
 | 164 | /assets/images/pc-gamer-entrada.png | yes | 0 |
+| 155 | /assets/images/cambio-pasta-termica-premium-laptop-pc-pixon.webp | yes | 2 |
+| 155 | /assets/images/real-work/cambio-pasta-termica-premium-laptop-pc-pixon.webp | yes | 2 |
+| 155 | /assets/images/responsive/cambio-pasta-termica-premium-laptop-pc-pixon.webp | yes | 2 |
+| 149 | /assets/images/hardware-ram-ventilacion-pc-diagnostico.webp | yes | 3 |
+| 149 | /assets/images/real-work/hardware-ram-ventilacion-pc-diagnostico.webp | yes | 3 |
+| 149 | /assets/images/responsive/hardware-ram-ventilacion-pc-diagnostico.webp | yes | 3 |
 | 144 | /assets/images/iphone-desarmado-2.webp | yes | 3 |
+| 144 | /assets/images/iphone-sulfatado-dano-liquido-microsoldadura.webp | yes | 3 |
+| 144 | /assets/images/real-work/iphone-sulfatado-dano-liquido-microsoldadura.webp | yes | 3 |
+| 144 | /assets/images/responsive/iphone-sulfatado-dano-liquido-microsoldadura.webp | yes | 3 |
+| 142 | /assets/images/microcomponentes-tarjeta-madre-microscopio.webp | yes | 1 |
+| 142 | /assets/images/real-work/microcomponentes-tarjeta-madre-microscopio.webp | yes | 1 |
+| 142 | /assets/images/responsive/microcomponentes-tarjeta-madre-microscopio.webp | yes | 1 |
+| 140 | /assets/images/pasta-termica-seca-laptop-sobrecalentamiento.webp | yes | 2 |
+| 140 | /assets/images/real-work/pasta-termica-seca-laptop-sobrecalentamiento.webp | yes | 2 |
+| 140 | /assets/images/responsive/pasta-termica-seca-laptop-sobrecalentamiento.webp | yes | 2 |
 | 123 | /assets/images/xbox.jpeg | yes | 2 |
 | 120 | /assets/images/ps5_xbox.jpeg | yes | 1 |
 | 115 | /assets/images/iphone-desarmado.webp | yes | 2 |
-| 113 | /assets/images/laptop-feliz-limpia.webp | yes | 14 |
-| 107 | /assets/images/cambio-ssd.webp | yes | 10 |
-| 103 | /assets/images/soporte-hoteles-hero.webp | yes | 7 |
-| 97 | /assets/images/desarrollo-software-cancun.webp | yes | 2 |
-| 87 | /assets/images/lavado-tarjeta-celular.webp | yes | 7 |
-| 86 | /assets/images/pantalla-rota-iphone.webp | yes | 2 |
-| 83 | /assets/images/laptop-gamer-rogstrix.webp | yes | 8 |
-| 82 | /assets/images/mac-mini.webp | yes | 4 |
-| 81 | /assets/images/tienda-hero-pixon.webp | yes | 6 |
-| 75 | /assets/images/laptop-cleaning-exploded-hero.webp | yes | 1 |
-| 62 | /assets/images/ps5_xbox.webp | yes | 11 |
-| 61 | /assets/images/mantenimiento-macbook-cancun.webp | yes | 14 |
-| 58 | /assets/images/xbox.webp | yes | 12 |
-| 57 | /assets/images/reparacion-sulfatacion-cancun.webp | yes | 15 |
-| 56 | /assets/images/responsive/mantenimiento-macbook-cancun.webp | yes | 14 |
-| 54 | /assets/images/responsive/mantenimiento-macbook-cancun-lg.webp | yes | 0 |
-| 54 | /assets/images/responsive/mantenimiento-macbook-cancun-md.webp | yes | 0 |
-| 54 | /assets/images/responsive/mantenimiento-macbook-cancun-xl.webp | yes | 0 |
 
 ## Heavy Images With No WebP Equivalent
 
@@ -55,4 +55,18 @@ Heavy threshold: 300 KB
 ## Heavy Referenced Images
 
 - /assets/images/image.webp (804 KB) referenced by src/pages/index.astro
+
+## Inventario Oficial de Imágenes Reales (Pixon PC Real Work)
+
+| File | Subject | Source | Owned | Routes | Alt | Dimensions | WebP KB | Usage | Status |
+|---|---|---|---|---|---|---|---:|---|---|
+| cambio-pasta-termica-premium-laptop-pc-pixon.webp | Die de silicio con aplicación de pasta térmica | Pixon PC Real Work | Sí | /blogs/pasta-termica-vs-metal-liquido, /limpieza-laptop | Compuesto térmico aplicado profesionalmente sobre die de silicio | 1280x1280 | 194 | Par Antes / Después (Después) | Activo |
+| hardware-ram-ventilacion-pc-diagnostico.webp | Hardware interno: ranuras de RAM y disipador de cobre | Pixon PC Real Work | Sí | /ensambles, /optimizacion, /en/pc-optimization | Arquitectura interna con ranuras de memoria RAM y disipador de cobre | 960x1280 | 167 | Arquitectura de hardware y memoria RAM | Activo |
+| laptop-gaming-alienware-mantenimiento-reparacion.webp | Laptop gamer sobre superficie de trabajo | Pixon PC Real Work | Sí | /limpieza-laptop, /optimizacion, /en/pc-optimization | Laptop gamer sobre superficie de trabajo durante verificación | 960x1178 | 124 | Validación y estrés térmico en gaming | Activo |
+| microcomponentes-tarjeta-madre-microscopio.webp | Microcomponentes y pistas de circuito bajo microscopio | Pixon PC Real Work | Sí | /reparaciones | Inspección de microcomponentes y pistas de circuito bajo microscopio | 960x1280 | 147 | Microsoldadura a nivel componente | Activo |
+| iphone-sulfatado-dano-liquido-microsoldadura.webp | Corrosión y sulfatación en componentes bajo microscopio | Pixon PC Real Work | Sí | /servicios/telefono/celular-mojado, /en/liquid-damage, /blogs/humedad-salitre-calor-cancun | Corrosión y sulfatación sobre componentes observados bajo microscopio | 960x1280 | 158 | Inspección de daños por líquido | Activo |
+| diagnostico-tarjeta-madre-laptop-microscopio.webp | Banco de trabajo con microscopio estéreo profesional | Pixon PC Real Work | Sí | /, /reparaciones | Banco de trabajo con microscopio estéreo e inspección de tarjeta madre | 960x1280 | 118 | Banco de diagnóstico especializado | Activo |
+| microsoldadura-componente-quemado-corto-circuito.webp | Componente SMD carbonizado con cortocircuito al microscopio | Pixon PC Real Work | Sí | /servicios/pc/no-enciende, /blogs/humedad-salitre-calor-cancun | Componente SMD carbonizado con signos de cortocircuito observado bajo microscopio | 960x1280 | 182 | Diagnóstico de corto; no cambiar placa | Activo |
+| motherboard-iphone-microcomponentes-reparacion.webp | Capa separada de placa tipo sandwich con microcomponentes | Pixon PC Real Work | Sí | /servicios/telefono/celular-mojado, /en/liquid-damage | Placa lógica separada para diagnóstico de líneas de alimentación | 960x1280 | 89 | Diagnóstico a nivel componente y líneas de alimentación | Activo |
+| pasta-termica-seca-laptop-sobrecalentamiento.webp | Procesador con pasta térmica petrificada y agrietada | Pixon PC Real Work | Sí | /blogs/pasta-termica-vs-metal-liquido, /limpieza-laptop | Pasta térmica seca y agrietada sobre procesador | 960x1280 | 154 | Par Antes / Después (Antes) | Activo |
 

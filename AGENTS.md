@@ -6,27 +6,10 @@ Este proyecto debe generar interfaces profesionales, limpias, rápidas, con buen
 
 Codex debe evitar resultados genéricos, secciones vacías, texto sin intención, cards repetidas, layouts sin jerarquía y componentes que parezcan hechos rápido.
 
-## Uso obligatorio de skills
+## Uso de skills
 
-Antes de rediseñar, crear o mejorar cualquier vista frontend, Codex debe usar estas skills en este orden:
-
-1. Taste Skill
-   - Usarla para definir dirección visual, layout, jerarquía, ritmo de espacios, densidad, tipografía, composición y estructura general.
-   - Objetivo: evitar diseño genérico y hacer que la vista tenga intención.
-
-2. Impeccable
-   - Usarla para estructurar, auditar, pulir y endurecer la interfaz.
-   - Usar especialmente:
-     - /impeccable shape antes de construir
-     - /impeccable critique para revisar jerarquía y UX
-     - /impeccable audit para accesibilidad, responsive y calidad técnica
-     - /impeccable polish antes de terminar
-     - /impeccable harden para edge cases, overflow, mobile y errores visuales
-
-3. Emil Kowalski Design Engineering
-   - Usarla para detalles finos de UI, microinteracciones, animaciones, transiciones, estados hover/focus, timing, easing, percepción de calidad y sensación premium.
-   - No agregar animaciones innecesarias.
-   - Las animaciones deben ser sutiles, rápidas y útiles.
+Usar Caveman para diagnosticar, implementar cambios mínimos y verificar el comportamiento real en navegador.
+Este flujo reemplaza el requisito anterior de skills de diseño por indicación del usuario.
 
 ## Reglas para Pixon PC
 
@@ -91,7 +74,7 @@ Antes de finalizar cualquier vista, Codex debe revisar:
 
 ## Prompt para rediseñar vistas con Codex
 
-Usa las skills instaladas: Taste Skill, Impeccable y Emil Kowalski.
+Usa Caveman para diagnosticar y resolver la tarea completa.
 
 Primero analiza la vista actual.
 Después propón estructura SEO local.
@@ -114,9 +97,6 @@ Reglas:
 - Mobile first.
 - Revisa responsive, accesibilidad, spacing, jerarquía y CTA.
 
-Antes de terminar ejecuta una pasada tipo:
-1. Taste Skill para dirección visual.
-2. Impeccable critique/audit/polish.
-3. Emil Kowalski para microinteracciones y pulido visual.
+Antes de terminar, verifica en el navegador la navegación, los formularios, los CTA, el responsive, los márgenes y la ausencia de desbordamientos.
 
 Entrega cambios listos en código.

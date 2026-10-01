@@ -6,7 +6,7 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js?v=20260916-062820', {
+      const registration = await navigator.serviceWorker.register('/sw.js?v=20261001T165205Z-1914ddaa3a73', {
         scope: '/'
       });
 
@@ -19,21 +19,9 @@ if ('serviceWorker' in navigator) {
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('[PWA] Nueva versión disponible. Activando...');
-            newWorker.postMessage({ type: 'CLEAR_CACHE' });
             newWorker.postMessage({ type: 'SKIP_WAITING' });
           }
         });
-      });
-
-      // Si el controlador cambia (nueva versión tomó el mando), recargar una sola vez
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          console.log('[PWA] Controlador actualizado. Recargando página...');
-          window.location.reload();
-        }
       });
 
       // Actualizar periódicamente si la pestaña vuelve a ser visible
@@ -44,7 +32,7 @@ if ('serviceWorker' in navigator) {
       });
 
     } catch (error) {
-      console.error('[PWA] Fallo de registro de Service Worker:', error);
+      // La web sigue operativa sin modo offline; no contaminar consola del admin.
     }
   });
 }
@@ -59,7 +47,6 @@ async function installPWA() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
-  console.log('[PWA] Resultado de instalación:', outcome);
   deferredPrompt = null;
 }
 

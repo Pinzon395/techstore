@@ -3,1251 +3,2745 @@ import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
-import FaqSection from '../components/FaqSection.astro';
-import CommentsSection from '../components/CommentsSection.astro';
 import ServiceTicketSection from '../components/ServiceTicketSection.astro';
+import CommentsSection from '../components/CommentsSection.astro';
 
-const faqs = [
-  { question: `¿Mi PC ganará velocidad real con la optimización?`, answer: `Sí, cuando la lentitud viene de software, arranque saturado, malware, drivers o procesos en segundo plano. En equipos con disco mecánico la mejora por software tiene límite; si detectamos que el cuello de botella es hardware, te recomendamos SSD o RAM antes de prometer resultados irreales.` },
-  { question: `¿Necesito comprar componentes nuevos?`, answer: `No siempre. La optimización básica limpia software, arranque, temporales, malware y servicios innecesarios sin tocar hardware. Si tu equipo sigue limitado por disco duro, poca RAM o temperatura, te explicamos qué componente sí cambiaría el rendimiento y cuál no vale la pena.` },
-  { question: `¿Cuánto tiempo dura el efecto?`, answer: `Si mantienes buenos hábitos, no instalas software basura y mantienes protección activa, el efecto puede durar de 12 a 18 meses. Si el equipo se usa para gaming, descargas pesadas o muchas apps, conviene mantenimiento peri?dico para evitar que vuelva la lentitud.` },
-  { question: `¿Pierdo mis programas o archivos?`, answer: `No. La optimización conserva tus archivos y programas; solo eliminamos basura, malware, temporales y procesos innecesarios. Si alguna acción pudiera afectar datos, configuración o sesiones, te lo avisamos antes de ejecutarla para que autorices.` },
-  { question: `¿La optimización siempre aumenta los FPS?`, answer: `No prometemos una cifra fija. Puede mejorar estabilidad, uso de CPU, procesos de fondo y configuración, pero el límite final depende de procesador, tarjeta gráfica, RAM, temperatura, resolución y del propio juego.` },
-  { question: `¿Pueden bajar mi ping desde Windows?`, answer: `Podemos corregir procesos que consumen red, drivers, WiFi, configuración y pérdida de paquetes local. No podemos reducir la distancia al servidor ni resolver saturación o rutas externas del proveedor de internet.` },
-  { question: `¿También optimizan teclado, mouse y monitor para gaming?`, answer: `Sí. Revisamos frecuencia del monitor, V-Sync, límites de FPS, polling rate, aceleración del mouse, conexión USB y configuraciones que pueden aumentar la sensación de retraso.` },
-];
+const canonicalUrl = 'https://pixon.com.mx/optimizacion';
 
-const performanceChecks = [
-  ['CPU', 'Uso, frecuencia, procesos, límites de energía y temperatura.'],
-  ['GPU', 'Drivers, carga, VRAM, clocks, temperatura y configuración gráfica.'],
-  ['RAM', 'Capacidad, canales, frecuencia, consumo y paginación.'],
-  ['SSD / HDD', 'Salud, espacio libre, velocidad, errores y tiempos de carga.'],
-  ['Red', 'Ping, jitter, pérdida de paquetes, WiFi, Ethernet y consumo de fondo.'],
-  ['Windows', 'Inicio, servicios, malware, actualizaciones y plan de energía.'],
-];
-
-const gamingTopics = [
+const problems = [
   {
-    id: 'bajones-fps',
-    icon: 'fa-chart-line',
-    title: 'Bajones de FPS en juegos: cómo localizar el cuello de botella',
-    intro: 'Los FPS pueden caer por CPU saturado, GPU al 100%, poca VRAM, RAM insuficiente, temperatura, disco lento, shaders o procesos de Windows. Medimos antes de cambiar configuraciones.',
-    symptoms: ['Caídas al entrar en combate', 'FPS altos con bajones repentinos', 'Uso bajo de GPU', 'Peor rendimiento después de varios minutos'],
-    checks: ['Uso y clocks de CPU/GPU', 'Temperatura y throttling', 'VRAM, RAM y archivo de paginación', 'Configuración por juego'],
+    id: 'bajos-fps',
+    badge: '01 · FPS',
+    title: 'Bajos FPS',
+    desc: 'Tu hardware parece suficiente, pero obtienes menos FPS de los esperados para tu procesador y tarjeta gráfica.',
+    icon: 'fa-chart-line'
+  },
+  {
+    id: 'fps-drops',
+    badge: '02 · DROPS',
+    title: 'FPS Drops',
+    desc: 'El juego empieza fluido y de repente cae drásticamente en peleas, zonas abiertas o giros rápidos de cámara.',
+    icon: 'fa-arrow-trend-down'
   },
   {
     id: 'stuttering',
-    icon: 'fa-wave-square',
-    title: 'Stuttering y microtirones aunque el contador marque buenos FPS',
-    intro: 'Un promedio alto no garantiza fluidez. Revisamos frametimes, compilación de shaders, lectura del disco, memoria, drivers y programas que interrumpen el juego en segundo plano.',
-    symptoms: ['La imagen se congela por milisegundos', 'Tirones al mover la cámara', 'Microcortes al cargar zonas', 'Audio o Discord también se traban'],
-    checks: ['Frametime y 1% lows', 'SSD y lectura de archivos', 'RAM en dual channel', 'Overlays y capturadores'],
+    badge: '03 · PACING',
+    title: 'Stuttering',
+    desc: 'Tienes FPS promedio altos, pero el juego se siente trabado, con microtirones y frametimes irregulares.',
+    icon: 'fa-wave-square'
   },
   {
     id: 'input-lag',
-    icon: 'fa-computer-mouse',
-    title: 'Menor input lag y respuesta más rápida de mouse, teclado y monitor',
-    intro: 'La latencia de entrada depende del juego, límite de FPS, sincronización, monitor, polling rate, USB, CPU y GPU. Ajustamos la cadena completa sin desactivar protecciones al azar.',
-    symptoms: ['El mouse se siente pesado', 'El disparo responde tarde', 'Teclado con retraso en partidas', 'Monitor de 144 Hz funcionando a 60 Hz'],
-    checks: ['Hz reales de pantalla', 'V-Sync, Reflex y Anti-Lag', 'Polling rate y puertos USB', 'Cola de renderizado'],
+    badge: '04 · LATENCIA',
+    title: 'Input Lag',
+    desc: 'Mouse, teclado o monitor responden tarde. Sientes pesadez al apuntar o disparar en partidas competitivas.',
+    icon: 'fa-computer-mouse'
   },
   {
-    id: 'ping-alto',
-    icon: 'fa-signal',
-    title: 'Ping alto, jitter y pérdida de paquetes al jugar online',
-    intro: 'Subidas de ping no siempre se arreglan con un “comando mágico”. Separamos consumo local, WiFi saturado, router, cableado, servidor lejano y problemas del proveedor antes de recomendar cambios.',
-    symptoms: ['Ping que sube por momentos', 'Personajes que se teletransportan', 'Pérdida de paquetes', 'Discord se corta mientras juegas'],
-    checks: ['Ping y jitter por cable', 'Pérdida dentro y fuera de la red', 'Canal y señal WiFi', 'Descargas y procesos de fondo'],
+    id: 'pc-lenta',
+    badge: '05 · WINDOWS',
+    title: 'PC Lenta',
+    desc: 'Windows tarda en arrancar, se congela al abrir aplicaciones o satura recursos con procesos en segundo plano.',
+    icon: 'fa-clock-rotate-left'
   },
+  {
+    id: 'gpu-poco-uso',
+    badge: '06 · CARGA GPU',
+    title: 'GPU con poco uso',
+    desc: 'La tarjeta gráfica trabaja al 40%–60% mientras los FPS se estancan y no suben aunque bajes la calidad gráfica.',
+    icon: 'fa-microchip'
+  },
+  {
+    id: 'cpu-100',
+    badge: '07 · CARGA CPU',
+    title: 'CPU al 100%',
+    desc: 'El procesador satura sus núcleos, provocando frametimes inestables, tirones constantes y limitación de gráficos.',
+    icon: 'fa-gauge-high'
+  },
+  {
+    id: 'ping-jitter',
+    badge: '08 · RED',
+    title: 'Ping / Jitter / Packet Loss',
+    desc: 'Internet parece rápido en tests de velocidad, pero sufres picos de ping, teletransporte o pérdida de paquetes.',
+    icon: 'fa-network-wired'
+  }
 ];
 
-const systemTopics = [
-  {
-    icon: 'fa-microchip',
-    title: 'Rendimiento de CPU y GPU sin sobrecargar el equipo',
-    text: 'Revisamos frecuencias, energía, drivers, carga real y límites térmicos. Undervolt u overclock solo se consideran cuando el hardware, BIOS y estabilidad lo permiten.',
-    points: ['Plan de energía correcto', 'Drivers limpios y compatibles', 'Pruebas de estabilidad'],
-  },
-  {
-    icon: 'fa-temperature-three-quarters',
-    title: 'Temperaturas altas, thermal throttling y ventiladores al máximo',
-    text: 'Si CPU o GPU reducen frecuencia por calor, ningún ajuste de Windows sostendrá el rendimiento. Medimos temperatura antes de recomendar limpieza, pasta térmica o curva de ventilación.',
-    points: ['Temperatura en reposo y carga', 'Frecuencia sostenida', 'Flujo de aire y mantenimiento'],
-  },
-  {
-    icon: 'fa-memory',
-    title: 'RAM insuficiente, single channel y XMP o EXPO desactivado',
-    text: 'La memoria afecta multitarea, 1% lows y estabilidad. Validamos capacidad, módulos, dual channel, frecuencia soportada y uso del archivo de paginación.',
-    points: ['Consumo real de memoria', 'Dual channel', 'Perfil XMP o EXPO compatible'],
-  },
-  {
-    icon: 'fa-hard-drive',
-    title: 'SSD lento, poco espacio y cargas tardías en juegos y programas',
-    text: 'Un almacenamiento saturado o degradado puede causar cargas largas, texturas tardías, congelamientos y arranque lento. Revisamos salud antes de limpiar o clonar.',
-    points: ['SMART y temperatura', 'Espacio libre', 'Velocidad y errores'],
-  },
-  {
-    icon: 'fa-window-restore',
-    title: 'Windows lento por programas de inicio, bloatware, virus o errores',
-    text: 'Eliminamos carga innecesaria con criterio. No desactivamos servicios esenciales ni aplicamos scripts desconocidos que puedan romper actualizaciones, seguridad o periféricos.',
-    points: ['Inicio y procesos', 'Malware y tareas programadas', 'Integridad de Windows'],
-  },
-  {
-    icon: 'fa-display',
-    title: 'Configuración gráfica correcta para calidad, FPS y estabilidad',
-    text: 'Ajustamos resolución, escalado, límite de FPS, texturas, sombras y tecnologías del fabricante según tu monitor y hardware, no con un preset universal.',
-    points: ['Resolución y refresco', 'VRAM disponible', 'Perfil por juego'],
-  },
+const checkStack = [
+  { step: '01', title: 'HARDWARE', items: 'CPU · GPU · RAM · SSD · voltajes · curvas térmicas y temperaturas' },
+  { step: '02', title: 'WINDOWS', items: 'Procesos de fondo · inicio · servicios · planes de energía · integridad DISM/SFC' },
+  { step: '03', title: 'DRIVERS', items: 'NVIDIA · AMD · Intel · chipset de motherboard · audio · adaptadores de red' },
+  { step: '04', title: 'GAMING', items: 'Ajustes gráficos · FPS cap · VRAM · shaders · frame pacing · motores de juego' },
+  { step: '05', title: 'INPUT & DISPLAY', items: 'Mouse · teclado · polling rate · puertos USB · frecuencia Hz del monitor' },
+  { step: '06', title: 'NETWORK', items: 'Ping local · jitter · pérdida de paquetes · bufferbloat · adaptador Ethernet/WiFi' },
+  { step: '07', title: 'STREAMING', items: 'OBS Studio · codificador NVENC/AMF/AV1 · overlays · replay buffer · bitrates' }
 ];
 
-const topicVisuals = [
-  { metric: '1% LOW', symbols: ['fa-gauge-high', 'fa-microchip', 'fa-display'] },
-  { metric: 'FRAME TIME', symbols: ['fa-wave-square', 'fa-stopwatch', 'fa-hard-drive'] },
-  { metric: 'RESPUESTA', symbols: ['fa-computer-mouse', 'fa-keyboard', 'fa-desktop'] },
-  { metric: 'LATENCIA', symbols: ['fa-router', 'fa-signal', 'fa-server'] },
+const gamesGroups = [
+  {
+    category: 'COMPETITIVE FPS',
+    games: 'Valorant · Counter-Strike 2 · Fortnite · Warzone · Apex Legends · Rainbow Six Siege · Overwatch 2 · Marvel Rivals',
+    note: 'Priorizamos frametimes planos, 1% lows elevados, mínima latencia DPC, polling rate estable y eliminación de procesos que saturan los hilos del CPU.'
+  },
+  {
+    category: 'OPEN WORLD & MULTIPLAYER',
+    games: 'GTA V / FiveM · Rust · Minecraft · Forza Horizon · Cyberpunk 2077',
+    note: 'Ajustamos la gestión de VRAM, velocidad de lectura de texturas en SSD, estabilidad de memoria RAM en mapas masivos y compilación de shaders.'
+  },
+  {
+    category: 'ESPORTS & OTROS',
+    games: 'League of Legends · Rocket League · EA Sports FC · Juegos de Steam, Epic y Xbox PC',
+    note: 'Configuramos sincronización de cuadros, límites de tasa de refresco, perfiles de energía sin micro-dormencias y compatibilidad de controladores.'
+  }
+];
+
+const faqs = [
+  {
+    q: '¿Por qué mi PC tiene pocos FPS si tiene buena GPU?',
+    a: 'Tener una buena tarjeta gráfica no garantiza altos FPS si existe un cuello de botella en el procesador, si la memoria RAM trabaja en single channel o a baja frecuencia sin XMP/EXPO, si hay thermal throttling por temperaturas altas, o si Windows tiene procesos consumiendo hilos de ejecución en segundo plano.'
+  },
+  {
+    q: '¿Por qué mi GPU no llega al 100% de uso en juegos?',
+    a: 'Si la tarjeta gráfica trabaja al 40%–70% y los FPS no son suficientes, generalmente el procesador no puede suministrar fotogramas con la rapidez requerida (cuello de botella de CPU), la memoria RAM tiene latencia elevada, el juego tiene un límite de FPS activado o la resolución es muy baja (1080p competitivo suele depender fuertemente de CPU y RAM).'
+  },
+  {
+    q: '¿Por qué mi CPU está al 100% mientras juego?',
+    a: 'Un procesador al 100% indica saturación total de núcleos e hilos. Ocurre por aplicaciones en segundo plano (grabación, navegadores, antivirus pesado), juegos con alta carga de físicas y entidades, shaders compilando en tiempo real o procesadores con pocos hilos frente a títulos modernos.'
+  },
+  {
+    q: '¿Por qué tengo stuttering si mi contador marca FPS altos?',
+    a: 'El stuttering (microtirones) ocurre por inconsistencia en el frametime, no por el promedio de FPS. Si tienes 140 FPS promedio pero cada dos segundos un cuadro tarda 35 ms en generarse (equivalente a 28 FPS instantáneos), el ojo percibe un corte molesto. Se soluciona estabilizando el frametime y elevando los 1% lows.'
+  },
+  {
+    q: '¿Qué son los 1% lows y por qué importan más que los FPS máximos?',
+    a: 'Los 1% lows representan el promedio del 1% de fotogramas más lentos durante una partida. Indican qué tan graves son las caídas en momentos críticos (explosiones, peleas de equipos). Un juego con 140 FPS y 1% low de 110 FPS se siente infinitamente más suave que uno con 200 FPS y 1% low de 40 FPS.'
+  },
+  {
+    q: '¿Qué es el frametime?',
+    a: 'El frametime es el tiempo exacto en milisegundos que tarda la computadora en renderizar y mostrar un único fotograma. A 60 FPS cada cuadro debe durar 16.6 ms; a 144 FPS, 6.9 ms. Si la línea de frametime es plana, la fluidez es perfecta; si tiene picos oscilantes, se perciben tirones.'
+  },
+  {
+    q: '¿Cómo se reduce el input lag de forma real?',
+    a: 'Se reduce asegurando que el monitor opere a su tasa máxima de hercios en Windows, limitando los FPS justo por debajo de la tasa de refresco (para no saturar el buffer de la GPU ni activar V-Sync tardío), usando tecnologías de sincronización de baja latencia (NVIDIA Reflex / AMD Anti-Lag), configurando el polling rate del mouse y evitando hubs USB saturados.'
+  },
+  {
+    q: '¿Se puede optimizar una PC de gama baja?',
+    a: 'Sí. En procesadores modestos, gráficos integrados (APU Ryzen o Intel UHD) y 8 GB de RAM, cada megabyte y ciclo de reloj cuenta. Eliminamos bloatware, optimizamos la memoria virtual, ajustamos VRAM compartida y configuramos tecnologías de reescalado como FSR para lograr estabilidad sin gastar en piezas nuevas.'
+  },
+  {
+    q: '¿Vale la pena optimizar una PC de gama alta?',
+    a: 'Totalmente. Muchas PCs con RTX 4070/4080 o procesadores Ryzen X3D rinden entre 15% y 30% por debajo de su potencial por RAM sin XMP, Resizable BAR desactivado en BIOS, overlays conflictivos de Discord/Steam, perfiles de energía mal asignados o pantallas de 240 Hz operando a 60 Hz en Windows.'
+  },
+  {
+    q: '¿Por qué mi laptop gamer rinde menos conectada o se calienta tanto?',
+    a: 'Las laptops gamer operan en chasis térmicamente limitados. Revisamos los modos de energía del fabricante, el switch MUX para saltar la GPU integrada (evitando el cuello de botella de Optimus), curvas de ventilación y desactivamos bloatware de monitoreo que compite por recursos de CPU.'
+  },
+  {
+    q: '¿Por qué pierdo tantos FPS al grabar o hacer streaming con OBS?',
+    a: 'Generalmente ocurre por codificar mediante CPU (x264) en lugar de utilizar el codificador dedicado por hardware de la GPU (NVENC, AMF o QuickSync), o por ejecutar OBS sin permisos de administrador (lo que impide que Windows otorgue prioridad de GPU al renderizador de la escena).'
+  },
+  {
+    q: '¿Pueden arreglar mi ping en juegos online?',
+    a: 'Podemos diagnosticar y corregir problemas dentro de tu PC y red local (bufferbloat, drivers de red, descargas de fondo, configuración del adaptador y estabilidad por cable Ethernet). Sin embargo, la distancia física al servidor del juego y las rutas de tu proveedor de internet (ISP) no pueden alterarse por software.'
+  },
+  {
+    q: '¿Funciona para juegos como Valorant, Fortnite, Warzone, CS2 o FiveM?',
+    a: 'Sí. Cada juego exige recursos de manera diferente. Ajustamos la configuración específica según el motor del juego: Warzone requiere gestión estricta de VRAM y shaders; Valorant y CS2 dependen de CPU y latencia DPC; Fortnite requiere optimización del modo de renderizado y compilación de texturas.'
+  },
+  {
+    q: '¿Necesitan acceso a mis archivos personales o contraseñas?',
+    a: 'No. No solicitamos ni accedemos a carpetas personales, fotos, documentos ni contraseñas. Toda la sesión se enfoca exclusivamente en herramientas de diagnóstico, panel de control de Windows, controladores y configuración de juegos.'
+  },
+  {
+    q: '¿Puedo ver todo lo que hace el técnico en pantalla?',
+    a: 'Sí, el 100% de la sesión es interactiva y visible en tu monitor en tiempo real. Tú ves cada ventana que se abre, cada medición y puedes tomar el control del mouse o finalizar la llamada y conexión en el segundo que desees.'
+  },
+  {
+    q: '¿Necesito formatear o reinstalar Windows para que rinda bien?',
+    a: 'En la gran mayoría de los casos no es necesario reinstalar. Limpiamos procesos, reparamos integridad de archivos de sistema con DISM/SFC y actualizamos controladores. Solo recomendamos reinstalación limpia si el sistema presenta corrupción irrecuperable de registro o daños severos por malware.'
+  },
+  {
+    q: '¿La optimización remota puede dañar mi computadora?',
+    a: 'No. No aplicamos modificaciones de voltaje riesgosas ni configuraciones fuera de las especificaciones seguras de los fabricantes. Cualquier ajuste avanzado (como undervolt térmico) se somete a pruebas de estrés de estabilidad térmica y de memoria antes de finalizar.'
+  },
+  {
+    q: '¿Cuánto tiempo dura una sesión de optimización remota?',
+    a: 'Una sesión típica toma entre 60 y 90 minutos según el paquete elegido. Incluye la medición previa de rendimiento (benchmark inicial), la aplicación paso a paso de los ajustes y la prueba final de verificación comparativa.'
+  }
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${canonicalUrl}#service`,
+    name: 'Optimización de PC Gaming Remota',
+    serviceType: 'Remote PC Performance Tuning and Gaming Optimization',
+    description: 'Servicio técnico remoto mundial de optimización de computadoras para videojuegos y Windows 10/11. Diagnóstico de bajos FPS, frametimes, stuttering, input lag y cuellos de botella.',
+    provider: {
+      '@type': 'LocalBusiness',
+      name: 'Pixon PC',
+      url: 'https://pixon.com.mx',
+      telephone: '+529986690777',
+      email: 'pixonpc@gmail.com',
+      image: 'https://pixon.com.mx/LOGOCIRCULAR.png'
+    },
+    areaServed: [
+      { '@type': 'Country', name: 'Worldwide' },
+      { '@type': 'Country', name: 'Mexico' },
+      { '@type': 'Country', name: 'Spain' },
+      { '@type': 'Country', name: 'United States' },
+      { '@type': 'Country', name: 'Argentina' },
+      { '@type': 'Country', name: 'Colombia' },
+      { '@type': 'Country', name: 'Chile' },
+      { '@type': 'Country', name: 'Peru' }
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Paquetes de Optimización Remota de PC',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          name: 'PC Speed (Trabajo y Productividad)',
+          price: '20',
+          priceCurrency: 'USD',
+          description: 'Optimización de Windows 10/11, inicio, servicios, procesos de fondo, almacenamiento y fluidez.'
+        },
+        {
+          '@type': 'Offer',
+          name: 'Gaming Performance (Principal)',
+          price: '40',
+          priceCurrency: 'USD',
+          description: 'Optimización integral para juegos: FPS, 1% lows, frametime, drivers, input lag, monitor Hz y benchmark before/after.'
+        },
+        {
+          '@type': 'Offer',
+          name: 'Advanced Tuning (Entusiastas)',
+          price: '75',
+          priceCurrency: 'USD',
+          description: 'Todo lo de Gaming Performance más BIOS guiada (XMP/EXPO, Resizable BAR), análisis térmico profundo y pruebas de estabilidad.'
+        }
+      ]
+    }
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Optimización de PC Gaming Remota', item: canonicalUrl }
+    ]
+  }
 ];
 ---
 
 <Base
-  title="Optimización de PC en Cancún | FPS, ping y Windows | Pixon PC"
-  description="Optimización de PC y laptop en Cancún o remota para bajones de FPS, input lag, ping alto, stuttering, Windows lento, temperatura, SSD, RAM y drivers."
-  canonical="https://pixon.com.mx/optimizacion"
-  image="/assets/images/responsive/optimizacion-pc-cancun.webp"
-  bodyClass="optimization-page"
-  schema={[
-    {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": "Optimización de Equipos de Cómputo",
-        "provider": {
-            "@type": "LocalBusiness",
-            "name": "Pixon PC",
-            "url": "https://pixon.com.mx"
-        },
-        "areaServed": {
-            "@type": "City",
-            "name": "Cancun"
-        },
-        "serviceType": "Mantenimiento y Optimización de Software",
-        "url": "https://pixon.com.mx/optimizacion",
-        "description": "Optimización remota y presencial para PCs y laptops. Mejora el rendimiento, fps en juegos y tiempos de carga."
-    },
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Inicio",
-                "item": "https://pixon.com.mx/"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Optimización",
-                "item": "https://pixon.com.mx/optimizacion"
-            }
-        ]
-    },
-    {
-        "@context": "https://schema.org/",
-        "@type": "Service",
-        "name": "Optimización de PC y Aceleración de Windows a Distancia",
-        "description": "Servicio técnico 100% online y remoto para acelerar Windows 10/11, aumentar FPS, reducir latencia (Input Lag) y eliminar virus. Válido a nivel internacional.",
-        "provider": {
-            "@type": "LocalBusiness",
-            "name": "Pixon PC",
-            "url": "https://pixon.com.mx",
-            "telephone": "+529986690777",
-            "image": "https://pixon.com.mx/assets/logos/Logo.svg",
-            "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Cancún",
-                "addressRegion": "Quintana Roo",
-                "addressCountry": "MX"
-            }
-        },
-        "serviceType": "Remote Technical Support",
-        "areaServed": [
-            {
-                "@type": "Country",
-                "name": "Mexico"
-            },
-            {
-                "@type": "Country",
-                "name": "United States"
-            },
-            {
-                "@type": "Country",
-                "name": "Spain"
-            },
-            {
-                "@type": "Country",
-                "name": "Colombia"
-            },
-            {
-                "@type": "Country",
-                "name": "Argentina"
-            },
-            {
-                "@type": "Country",
-                "name": "Chile"
-            },
-            {
-                "@type": "Country",
-                "name": "Peru"
-            }
-        ],
-        "offers": [
-            {
-                "@type": "Offer",
-                "name": "Basic Tune-Up Remoto",
-                "price": "20",
-                "priceCurrency": "USD",
-                "url": "https://pixon.com.mx/optimizacion",
-                "description": "Limpieza profunda de archivos temporales, desactivación de programas de inicio y bloatware."
-            },
-            {
-                "@type": "Offer",
-                "name": "Pro Gamer Online",
-                "price": "40",
-                "priceCurrency": "USD",
-                "url": "https://pixon.com.mx/optimizacion",
-                "description": "Debloat profundo de Windows, optimización de registro, perfiles de energía para máximo desempeño y reducción de latencia (Input Lag)."
-            },
-            {
-                "@type": "Offer",
-                "name": "Elite Enthusiast",
-                "price": "75",
-                "priceCurrency": "USD",
-                "url": "https://pixon.com.mx/optimizacion",
-                "description": "Todo lo del paquete Pro Gamer más Undervolting a CPU/GPU, Overclocking seguro y Activación de XMP/EXPO."
-            }
-        ]
-    }
-]}
+  title="Optimización PC Gaming Remota | FPS, Stuttering y Lag | Pixon PC"
+  description="Optimización remota de PC Gaming y Windows 10/11. Diagnosticamos bajos FPS, stuttering, input lag, CPU/GPU, RAM, drivers, temperaturas y red. Servicio remoto mundial."
+  canonical={canonicalUrl}
+  schema={schema}
 >
   <Navbar />
-  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Optimización de Equipos' }]} />
 
-    <!-- HERO -->
-    <header class="page-hero"
-        style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 80px 0 60px; text-align: center; color: white;">
-        <div class="container">
-            <h1 style="font-size: clamp(2.2rem, 5vw, 3.5rem); margin-bottom: 20px;">Optimización de Equipos de Cómputo
-            </h1>
-            <p style="font-size: 1.1rem; max-width: 700px; margin: 0 auto 30px; color: #cbd5e1;">Exprime hasta la última
-                gota de rendimiento de tu computadora. Eliminamos la lentitud, optimizamos el sistema y configuramos tu
-                hardware para que trabaje al 100% sin gastar en piezas nuevas.</p>
+  <main id="main-content" class="opt-page">
+    <div class="container opt-breadcrumb-wrap">
+      <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Optimización PC Gaming Remota' }]} />
+    </div>
+
+    <!-- =========================================================================
+         1. HERO SECTION: REMOTE PERFORMANCE LAB
+    ========================================================================== -->
+    <header class="opt-hero" aria-labelledby="hero-title">
+      <div class="container opt-hero__grid">
+        <!-- Hero Left Column -->
+        <div class="opt-hero__content">
+          <div class="opt-hero__eyebrow">
+            <span class="opt-pulse-dot" aria-hidden="true"></span>
+            <span>REMOTE PERFORMANCE LAB · PIXON PC</span>
+          </div>
+
+          <h1 id="hero-title" class="opt-hero__title">
+            Optimización de PC Gaming Remota: corrige bajos FPS, stuttering, input lag y una PC que no rinde
+          </h1>
+
+          <p class="opt-hero__lead">
+            Diagnóstico y optimización personalizada para PC de gama baja, media y alta. Revisamos Windows, CPU, GPU, RAM, drivers, temperaturas, red, periféricos y la configuración de tus juegos.
+          </p>
+
+          <p class="opt-hero__sublead">
+            Tú ves el proceso completo en tu pantalla en tiempo real y comparamos el rendimiento antes y después con mediciones precisas.
+          </p>
+
+          <!-- Badges Grid -->
+          <div class="opt-hero__badges" aria-label="Garantías del servicio">
+            <div class="opt-badge">
+              <i class="fa-solid fa-globe" aria-hidden="true"></i>
+              <span>Servicio remoto mundial</span>
+            </div>
+            <div class="opt-badge">
+              <i class="fa-brands fa-windows" aria-hidden="true"></i>
+              <span>Windows 10 / 11</span>
+            </div>
+            <div class="opt-badge">
+              <i class="fa-solid fa-language" aria-hidden="true"></i>
+              <span>Español / English</span>
+            </div>
+            <div class="opt-badge">
+              <i class="fa-solid fa-chart-simple" aria-hidden="true"></i>
+              <span>Medición antes y después</span>
+            </div>
+          </div>
+
+          <!-- Hero CTAs -->
+          <div class="opt-hero__actions">
+            <a href="#diagnostico" class="opt-btn opt-btn--primary">
+              <i class="fa-solid fa-stethoscope" aria-hidden="true"></i> Diagnosticar mi PC
+            </a>
+            <a href="#que-revisamos" class="opt-btn opt-btn--secondary">
+              <i class="fa-solid fa-microchip" aria-hidden="true"></i> Ver qué revisamos
+            </a>
+          </div>
         </div>
+
+        <!-- Hero Right Column: Laboratory Telemetry Panel (CSS/SVG) -->
+        <div class="opt-hero__visual" aria-hidden="true">
+          <div class="opt-lab-panel">
+            <div class="opt-lab-panel__header">
+              <div class="opt-lab-panel__title-group">
+                <span class="opt-lab-panel__terminal-dot"></span>
+                <span class="opt-lab-panel__title">PIXON PERFORMANCE ANALYSIS</span>
+              </div>
+              <span class="opt-lab-panel__status-pill">LIVE TELEMETRY</span>
+            </div>
+
+            <!-- Telemetry Metrics Bars -->
+            <div class="opt-telemetry-block">
+              <div class="opt-telemetry-row">
+                <span class="opt-telemetry-label">FPS PROMEDIO</span>
+                <span class="opt-telemetry-val opt-color-cyan">147</span>
+              </div>
+              <div class="opt-progress-track">
+                <div class="opt-progress-bar opt-bar-fps" style="width: 82%;"></div>
+              </div>
+            </div>
+
+            <div class="opt-telemetry-block">
+              <div class="opt-telemetry-row">
+                <span class="opt-telemetry-label">1% LOW (ESTABILIDAD)</span>
+                <span class="opt-telemetry-val opt-color-emerald">103</span>
+              </div>
+              <div class="opt-progress-track">
+                <div class="opt-progress-bar opt-bar-low" style="width: 68%;"></div>
+              </div>
+            </div>
+
+            <div class="opt-telemetry-block">
+              <div class="opt-telemetry-row">
+                <span class="opt-telemetry-label">FRAME TIME (CONSISTENCIA)</span>
+                <span class="opt-telemetry-val opt-color-cyan">6.8 ms</span>
+              </div>
+              <div class="opt-sparkline-wrap">
+                <svg viewBox="0 0 300 36" class="opt-sparkline-svg">
+                  <path d="M 0 18 Q 40 16 80 18 T 160 17 T 240 18 T 300 17" fill="none" stroke="#38bdf8" stroke-width="2.5" />
+                  <path d="M 0 18 Q 40 16 80 18 T 160 17 T 240 18 T 300 17 L 300 36 L 0 36 Z" fill="rgba(56, 189, 248, 0.08)" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Hardware Telemetry Matrix -->
+            <div class="opt-telemetry-grid">
+              <div class="opt-metric-pill">
+                <span class="opt-metric-pill__lbl">GPU LOAD</span>
+                <span class="opt-metric-pill__val">73%</span>
+              </div>
+              <div class="opt-metric-pill">
+                <span class="opt-metric-pill__lbl">CPU LOAD</span>
+                <span class="opt-metric-pill__val">61%</span>
+              </div>
+              <div class="opt-metric-pill">
+                <span class="opt-metric-pill__lbl">RAM</span>
+                <span class="opt-metric-pill__val">12.4 GB</span>
+              </div>
+              <div class="opt-metric-pill">
+                <span class="opt-metric-pill__lbl">PING</span>
+                <span class="opt-metric-pill__val">38 ms</span>
+              </div>
+            </div>
+
+            <!-- Bottom Analysis Status -->
+            <div class="opt-lab-panel__footer">
+              <i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i>
+              <span>ANALYZING BOTTLENECK · HARDWARE RECOGNIZED</span>
+            </div>
+            <p class="opt-lab-panel__disclaimer">
+              Visualización técnica conceptual. En cada sesión medimos la telemetría real de tu equipo antes y después.
+            </p>
+          </div>
+        </div>
+      </div>
     </header>
 
-    <!-- PAQUETES -->
-    <section id="paquetes-optimizacion" style="background: #0F172A; color: white; position: relative; padding: 20px 0;">
-        <div class="container" style="position: relative; z-index: 2; padding-top: 20px; padding-bottom: 20px;">
-            <div class="section-title text-center">
-                <h2 style="color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Paquetes de Optimización de PC (Vía
-                    Remota Internacional o Presencial)</h2>
-                <p style="color: #cbd5e1;">Servicio técnico online para acelerar Windows, mejorar rendimiento, reducir
-                    latencia y aumentar FPS en juegos. ¡Atendemos a todo el mundo! (Precios en USD).</p>
-            </div>
-
-            <div class="pricing-grid"
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px;">
-                <!-- Basic -->
-                <div class="pricing-card pack-basic"
-                    style="background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; position: relative; color: #e2e8f0; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;"
-                    onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.4)'; this.style.borderColor='rgba(255,255,255,0.3)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='rgba(255,255,255,0.1)';">
-                    <div class="card-header" style="margin-bottom: 20px;">
-                        <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 5px;">Basic Tune-Up Remoto</h3>
-                        <p style="color: #94a3b8; font-size: 0.9rem;">Ideal para acelerar equipos de oficina y estudio
-                            lentos a distancia.</p>
-                    </div>
-                    <div class="price" style="margin-bottom: 20px;">
-                        <h4 style="font-size: 2.5rem; color: #60a5fa; font-weight: 800; margin: 0;">$20 <span
-                                class="currency" style="font-size: 1rem; color: #94a3b8;">USD</span></h4>
-                    </div>
-                    <ul class="pricing-features" style="list-style: none; padding: 0; margin-bottom: 30px;">
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Limpieza profunda
-                            de archivos temporales de Windows</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Desactivación de
-                            programas de inicio y bloatware</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Eliminación de
-                            malware y virus online</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Actualización de
-                            drivers para solucionar lentitud</li>
-                    </ul>
-                    <button class="btn btn-outline"
-                        style="width: 100%; border-color: rgba(255,255,255,0.2); color: white; transition: all 0.3s ease;"
-                        onmouseover="this.style.background='rgba(255,255,255,0.1)';"
-                        onmouseout="this.style.background='transparent';"
-                        onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20el%20paquete%20Basic%20Tune-Up%20Remoto')">Elegir
-                        Basic</button>
-                </div>
-
-                <!-- Pro -->
-                <div class="pricing-card pack-pro"
-                    style="background: rgba(59,130,246,0.1); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid #3b82f6; padding: 30px; position: relative; transform: scale(1.05); box-shadow: 0 0 20px rgba(59,130,246,0.3); color: white; transition: transform 0.3s ease, box-shadow 0.3s ease;"
-                    onmouseover="this.style.transform='scale(1.05) translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(59,130,246,0.5), 0 0 30px rgba(59,130,246,0.4)';"
-                    onmouseout="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 20px rgba(59,130,246,0.3)';">
-                    <div
-                        style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #2563eb, #3b82f6); color: #fff; padding: 6px 20px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; box-shadow: 0 4px 10px rgba(37,99,235,0.5);">
-                        MÁS POPULAR</div>
-                    <div class="card-header" style="margin-bottom: 20px;">
-                        <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 5px;">Pro Gamer Online</h3>
-                        <p style="color: #bfdbfe; font-size: 0.9rem;">Perfecto para maximizar FPS y fluidez en Warzone,
-                            Valorant, Fortnite, etc.</p>
-                    </div>
-                    <div class="price" style="margin-bottom: 20px;">
-                        <h4 style="font-size: 2.5rem; color: #60a5fa; font-weight: 800; margin: 0;">$40 <span
-                                class="currency" style="font-size: 1rem; color: #bfdbfe;">USD</span></h4>
-                    </div>
-                    <ul class="pricing-features" style="list-style: none; padding: 0; margin-bottom: 30px;">
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> <strong>Todo lo
-                                del paquete Basic</strong></li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Debloat profundo
-                            de Windows 10/11 (Quitar procesos inútiles)</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Optimización de
-                            registro y telemetría para más rendimiento</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Configuración de
-                            perfiles de energía ocultos para máximo desempeño</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #34d399; margin-top: 3px;"></i> Reducción de
-                            latencia (Input Lag) y mejora de ping online</li>
-                    </ul>
-                    <button class="btn btn-primary"
-                        style="width: 100%; transition: all 0.3s ease; background: linear-gradient(90deg, #2563eb, #3b82f6); border: none;"
-                        onmouseover="this.style.boxShadow='0 0 15px #3b82f6';" onmouseout="this.style.boxShadow='none';"
-                        onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20el%20paquete%20Pro%20Gamer%20de%20optimizacion%20remota')">Elegir
-                        Pro Gamer</button>
-                </div>
-
-                <!-- Elite -->
-                <div class="pricing-card pack-elite"
-                    style="background: rgba(15,23,42,0.8); border-radius: 16px; border: 1px solid #334155; padding: 30px; position: relative; color: #fff; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;"
-                    onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.6)'; this.style.borderColor='#60a5fa';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#334155';">
-                    <div class="card-header" style="margin-bottom: 20px;">
-                        <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 5px;">Elite Enthusiast</h3>
-                        <p style="color: #94a3b8; font-size: 0.9rem;">Para los más exigentes. Undervolt, Overclock y
-                            hardware tuning a nivel experto.</p>
-                    </div>
-                    <div class="price" style="margin-bottom: 20px;">
-                        <h4 style="font-size: 2.5rem; color: #60a5fa; font-weight: 800; margin: 0;">$75 <span
-                                class="currency" style="font-size: 1rem; color: #94a3b8;">USD</span></h4>
-                    </div>
-                    <ul class="pricing-features"
-                        style="list-style: none; padding: 0; margin-bottom: 30px; color: #cbd5e1;">
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> <strong>Todo lo
-                                del paquete Pro Gamer</strong></li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Undervolting a
-                            CPU/GPU remoto para bajar temperaturas</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Overclocking
-                            seguro y estable para exprimir tu hardware</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Activación de
-                            XMP/EXPO y Resizable BAR en BIOS</li>
-                        <li
-                            style="margin-bottom: 12px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                            <i class="fa-solid fa-check" style="color: #60a5fa; margin-top: 3px;"></i> Creación de curva
-                            de ventiladores personalizada</li>
-                    </ul>
-                    <button class="btn btn-outline"
-                        style="width: 100%; border-color: #60a5fa; color: #60a5fa; transition: all 0.3s ease;"
-                        onmouseover="this.style.background='rgba(96,165,250,0.1)';"
-                        onmouseout="this.style.background='transparent';"
-                        onclick="smartWaRedirect('https://wa.me/529986690777?text=Quiero%20el%20paquete%20Elite%20Enthusiast%20de%20optimizacion%20remota')">Elegir
-                        Elite</button>
-                </div>
-            </div>
-            <p class="text-center mt-4" style="color: #94a3b8; font-size: 0.9rem;"><em>Nota: Si los precios en dólares
-                    americanos no coinciden con tu presupuesto, contáctanos y te damos una cotización local.</em></p>
+    <!-- =========================================================================
+         2. SECTION: PROBLEM SELECTOR ("¿Qué le pasa a tu PC?")
+    ========================================================================== -->
+    <section class="opt-section opt-section--white" id="problemas-frecuentes">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">DIAGNÓSTICO INICIAL</span>
+          <h2>¿Qué le pasa a tu PC?</h2>
+          <p class="opt-section-desc">
+            Identifica el síntoma principal que experimentas en tus juegos o en Windows para atacar la causa raíz correcta.
+          </p>
         </div>
-    </section>
 
-    <ServiceTicketSection
-      id="ticket-optimizacion"
-      defaultDevice="Laptop / PC"
-      defaultService="Optimizacion"
-      title="Crear Ticket de Optimizacion"
-      subtitle="Cuentanos si buscas mas velocidad, menos lag, mas FPS o limpieza de software para recomendar el paquete correcto."
-    />
-
-    <main class="opt-performance-content">
-      <section class="opt-section opt-overview" id="diagnostico-rendimiento">
-        <div class="container opt-overview-grid">
-          <div>
-            <div class="opt-diagnostic-symbol" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i><i class="fa-solid fa-laptop-medical"></i><i class="fa-solid fa-magnifying-glass-chart"></i></div>
-            <span class="opt-label">Diagnóstico antes de optimizar</span>
-            <h2>Qué revisamos para mejorar el rendimiento de una PC o laptop</h2>
-            <p>Una optimización profesional empieza midiendo. El objetivo es distinguir si la lentitud viene de Windows, red, temperatura, almacenamiento, memoria o de un límite real del hardware.</p>
-            <a class="opt-text-cta" href="#ticket-optimizacion">Solicitar revisión <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-          </div>
-          <div class="opt-check-rail">
-            {performanceChecks.map(([title, text]) => (
-              <article><strong>{title}</strong><p>{text}</p></article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {gamingTopics.map((topic, index) => (
-        <section class={`opt-section opt-topic opt-topic-${index + 1} ${index % 2 ? 'opt-topic-soft' : ''}`} id={topic.id}>
-          <div class="container opt-topic-grid">
-            <div class="opt-topic-copy">
-              <div class="opt-topic-visual" aria-hidden="true">
-                <span class="opt-topic-metric">{topicVisuals[index].metric}</span>
-                <div class="opt-topic-symbols">
-                  {topicVisuals[index].symbols.map((symbol) => <i class={`fa-solid ${symbol}`}></i>)}
-                </div>
-                <div class="opt-signal-bars"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="opt-problems-grid">
+          {problems.map((p) => (
+            <article class="opt-problem-card">
+              <div class="opt-problem-card__top">
+                <span class="opt-problem-card__badge">{p.badge}</span>
+                <i class={`fa-solid ${p.icon} opt-problem-card__icon`} aria-hidden="true"></i>
               </div>
-              <h2>{topic.title}</h2>
-              <p>{topic.intro}</p>
-            </div>
-            <div class="opt-topic-details">
-              <div>
-                <h3>Señales frecuentes</h3>
-                <ul>{topic.symptoms.map((item) => <li><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>{item}</li>)}</ul>
-              </div>
-              <div>
-                <h3>Qué comprobamos</h3>
-                <ul>{topic.checks.map((item) => <li><i class="fa-solid fa-check" aria-hidden="true"></i>{item}</li>)}</ul>
-              </div>
-            </div>
-          </div>
-        </section>
-      ))}
-
-      <section class="opt-section opt-network-limit" id="limites-ping">
-        <div class="container opt-limit-grid">
-          <div>
-            <div class="opt-network-symbol" aria-hidden="true"><i class="fa-solid fa-house-signal"></i><span></span><i class="fa-solid fa-cloud"></i><span></span><i class="fa-solid fa-server"></i></div>
-            <span class="opt-label">Red y latencia real</span>
-            <h2>Qué sí puede mejorar el ping y qué depende de tu proveedor o servidor</h2>
-            <p>Podemos corregir problemas dentro de tu PC y red local. La distancia física al servidor, una ruta internacional deficiente o la saturación externa requieren otra solución.</p>
-          </div>
-          <div class="opt-limit-columns">
-            <article>
-              <h3>Podemos revisar</h3>
-              <ul>
-                <li>Descargas y actualizaciones en segundo plano</li>
-                <li>WiFi con señal débil o canal saturado</li>
-                <li>Driver de red, ahorro de energía y cable Ethernet</li>
-                <li>Jitter y pérdida de paquetes dentro de tu red</li>
-              </ul>
+              <h3>{p.title}</h3>
+              <p>{p.desc}</p>
             </article>
-            <article>
-              <h3>No se debe prometer</h3>
-              <ul>
-                <li>Ping mínimo a servidores ubicados en otro continente</li>
-                <li>Corregir una caída general del proveedor desde Windows</li>
-                <li>Eliminar lag causado por servidores saturados del juego</li>
-                <li>Duplicar la velocidad contratada mediante un programa</li>
-              </ul>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="opt-mid-cta">
-        <div class="container opt-mid-cta-inner">
-          <div>
-            <h2>¿Tienes bajones de FPS, input lag o ping inestable?</h2>
-            <p>Indica tu procesador, gráfica, RAM, juego, FPS actuales, conexión y desde cuándo aparece la falla.</p>
-          </div>
-          <a href="#ticket-optimizacion" class="opt-btn"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Crear ticket de rendimiento</a>
-        </div>
-      </section>
-
-      <section class="opt-section opt-system" id="componentes-rendimiento">
-        <div class="container">
-          <header class="opt-head">
-            <div class="opt-component-symbol" aria-hidden="true"><i class="fa-solid fa-microchip"></i><i class="fa-solid fa-memory"></i><i class="fa-solid fa-hard-drive"></i><i class="fa-solid fa-fan"></i></div>
-            <span class="opt-label">Sistema y componentes</span>
-            <h2>Otros factores que limitan el rendimiento, los FPS y la estabilidad</h2>
-            <p>Completamos la revisión con los elementos que más se confunden con “falta de optimización”. Cada uno requiere pruebas diferentes.</p>
-          </header>
-          <div class="opt-system-list">
-            {systemTopics.map((topic) => (
-              <article>
-                <div class="opt-system-symbol" aria-hidden="true">
-                  <i class={`fa-solid ${topic.icon}`}></i>
-                  <span></span><span></span><span></span>
-                </div>
-                <div>
-                  <h2>{topic.title}</h2>
-                  <p>{topic.text}</p>
-                  <ul>{topic.points.map((point) => <li>{point}</li>)}</ul>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section class="opt-section opt-workloads" id="optimizacion-por-uso">
-        <div class="container opt-workload-grid">
-          <div>
-            <div class="opt-workload-symbol" aria-hidden="true"><i class="fa-solid fa-laptop-code"></i><i class="fa-solid fa-gamepad"></i><i class="fa-solid fa-photo-film"></i></div>
-            <span class="opt-label">No solo gaming</span>
-            <h2>Optimización para trabajo, estudio, streaming, edición y multitarea</h2>
-            <p>El mejor ajuste depende del uso. Una PC para oficina necesita arranque limpio y estabilidad; una estación de edición necesita memoria, almacenamiento y caché; un equipo de streaming debe equilibrar juego, codificación y red.</p>
-          </div>
-          <div class="opt-workload-list">
-            <span><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Oficina y sistemas administrativos</span>
-            <span><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Clases, navegador y videollamadas</span>
-            <span><i class="fa-solid fa-video" aria-hidden="true"></i> Streaming y grabación</span>
-            <span><i class="fa-solid fa-photo-film" aria-hidden="true"></i> Edición de foto y video</span>
-            <span><i class="fa-solid fa-cubes" aria-hidden="true"></i> Render y diseño 3D</span>
-            <span><i class="fa-solid fa-code" aria-hidden="true"></i> Programación y máquinas virtuales</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="opt-section opt-expectations" id="resultados-optimizacion">
-        <div class="container opt-expectation-grid">
-          <div>
-            <div class="opt-result-symbol" aria-hidden="true"><i class="fa-solid fa-chart-column"></i><i class="fa-solid fa-arrow-trend-up"></i></div>
-            <span class="opt-label">Resultados medibles</span>
-            <h2>Cómo comprobamos si la optimización realmente funcionó</h2>
-            <p>Comparamos el estado inicial y final con métricas relevantes. No usamos sensaciones como única evidencia ni prometemos porcentajes idénticos para todos los equipos.</p>
-          </div>
-          <ol>
-            <li><strong>Antes</strong><span>Arranque, procesos, temperatura, almacenamiento, FPS o red según el caso.</span></li>
-            <li><strong>Ajuste</strong><span>Cambios documentados y aplicados según el cuello de botella confirmado.</span></li>
-            <li><strong>Prueba</strong><span>Validación de estabilidad, uso cotidiano y juego o programa reportado.</span></li>
-            <li><strong>Reporte</strong><span>Qué mejoró, qué sigue limitado y qué upgrade tendría sentido.</span></li>
-          </ol>
-        </div>
-      </section>
-    </main>
-
-    <!-- SEO SECTIONS -->
-    <section
-        style="background: #0F172A; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 100px; padding-bottom: 60px;">
-        <div class="container">
-            <div class="row" style="display: flex; flex-wrap: wrap; gap: 40px; margin-bottom: 60px;">
-                <div class="col" style="flex: 1; min-width: 300px;">
-                    <h2 style="font-size: 2rem; color: #f1f5f9; margin-bottom: 20px;">Optimización de PC Remota: Acelera
-                        tu Windows a Distancia</h2>
-                    <p style="color: #cbd5e1; font-size: 1.05rem; line-height: 1.7; margin-bottom: 15px;">
-                        ¿Tu PC o Laptop se siente lenta? No importa en qué país del mundo te encuentres, nuestro
-                        servicio de <strong style="color: #818cf8;">optimización de PC remota</strong> soluciona problemas de lentitud extrema.
-                        Eliminamos "Bloatware" (programas preinstalados innecesarios), basura digital y servicios en
-                        segundo plano que asfixian tu procesador y RAM.
-                    </p>
-                    <p style="color: #cbd5e1; font-size: 1.05rem; line-height: 1.7;">
-                        Conectándonos de forma segura, un técnico especialista en <strong style="color: #818cf8;">aumentar FPS y reducir
-                            latencia</strong> realiza un ajuste fino ("debloat") a tu Windows 10 u 11. Perfecto para
-                        gamers que buscan eliminar el input lag y maximizar los fotogramas por segundo, o profesionales
-                        que necesitan que su equipo vuele.
-                    </p>
-                </div>
-                <div class="col" style="flex: 1; min-width: 300px;">
-                    <h3 style="font-size: 1.5rem; color: #f1f5f9; margin-bottom: 20px;">Verificación de Hardware
-                        Profesional</h3>
-                    <div style="background: rgba(30,41,59,0.5); padding: 25px; border-radius: 16px; border: 1px solid rgba(99,102,241,0.2);">
-                        <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;">
-                            A veces, la lentitud no es solo software. Por eso, en todos nuestros paquetes realizamos una
-                            revisión del estado de salud de tus componentes:
-                        </p>
-                        <ul style="list-style: none; padding: 0; margin: 0; color: #cbd5e1; font-size: 0.95rem;">
-                            <li style="margin-bottom: 10px;"><i class="fa-solid fa-hard-drive"
-                                    style="color: #60a5fa; width: 25px;"></i> <strong style="color:#f8fafc;">Salud del Almacenamiento:</strong>
-                                Detectamos sectores defectuosos en tu HDD o SSD.</li>
-                            <li style="margin-bottom: 10px;"><i class="fa-solid fa-memory"
-                                    style="color: #60a5fa; width: 25px;"></i> <strong style="color:#f8fafc;">Test de Memoria RAM:</strong>
-                                Evita pantallas azules por RAM defectuosa.</li>
-                            <li><i class="fa-solid fa-temperature-full" style="color: #60a5fa; width: 25px;"></i>
-                                <strong style="color:#f8fafc;">Temperaturas de CPU/GPU:</strong> Monitoreo para detectar problemas de
-                                enfriamiento.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row"
-                style="display: flex; flex-wrap: wrap; gap: 40px; align-items: center; background: linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.9) 100%); padding: 40px; border-radius: 24px; border: 1px solid rgba(99,102,241,0.2);">
-                <div class="col" style="flex: 1; min-width: 300px;">
-                    <h2 style="font-size: 2rem; color: #818cf8; margin-bottom: 20px;">Servicio Técnico de Software
-                        Online 100% Transparente</h2>
-                    <p style="color: #cbd5e1; font-size: 1.05rem; line-height: 1.7; margin-bottom: 20px;">
-                        Ofrecemos nuestro servicio de <strong style="color:#f8fafc;">limpieza de virus, reparación de software y aceleración de
-                            PC de forma 100% remota</strong> a nivel internacional, utilizando herramientas seguras como
-                        TeamViewer o AnyDesk.
-                    </p>
-                    <p style="color: #cbd5e1; font-size: 1.05rem; line-height: 1.7;">
-                        Tú observas cada clic en tiempo real. Es el equivalente a tener a un experto en optimización
-                        gaming sentado junto a ti, configurando tu registro, perfiles de energía, y eliminando malware
-                        al instante, sin importar en qué ciudad o país residas.
-                    </p>
-                </div>
-                <div class="col" style="flex: 1; min-width: 300px; text-align: center;">
-                    <i class="fa-solid fa-network-wired" style="font-size: 6rem; color: #60a5fa; opacity: 0.8;"></i>
-                </div>
-            </div>
-
-            <div style="margin-top: 60px;">
-                <h3 style="font-size: 1.5rem; color: #f1f5f9; margin-bottom: 20px; text-align: center;">Beneficios Clave
-                    de una PC Optimizada</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                    <div
-                        style="background: rgba(30,41,59,0.5); border: 1px solid rgba(99,102,241,0.2); padding: 20px; border-radius: 12px; text-align: center;">
-                        <i class="fa-solid fa-bolt" style="font-size: 2rem; color: #fcd34d; margin-bottom: 15px;"></i>
-                        <h4 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 10px;">Mayor Fluidez</h4>
-                        <p style="color: #94a3b8; font-size: 0.9rem;">Aplicaciones y navegadores responden de inmediato,
-                            sin trabas frustrantes.</p>
-                    </div>
-                    <div
-                        style="background: rgba(30,41,59,0.5); border: 1px solid rgba(99,102,241,0.2); padding: 20px; border-radius: 12px; text-align: center;">
-                        <i class="fa-solid fa-gamepad"
-                            style="font-size: 2rem; color: #a78bfa; margin-bottom: 15px;"></i>
-                        <h4 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 10px;">FPS Más Altos</h4>
-                        <p style="color: #94a3b8; font-size: 0.9rem;">Eliminamos el stuttering y aumentamos los cuadros
-                            por segundo en tus juegos favoritos.</p>
-                    </div>
-                    <div
-                        style="background: rgba(30,41,59,0.5); border: 1px solid rgba(99,102,241,0.2); padding: 20px; border-radius: 12px; text-align: center;">
-                        <i class="fa-solid fa-shield-halved"
-                            style="font-size: 2rem; color: #34d399; margin-bottom: 15px;"></i>
-                        <h4 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 10px;">Mayor Privacidad</h4>
-                        <p style="color: #94a3b8; font-size: 0.9rem;">Desactivamos la telemetría oculta que envía tus
-                            datos de uso y consume ancho de banda.</p>
-                    </div>
-                    <div
-                        style="background: rgba(30,41,59,0.5); border: 1px solid rgba(99,102,241,0.2); padding: 20px; border-radius: 12px; text-align: center;">
-                        <i class="fa-solid fa-hourglass-start"
-                            style="font-size: 2rem; color: #60a5fa; margin-bottom: 15px;"></i>
-                        <h4 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 10px;">Inicio Rápido</h4>
-                        <p style="color: #94a3b8; font-size: 0.9rem;">Tu computadora encenderá en segundos y estará
-                            lista para usarse de inmediato.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <FaqSection
-      title="Preguntas frecuentes sobre optimización"
-      description="Lo que más preguntan antes de optimizar su equipo."
-      items={faqs}
-      viewMoreHref="/preguntas-frecuentes"
-      viewMoreLabel="Ver todas las preguntas"
-    />
-
-    <section class="opt-final-cta" aria-labelledby="opt-final-title">
-      <div class="container opt-final-cta-inner">
-        <div>
-          <span class="opt-label">Atención en Cancún y soporte remoto</span>
-          <h2 id="opt-final-title">Optimiza tu PC con una revisión basada en métricas</h2>
-          <p>Cuéntanos qué juego o programa falla, qué equipo utilizas y cuándo empezó el problema. Revisamos el caso antes de recomendar ajustes o componentes.</p>
-        </div>
-        <div class="opt-final-actions">
-          <a class="opt-btn" href="#ticket-optimizacion"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Crear ticket</a>
-          <a class="opt-btn opt-btn-secondary" href="https://wa.me/529986690777?text=Hola%2C%20quiero%20solicitar%20una%20revisi%C3%B3n%20de%20rendimiento%20para%20mi%20PC" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Solicitar revisión</a>
+          ))}
         </div>
       </div>
     </section>
 
-    <CommentsSection viewMoreHref="/comentarios" />
+    <!-- =========================================================================
+         3. SECTION: TU PC ES BUENA PERO NO RINDE
+    ========================================================================== -->
+    <section class="opt-section opt-section--light" id="cuello-de-botella">
+      <div class="container">
+        <div class="opt-section-header">
+          <span class="opt-section-badge">ANÁLISIS DE HARDWARE</span>
+          <h2>Tu PC Gamer tiene buen hardware. ¿Por qué no está rindiendo?</h2>
+          <p class="opt-section-desc">
+            Muchos usuarios compran tarjetas gráficas potentes y procesadores modernos pero sufren caídas de cuadros. No asumimos que necesitas gastar en piezas nuevas: primero auditamos qué factor está limitando el sistema.
+          </p>
+        </div>
 
-  <style>
-    :global(#ticket-optimizacion) {
-      content-visibility: visible !important;
-      contain: none !important;
-    }
-    .opt-performance-content {
-      --opt-ink: #071F3A;
-      --opt-muted: #294963;
-      --opt-blue: #1479D4;
-      --opt-line: #D6E3EE;
-      background: #F8FAFC;
-      color: var(--opt-ink);
-    }
-    .opt-performance-content :where(h2, h3, p, li, span, strong, a) {
-      color: var(--opt-ink);
-    }
-    .opt-section {
-      padding: clamp(56px, 8vw, 96px) 0;
-      background: #F8FAFC;
-      content-visibility: visible !important;
-      contain: none !important;
-    }
-    .opt-section h2,
-    .opt-mid-cta h2 {
-      margin: 10px 0 14px;
-      font-family: var(--font-heading);
-      font-size: clamp(1.8rem, 3.2vw, 3rem);
-      font-style: italic;
-      font-weight: 800;
-      line-height: 1.08;
-      text-wrap: balance;
-    }
-    .opt-section h3 {
-      margin: 0 0 10px;
-      font-size: 1.08rem;
-      line-height: 1.25;
-    }
-    .opt-section p,
-    .opt-mid-cta p {
-      margin: 0;
-      color: var(--opt-muted);
-      font-weight: 500;
-      line-height: 1.7;
-    }
-    .opt-label {
-      display: inline-flex;
-      color: var(--opt-blue) !important;
-      font-size: .78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .opt-overview-grid,
-    .opt-topic-grid,
-    .opt-limit-grid,
-    .opt-workload-grid,
-    .opt-expectation-grid {
-      display: grid;
-      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
-      gap: clamp(28px, 6vw, 76px);
-      align-items: start;
-    }
-    .opt-text-cta,
-    .opt-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      min-height: 46px;
-      margin-top: 20px;
-      padding: 11px 17px;
-      border-radius: 8px;
-      background: var(--opt-blue);
-      color: #FFFFFF !important;
-      font-weight: 700;
-      text-decoration: none;
-      transition: transform 160ms cubic-bezier(.23, 1, .32, 1), background-color 160ms ease;
-    }
-    .opt-text-cta:active,
-    .opt-btn:active {
-      transform: scale(.97);
-    }
-    .opt-check-rail {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      border-top: 1px solid var(--opt-line);
-    }
-    .opt-diagnostic-symbol {
-      display: flex;
-      margin-bottom: 20px;
-    }
-    .opt-diagnostic-symbol i {
-      display: grid;
-      width: 46px;
-      height: 46px;
-      place-items: center;
-      border: 1px solid #A9D4F2;
-      border-radius: 50%;
-      color: var(--opt-blue);
-      background: #FFFFFF;
-    }
-    .opt-diagnostic-symbol i + i { margin-left: -7px; }
-    .opt-check-rail article {
-      min-width: 0;
-      padding: 18px 18px 18px 0;
-      border-bottom: 1px solid var(--opt-line);
-    }
-    .opt-check-rail article:nth-child(odd) {
-      border-right: 1px solid var(--opt-line);
-    }
-    .opt-check-rail article:nth-child(even) {
-      padding-left: 18px;
-    }
-    .opt-check-rail strong {
-      display: block;
-      margin-bottom: 5px;
-      font-family: var(--font-heading);
-      font-style: italic;
-      font-weight: 800;
-    }
-    .opt-check-rail p {
-      font-size: .92rem;
-    }
-    .opt-topic {
-      background: #FFFFFF;
-    }
-    .opt-topic-soft {
-      background: #EEF6FC;
-    }
-    .opt-topic-visual {
-      position: relative;
-      width: min(100%, 430px);
-      min-height: 112px;
-      margin-bottom: 24px;
-      overflow: hidden;
-      border-radius: 8px;
-      background: #071F3A;
-      color: #FFFFFF;
-    }
-    .opt-topic-metric {
-      position: absolute;
-      top: 14px;
-      left: 16px;
-      color: #B8DFFF !important;
-      font-size: .7rem;
-      font-weight: 800;
-    }
-    .opt-topic-symbols {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-    }
-    .opt-topic-symbols i {
-      color: #FFFFFF;
-      font-size: 1.4rem;
-    }
-    .opt-topic-symbols i:nth-child(2) {
-      display: grid;
-      width: 52px;
-      height: 52px;
-      place-items: center;
-      border: 1px solid rgba(184, 223, 255, .55);
-      border-radius: 50%;
-      color: #62B8F6;
-      font-size: 1.6rem;
-    }
-    .opt-signal-bars {
-      position: absolute;
-      right: 16px;
-      bottom: 15px;
-      left: 16px;
-      display: flex;
-      align-items: end;
-      gap: 5px;
-      height: 18px;
-    }
-    .opt-signal-bars span {
-      flex: 1;
-      height: 35%;
-      background: #1479D4;
-    }
-    .opt-signal-bars span:nth-child(2) { height: 70%; }
-    .opt-signal-bars span:nth-child(3) { height: 45%; }
-    .opt-signal-bars span:nth-child(4) { height: 92%; }
-    .opt-signal-bars span:nth-child(5) { height: 58%; }
-    .opt-topic-2 .opt-topic-grid {
-      grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
-    }
-    .opt-topic-2 .opt-topic-copy { grid-column: 2; }
-    .opt-topic-2 .opt-topic-details { grid-column: 1; grid-row: 1; }
-    .opt-topic-2 .opt-topic-visual {
-      background: #E1F1FD;
-      border: 1px solid #A9D4F2;
-    }
-    .opt-topic-2 .opt-topic-symbols i { color: #071F3A; }
-    .opt-topic-2 .opt-signal-bars span:nth-child(odd) { height: 90%; }
-    .opt-topic-2 .opt-signal-bars span:nth-child(even) { height: 20%; }
-    .opt-topic-3 { background: #DCECF7; }
-    .opt-topic-3 .opt-topic-grid { align-items: center; }
-    .opt-topic-3 .opt-topic-details { border-color: #A9CBE2; }
-    .opt-topic-3 .opt-topic-visual {
-      background: #FFFFFF;
-      box-shadow: 10px 10px 0 #1479D4;
-    }
-    .opt-topic-3 .opt-topic-symbols i { color: #071F3A; }
-    .opt-topic-3 .opt-topic-symbols i:nth-child(2) { border-color: #1479D4; color: #1479D4; }
-    .opt-topic-4 .opt-topic-grid {
-      grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
-    }
-    .opt-topic-4 .opt-topic-visual {
-      min-height: 150px;
-      background: #DDEFFA;
-    }
-    .opt-topic-4 .opt-topic-symbols { gap: 36px; }
-    .opt-topic-4 .opt-topic-symbols i { color: #071F3A; }
-    .opt-topic-4 .opt-topic-symbols:before,
-    .opt-topic-4 .opt-topic-symbols:after {
-      content: '';
-      width: 42px;
-      border-top: 2px dashed #1479D4;
-    }
-    .opt-topic-details {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 26px;
-      border-top: 1px solid var(--opt-line);
-      padding-top: 20px;
-    }
-    .opt-topic-details ul,
-    .opt-limit-columns ul,
-    .opt-system-list ul {
-      display: grid;
-      gap: 9px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    .opt-topic-details li {
-      display: flex;
-      gap: 9px;
-      font-weight: 600;
-    }
-    .opt-topic-details li i {
-      color: var(--opt-blue);
-      margin-top: 4px;
-    }
-    .opt-network-limit {
-      background: #F8FAFC;
-    }
-    .opt-network-symbol {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: min(100%, 360px);
-      margin-bottom: 20px;
-      color: var(--opt-blue);
-      font-size: 1.25rem;
-    }
-    .opt-network-symbol span {
-      flex: 1;
-      border-top: 2px dashed #8ABFE8;
-    }
-    .opt-limit-columns {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .opt-limit-columns article {
-      padding: 22px;
-      border-top: 3px solid var(--opt-blue);
-      background: #FFFFFF;
-    }
-    .opt-limit-columns li {
-      padding-bottom: 9px;
-      border-bottom: 1px solid var(--opt-line);
-      font-weight: 500;
-    }
-    .opt-mid-cta {
-      padding: 42px 0;
-      background: #DDEFFA;
-    }
-    .opt-mid-cta-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 28px;
-    }
-    .opt-mid-cta h2 {
-      color: var(--opt-ink);
-      font-size: clamp(1.55rem, 2.7vw, 2.35rem);
-    }
-    .opt-mid-cta .opt-btn {
-      flex: 0 0 auto;
-      margin-top: 0;
-    }
-    .opt-system {
-      background: #FFFFFF;
-    }
-    .opt-head {
-      max-width: 880px;
-      margin-bottom: 36px;
-    }
-    .opt-component-symbol {
-      display: grid;
-      grid-template-columns: repeat(4, 42px);
-      gap: 5px;
-      margin-bottom: 20px;
-    }
-    .opt-component-symbol i {
-      display: grid;
-      height: 42px;
-      place-items: center;
-      border-radius: 6px;
-      color: #FFFFFF;
-      background: #071F3A;
-    }
-    .opt-component-symbol i:nth-child(even) { color: #071F3A; background: #B8DFFF; }
-    .opt-system-list {
-      border-top: 1px solid var(--opt-line);
-    }
-    .opt-system-list article {
-      display: grid;
-      grid-template-columns: 54px minmax(0, 1fr);
-      gap: 20px;
-      padding: 28px 0;
-      border-bottom: 1px solid var(--opt-line);
-    }
-    .opt-system-symbol {
-      position: relative;
-      display: grid;
-      width: 48px;
-      height: 48px;
-      place-items: center;
-      border-radius: 8px;
-      color: var(--opt-blue);
-      background: #E1F1FD;
-    }
-    .opt-system-symbol span {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-    .opt-system-symbol span:nth-child(2) { top: 6px; right: 6px; }
-    .opt-system-symbol span:nth-child(3) { right: 6px; bottom: 6px; }
-    .opt-system-symbol span:nth-child(4) { bottom: 6px; left: 6px; }
-    .opt-system-list article:nth-child(even) {
-      grid-template-columns: minmax(0, 1fr) 54px;
-      padding: 32px 24px;
-      background: #EEF6FC;
-    }
-    .opt-system-list article:nth-child(even) .opt-system-symbol { grid-column: 2; grid-row: 1; }
-    .opt-system-list article:nth-child(even) > div:last-child { grid-column: 1; grid-row: 1; }
-    .opt-system-list article:nth-child(3n) .opt-system-symbol {
-      color: #FFFFFF;
-      background: #1479D4;
-      transform: rotate(8deg);
-    }
-    .opt-system-list h2 {
-      margin-top: 0;
-      font-size: clamp(1.45rem, 2.4vw, 2.15rem);
-    }
-    .opt-system-list ul {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      margin-top: 16px;
-    }
-    .opt-system-list li {
-      padding: 9px 11px;
-      border: 1px solid var(--opt-line);
-      border-radius: 8px;
-      background: #F8FAFC;
-      font-size: .88rem;
-      font-weight: 600;
-    }
-    .opt-workloads {
-      background: #EEF6FC;
-    }
-    .opt-workload-symbol {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    .opt-workload-symbol i {
-      display: grid;
-      width: 46px;
-      height: 46px;
-      place-items: center;
-      border-radius: 50%;
-      color: #FFFFFF;
-      background: #071F3A;
-    }
-    .opt-workload-symbol i:nth-child(2) { background: #1479D4; transform: translateY(-8px); }
-    .opt-workload-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .opt-workload-list span {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 52px;
-      padding: 12px 14px;
-      border: 1px solid var(--opt-line);
-      border-radius: 8px;
-      background: #FFFFFF;
-      font-weight: 600;
-    }
-    .opt-workload-list i {
-      color: var(--opt-blue);
-    }
-    .opt-expectations {
-      background: #FFFFFF;
-    }
-    .opt-result-symbol {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-      padding: 13px 16px;
-      border-radius: 8px;
-      color: #FFFFFF;
-      background: #071F3A;
-      font-size: 1.3rem;
-    }
-    .opt-result-symbol i:last-child { color: #62B8F6; }
-    .opt-expectation-grid ol {
-      display: grid;
-      gap: 0;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      border-top: 1px solid var(--opt-line);
-    }
-    .opt-expectation-grid li {
-      display: grid;
-      grid-template-columns: 90px minmax(0, 1fr);
-      gap: 18px;
-      padding: 17px 0;
-      border-bottom: 1px solid var(--opt-line);
-    }
-    .opt-expectation-grid strong {
-      color: var(--opt-blue);
-      font-family: var(--font-heading);
-      font-style: italic;
-      font-weight: 800;
-    }
-    .opt-expectation-grid span {
-      color: var(--opt-muted);
-    }
-    .opt-final-cta {
-      padding: clamp(56px, 8vw, 88px) 0;
-      background: #EAF4FC;
-      color: #071F3A;
-      content-visibility: visible !important;
-      contain: none !important;
-    }
-    .opt-final-cta-inner {
-      display: grid;
-      grid-template-columns: minmax(0, 1.15fr) auto;
-      gap: clamp(28px, 6vw, 72px);
-      align-items: center;
-    }
-    .opt-final-cta h2 {
-      margin: 10px 0 12px;
-      color: #071F3A;
-      font-family: var(--font-heading);
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      font-style: italic;
-      font-weight: 800;
-      line-height: 1.08;
-    }
-    .opt-final-cta p {
-      max-width: 760px;
-      margin: 0;
-      color: #294963;
-      font-weight: 500;
-      line-height: 1.7;
-    }
-    .opt-final-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-end;
-    }
-    .opt-final-actions .opt-btn {
-      margin-top: 0;
-    }
-    .opt-btn-secondary {
-      background: #071F3A;
-    }
-    @media (hover: hover) and (pointer: fine) {
-      .opt-text-cta:hover,
-      .opt-btn:hover {
-        transform: translateY(-2px);
-        background: #0F68B8;
-      }
-    }
-    @media (max-width: 900px) {
-      .opt-overview-grid,
-      .opt-topic-grid,
-      .opt-limit-grid,
-      .opt-workload-grid,
-      .opt-expectation-grid {
-        grid-template-columns: 1fr;
-      }
-      .opt-topic-2 .opt-topic-copy,
-      .opt-topic-2 .opt-topic-details {
-        grid-column: auto;
-        grid-row: auto;
-      }
-      .opt-mid-cta-inner {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-      .opt-final-cta-inner {
-        grid-template-columns: 1fr;
-      }
-      .opt-final-actions {
-        justify-content: flex-start;
-      }
-    }
-    @media (max-width: 640px) {
-      .opt-section {
-        padding: 48px 0;
-      }
-      .opt-check-rail,
-      .opt-topic-details,
-      .opt-limit-columns,
-      .opt-system-list ul,
-      .opt-workload-list {
-        grid-template-columns: 1fr;
-      }
-      .opt-check-rail article:nth-child(odd) {
-        border-right: 0;
-      }
-      .opt-check-rail article:nth-child(even) {
-        padding-left: 0;
-      }
-      .opt-system-list article {
-        grid-template-columns: 1fr;
-      }
-      .opt-system-list article:nth-child(even) {
-        grid-template-columns: 1fr;
-        padding: 24px 18px;
-      }
-      .opt-system-list article:nth-child(even) .opt-system-symbol,
-      .opt-system-list article:nth-child(even) > div:last-child {
-        grid-column: auto;
-        grid-row: auto;
-      }
-      .opt-mid-cta .opt-btn {
-        width: 100%;
-      }
-      .opt-final-actions,
-      .opt-final-actions .opt-btn {
-        width: 100%;
-      }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .opt-text-cta,
-      .opt-btn {
-        transition: none;
-      }
-    }
-  </style>
+        <div class="opt-two-col-grid">
+          <div class="opt-two-col-content">
+            <p>
+              Un equipo de alto rendimiento es una cadena sincronizada. Si un solo eslabón falla, el rendimiento general se desploma. Entre los factores más comunes que encontramos en diagnóstico destacan:
+            </p>
+            <ul class="opt-check-list">
+              <li><strong>Memoria RAM en Single Channel o a frecuencia base:</strong> Perfiles XMP o EXPO apagados en BIOS provocan que memorias DDR4/DDR5 funcionen a velocidades mínimas de fábrica, castigando los 1% lows.</li>
+              <li><strong>Resizable BAR desactivado:</strong> La GPU no puede acceder a toda la memoria de video de forma directa desde la CPU, perdiendo entre 5% y 15% de FPS en juegos modernos.</li>
+              <li><strong>Cuello de botella de CPU (CPU Bottleneck):</strong> La tarjeta gráfica trabaja al 40%–60% porque el procesador o sus hilos principales están saturados por tareas de fondo.</li>
+              <li><strong>Thermal Throttling:</strong> Temperaturas superiores a 85°C–90°C obligan a procesadores y GPUs a bajar automáticamente sus frecuencias para evitar daños físicos.</li>
+              <li><strong>Límites de energía y BIOS desactualizada:</strong> Perfiles de placa madre que limitan el consumo o no entregan estabilidad a los núcleos modernos.</li>
+              <li><strong>Configuración incorrecta de monitor:</strong> Pantallas de 144 Hz o 240 Hz configuradas por error a 60 Hz en el panel de Windows.</li>
+            </ul>
+          </div>
+
+          <!-- Visual Comparison: CPU vs GPU Bottleneck -->
+          <div class="opt-two-col-visual" aria-label="Comparación de cuello de botella CPU frente a GPU">
+            <div class="opt-case-card">
+              <div class="opt-case-card__header">
+                <span class="opt-case-tag opt-case-tag--warning">CASO A · CUELLO DE BOTELLA DE CPU</span>
+              </div>
+              <div class="opt-case-metrics">
+                <div class="opt-case-metric">
+                  <span class="opt-case-metric__label">CPU LOAD</span>
+                  <strong class="opt-case-metric__val text-danger">98% (Saturado)</strong>
+                </div>
+                <div class="opt-case-metric">
+                  <span class="opt-case-metric__label">GPU LOAD</span>
+                  <strong class="opt-case-metric__val text-muted">54% (Subutilizada)</strong>
+                </div>
+              </div>
+              <p class="opt-case-summary">
+                La tarjeta gráfica espera datos del procesador. El juego presenta tirones bruscos y bajar los gráficos no incrementa los FPS.
+              </p>
+            </div>
+
+            <div class="opt-case-card mt-3">
+              <div class="opt-case-card__header">
+                <span class="opt-case-tag opt-case-tag--success">CASO B · CARGA BALANCEADA EN GPU</span>
+              </div>
+              <div class="opt-case-metrics">
+                <div class="opt-case-metric">
+                  <span class="opt-case-metric__label">CPU LOAD</span>
+                  <strong class="opt-case-metric__val text-success">48% (Holgado)</strong>
+                </div>
+                <div class="opt-case-metric">
+                  <span class="opt-case-metric__label">GPU LOAD</span>
+                  <strong class="opt-case-metric__val text-success">99% (Máximo rinde)</strong>
+                </div>
+              </div>
+              <p class="opt-case-summary">
+                La tarjeta gráfica trabaja al máximo de su potencial con frametimes estables y sin retrasos de alimentación de cuadros.
+              </p>
+            </div>
+            <p class="opt-note-text">
+              *El diagnóstico exacto depende de la resolución (1080p vs 1440p vs 4K), el motor gráfico y la carga específica de cada juego.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         4. SECTION: GAMA BAJA, GAMA ALTA Y LAPTOP GAMER
+    ========================================================================== -->
+    <section class="opt-section opt-section--white" id="perfiles-hardware">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">OPTIMIZACIÓN POR TIPO DE HARDWARE</span>
+          <h2>Ajustes específicos para el equipo que tienes hoy</h2>
+          <p class="opt-section-desc">
+            No aplicamos la misma fórmula a una laptop con gráficos integrados que a una estación de combate con una RTX 4090.
+          </p>
+        </div>
+
+        <div class="opt-hardware-grid">
+          <!-- Card 1: PC Gama Baja -->
+          <article class="opt-hw-profile-card">
+            <div class="opt-hw-profile-card__icon" aria-hidden="true">
+              <i class="fa-solid fa-microchip"></i>
+            </div>
+            <h3>Optimización de PC de gama baja: aprovecha mejor tu hardware</h3>
+            <p class="opt-hw-profile-card__lead">
+              Gráficos integrados (APU Ryzen Vega, Intel UHD/Iris), 8 GB de RAM y procesadores con recursos acotados.
+            </p>
+            <ul class="opt-hw-profile-card__list">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Asignación y gestión de memoria VRAM compartida en BIOS.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Configuración de tecnologías de escalado inteligente (FSR / XeSS).</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Cierre estricto de bloatware y procesos secundarios de Windows.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Optimización de memoria virtual (paging file) para evitar crasheos.</li>
+            </ul>
+            <div class="opt-hw-profile-card__footer">
+              <em>No convertimos gráficos integrados en una PC de gama alta: eliminamos desperdicios de recursos para que disfrutes de la mejor experiencia posible dentro de los límites físicos reales.</em>
+            </div>
+          </article>
+
+          <!-- Card 2: PC Gama Alta -->
+          <article class="opt-hw-profile-card opt-hw-profile-card--featured">
+            <div class="opt-hw-profile-card__icon" aria-hidden="true">
+              <i class="fa-solid fa-desktop"></i>
+            </div>
+            <div class="opt-hw-badge">RENDIMIENTO MÁXIMO</div>
+            <h3>PC de gama alta con rendimiento inferior al esperado</h3>
+            <p class="opt-hw-profile-card__lead">
+              Configuraciones entusiastas con RTX 4070/4080/4090, Radeon RX 7000, Ryzen 7000/9000 X3D o Intel Core i7/i9.
+            </p>
+            <ul class="opt-hw-profile-card__list">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Activación y verificación de perfiles XMP / EXPO y Resizable BAR.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Sincronización G-Sync / FreeSync + V-Sync + frame cap para fluidez sin tearing.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Latencia DPC baja eliminando drivers obsoletos y micro-dormencias.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Limpieza de overlays conflictivos (Discord, GeForce Experience, Game Bar).</li>
+            </ul>
+            <div class="opt-hw-profile-card__footer">
+              <em>Garantizamos que cada dólar invertido en componentes de gama alta se traduzca en fotogramas consistentes y latencias mínimas.</em>
+            </div>
+          </article>
+
+          <!-- Card 3: Laptop Gamer -->
+          <article class="opt-hw-profile-card">
+            <div class="opt-hw-profile-card__icon" aria-hidden="true">
+              <i class="fa-solid fa-laptop"></i>
+            </div>
+            <h3>Optimización de laptop gamer: temperaturas y modos de energía</h3>
+            <p class="opt-hw-profile-card__lead">
+              Laptops Asus ROG/TUF, Lenovo Legion, Acer Predator, HP Omen, Dell Alienware y MSI.
+            </p>
+            <ul class="opt-hw-profile-card__list">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Configuración de switch MUX y Advanced Optimus para saltar la GPU integrada.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Desactivación de bloatware OEM que satura la CPU en segundo plano.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Calibración de perfiles de energía para evitar caídas bruscas de reloj.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Curvas de ventilación y control térmico contra el thermal throttling.</li>
+            </ul>
+            <div class="opt-hw-profile-card__footer">
+              <em>Evitamos que tu laptop baje frecuencias a los 10 minutos de juego por acumulación de calor o configuraciones erróneas de batería.</em>
+            </div>
+          </article>
+        </div>
+
+        <!-- Evidencia técnica: Cuando el problema no es software -->
+        <div class="opt-hw-evidence-block">
+          <div class="opt-hw-evidence-header">
+            <span class="opt-section-badge">DIAGNÓSTICO TÉRMICO Y FÍSICO</span>
+            <h3>Cuando el problema no es software: telemetría de límites térmicos</h3>
+            <p>
+              Durante la sesión remota monitoreamos frecuencias, voltajes y temperaturas de unión (junction/hotspot). Si detectamos que el procesador o la GPU sufren <em>thermal throttling</em> severo por disipadores saturados o compuesto térmico degradado, te lo informamos con total honestidad técnica.
+            </p>
+          </div>
+
+          <div class="opt-hw-evidence-grid">
+            <figure class="opt-hw-evidence-card">
+              <div class="opt-hw-evidence-media">
+                <span class="opt-hw-evidence-badge"><i class="fa-solid fa-gauge-high"></i> TRABAJO REAL PIXON PC</span>
+                <picture>
+                  <source media="(max-width: 640px)" srcset="/assets/images/real-work/laptop-gaming-alienware-mantenimiento-reparacion-sm.webp 400w, /assets/images/real-work/laptop-gaming-alienware-mantenimiento-reparacion-md.webp 600w" sizes="(max-width: 640px) 100vw, 500px" />
+                  <source srcset="/assets/images/real-work/laptop-gaming-alienware-mantenimiento-reparacion.webp" />
+                  <img src="/assets/images/real-work/laptop-gaming-alienware-mantenimiento-reparacion.webp" alt="Laptop gamer sobre superficie de trabajo durante pruebas de rendimiento" width="960" height="1178" loading="lazy" decoding="async" />
+                </picture>
+              </div>
+              <figcaption class="opt-hw-evidence-caption">
+                <strong>Laptop gamer en evaluación técnica:</strong> Monitoreo de estabilidad y temperatura para comprobar que el hardware rinde sin cortes por temperatura.
+              </figcaption>
+            </figure>
+
+            <figure class="opt-hw-evidence-card">
+              <div class="opt-hw-evidence-media">
+                <span class="opt-hw-evidence-badge"><i class="fa-solid fa-microchip"></i> TRABAJO REAL PIXON PC</span>
+                <picture>
+                  <source media="(max-width: 640px)" srcset="/assets/images/real-work/hardware-ram-ventilacion-pc-diagnostico-sm.webp 420w, /assets/images/real-work/hardware-ram-ventilacion-pc-diagnostico-md.webp 720w" sizes="(max-width: 640px) 100vw, 500px" />
+                  <source srcset="/assets/images/real-work/hardware-ram-ventilacion-pc-diagnostico.webp" />
+                  <img src="/assets/images/real-work/hardware-ram-ventilacion-pc-diagnostico.webp" alt="Componentes internos de refrigeración y ranuras de memoria RAM" width="960" height="1280" loading="lazy" decoding="async" />
+                </picture>
+              </div>
+              <figcaption class="opt-hw-evidence-caption">
+                <strong>Disipación física y memoria:</strong> Cuando el límite es físico (disipación obstruida o falta de configuración adecuada de memoria), ningún tweak de software sustituye el mantenimiento preventivo.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         5. SECTION: FPS + 1% LOW + FRAME TIME
+    ========================================================================== -->
+    <section class="opt-section opt-section--light" id="frametimes">
+      <div class="container">
+        <div class="opt-section-header">
+          <span class="opt-section-badge">MÉTRICAS PROFESIONALES</span>
+          <h2>No solo buscamos más FPS: buscamos mejores 1% lows y frametimes estables</h2>
+          <p class="opt-section-desc">
+            El contador de FPS promedio no lo es todo. Un promedio alto con caídas repentinas genera una experiencia entrecortada e imprecisa.
+          </p>
+        </div>
+
+        <div class="opt-pacing-comparison">
+          <!-- Before Card -->
+          <div class="opt-pacing-box opt-pacing-box--before">
+            <div class="opt-pacing-box__head">
+              <span class="opt-status-tag opt-status-tag--bad">ANTES DE OPTIMIZAR</span>
+              <h4>160 FPS Promedio (Inestable)</h4>
+            </div>
+            <div class="opt-pacing-metrics">
+              <div><span>1% Low:</span> <strong>42 FPS</strong> (Caídas severas)</div>
+              <div><span>Picos de Frametime:</span> <strong>28.4 ms</strong> (Microtirones)</div>
+            </div>
+            <!-- Jagged Frametime SVG -->
+            <div class="opt-frametime-graph">
+              <svg viewBox="0 0 400 60" class="opt-graph-svg" aria-hidden="true">
+                <path d="M 0 30 L 30 28 L 50 12 L 70 52 L 90 29 L 130 31 L 150 8 L 170 55 L 210 28 L 240 30 L 260 10 L 280 50 L 320 28 L 360 30 L 400 29" fill="none" stroke="#ef4444" stroke-width="2.5" />
+              </svg>
+            </div>
+            <p class="opt-pacing-desc">
+              Línea con picos irregulares: el jugador siente tirones constantes durante enfrentamientos aunque el promedio aparente ser alto.
+            </p>
+          </div>
+
+          <!-- After Card -->
+          <div class="opt-pacing-box opt-pacing-box--after">
+            <div class="opt-pacing-box__head">
+              <span class="opt-status-tag opt-status-tag--good">DESPUÉS DE OPTIMIZAR</span>
+              <h4>155 FPS Promedio (Fluidez Pura)</h4>
+            </div>
+            <div class="opt-pacing-metrics">
+              <div><span>1% Low:</span> <strong>118 FPS</strong> (+180% de estabilidad)</div>
+              <div><span>Frametime Constante:</span> <strong>6.5 ms</strong> (Plano y predecible)</div>
+            </div>
+            <!-- Flat Frametime SVG -->
+            <div class="opt-frametime-graph">
+              <svg viewBox="0 0 400 60" class="opt-graph-svg" aria-hidden="true">
+                <path d="M 0 30 L 40 29 L 80 30 L 120 30 L 160 31 L 200 30 L 240 29 L 280 30 L 320 30 L 360 30 L 400 30" fill="none" stroke="#10b981" stroke-width="2.5" />
+              </svg>
+            </div>
+            <p class="opt-pacing-desc">
+              Línea consistente: cada fotograma se entrega al monitor en intervalos exactos, traduciéndose en suavidad inmediata y puntería precisa.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         6. SECTION: DETAILED TECHNICAL PILLARS (STUTTERING, INPUT LAG, WINDOWS, RED, OBS, CRASHES)
+    ========================================================================== -->
+    <section class="opt-section opt-section--white" id="detalles-tecnicos">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">INGENIERÍA DEL RENDIMIENTO</span>
+          <h2>Diagnóstico profundo en cada área crítica del sistema</h2>
+          <p class="opt-section-desc">
+            Abordamos los problemas técnicos con método, aislando cada variable sin alterar componentes a ciegas.
+          </p>
+        </div>
+
+        <div class="opt-deep-dive-grid">
+          <!-- Pillar 1: Stuttering -->
+          <article class="opt-deep-card">
+            <div class="opt-deep-card__header">
+              <i class="fa-solid fa-wave-square" aria-hidden="true"></i>
+              <h3>Stuttering y microstuttering</h3>
+            </div>
+            <p>
+              Revisamos la compilación de shaders en DirectX 12 y Vulkan, desbordamiento de memoria VRAM a la memoria RAM del sistema, velocidades de lectura en SSD, overlays de terceros y frametime spikes causados por interrupciones de hardware.
+            </p>
+          </article>
+
+          <!-- Pillar 2: Input Lag -->
+          <article class="opt-deep-card">
+            <div class="opt-deep-card__header">
+              <i class="fa-solid fa-computer-mouse" aria-hidden="true"></i>
+              <h3>Input lag de periféricos y monitor</h3>
+            </div>
+            <p>
+              Optimizamos la cadena de entrada completa: polling rate del mouse (1000 Hz vs 4000/8000 Hz según capacidad de CPU), puertos USB directos a la placa madre, hercios reales de pantalla, límites de cola de renderizado y tecnologías NVIDIA Reflex / AMD Anti-Lag.
+            </p>
+          </article>
+
+          <!-- Pillar 3: Windows -->
+          <article class="opt-deep-card">
+            <div class="opt-deep-card__header">
+              <i class="fa-brands fa-windows" aria-hidden="true"></i>
+              <h3>Windows 10 / 11 lento o saturado</h3>
+            </div>
+            <p>
+              Depuración quirúrgica de servicios innecesarios, programas de inicio, tareas programadas huérfanas, verificación de integridad con DISM y SFC, y calibración de perfiles de energía sin desactivar actualizaciones ni defensas de seguridad esenciales.
+            </p>
+          </article>
+
+          <!-- Pillar 4: Network -->
+          <article class="opt-deep-card">
+            <div class="opt-deep-card__header">
+              <i class="fa-solid fa-network-wired" aria-hidden="true"></i>
+              <h3>Ping alto, jitter y packet loss</h3>
+            </div>
+            <p>
+              Ajustamos la pila TCP/IP, configuraciones del adaptador Ethernet, bufferbloat y descargas en segundo plano. Aclaramos con transparencia que la distancia geográfica a los servidores y las rutas externas de tu ISP tienen límites físicos infranqueables.
+            </p>
+          </article>
+
+          <!-- Pillar 5: OBS Streaming -->
+          <article class="opt-deep-card">
+            <div class="opt-deep-card__header">
+              <i class="fa-solid fa-video" aria-hidden="true"></i>
+              <h3>¿Pierdes FPS al grabar o hacer stream?</h3>
+            </div>
+            <p>
+              Configuramos OBS Studio para utilizar codificadores de hardware dedicados (NVENC, AMF, QuickSync o AV1), separando la carga del motor 3D de la GPU, optimizando fuentes de navegador pesadas y otorgando prioridad de proceso para cero caídas de cuadros.
+            </p>
+          </article>
+
+          <!-- Pillar 6: Crashes -->
+          <article class="opt-deep-card">
+            <div class="opt-deep-card__header">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <h3>Juegos que se cierran o congelan</h3>
+            </div>
+            <p>
+              Diagnosticamos errores de DirectX, driver timeouts, falta de memoria virtual (archivo de paginación), inestabilidad de perfiles XMP/EXPO de RAM o overclock inestable, distinguiendo problemas de software de posibles fallas físicas de hardware.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         7. SECTION: QUÉ REVISAMOS (STACK DE 7 CAPAS)
+    ========================================================================== -->
+    <section class="opt-section opt-section--light" id="que-revisamos">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">METODOLOGÍA DE REVISIÓN</span>
+          <h2>Qué revisamos en tu computadora</h2>
+          <p class="opt-section-desc">
+            Una auditoría de 7 capas técnicas para no dejar ningún componente crítico sin diagnóstico.
+          </p>
+        </div>
+
+        <div class="opt-stack-list">
+          {checkStack.map((item) => (
+            <div class="opt-stack-item">
+              <div class="opt-stack-item__step">{item.step}</div>
+              <div class="opt-stack-item__title">{item.title}</div>
+              <div class="opt-stack-item__desc">{item.items}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         8. SECTION: OPTIMIZACIÓN POR JUEGO
+    ========================================================================== -->
+    <section class="opt-section opt-section--white" id="juegos">
+      <div class="container">
+        <div class="opt-section-header">
+          <span class="opt-section-badge">TÍTULOS Y MOTORES</span>
+          <h2>Optimización según el juego que realmente utilizas</h2>
+          <p class="opt-section-desc">
+            Cada motor gráfico demanda recursos distintos. Ajustamos los parámetros específicos del juego para obtener el balance ideal entre visibilidad competitiva y frametime plano.
+          </p>
+        </div>
+
+        <div class="opt-games-grid">
+          {gamesGroups.map((g) => (
+            <article class="opt-game-group-card">
+              <div class="opt-game-group-card__header">
+                <h3>{g.category}</h3>
+              </div>
+              <p class="opt-game-group-card__titles">{g.games}</p>
+              <div class="opt-game-group-card__note">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                <span>{g.note}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         9. SECTION: TRUST / NO MAGIC TWEAKS
+    ========================================================================== -->
+    <section class="opt-section opt-section--trust" id="seguridad-y-confianza">
+      <div class="container">
+        <div class="opt-trust-box">
+          <div class="opt-trust-box__header text-center">
+            <span class="opt-section-badge opt-section-badge--cyan">MÉTODO CIENTÍFICO</span>
+            <h2 class="text-white">No usamos "tweaks mágicos"</h2>
+            <p class="opt-trust-lead text-white">
+              Muchos optimizadores de internet instalan ejecutables desconocidos o aplican scripts que rompen Windows. Nuestro enfoque se basa estrictamente en ingeniería.
+            </p>
+          </div>
+
+          <div class="opt-trust-grid">
+            <div class="opt-trust-col opt-trust-col--no">
+              <h3 class="opt-trust-title opt-color-danger">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i> LO QUE NO HACEMOS
+              </h3>
+              <ul>
+                <li>No ejecutamos scripts aleatorios de registro descargados de foros.</li>
+                <li>No instalamos programas "optimizadores" milagrosos ni limpiadores automáticos.</li>
+                <li>No desactivamos la seguridad de Windows, Defender o cortafuegos al azar.</li>
+                <li>No prometemos cifras falsas como "+300% de FPS garantizados".</li>
+                <li>No aplicamos un preset idéntico para todas las computadoras.</li>
+              </ul>
+            </div>
+
+            <div class="opt-trust-col opt-trust-col--yes">
+              <h3 class="opt-trust-title opt-color-emerald">
+                <i class="fa-solid fa-check" aria-hidden="true"></i> LO QUE SÍ HACEMOS
+              </h3>
+              <ul>
+                <li>Medimos el rendimiento real antes con herramientas de telemetría y benchmark.</li>
+                <li>Identificamos con evidencia la causa raíz del cuello de botella.</li>
+                <li>Aplicamos únicamente las modificaciones técnicas necesarias y seguras.</li>
+                <li>Probamos nuevamente en el mismo escenario para verificar la mejora.</li>
+                <li>Documentamos y explicamos cada ajuste para que mantengas el control de tu PC.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         10. SECTION: SERVICIO REMOTO MUNDIAL & BIOS
+    ========================================================================== -->
+    <section class="opt-section opt-section--light" id="servicio-remoto">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">COBERTURA INTERNACIONAL</span>
+          <h2>Optimización remota de PC desde cualquier país</h2>
+          <p class="opt-section-desc">
+            No necesitas transportar tu equipo ni dejarlo en ningún taller. Realizamos la sesión en vivo a través de software de asistencia remota segura.
+          </p>
+        </div>
+
+        <div class="opt-remote-flow-grid">
+          <div class="opt-remote-step">
+            <div class="opt-remote-step__num">1</div>
+            <h4>Conexión Segura</h4>
+            <p>Descargas una herramienta remota estándar y segura (AnyDesk / RustDesk). Tú autorizas el enlace temporal.</p>
+          </div>
+          <div class="opt-remote-step">
+            <div class="opt-remote-step__num">2</div>
+            <h4>Visibilidad Total</h4>
+            <p>Ves cada movimiento en tu monitor en tiempo real. Tienes el control total del mouse y puedes cancelar la sesión al instante.</p>
+          </div>
+          <div class="opt-remote-step">
+            <div class="opt-remote-step__num">3</div>
+            <h4>Privacidad Garantizada</h4>
+            <p>No abrimos documentos, fotografías ni datos personales. La herramienta se desconecta y elimina al finalizar la sesión.</p>
+          </div>
+          <div class="opt-remote-step">
+            <div class="opt-remote-step__num">4</div>
+            <h4>BIOS / UEFI Guiada</h4>
+            <p>Para activar XMP/EXPO o Resizable BAR en BIOS, te guiamos por llamada de voz o WhatsApp paso a paso.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         11. SECTION: METODOLOGÍA DE 4 PASOS
+    ========================================================================== -->
+    <section class="opt-section opt-section--white" id="metodologia">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">FLUJO DE TRABAJO</span>
+          <h2>Cómo trabajamos: metodología en 4 pasos</h2>
+          <p class="opt-section-desc">
+            Un proceso ordenado y transparente de principio a fin.
+          </p>
+        </div>
+
+        <div class="opt-steps-grid">
+          <div class="opt-step-box">
+            <span class="opt-step-box__idx">01</span>
+            <h3>MEDIMOS</h3>
+            <p>Registramos FPS promedio, 1% lows, frametime, uso de CPU/GPU, temperaturas y latencia en tu juego habitual antes de tocar nada.</p>
+          </div>
+          <div class="opt-step-box">
+            <span class="opt-step-box__idx">02</span>
+            <h3>DIAGNOSTICAMOS</h3>
+            <p>Aislamos el cuello de botella: drivers conflictivos, saturación de RAM, límites térmicos o configuraciones erróneas.</p>
+          </div>
+          <div class="opt-step-box">
+            <span class="opt-step-box__idx">03</span>
+            <h3>OPTIMIZAMOS</h3>
+            <p>Aplicamos cambios quirúrgicos en Windows, drivers, periféricos y configuraciones gráficas con tu previa autorización.</p>
+          </div>
+          <div class="opt-step-box">
+            <span class="opt-step-box__idx">04</span>
+            <h3>VERIFICAMOS</h3>
+            <p>Repetimos la prueba exacta de benchmark para confirmar la mejora con datos objetivos y medibles.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         12. SECTION: PAQUETES Y PRECIOS TRANSPARENTES
+    ========================================================================== -->
+    <section class="opt-section opt-section--light" id="paquetes">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">PRECIOS CLAROS EN USD</span>
+          <h2>Paquetes de optimización remota</h2>
+          <p class="opt-section-desc">
+            Tarifas fijas internacionales sin sorpresas ni cargos ocultos. Pago seguro con tarjeta o transferencia.
+          </p>
+        </div>
+
+        <div class="opt-pricing-cards-grid">
+          <!-- Package 1: PC Speed -->
+          <div class="opt-price-card">
+            <div class="opt-price-card__header">
+              <span class="opt-price-badge">TRABAJO Y ESTUDIO</span>
+              <h3>PC Speed</h3>
+              <p>Ideal para acelerar computadoras y laptops de uso diario, oficina o programación lenta.</p>
+            </div>
+            <div class="opt-price-card__amount">
+              <span class="opt-price-currency">$</span>
+              <span class="opt-price-val">20</span>
+              <span class="opt-price-unit">USD</span>
+            </div>
+            <ul class="opt-price-features">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Limpieza profunda de archivos temporales y basura.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Desactivación de programas de inicio innecesarios.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Optimización de servicios y tareas en segundo plano.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Verificación de integridad de archivos de sistema con DISM/SFC.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Calibración del plan de energía de Windows.</li>
+            </ul>
+            <a href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20quiero%20agendar%20el%20paquete%20PC%20Speed%20(%2420%20USD)." class="opt-btn opt-btn--outline" target="_blank" rel="noopener noreferrer">
+              Elegir PC Speed
+            </a>
+          </div>
+
+          <!-- Package 2: Gaming Performance (Featured) -->
+          <div class="opt-price-card opt-price-card--featured">
+            <div class="opt-price-badge-pop">RECOMENDADO · GAMING</div>
+            <div class="opt-price-card__header">
+              <span class="opt-price-badge opt-price-badge--cyan">JUEGOS Y COMPETITIVO</span>
+              <h3>Gaming Performance</h3>
+              <p>El paquete principal para resolver bajos FPS, stuttering, microtirones e input lag en tus juegos.</p>
+            </div>
+            <div class="opt-price-card__amount">
+              <span class="opt-price-currency">$</span>
+              <span class="opt-price-val">40</span>
+              <span class="opt-price-unit">USD</span>
+            </div>
+            <ul class="opt-price-features">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <strong>Todo lo incluido en el paquete PC Speed.</strong></li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Diagnóstico de cuello de botella de CPU y GPU.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Benchmark inicial y final con medición de 1% lows.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Reducción de input lag en periféricos y monitor.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Configuración de drivers limpios y panel de control NVIDIA/AMD.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Optimización gráfica específica para tu juego principal.</li>
+            </ul>
+            <a href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20quiero%20agendar%20el%20paquete%20Gaming%20Performance%20(%2440%20USD)." class="opt-btn opt-btn--primary" target="_blank" rel="noopener noreferrer">
+              Elegir Gaming Performance
+            </a>
+          </div>
+
+          <!-- Package 3: Advanced Tuning -->
+          <div class="opt-price-card">
+            <div class="opt-price-card__header">
+              <span class="opt-price-badge">ENTUSIASTAS & HARDWARE</span>
+              <h3>Advanced Tuning</h3>
+              <p>Para usuarios exigentes que buscan estabilidad térmica extrema, BIOS y afinación avanzada.</p>
+            </div>
+            <div class="opt-price-card__amount">
+              <span class="opt-price-currency">$</span>
+              <span class="opt-price-val">75</span>
+              <span class="opt-price-unit">USD</span>
+            </div>
+            <ul class="opt-price-features">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <strong>Todo lo incluido en Gaming Performance.</strong></li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Activación y ajuste guiado en BIOS (XMP/EXPO, ReBAR).</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Análisis térmico avanzado y curvas de ventilación personalizadas.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Calibración de undervolt en CPU o GPU cuando el hardware lo permite.</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Pruebas de estrés sostenidas para garantizar 100% de estabilidad.</li>
+            </ul>
+            <a href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20quiero%20agendar%20el%20paquete%20Advanced%20Tuning%20(%2475%20USD)." class="opt-btn opt-btn--outline" target="_blank" rel="noopener noreferrer">
+              Elegir Advanced Tuning
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         13. SECTION: CASOS DE ESTUDIO (METODOLOGÍA DE INGENIERÍA)
+    ========================================================================== -->
+    <section class="opt-section opt-section--white" id="casos-estudio">
+      <div class="container">
+        <div class="opt-section-header">
+          <span class="opt-section-badge">MUESTRA METODOLÓGICA</span>
+          <h2>Casos de diagnóstico y resolución técnica</h2>
+          <p class="opt-section-desc">
+            Ejemplos de cómo resolvemos problemas comunes con datos verificados y limitaciones físicas claras.
+          </p>
+        </div>
+
+        <div class="opt-case-study-list">
+          <article class="opt-case-box">
+            <div class="opt-case-box__header">
+              <span class="opt-case-num">CASO #01</span>
+              <h4>Warzone con caídas de FPS e inconsistencia de frametime</h4>
+            </div>
+            <div class="opt-case-grid">
+              <div>
+                <strong>HARDWARE:</strong> Ryzen 5 5600X · RTX 3070 · 16 GB DDR4 · SSD NVMe 1TB.<br>
+                <strong>PROBLEMA:</strong> FPS promedio de 135 con caídas repentinas a 45 FPS al entrar en tiroteos.<br>
+                <strong>CAUSA RAÍZ:</strong> Memoria RAM operando a 2133 MHz (XMP desactivado) y saturación del archivo de paginación por VRAM desbordada.
+              </div>
+              <div>
+                <strong>CAMBIOS APLICADOS:</strong> Activación guiada de XMP en BIOS a 3600 MHz, Resizable BAR encendido, calibración de escala de VRAM en Warzone y eliminación de overlays de grabación en segundo plano.<br>
+                <strong>RESULTADO:</strong> 1% lows elevados de 48 FPS a 108 FPS con frametime plano de 7.1 ms.<br>
+                <strong>LIMITACIONES FÍSICAS:</strong> La resolución de 1440p en ultra continúa dependiendo de los 8 GB de VRAM de la gráfica en mapas masivos.
+              </div>
+            </div>
+          </article>
+
+          <article class="opt-case-box">
+            <div class="opt-case-box__header">
+              <span class="opt-case-num">CASO #02</span>
+              <h4>Laptop Gamer con thermal throttling y microstuttering en Valorant</h4>
+            </div>
+            <div class="opt-case-grid">
+              <div>
+                <strong>HARDWARE:</strong> Core i7-11800H · RTX 3060 Laptop · 16 GB RAM · Pantalla 144 Hz.<br>
+                <strong>PROBLEMA:</strong> 220 FPS al arrancar que bajaban a 90 FPS tras 10 minutos de partida con sensación pesada en el mouse.<br>
+                <strong>CAUSA RAÍZ:</strong> CPU superando los 96°C con thermal throttling severo y switch Optimus enrutando la señal por los gráficos Intel integrados.
+              </div>
+              <div>
+                <strong>CAMBIOS APLICADOS:</strong> Activación de modo dGPU exclusivo (MUX switch), calibración de perfil de energía evitando picos innecesarios de reloj a 4.6 GHz en reposo, curva de ventiladores activa y frame cap a 141 FPS.<br>
+                <strong>RESULTADO:</strong> Temperatura estabilizada en 78°C sostenida, cero caídas de frecuencia y respuesta inmediata de puntería.<br>
+                <strong>LIMITACIONES FÍSICAS:</strong> El chasis delgado de la laptop requiere mantenimiento físico preventivo periódico de pasta térmica.
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         14. SECTION: LEAD FORM / DIAGNÓSTICO INTERACTIVO
+    ========================================================================== -->
+    <section class="opt-section opt-section--light" id="diagnostico">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">SOLICITUD DE DIAGNÓSTICO</span>
+          <h2>Diagnostica el rendimiento de tu PC</h2>
+          <p class="opt-section-desc">
+            Completa la ficha técnica de tu equipo para recibir una evaluación precisa y coordinar tu sesión remota con un técnico especializado.
+          </p>
+        </div>
+
+        <div class="opt-form-container">
+          <form id="opt-lead-form" class="opt-lead-form">
+            <div class="opt-form-row">
+              <div class="opt-form-group">
+                <label for="lead-country">País donde te encuentras:</label>
+                <input type="text" id="lead-country" name="country" placeholder="Ej. México, España, EE.UU., Colombia..." required />
+              </div>
+              <div class="opt-form-group">
+                <label for="lead-lang">Idioma preferido:</label>
+                <select id="lead-lang" name="language">
+                  <option value="Español" selected>Español</option>
+                  <option value="English">English</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="opt-form-row">
+              <div class="opt-form-group">
+                <label for="lead-cpu">Procesador (CPU):</label>
+                <input type="text" id="lead-cpu" name="cpu" placeholder="Ej. Ryzen 5 5600, Intel i7-12700..." required />
+              </div>
+              <div class="opt-form-group">
+                <label for="lead-gpu">Tarjeta Gráfica (GPU):</label>
+                <input type="text" id="lead-gpu" name="gpu" placeholder="Ej. RTX 3060, Radeon 6700XT, Gráficos integrados..." required />
+              </div>
+            </div>
+
+            <div class="opt-form-row">
+              <div class="opt-form-group">
+                <label for="lead-ram">Memoria RAM:</label>
+                <input type="text" id="lead-ram" name="ram" placeholder="Ej. 16 GB DDR4 3200MHz..." required />
+              </div>
+              <div class="opt-form-group">
+                <label for="lead-os">Sistema Operativo:</label>
+                <select id="lead-os" name="os">
+                  <option value="Windows 11">Windows 11</option>
+                  <option value="Windows 10">Windows 10</option>
+                  <option value="Otro">Otro / No sé</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="opt-form-row">
+              <div class="opt-form-group">
+                <label for="lead-game">Juego o programa principal:</label>
+                <input type="text" id="lead-game" name="game" placeholder="Ej. Warzone, Valorant, CS2, Fortnite, FiveM..." required />
+              </div>
+              <div class="opt-form-group">
+                <label for="lead-symptom">Síntoma principal:</label>
+                <select id="lead-symptom" name="symptom">
+                  <option value="Bajos FPS">Bajos FPS</option>
+                  <option value="Stuttering / Microtirones">Stuttering / Microtirones</option>
+                  <option value="FPS Drops">FPS Drops repentinos</option>
+                  <option value="Input Lag">Input Lag en mouse/teclado</option>
+                  <option value="GPU bajo uso">GPU trabaja a bajo uso</option>
+                  <option value="CPU al 100%">CPU al 100% saturada</option>
+                  <option value="PC lenta en Windows">Windows lento en general</option>
+                  <option value="Ping / Packet Loss">Ping alto o pérdida de paquetes</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="opt-form-row">
+              <div class="opt-form-group">
+                <label for="lead-fps">FPS actuales y FPS que esperas ver:</label>
+                <input type="text" id="lead-fps" name="fps_details" placeholder="Ej. Doy 90 FPS y espero 140 FPS estables..." />
+              </div>
+              <div class="opt-form-group">
+                <label for="lead-net">Conexión a internet:</label>
+                <select id="lead-net" name="network">
+                  <option value="Cable Ethernet">Cable Ethernet</option>
+                  <option value="Wi-Fi">Wi-Fi</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="opt-form-actions">
+              <button type="submit" id="btn-submit-wa" class="opt-btn opt-btn--primary opt-btn--full">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Enviar diagnóstico a un técnico por WhatsApp
+              </button>
+              <a id="btn-submit-ticket" href="/tickets?service=Optimizacion&source=/optimizacion" class="opt-btn opt-btn--secondary opt-btn--full mt-2">
+                <i class="fa-solid fa-ticket" aria-hidden="true"></i> Prefiero crear un ticket en web
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         15. SECTION: FAQ EXHAUSTIVO
+    ========================================================================== -->
+    <section class="opt-section opt-section--white" id="faq">
+      <div class="container">
+        <div class="opt-section-header text-center">
+          <span class="opt-section-badge">PREGUNTAS FRECUENTES</span>
+          <h2>Preguntas frecuentes sobre optimización de PC</h2>
+          <p class="opt-section-desc">
+            Respuestas técnicas claras a las dudas más comunes sobre rendimiento, seguridad y alcance del servicio remoto.
+          </p>
+        </div>
+
+        <div class="opt-faq-grid">
+          {faqs.map((f, i) => (
+            <details class="opt-faq-item" id={`faq-${i + 1}`}>
+              <summary class="opt-faq-question">
+                <span>{f.q}</span>
+                <i class="fa-solid fa-chevron-down opt-faq-chevron" aria-hidden="true"></i>
+              </summary>
+              <div class="opt-faq-answer">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Roadmaps for Cluster Articles -->
+    <div class="opt-cluster-nav container" aria-label="Temas relacionados de rendimiento">
+      <span class="opt-cluster-label">LECTURAS Y GUÍAS TÉCNICAS RECOMENDADAS:</span>
+      <div class="opt-cluster-links">
+        <a href="/blogs/pasta-termica-vs-metal-liquido">Pasta térmica vs metal líquido</a>
+        <a href="/blogs/aplicacion-metal-liquido-cancun">Guía de metal líquido</a>
+        <a href="/servicios/pc/lentitud">Diagnóstico de PC lenta</a>
+        <a href="/ensambles">Guía de ensamble de hardware balanceado</a>
+      </div>
+    </div>
+
+    <!-- Comments / Reviews Section -->
+    <CommentsSection />
+  </main>
 
   <Footer />
 </Base>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('opt-lead-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var country = document.getElementById('lead-country').value || '';
+      var lang = document.getElementById('lead-lang').value || 'Español';
+      var cpu = document.getElementById('lead-cpu').value || '';
+      var gpu = document.getElementById('lead-gpu').value || '';
+      var ram = document.getElementById('lead-ram').value || '';
+      var os = document.getElementById('lead-os').value || '';
+      var game = document.getElementById('lead-game').value || '';
+      var symptom = document.getElementById('lead-symptom').value || '';
+      var fps = document.getElementById('lead-fps').value || 'No especificado';
+      var net = document.getElementById('lead-net').value || '';
+
+      var msg = 'Hola Pixon PC! Solicito diagnóstico para optimización remota:\n\n' +
+                '📍 País: ' + country + ' (' + lang + ')\n' +
+                '💻 Hardware: CPU: ' + cpu + ' | GPU: ' + gpu + ' | RAM: ' + ram + '\n' +
+                '🪟 Sistema: ' + os + ' | Red: ' + net + '\n' +
+                '🎮 Juego / App: ' + game + '\n' +
+                '⚠️ Síntoma principal: ' + symptom + '\n' +
+                '📊 FPS actuales / esperados: ' + fps + '\n\n' +
+                'Fuente: pixon.com.mx/optimizacion';
+
+      var waUrl = 'https://wa.me/529986690777?text=' + encodeURIComponent(msg);
+      if (window.smartWaRedirect) {
+        window.smartWaRedirect(waUrl);
+      } else {
+        window.open(waUrl, '_blank');
+      }
+    });
+  });
+</script>
+
+<style>
+  /* =========================================================================
+     SCOPED STYLES: REMOTE PERFORMANCE LAB DESIGN SYSTEM
+  ========================================================================== */
+  .opt-page {
+    --azul-oscuro: #071F3A;
+    --primary-blue: #2563eb;
+    --accent-cyan: #38bdf8;
+    --accent-emerald: #10b981;
+    --border-light: #e2e8f0;
+    --bg-light: #f8fafc;
+    color: var(--azul-oscuro);
+    font-family: var(--font-main, 'Red Hat Display', sans-serif);
+    overflow-x: hidden;
+  }
+
+  .opt-breadcrumb-wrap {
+    padding-top: 12px;
+    padding-bottom: 4px;
+  }
+
+  /* Color Contract outside dark hero */
+  .opt-section h2,
+  .opt-section h3,
+  .opt-section h4,
+  .opt-section p,
+  .opt-section li,
+  .opt-section strong,
+  .opt-section span:not(.opt-pulse-dot):not(.opt-price-badge-pop):not(.opt-case-tag):not(.opt-status-tag) {
+    color: var(--azul-oscuro);
+  }
+
+  .text-white { color: #ffffff !important; }
+  .text-danger { color: #ef4444 !important; }
+  .text-success { color: #10b981 !important; }
+  .text-muted { color: #64748b !important; }
+  .opt-color-cyan { color: #38bdf8 !important; }
+  .opt-color-emerald { color: #10b981 !important; }
+  .opt-color-danger { color: #ef4444 !important; }
+  .text-center { text-align: center; }
+
+  /* 1. HERO SECTION */
+  .opt-hero {
+    background: linear-gradient(135deg, #071F3A 0%, #0c2b4e 50%, #071526 100%);
+    color: #ffffff;
+    padding: 50px 0 45px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .opt-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+
+  .opt-hero__grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    position: relative;
+    z-index: 2;
+    flex-wrap: wrap;
+  }
+
+  .opt-hero__content {
+    flex: 1.15;
+    min-width: 320px;
+    max-width: 650px;
+  }
+
+  .opt-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #7dd3fc !important;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .opt-pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #38bdf8;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #38bdf8;
+    display: inline-block;
+  }
+
+  .opt-hero__title {
+    font-family: var(--font-heading, 'Kanit', sans-serif);
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    color: #ffffff !important;
+  }
+
+  .opt-hero__lead {
+    font-size: 1.08rem;
+    color: #e2e8f0 !important;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .opt-hero__sublead {
+    font-size: 0.95rem;
+    color: #94a3b8 !important;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+
+  .opt-hero__badges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .opt-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+
+  .opt-badge i {
+    color: #38bdf8;
+    font-size: 0.95rem;
+  }
+
+  .opt-badge span {
+    color: #cbd5e1 !important;
+  }
+
+  .opt-hero__actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .opt-btn {
+    padding: 13px 24px;
+    font-size: 0.96rem;
+    font-weight: 800;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .opt-btn--primary {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: #ffffff !important;
+    box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.6);
+    border: none;
+  }
+
+  .opt-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px -6px rgba(37, 99, 235, 0.7);
+  }
+
+  .opt-btn--secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+  }
+
+  .opt-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .opt-btn--outline {
+    background: transparent;
+    border: 2px solid #2563eb;
+    color: #2563eb !important;
+  }
+
+  .opt-btn--outline:hover {
+    background: #2563eb;
+    color: #ffffff !important;
+  }
+
+  .opt-btn--full {
+    width: 100%;
+  }
+
+  /* Hero Right Panel: Lab Telemetry */
+  .opt-hero__visual {
+    flex: 1;
+    min-width: 320px;
+    max-width: 500px;
+  }
+
+  .opt-lab-panel {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  .opt-lab-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+  }
+
+  .opt-lab-panel__title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .opt-lab-panel__terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #10b981;
+  }
+
+  .opt-lab-panel__title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #94a3b8 !important;
+  }
+
+  .opt-lab-panel__status-pill {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8 !important;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .opt-telemetry-block {
+    margin-bottom: 16px;
+  }
+
+  .opt-telemetry-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .opt-telemetry-label {
+    color: #94a3b8 !important;
+  }
+
+  .opt-telemetry-val {
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+
+  .opt-progress-track {
+    width: 100%;
+    height: 8px;
+    background: #1e293b;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .opt-progress-bar {
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  .opt-bar-fps {
+    background: linear-gradient(90deg, #2563eb, #38bdf8);
+  }
+
+  .opt-bar-low {
+    background: linear-gradient(90deg, #059669, #10b981);
+  }
+
+  .opt-sparkline-wrap {
+    height: 36px;
+    background: #1e293b;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .opt-sparkline-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .opt-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 18px;
+    margin-bottom: 16px;
+  }
+
+  .opt-metric-pill {
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 8px 6px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .opt-metric-pill__lbl {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #64748b !important;
+    margin-bottom: 2px;
+  }
+
+  .opt-metric-pill__val {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #e2e8f0 !important;
+    font-family: monospace;
+  }
+
+  .opt-lab-panel__footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(30, 41, 59, 0.7);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #38bdf8 !important;
+    margin-bottom: 8px;
+  }
+
+  .opt-lab-panel__footer span {
+    color: #38bdf8 !important;
+  }
+
+  .opt-lab-panel__disclaimer {
+    font-size: 0.72rem;
+    color: #64748b !important;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* 2. SECTION COMMONS */
+  .opt-section {
+    padding: 65px 0;
+  }
+
+  .opt-section--white {
+    background: #ffffff;
+  }
+
+  .opt-section--light {
+    background: #f8fafc;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .opt-section-header {
+    max-width: 820px;
+    margin: 0 auto 40px;
+  }
+
+  .opt-section-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb !important;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .opt-section-badge--cyan {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8 !important;
+    border-color: rgba(56, 189, 248, 0.35);
+  }
+
+  .opt-section-header h2 {
+    font-family: var(--font-heading, 'Kanit', sans-serif);
+    font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .opt-section-desc {
+    font-size: 1.05rem;
+    color: #475569 !important;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* 3. PROBLEMS SELECTOR */
+  .opt-problems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .opt-problem-card {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .opt-problem-card:hover {
+    transform: translateY(-3px);
+    border-color: #3b82f6;
+  }
+
+  .opt-problem-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .opt-problem-card__badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #2563eb !important;
+    background: #eff6ff;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .opt-problem-card__icon {
+    font-size: 1.2rem;
+    color: #3b82f6;
+  }
+
+  .opt-problem-card h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .opt-problem-card p {
+    font-size: 0.92rem;
+    color: #475569 !important;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* 4. TWO COLUMNS BOTTLENECK */
+  .opt-two-col-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  @media (max-width: 991px) {
+    .opt-two-col-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .opt-check-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0;
+  }
+
+  .opt-check-list li {
+    font-size: 0.95rem;
+    color: #334155 !important;
+    line-height: 1.55;
+    margin-bottom: 14px;
+    padding-left: 24px;
+    position: relative;
+  }
+
+  .opt-check-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #2563eb;
+    font-weight: 900;
+  }
+
+  .opt-case-card {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  }
+
+  .opt-case-card__header {
+    margin-bottom: 12px;
+  }
+
+  .opt-case-tag {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .opt-case-tag--warning {
+    background: #fffbeb;
+    color: #b45309 !important;
+    border: 1px solid #fde68a;
+  }
+
+  .opt-case-tag--success {
+    background: #ecfdf5;
+    color: #047857 !important;
+    border: 1px solid #a7f3d0;
+  }
+
+  .opt-case-metrics {
+    display: flex;
+    gap: 16px;
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+
+  .opt-case-metric {
+    flex: 1;
+  }
+
+  .opt-case-metric__label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b !important;
+  }
+
+  .opt-case-metric__val {
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+
+  .opt-case-summary {
+    font-size: 0.88rem;
+    color: #475569 !important;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .opt-note-text {
+    font-size: 0.82rem;
+    color: #64748b !important;
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  /* 5. HARDWARE PROFILES */
+  .opt-hardware-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .opt-hw-profile-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .opt-hw-profile-card--featured {
+    background: #ffffff;
+    border: 2px solid #2563eb;
+    box-shadow: 0 12px 30px -8px rgba(37, 99, 235, 0.15);
+  }
+
+  .opt-hw-badge {
+    position: absolute;
+    top: -12px;
+    right: 24px;
+    background: #2563eb;
+    color: #ffffff !important;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .opt-hw-profile-card__icon {
+    font-size: 1.8rem;
+    color: #2563eb;
+    margin-bottom: 16px;
+  }
+
+  .opt-hw-profile-card h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  .opt-hw-profile-card__lead {
+    font-size: 0.92rem;
+    color: #475569 !important;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .opt-hw-profile-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+  }
+
+  .opt-hw-profile-card__list li {
+    font-size: 0.88rem;
+    color: #334155 !important;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .opt-hw-profile-card__list i {
+    color: #10b981;
+    font-size: 0.82rem;
+    margin-top: 3px;
+  }
+
+  .opt-hw-profile-card__footer {
+    margin-top: auto;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 14px;
+    font-size: 0.82rem;
+    color: #64748b !important;
+  }
+
+  /* Real Work Hardware Evidence Block */
+  .opt-hw-evidence-block {
+    margin-top: 48px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .opt-hw-evidence-header {
+    max-width: 780px;
+    margin-bottom: 28px;
+  }
+
+  .opt-hw-evidence-header h3 {
+    margin: 10px 0 12px;
+    font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+    font-weight: 800;
+    color: #071F3A;
+  }
+
+  .opt-hw-evidence-header p {
+    color: #071F3A;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .opt-hw-evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .opt-hw-evidence-card {
+    margin: 0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(7, 31, 58, 0.06);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .opt-hw-evidence-media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: #071F3A;
+    overflow: hidden;
+  }
+
+  .opt-hw-evidence-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 300ms ease;
+  }
+
+  .opt-hw-evidence-card:hover .opt-hw-evidence-media img {
+    transform: scale(1.03);
+  }
+
+  .opt-hw-evidence-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: rgba(7, 31, 58, 0.88);
+    backdrop-filter: blur(6px);
+    color: #38bdf8;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .opt-hw-evidence-caption {
+    padding: 16px 20px;
+    font-size: 0.88rem;
+    color: #071F3A;
+    line-height: 1.55;
+    background: #ffffff;
+    border-top: 1px solid #e1eff5;
+    flex-grow: 1;
+  }
+
+  .opt-hw-evidence-caption strong {
+    color: #071F3A;
+  }
+
+  @media (max-width: 768px) {
+    .opt-hw-evidence-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* 6. FRAMETIME COMPARISON */
+  .opt-pacing-comparison {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .opt-pacing-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 26px;
+    border: 1px solid var(--border-light);
+  }
+
+  .opt-pacing-box--before {
+    border-left: 5px solid #ef4444;
+  }
+
+  .opt-pacing-box--after {
+    border-left: 5px solid #10b981;
+  }
+
+  .opt-pacing-box__head {
+    margin-bottom: 14px;
+  }
+
+  .opt-status-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+
+  .opt-status-tag--bad {
+    background: #fee2e2;
+    color: #b91c1c !important;
+  }
+
+  .opt-status-tag--good {
+    background: #d1fae5;
+    color: #047857 !important;
+  }
+
+  .opt-pacing-box h4 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .opt-pacing-metrics {
+    display: flex;
+    justify-content: space-between;
+    background: #f8fafc;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+  }
+
+  .opt-frametime-graph {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  .opt-graph-svg {
+    width: 100%;
+    height: 50px;
+    display: block;
+  }
+
+  .opt-pacing-desc {
+    font-size: 0.9rem;
+    color: #475569 !important;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* 7. DEEP DIVE GRID */
+  .opt-deep-dive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .opt-deep-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .opt-deep-card__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .opt-deep-card__header i {
+    font-size: 1.4rem;
+    color: #2563eb;
+  }
+
+  .opt-deep-card h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .opt-deep-card p {
+    font-size: 0.92rem;
+    color: #475569 !important;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* 8. STACK 7 CAPAS */
+  .opt-stack-list {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .opt-stack-item {
+    display: grid;
+    grid-template-columns: 60px 180px 1fr;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 16px 20px;
+    gap: 16px;
+  }
+
+  @media (max-width: 767px) {
+    .opt-stack-item {
+      grid-template-columns: 50px 1fr;
+    }
+    .opt-stack-item__desc {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .opt-stack-item__step {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #2563eb !important;
+    font-family: monospace;
+  }
+
+  .opt-stack-item__title {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--azul-oscuro) !important;
+  }
+
+  .opt-stack-item__desc {
+    font-size: 0.92rem;
+    color: #475569 !important;
+  }
+
+  /* 9. GAMES GRID */
+  .opt-games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .opt-game-group-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .opt-game-group-card__header h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #2563eb !important;
+    margin-bottom: 8px;
+  }
+
+  .opt-game-group-card__titles {
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: var(--azul-oscuro) !important;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .opt-game-group-card__note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #475569 !important;
+    line-height: 1.45;
+  }
+
+  .opt-game-group-card__note i {
+    color: #3b82f6;
+    margin-top: 2px;
+  }
+
+  /* 10. TRUST SECTION */
+  .opt-section--trust {
+    background: linear-gradient(135deg, #071F3A 0%, #0c2b4e 100%);
+    padding: 60px 0;
+  }
+
+  .opt-trust-box {
+    max-width: 940px;
+    margin: 0 auto;
+  }
+
+  .opt-trust-lead {
+    font-size: 1.05rem;
+    color: #e2e8f0 !important;
+    margin-bottom: 30px;
+  }
+
+  .opt-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .opt-trust-col {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 26px;
+  }
+
+  .opt-trust-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .opt-trust-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .opt-trust-col li {
+    font-size: 0.92rem;
+    color: #cbd5e1 !important;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    padding-left: 18px;
+    position: relative;
+  }
+
+  .opt-trust-col--no li::before {
+    content: "✕";
+    position: absolute;
+    left: 0;
+    color: #ef4444;
+    font-weight: 900;
+  }
+
+  .opt-trust-col--yes li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 900;
+  }
+
+  /* 11. REMOTE FLOW */
+  .opt-remote-flow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .opt-remote-step {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+  }
+
+  .opt-remote-step__num {
+    width: 36px;
+    height: 36px;
+    background: #eff6ff;
+    color: #2563eb !important;
+    font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+  }
+
+  .opt-remote-step h4 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .opt-remote-step p {
+    font-size: 0.9rem;
+    color: #475569 !important;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* 12. METHODOLOGY STEPS */
+  .opt-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  .opt-step-box {
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .opt-step-box__idx {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #cbd5e1 !important;
+    display: block;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .opt-step-box h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #2563eb !important;
+    margin-bottom: 8px;
+  }
+
+  .opt-step-box p {
+    font-size: 0.9rem;
+    color: #475569 !important;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* 13. PRICING */
+  .opt-pricing-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 26px;
+  }
+
+  .opt-price-card {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 18px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  }
+
+  .opt-price-card--featured {
+    border: 2px solid #2563eb;
+    box-shadow: 0 12px 30px -8px rgba(37, 99, 235, 0.2);
+  }
+
+  .opt-price-badge-pop {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+  }
+
+  .opt-price-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #64748b !important;
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .opt-price-card h3 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .opt-price-card__header p {
+    font-size: 0.9rem;
+    color: #475569 !important;
+    line-height: 1.45;
+    margin-bottom: 18px;
+  }
+
+  .opt-price-card__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 22px;
+  }
+
+  .opt-price-currency {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #2563eb !important;
+  }
+
+  .opt-price-val {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--azul-oscuro) !important;
+  }
+
+  .opt-price-unit {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #64748b !important;
+  }
+
+  .opt-price-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px;
+    flex-grow: 1;
+  }
+
+  .opt-price-features li {
+    font-size: 0.88rem;
+    color: #334155 !important;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .opt-price-features i {
+    color: #10b981;
+    margin-top: 3px;
+    font-size: 0.82rem;
+  }
+
+  /* 14. CASE STUDIES */
+  .opt-case-study-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .opt-case-box {
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .opt-case-box__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .opt-case-num {
+    font-size: 0.76rem;
+    font-weight: 800;
+    background: #eff6ff;
+    color: #2563eb !important;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .opt-case-box h4 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .opt-case-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    font-size: 0.9rem;
+    color: #334155 !important;
+    line-height: 1.55;
+  }
+
+  /* 15. LEAD FORM */
+  .opt-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 18px;
+    padding: 34px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
+
+  .opt-lead-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .opt-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 767px) {
+    .opt-form-row {
+      grid-template-columns: 1fr;
+    }
+    .opt-form-container {
+      padding: 22px;
+    }
+  }
+
+  .opt-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .opt-form-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155 !important;
+  }
+
+  .opt-form-group input,
+  .opt-form-group select {
+    padding: 11px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    color: #0f172a;
+    background: #f8fafc;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .opt-form-group input:focus,
+  .opt-form-group select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    background: #ffffff;
+  }
+
+  .opt-form-actions {
+    margin-top: 10px;
+  }
+
+  .mt-2 { margin-top: 8px; }
+  .mt-3 { margin-top: 14px; }
+
+  /* 16. FAQ */
+  .opt-faq-grid {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .opt-faq-item {
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+
+  .opt-faq-item[open] {
+    border-color: #3b82f6;
+    background: #ffffff;
+  }
+
+  .opt-faq-question {
+    padding: 16px 20px;
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--azul-oscuro) !important;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    list-style: none;
+  }
+
+  .opt-faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .opt-faq-chevron {
+    font-size: 0.85rem;
+    color: #64748b;
+    transition: transform 0.2s ease;
+  }
+
+  .opt-faq-item[open] .opt-faq-chevron {
+    transform: rotate(180deg);
+    color: #2563eb;
+  }
+
+  .opt-faq-answer {
+    padding: 0 20px 18px;
+    font-size: 0.92rem;
+    color: #475569 !important;
+    line-height: 1.6;
+  }
+
+  .opt-faq-answer p {
+    margin: 0;
+  }
+
+  /* Cluster Nav */
+  .opt-cluster-nav {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding: 18px 24px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .opt-cluster-label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #64748b !important;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .opt-cluster-links {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .opt-cluster-links a {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #2563eb !important;
+    text-decoration: underline;
+  }
+
+  /* Performance: content-visibility for offscreen sections */
+  #detalles-tecnicos,
+  #que-revisamos,
+  #juegos,
+  #seguridad-y-confianza,
+  #servicio-remoto,
+  #metodologia,
+  #paquetes,
+  #casos-estudio,
+  #diagnostico,
+  #faq {
+    content-visibility: auto;
+    contain-intrinsic-size: 700px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .opt-pulse-dot {
+      box-shadow: none !important;
+    }
+    .opt-btn,
+    .opt-problem-card,
+    .opt-faq-chevron {
+      transition: none !important;
+    }
+  }
+</style>

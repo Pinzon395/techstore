@@ -14,10 +14,27 @@ const IS_MOBILE = () => !!mobileMenuBtn && getComputedStyle(mobileMenuBtn).displ
 // 1. HAMBURGER
 const mobileMenuBtn = document.getElementById('mobile-menu');
 const navMenu = document.getElementById('nav-menu');
+let previousBodyOverflow = null;
+let previousRootOverflow = null;
+function setMobileScrollLock(locked) {
+  document.body.classList.toggle('navbar-menu-open', locked);
+  if (locked && previousBodyOverflow === null) {
+    previousBodyOverflow = document.body.style.overflow;
+    previousRootOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  } else if (!locked && previousBodyOverflow !== null) {
+    document.body.style.overflow = previousBodyOverflow;
+    document.documentElement.style.overflow = previousRootOverflow;
+    previousBodyOverflow = previousRootOverflow = null;
+  }
+}
 mobileMenuBtn?.addEventListener('click', () => {
   navbarEl?.classList.remove('is-hidden', 'is-scrolling-down');
   const isOpen = mobileMenuBtn.classList.toggle('active');
-  navMenu?.classList.toggle('active');
+  navMenu?.classList.toggle('active', isOpen);
+  setMobileScrollLock(isOpen);
+  if (isOpen && navMenu) navMenu.scrollTop = 0;
   navMenu?.classList.remove('is-menu-peeking');
   mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   const isEnglish = document.documentElement.lang === 'en';
@@ -105,10 +122,11 @@ function closeAllCascades(except) {
 }
 
 function closeMobileMenu() {
+  setMobileScrollLock(false);
   navMenu?.classList.remove('active', 'is-menu-peeking');
   mobileMenuBtn?.classList.remove('active');
   mobileMenuBtn?.setAttribute('aria-expanded', 'false');
-  mobileMenuBtn?.setAttribute('aria-label', 'Abrir menú');
+  mobileMenuBtn?.setAttribute('aria-label', document.documentElement.lang.startsWith('en') ? 'Open menu' : 'Abrir menú');
   closeAllCascades();
   lastOpenedCascade = null;
   activeCascade = null;
@@ -370,46 +388,22 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-let mobileEdgeScrollCount = 0;
-let touchStartY = 0;
-let edgeResetTimer = null;
-let lastEdgeRegisterAt = 0;
-function registerMobileEdgeScroll(direction) {
-  if (!IS_MOBILE() || !navMenu?.classList.contains('active')) return;
-  if (Math.abs(direction) < 6) return;
-  const atTop = navMenu.scrollTop <= 1;
-  const atBottom = navMenu.scrollTop + navMenu.clientHeight >= navMenu.scrollHeight - 1;
-  if ((direction > 0 && !atBottom) || (direction < 0 && !atTop)) {
-    mobileEdgeScrollCount = 0;
-    navMenu.classList.remove('is-menu-peeking');
-    return;
-  }
-  const now = Date.now();
-  if (now - lastEdgeRegisterAt < 350) return;
-  lastEdgeRegisterAt = now;
-  mobileEdgeScrollCount += 1;
-  navMenu.classList.add('is-menu-peeking');
-  clearTimeout(edgeResetTimer);
-  edgeResetTimer = setTimeout(() => {
-    mobileEdgeScrollCount = 0;
-    navMenu?.classList.remove('is-menu-peeking');
-  }, 900);
-  if (mobileEdgeScrollCount >= 2) {
-    closeMobileMenu();
-    mobileEdgeScrollCount = 0;
-  }
-}
-
-navMenu?.addEventListener('wheel', (e) => {
-  registerMobileEdgeScroll(e.deltaY);
-}, { passive: true });
-navMenu?.addEventListener('touchstart', (e) => {
-  touchStartY = e.touches[0]?.clientY || 0;
-}, { passive: true });
-navMenu?.addEventListener('touchmove', (e) => {
-  const currentY = e.touches[0]?.clientY || touchStartY;
-  registerMobileEdgeScroll(touchStartY - currentY);
-}, { passive: true });
+// An open drawer scrolls independently. Boundary gestures never close it.
+navMenu?.addEventListener('click', (event) => {
+  if (IS_MOBILE() && !event.defaultPrevented && event.target.closest('a[href]')) closeMobileMenu();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Tab' || !IS_MOBILE() || !navMenu?.classList.contains('active')) return;
+  const focusable = [mobileMenuBtn, ...navMenu.querySelectorAll('a[href], button, [tabindex="0"]')]
+    .filter(el => el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+});
+window.addEventListener('resize', () => {
+  if (!IS_MOBILE()) closeMobileMenu();
+});
 
 // 7. ADMIN GEAR
 const adminGear = document.getElementById('nav-admin-gear');
@@ -430,6 +424,11 @@ if (adminGear) {
 let lastScroll = 0, ticking = false, scrollDownCount = 0;
 const navbarEl = document.getElementById('navbar');
 const navRevealZone = document.getElementById('nav-reveal-zone');
+if (navbarEl) {
+  const syncHeight = () => navbarEl.style.setProperty('--navbar-height', navbarEl.getBoundingClientRect().height + 'px');
+  new ResizeObserver(syncHeight).observe(navbarEl);
+  syncHeight();
+}
 
 function syncNavbarHiddenState() {
   document.body.classList.toggle('navbar-hidden', Boolean(navbarEl?.classList.contains('is-hidden')));
@@ -455,10 +454,10 @@ function handleScroll() {
   const delta = curr - lastScroll;
   if (curr > 80) navbarEl?.classList.add('is-scrolled'); else navbarEl?.classList.remove('is-scrolled');
   const menuOpen = IS_MOBILE() && navMenu?.classList.contains('active');
-  if (menuOpen && Math.abs(delta) > 4) {
-    navMenu?.classList.add('is-menu-peeking');
-    window.setTimeout(() => closeMobileMenu(), 180);
-  } else if (!menuOpen) {
+  if (menuOpen) {
+    navbarEl?.classList.remove('is-hidden', 'is-scrolling-down');
+    scrollDownCount = 0;
+  } else {
     if (delta > 4 && curr > 220) {
       scrollDownCount++;
       navbarEl?.classList.add('is-scrolling-down');

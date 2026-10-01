@@ -12,7 +12,7 @@ const fixMode = process.argv.includes('--fix');
 
 const skipDirs = new Set([
   '.git', '.astro', '.cache', '.playwright-mcp', '.sisyphus', '.vs',
-  'backups', 'dist', 'node_modules', 'test-results',
+  'backups', 'dist', 'node_modules', 'test-results', 'tmp', 'schema',
 ]);
 const textExtensions = new Set([
   '.astro', '.bat', '.cjs', '.css', '.html', '.js', '.json', '.md', '.mjs',

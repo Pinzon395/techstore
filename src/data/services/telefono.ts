@@ -34,7 +34,8 @@ const androidBrandService = ({
   hook: `Diagnóstico para ${brand} que no carga, no prende, tiene pantalla rota, batería inflada, humedad, fallas de señal o errores de sistema.`,
   intro: `Servicio técnico ${brand} en Cancún con revisión por modelo antes de cambiar pantalla, batería, centro de carga, cámara, audio, señal o software.`,
   bullets: ['Diagnóstico por modelo y síntoma', 'Pantalla, batería, carga, humedad, cámara y señal', 'Cotización clara antes de instalar refacción', 'Garantía por escrito'],
-  fromPrice: '$450 MXN',
+  fromPrice: undefined,
+  hideSchemaOffer: true,
   eta: '24-72 h',
   warranty: 'Garantía por escrito según reparación',
   whyUs: [
@@ -64,6 +65,9 @@ const phoneIssueService = ({
   bullets,
   problems,
   relatedSlugs,
+  fromPrice,
+  hideSchemaOffer,
+  faqs,
 }: {
   slug: string;
   label: string;
@@ -73,6 +77,9 @@ const phoneIssueService = ({
   bullets: string[];
   problems: { problem: string; solution: string }[];
   relatedSlugs: string[];
+  fromPrice?: string;
+  hideSchemaOffer?: boolean;
+  faqs?: { question: string; answer: string }[];
 }): ServiceItem => ({
   slug,
   label,
@@ -80,7 +87,8 @@ const phoneIssueService = ({
   hook,
   intro,
   bullets,
-  fromPrice: '$450 MXN',
+  fromPrice,
+  hideSchemaOffer,
   eta: '24-72 h',
   warranty: 'Garantía por escrito según reparación',
   whyUs: [
@@ -92,7 +100,7 @@ const phoneIssueService = ({
   process: phoneProcess,
   commonProblems: problems,
   compatibleBrands: ['iPhone', 'Samsung', 'Xiaomi', 'Motorola', 'Huawei', 'Oppo', 'Honor', 'Realme'],
-  faqs: [
+  faqs: faqs || [
     { question: `¿Qué revisan en ${label.toLowerCase()}?`, answer: 'Revisamos carga, batería, pantalla, humedad, conectores, software, consumo, señal y placa según el síntoma.' },
     { question: '¿Conviene repararlo o comprar otro celular?', answer: 'Te lo decimos con honestidad después del diagnóstico, considerando costo de pieza, antigüedad, datos y riesgo de fallas adicionales.' },
     { question: '¿Se borran mis fotos o datos?', answer: 'No en reparaciones físicas normales. Si se requiere restauración, flasheo o recuperación por daño grave, te pedimos autorización antes.' },
@@ -171,6 +179,8 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     hook: 'Reparamos celulares que no cargan, cargan lento, hacen falso contacto, no detectan cable o muestran humedad en el puerto.',
     intro: 'Diagnóstico y reparación de puerto de carga USB-C, Lightning y micro USB para iPhone, Samsung, Xiaomi, Motorola, Huawei y más marcas.',
     bullets: ['Limpieza de puerto antes de cambiar pieza', 'Prueba con cable y cargador', 'Revisión de batería, flex y consumo', 'Garantía por escrito'],
+    fromPrice: undefined,
+    hideSchemaOffer: true,
     problems: [
       { problem: 'Tengo que mover el cable para que cargue', solution: 'Puede ser suciedad, puerto flojo, pines dañados o flex de carga.' },
       { problem: 'Carga lento', solution: 'Se revisa cargador, batería, consumo, puerto, cable y configuración de carga.' },
@@ -185,7 +195,15 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     keyword: 'Cambio pantalla Samsung en Cancún',
     hook: 'Reemplazo de pantalla Samsung Galaxy rota, verde, con líneas, manchas, sin touch o sin imagen con diagnóstico previo.',
     intro: 'Cambio de pantalla Samsung en Cancún para Galaxy S, A, M, Note, Fold y Flip según disponibilidad de módulo compatible.',
-    bullets: ['Validación de display, touch y marco', 'Cotización por modelo exacto', 'Prueba de brillo, sensores y huella', 'Garantía por escrito'],
+    bullets: ['Validación de display, touch y marco', 'Cotización según modelo exacto', 'Prueba de brillo, sensores y huella', 'Garantía por escrito'],
+    fromPrice: undefined,
+    hideSchemaOffer: true,
+    faqs: [
+      { question: '¿Cuánto cuesta cambiar la pantalla de un Samsung en Cancún?', answer: 'El precio se cotiza según el modelo exacto (Galaxy S, A, M, Note, Z Fold o Z Flip), tipo de display (Super AMOLED, Dynamic AMOLED o LCD) y si se requiere ensamble original con marco o display compatible certificado. Primero diagnosticamos para darte una cotización transparente.' },
+      { question: '¿Qué incluye el cambio de pantalla Samsung?', answer: 'Incluye revisión de marco, flexor, sensores de proximidad, brillo automático, lector de huella en pantalla y pruebas táctiles completas con garantía por escrito.' },
+      { question: '¿Cuánto tiempo tarda el cambio de pantalla?', answer: 'Para modelos comerciales con módulo en stock local, el servicio puede quedar listo el mismo día o en 24 horas. Pantallas curvas o de serie Z pueden requerir de 24 a 72 horas para pruebas exhaustivas.' },
+      { question: '¿Se borran mis archivos al cambiar la pantalla?', answer: 'No, el cambio de pantalla es una reparación modular física que no altera la memoria interna ni requiere formatear el equipo.' },
+    ],
     problems: [
       { problem: 'Pantalla verde o con líneas', solution: 'Puede requerir módulo nuevo; revisamos si el golpe o presión dañó el display.' },
       { problem: 'Touch no responde', solution: 'Probamos si la falla es touch, flex, humedad o placa antes de instalar.' },
@@ -201,6 +219,8 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     hook: 'Recupera autonomía si tu Samsung se descarga rápido, se apaga, se calienta, no carga bien o tiene batería inflada.',
     intro: 'Cambio de batería Samsung Galaxy en Cancún con diagnóstico de consumo, carga, temperatura y salud antes de instalar.',
     bullets: ['Prueba de batería y consumo', 'Revisión de centro de carga', 'Batería compatible por modelo', 'Garantía por escrito'],
+    fromPrice: undefined,
+    hideSchemaOffer: true,
     problems: [
       { problem: 'Samsung se descarga muy rápido', solution: 'Medimos consumo y revisamos apps, batería y temperatura antes de cambiar.' },
       { problem: 'Batería inflada', solution: 'Conviene dejar de usarlo y reemplazarla para evitar presión en pantalla o tapa.' },
@@ -216,6 +236,7 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     hook: 'Diagnóstico para celular que no enciende, se queda negro, vibra sin imagen, no carga, se mojó o se apagó de repente.',
     intro: 'Revisión técnica de celulares que no prenden en Cancún para separar falla de batería, carga, pantalla, software, humedad o placa.',
     bullets: ['Prueba de carga y consumo', 'Revisión de pantalla sin imagen', 'Diagnóstico de humedad y placa', 'Cotización por causa real'],
+    fromPrice: 'Desde $600 MXN',
     problems: [
       { problem: 'Pantalla negra pero vibra', solution: 'Puede ser display, flex, backlight o placa; se revisa antes de cotizar pantalla.' },
       { problem: 'No carga ni muestra batería', solution: 'Probamos puerto, batería, cable, cargador y consumo.' },
@@ -231,6 +252,7 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     hook: 'Revisión para celulares sin señal, sin datos móviles, SIM no detectada, llamadas fallando, IMEI con problema o antena dañada.',
     intro: 'Diagnóstico de señal celular en Cancún revisando SIM, bandeja, antena, configuración, software, IMEI y placa.',
     bullets: ['Prueba con SIM y operador', 'Revisión de bandeja, antena e IMEI', 'Diagnóstico de golpes o humedad', 'Cotización antes de reparar'],
+    fromPrice: 'Desde $600 MXN',
     problems: [
       { problem: 'Dice sin servicio', solution: 'Revisamos SIM, operador, configuración, antena, IMEI y posible daño por golpe.' },
       { problem: 'No detecta SIM', solution: 'Puede ser bandeja, lector SIM, humedad, software o placa.' },
@@ -259,6 +281,8 @@ const iphoneClusterService = ({
   bullets,
   problems,
   relatedSlugs,
+  fromPrice,
+  hideSchemaOffer,
 }: {
   slug: string;
   label: string;
@@ -268,6 +292,8 @@ const iphoneClusterService = ({
   bullets: string[];
   problems: { problem: string; solution: string }[];
   relatedSlugs: string[];
+  fromPrice?: string;
+  hideSchemaOffer?: boolean;
 }): ServiceItem => ({
   slug,
   label,
@@ -276,7 +302,8 @@ const iphoneClusterService = ({
   hook,
   intro,
   bullets,
-  fromPrice: '$650 MXN',
+  fromPrice,
+  hideSchemaOffer,
   eta: '24-72 h',
   warranty: 'Garantía por escrito según reparación',
   whyUs: [
@@ -305,7 +332,9 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
     keyword: 'Reparación tapa trasera iPhone en Cancún',
     hook: 'Cambio o reparación de tapa trasera iPhone rota, estrellada, despegada o dañada por golpe sin comprometer funciones internas.',
     intro: 'Revisamos tapa trasera, marco, cámara, carga inalámbrica, MagSafe, sellos y golpes antes de cotizar.',
-    bullets: ['Revisión de cristal trasero y marco', 'Validación de cámara y carga inalámbrica', 'Cotización por modelo', 'Garantía por escrito'],
+    bullets: ['Revisión de cristal trasero y marco', 'Validación de cámara y carga inalámbrica', 'Cotización por modelo exacto', 'Garantía por escrito'],
+    fromPrice: undefined,
+    hideSchemaOffer: true,
     problems: [
       { problem: 'Cristal trasero estrellado', solution: 'Revisamos si el daño es solo tapa o también marco/cámara.' },
       { problem: 'Tapa despegada', solution: 'Validamos batería inflada, adhesivo, golpe o deformación antes de cerrar.' },
@@ -503,9 +532,10 @@ export const telefonoCategory: ServiceCategory = {
         slug: 'cambio-pantalla',
         label: 'Cambio de pantalla',
         intro: 'Reemplazo de pantalla completa para iPhone, Samsung, Xiaomi y más marcas.',
-        bullets: ['Pantalla original o calidad OEM', 'Calibración de touch y color', 'Garantía 3 meses', 'Mismo día en muchos modelos'],
-        fromPrice: '$1,200 MXN',
-        eta: 'Mismo día',
+        bullets: ['Módulo original o calidad OEM certificada', 'Cotización según modelo y tipo de panel', 'Calibración de touch y color', 'Garantía por escrito'],
+        fromPrice: undefined,
+        hideSchemaOffer: true,
+        eta: 'Mismo día según modelo',
         relatedExternal: [
           { label: 'Reparación de celulares en Cancún', href: '/servicios/telefono', icon: 'fa-mobile-screen-button', desc: 'Vuelve al servicio general para comparar pantalla, batería, carga y diagnóstico.' },
         ],
@@ -534,9 +564,9 @@ export const telefonoCategory: ServiceCategory = {
         compatibleBrands: ['Xiaomi', 'Redmi', 'POCO', 'Motorola', 'Huawei', 'Honor', 'OPPO', 'Realme', 'Google Pixel', 'OnePlus'],
         relatedSlugs: ['centro-carga-celular', 'diagnostico', 'celular-no-prende', 'cambio-bateria-iphone', 'cambio-bateria-samsung', 'celular-mojado'],
       },
-      { slug: 'reparacion-carga',    label: 'Reparación de carga',    intro: 'Sustitución de puerto de carga lightning, USB-C o micro-USB. Solucionamos cargas intermitentes.',           bullets: ['Limpieza ultrasónica del puerto', 'Reemplazo de flex o conector', 'Prueba con cable original'],                                   fromPrice: '$450 MXN',   eta: '24-48 h' },
-      { slug: 'reparacion-bocina',   label: 'Reparación de bocina', seoKeyword: 'Reparación de bocina de celular en Cancún', hook: 'Recupera llamadas claras, audio multimedia y volumen real sin cambiar piezas innecesarias.', intro: 'Reparamos fallas de audio en celulares: bocina principal, auricular de llamada, micrófono, vibrador, flex, rejilla obstruida o daño por humedad.', bullets: ['Diagnóstico de bocina, auricular y micrófono', 'Limpieza de rejilla o reemplazo si aplica', 'Prueba de llamada, grabación y multimedia', 'Garantía por escrito'], fromPrice: '$400 MXN', eta: '24-48 h', warranty: 'Garantía por escrito' },
-      { slug: 'cambio-flex-botones', label: 'Cambio de flex / botones',intro: 'Botón de power, volumen, home o flex de carga rotos. Restauramos funcionalidad.',                          bullets: ['Flex con piezas certificadas', 'Sellado contra polvo', 'Prueba completa'],                                                          fromPrice: '$450 MXN',   eta: '24-48 h' },
+      { slug: 'reparacion-carga',    label: 'Reparación de carga',    intro: 'Diagnóstico y reparación de centro de carga USB-C, Lightning o micro-USB. Solucionamos falsos contactos.',           bullets: ['Limpieza ultrasónica del puerto', 'Ajuste de pines y conector', 'Refacción de flex cotizada por modelo si requiere cambio', 'Prueba con cable original'],                                   fromPrice: undefined, hideSchemaOffer: true, eta: '24-48 h' },
+      { slug: 'reparacion-bocina',   label: 'Reparación de bocina', seoKeyword: 'Reparación de bocina de celular en Cancún', hook: 'Recupera llamadas claras, audio multimedia y volumen real sin cambiar piezas innecesarias.', intro: 'Reparamos fallas de audio en celulares: bocina principal, auricular de llamada, micrófono, vibrador, flex, rejilla obstruida o daño por humedad.', bullets: ['Diagnóstico de bocina, auricular y micrófono', 'Limpieza de rejilla o reemplazo si aplica', 'Prueba de llamada, grabación y multimedia', 'Garantía por escrito'], fromPrice: undefined, hideSchemaOffer: true, eta: '24-48 h', warranty: 'Garantía por escrito' },
+      { slug: 'cambio-flex-botones', label: 'Cambio de flex / botones',intro: 'Diagnóstico y cambio de flex de botones de volumen, encendido o home en celulares.',                          bullets: ['Revisión de membrana y mecanismo', 'Reemplazo de flex según modelo exacto', 'Prueba completa de botones'],                                                          fromPrice: undefined, hideSchemaOffer: true,   eta: '24-48 h' },
       { 
         slug: 'liberacion-software', 
         label: 'Liberación / software',  
@@ -707,6 +737,8 @@ export const telefonoCategory: ServiceCategory = {
         slug: 'reparacion-humedad-iphone',
         label: 'Reparación por humedad iPhone',
         navHidden: true,
+        metaTitle: 'Reparación de iPhone Mojado en Cancún | Agua y Humedad | Pixon PC',
+        metaDescription: '¿Tu iPhone cayó al mar, alberca o se mojó en Cancún? Diagnóstico de humedad, corrosión, placa lógica y microsoldadura. Atención con cita y recolección coordinada.',
         seoKeyword: 'Reparación por humedad iPhone en Cancún',
         intro: 'Atención para iPhone con contacto con agua o humedad, priorizando diagnóstico y limpieza técnica antes de cambiar piezas.',
         bullets: ['Revisión de indicadores y conectores', 'Limpieza técnica si aplica', 'Prueba de funciones afectadas'],

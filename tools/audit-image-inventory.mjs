@@ -90,6 +90,20 @@ const report = [
     .slice(0, maxRows)
     .map((image) => `- ${image.path} (${image.kb} KB) referenced by ${image.references.join(', ')}`),
   '',
+  '## Inventario Oficial de Imágenes Reales (Pixon PC Real Work)',
+  '',
+  '| File | Subject | Source | Owned | Routes | Alt | Dimensions | WebP KB | Usage | Status |',
+  '|---|---|---|---|---|---|---|---:|---|---|',
+  '| cambio-pasta-termica-premium-laptop-pc-pixon.webp | Die de silicio con aplicación de pasta térmica | Pixon PC Real Work | Sí | /blogs/pasta-termica-vs-metal-liquido, /limpieza-laptop | Compuesto térmico aplicado profesionalmente sobre die de silicio | 1280x1280 | 194 | Par Antes / Después (Después) | Activo |',
+  '| hardware-ram-ventilacion-pc-diagnostico.webp | Hardware interno: ranuras de RAM y disipador de cobre | Pixon PC Real Work | Sí | /ensambles, /optimizacion, /en/pc-optimization | Arquitectura interna con ranuras de memoria RAM y disipador de cobre | 960x1280 | 167 | Arquitectura de hardware y memoria RAM | Activo |',
+  '| laptop-gaming-alienware-mantenimiento-reparacion.webp | Laptop gamer sobre superficie de trabajo | Pixon PC Real Work | Sí | /limpieza-laptop, /optimizacion, /en/pc-optimization | Laptop gamer sobre superficie de trabajo durante verificación | 960x1178 | 124 | Validación y estrés térmico en gaming | Activo |',
+  '| microcomponentes-tarjeta-madre-microscopio.webp | Microcomponentes y pistas de circuito bajo microscopio | Pixon PC Real Work | Sí | /reparaciones | Inspección de microcomponentes y pistas de circuito bajo microscopio | 960x1280 | 147 | Microsoldadura a nivel componente | Activo |',
+  '| iphone-sulfatado-dano-liquido-microsoldadura.webp | Corrosión y sulfatación en componentes bajo microscopio | Pixon PC Real Work | Sí | /servicios/telefono/celular-mojado, /en/liquid-damage, /blogs/humedad-salitre-calor-cancun | Corrosión y sulfatación sobre componentes observados bajo microscopio | 960x1280 | 158 | Inspección de daños por líquido | Activo |',
+  '| diagnostico-tarjeta-madre-laptop-microscopio.webp | Banco de trabajo con microscopio estéreo profesional | Pixon PC Real Work | Sí | /, /reparaciones | Banco de trabajo con microscopio estéreo e inspección de tarjeta madre | 960x1280 | 118 | Banco de diagnóstico especializado | Activo |',
+  '| microsoldadura-componente-quemado-corto-circuito.webp | Componente SMD carbonizado con cortocircuito al microscopio | Pixon PC Real Work | Sí | /servicios/pc/no-enciende, /blogs/humedad-salitre-calor-cancun | Componente SMD carbonizado con signos de cortocircuito observado bajo microscopio | 960x1280 | 182 | Diagnóstico de corto; no cambiar placa | Activo |',
+  '| motherboard-iphone-microcomponentes-reparacion.webp | Capa separada de placa tipo sandwich con microcomponentes | Pixon PC Real Work | Sí | /servicios/telefono/celular-mojado, /en/liquid-damage | Placa lógica separada para diagnóstico de líneas de alimentación | 960x1280 | 89 | Diagnóstico a nivel componente y líneas de alimentación | Activo |',
+  '| pasta-termica-seca-laptop-sobrecalentamiento.webp | Procesador con pasta térmica petrificada y agrietada | Pixon PC Real Work | Sí | /blogs/pasta-termica-vs-metal-liquido, /limpieza-laptop | Pasta térmica seca y agrietada sobre procesador | 960x1280 | 154 | Par Antes / Después (Antes) | Activo |',
+  '',
 ];
 
 await fs.mkdir(path.join(root, 'docs'), { recursive: true });

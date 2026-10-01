@@ -189,7 +189,7 @@
             clickable = false;
           } else if (day.status === 'LIMITED') {
             statusClass = 'pac-cell-limited';
-            label = 'Último espacio';
+            label = 'Últimos turnos';
           } else {
             statusClass = 'pac-cell-avail';
             label = 'Disponible';
@@ -205,10 +205,11 @@
           <div
             class="pac-cell ${statusClass}${isToday ? ' pac-cell-today' : ''}${this.selectedDate === day.date ? ' pac-cell-selected' : ''}"
             data-date="${day.date}"
+            title="${escapeHtml(ariaLabel)}"
             ${clickable ? `tabindex="0" role="button" aria-label="${escapeHtml(ariaLabel)}"` : `aria-label="${escapeHtml(ariaLabel)}" aria-disabled="true"`}
           >
             <span class="pac-cell-num">${d}</span>
-            ${label ? `<span class="pac-cell-status">${escapeHtml(label)}</span>` : ''}
+            ${label && !isPast ? `<span class="pac-cell-dot" aria-hidden="true"></span>` : ''}
           </div>
         `;
       });
@@ -308,11 +309,13 @@
      */
     _handleSlotClick(dateStr, timeStr) {
       // 1. Try the new appointment form (date + time inputs)
-      const dateInput = document.getElementById('appointment_date') ||
+      const dateInput = document.getElementById('st_appointment_date') ||
+                        document.getElementById('appointment_date') ||
                         document.getElementById('appointmentDate') ||
                         document.querySelector('input[name="appointment_date"]') ||
                         document.querySelector('input[type="date"]');
-      const timeInput = document.getElementById('appointment_time') ||
+      const timeInput = document.getElementById('st_appointment_time') ||
+                        document.getElementById('appointment_time') ||
                         document.getElementById('appointmentTime') ||
                         document.querySelector('select[name="appointment_time"]') ||
                         document.querySelector('select[id*="time"]');
@@ -341,7 +344,8 @@
       }
 
       // 2. Scroll to the form
-      const form = document.getElementById('service-ticket-form') ||
+      const form = document.getElementById('serviceTicketForm') ||
+                   document.getElementById('service-ticket-form') ||
                    document.querySelector('form[data-ticket-form]') ||
                    document.querySelector('form');
       if (form) {

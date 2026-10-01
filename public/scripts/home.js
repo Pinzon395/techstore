@@ -13,11 +13,28 @@ function smartWaRedirect(url) {
   }
 window.openTab = openTab;
 
-if (document.querySelector('#commentForm, .comment-form-container')) {
-  const commentsScript = document.createElement('script');
-  commentsScript.src = '/scripts/comments.js';
-  commentsScript.defer = true;
-  document.head.appendChild(commentsScript);
+const commentsTarget = document.querySelector('#commentForm, .comment-form-container, .comments-section, #comentarios');
+if (commentsTarget) {
+  let commentsLoaded = false;
+  const loadComments = () => {
+    if (commentsLoaded) return;
+    commentsLoaded = true;
+    const commentsScript = document.createElement('script');
+    commentsScript.src = '/scripts/comments.js';
+    commentsScript.defer = true;
+    document.head.appendChild(commentsScript);
+  };
+  if ('IntersectionObserver' in window) {
+    const cObs = new IntersectionObserver((entries) => {
+      if (entries.some(e => e.isIntersecting)) {
+        loadComments();
+        cObs.disconnect();
+      }
+    }, { rootMargin: '600px 0px' });
+    cObs.observe(commentsTarget);
+  } else {
+    loadComments();
+  }
 }
 
   
@@ -86,11 +103,25 @@ if (document.querySelector('#commentForm, .comment-form-container')) {
       }, 1200);
     };
 
+    const isSmallScreen = window.innerWidth <= 1024;
     const conn = navigator.connection;
-    const skipHeroVideo = document.documentElement.classList.contains('low-end-mode') ||
+    const skipHeroVideo = isSmallScreen ||
+      document.documentElement.classList.contains('low-end-mode') ||
       (conn && (conn.saveData || /2g|3g/.test(conn.effectiveType || '')));
     if (!skipHeroVideo) {
-      scheduleHeroVideo();
+      let interactionFired = false;
+      const triggerHeroVideo = () => {
+        if (interactionFired) return;
+        interactionFired = true;
+        window.removeEventListener('scroll', triggerHeroVideo);
+        window.removeEventListener('click', triggerHeroVideo);
+        window.removeEventListener('keydown', triggerHeroVideo);
+        scheduleHeroVideo();
+      };
+      window.addEventListener('scroll', triggerHeroVideo, { passive: true, once: true });
+      window.addEventListener('click', triggerHeroVideo, { passive: true, once: true });
+      window.addEventListener('keydown', triggerHeroVideo, { passive: true, once: true });
+      window.setTimeout(() => { if (!interactionFired && !document.hidden) triggerHeroVideo(); }, 5000);
     }
 
     if ('IntersectionObserver' in window) {
@@ -228,20 +259,19 @@ if (document.querySelector('#commentForm, .comment-form-container')) {
 
   const renderGoogleReviews = (reviews, target) => {
     if (!Array.isArray(reviews) || !reviews.length || !target) return;
-    const safeReviews = reviews
-      .filter((review) => Number(review.rating || review.reviewRating || 0) >= 4)
-      .slice(0, 5);
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+    const safeReviews = reviews.slice(0, 5);
     if (!safeReviews.length) return;
     target.innerHTML = safeReviews.map((review) => {
-      const name = review.author_name || review.name || review.author || 'Usuario de Google';
-      const date = review.relative_time_description || review.date || review.time_description || 'fecha visible en Google';
-      const rating = Number(review.rating || review.reviewRating || 5);
-      const text = review.text || review.reviewBody || 'Reseña verificada en Google.';
-      const photo = review.profile_photo_url || '';
-      const avatar = photo
-        ? `<img src="${photo}" alt="Foto de perfil de ${name}" width="44" height="44" loading="lazy" referrerpolicy="no-referrer">`
-        : name.charAt(0);
-      return `<article class="google-review-card"><div class="review-avatar" aria-hidden="true">${avatar}</div><div><div class="review-card-head"><h3>${name}</h3><p class="review-stars" aria-label="${rating} estrellas">${'★'.repeat(Math.round(rating))}</p></div><p class="review-date">${date}</p><div class="review-text" data-review-text><p>${text}</p></div><button class="review-more" type="button" data-review-toggle hidden aria-expanded="false">Ver mas</button></div></article>`;
+      const name = escapeHtml(review.author_name || review.name || review.author || 'Usuario de Google');
+      const date = escapeHtml(review.relative_time_description || review.date || review.time_description || 'Fecha visible en Google');
+      const numericRating = Number(review.rating || review.reviewRating);
+      const rating = Number.isFinite(numericRating) && numericRating >= 1 && numericRating <= 5 ? numericRating : null;
+      const text = escapeHtml(review.text || review.reviewBody || '');
+      const avatar = name.charAt(0);
+      return `<article class="google-review-card"><div class="review-avatar" aria-hidden="true">${avatar}</div><div><div class="review-card-head"><h3>${name}</h3>${rating ? `<p class="review-stars" aria-label="${rating} estrellas">${'★'.repeat(Math.round(rating))}</p>` : ''}</div><p class="review-date">${date}</p><div class="review-text" data-review-text><p>${text}</p></div><button class="review-more" type="button" data-review-toggle hidden aria-expanded="false">Ver más</button></div></article>`;
     }).join('');
     initReviewExpands(target);
   };

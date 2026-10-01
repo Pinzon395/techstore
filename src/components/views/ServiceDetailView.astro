@@ -5,7 +5,7 @@ import ContactSection from '../ContactSection.astro';
 import RelatedServicesSection from '../RelatedServicesSection.astro';
 import ServiceTicketSection from '../ServiceTicketSection.astro';
 import Footer from '../Footer.astro';
-import { commercialCopy } from '../../lib/business';
+import { commercialCopy, diagnosticPolicy } from '../../lib/business';
 
 const { service, category, description = '', faqs: providedFaqs = [] } = Astro.props;
 
@@ -415,7 +415,7 @@ const fallbackFaqs = [
   },
   {
     question: '¿Tienen servicio a domicilio o debo llevar el equipo?',
-    answer: 'Contamos con taller físico en Cancún para diagnósticos y reparaciones que requieren herramienta especializada. En algunos casos podemos coordinar recolección, entrega o visita según zona, disponibilidad y tipo de equipo. Te orientamos por WhatsApp antes de moverlo.',
+    answer: 'Contamos con laboratorio técnico privado en Cancún para diagnósticos y reparaciones que requieren herramienta especializada. En algunos casos podemos coordinar recolección, entrega o visita según zona, disponibilidad y tipo de equipo. Te orientamos por WhatsApp antes de moverlo.',
   },
 ];
 const faqs = service.faqs?.length ? service.faqs : providedFaqs.length ? providedFaqs : fallbackFaqs;
@@ -574,7 +574,7 @@ const serviceImageAlt = isPs5HdmiService
           {isPs5HdmiService ? (
             <div class="sdv-hdmi-diagnostic-card" aria-label="Resumen de diagnostico HDMI PS5">
               <span class="sdv-hdmi-kicker">Orden de revisión</span>
-              <strong>{service.fromPrice || 'Diagnóstico desde $650 MXN'}</strong>
+              <strong>Diagnóstico desde ${diagnosticPolicy.startingPriceMXN} MXN</strong>
               <div class="sdv-hdmi-checklist">
                 <p><i class="fa-solid fa-magnifying-glass-chart"></i> Diagnóstico de puerto, pines, pads y filtros</p>
                 <p><i class="fa-solid fa-clock"></i> {service.eta || '48-96 h según daño'}</p>
@@ -584,8 +584,8 @@ const serviceImageAlt = isPs5HdmiService
             </div>
           ) : (
             <>
-              <strong>{service.fromPrice || 'Cotizacion clara'}</strong>
-              <span>Precio desde</span>
+              <strong>{service.fromPrice || 'Cotización por modelo'}</strong>
+              <span>{service.fromPrice ? 'Precio desde' : 'Presupuesto'}</span>
               <div class="sdv-mini-list">
                 <p><i class="fa-solid fa-clock"></i> {service.eta || commercialCopy.es.turnaround}</p>
                 <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || commercialCopy.es.warranty}</p>

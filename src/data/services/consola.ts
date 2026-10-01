@@ -26,7 +26,7 @@ const consoleClusterService = ({
   bullets,
   problems,
   relatedSlugs,
-  fromPrice = '$650 MXN',
+  fromPrice,
   eta = '24-72 h',
   warranty = 'Garantía por escrito según reparación',
   overrides = {},
@@ -210,7 +210,8 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
       h1: 'Cambio de HDMI PS5 en Cancún',
       metaTitle: 'Cambio HDMI PS5 en Cancún | Puerto roto, sin imagen y microsoldadura',
       metaDescription: 'Cambio de puerto HDMI PS5 en Cancún para consola sin imagen, pines doblados o daño por jalón. Diagnóstico de pistas, soldadura, audio/video y garantía por escrito.',
-      fromPrice: 'Diagnóstico desde $650 MXN',
+      fromPrice: undefined,
+      hideSchemaOffer: true,
       intro: 'Servicio de cambio HDMI PS5 en Cancún para PlayStation 5 Fat y Slim con revisión de puerto, pistas, pads, filtros, soldadura, señal de video, audio y pruebas reales antes de entregar.',
       bullets: [
         'Diagnóstico antes de cambiar el puerto',
@@ -711,7 +712,7 @@ export const consolaCategory: ServiceCategory = {
         hook: '¿Tu PS5, PS4, Xbox o Nintendo Switch no enciende, hace beep, se apaga al jugar o falló después de un apagón? Medimos fuente, voltajes, fusibles, capacitores, consumo y placa antes de cotizar.',
         intro: 'Reparación de fuente de consolas en Cancún para PS5, PS4, Xbox Series, Xbox One y Nintendo Switch. Diagnosticamos alimentación, voltajes, consumo y placa antes de cambiar piezas.',
         bullets: ['Diagnóstico eléctrico con multímetro', 'Medición de voltajes y consumo', 'Revisión de fusibles y capacitores', 'Reparación o reemplazo según daño', 'Prueba bajo carga y garantía por escrito'],
-        fromPrice: '$800 MXN', eta: '3-5 días', warranty: '3 meses por escrito',
+        fromPrice: undefined, hideSchemaOffer: true, eta: '3-5 días', warranty: '3 meses por escrito',
         whyUs: [
           { icon: 'fa-bolt',          title: 'Diagnóstico eléctrico', desc: 'Multímetro + osciloscopio. Identificamos componente exacto.' },
           { icon: 'fa-microchip',     title: 'Reparación a nivel componente', desc: 'No reemplazamos toda la fuente si solo es un capacitor.' },
@@ -733,7 +734,7 @@ export const consolaCategory: ServiceCategory = {
         ],
         compatibleBrands: ['PlayStation 5', 'PS4 / Pro / Slim', 'Xbox Series X / S', 'Xbox One / X / S', 'Nintendo Switch (dock)'],
         faqs: [
-          { question: `¿Cuánto cuesta reparar la fuente?`, answer: `La reparación de fuente suele ir de <strong>$800 a $2,500 MXN</strong>, dependiendo del modelo y daño. No cuesta igual cambiar capacitores que reemplazar una fuente completa. Primero medimos voltajes y carga para cotizar claro.` },
+          { question: `¿Cuánto cuesta reparar la fuente?`, answer: `La mano de obra para reparación electrónica de fuente (fusibles, capacitores o pistas) inicia desde <strong>$800 MXN</strong>. Si la fuente sufrió un daño catastrófico y requiere sustitución de la refacción o módulo completo, la pieza se cotiza por separado según el modelo de consola (PS5, PS4, Xbox Series o Nintendo Switch).` },
           { question: `¿Por qué se daña la fuente?`, answer: `Puede dañarse por variaciones de voltaje, calor acumulado, capacitores envejecidos, humedad, salitre o derrames. En Cancún también influyen picos eléctricos y ambientes húmedos. Revisamos si el daño quedó en fuente o alcanzó placa.` },
           { question: `¿Vale la pena reparar la fuente en vez de comprar consola nueva?`, answer: `Si el resto de la consola está en buen estado, casi siempre conviene reparar la fuente frente a comprar una nueva. Aun así, revisamos placa, encendido y consumo antes de recomendarlo, porque no tiene sentido si existe daño mayor.` },
           { question: `¿Cuánto tarda la reparación de fuente?`, answer: `Normalmente tarda de <strong>3 a 5 días</strong> porque hacemos diagnóstico eléctrico y pruebas de carga. No entregamos una fuente solo porque encienda; la dejamos trabajando bajo demanda para confirmar estabilidad al jugar.` },
@@ -752,7 +753,7 @@ export const consolaCategory: ServiceCategory = {
         hook: '¿Tu PS5, Xbox, Nintendo Switch o consola portátil se calienta, suena fuerte o se apaga al jugar? Revisamos polvo, ventilador, disipador, pasta térmica, metal líquido en PS5 y flujo de aire antes de cotizar.',
         intro: 'Servicio técnico en Cancún para consolas con sobrecalentamiento, ruido de ventilador, apagados por temperatura o bajo rendimiento. Diagnosticamos la causa real antes de cambiar piezas.',
         bullets: ['Diagnóstico térmico de consola', 'Revisión de ventilador y disipador', 'Pasta térmica o metal líquido según modelo', 'Limpieza interna y flujo de aire', 'Garantía por escrito'],
-        fromPrice: 'Desde $700 MXN', eta: '24-72 h', warranty: 'Garantía por escrito',
+        fromPrice: undefined, hideSchemaOffer: true, eta: '24-72 h', warranty: 'Garantía por escrito',
         whyUs: [
           { icon: 'fa-fan',                title: 'Refacciones Originales', desc: 'No instalamos ventiladores genéricos ruidosos. Usamos piezas Nidec o Delta, idénticas a las de fábrica para mantener el flujo de aire exacto.' },
           { icon: 'fa-microchip',          title: 'Protección al Procesador',desc: 'Un ventilador dañado quema tu APU. Nuestro servicio previene el fatal daño de "Luz Roja" o "Luz Azul" asegurando la refrigeración correcta.' },

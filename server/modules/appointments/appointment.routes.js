@@ -127,7 +127,14 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
         actorRole: req.user?.role === 'admin' ? 'ADMIN' : 'CUSTOMER'
       });
 
-      res.status(201).json({ success: true, appointment });
+      res.status(201).json({
+        success: true,
+        appointment,
+        ticket: {
+          id: appointment.ticket_id,
+          ticket_code: appointment.ticket_code
+        }
+      });
     } catch (err) {
       const status = err.statusCode || (err.message.includes('SLOT_') ? 409 : 400);
       res.status(status).json({ success: false, message: err.message });
@@ -281,7 +288,14 @@ function createAdminAppointmentRouter({ pool, requireAdmin }) {
         actorRole: 'ADMIN'
       });
 
-      res.status(201).json({ success: true, appointment });
+      res.status(201).json({
+        success: true,
+        appointment,
+        ticket: {
+          id: appointment.ticket_id,
+          ticket_code: appointment.ticket_code
+        }
+      });
     } catch (err) {
       const status = err.statusCode || (err.message.includes('SLOT_') ? 409 : 400);
       res.status(status).json({ success: false, message: err.message });

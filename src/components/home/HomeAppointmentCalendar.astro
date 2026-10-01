@@ -1,0 +1,1688 @@
+---
+/**
+ * HomeAppointmentCalendar.astro
+ * Sección 3 del Home de Pixon PC: Calendario y Agendamiento en Vivo.
+ * Ubicado inmediatamente debajo de los 3 pasos de diagnóstico y arriba de la Historia.
+ * 
+ * Sincronizado en tiempo real con /api/appointments/availability/month y /availability
+ * Colores:
+ *  - Horarios libres: verde esmeralda elegante (#059669 / #10b981)
+ *  - Citas agendadas / ocupadas: azul corporativo (#0284c7 / #1e40af)
+ *  - Sin saturar el mes completo de verde (diseño Senior UI/UX limpio y contrastado)
+ */
+---
+
+<section class="hac-section" id="agendar-cita" aria-labelledby="hac-heading">
+  <div class="container hac-shell">
+    
+    <!-- Encabezado de la Sección -->
+    <header class="hac-header">
+      <div class="hac-badge">
+        <span class="hac-live-dot" aria-hidden="true"></span>
+        <span>Recepción activa · 11:00 AM a 10:00 PM · Taller Cancún</span>
+      </div>
+      <h2 id="hac-heading">Agenda tu cita técnica en taller sin esperas</h2>
+      <p>
+        Consulta los días y horarios libres de nuestro taller en Cancún. Atención continua de 11:00 AM a 10:00 PM: selecciona tu turno en vivo y asegura la revisión de tu equipo sin filas ni esperas.
+      </p>
+    </header>
+
+    <!-- Stepper de Agendamiento In-Situ -->
+    <div class="hac-stepper" role="tablist" aria-label="Pasos para agendar cita">
+      <div class="hac-step active" id="hac-step-indicator-1">
+        <span class="hac-step-num">1</span>
+        <span class="hac-step-text">Elige fecha y horario</span>
+      </div>
+      <div class="hac-step-line" aria-hidden="true"></div>
+      <div class="hac-step" id="hac-step-indicator-2">
+        <span class="hac-step-num">2</span>
+        <span class="hac-step-text">Datos del equipo</span>
+      </div>
+      <div class="hac-step-line" aria-hidden="true"></div>
+      <div class="hac-step" id="hac-step-indicator-3">
+        <span class="hac-step-num">3</span>
+        <span class="hac-step-text">Cita confirmada</span>
+      </div>
+    </div>
+
+    <!-- Contenedor Principal del Wizard -->
+    <div class="hac-card" id="hac-wizard-card">
+      
+      <!-- ================= PASO 1: Calendario y Horarios ================= -->
+      <div class="hac-panel" id="hac-panel-step1">
+        <div class="hac-grid-split">
+          
+          <!-- Columna Izquierda: Calendario Mensual -->
+          <div class="hac-calendar-col">
+            <div class="hac-cal-top">
+              <button type="button" class="hac-nav-btn" id="hac-btn-prev-month" aria-label="Mes anterior">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <h3 class="hac-cal-month-title" id="hac-month-label">Agenda en taller Cancún</h3>
+              <button type="button" class="hac-nav-btn" id="hac-btn-next-month" aria-label="Mes siguiente">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+
+            <!-- Nombres de Días -->
+            <div class="hac-cal-weekdays" aria-hidden="true">
+              <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+            </div>
+
+            <!-- Matriz de Días del Mes -->
+            <div class="hac-cal-days" id="hac-days-grid" role="grid" aria-label="Días del mes">
+              <div class="hac-cal-loading">
+                <span class="hac-spinner" aria-hidden="true"></span>
+                <span>Consultando disponibilidad en tiempo real…</span>
+              </div>
+            </div>
+
+            <!-- Leyenda Cromática Solicitada -->
+            <div class="hac-legend" aria-label="Código de colores del calendario">
+              <span class="hac-legend-item">
+                <span class="hac-dot hac-dot-green"></span>
+                <strong>Verde:</strong> Horarios libres
+              </span>
+              <span class="hac-legend-item">
+                <span class="hac-dot hac-dot-blue"></span>
+                <strong>Azul:</strong> Citas agendadas
+              </span>
+              <span class="hac-legend-item">
+                <span class="hac-dot hac-dot-gray"></span>
+                <strong>Gris:</strong> No disponible
+              </span>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Horarios Disponibles del Día -->
+          <div class="hac-slots-col">
+            <div class="hac-slots-header">
+              <div class="hac-slots-date-badge">
+                <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-calendar-days"/></svg>
+                <span id="hac-selected-day-label">Selecciona un día en el calendario</span>
+              </div>
+              <p class="hac-slots-lead" id="hac-slots-instruction">
+                Elige un turno disponible en verde para avanzar al siguiente paso y asegurar tu atención.
+              </p>
+            </div>
+
+            <!-- Contenedor de Horarios -->
+            <div class="hac-slots-body" id="hac-slots-container">
+              <div class="hac-slots-empty-state">
+                <div class="hac-empty-icon">
+                  <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-clock"/></svg>
+                </div>
+                <h4>Ningún día seleccionado</h4>
+                <p>Elige cualquier día disponible con indicador verde en el calendario para cargar sus horarios de atención.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= PASO 2: Datos de Contacto y Equipo ================= -->
+      <div class="hac-panel" id="hac-panel-step2" hidden>
+        <div class="hac-form-wrap">
+          
+          <!-- Resumen del Horario Escogido -->
+          <div class="hac-slot-summary-box">
+            <div class="hac-summary-left">
+              <span class="hac-summary-tag">Cita seleccionada</span>
+              <h4 id="hac-summary-datetime">Viernes 25 de Septiembre · 11:00 AM</h4>
+              <p>Taller Pixon PC: Cto. Hacienda Chimay, Supermanzanas / Cancún</p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm hac-btn-change-slot" id="hac-btn-back-step1">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-arrow-left"/></svg> Cambiar horario
+            </button>
+          </div>
+
+          <!-- Formulario Directo -->
+          <form id="hac-booking-form" class="hac-form" novalidate>
+            <div class="hac-form-grid">
+              
+              <div class="hac-field">
+                <label for="hac_name">Nombre completo <span class="req">*</span></label>
+                <input type="text" id="hac_name" required placeholder="Ej. Carlos Mendoza" autocomplete="name" />
+                <span class="hac-field-error" id="hac_err_name">Ingresa tu nombre completo</span>
+              </div>
+
+              <div class="hac-field">
+                <label for="hac_phone">WhatsApp o Celular en Cancún <span class="req">*</span></label>
+                <input type="tel" id="hac_phone" required placeholder="998 123 4567" autocomplete="tel" />
+                <span class="hac-field-error" id="hac_err_phone">Ingresa un número de 10 dígitos</span>
+              </div>
+
+              <div class="hac-field">
+                <label for="hac_device">Tipo de equipo a revisar <span class="req">*</span></label>
+                <select id="hac_device" required>
+                  <option value="">Selecciona tu equipo...</option>
+                  <option value="Laptop">Laptop (Gamer / Trabajo / Estudiantes)</option>
+                  <option value="PC de escritorio">PC de escritorio / Torre Gamer</option>
+                  <option value="MacBook / iMac">MacBook / iMac</option>
+                  <option value="Celular / iPhone">Celular / iPhone</option>
+                  <option value="Consola de videojuegos">Consola (PS5, Xbox, Nintendo Switch)</option>
+                  <option value="Impresora">Impresora</option>
+                  <option value="Otro">Otro dispositivo</option>
+                </select>
+                <span class="hac-field-error" id="hac_err_device">Selecciona el tipo de equipo</span>
+              </div>
+
+              <div class="hac-field">
+                <label for="hac_service_type">Motivo principal del servicio</label>
+                <select id="hac_service_type">
+                  <option value="Diagnóstico técnico">Diagnóstico técnico / No enciende / Falla</option>
+                  <option value="Mantenimiento preventivo">Mantenimiento preventivo / Limpieza y pasta térmica</option>
+                  <option value="Equipo mojado / Líquido">Urgencia: Equipo mojado o expuesto a líquidos</option>
+                  <option value="Cambio de pantalla o refacción">Cambio de pantalla, batería o centro de carga</option>
+                  <option value="Optimización / Software">Optimización / Formateo / Software lento</option>
+                  <option value="Otro">Otro servicio</option>
+                </select>
+              </div>
+
+              <div class="hac-field hac-field-full">
+                <label for="hac_notes">Describe brevemente la falla o síntoma (Opcional)</label>
+                <textarea id="hac_notes" rows="2" placeholder="Ej. Se calienta demasiado al jugar, ventiladores hacen ruido o la pantalla parpadea..."></textarea>
+              </div>
+
+            </div>
+
+            <!-- Mensaje de Error General -->
+            <div class="hac-form-alert-error" id="hac-submit-error" style="display:none;" role="alert">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-circle-xmark"/></svg>
+              <span id="hac-submit-error-text">No se pudo agendar la cita. Intenta de nuevo.</span>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="hac-form-actions">
+              <button type="button" class="btn btn-outline" id="hac-btn-cancel-step2">
+                <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-arrow-left"/></svg> Volver al calendario
+              </button>
+              <button type="submit" class="btn btn-primary btn-large pulse" id="hac-btn-submit-booking">
+                Confirmar cita en taller <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-calendar-check"/></svg>
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+      <!-- ================= PASO 3: Confirmación de Cita ================= -->
+      <div class="hac-panel" id="hac-panel-step3" hidden>
+        <div class="hac-success-wrap">
+          <div class="hac-success-icon-badge">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h3>¡Tu cita y orden de servicio han sido registradas!</h3>
+          <p class="hac-success-lead">
+            Hemos reservado tu espacio en la agenda y generado tu orden de servicio en taller. Conserva tu folio único para cualquier consulta o seguimiento.
+          </p>
+
+          <!-- Tarjeta con Detalles del Folio -->
+          <div class="hac-confirmation-card">
+            <div class="hac-conf-row hac-conf-highlight">
+              <span class="hac-conf-label">Folio de Orden / Cita:</span>
+              <strong class="hac-conf-value" id="hac-conf-folio">#------</strong>
+            </div>
+            <div class="hac-conf-grid">
+              <div class="hac-conf-item">
+                <span class="hac-conf-label">Fecha y Hora:</span>
+                <strong id="hac-conf-datetime">—</strong>
+              </div>
+              <div class="hac-conf-item">
+                <span class="hac-conf-label">Equipo y Motivo:</span>
+                <strong id="hac-conf-device">—</strong>
+              </div>
+              <div class="hac-conf-item">
+                <span class="hac-conf-label">A nombre de:</span>
+                <strong id="hac-conf-name">—</strong>
+              </div>
+              <div class="hac-conf-item">
+                <span class="hac-conf-label">Ubicación del Taller:</span>
+                <strong>Cto. Hacienda Chimay, Cancún, Q.R.</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones de Cierre -->
+          <div class="hac-success-actions">
+            <a href="#" class="btn btn-primary btn-large pulse-whatsapp" id="hac-btn-open-wa" target="_blank" rel="noopener noreferrer">
+              Confirmar llegada por WhatsApp <svg class="fa-icon fa-brands" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-whatsapp"/></svg>
+            </a>
+            <button type="button" class="btn btn-outline" id="hac-btn-reset-wizard">
+              Agendar otra cita técnica
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Garantías y Beneficios Rápidos al Pie de Sección -->
+    <div class="hac-trust-bar">
+      <div class="hac-trust-item">
+        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-shield-halved"/></svg>
+        <span>Garantía por escrito</span>
+      </div>
+      <div class="hac-trust-item">
+        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bolt"/></svg>
+        <span>Diagnóstico claro desde $600 MXN</span>
+      </div>
+      <div class="hac-trust-item">
+        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-map-location-dot"/></svg>
+        <span>Atención en Cancún Centro y Residenciales</span>
+      </div>
+      <div class="hac-trust-item">
+        <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-lock"/></svg>
+        <span>Privacidad y cuidado de tus datos</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style is:global>
+  /* ==========================================================================
+     HOME APPOINTMENT CALENDAR GLOBAL STYLES (SECCIÓN 3)
+     Usa is:global para aplicar estilos tanto a elementos estáticos como dinámicos (JS)
+     ========================================================================== */
+  .hac-section {
+    padding: clamp(48px, 6vw, 76px) 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hac-shell {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 18px;
+  }
+
+  /* Header */
+  .hac-header {
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto 28px;
+  }
+
+  .hac-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eff6ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: 0.2px;
+  }
+
+  .hac-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+    animation: hacPulseDot 2s infinite;
+  }
+
+  @keyframes hacPulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.15); }
+  }
+
+  .hac-header h2 {
+    font-family: var(--font-heading, 'Kanit', sans-serif);
+    font-style: italic;
+    font-weight: 800;
+    color: #071F3A;
+    font-size: clamp(1.65rem, 3.4vw, 2.35rem);
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  .hac-header p {
+    color: #334155;
+    font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Stepper */
+  .hac-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .hac-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: color 0.2s;
+  }
+
+  .hac-step.active {
+    color: #071F3A;
+  }
+
+  .hac-step.completed {
+    color: #059669;
+  }
+
+  .hac-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .hac-step.active .hac-step-num {
+    background: #071F3A;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(7, 31, 58, 0.25);
+  }
+
+  .hac-step.completed .hac-step-num {
+    background: #059669;
+    color: #ffffff;
+  }
+
+  .hac-step-line {
+    width: 32px;
+    height: 2px;
+    background: #cbd5e1;
+  }
+
+  /* Main Card Container */
+  .hac-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 6px 30px rgba(7, 31, 58, 0.07);
+    padding: clamp(20px, 3vw, 32px);
+    margin-bottom: 28px;
+    min-height: 480px;
+  }
+
+  /* Grid Split for Step 1 */
+  .hac-grid-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 40px);
+    align-items: start;
+  }
+
+  /* Calendar Col */
+  .hac-calendar-col {
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 2px 10px rgba(7, 31, 58, 0.03);
+  }
+
+  .hac-cal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .hac-cal-month-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #071F3A;
+    text-transform: capitalize;
+  }
+
+  .hac-nav-btn {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    color: #071F3A;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+
+  .hac-nav-btn:hover {
+    background: #eff6ff;
+    border-color: #0284c7;
+    color: #0284c7;
+    transform: scale(1.05);
+  }
+
+  .hac-cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .hac-cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    min-height: 260px;
+  }
+
+  .hac-cal-loading {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 48px 0;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .hac-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #0284c7;
+    border-radius: 50%;
+    animation: hacSpin 0.8s linear infinite;
+  }
+
+  @keyframes hacSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Day Cells */
+  .hac-day-cell {
+    min-width: 0;
+    width: 100%;
+    aspect-ratio: 1;
+    min-height: 48px;
+    border-radius: 10px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    border: 1px solid #e2e8f0 !important;
+    cursor: default;
+    position: relative;
+    transition: all 0.15s ease;
+    background: #ffffff !important;
+    user-select: none;
+    padding: 4px 2px;
+  }
+
+  .hac-day-cell.clickable {
+    cursor: pointer !important;
+  }
+
+  .hac-day-cell.clickable:hover {
+    border-color: #0284c7 !important;
+    background: #f0f9ff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.15);
+    z-index: 2;
+  }
+
+  .hac-day-cell.empty {
+    opacity: 0.2;
+    border: 1px dashed transparent !important;
+    pointer-events: none;
+  }
+
+  .hac-day-cell.past,
+  .hac-day-cell.closed {
+    opacity: 0.45;
+    background: #f8fafc !important;
+    color: #94a3b8;
+    border-color: #f1f5f9 !important;
+  }
+
+  .hac-day-num {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #071F3A;
+    line-height: 1;
+  }
+
+  /* Subtly designed badges per user request:
+     - Available days: clean green pill/dot, NOT painting the entire box green!
+     - Booked/busy days: elegant blue indicator!
+  */
+  .hac-day-badge {
+    font-size: 0.6rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 1px 5px !important;
+    border-radius: 4px;
+    line-height: 1;
+    display: inline-block;
+  }
+
+  /* Verde sutil para disponibles */
+  .hac-day-cell.avail .hac-day-badge {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+    border: 1px solid #bbf7d0;
+  }
+
+  /* Azul para citas programadas / reservas */
+  .hac-day-cell.has-appointments .hac-day-badge {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+    border: 1px solid #bae6fd;
+  }
+
+  .hac-day-cell.limited .hac-day-badge {
+    background: #fef3c7 !important;
+    color: #b45309 !important;
+    border: 1px solid #fde68a;
+  }
+
+  .hac-day-cell.full .hac-day-badge {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    border: 1px solid #fecaca;
+  }
+
+  /* Selected day */
+  .hac-day-cell.selected {
+    border: 2px solid #071F3A !important;
+    background: #eff6ff !important;
+    box-shadow: 0 0 0 3px rgba(7, 31, 58, 0.18) !important;
+    z-index: 3;
+  }
+
+  .hac-day-cell.today {
+    border-color: #0284c7 !important;
+  }
+
+  /* Legend */
+  .hac-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 0.75rem;
+    color: #475569;
+  }
+
+  .hac-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .hac-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .hac-dot-green { background: #10b981; }
+  .hac-dot-blue  { background: #0284c7; }
+  .hac-dot-gray  { background: #cbd5e1; }
+
+  /* Slots Col */
+  .hac-slots-col {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 380px;
+  }
+
+  .hac-slots-header {
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+  }
+
+  .hac-slots-date-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #071F3A;
+    font-weight: 800;
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+
+  .hac-slots-lead {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.4;
+  }
+
+  .hac-slots-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hac-slots-empty-state {
+    text-align: center;
+    margin: auto;
+    padding: 30px 10px;
+    color: #64748b;
+  }
+
+  .hac-empty-icon {
+    font-size: 2.2rem;
+    color: #94a3b8;
+    margin-bottom: 10px;
+  }
+
+  .hac-slots-empty-state h4 {
+    margin: 0 0 6px;
+    color: #071F3A;
+    font-size: 1.05rem;
+  }
+
+  .hac-slots-empty-state p {
+    margin: 0;
+    font-size: 0.85rem;
+    max-width: 280px;
+    line-height: 1.5;
+  }
+
+  /* Horarios Grid */
+  .hac-slots-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)) !important;
+    gap: 10px !important;
+    margin-top: 8px !important;
+  }
+
+  /* Horarios Libres (Verdes) */
+  .hac-slot-btn {
+    background: #f0fdf4 !important;
+    border: 1.5px solid #86efac !important;
+    border-radius: 10px !important;
+    padding: 10px 8px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 3px !important;
+    transition: all 0.15s ease !important;
+    text-align: center !important;
+  }
+
+  .hac-slot-btn:hover {
+    background: #dcfce7 !important;
+    border-color: #22c55e !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.22);
+  }
+
+  .hac-slot-btn:focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 2px;
+  }
+
+  .hac-slot-time {
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    color: #071F3A !important;
+    font-family: var(--font-heading, sans-serif);
+    line-height: 1.1;
+  }
+
+  .hac-slot-tag-avail {
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    color: #15803d !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: #ffffff !important;
+    padding: 2px 6px !important;
+    border-radius: 4px;
+    border: 1px solid #bbf7d0;
+  }
+
+  /* Citas Ocupadas / Reservas (Azul) */
+  .hac-slot-booked {
+    background: #f0f9ff !important;
+    border: 1.5px solid #bae6fd !important;
+    border-radius: 10px !important;
+    padding: 10px 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 3px !important;
+    text-align: center !important;
+    cursor: not-allowed !important;
+    opacity: 0.9 !important;
+  }
+
+  .hac-slot-booked .hac-slot-time {
+    color: #0369a1 !important;
+    font-size: 0.98rem !important;
+  }
+
+  .hac-slot-tag-booked {
+    font-size: 0.62rem !important;
+    font-weight: 700 !important;
+    color: #0369a1 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: #e0f2fe !important;
+    padding: 2px 6px !important;
+    border-radius: 4px;
+    border: 1px solid #93c5fd;
+  }
+
+  /* Step 2 Form */
+  .hac-form-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .hac-slot-summary-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .hac-summary-tag {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #0369a1;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .hac-summary-left h4 {
+    margin: 0 0 2px;
+    font-size: 1.15rem;
+    color: #071F3A;
+    font-weight: 800;
+  }
+
+  .hac-summary-left p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #475569;
+  }
+
+  .hac-btn-change-slot {
+    font-size: 0.82rem;
+    padding: 6px 12px;
+    white-space: nowrap;
+  }
+
+  .hac-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .hac-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .hac-field-full {
+    grid-column: 1 / -1;
+  }
+
+  .hac-field label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #071F3A;
+  }
+
+  .hac-field label .req {
+    color: #dc2626;
+  }
+
+  .hac-field input,
+  .hac-field select,
+  .hac-field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 0.95rem;
+    color: #071F3A;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+
+  .hac-field input:focus,
+  .hac-field select:focus,
+  .hac-field textarea:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  }
+
+  .hac-field-error {
+    font-size: 0.78rem;
+    color: #dc2626;
+    display: none;
+    font-weight: 600;
+  }
+
+  .hac-field.has-error input,
+  .hac-field.has-error select {
+    border-color: #dc2626;
+    background: #fff5f5;
+  }
+
+  .hac-field.has-error .hac-field-error {
+    display: block;
+  }
+
+  .hac-form-alert-error {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hac-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Step 3 Success */
+  .hac-success-wrap {
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 20px 0;
+  }
+
+  .hac-success-icon-badge {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto 16px;
+    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.15);
+  }
+
+  .hac-success-wrap h3 {
+    font-family: var(--font-heading, 'Kanit', sans-serif);
+    font-style: italic;
+    font-weight: 800;
+    color: #071F3A;
+    font-size: clamp(1.5rem, 2.5vw, 1.9rem);
+    margin: 0 0 8px;
+  }
+
+  .hac-success-lead {
+    color: #475569;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    margin: 0 0 24px;
+  }
+
+  .hac-confirmation-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+
+  .hac-conf-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .hac-conf-highlight {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .hac-conf-highlight .hac-conf-label {
+    font-size: 0.95rem;
+    color: #071F3A;
+    font-weight: 800;
+  }
+
+  .hac-conf-value {
+    font-family: monospace;
+    font-size: 1.25rem;
+    color: #0284c7;
+    background: #ffffff;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid #bae6fd;
+  }
+
+  .hac-conf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .hac-conf-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hac-conf-item .hac-conf-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .hac-conf-item strong {
+    font-size: 0.92rem;
+    color: #071F3A;
+  }
+
+  .hac-success-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hac-success-actions .btn {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  /* Trust Bar */
+  .hac-trust-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+  }
+
+  .hac-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #071F3A;
+    font-weight: 700;
+  }
+
+  .hac-trust-item svg {
+    color: #059669;
+    font-size: 0.95rem;
+  }
+
+  /* Responsive Rules */
+  @media (max-width: 860px) {
+    .hac-grid-split {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .hac-card {
+      padding: 14px;
+    }
+
+    .hac-form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hac-conf-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hac-step-text {
+      display: none;
+    }
+
+    .hac-step-line {
+      width: 20px;
+    }
+
+    .hac-slots-col {
+      min-height: 280px;
+      padding: 16px 12px;
+    }
+
+    .hac-slots-grid {
+      grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)) !important;
+      gap: 8px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hac-shell {
+      padding: 0 20px;
+    }
+
+    .hac-card {
+      padding: 10px 8px;
+    }
+
+    .hac-calendar-col {
+      padding: 10px 4px;
+    }
+
+    .hac-cal-weekdays {
+      font-size: 0.68rem;
+    }
+
+    .hac-cal-days {
+      gap: 2px;
+    }
+
+    .hac-day-cell {
+      min-height: 40px;
+      padding: 2px 0 !important;
+      border-radius: 5px;
+    }
+
+    .hac-day-num {
+      font-size: 0.78rem;
+    }
+
+    .hac-day-badge {
+      font-size: 0.48rem !important;
+      padding: 1px 2px !important;
+      letter-spacing: -0.2px;
+    }
+
+    .hac-slots-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    .hac-slot-btn, .hac-slot-booked {
+      padding: 8px 4px !important;
+    }
+
+    .hac-slot-time {
+      font-size: 0.92rem !important;
+    }
+
+    .hac-legend {
+      gap: 8px;
+      font-size: 0.68rem;
+    }
+  }
+</style>
+
+<script is:inline>
+(function() {
+  'use strict';
+
+  // Helpers de fecha en zona horaria Cancún
+  function getCancunTodayISO() {
+    var parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Cancun',
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date());
+    var m = {};
+    for (var i = 0; i < parts.length; i++) m[parts[i].type] = parts[i].value;
+    return m.year + '-' + m.month + '-' + m.day;
+  }
+
+  function getCancunMonthISO() {
+    return getCancunTodayISO().slice(0, 7);
+  }
+
+  function formatMonthTitle(isoMonth) {
+    var segs = isoMonth.split('-').map(Number);
+    var dt = new Date(Date.UTC(segs[0], segs[1] - 1, 1, 12));
+    var str = dt.toLocaleDateString('es-MX', { month: 'long', year: 'numeric', timeZone: 'America/Cancun' });
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function formatDateHuman(isoDate) {
+    var segs = isoDate.split('-').map(Number);
+    var dt = new Date(Date.UTC(segs[0], segs[1] - 1, segs[2], 12));
+    var str = dt.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Cancun' });
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  // Estado del Wizard
+  var currentMonth = getCancunMonthISO();
+  var selectedDate = null;
+  var selectedSlotTime = null;
+  var monthAvailabilityData = null;
+  var cachedDayData = {};
+
+  // Elementos del DOM
+  var monthLabel = document.getElementById('hac-month-label');
+  var daysGrid = document.getElementById('hac-days-grid');
+  var btnPrevMonth = document.getElementById('hac-btn-prev-month');
+  var btnNextMonth = document.getElementById('hac-btn-next-month');
+  var selectedDayLabel = document.getElementById('hac-selected-day-label');
+  var slotsContainer = document.getElementById('hac-slots-container');
+
+  var stepIndicator1 = document.getElementById('hac-step-indicator-1');
+  var stepIndicator2 = document.getElementById('hac-step-indicator-2');
+  var stepIndicator3 = document.getElementById('hac-step-indicator-3');
+
+  var panelStep1 = document.getElementById('hac-panel-step1');
+  var panelStep2 = document.getElementById('hac-panel-step2');
+  var panelStep3 = document.getElementById('hac-panel-step3');
+
+  var summaryDateTime = document.getElementById('hac-summary-datetime');
+  var btnBackStep1 = document.getElementById('hac-btn-back-step1');
+  var btnCancelStep2 = document.getElementById('hac-btn-cancel-step2');
+  var bookingForm = document.getElementById('hac-booking-form');
+  var submitError = document.getElementById('hac-submit-error');
+  var submitErrorText = document.getElementById('hac-submit-error-text');
+  var btnSubmitBooking = document.getElementById('hac-btn-submit-booking');
+
+  var confFolio = document.getElementById('hac-conf-folio');
+  var confDatetime = document.getElementById('hac-conf-datetime');
+  var confDevice = document.getElementById('hac-conf-device');
+  var confName = document.getElementById('hac-conf-name');
+  var btnOpenWa = document.getElementById('hac-btn-open-wa');
+  var btnResetWizard = document.getElementById('hac-btn-reset-wizard');
+
+  // Inicializar diferido con IntersectionObserver para no bloquear first render ni cargar APIs a 2000px del viewport
+  var calendarLoaded = false;
+  function triggerCalendarLoad() {
+    if (calendarLoaded) return;
+    calendarLoaded = true;
+    loadMonthAvailability(currentMonth);
+  }
+
+  function initCalendar() {
+    if (monthLabel) monthLabel.textContent = formatMonthTitle(currentMonth);
+    bindEvents();
+
+    var section = document.getElementById('agendar-cita');
+    if ('IntersectionObserver' in window && section) {
+      var obs = new IntersectionObserver(function(entries) {
+        if (entries.some(function(e) { return e.isIntersecting; })) {
+          triggerCalendarLoad();
+          obs.disconnect();
+        }
+      }, { rootMargin: '800px 0px' });
+      obs.observe(section);
+    } else {
+      triggerCalendarLoad();
+    }
+  }
+
+  function bindEvents() {
+    if (btnPrevMonth) {
+      btnPrevMonth.addEventListener('click', function() { changeMonth(-1); });
+    }
+    if (btnNextMonth) {
+      btnNextMonth.addEventListener('click', function() { changeMonth(1); });
+    }
+    if (btnBackStep1) {
+      btnBackStep1.addEventListener('click', function() { goToStep(1); });
+    }
+    if (btnCancelStep2) {
+      btnCancelStep2.addEventListener('click', function() { goToStep(1); });
+    }
+    if (bookingForm) {
+      bookingForm.addEventListener('submit', handleFormSubmit);
+    }
+    if (btnResetWizard) {
+      btnResetWizard.addEventListener('click', function() {
+        goToStep(1);
+        bookingForm.reset();
+        loadMonthAvailability(currentMonth);
+      });
+    }
+  }
+
+  function changeMonth(delta) {
+    var segs = currentMonth.split('-').map(Number);
+    var dt = new Date(Date.UTC(segs[0], segs[1] - 1 + delta, 1, 12));
+    currentMonth = dt.toISOString().slice(0, 7);
+    selectedDate = null;
+    selectedSlotTime = null;
+    renderEmptySlots();
+    loadMonthAvailability(currentMonth);
+  }
+
+  // Carga de disponibilidad del mes desde la API de appointments
+  async function loadMonthAvailability(isoMonth) {
+    if (monthLabel) monthLabel.textContent = formatMonthTitle(isoMonth);
+    if (daysGrid) {
+      daysGrid.innerHTML = '<div class="hac-cal-loading"><span class="hac-spinner"></span><span>Actualizando disponibilidad en vivo…</span></div>';
+    }
+
+    try {
+      var res = await fetch('/api/appointments/availability/month?month=' + encodeURIComponent(isoMonth) + '&type=DROP_OFF', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Status ' + res.status);
+      var data = await res.json();
+      monthAvailabilityData = data;
+      renderCalendarDays(data.days || []);
+    } catch (err) {
+      console.warn('API month availability error:', err);
+      if (daysGrid) {
+        daysGrid.innerHTML = '<div class="hac-cal-loading" role="status"><p style="margin-bottom:8px;font-size:0.95rem;">Recepción activa de 11:00 AM a 10:00 PM en taller Cancún.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px;"><button type="button" class="hac-slot-btn" id="hac-retry-month">Reintentar</button><a href="https://wa.me/529986690777?text=Hola%20Pixon%20PC%2C%20quiero%20agendar%20cita%20en%20taller%20Canc%C3%BAn." class="hac-slot-btn" style="background:#25D366;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;" target="_blank"><i class="fa-brands fa-whatsapp"></i> Agendar por WhatsApp</a></div></div>';
+        var retryMonth = document.getElementById('hac-retry-month');
+        if (retryMonth) retryMonth.addEventListener('click', function() { loadMonthAvailability(isoMonth); });
+      }
+    }
+  }
+
+  function renderCalendarDays(days) {
+    var todayISO = getCancunTodayISO();
+    var segs = currentMonth.split('-').map(Number);
+    var firstWeekday = new Date(Date.UTC(segs[0], segs[1] - 1, 1, 12)).getUTCDay();
+
+    var html = '';
+    // Celdas vacías iniciales para alinear días de la semana
+    for (var i = 0; i < firstWeekday; i++) {
+      html += '<div class="hac-day-cell empty" aria-hidden="true"></div>';
+    }
+
+    // Mapa de días recibido de la API
+    var dayMap = {};
+    for (var d = 0; d < days.length; d++) {
+      dayMap[days[d].date] = days[d];
+    }
+
+    var totalDays = new Date(Date.UTC(segs[0], segs[1], 0)).getUTCDate();
+
+    for (var dayNum = 1; dayNum <= totalDays; dayNum++) {
+      var dateStr = currentMonth + '-' + String(dayNum).padStart(2, '0');
+      var hasDayInfo = Object.prototype.hasOwnProperty.call(dayMap, dateStr);
+      var dayInfo = dayMap[dateStr] || { status: 'UNKNOWN', available_slots: 0 };
+      var isPast = dateStr < todayISO;
+      var isToday = dateStr === todayISO;
+      var isClosed = dayInfo.status === 'CLOSED';
+      var isFull = dayInfo.status === 'FULL';
+      var isLimited = dayInfo.status === 'LIMITED';
+      var isClickable = hasDayInfo && !isPast && !isClosed && !isFull && Number(dayInfo.available_slots) > 0;
+
+      var cellClass = 'hac-day-cell';
+      var badgeText = '';
+
+      if (isPast) {
+        cellClass += ' past';
+      } else if (!hasDayInfo) {
+        cellClass += ' closed';
+        badgeText = 'Sin datos';
+      } else if (isClosed) {
+        cellClass += ' closed';
+        badgeText = 'Cerrado';
+      } else if (isFull) {
+        cellClass += ' full';
+        badgeText = 'Lleno';
+      } else if (isLimited && isClickable) {
+        cellClass += ' limited clickable';
+        badgeText = 'Últimos';
+      } else if (isClickable) {
+        cellClass += ' avail clickable';
+        badgeText = 'Libre';
+      } else {
+        cellClass += ' full';
+        badgeText = 'Sin turnos';
+      }
+
+      if (isToday) cellClass += ' today';
+      if (selectedDate === dateStr) cellClass += ' selected';
+
+      html += '<div class="' + cellClass + '" data-date="' + dateStr + '"' +
+              (isClickable ? ' tabindex="0" role="button" aria-label="' + dateStr + ': ' + badgeText + '"' : ' aria-disabled="true"') + '>' +
+              '<span class="hac-day-num">' + dayNum + '</span>' +
+              (badgeText ? '<span class="hac-day-badge">' + badgeText + '</span>' : '') +
+              '</div>';
+    }
+
+    if (daysGrid) {
+      daysGrid.innerHTML = html;
+      var clickableCells = daysGrid.querySelectorAll('.hac-day-cell.clickable');
+      clickableCells.forEach(function(cell) {
+        cell.addEventListener('click', function() { selectDate(cell.dataset.date); });
+        cell.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectDate(cell.dataset.date);
+          }
+        });
+      });
+    }
+
+    // Auto-seleccionar hoy o el primer día disponible si no hay seleccionado
+    if (!selectedDate) {
+      var firstAvailable = daysGrid ? daysGrid.querySelector('.hac-day-cell.clickable') : null;
+      if (firstAvailable && firstAvailable.dataset.date) {
+        selectDate(firstAvailable.dataset.date);
+      }
+    }
+  }
+
+  // Carga de horarios del día seleccionado
+  async function selectDate(dateStr) {
+    selectedDate = dateStr;
+    selectedSlotTime = null;
+
+    // Actualizar clase visual en el calendario
+    if (daysGrid) {
+      var cells = daysGrid.querySelectorAll('.hac-day-cell');
+      cells.forEach(function(c) {
+        c.classList.toggle('selected', c.dataset.date === dateStr);
+      });
+    }
+
+    if (selectedDayLabel) {
+      selectedDayLabel.textContent = formatDateHuman(dateStr);
+    }
+
+    if (slotsContainer) {
+      slotsContainer.innerHTML = '<div class="hac-cal-loading"><span class="hac-spinner"></span><span>Consultando horarios en vivo…</span></div>';
+    }
+
+    try {
+      var res = await fetch('/api/appointments/availability?date=' + encodeURIComponent(dateStr) + '&type=DROP_OFF', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Slots status ' + res.status);
+      var data = await res.json();
+      cachedDayData[dateStr] = data;
+      renderSlots(dateStr, data);
+    } catch (err) {
+      console.warn('API slot availability error:', err);
+      if (slotsContainer) slotsContainer.innerHTML = '<div class="hac-slots-empty-state" role="status"><h4>No pudimos consultar los horarios</h4><p>Intenta de nuevo antes de seleccionar un turno.</p><button type="button" class="hac-slot-btn" id="hac-retry-slots">Reintentar</button></div>';
+      var retrySlots = document.getElementById('hac-retry-slots');
+      if (retrySlots) retrySlots.addEventListener('click', function() { selectDate(dateStr); });
+    }
+  }
+
+  function renderSlots(dateStr, data) {
+    if (!slotsContainer) return;
+
+    if (!data.is_open) {
+      slotsContainer.innerHTML = '<div class="hac-slots-empty-state"><div class="hac-empty-icon"><i class="fa-solid fa-store-slash"></i></div><h4>Taller cerrado este día</h4><p>' + (data.message || 'El taller no tiene recepción en esta fecha.') + '</p></div>';
+      return;
+    }
+
+    var slots = data.slots || [];
+    if (!slots.length) {
+      slotsContainer.innerHTML = '<div class="hac-slots-empty-state" role="status"><h4>Sin turnos disponibles</h4><p>Elige otro día o vuelve a consultar más tarde.</p></div>';
+      return;
+    }
+
+    var html = '<div class="hac-slots-grid">';
+    for (var i = 0; i < slots.length; i++) {
+      var slot = slots[i];
+      var isAvailable = slot.available;
+      var timeFormatted = slot.time;
+
+      if (isAvailable) {
+        // Horario LIBRE -> Verde esmeralda (#059669 / #10b981)
+        html += '<button type="button" class="hac-slot-btn" data-time="' + timeFormatted + '" data-date="' + dateStr + '">' +
+                '<span class="hac-slot-time">' + timeFormatted + '</span>' +
+                '<span class="hac-slot-tag-avail">Disponible</span>' +
+                '</button>';
+      } else {
+        // Horario OCUPADO / CITA AGENDADA -> Azul corporativo (#0284c7 / #1e40af)
+        html += '<div class="hac-slot-booked" title="Horario con cita ya agendada">' +
+                '<span class="hac-slot-time">' + timeFormatted + '</span>' +
+                '<span class="hac-slot-tag-booked">Cita agendada</span>' +
+                '</div>';
+      }
+    }
+    html += '</div>';
+
+    slotsContainer.innerHTML = html;
+
+    // Asignar listeners a los horarios libres
+    var slotButtons = slotsContainer.querySelectorAll('.hac-slot-btn');
+    slotButtons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        chooseSlot(btn.dataset.date, btn.dataset.time);
+      });
+    });
+  }
+
+  function renderEmptySlots() {
+    if (slotsContainer) {
+      slotsContainer.innerHTML = '<div class="hac-slots-empty-state"><div class="hac-empty-icon"><i class="fa-solid fa-clock"></i></div><h4>Selecciona un día</h4><p>Elige un día con disponibilidad en el calendario para ver los horarios.</p></div>';
+    }
+  }
+
+  // Selección de Horario -> Avanza a Paso 2
+  function chooseSlot(dateStr, timeStr) {
+    selectedDate = dateStr;
+    selectedSlotTime = timeStr;
+
+    if (summaryDateTime) {
+      summaryDateTime.textContent = formatDateHuman(dateStr) + ' · ' + timeStr;
+    }
+
+    goToStep(2);
+
+    var nameField = document.getElementById('hac_name');
+    if (nameField) {
+      setTimeout(function() { nameField.focus(); }, 150);
+    }
+  }
+
+  // Navegación entre Pasos del Stepper
+  function goToStep(stepNumber) {
+    if (panelStep1) panelStep1.hidden = (stepNumber !== 1);
+    if (panelStep2) panelStep2.hidden = (stepNumber !== 2);
+    if (panelStep3) panelStep3.hidden = (stepNumber !== 3);
+
+    // Actualizar clases en stepper
+    if (stepIndicator1) {
+      stepIndicator1.classList.toggle('active', stepNumber === 1);
+      stepIndicator1.classList.toggle('completed', stepNumber > 1);
+    }
+    if (stepIndicator2) {
+      stepIndicator2.classList.toggle('active', stepNumber === 2);
+      stepIndicator2.classList.toggle('completed', stepNumber > 2);
+    }
+    if (stepIndicator3) {
+      stepIndicator3.classList.toggle('active', stepNumber === 3);
+    }
+
+    var card = document.getElementById('hac-wizard-card');
+    if (card) {
+      var rect = card.getBoundingClientRect();
+      if (rect.top < 80 || rect.top > 400) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
+  // Envío del Formulario (Paso 2 -> Creación en vivo -> Paso 3)
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    if (submitError) submitError.style.display = 'none';
+
+    var nameInput = document.getElementById('hac_name');
+    var phoneInput = document.getElementById('hac_phone');
+    var deviceSelect = document.getElementById('hac_device');
+    var serviceSelect = document.getElementById('hac_service_type');
+    var notesInput = document.getElementById('hac_notes');
+
+    var isValid = true;
+
+    function validateField(input) {
+      var val = (input.value || '').trim();
+      var field = input.closest('.hac-field');
+      if (!val) {
+        if (field) field.classList.add('has-error');
+        isValid = false;
+      } else {
+        if (field) field.classList.remove('has-error');
+      }
+      return val;
+    }
+
+    var nameVal = validateField(nameInput);
+    var phoneVal = validateField(phoneInput);
+    var deviceVal = validateField(deviceSelect);
+    var serviceVal = serviceSelect ? serviceSelect.value : 'Diagnóstico técnico';
+    var notesVal = notesInput ? notesInput.value.trim() : '';
+
+    var cleanedPhone = phoneVal.replace(/\D/g, '');
+    if (cleanedPhone.length < 10) {
+      var phoneField = phoneInput.closest('.hac-field');
+      if (phoneField) phoneField.classList.add('has-error');
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    if (!selectedDate || !selectedSlotTime) {
+      if (submitError) {
+        submitError.style.display = 'flex';
+        submitErrorText.textContent = 'Por favor regresa al paso 1 y selecciona una fecha y horario.';
+      }
+      return;
+    }
+
+    var originalBtnText = btnSubmitBooking.innerHTML;
+    btnSubmitBooking.disabled = true;
+    btnSubmitBooking.innerHTML = '<span class="hac-spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Agendando cita…';
+
+    var payload = {
+      customer_name: nameVal,
+      customer_phone: phoneVal,
+      date: selectedDate,
+      time: selectedSlotTime,
+      appointment_type: 'DROP_OFF',
+      service_type: serviceVal,
+      location_type: 'WORKSHOP',
+      device_summary: deviceVal,
+      customer_notes: notesVal || 'Cita generada desde el Home de Pixon PC',
+      address_line: 'Cto. Hacienda Chimay, Cancún, Q.R.'
+    };
+
+    try {
+      var res = await fetch('/api/appointments/hold', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'fetch'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      var result = null;
+      try {
+        result = await res.json();
+      } catch (_) {}
+
+      if (!res.ok || (result && result.success === false)) {
+        throw new Error((result && result.message) || 'El horario seleccionado ya no está disponible. Por favor elige otro.');
+      }
+
+      var appointmentObj = (result && result.appointment) || {};
+      var ticketObj = (result && result.ticket) || {};
+      var rawTicketCode = ticketObj.ticket_code || appointmentObj.ticket_code || (appointmentObj.id ? appointmentObj.id.slice(0, 6).toUpperCase() : 'PIXON');
+      var folio = '#' + rawTicketCode;
+
+      // Éxito: Completar datos de paso 3
+      if (confFolio) confFolio.textContent = folio;
+      if (confDatetime) confDatetime.textContent = formatDateHuman(selectedDate) + ' a las ' + selectedSlotTime;
+      if (confDevice) confDevice.textContent = deviceVal + ' (' + serviceVal + ')';
+      if (confName) confName.textContent = nameVal;
+
+      // Configurar enlace de WhatsApp
+      if (btnOpenWa) {
+        var waMsg = encodeURIComponent(
+          'Hola Pixon PC, acabo de agendar cita y registrar mi Orden de Servicio en su taller en Cancún.\n' +
+          'Folio / Orden: ' + folio + '\n' +
+          'Nombre: ' + nameVal + '\n' +
+          'Fecha: ' + selectedDate + ' a las ' + selectedSlotTime + '\n' +
+          'Equipo: ' + deviceVal + '\n' +
+          'Servicio: ' + serviceVal + (notesVal ? ('\nDetalle: ' + notesVal) : '')
+        );
+        btnOpenWa.href = 'https://wa.me/529986690777?text=' + waMsg;
+      }
+
+      // Avanzar a Paso 3
+      goToStep(3);
+
+    } catch (err) {
+      console.error('Error agendando cita:', err);
+      if (submitError) {
+        submitError.style.display = 'flex';
+        submitErrorText.textContent = err.message || 'Ocurrió un error al agendar la cita. Puedes confirmarla directamente por WhatsApp.';
+      }
+    } finally {
+      btnSubmitBooking.disabled = false;
+      btnSubmitBooking.innerHTML = originalBtnText;
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCalendar);
+  } else {
+    initCalendar();
+  }
+
+})();
+</script>

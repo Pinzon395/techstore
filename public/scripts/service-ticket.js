@@ -5,6 +5,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('serviceTicketForm');
     if (!form) return;
+    let ticketStarted = false;
+    const trackTicketStart = () => {
+        if (ticketStarted) return;
+        ticketStarted = true;
+        window.pixonTrackEvent?.('ticket_start');
+    };
+    form.addEventListener('focusin', trackTicketStart, { once: true });
 
     const ticketSection = form.closest('.service-ticket-section');
     const ticketContainer = form.closest('.service-ticket-section .container') || form.parentElement;
@@ -330,7 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const meData = await meRes.json();
             if (!meData.user) return; // Aún no hay sesión real
 
-            sessionStorage.removeItem('pixon_pending_ticket');
             const ticketData = JSON.parse(pending);
 
             // Rellenar visualmente
@@ -351,6 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error('Error al crear el ticket');
             
             const result = await res.json();
+            sessionStorage.removeItem('pixon_pending_ticket');
             showSuccess(result.ticket_code, ticketData.device_type, ticketData.service_requested, ticketData);
 
         } catch (err) {
@@ -364,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Envío del formulario
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        trackTicketStart();
         errorMsg.style.display = 'none';
         clearFieldErrors();
 
@@ -542,6 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showSuccess(folio, device, service, ticketData = {}) {
+        window.pixonTrackEvent?.('ticket_submit');
         form.style.display = 'none';
         authOverlay.style.display = 'none';
         if (successOverlay) successOverlay.style.display = 'block';

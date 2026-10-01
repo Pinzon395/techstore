@@ -3,7 +3,7 @@
  * Maneja cache offline y garantiza actualización inmediata de contenido.
  */
 
-const CACHE_NAME = 'pixon-20260916-062820';
+const CACHE_NAME = 'pixon-20261001T165205Z-1914ddaa3a73';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/favicon.png',
@@ -26,8 +26,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((names) => {
       return Promise.all(
         names.map((name) => {
-          if (name !== CACHE_NAME) {
-            console.log('[SW] Eliminando caché obsoleta:', name);
+          if (name.startsWith('pixon-') && name !== CACHE_NAME) {
             return caches.delete(name);
           }
         })
@@ -45,7 +44,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   // Skip API requests and Auth routes - siempre red directa
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/')) {
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/') || url.pathname === '/admin' || url.pathname.startsWith('/admin/')) {
     return;
   }
 
@@ -131,7 +130,9 @@ self.addEventListener('message', (event) => {
   }
   if (event.data && event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
-      caches.keys().then((names) => Promise.all(names.map((name) => caches.delete(name))))
+      caches.keys().then((names) => Promise.all(names
+        .filter((name) => name.startsWith('pixon-') && name !== CACHE_NAME)
+        .map((name) => caches.delete(name))))
     );
   }
 });

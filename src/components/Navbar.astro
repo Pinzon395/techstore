@@ -92,6 +92,7 @@ const t = lang === 'en' ? {
     <button
       class="menu-toggle"
       id="mobile-menu"
+      type="button"
       aria-label={lang === 'en' ? 'Open menu' : 'Abrir menú'}
       aria-expanded="false"
       aria-controls="nav-menu"
@@ -173,61 +174,18 @@ const t = lang === 'en' ? {
                   <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
                   <span>{cat.title}</span>
                 </li>
-                {cat.services.filter((s) => !s.navHidden).map((s) => {
+                {cat.services.filter((s) => !s.navHidden).slice(0, 4).map((s) => {
                   const serviceHref = s.customUrl ? s.customUrl : `/servicios/${cat.slug}/${s.slug}`;
-                  const hasChildren = Array.isArray(s.navChildren) && s.navChildren.length > 0;
-                  const childMenuId = `mobile-${cat.slug}-${s.slug}-services`;
-
                   return (
-                    <li role="none" class:list={['v3-sub-item', { 'has-l3': hasChildren }]}>
-                      {hasChildren ? (
-                        <>
-                          <button
-                            type="button"
-                            class="v3-sub-link v3-sub-trigger"
-                            role="menuitem"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                            aria-controls={childMenuId}
-                          >
-                            <span>{s.label}</span>
-                            <i class="fa-solid fa-chevron-right v3-l3-arrow" aria-hidden="true"></i>
-                          </button>
-
-                          <ul id={childMenuId} class="v3-cascade-l3" role="menu" aria-label={`Servicios de ${s.label}`}>
-                            <li class="v3-l2-header v3-l3-header" role="presentation">
-                              <span>{s.label}</span>
-                            </li>
-                            {s.navChildren?.map((child) => (
-                              <li role="none">
-                                <a
-                                  href={child.customUrl ? child.customUrl : `/servicios/${cat.slug}/${child.slug}`}
-                                  class="v3-sub-link v3-l3-link"
-                                  role="menuitem"
-                                >
-                                  <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
-                                  {child.label}
-                                </a>
-                              </li>
-                            ))}
-                            <li class="v3-l2-footer" role="none">
-                              <a href={serviceHref} class="v3-all-link">
-                                Ver todos los servicios de {s.label}
-                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                              </a>
-                            </li>
-                          </ul>
-                        </>
-                      ) : (
-                        <a
-                          href={serviceHref}
-                          class="v3-sub-link"
-                          role="menuitem"
-                        >
-                          <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
-                          {s.label}
-                        </a>
-                      )}
+                    <li role="none" class="v3-sub-item">
+                      <a
+                        href={serviceHref}
+                        class="v3-sub-link"
+                        role="menuitem"
+                      >
+                        <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
+                        {s.label}
+                      </a>
                     </li>
                   );
                 })}
@@ -473,26 +431,257 @@ const t = lang === 'en' ? {
 </nav>
 
 <style is:global>
+/* ══════════════════════════════════════════════════════════════
+   NAVBAR 3.0 AUTOLAYOUT SYSTEM (FLEXBOX HARMONIC SPACING)
+   ══════════════════════════════════════════════════════════════ */
+.navbar-v3 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 10px 0;
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(7, 31, 58, 0.07);
+  box-shadow: 0 4px 20px rgba(7, 31, 58, 0.03);
+}
+
+/* Auto-layout principal: distribución equilibrada y fluida */
+.navbar-v3 .nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 2vw, 36px);
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 2.5vw, 36px);
+  min-height: 52px;
+  box-sizing: border-box;
+}
+
+/* Logo */
+.navbar-v3 .logo {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.navbar-v3 .brand-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+.navbar-v3.is-scrolled { padding: 10px 0; }
+.navbar-v3 .menu-toggle {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 8px;
+  color: #071F3A;
+}
+
+/* Nav Menu: Auto-layout con espacio generoso y elegante entre enlaces */
+.navbar-v3 .nav-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 1.3vw, 22px);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cada enlace con suficiente padding interno y respiro */
+.navbar-v3 .nav-links {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 13px;
+  font-family: var(--font-main, 'Red Hat Display', sans-serif);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #071F3A;
+  opacity: 0.92;
+  text-decoration: none;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: background-color 160ms ease, color 160ms ease, opacity 160ms ease;
+  line-height: 1.2;
+}
+
+.navbar-v3 .nav-links:hover,
+.navbar-v3 .nav-links:focus-visible {
+  background-color: rgba(2, 132, 199, 0.08);
+  color: #0284c7;
+  opacity: 1;
+}
+
+.navbar-v3 .nav-links .dropdown-arrow {
+  font-size: 0.68rem;
+  margin-left: 2px;
+  opacity: 0.65;
+  transition: transform 200ms ease;
+}
+
+/* Botón B2B: acoplado armónicamente */
+.navbar-v3 .b2b-btn-premium {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  padding: 7px 16px !important;
+  margin: 0 !important;
+  border-radius: 9999px !important;
+  background: #071F3A !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(251, 191, 36, 0.6) !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 2px 10px rgba(7, 31, 58, 0.12) !important;
+  transition: all 180ms ease !important;
+}
+.navbar-v3 .b2b-btn-premium:hover {
+  background: #fbbf24 !important;
+  color: #071F3A !important;
+  border-color: #fbbf24 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.35) !important;
+}
+
+/* Grupo de acciones: acoplado con gap claro */
+.navbar-v3 .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* Language Switcher en cápsula limpia */
+.navbar-v3 .language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 5px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.navbar-v3 .language-switcher a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  min-width: 28px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #64748b;
+  text-decoration: none;
+  border: none !important;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.navbar-v3 .language-switcher a:hover {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+}
+.navbar-v3 .language-switcher a[aria-current='true'] {
+  background: #ffffff;
+  color: #071F3A;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .navbar-v3 .language-mobile { display: none; }
-.navbar-v3 .nav-actions { gap: 10px; }
+
+/* Responsive Autolayout para viewports entre 1101px y 1220px */
+@media (min-width: 1101px) and (max-width: 1220px) {
+  .navbar-v3 .nav-container {
+    gap: 12px;
+    padding: 0 16px;
+  }
+  .navbar-v3 .nav-menu {
+    gap: 8px;
+  }
+  .navbar-v3 .nav-links {
+    padding: 7px 9px;
+    font-size: 0.86rem;
+  }
+  .navbar-v3 .b2b-btn-premium {
+    padding: 6px 12px !important;
+    font-size: 0.76rem !important;
+  }
+  .navbar-v3 .nav-actions {
+    gap: 10px;
+  }
+}
+
+/* Mobile Drawer Auto-layout (<1100px) */
 @media (max-width: 1100px) {
-  .navbar-v3 .language-mobile { display: block; }
   .navbar-v3 .nav-actions { display: none; }
   .navbar-v3 .menu-toggle { display: block; }
+  .navbar-v3 .language-mobile { display: block; }
   .navbar-v3 .nav-auth-mobile-li { display: block; }
+
   .navbar-v3 .nav-menu {
-    position: fixed; left: -100%; top: 100%; width: 100%;
-    flex-direction: column; background: #fff; text-align: center;
-    padding: 20px 0; gap: 20px; box-shadow: 0 10px 20px rgba(0,0,0,.1);
-    transition: left .3s;
+    position: fixed;
+    left: -100%;
+    top: 100%;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    background: #ffffff;
+    padding: 16px 20px 28px;
+    gap: 6px;
+    box-shadow: 0 12px 28px rgba(7, 31, 58, 0.12);
+    border-bottom: 1px solid #e2e8f0;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     visibility: hidden;
+    max-height: calc(100vh - var(--navbar-height, 72px));
+    max-height: calc(100dvh - var(--navbar-height, 72px));
+    overflow-y: auto;
   }
-  .navbar-v3 .nav-menu.active { left: 0; visibility: visible; }
-  .navbar-v3 .nav-menu > li { width: 100%; text-align: center; }
+
+  .navbar-v3 .nav-menu.active {
+    left: 0;
+    visibility: visible;
+  }
+
+  .navbar-v3 .nav-menu > li {
+    flex-shrink: 0;
+    width: 100%;
+    text-align: left;
+  }
+
   .navbar-v3 .nav-links {
-    display: flex; align-items: center; justify-content: center;
-    width: 100%; padding: 12px 20px; font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 0.98rem;
+    border-radius: 8px;
   }
+
+  .navbar-v3 .b2b-btn-premium {
+    width: 100% !important;
+    margin: 8px 0 0 0 !important;
+    padding: 11px 16px !important;
+    border-radius: 10px !important;
+  }
+
   .navbar-v3 .menu-toggle.active .bar:nth-child(2) { opacity: 0; }
   .navbar-v3 .menu-toggle.active .bar:first-child { transform: translateY(8px) rotate(45deg); }
   .navbar-v3 .menu-toggle.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
@@ -886,6 +1075,8 @@ const t = lang === 'en' ? {
    -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> */
   .navbar-v3 .v3-cascade-l1 {
     position: static !important;
+    width: 100%;
+    min-width: 0;
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
@@ -904,7 +1095,7 @@ const t = lang === 'en' ? {
   }
 
   .navbar-v3 .nav-menu.active {
-    max-height: calc(100dvh - 50px);
+    max-height: calc(100dvh - var(--navbar-height, 72px));
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -929,6 +1120,7 @@ const t = lang === 'en' ? {
      Icono → Nombre → Flecha → todo junto
    -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> -> */
   .navbar-v3 .cascade-item {
+    width: auto;
     margin: 0 16px; /* Separado de los bordes de la pantalla */
     padding: 0;
     border-left: none;
@@ -986,7 +1178,8 @@ const t = lang === 'en' ? {
 
   /* Nombre: NO ocupa todo el espacio libre para que la flecha no se aleje */
   .navbar-v3 .cascade-cat-label {
-    flex: 0 1 auto; /* Cambiado: antes era flex: 1 */
+    flex: 1;
+    min-width: 0;
     text-align: left !important;
     line-height: 1.2;
   }
@@ -1170,6 +1363,26 @@ const t = lang === 'en' ? {
 body.navbar-hidden .nav-reveal-zone {
   pointer-events: auto;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-v3, .navbar-v3 *, .navbar-v3 .nav-menu {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .navbar-v3 .cascade-item:not(.open) > .v3-cascade-l2,
+  .navbar-v3 .v3-sub-item:not(.open) > .v3-cascade-l3 {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.navbar-menu-open :is(#whatsapp-float, #back-to-top, #store-cart-launcher, #pixon-cookie-banner, .mobile-sticky-cta) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
 </style>
 
-<Fragment set:html={'<script defer src="/scripts/navbar.js?v=20260528-mobile-iphone-l3"></script>'} />
+<Fragment set:html={'<script defer src="/scripts/navbar.js?v=20260930-mobile-scroll"></script>'} />

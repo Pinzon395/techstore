@@ -1,0 +1,268 @@
+---
+import type { ServiceCategory, ServiceItem } from '../../data/services';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import Footer from '../Footer.astro';
+
+interface Props {
+  service: ServiceItem;
+  category: ServiceCategory;
+  faqs: { question: string; answer: string }[];
+}
+
+const { service, faqs } = Astro.props;
+const whatsappText = encodeURIComponent(`Hola Pixon PC. Quiero cotizar la pantalla de mi MacBook.
+
+Equipo: MacBook Air / Pro
+Modelo o número Axxxx (si lo sé):
+Año aproximado:
+Síntoma: Rota / Líneas / Negra / Parpadea / Manchas / Sin brillo / Otro
+¿Hubo golpe? Sí / No
+¿Hubo líquido? Sí / No
+
+Puedo enviar fotos del equipo y del daño.`);
+const whatsappUrl = `https://wa.me/529986690777?text=${whatsappText}`;
+
+const symptoms = [
+  { key: 'Fractura', title: 'Rota o estrellada', copy: 'Cristal fracturado, golpe, presión sobre la tapa o panel con pérdida parcial de imagen.' },
+  { key: 'Líneas', title: 'Líneas verticales u horizontales', copy: 'Pueden involucrar panel, flex, conector, presión o señal de video. Se revisa antes de pedir pieza.' },
+  { key: 'Sin imagen', title: 'Pantalla negra pero enciende', copy: 'Que la MacBook suene o dé imagen externa no identifica por sí solo el componente dañado.' },
+  { key: 'Parpadeo', title: 'Parpadea o cambia al mover la tapa', copy: 'El ángulo de apertura puede orientar hacia flex o conexión, sin convertirlo en diagnóstico definitivo.' },
+  { key: 'Manchas', title: 'Manchas, black bleed o zonas oscuras', copy: 'Revisamos presión, golpe, líquido, panel y retroiluminación irregular.' },
+  { key: 'Backlight', title: 'Imagen tenue o sin brillo', copy: 'Puede existir imagen sin retroiluminación. También se revisan alimentación, sensor y placa lógica.' },
+];
+
+const process = [
+  ['Identificar', 'MacBook Air o Pro, número Axxxx, año aproximado, color y fotos del daño.'],
+  ['Confirmar falla', 'Panel, flex, backlight, sensor, conector, alimentación y salida externa según el caso.'],
+  ['Cotizar pantalla', 'Pieza, origen o calidad disponible, mano de obra, garantía y plazo real por modelo.'],
+  ['Autorizar', 'No pedimos ni instalamos una pantalla sin tu aprobación del alcance.'],
+  ['Instalar', 'Desmontaje y montaje según el ensamble y la generación de la MacBook.'],
+  ['Probar', 'Imagen, brillo, apertura, parpadeo, suspensión y componentes relacionados cuando aplica.'],
+];
+
+const routes = [
+  { href: '/servicios/mac/diagnostico-mac', title: 'Diagnóstico Mac', copy: 'Cuando la falla aún no está identificada o aparecen varios síntomas.' },
+  { href: '/servicios/mac/macbook-no-enciende', title: 'MacBook no enciende', copy: 'Si no hay señal de vida, carga, sonido ni respuesta al botón.' },
+  { href: '/servicios/mac/limpieza-liquido-macbook', title: 'Daño por líquido', copy: 'Si hubo agua, café, humedad o corrosión, aunque la imagen sea el síntoma visible.' },
+  { href: '/servicios/mac/reparacion-macbook', title: 'Reparación MacBook', copy: 'Para fallas generales que no pertenecen únicamente al sistema de pantalla.' },
+];
+---
+
+<main class="ms-page">
+  <section class="ms-hero" id="inicio">
+    <div class="container ms-hero__grid">
+      <div class="ms-hero__copy">
+        <p class="ms-hero__eyebrow"><span></span> Pantallas MacBook Air y Pro · Cancún</p>
+        <h1>Cambio de pantalla MacBook en Cancún</h1>
+
+        <p class="ms-hero__lead">Pantalla rota, líneas, manchas, parpadeo o MacBook sin imagen.</p>
+        <p class="ms-hero__body">Confirmamos modelo, panel, flex y retroiluminación antes de cotizar la pantalla correcta. Una pantalla negra no significa automáticamente que el display esté dañado.</p>
+        <div class="ms-actions">
+          <a class="ms-btn ms-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Cotizar pantalla de mi MacBook</a>
+          <a class="ms-btn ms-btn--secondary" href="#ticket"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Crear ticket</a>
+        </div>
+        <ul class="ms-trust" aria-label="Puntos del servicio">
+          <li>MacBook Air y Pro</li>
+          <li>Cotización por modelo</li>
+          <li>Revisión de panel y flex</li>
+          <li>Prueba de imagen final</li>
+        </ul>
+      </div>
+
+      <div class="ms-hero__visual">
+        <figure class="ms-macbook" data-macbook-animation>
+          <svg viewBox="0 0 720 500" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="ms-screen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b5a94"/><stop offset=".5" stop-color="#082b55"/><stop offset="1" stop-color="#071a33"/></linearGradient>
+              <linearGradient id="ms-shell" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d8e1e9"/><stop offset="1" stop-color="#8093a6"/></linearGradient>
+              <radialGradient id="ms-bleed" cx="48%" cy="48%" r="55%"><stop stop-color="#020710" stop-opacity=".96"/><stop offset=".45" stop-color="#06101e" stop-opacity=".82"/><stop offset="1" stop-color="#071a33" stop-opacity="0"/></radialGradient>
+              <clipPath id="ms-screen-clip"><rect x="116" y="72" width="488" height="305" rx="12"/></clipPath>
+              <filter id="ms-glow"><feGaussianBlur stdDeviation="5"/></filter>
+            </defs>
+            <ellipse cx="360" cy="451" rx="290" ry="20" fill="#00101f" opacity=".35" filter="url(#ms-glow)"/>
+            <rect x="94" y="48" width="532" height="354" rx="25" fill="#06101c" stroke="url(#ms-shell)" stroke-width="8"/>
+            <rect x="116" y="72" width="488" height="305" rx="12" fill="url(#ms-screen)"/>
+            <g clip-path="url(#ms-screen-clip)">
+              <path d="M115 294 C210 215 252 245 333 168 S489 106 608 154" fill="none" stroke="#28a8ee" stroke-opacity=".2" stroke-width="48"/>
+              <path d="M150 332 C262 268 359 302 424 226 S542 138 617 181" fill="none" stroke="#8ddcff" stroke-opacity=".12" stroke-width="22"/>
+              <path class="ms-bleed" d="M428 164 C464 140 507 151 527 190 C543 220 520 252 481 248 C446 244 414 205 428 164Z" fill="url(#ms-bleed)"/>
+              <g class="ms-panel-lines">
+                <rect x="487" y="72" width="2" height="305" fill="#85d5ff" opacity=".65"/>
+                <rect x="501" y="72" width="1" height="305" fill="#d7f3ff" opacity=".5"/>
+                <rect x="516" y="72" width="3" height="305" fill="#3eaee6" opacity=".34"/>
+              </g>
+              <g class="ms-cracks" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle class="ms-impact-ring" cx="434" cy="188" r="8" stroke="#d9f4ff" stroke-width="1.6"/>
+                <circle class="ms-impact-dot" cx="434" cy="188" r="2.5" fill="#e8f8ff" stroke="none"/>
+                <g class="ms-crack ms-crack--primary" stroke="#dff6ff" stroke-width="2.2">
+                  <path d="M434 188 L399 156 L364 143 L330 114 L287 98"/>
+                  <path d="M434 188 L470 160 L500 122 L548 96"/>
+                  <path d="M434 188 L470 205 L511 216 L564 248 L595 286"/>
+                  <path d="M434 188 L420 229 L391 263 L383 314 L360 364"/>
+                  <path d="M434 188 L395 198 L354 220 L304 223 L255 252 L201 258"/>
+                </g>
+                <g class="ms-crack ms-crack--secondary" stroke="#bfeaff" stroke-width="1.25">
+                  <path d="M399 156 L408 126 L400 96"/><path d="M364 143 L340 159 L312 162"/>
+                  <path d="M470 160 L469 129 L482 101"/><path d="M500 122 L524 130 L550 126"/>
+                  <path d="M470 205 L480 237 L472 269"/><path d="M511 216 L535 200 L568 197"/>
+                  <path d="M420 229 L438 254 L441 290"/><path d="M391 263 L366 277 L345 303"/>
+                  <path d="M354 220 L344 191 L326 177"/><path d="M304 223 L290 244 L271 268"/>
+                </g>
+                <g class="ms-crack ms-crack--micro" stroke="#b8e6fa" stroke-width=".75">
+                  <path d="M434 188 l-9 -18 l2 -15"/><path d="M434 188 l17 -8 l12 -16"/><path d="M434 188 l12 17 l1 16"/>
+                  <path d="M399 156 l-14 -13 l-4 -12"/><path d="M470 205 l18 4 l11 12"/><path d="M391 263 l-8 22 l5 18"/>
+                </g>
+              </g>
+            </g>
+            <circle cx="360" cy="61" r="2.8" fill="#60778b"/>
+            <path d="M52 402 H668 L700 440 Q703 451 686 454 H34 Q17 451 20 440Z" fill="url(#ms-shell)" stroke="#60758a" stroke-width="2"/>
+            <path d="M292 402 H428 L417 416 H303Z" fill="#71879a" opacity=".75"/>
+          </svg>
+          <figcaption><span class="ms-status-dot"></span><span data-animation-status>Analizando sistema de pantalla</span></figcaption>
+          <button class="ms-replay" type="button" data-animation-replay aria-label="Reproducir de nuevo la animación de la pantalla"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Repetir</button>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="ms-section ms-symptoms" id="sintomas">
+    <div class="container">
+      <div class="ms-heading"><p>Seis señales, varias causas posibles</p><h2>¿Qué falla tiene la pantalla de tu MacBook?</h2><span>El síntoma orienta la revisión; no identifica una pieza al cien por ciento.</span></div>
+      <div class="ms-symptom-console">
+        <div class="ms-mini-display" aria-hidden="true"><span class="ms-mini-crack"></span><span class="ms-mini-line"></span><span class="ms-mini-spot"></span></div>
+        <div class="ms-symptom-list">
+          {symptoms.map((item, index) => <article><span>{String(index + 1).padStart(2, '0')}</span><div><small>{item.key}</small><h3>{item.title}</h3><p>{item.copy}</p></div></article>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ms-section ms-decision" id="diagnostico">
+    <div class="container">
+      <div class="ms-heading ms-heading--dark"><p>Diagnóstico antes de pantalla</p><h2>¿Es pantalla, flex, retroiluminación o placa?</h2><span>Este flujo ayuda a ordenar las pruebas. El resultado final requiere revisar el equipo.</span></div>
+      <div class="ms-flow" aria-label="Flujo orientativo de diagnóstico de pantalla MacBook">
+        <article><strong>01</strong><h3>¿La Mac enciende?</h3><p>Buscamos sonido, carga, respuesta y señales de arranque.</p><span>Si no hay vida → <a href="/servicios/mac/macbook-no-enciende">owner de no enciende</a></span></article>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        <article><strong>02</strong><h3>¿Da imagen externa?</h3><p>Ayuda a separar sistema de pantalla, video y arranque.</p><span>No confirma por sí sola un panel dañado.</span></article>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        <article><strong>03</strong><h3>¿Cambia al mover la tapa?</h3><p>Observamos flex, conector, bisagra y comportamiento intermitente.</p><span>No se fuerza la tapa durante la prueba.</span></article>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        <article><strong>04</strong><h3>¿Hay golpe o fractura?</h3><p>Revisamos panel, tapa, bisagras, marco y puntos de presión.</p><span>Panel / flex / backlight / placa / revisión adicional.</span></article>
+      </div>
+      <p class="ms-flow__note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Antes de cotizar un ensamble, confirmamos que el problema realmente está en el sistema de pantalla.</p>
+    </div>
+  </section>
+
+  <section class="ms-section ms-identify" id="modelo">
+    <div class="container ms-identify__grid">
+      <div>
+        <p class="ms-section-label">Una pantalla no es universal</p>
+        <h2>¿Por qué necesitamos el modelo exacto antes de cotizar?</h2>
+        <p>Entre generaciones cambian tamaño, resolución, conectores, tapa, color, sensores, cámara y número de parte. El chip ayuda a ubicar la familia, pero no define por sí solo qué pantalla usa tu MacBook.</p>
+        <p>Según el modelo y tipo de daño, la reparación puede involucrar panel, flex o un ensamble de pantalla. No asumimos que siempre debe cambiarse todo ni prometemos “solo cristal” sin verificar el procedimiento disponible.</p>
+      </div>
+      <aside>
+        <h3>Envíanos esto por WhatsApp</h3>
+        <ol><li><span>1</span>MacBook Air o MacBook Pro</li><li><span>2</span>Número de modelo Axxxx</li><li><span>3</span>Año aproximado y color</li><li><span>4</span>Foto del daño y de la información disponible</li></ol>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Enviar datos y fotos <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      </aside>
+    </div>
+  </section>
+
+  <section class="ms-section ms-compatibility" id="compatibilidad">
+    <div class="container">
+      <div class="ms-heading"><p>Compatibilidad por familia</p><h2>Pantallas para MacBook Air y MacBook Pro</h2><span>Atendemos equipos Intel y Apple Silicon cuando existe una pantalla compatible y un procedimiento viable para el modelo exacto.</span></div>
+      <div class="ms-matrix">
+        <div class="ms-matrix__corner">Familia</div><div class="ms-matrix__head">Intel</div><div class="ms-matrix__head">Apple Silicon</div>
+        <div class="ms-matrix__model"><strong>MacBook Air</strong><span>Delgada, distintos tamaños y acabados</span></div><div><strong>Generaciones Intel</strong><p>Se valida año, tamaño, Axxxx, resolución, conector y color.</p></div><div><strong>M1 · M2 · M3 · M4</strong><p>La disponibilidad se confirma por generación y ensamble, no solo por chip.</p></div>
+        <div class="ms-matrix__model"><strong>MacBook Pro</strong><span>Variantes de tamaño y pantalla por generación</span></div><div><strong>Generaciones Intel</strong><p>Se revisan panel, flex, tapa, bisagras y número de parte.</p></div><div><strong>M1 · M2 · M3 · M4</strong><p>Se confirma tamaño, acabado, sensores y pieza disponible para el modelo.</p></div>
+      </div>
+      <p class="ms-matrix__note">Origen y calidad de la refacción, compatibilidad, garantía y disponibilidad se explican antes de cotizar. No publicamos una promesa universal de “pantalla original”.</p>
+    </div>
+  </section>
+
+  <section class="ms-section ms-process" id="proceso">
+    <div class="container">
+      <div class="ms-heading ms-heading--dark"><p>Del modelo a la prueba final</p><h2>Proceso para cambiar el display de una MacBook</h2><span>El tiempo se confirma junto con la disponibilidad de la pantalla.</span></div>
+      <ol class="ms-timeline">{process.map((item, index) => <li><span>{index + 1}</span><div><h3>{item[0]}</h3><p>{item[1]}</p></div></li>)}</ol>
+    </div>
+  </section>
+
+  <section class="ms-section ms-risks" id="cuidados">
+    <div class="container ms-risks__grid">
+      <div><p class="ms-section-label">Antes de seguir usando la Mac</p><h2>Golpe, bisagra y líquido cambian la revisión</h2><p>Una bisagra dura o una tapa deformada puede mantener tensión sobre el display o el flex. Si hubo líquido, el síntoma visible puede esconder corrosión en conectores o placa.</p></div>
+      <div class="ms-risk-rows">
+        <a href="/servicios/mac/limpieza-liquido-macbook"><i class="fa-solid fa-droplet" aria-hidden="true"></i><span><strong>Hubo líquido</strong>Tratar como daño por líquido antes de asumir que basta una pantalla.</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <a href="/servicios/mac/macbook-no-enciende"><i class="fa-solid fa-power-off" aria-hidden="true"></i><span><strong>No da señal de vida</strong>La ruta correcta comienza por alimentación y arranque.</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <a href="/servicios/mac/reparacion-macbook"><i class="fa-solid fa-laptop-medical" aria-hidden="true"></i><span><strong>Hay varias fallas</strong>Una revisión general puede evitar atribuir todo al display.</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <ServiceTicketSection id="ticket" defaultDevice="MacBook" defaultService={service.label} sourcePage="/servicios/mac/cambio-pantalla-macbook" title="Cotizar pantalla de mi MacBook" subtitle="Indica si es Air o Pro, número Axxxx si lo conoces, año aproximado, síntoma, golpe o líquido. Puedes enviarnos fotos por WhatsApp." />
+
+  <section class="ms-section ms-related" id="rutas">
+    <div class="container">
+      <div class="ms-heading"><p>Si el problema no es el panel</p><h2>Cada falla conserva su propia ruta</h2><span>Esta landing es la especialista en pantalla MacBook. Estas rutas atienden intenciones diferentes.</span></div>
+      <div class="ms-route-list">{routes.map((route, index) => <a href={route.href}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{route.title}</h3><p>{route.copy}</p></div><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>)}</div>
+    </div>
+  </section>
+
+  <FaqSection id="faq" title="Preguntas frecuentes sobre pantallas MacBook" description="Precio por modelo, compatibilidad, funciones, datos, tiempos y garantía antes de autorizar." items={faqs} viewMoreHref="/preguntas-frecuentes" viewMoreLabel="Ver más preguntas frecuentes" backgroundColor="#f4f8fc" questionColor="#071F3A" titleColor="#071F3A" descriptionColor="#294963" itemGap="8px" questionPadding="16px 18px" />
+  <CommentsSection viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" dark={true} />
+  <ContactSection id="ubicacion" />
+  <Footer />
+</main>
+
+<script>
+  const visual = document.querySelector<HTMLElement>('[data-macbook-animation]');
+  if (visual) {
+    const status = visual.querySelector<HTMLElement>('[data-animation-status]');
+    const replay = visual.querySelector<HTMLButtonElement>('[data-animation-replay]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let played = false;
+    const play = () => {
+      if (played && !visual.classList.contains('ms-replay-requested')) return;
+      played = true;
+      visual.classList.remove('is-playing', 'is-complete', 'ms-replay-requested');
+      void visual.offsetWidth;
+      visual.classList.add('is-playing');
+      if (status) status.textContent = 'Verificando panel, flex y retroiluminación';
+      window.setTimeout(() => {
+        visual.classList.remove('is-playing');
+        visual.classList.add('is-complete');
+        if (status) status.textContent = 'Daño de pantalla visible · diagnóstico pendiente';
+      }, 3600);
+    };
+    if (reduced) {
+      visual.classList.add('is-complete');
+      if (status) status.textContent = 'Daño de pantalla visible · diagnóstico pendiente';
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= .55)) {
+          play();
+          observer.disconnect();
+        }
+      }, { threshold: [.55] });
+      observer.observe(visual);
+      replay?.addEventListener('click', () => { visual.classList.add('ms-replay-requested'); play(); });
+    }
+  }
+</script>
+
+<style>
+  .ms-page{--navy:#071f3a;--blue:#087ec1;--cyan:#62c8f4;--ink:#071f3a;--muted:#36556d;--line:#cad8e4;--soft:#f4f8fc;background:#fff;color:var(--ink);font-family:var(--font-main,'Red Hat Display',sans-serif);overflow:hidden}.ms-page :where(h1,h2,h3,p){color:inherit}.ms-page :where(h1,h2,h3){font-family:var(--font-heading,'Kanit',sans-serif);text-wrap:balance}.ms-page p{text-wrap:pretty}.ms-hero{background:radial-gradient(circle at 76% 34%,rgba(25,142,205,.24),transparent 32%),linear-gradient(135deg,#041321 0%,#071f3a 52%,#0a3152 100%);color:#fff;padding:clamp(32px,5vw,64px) 0 34px}.ms-hero__grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(480px,1.1fr);align-items:center;gap:clamp(28px,5vw,68px)}.ms-hero__copy{min-width:0}.ms-hero__eyebrow{display:flex;align-items:center;gap:10px;margin:0 0 14px;color:#bfe9fb!important;font-weight:800;font-size:.86rem}.ms-hero__eyebrow span{width:28px;height:2px;background:#48b9ec}.ms-hero h1{font-size:clamp(2.45rem,4.7vw,4.85rem);line-height:.98;letter-spacing:-.035em;margin:0 0 20px;max-width:760px}.ms-hero__lead{font-size:clamp(1.16rem,2vw,1.48rem);font-weight:800;line-height:1.35;margin:0 0 8px}.ms-hero__body{color:#c9dce9!important;max-width:62ch;line-height:1.65;margin:0}.ms-actions{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 20px}.ms-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:12px 17px;border-radius:9px;font-weight:850;text-decoration:none;border:1px solid transparent;transition:transform .2s cubic-bezier(.22,1,.36,1),background .2s}.ms-btn:hover{transform:translateY(-2px)}.ms-btn:focus-visible,.ms-replay:focus-visible,.ms-page a:focus-visible{outline:3px solid #f5b942;outline-offset:3px}.ms-btn--primary{background:#12a85a;color:#fff}.ms-btn--secondary{border-color:#79b7d5;background:rgba(255,255,255,.08);color:#fff}.ms-trust{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:18px 0 0;border-top:1px solid rgba(255,255,255,.18);list-style:none;color:#dcecf5}.ms-trust li{font-size:.84rem;font-weight:700}.ms-trust li::before{content:'✓';margin-right:7px;color:#65d7a0}.ms-hero__visual--mobile{display:none}.ms-macbook{position:relative;margin:0;min-height:420px;display:grid;place-items:center}.ms-macbook svg{display:block;width:100%;height:auto;filter:drop-shadow(0 28px 25px rgba(0,0,0,.32))}.ms-macbook figcaption{display:flex;align-items:center;gap:8px;margin-top:-20px;color:#c8deeb;font-size:.82rem}.ms-status-dot{width:7px;height:7px;border-radius:50%;background:#4ec6f4;box-shadow:0 0 0 5px rgba(78,198,244,.14)}.ms-replay{position:absolute;right:10%;bottom:13px;border:0;background:transparent;color:#bfe9fb;min-height:44px;padding:8px;font:inherit;font-size:.8rem;font-weight:800;cursor:pointer;opacity:0;transition:opacity .2s}.ms-macbook.is-complete .ms-replay{opacity:1}.ms-impact-ring,.ms-impact-dot,.ms-crack path,.ms-bleed,.ms-panel-lines{opacity:0}.ms-crack path{stroke-dasharray:140;stroke-dashoffset:140}.ms-macbook.is-playing .ms-impact-ring{animation:ms-impact .35s .65s both}.ms-macbook.is-playing .ms-impact-dot{animation:ms-show .18s .62s both}.ms-macbook.is-playing .ms-crack--primary path{animation:ms-draw .72s 1s cubic-bezier(.2,.8,.2,1) both}.ms-macbook.is-playing .ms-crack--primary path:nth-child(2){animation-delay:1.1s}.ms-macbook.is-playing .ms-crack--primary path:nth-child(3){animation-delay:1.18s}.ms-macbook.is-playing .ms-crack--primary path:nth-child(4){animation-delay:1.28s}.ms-macbook.is-playing .ms-crack--primary path:nth-child(5){animation-delay:1.36s}.ms-macbook.is-playing .ms-crack--secondary path{animation:ms-draw .58s 1.75s ease-out both}.ms-macbook.is-playing .ms-crack--micro path{animation:ms-draw .42s 2.25s ease-out both}.ms-macbook.is-playing .ms-bleed{animation:ms-bleed-in .75s 2.55s ease-out both}.ms-macbook.is-playing .ms-panel-lines{animation:ms-show .45s 3s both}.ms-macbook.is-complete :is(.ms-impact-ring,.ms-impact-dot,.ms-crack path,.ms-bleed,.ms-panel-lines){opacity:1;stroke-dashoffset:0}@keyframes ms-impact{0%{opacity:0;transform:scale(.2);transform-origin:434px 188px}65%{opacity:1;transform:scale(1.3);transform-origin:434px 188px}100%{opacity:.85;transform:scale(1);transform-origin:434px 188px}}@keyframes ms-draw{to{opacity:1;stroke-dashoffset:0}}@keyframes ms-show{to{opacity:1}}@keyframes ms-bleed-in{from{opacity:0;transform:scale(.72);transform-origin:480px 198px}to{opacity:.9;transform:scale(1);transform-origin:480px 198px}}
+  .ms-section{padding:clamp(42px,6vw,72px) 0}.ms-heading{max-width:780px;margin-bottom:30px}.ms-heading>p,.ms-section-label{margin:0 0 7px;color:var(--blue)!important;font-weight:850}.ms-heading h2,.ms-identify h2,.ms-risks h2{font-size:clamp(2rem,3.5vw,3.25rem);line-height:1.04;letter-spacing:-.025em;margin:0 0 10px}.ms-heading>span{color:var(--muted);font-size:1.04rem}.ms-symptoms{background:#fff}.ms-symptom-console{display:grid;grid-template-columns:minmax(260px,.7fr) minmax(0,1.3fr);gap:clamp(28px,5vw,66px);align-items:center}.ms-mini-display{position:relative;aspect-ratio:4/3;border:13px solid #17283a;border-bottom-width:27px;border-radius:16px;background:linear-gradient(140deg,#0d6097,#071f3a);box-shadow:0 22px 45px rgba(7,31,58,.18);overflow:hidden}.ms-mini-display::after{content:'';position:absolute;inset:auto 35% -18px;height:9px;background:#8ea0af;border-radius:50%}.ms-mini-crack{position:absolute;left:48%;top:25%;width:2px;height:70%;background:#d6f4ff;transform:rotate(27deg);box-shadow:-47px 22px 0 -1px #d6f4ff,51px 30px 0 -1px #d6f4ff}.ms-mini-line{position:absolute;right:22%;inset-block:0;width:2px;background:#75cdf2}.ms-mini-spot{position:absolute;right:13%;top:18%;width:90px;height:70px;border-radius:42% 58% 57% 43%;background:radial-gradient(circle,#02060b,transparent 70%)}.ms-symptom-list{border-top:1px solid var(--line)}.ms-symptom-list article{display:grid;grid-template-columns:48px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}.ms-symptom-list article>span{color:var(--blue);font-weight:900}.ms-symptom-list small{color:var(--muted);font-weight:800}.ms-symptom-list h3{margin:1px 0 3px;font-size:1.12rem}.ms-symptom-list p{margin:0;color:var(--muted);line-height:1.5}.ms-decision,.ms-process{background:var(--navy);color:#fff}.ms-heading--dark>p{color:#75d1fa!important}.ms-heading--dark>span{color:#c8dce9}.ms-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:14px;align-items:center}.ms-flow article{min-height:220px;padding:21px 18px;border:1px solid #2c5875;background:#0a2b49;border-radius:10px}.ms-flow article>strong{display:block;color:#70d0fa;margin-bottom:22px}.ms-flow h3{font-size:1.22rem;margin:0 0 8px}.ms-flow p{color:#c7ddea;margin:0 0 13px;line-height:1.45}.ms-flow span{font-size:.82rem;color:#9fc0d3}.ms-flow a{color:#8ddcff}.ms-flow>i{color:#66c7ee}.ms-flow__note{margin:22px 0 0;color:#d9eaf3;display:flex;gap:9px}.ms-identify{background:var(--soft)}.ms-identify__grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:clamp(32px,6vw,80px);align-items:center}.ms-identify__grid>div>p:not(.ms-section-label){color:var(--muted);font-size:1.03rem;line-height:1.7}.ms-identify aside{background:#fff;border:1px solid var(--line);border-radius:12px;padding:25px;box-shadow:0 14px 36px rgba(7,31,58,.08)}.ms-identify aside h3{margin:0 0 17px;font-size:1.3rem}.ms-identify ol{padding:0;margin:0 0 18px;list-style:none}.ms-identify li{display:flex;gap:11px;align-items:center;padding:10px 0;border-bottom:1px solid #e3ebf2;font-weight:700}.ms-identify li span{display:grid;place-items:center;width:27px;height:27px;background:#e3f4fc;color:#076a9f;border-radius:50%}.ms-identify aside a{color:#0875af;font-weight:850;text-decoration:none}.ms-compatibility{background:#fff}.ms-matrix{display:grid;grid-template-columns:.8fr 1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden}.ms-matrix>div{padding:20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}.ms-matrix>div:nth-child(3n){border-right:0}.ms-matrix>div:nth-last-child(-n+3){border-bottom:0}.ms-matrix__corner,.ms-matrix__head{background:var(--navy);color:#fff;font-weight:900}.ms-matrix__model{background:#eaf5fb}.ms-matrix__model strong,.ms-matrix div>strong{display:block;font-size:1.08rem}.ms-matrix__model span{color:var(--muted);font-size:.87rem}.ms-matrix p{color:var(--muted);margin:5px 0 0;line-height:1.5}.ms-matrix__note{margin:15px 0 0;color:var(--muted);font-size:.9rem}.ms-timeline{display:grid;grid-template-columns:repeat(6,1fr);padding:0;margin:0;list-style:none;counter-reset:steps}.ms-timeline li{position:relative;padding:0 16px 0 0}.ms-timeline li:not(:last-child)::after{content:'';position:absolute;left:38px;right:0;top:18px;height:1px;background:#3d6a87}.ms-timeline li>span{position:relative;z-index:1;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#58c7f3;color:#06223b;font-weight:900}.ms-timeline h3{margin:18px 0 6px;font-size:1.05rem}.ms-timeline p{margin:0;color:#bfd5e2;font-size:.87rem;line-height:1.5}.ms-risks{background:#eef5fa}.ms-risks__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(28px,6vw,78px);align-items:center}.ms-risks__grid>div>p:not(.ms-section-label){color:var(--muted);line-height:1.65}.ms-risk-rows{border-top:1px solid var(--line)}.ms-risk-rows a{display:grid;grid-template-columns:42px 1fr auto;gap:14px;align-items:center;padding:17px 4px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}.ms-risk-rows a>i:first-child{display:grid;place-items:center;width:40px;height:40px;background:#fff;border-radius:8px;color:var(--blue)}.ms-risk-rows strong{display:block}.ms-risk-rows span{color:var(--muted);font-size:.91rem}.ms-related{background:#fff}.ms-route-list{border-top:1px solid var(--line)}.ms-route-list a{display:grid;grid-template-columns:55px 1fr auto;gap:18px;align-items:center;padding:19px 5px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);transition:background .2s,padding .2s}.ms-route-list a:hover{background:#f2f8fb;padding-inline:14px}.ms-route-list>a>span{font-weight:900;color:var(--blue)}.ms-route-list h3{margin:0 0 3px}.ms-route-list p{margin:0;color:var(--muted)}
+  @media(max-width:980px){.ms-hero__grid{grid-template-columns:1fr}.ms-hero__visual--desktop{display:none}.ms-hero__visual--mobile{display:block;min-height:0}.ms-hero__visual--mobile::before{content:'';display:block;aspect-ratio:720/500;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 500'%3E%3Cdefs%3E%3ClinearGradient id='s' x2='0' y2='1'%3E%3Cstop stop-color='%23d8e1e9'/%3E%3Cstop offset='1' stop-color='%238093a6'/%3E%3C/linearGradient%3E%3ClinearGradient id='p'%3E%3Cstop stop-color='%230b5a94'/%3E%3Cstop offset='1' stop-color='%23071a33'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='94' y='48' width='532' height='354' rx='25' fill='%2306101c' stroke='url(%23s)' stroke-width='8'/%3E%3Crect x='116' y='72' width='488' height='305' rx='12' fill='url(%23p)'/%3E%3Cg fill='none' stroke='%23dff6ff' stroke-linecap='round'%3E%3Cpath d='M434 188L399 156 364 143 330 114 287 98M434 188L470 160 500 122 548 96M434 188L470 205 511 216 564 248 595 286M434 188L420 229 391 263 383 314 360 364M434 188L395 198 354 220 304 223 255 252 201 258' stroke-width='2'/%3E%3Cpath d='M399 156L408 126 400 96M364 143L340 159 312 162M470 160L469 129 482 101M511 216L535 200 568 197M391 263L366 277 345 303' stroke-width='1'/%3E%3C/g%3E%3Ccircle cx='434' cy='188' r='3' fill='%23fff'/%3E%3Cellipse cx='485' cy='203' rx='48' ry='42' fill='%23020710' opacity='.58'/%3E%3Cpath d='M52 402H668L700 440Q703 451 686 454H34Q17 451 20 440Z' fill='url(%23s)' stroke='%2360758a' stroke-width='2'/%3E%3C/svg%3E") center/contain no-repeat}.ms-symptom-console,.ms-identify__grid,.ms-risks__grid{grid-template-columns:1fr}.ms-mini-display{max-width:500px;width:100%;margin:auto}.ms-flow{grid-template-columns:1fr}.ms-flow>i{transform:rotate(90deg);justify-self:center}.ms-flow article{min-height:0}.ms-timeline{grid-template-columns:repeat(3,1fr);gap:28px 12px}}
+  @media(max-width:620px){.ms-hero{padding-top:24px}.ms-hero__copy{display:flex;flex-direction:column}.ms-hero__eyebrow{order:1}.ms-hero h1{order:2;font-size:clamp(2.25rem,11vw,3.15rem)}.ms-hero__visual--mobile{order:3;margin:-4px 0 -18px}.ms-hero__lead{order:4}.ms-hero__body{order:5}.ms-actions{order:6}.ms-trust{order:7;display:grid;grid-template-columns:1fr 1fr;gap:8px}.ms-actions .ms-btn{width:100%}.ms-section{padding:40px 0}.ms-heading h2,.ms-identify h2,.ms-risks h2{font-size:2rem}.ms-matrix{grid-template-columns:1fr}.ms-matrix>div{border-right:0!important;border-bottom:1px solid var(--line)!important}.ms-matrix>div:last-child{border-bottom:0!important}.ms-matrix__corner{display:none}.ms-matrix__head{margin-top:8px}.ms-timeline{grid-template-columns:1fr}.ms-timeline li{display:grid;grid-template-columns:42px 1fr;gap:12px}.ms-timeline li:not(:last-child)::after{left:19px;right:auto;top:38px;bottom:-28px;width:1px;height:auto}.ms-timeline h3{margin:0 0 4px}.ms-route-list a{grid-template-columns:36px 1fr auto;gap:9px}.ms-route-list p{font-size:.87rem}.ms-symptom-list article{grid-template-columns:36px 1fr}}
+  @media(prefers-color-scheme:dark){.ms-page{--ink:#eef7fc;--muted:#b7ccda;--line:#29455b;--soft:#0b1b2b;background:#081522}.ms-symptoms,.ms-compatibility,.ms-related{background:#081522}.ms-identify,.ms-risks{background:#0b1b2b}.ms-identify aside{background:#10253a}.ms-identify li{border-color:var(--line)}.ms-matrix>div:not(.ms-matrix__head):not(.ms-matrix__corner){background:#10253a}.ms-matrix__model{background:#12314b!important}.ms-risk-rows a>i:first-child{background:#10253a}.ms-route-list a:hover{background:#10253a}}
+  @media(prefers-reduced-motion:reduce){.ms-btn,.ms-replay,.ms-route-list a{transition:none}.ms-impact-ring,.ms-impact-dot,.ms-crack path,.ms-bleed,.ms-panel-lines{opacity:1!important;stroke-dashoffset:0!important;animation:none!important}.ms-replay{display:none}}
+  @media(max-width:620px){.ms-hero__grid{display:flex;flex-direction:column;gap:0}.ms-hero__copy{display:contents}.ms-hero__visual{order:3;width:100%;margin:-8px 0 -12px}.ms-macbook{min-height:0}.ms-macbook figcaption{margin-top:-24px}.ms-replay{bottom:-4px}.ms-hero__lead{margin-top:24px}.ms-actions,.ms-trust{width:100%}}
+  @media(min-width:981px){.ms-hero{padding:30px 0 26px}.ms-hero__grid{grid-template-columns:minmax(0,1.06fr) minmax(440px,.94fr);gap:clamp(24px,3.5vw,48px)}.ms-hero h1{font-size:clamp(2.45rem,4vw,3.75rem);line-height:1;margin-bottom:16px}.ms-macbook{min-height:390px}}
+  @media(max-width:620px){.ms-hero h1{font-size:clamp(2.05rem,9.6vw,2.7rem);line-height:1.02;margin-bottom:12px}.ms-hero__visual{width:min(100%,280px);align-self:center}.ms-macbook figcaption{display:none}.ms-replay{right:0;bottom:-8px}.ms-hero__lead{font-size:1.05rem;line-height:1.32;margin-top:14px}.ms-hero__body{font-size:.93rem;line-height:1.45}.ms-actions{margin-top:15px;margin-bottom:14px}}
+  .ms-page .ms-symptoms,.ms-page .ms-compatibility,.ms-page .ms-related{background:#fff!important}.ms-page .ms-decision,.ms-page .ms-process{background:var(--navy)!important}.ms-page .ms-identify{background:var(--soft)!important}.ms-page .ms-risks{background:#eef5fa!important}
+  @media(prefers-color-scheme:dark){.ms-page .ms-symptoms,.ms-page .ms-compatibility,.ms-page .ms-related{background:#081522!important}.ms-page .ms-identify,.ms-page .ms-risks{background:#0b1b2b!important}}
+</style>

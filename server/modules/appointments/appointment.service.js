@@ -11,6 +11,7 @@ const {
 const { CapacityEngine, timeToMinutes, minutesToTime } = require('./capacity.engine');
 const emailService = require('../../services/email.service');
 const { computePricing } = require('./pricing.policy');
+const { generateUniqueTicketCode } = require('../../database');
 
 function cancunNow() {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -176,7 +177,71 @@ class AppointmentService {
         throw error;
       }
 
-      // 4. Create appointment
+      // 4. Create or link unified workshop ticket (repairs)
+      let effectiveTicketId = ticketId ? Number(ticketId) : null;
+      let ticketCode = null;
+
+      if (effectiveTicketId) {
+        const [[existingRepair]] = await connection.execute(
+          'SELECT id, ticket_code FROM repairs WHERE id = ? LIMIT 1',
+          [effectiveTicketId]
+        );
+        if (existingRepair) {
+          ticketCode = existingRepair.ticket_code;
+          await connection.execute(
+            `UPDATE repairs
+             SET appointment_type = ?,
+                 appointment_date = ?,
+                 appointment_time = ?,
+                 appointment_datetime = ?,
+                 appointment_status = 'confirmada',
+                 appointment_at = ?,
+                 appointment_note = COALESCE(?, appointment_note)
+             WHERE id = ?`,
+            [appointmentType, date, time, startAt, startAt, customerNotes, effectiveTicketId]
+          );
+        } else {
+          effectiveTicketId = null;
+        }
+      }
+
+      if (!effectiveTicketId) {
+        ticketCode = await generateUniqueTicketCode(connection);
+        const deviceType = (deviceSummary || 'Equipo').slice(0, 40);
+        const serviceSummary = plannedServiceSummary || serviceType || 'Revisión técnica';
+        const reportedIssueParts = [
+          `Servicio agendado: ${serviceSummary}`,
+          customerNotes ? `Nota del cliente: ${customerNotes}` : null,
+          addressLine ? `Ubicación: ${addressLine}` : null
+        ].filter(Boolean).join('\n');
+
+        const internalNotes = `Cita y ticket unificado generado vía calendario (${locationType === 'ON_SITE' ? 'Domicilio' : 'Taller'}). Cliente: ${customerName}`;
+
+        const priorityMap = {
+          URGENT: 'urgent',
+          HIGH: 'high',
+          NORMAL: 'normal'
+        };
+        const cleanPriority = priorityMap[typeConfig?.default_priority] || 'normal';
+
+        const [repairResult] = await connection.execute(
+          `INSERT INTO repairs (
+            ticket_code, user_id, device_type, device_brand, device_model,
+            reported_issue, contact_phone, contact_email, priority,
+            notes_internal, status, appointment_type, appointment_date,
+            appointment_time, appointment_datetime, appointment_status, appointment_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            ticketCode, customerId || null, deviceType, '', '',
+            reportedIssueParts, customerPhone, customerEmail || null, cleanPriority,
+            internalNotes, 'new', appointmentType, date,
+            time, startAt, 'confirmada', startAt
+          ]
+        );
+        effectiveTicketId = repairResult.insertId;
+      }
+
+      // 5. Create appointment
       const id = crypto.randomUUID();
       const status = requiresPayment ? APPOINTMENT_STATUSES.PENDING_PAYMENT : APPOINTMENT_STATUSES.CONFIRMED;
       const paymentStatus = requiresPayment ? PAYMENT_STATUSES.PENDING : PAYMENT_STATUSES.NOT_REQUIRED;
@@ -213,7 +278,7 @@ class AppointmentService {
           ?
         )`,
         [
-          id, ticketId, customerId, customerName, customerEmail, customerPhone,
+          id, effectiveTicketId, customerId, customerName, customerEmail, customerPhone,
           appointmentType, serviceType, locationType, effectiveResourceId,
           startAt, endAt, duration, capacityUnits,
           status, paymentStatus, reservationExpiresAt,
@@ -232,7 +297,9 @@ class AppointmentService {
         requiresPayment,
         adminOverride,
         priceMode: pricing.mode,
-        priceAmount: pricing.amount
+        priceAmount: pricing.amount,
+        ticketId: effectiveTicketId,
+        ticketCode
       });
 
       await connection.commit();
@@ -241,7 +308,8 @@ class AppointmentService {
       await this.recordConversionEvent('appointment_hold_created', {
         appointment_type: appointmentType,
         location_type: locationType,
-        duration_minutes: duration
+        duration_minutes: duration,
+        ticket_code: ticketCode
       });
 
       // Send payment required email if applicable
@@ -249,15 +317,37 @@ class AppointmentService {
         await emailService.sendTransactionalEmail({
           to: customerEmail,
           subject: 'Horario reservado - Confirmación de diagnóstico Pixon PC',
-          html: `<p>Hola ${customerName},</p><p>Tu cita para <strong>${serviceType}</strong> ha sido reservada para el día <strong>${date}</strong> a las <strong>${time}</strong>.</p><p>Para confirmar tu espacio en taller, por favor realiza el abono del diagnóstico de $600 MXN en los próximos ${holdDuration} minutos.</p>`,
-          text: `Hola ${customerName}, tu cita para ${serviceType} ha sido reservada para el ${date} a las ${time}. Realiza tu pago de diagnóstico para confirmarla.`,
+          html: `<p>Hola ${customerName},</p><p>Tu cita para <strong>${serviceType}</strong> ha sido reservada para el día <strong>${date}</strong> a las <strong>${time}</strong> con el folio <strong>#${ticketCode}</strong>.</p><p>Para confirmar tu espacio en taller, por favor realiza el abono del diagnóstico de $600 MXN en los próximos ${holdDuration} minutos.</p>`,
+          text: `Hola ${customerName}, tu cita para ${serviceType} ha sido reservada para el ${date} a las ${time} (Folio #${ticketCode}). Realiza tu pago de diagnóstico para confirmarla.`,
           eventType: 'payment_required'
         }).catch(() => {});
       }
 
+      // Enviar notificaciones automáticas de nuevo ticket de taller
+      if (!ticketId && effectiveTicketId) {
+        const ticketNotificationPayload = {
+          id: effectiveTicketId,
+          ticket_code: ticketCode,
+          user_name: customerName,
+          customer_name: customerName,
+          contact_phone: customerPhone,
+          contact_email: customerEmail,
+          device_type: (deviceSummary || 'Equipo').slice(0, 40),
+          reported_issue: plannedServiceSummary || serviceType || 'Revisión técnica',
+          appointment_date: date,
+          appointment_time: time,
+          appointment_datetime: startAt
+        };
+        Promise.allSettled([
+          emailService.notifyOwnerTicketCreated(ticketNotificationPayload),
+          customerEmail ? emailService.notifyCustomerTicketCreated(ticketNotificationPayload) : Promise.resolve()
+        ]).catch(() => {});
+      }
+
       return {
         id,
-        ticket_id: ticketId,
+        ticket_id: effectiveTicketId,
+        ticket_code: ticketCode,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
@@ -387,6 +477,21 @@ class AppointmentService {
         [newAptId, appointmentId]
       );
 
+      // Sincronizar ticket de taller si existe
+      if (oldApt.ticket_id) {
+        await connection.execute(
+          `UPDATE repairs
+           SET appointment_date = ?,
+               appointment_time = ?,
+               appointment_datetime = ?,
+               appointment_at = ?,
+               appointment_status = 'reagendada',
+               updated_at = CURRENT_TIMESTAMP
+           WHERE id = ?`,
+          [newDate, newTime, newStartAt, newStartAt, oldApt.ticket_id]
+        );
+      }
+
       await this.audit(connection, appointmentId, 'RESCHEDULE', actor, actorRole, {
         rescheduled_to: newAptId,
         reason,
@@ -447,6 +552,14 @@ class AppointmentService {
       [status, reason, appointmentId]
     );
 
+    // Sincronizar ticket de taller si existe
+    if (apt.ticket_id) {
+      await this.pool.execute(
+        `UPDATE repairs SET status = 'cancelled', appointment_status = 'cancelada', updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+        [apt.ticket_id]
+      ).catch(() => {});
+    }
+
     await this.audit(null, appointmentId, 'CANCEL', actor, actorRole, { reason });
     await this.recordConversionEvent('appointment_cancelled', { appointment_id: appointmentId, reason });
 
@@ -485,6 +598,35 @@ class AppointmentService {
       `UPDATE appointments SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
       params
     );
+
+    // Sincronizar con expediente técnico en repairs
+    const [[apt]] = await this.pool.execute('SELECT id, ticket_id FROM appointments WHERE id = ?', [appointmentId]);
+    if (apt?.ticket_id) {
+      const repairUpdates = [];
+      const repairParams = [];
+
+      if (newStatus === 'CHECKED_IN' || newStatus === 'DEVICE_RECEIVED') {
+        repairUpdates.push("status = IF(status = 'new', 'received', status)", "appointment_status = 'confirmada'");
+      } else if (newStatus === 'IN_PROGRESS') {
+        repairUpdates.push("status = 'in_progress'", "appointment_status = 'confirmada'");
+      } else if (newStatus === 'COMPLETED') {
+        repairUpdates.push("status = 'ready'", "appointment_status = 'completada'");
+      } else if (newStatus === 'DEVICE_DELIVERED') {
+        repairUpdates.push("status = 'delivered'", "appointment_status = 'completada'");
+      } else if (newStatus.includes('CANCELLED')) {
+        repairUpdates.push("status = 'cancelled'", "appointment_status = 'cancelada'");
+      } else if (newStatus === 'NO_SHOW') {
+        repairUpdates.push("appointment_status = 'cancelada'");
+      }
+
+      if (repairUpdates.length > 0) {
+        repairParams.push(apt.ticket_id);
+        await this.pool.execute(
+          `UPDATE repairs SET ${repairUpdates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+          repairParams
+        ).catch(() => {});
+      }
+    }
 
     await this.audit(null, appointmentId, newStatus, actor, actorRole, { newStatus, reason });
     return { success: true, appointmentId, status: newStatus };

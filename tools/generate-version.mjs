@@ -1,15 +1,20 @@
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'node:child_process';
 
-// Genera una version unica basada en fecha/hora actual (ej: 20260912-034500)
 const now = new Date();
-const pad = (n) => String(n).padStart(2, '0');
-const version = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+const timestamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+let commit = String(process.env.GIT_COMMIT || process.env.SOURCE_VERSION || '').trim().slice(0, 12);
+if (!commit) {
+  try { commit = execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { encoding: 'utf8' }).trim(); }
+  catch { commit = 'nogit'; }
+}
+const version = `${timestamp}-${commit}`;
 
 console.log(`[version] Generando nueva versión del sitio: ${version}`);
 
 // 1. Escribir version.json en public/ y dist/
-const versionData = JSON.stringify({ version, builtAt: now.toISOString() }, null, 2);
+const versionData = JSON.stringify({ version, builtAt: now.toISOString(), commit, status: 'built' }, null, 2);
 fs.writeFileSync(path.resolve('public/version.json'), versionData, 'utf8');
 if (fs.existsSync(path.resolve('dist'))) {
   fs.writeFileSync(path.resolve('dist/version.json'), versionData, 'utf8');

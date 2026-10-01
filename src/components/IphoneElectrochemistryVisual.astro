@@ -1,0 +1,644 @@
+---
+// IphoneElectrochemistryVisual.astro
+// Visualización técnica de corrosión electroquímica en placa lógica de iPhone
+// Pixon PC Cancún · Hardware Lab Diagnostics (CSS + SVG puro, sin librerías pesadas)
+
+interface Props {
+  caption?: string;
+  showControls?: boolean;
+}
+
+const {
+  caption = 'Simulación técnica: Corrosión electroquímica en líneas de placa lógica bajo corriente residual y sales disueltas',
+  showControls = true,
+} = Astro.props;
+---
+
+<div class="electrochem-card" role="region" aria-label="Visualización de corrosión electroquímica en placa de iPhone">
+  <!-- Header del visor técnico -->
+  <div class="electrochem-header">
+    <div class="electrochem-header__left">
+      <span class="electrochem-pill electrochem-pill--live">
+        <span class="electrochem-dot" aria-hidden="true"></span>
+        <span class="electrochem-pill__text">LAB // DIAGNÓSTICO ELECTROQUÍMICO</span>
+      </span>
+      <span class="electrochem-label">Placa Lógica iPhone · Simulación de Degradación</span>
+    </div>
+    <div class="electrochem-header__right">
+      <span class="electrochem-battery-tag" title="La batería conectada suministra voltaje a líneas críticas">
+        <i class="fa-solid fa-battery-half" aria-hidden="true"></i>
+        <span>V_BAT ACTIVO (3.8V - 4.2V)</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Escenario gráfico SVG -->
+  <div class="electrochem-stage">
+    <svg
+      class="electrochem-svg"
+      viewBox="0 0 760 380"
+      preserveAspectRatio="xMidYMid meet"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Diagrama técnico de pistas de cobre bajo corrosión electroquímica por humedad y electrolitos"
+    >
+      <defs>
+        <!-- Patrón de rejilla milimétrica estilo laboratorio -->
+        <pattern id="ec-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(56, 189, 248, 0.05)" stroke-width="1" />
+        </pattern>
+        <pattern id="ec-grid-major" width="100" height="100" patternUnits="userSpaceOnUse">
+          <rect width="100" height="100" fill="url(#ec-grid)" />
+          <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(56, 189, 248, 0.12)" stroke-width="1.2" />
+        </pattern>
+
+        <!-- Gradientes para pistas de cobre -->
+        <linearGradient id="trace-healthy" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#b45309" />
+          <stop offset="50%" stop-color="#f59e0b" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+
+        <linearGradient id="trace-corroded" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#047857" />
+          <stop offset="40%" stop-color="#10b981" />
+          <stop offset="80%" stop-color="#065f46" />
+          <stop offset="100%" stop-color="#0f766e" />
+        </linearGradient>
+
+        <!-- Capa de líquido electrolítico -->
+        <radialGradient id="liquid-gradient" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(56, 189, 248, 0.35)" />
+          <stop offset="60%" stop-color="rgba(14, 165, 233, 0.18)" />
+          <stop offset="100%" stop-color="rgba(2, 132, 199, 0)" />
+        </radialGradient>
+
+        <!-- Glow de corto circuito -->
+        <filter id="short-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Fondo y cuadrícula -->
+      <rect width="100%" height="100%" fill="#071324" />
+      <rect width="100%" height="100%" fill="url(#ec-grid-major)" />
+
+      <!-- Silueta de la placa lógica (PCB de iPhone con máscara de soldadura negra mate) -->
+      <rect x="40" y="30" width="680" height="320" rx="14" fill="#091b30" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5" />
+      <rect x="52" y="42" width="656" height="296" rx="10" fill="#0b223d" opacity="0.7" />
+
+      <!-- Conector FPC (Pantalla / Batería) -->
+      <g class="ec-fpc-connector" transform="translate(60, 60)">
+        <rect width="70" height="260" rx="6" fill="#142c4c" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1" />
+        <text x="35" y="18" fill="rgba(148, 163, 184, 0.8)" font-size="9" font-family="monospace" text-anchor="middle" font-weight="600">CONECTORES FPC</text>
+        <!-- Pines dorados del conector -->
+        <line x1="60" y1="40" x2="70" y2="40" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="65" x2="70" y2="65" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="90" x2="70" y2="90" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="115" x2="70" y2="115" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="140" x2="70" y2="140" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="165" x2="70" y2="165" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="190" x2="70" y2="190" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="215" x2="70" y2="215" stroke="#f59e0b" stroke-width="3" />
+        <line x1="60" y1="240" x2="70" y2="240" stroke="#f59e0b" stroke-width="3" />
+      </g>
+
+      <!-- Microcomponentes SMD (Capacitores / Resistencias / Diodos) -->
+      <g class="ec-smd-group">
+        <!-- IC Controlador -->
+        <rect x="520" y="70" width="160" height="130" rx="6" fill="#081422" stroke="rgba(56, 189, 248, 0.4)" stroke-width="1.5" />
+        <circle cx="536" cy="86" r="4" fill="#38bdf8" opacity="0.7" />
+        <text x="600" y="130" fill="#94a3b8" font-size="11" font-family="monospace" text-anchor="middle" font-weight="600">GESTIÓN DE ENERGÍA</text>
+        <text x="600" y="148" fill="#64748b" font-size="9" font-family="monospace" text-anchor="middle">LÍNEAS PRINCIPALES</text>
+
+        <!-- Capacitores SMD cerámicos -->
+        <g transform="translate(430, 90)">
+          <rect width="36" height="20" rx="3" fill="#6d4c41" stroke="#a1887f" stroke-width="1" />
+          <rect width="6" height="20" fill="#cbd5e1" />
+          <rect x="30" width="6" height="20" fill="#cbd5e1" />
+          <text x="18" y="-6" fill="#64748b" font-size="8" font-family="monospace" text-anchor="middle">C_FILTRO</text>
+        </g>
+        <g transform="translate(430, 140)">
+          <rect width="36" height="20" rx="3" fill="#6d4c41" stroke="#a1887f" stroke-width="1" />
+          <rect width="6" height="20" fill="#cbd5e1" />
+          <rect x="30" width="6" height="20" fill="#cbd5e1" />
+          <text x="18" y="-6" fill="#64748b" font-size="8" font-family="monospace" text-anchor="middle">C_BYPASS</text>
+        </g>
+        <g transform="translate(430, 200)">
+          <rect width="36" height="20" rx="3" fill="#6d4c41" stroke="#a1887f" stroke-width="1" />
+          <rect width="6" height="20" fill="#cbd5e1" />
+          <rect x="30" width="6" height="20" fill="#cbd5e1" />
+          <text x="18" y="-6" fill="#64748b" font-size="8" font-family="monospace" text-anchor="middle">C_GROUND</text>
+        </g>
+      </g>
+
+      <!-- Pistas de cobre principales (Traces) -->
+      <!-- Pista 1: Línea positiva (V_BAT / Power Rail) -->
+      <path
+        class="ec-trace ec-trace--power"
+        d="M 130 100 L 260 100 L 310 100 L 430 100"
+        fill="none"
+        stroke="url(#trace-healthy)"
+        stroke-width="5"
+        stroke-linecap="round"
+      />
+      <!-- Pista 2: Línea adyacente (Datos / Retorno / Ground) -->
+      <path
+        class="ec-trace ec-trace--data"
+        d="M 130 150 L 260 150 L 310 150 L 430 150"
+        fill="none"
+        stroke="url(#trace-healthy)"
+        stroke-width="5"
+        stroke-linecap="round"
+      />
+      <!-- Pista 3: Línea inferior -->
+      <path
+        class="ec-trace ec-trace--ground"
+        d="M 130 210 L 230 210 L 290 210 L 430 210"
+        fill="none"
+        stroke="url(#trace-healthy)"
+        stroke-width="5"
+        stroke-linecap="round"
+      />
+
+      <!-- Pistas secundarias que se conectan al IC -->
+      <path d="M 466 100 L 520 100" fill="none" stroke="url(#trace-healthy)" stroke-width="4" />
+      <path d="M 466 150 L 520 135" fill="none" stroke="url(#trace-healthy)" stroke-width="4" />
+      <path d="M 466 210 L 520 170" fill="none" stroke="url(#trace-healthy)" stroke-width="4" />
+
+      <!-- Flujo de corriente animado (dasharray en línea positiva) -->
+      <path
+        class="ec-current-flow"
+        d="M 130 100 L 430 100 L 520 100"
+        fill="none"
+        stroke="#fef08a"
+        stroke-width="2.5"
+        stroke-dasharray="8 12"
+        stroke-linecap="round"
+      />
+
+      <!-- Mancha de líquido invasor (animada) -->
+      <g class="ec-liquid-spill" transform="translate(285, 155)">
+        <ellipse cx="0" cy="0" rx="95" ry="80" fill="url(#liquid-gradient)" />
+        <path
+          d="M -60 -45 Q -20 -70 30 -50 Q 80 -30 70 20 Q 60 70 0 65 Q -65 60 -70 10 Z"
+          fill="rgba(56, 189, 248, 0.16)"
+          stroke="rgba(125, 211, 252, 0.4)"
+          stroke-width="1"
+        />
+        <text x="-4" y="-55" fill="#38bdf8" font-size="9" font-family="monospace" text-anchor="middle" font-weight="700">LÍQUIDO + SALES</text>
+      </g>
+
+      <!-- Iones en solución (Na+, Cl-, Mg2+) flotando en el medio conductor -->
+      <g class="ec-ions-layer">
+        <!-- Ion Cl- -->
+        <g class="ec-ion ec-ion--1" transform="translate(250, 125)">
+          <circle r="11" fill="rgba(14, 165, 233, 0.3)" stroke="#38bdf8" stroke-width="1.2" />
+          <text y="3.5" fill="#e0f2fe" font-size="9" font-family="monospace" text-anchor="middle" font-weight="700">Cl⁻</text>
+        </g>
+        <!-- Ion Na+ -->
+        <g class="ec-ion ec-ion--2" transform="translate(320, 130)">
+          <circle r="11" fill="rgba(245, 158, 11, 0.3)" stroke="#fbbf24" stroke-width="1.2" />
+          <text y="3.5" fill="#fef3c7" font-size="9" font-family="monospace" text-anchor="middle" font-weight="700">Na⁺</text>
+        </g>
+        <!-- Ion Cu2+ (Cobre disuelto por electrólisis) -->
+        <g class="ec-ion ec-ion--3" transform="translate(280, 115)">
+          <circle r="12" fill="rgba(16, 185, 129, 0.35)" stroke="#34d399" stroke-width="1.2" />
+          <text y="3.5" fill="#d1fae5" font-size="8.5" font-family="monospace" text-anchor="middle" font-weight="700">Cu²⁺</text>
+        </g>
+        <!-- Minerales -->
+        <g class="ec-ion ec-ion--4" transform="translate(340, 175)">
+          <circle r="10" fill="rgba(168, 85, 247, 0.25)" stroke="#c084fc" stroke-width="1" />
+          <text y="3" fill="#f3e8ff" font-size="7.5" font-family="monospace" text-anchor="middle" font-weight="600">MIN</text>
+        </g>
+      </g>
+
+      <!-- Corrosión Electroquímica / Sulfatación sobre las pistas de cobre (Capas verdes/patina) -->
+      <g class="ec-corrosion-deposits">
+        <!-- Corrosión en pista positiva -->
+        <rect class="ec-corrosion-layer ec-corrosion-layer--p1" x="240" y="97.5" width="85" height="5" rx="2" fill="url(#trace-corroded)" />
+        <!-- Corrosión en pista adyacente -->
+        <rect class="ec-corrosion-layer ec-corrosion-layer--p2" x="250" y="147.5" width="75" height="5" rx="2" fill="url(#trace-corroded)" />
+
+        <!-- Dendritas / Cristales de subproductos de corrosión (puente conductor no deseado) -->
+        <g class="ec-corrosion-bridge">
+          <path
+            d="M 270 102.5 L 274 116 L 269 128 L 273 140 L 271 147.5"
+            fill="none"
+            stroke="#10b981"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M 285 102.5 L 282 114 L 288 126 L 284 138 L 286 147.5"
+            fill="none"
+            stroke="#059669"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <!-- Pequeños nódulos de óxido de cobre / sales metálicas -->
+          <circle cx="270" cy="102" r="4.5" fill="#10b981" />
+          <circle cx="285" cy="102" r="5" fill="#34d399" />
+          <circle cx="269" cy="128" r="4" fill="#047857" />
+          <circle cx="288" cy="126" r="4.5" fill="#10b981" />
+          <circle cx="271" cy="148" r="4" fill="#059669" />
+          <circle cx="286" cy="148" r="5" fill="#34d399" />
+        </g>
+      </g>
+
+      <!-- Indicador de Cortocircuito // Riesgo Eléctrico -->
+      <g class="ec-short-warning" transform="translate(277, 125)">
+        <circle class="ec-short-pulse" r="16" fill="rgba(239, 68, 68, 0.25)" filter="url(#short-glow)" />
+        <path d="M -4 -8 L 5 -1 L 0 1 L 4 8 L -5 1 L 0 -1 Z" fill="#facc15" stroke="#ef4444" stroke-width="0.8" />
+        <text x="26" y="4" fill="#fca5a5" font-size="9" font-family="monospace" font-weight="700">RIESGO DE CORTO</text>
+      </g>
+
+      <!-- Etiquetas técnicas informativas -->
+      <g class="ec-annotations" font-family="monospace" font-size="9" fill="#94a3b8">
+        <!-- Anotación 1: Batería y Corriente -->
+        <g transform="translate(80, 20)">
+          <text x="0" y="0" fill="#38bdf8" font-weight="700">01. ALIMENTACIÓN RESIDUAL</text>
+          <text x="0" y="12" fill="#64748b">Corriente fluye aunque pantalla esté apagada</text>
+        </g>
+        <!-- Anotación 2: Electrólisis -->
+        <g transform="translate(245, 290)">
+          <rect x="-10" y="-12" width="220" height="34" rx="4" fill="rgba(15, 23, 42, 0.85)" stroke="rgba(16, 185, 129, 0.4)" stroke-width="1" />
+          <text x="0" y="0" fill="#34d399" font-weight="700">02. ELECTRÓLISIS Y CORROSIÓN</text>
+          <text x="0" y="14" fill="#cbd5e1">Iones disuelven cobre y crean puentes</text>
+        </g>
+        <!-- Anotación 3: Placa y Componentes -->
+        <g transform="translate(520, 220)">
+          <text x="0" y="0" fill="#e2e8f0" font-weight="700">03. RIESGO A COMPONENTES</text>
+          <text x="0" y="12" fill="#64748b">Perforación de pistas y daño en ICs</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Barra de progreso temporal de la reacción (Timeline sutil) -->
+  <div class="electrochem-timeline" aria-hidden="true">
+    <div class="electrochem-step">
+      <span class="electrochem-step__dot"></span>
+      <span class="electrochem-step__time">T+0</span>
+      <span class="electrochem-step__label">Ingreso de líquido</span>
+    </div>
+    <div class="electrochem-line"></div>
+    <div class="electrochem-step">
+      <span class="electrochem-step__dot"></span>
+      <span class="electrochem-step__time">T+15 min</span>
+      <span class="electrochem-step__label">Sales conductoras</span>
+    </div>
+    <div class="electrochem-line"></div>
+    <div class="electrochem-step electrochem-step--active">
+      <span class="electrochem-step__dot"></span>
+      <span class="electrochem-step__time">T+Horas</span>
+      <span class="electrochem-step__label">Corrosión de pistas</span>
+    </div>
+    <div class="electrochem-line"></div>
+    <div class="electrochem-step electrochem-step--alert">
+      <span class="electrochem-step__dot"></span>
+      <span class="electrochem-step__time">T+Días</span>
+      <span class="electrochem-step__label">Corto / Corte de línea</span>
+    </div>
+  </div>
+
+  <!-- Pie de la visualización con explicación de rigor científico -->
+  <footer class="electrochem-footer">
+    <div class="electrochem-footer__icon">
+      <i class="fa-solid fa-microscope" aria-hidden="true"></i>
+    </div>
+    <p class="electrochem-footer__text">
+      <strong>Principio electroquímico:</strong> El agua combinada con sales minerales actúa como electrolito. Al existir voltaje continuo suministrado por la batería del iPhone, se activa una reacción electroquímica galvánica donde los átomos de cobre de las pistas migran, formando subproductos de corrosión y puentes conductores que pueden derivar en cortocircuitos severos.
+    </p>
+  </footer>
+</div>
+
+<style>
+  .electrochem-card {
+    background: #061527;
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 18px;
+    padding: clamp(16px, 2.5vw, 24px);
+    box-shadow: 0 16px 40px rgba(2, 8, 19, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: #e2e8f0;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .electrochem-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .electrochem-header__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .electrochem-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #38bdf8;
+    font-family: monospace;
+  }
+
+  .electrochem-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+    animation: ec-pulse 2s infinite ease-in-out;
+  }
+
+  .electrochem-label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  .electrochem-battery-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: 6px;
+    color: #fbbf24;
+    font-size: 0.72rem;
+    font-family: monospace;
+    font-weight: 600;
+  }
+
+  /* Stage SVG */
+  .electrochem-stage {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    background: #071324;
+  }
+
+  .electrochem-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 760 / 380;
+  }
+
+  /* Animaciones CSS controladas con transform y opacity */
+  .ec-current-flow {
+    animation: ec-flow 2.8s linear infinite;
+  }
+
+  .ec-liquid-spill {
+    animation: ec-liquid-pulse 6s ease-in-out infinite alternate;
+  }
+
+  .ec-ion--1 {
+    animation: ec-drift-1 4.5s ease-in-out infinite alternate;
+  }
+  .ec-ion--2 {
+    animation: ec-drift-2 5s ease-in-out infinite alternate;
+  }
+  .ec-ion--3 {
+    animation: ec-drift-3 4s ease-in-out infinite alternate;
+  }
+  .ec-ion--4 {
+    animation: ec-drift-4 5.5s ease-in-out infinite alternate;
+  }
+
+  .ec-corrosion-layer {
+    animation: ec-corrode-layer 7s ease-in-out infinite alternate;
+  }
+
+  .ec-corrosion-bridge {
+    animation: ec-bridge-grow 7s ease-in-out infinite alternate;
+  }
+
+  .ec-short-warning {
+    animation: ec-short-flash 3.5s ease-in-out infinite;
+  }
+
+  .ec-short-pulse {
+    animation: ec-sparkle 1.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes ec-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  @keyframes ec-flow {
+    0% { stroke-dashoffset: 40; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  @keyframes ec-liquid-pulse {
+    0% { opacity: 0.75; transform: translate(285px, 155px) scale(0.96); }
+    100% { opacity: 1; transform: translate(285px, 155px) scale(1.04); }
+  }
+
+  @keyframes ec-drift-1 {
+    0% { transform: translate(250px, 125px); }
+    100% { transform: translate(258px, 134px); }
+  }
+
+  @keyframes ec-drift-2 {
+    0% { transform: translate(320px, 130px); }
+    100% { transform: translate(312px, 122px); }
+  }
+
+  @keyframes ec-drift-3 {
+    0% { transform: translate(280px, 115px); }
+    100% { transform: translate(274px, 126px); }
+  }
+
+  @keyframes ec-drift-4 {
+    0% { transform: translate(340px, 175px); }
+    100% { transform: translate(332px, 168px); }
+  }
+
+  @keyframes ec-corrode-layer {
+    0% { opacity: 0.35; }
+    100% { opacity: 0.95; }
+  }
+
+  @keyframes ec-bridge-grow {
+    0% { opacity: 0.2; transform: scaleY(0.7); transform-origin: 275px 105px; }
+    100% { opacity: 1; transform: scaleY(1); transform-origin: 275px 105px; }
+  }
+
+  @keyframes ec-short-flash {
+    0%, 60% { opacity: 0.15; transform: translate(277px, 125px) scale(0.9); }
+    75%, 85% { opacity: 1; transform: translate(277px, 125px) scale(1.1); }
+    100% { opacity: 0.2; transform: translate(277px, 125px) scale(0.9); }
+  }
+
+  @keyframes ec-sparkle {
+    0% { r: 12px; opacity: 0.4; }
+    100% { r: 20px; opacity: 0.9; }
+  }
+
+  /* Timeline de progreso */
+  .electrochem-timeline {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(11, 34, 61, 0.4);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .electrochem-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 3px;
+  }
+
+  .electrochem-step__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #475569;
+    transition: background 0.3s ease;
+  }
+
+  .electrochem-step--active .electrochem-step__dot {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  }
+
+  .electrochem-step--alert .electrochem-step__dot {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  }
+
+  .electrochem-step__time {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8;
+    font-family: monospace;
+  }
+
+  .electrochem-step__label {
+    font-size: 0.7rem;
+    color: #64748b;
+    white-space: nowrap;
+  }
+
+  .electrochem-step--active .electrochem-step__time,
+  .electrochem-step--active .electrochem-step__label {
+    color: #a7f3d0;
+  }
+
+  .electrochem-step--alert .electrochem-step__time,
+  .electrochem-step--alert .electrochem-step__label {
+    color: #fca5a5;
+  }
+
+  .electrochem-line {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Footer explicativo */
+  .electrochem-footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .electrochem-footer__icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    display: grid;
+    place-items: center;
+    font-size: 0.9rem;
+  }
+
+  .electrochem-footer__text {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: #94a3b8;
+  }
+
+  .electrochem-footer__text strong {
+    color: #e2e8f0;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .electrochem-timeline {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
+    .electrochem-line {
+      display: none;
+    }
+    .electrochem-step {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .electrochem-step__label {
+      text-align: right;
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .electrochem-dot,
+    .ec-current-flow,
+    .ec-liquid-spill,
+    .ec-ion,
+    .ec-corrosion-layer,
+    .ec-corrosion-bridge,
+    .ec-short-warning,
+    .ec-short-pulse {
+      animation: none !important;
+      opacity: 0.9 !important;
+      transform: none !important;
+    }
+  }
+</style>

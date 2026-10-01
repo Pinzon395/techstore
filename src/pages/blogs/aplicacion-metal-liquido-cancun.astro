@@ -7,61 +7,257 @@ import FaqSection from '../../components/FaqSection.astro';
 import CommentsSection from '../../components/CommentsSection.astro';
 import ContactSection from '../../components/ContactSection.astro';
 import Footer from '../../components/Footer.astro';
-import Icon from '../../components/LocalSpriteIcon.astro';
 
 const canonical = '/blogs/aplicacion-metal-liquido-cancun';
-const whatsappText = encodeURIComponent('Hola Pixon PC, quiero revisar si mi laptop gamer o PC es compatible con metal liquido y necesito diagnostico termico.');
 
+// WhatsApp prefill exacto según directriz obligatoria (regla 74)
+const whatsappPrefill = encodeURIComponent(
+  'Hola Pixon PC.\nQuiero revisar si mi equipo es compatible con metal líquido.\n\nEquipo:\nLaptop / PC / GPU / Otro\n\nMarca y modelo:\n\nMaterial actual:\nMetal líquido de fábrica /\nPasta térmica /\nNo sé\n\nProblema:\nTemperatura /\nThrottling /\nRuido /\nMantenimiento /\nIntervención anterior /\nOtro\n\n¿Ha sido abierto anteriormente?\nSí / No / No sé'
+);
+const whatsappUrl = `https://wa.me/529986690777?text=${whatsappPrefill}`;
+
+// 22 Preguntas Frecuentes Técnicas Exhaustivas
 const faqs = [
   {
-    question: '¿El metal líquido es mejor que la pasta térmica?',
-    answer: 'Puede transferir más calor en equipos compatibles, pero no siempre es la mejor opción. Primero se revisan materiales, disipador, presión, aislamiento, ventilación y causa real de la temperatura.',
+    question: '¿Qué es el metal líquido y de qué está compuesto?',
+    answer: 'Es una aleación metálica eutéctica de galio, indio y estaño (comúnmente conocida como Galinstan) que permanece en estado líquido a temperatura ambiente. Se utiliza como material de interfaz térmica (TIM) de ultra alto rendimiento entre el silicio y el disipador.',
   },
   {
-    question: '¿Cuánto baja la temperatura con metal líquido?',
-    answer: 'En algunos equipos compatibles se han visto mejoras importantes, incluso de 15°C a 30°C, pero no es una promesa universal. El resultado depende del modelo, estado del disipador, ventiladores, pads, consumo y ambiente de uso.',
+    question: '¿El metal líquido es mejor que la pasta térmica convencional?',
+    answer: 'Ofrece una conductividad térmica significativamente superior (alrededor de 73 W/m·K frente a los 8.5–14 W/m·K de las mejores pastas cerámicas o basadas en óxidos metálicos). Sin embargo, "mejor" depende del sistema: solo es recomendable cuando el disipador es químicamente compatible (níquel o cobre), existe sellado perimetral y el límite térmico proviene estrictamente de la interfaz.',
   },
   {
-    question: '¿El metal líquido puede dañar mi laptop?',
-    answer: 'Sí, si se aplica sin control, si toca componentes, si se usa sobre aluminio o si no hay contención. Por eso en Pixon PC solo se recomienda después de diagnóstico, aislamiento y prueba final.',
+    question: '¿Es conductor de electricidad?',
+    answer: 'Sí, absolutamente. A diferencia de la pasta térmica no capacitiva, el metal líquido conduce la corriente eléctrica. Cualquier gota desprendida hacia los condensadores cerámicos SMD o pistas de la placa madre puede provocar un cortocircuito catastrófico instantáneo. Por ello su aplicación exige aislamiento dieléctrico perimetral.',
   },
   {
-    question: '¿Conviene para cualquier laptop gamer?',
-    answer: 'No. Algunas laptops gamer funcionan mejor con pasta térmica premium y limpieza profunda. El metal líquido se considera cuando el diseño, el disipador y las mediciones justifican el riesgo.',
+    question: '¿Puede dañar una laptop?',
+    answer: 'Puede dañarla gravemente si se aplica en exceso, si el disipador es de aluminio, si no se coloca una barrera aislante o si el chasis sufre torsión sin contención. Si se aplica en un equipo compatible con barrera de espuma de alta densidad y microdosificación milimétrica, opera con plena estabilidad mecánica.',
   },
   {
-    question: '¿También aplican metal líquido en PC de escritorio?',
-    answer: 'Sí, revisamos PC gamer y estaciones de trabajo en Cancún. Antes de aplicar confirmamos bloque o disipador compatible, presión, consumo, airflow del gabinete y temperaturas bajo carga.',
+    question: '¿Se puede utilizar sobre disipadores de aluminio?',
+    answer: '¡Bajo ninguna circunstancia! El galio reacciona químicamente con el aluminio mediante un proceso de fragilización intergranular por metal líquido (LME). Destruye la estructura cristalina del aluminio en cuestión de horas o días, convirtiéndolo en un polvo quebradizo que inutiliza el disipador.',
   },
   {
-    question: '¿Puedo crear ticket para cotizar este servicio?',
-    answer: 'Sí. En el ticket puedes indicar modelo, procesador, GPU, temperaturas, apagados, ruido, FPS y trabajos previos. Con eso damos el siguiente paso y confirmamos si requiere diagnóstico en taller.',
+    question: '¿Se puede utilizar sobre disipadores de cobre puro?',
+    answer: 'Sí es compatible, pero ocurre un fenómeno físico llamado amalgamación superficial o "tinning": el cobre absorbe lentamente moléculas de galio, formando una capa gris mate superficial. Esto no corroe el cobre, pero en la primera aplicación suele requerir una inspección y reaplicación a mediano plazo para reponer el galio absorbido antes de estabilizarse.',
+  },
+  {
+    question: '¿Por qué se recomienda cobre niquelado como material ideal?',
+    answer: 'Fabricantes de referencia térmica como Thermal Grizzly recomiendan el cobre con baño de níquel galvanizado porque el níquel actúa como barrera pasivadora contra la difusión del galio. Evita la absorción superficial, mantiene intacto el brillo del bloque y garantiza la máxima longevidad del compuesto sin necesidad de pulidos correctivos.',
+  },
+  {
+    question: '¿Todas las laptops gamer pueden usar metal líquido?',
+    answer: 'No. Muchas laptops gamer de gama media o chasis plástico tienen disipadores con aletas o bases mixtas con aluminio expuesto, o bien carecen de la presión de contacto Z necesaria para retener una sustancia fluida. En esos equipos, una pasta térmica de alta viscosidad anti pump-out o una almohadilla de cambio de fase (PTM7950) es una opción técnicamente superior y segura.',
+  },
+  {
+    question: '¿Conviene convertir una laptop que venía de fábrica con pasta térmica a metal líquido?',
+    answer: 'No lo recomendamos por defecto. Convertir un equipo requiere crear manualmente barreras de sellado epóxico y juntas de contención que de origen no existían. Solo se evalúa en equipos con disipadores 100% de cobre o níquel que demuestran un estrangulamiento térmico intratable por otros medios.',
+  },
+  {
+    question: '¿Es diferente renovar metal líquido que venía de fábrica?',
+    answer: 'Sí. Equipos como las series ASUS ROG Strix o Zephyrus vienen con una barrera perimetral de espuma de fábrica y disipadores niquelados diseñados para este material. El servicio consiste en retirar el metal oxidado o desplazado, renovar la barrera si está impregnada y aplicar una cantidad calibrada del compuesto original.',
+  },
+  {
+    question: '¿El metal líquido puede escurrirse dentro del equipo?',
+    answer: 'Puede migrar si se aplicó un volumen excesivo, si los tornillos del disipador no ejercen presión uniforme o si la laptop viaja constantemente en vertical sin una junta de contención intacta. Por esta razón, en Pixon PC aplicamos microcantidades esparcidas a nivel microscópico ("wetting") en ambas caras sin dejar acumulaciones libres.',
+  },
+  {
+    question: '¿El metal líquido puede manchar la superficie del disipador?',
+    answer: 'En cobre directo deja una amalgama superficial que cambia su coloración a plateada. En cobre niquelado la superficie suele limpiarse por completo con solventes químicos especiales y pulidor suave sin dejar residuos abrasivos.',
+  },
+  {
+    question: '¿El cambio a metal líquido aumenta los FPS en juegos?',
+    answer: 'No añade potencia mágica ni crea FPS que el chip no pueda generar. Lo que hace es eliminar el thermal throttling: si tu procesador o tarjeta gráfica reducían su frecuencia de 4.5 GHz a 2.8 GHz debido al calor extremo, estabilizar la disipación permite sostener las frecuencias máximas, evitando caídas bruscas de cuadros (stuttering) y tirones.',
+  },
+  {
+    question: '¿Reduce el thermal throttling de manera definitiva?',
+    answer: 'Reduce el estrangulamiento térmico siempre y cuando el disipador, los ventiladores y el flujo de aire ambiental sean capaces de desalojar los vatios que el chip transfiere. Si los radiadores están tapados de polvo o los ventiladores no giran a sus RPM normales, el calor se transferirá al bloque pero no saldrá del chasis.',
+  },
+  {
+    question: '¿También se aplica metal líquido en la GPU (tarjeta gráfica)?',
+    answer: 'En laptops con metal líquido de fábrica en ambos chips (como ciertos modelos ROG), se renueva en ambos. En conversiones personalizadas o GPUs de escritorio, se analiza minuciosamente porque el silicio de la GPU está rodeado de decenas de componentes SMD muy sensibles y los disipadores a menudo tienen tolerancias de montaje más complejas.',
+  },
+  {
+    question: '¿Se debe cambiar junto con los thermal pads?',
+    answer: 'El metal líquido se aplica única y exclusivamente sobre los núcleos de silicio (die del procesador y GPU). Los chips de memoria VRAM y las etapas de potencia VRM requieren thermal pads de silicón o masilla térmica (Thermal Putty). Durante el servicio revisamos que los pads no impidan el asentamiento plano del bloque sobre el silicio.',
+  },
+  {
+    question: '¿Cada cuánto se debe revisar el metal líquido?',
+    answer: 'No existe un calendario fijo universal de 6 o 12 meses. En un equipo con disipador niquelado y sellado de fábrica en buen estado, el compuesto puede durar años sin degradarse. La revisión se justifica cuando la telemetría muestra un incremento en el delta de temperatura entre núcleos o aumento en las revoluciones de los ventiladores.',
+  },
+  {
+    question: '¿Se puede usar metal líquido en una PC de escritorio gamer?',
+    answer: 'Sí, típicamente sobre el IHS (difusor térmico integrado) en procesadores desbloqueados para overclocking o estaciones de trabajo de renderizado continuo, siempre que el bloque de refrigeración líquida o cooler por aire posea base de cobre niquelado.',
+  },
+  {
+    question: '¿Atienden laptops que ya traen metal líquido de fábrica desbordado o desplazado?',
+    answer: 'Sí. Es un problema común en laptops que han sufrido golpes o han trabajado en vertical: el metal se acumula en un borde del silicio, dejando zonas del chip sin contacto ("hotspots"). Limpiamos el compuesto desplazado, inspeccionamos la barrera y reaplicamos con técnica de tensión superficial uniforme.',
+  },
+  {
+    question: '¿Qué pasa si otro técnico aplicó demasiado metal líquido sin aislar?',
+    answer: 'En Pixon PC recibimos equipos para descontaminación térmica de emergencia. Desarmamos el ensamble bajo microscopio estereoscópico, retiramos las esferas de galio libres con jeringas de succión capilar y limpiamos químicamente cada componente SMD antes de evaluar si la placa sufrió daños.',
+  },
+  {
+    question: '¿Atienden mantenimiento de metal líquido en PlayStation 5 (PS5)?',
+    answer: 'Sí, la PS5 utiliza metal líquido de fábrica sobre el SoC. Contamos con un protocolo específico para limpiar la oxidación superficial, reponer el compuesto y sellar el disipador original. Para este servicio, contamos con una sección dedicada a mantenimiento de PS5.',
+  },
+  {
+    question: '¿Cuánto cuesta y cuánto tarda la aplicación de metal líquido en Cancún?',
+    answer: 'El costo y tiempo dependen estrictamente del modelo: no requiere el mismo trabajo renovar una laptop ASUS ROG con barreras de fábrica que limpiar un equipo con derrame previo o acondicionar una PC personalizada. Realizamos un diagnóstico inicial para confirmar compatibilidad de materiales antes de cotizar.',
   },
 ];
 
-const process = [
-  ['01', 'Diagnóstico térmico', 'Medimos temperatura, frecuencia, consumo, ruido y estabilidad en reposo y carga.'],
-  ['02', 'Compatibilidad', 'Confirmamos cobre o níquel, diseño del disipador, presión y zonas sensibles.'],
-  ['03', 'Aislamiento', 'Protegemos componentes cercanos antes de trabajar con un material conductor.'],
-  ['04', 'Aplicación controlada', 'Usamos cantidad mínima necesaria y distribución uniforme sobre el die o IHS.'],
-  ['05', 'Prueba final', 'Validamos temperatura, throttling, ventiladores y comportamiento sostenido.'],
+// Fases del Proceso Profesional en Taller
+const workshopPhases = [
+  {
+    phase: '01',
+    name: 'Triage y Baseline Térmico',
+    summary: 'Registramos temperaturas en reposo y bajo estrés controlado, frecuencias de reloj y comportamiento PWM de los ventiladores para tener una medición de referencia objetiva.',
+    icon: 'fa-chart-line',
+  },
+  {
+    phase: '02',
+    name: 'Desmontaje ESD y Diagnóstico Químico',
+    summary: 'En banco antiestático desconectamos alimentación y batería. Inspeccionamos la base del disipador para confirmar microscópicamente que sea cobre niquelado o cobre puro, descartando cualquier aleación de aluminio.',
+    icon: 'fa-shield-halved',
+  },
+  {
+    phase: '03',
+    name: 'Aislamiento Dieléctrico de Precisión',
+    summary: 'Aplicamos laca aislante dieléctrica de alta temperatura (conformal coating) sobre todos los condensadores SMD perimetrales al die de silicio. Reforzamos con cinta Kapton y barrera física de contención.',
+    icon: 'fa-microchip',
+  },
+  {
+    phase: '04',
+    name: 'Dosificación y Esparcido Microscópico',
+    summary: 'Utilizamos microcánula para dispensar una cantidad milimétrica de aleación (Thermal Grizzly Conductonaut). Frotamos mecánicamente sobre el silicio y la base del disipador hasta lograr una película de adherencia completa sin gotas sueltas.',
+    icon: 'fa-droplet',
+  },
+  {
+    phase: '05',
+    name: 'Asentamiento con Torque Progresivo',
+    summary: 'Alineamos el bloque térmico en un solo movimiento perpendicular y ajustamos la tornillería en patrón de cruz con torque calibrado para evitar que el fluido sea expulsado por presión desigual.',
+    icon: 'fa-wrench',
+  },
+  {
+    phase: '06',
+    name: 'Estrés de Validación y Curva Acústica',
+    summary: 'Sometemos el procesador y gráfica a pruebas de carga sostenida (Cinebench / FurMark). Monitoreamos que la dispersión térmica sea homogénea y que las frecuencias se sostengan sin thermal throttling.',
+    icon: 'fa-temperature-arrow-down',
+  },
 ];
 
-const signals = [
-  ['temperature-high', 'CPU o GPU al límite', 'Temperaturas altas bajo carga, ventiladores constantes o picos que se repiten.'],
-  ['gauge-high', 'Thermal throttling', 'Frecuencias que bajan al jugar, renderizar o trabajar con cargas pesadas.'],
-  ['fan', 'Ruido excesivo', 'Ventiladores al máximo aunque el equipo esté limpio o recién encendido.'],
-  ['bolt', 'Apagados por protección', 'El equipo se apaga o reinicia cuando sube el consumo térmico.'],
+// Matriz de Compatibilidad de Materiales
+const materialsMatrix = [
+  {
+    material: 'Cobre Niquelado (Nickel-plated Copper)',
+    status: 'Óptimo y Recomendado',
+    statusClass: 'status-optimal',
+    behavior: 'La capa galvánica de níquel actúa como barrera química. No absorbe galio ni sufre corrosión. Mantiene el contacto intacto por años.',
+    recommendation: 'Es la superficie estándar utilizada por Thermal Grizzly, ASUS ROG y los mejores bloques de refrigeración líquida.',
+  },
+  {
+    material: 'Cobre Puro (Bare Copper)',
+    status: 'Compatible con Precaución',
+    statusClass: 'status-caution',
+    behavior: 'El galio se difunde lentamente en el cobre (amalgama superficial / "tinning"). Cambia el color del bloque y absorbe parte del compuesto inicial.',
+    recommendation: 'Requiere preparación previa y revisión técnica a mediano plazo para reponer el galio absorbido hasta saturar la aleación.',
+  },
+  {
+    material: 'Aluminio y Aleaciones de Aluminio',
+    status: 'PROHIBIDO — Corrosión Destructiva',
+    statusClass: 'status-prohibited',
+    behavior: 'El galio destruye la capa pasiva de óxido y se infiltra en las uniones intergranulares. El aluminio se vuelve quebradizo y se desintegra en polvo.',
+    recommendation: 'Bajo ninguna circunstancia se aplica metal líquido sobre disipadores de aluminio o bloques con contacto directo de heatpipe de aluminio.',
+  },
 ];
 
+// Comparativa de Interfaces Térmicas
+const thermalComparison = [
+  {
+    tech: 'Metal Líquido (Galinstan)',
+    target: 'Die de silicio en CPU / GPU compatibles',
+    conductivity: 'Ultra Alta (~73 W/m·K)',
+    electricalRisk: 'Conductor eléctrico activo',
+    idealUse: 'Equipos gamer de fábrica, laptops con cámara de vapor niquelada y overclocking.',
+  },
+  {
+    tech: 'Pasta Térmica de Alta Densidad',
+    target: 'IHS de escritorio, laptops convencionales',
+    conductivity: 'Media-Alta (8.5 a 14.2 W/m·K)',
+    electricalRisk: 'No conductora (Dieléctrica)',
+    idealUse: 'La inmensa mayoría de computadoras de escritorio, laptops de trabajo y consolas estándar.',
+  },
+  {
+    tech: 'Almohadilla de Cambio de Fase (PTM7950)',
+    target: 'Bare-die de laptops gamer exigentes',
+    conductivity: 'Alta (8.5 W/m·K con mínima impedancia)',
+    electricalRisk: 'No conductora (Segura)',
+    idealUse: 'Excelente alternativa al metal líquido en laptops: no pump-out, no escurrimiento y cero riesgo de corto.',
+  },
+  {
+    tech: 'Thermal Pads / Thermal Putty',
+    target: 'Memorias VRAM, Bobinas y VRM',
+    conductivity: 'Específica (3.0 a 12.0 W/m·K)',
+    electricalRisk: 'No conductora (Dieléctrica)',
+    idealUse: 'Rellenar huecos milimétricos (0.5 mm a 2.0 mm) entre componentes secundarios y el disipador.',
+  },
+];
+
+// Matriz de Riesgos y Contramedidas de Laboratorio
+const riskMatrix = [
+  {
+    risk: 'Cortocircuito por conductividad eléctrica',
+    cause: 'Fuga de microgotas hacia condensadores cerámicos SMD en los bordes del silicio.',
+    control: 'Doble barrera física: sellado con laca dieléctrica (conformal coating) y juntas perimetrales de alta densidad.',
+  },
+  {
+    risk: 'Desplazamiento por gravedad o vibración',
+    cause: 'Uso de la laptop en posición vertical (mochila o stand) combinado con exceso de compuesto.',
+    control: 'Aplicación en película microscópica por tensión superficial (wetting) en ambas caras sin volumen excedente.',
+  },
+  {
+    risk: 'Fragilización intergranular del disipador',
+    cause: 'Contacto directo de galio sobre partes de aluminio del disipador o radiador.',
+    control: 'Inspección química y de microestructura previa obligatoria antes de autorizar el servicio.',
+  },
+  {
+    risk: 'Presión irregular y fractura de die',
+    cause: 'Ajuste desigual de los tornillos de fijación en silicio descubierto (bare-die).',
+    control: 'Torque progresivo en cruz utilizando herramientas de precisión para distribuir la carga de manera uniforme.',
+  },
+];
+
+// Schema Estructurado TechArticle + Service + FAQPage + Breadcrumbs
 const schema = [
   {
     '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: 'Cambio de metal líquido en Cancún: compatibilidad, seguridad y servicio técnico',
+    name: 'Cambio de metal líquido en Cancún para laptops gamer y PC',
+    description: 'Servicio técnico especializado y guía técnica sobre aplicación, compatibilidad y renovación de metal líquido en laptop gamer y PC en Cancún.',
+    url: `https://pixon.com.mx${canonical}`,
+    image: 'https://pixon.com.mx/assets/images/mantenimiento-metal-liquido-cancun.webp',
+    publisher: {
+      '@id': 'https://pixon.com.mx/#business',
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'Pixon PC',
+      url: 'https://pixon.com.mx',
+    },
+    datePublished: '2025-06-15',
+    dateModified: '2026-09-19',
+    mainEntityOfPage: `https://pixon.com.mx${canonical}`,
+  },
+  {
+    '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'Aplicación de metal líquido en Cancún para laptop gamer y PC',
+    name: 'Cambio de metal líquido en Cancún',
     serviceType: 'Diagnóstico térmico y aplicación controlada de metal líquido',
     url: `https://pixon.com.mx${canonical}`,
-    description: 'Aplicación controlada de metal líquido en Cancún para laptops gamer y PC de alto rendimiento con diagnóstico, aislamiento y prueba final.',
+    description: 'Servicio de aplicación y revisión de metal líquido para laptop gamer y PC en Cancún. Verificamos compatibilidad, disipador, aislamiento y pruebas bajo carga.',
     provider: { '@id': 'https://pixon.com.mx/#business' },
     areaServed: [{ '@type': 'City', name: 'Cancún' }, { '@type': 'State', name: 'Quintana Roo' }],
   },
@@ -74,262 +270,2630 @@ const schema = [
       acceptedAnswer: { '@type': 'Answer', text: faq.answer },
     })),
   },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://pixon.com.mx/' },
+      { '@type': 'ListItem', position: 2, name: 'Blogs', item: 'https://pixon.com.mx/blogs' },
+      { '@type': 'ListItem', position: 3, name: 'Cambio de metal líquido', item: `https://pixon.com.mx${canonical}` },
+    ],
+  },
 ];
 ---
 
 <Base
-  title="Aplicación de metal líquido en Cancún | Laptop gamer y PC | Pixon PC"
-  description="Aplicación controlada de metal líquido en Cancún para laptops gamer y PC de alto rendimiento. Diagnóstico térmico, aislamiento y pruebas antes de intervenir."
+  title="Cambio de Metal Líquido en Cancún | Laptop Gamer y PC | Pixon PC"
+  description="Servicio de aplicación y revisión de metal líquido para laptop gamer y PC en Cancún. Verificamos compatibilidad, disipador, aislamiento y pruebas bajo carga."
   canonical={canonical}
   image="/assets/images/mantenimiento-metal-liquido-cancun.webp"
   schema={schema}
-  bodyClass="service-page liquid-metal-page"
+  bodyClass="lm-page"
 >
   <Navbar />
-  <Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Blogs', href: '/blogs' }, { label: 'Aplicación de metal líquido en Cancún' }]} />
+  <Breadcrumb
+    items={[
+      { label: 'Inicio', href: '/' },
+      { label: 'Blogs', href: '/blogs' },
+      { label: 'Cambio de metal líquido' },
+    ]}
+  />
 
+  <!-- ============================================================
+       HERO COMPACTO Y CONTINUO (MOBILE FIRST + DESKTOP SYMMETRY)
+       Mobile: Eyebrow -> H1 -> FOTO LIMPIA (SIN CARDS) -> Copy -> CTA -> Trust
+       Desktop: 2 Columnas Simétricas (Texto | Foto Real)
+  ============================================================ -->
   <header class="lm-hero">
-    <img src="/assets/images/responsive/mantenimiento-metal-liquido-cancun.webp" alt="Aplicación de metal líquido en CPU de laptop gamer en Cancún por Pixon PC para reducir temperatura" width="3024" height="3024" loading="eager" decoding="async" />
-    <div class="lm-hero__shade"></div>
-    <div class="lm-shell lm-hero__content">
-      <span>Servicio premium en Cancún</span>
-      <h1>Aplicación de metal líquido en Cancún para laptops gamer y PC de alto rendimiento</h1>
-      <p>Una intervención térmica avanzada para equipos compatibles. Diagnosticamos, aislamos y probamos antes de recomendarla.</p>
-      <div class="lm-actions">
-        <a class="lm-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Solicitar servicio</a>
-        <a class="lm-btn lm-btn--ghost" href="#ticket-metal-liquido"><Icon name="clipboard-list" /> Crear ticket</a>
+    <div class="lm-hero-glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="lm-hero__grid">
+        <!-- Eyebrow -->
+        <div class="lm-hero__eyebrow-wrap">
+          <span class="lm-eyebrow">
+            <i class="fa-solid fa-flask" aria-hidden="true"></i>
+            INTERFAZ TÉRMICA AVANZADA · CANCÚN
+          </span>
+        </div>
+
+        <!-- H1 OBLIGATORIO Y EXACTO SEGÚN REGLA 3 -->
+        <h1 class="lm-hero__title">Cambio de metal líquido</h1>
+
+        <!-- Foto Real de Aplicación (Limpia en móvil sin tarjetas superpuestas) -->
+        <div class="lm-hero__visual-wrap">
+          <figure class="lm-visual-stage">
+            <div class="lm-visual-media">
+              <picture>
+                <source
+                  srcset="/assets/images/responsive/mantenimiento-metal-liquido-cancun.webp"
+                  type="image/webp"
+                />
+                <img
+                  src="/assets/images/mantenimiento-metal-liquido-cancun.webp"
+                  alt="Cambio profesional de metal líquido en laptop gamer en Cancún por técnicos de Pixon PC"
+                  width="1200"
+                  height="900"
+                  loading="eager"
+                  decoding="async"
+                  class="lm-hero-img"
+                />
+              </picture>
+              <!-- Badges de laboratorio visibles solo en desktop para no tapar la foto en móvil -->
+              <div class="lm-stage-badges" aria-hidden="true">
+                <div class="lm-stage-badge">
+                  <i class="fa-solid fa-microchip"></i>
+                  <div>
+                    <strong>Aislamiento SMD</strong>
+                    <span>Laca dieléctrica de alta temperatura</span>
+                  </div>
+                </div>
+                <div class="lm-stage-badge">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <div>
+                    <strong>Cobre Niquelado</strong>
+                    <span>Validación química de disipador</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <figcaption class="lm-visual-caption">
+              <span class="lm-caption-step">
+                <span class="lm-step-num">✓</span> Fotografía real de laboratorio
+              </span>
+              <span class="lm-caption-sep">·</span>
+              <span>Procedimiento en banco antiestático en Cancún</span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <!-- Copy del Hero -->
+        <div class="lm-hero__summary">
+          <p class="lm-lead">
+            El metal líquido puede mejorar drásticamente la transferencia térmica en equipos compatibles, pero también conduce electricidad.
+          </p>
+          <p class="lm-description">
+            Antes de aplicarlo revisamos el diseño original del fabricante, los materiales del disipador, el aislamiento de microcomponentes y la causa real de la temperatura. Procedimiento técnico de alta precisión para laptops gamer y PC en Cancún.
+          </p>
+        </div>
+
+        <!-- CTAs Hero -->
+        <div class="lm-hero__actions">
+          <a class="lm-btn lm-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+            Revisar compatibilidad de mi equipo
+          </a>
+          <a class="lm-btn lm-btn--secondary" href="#ticket-metal-liquido">
+            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+            Crear ticket
+          </a>
+        </div>
+
+        <!-- Trust Chips -->
+        <div class="lm-hero__trust">
+          <ul class="lm-badges">
+            <li><i class="fa-solid fa-microchip"></i> Laptops Gamer y PC</li>
+            <li><i class="fa-solid fa-layer-group"></i> Renovación de fábrica (ROG / PS5)</li>
+            <li><i class="fa-solid fa-shield-virus"></i> Aislamiento eléctrico garantizado</li>
+            <li><i class="fa-solid fa-gauge-high"></i> Validación térmica previa y final</li>
+          </ul>
+        </div>
       </div>
-      <dl class="lm-facts">
-        <div><dt>Enfoque</dt><dd>CPU, GPU y laptops gamer</dd></div>
-        <div><dt>Decisión</dt><dd>Solo con diagnóstico</dd></div>
-        <div><dt>Zona</dt><dd>Cancún, Quintana Roo</dd></div>
-      </dl>
     </div>
   </header>
 
-  <main class="lm-main">
-    <section class="lm-section lm-intro">
-      <div class="lm-shell lm-split">
-        <div class="lm-copy">
-          <span class="lm-icon"><Icon name="flask" /></span>
-          <h2>Metal líquido: más transferencia térmica, más responsabilidad técnica</h2>
-          <h3>No es una pasta térmica común</h3>
-          <p>El metal líquido puede conducir mucho más calor que muchas pastas térmicas tradicionales, pero también conduce electricidad. Por eso no debe aplicarse por moda, por un video o por una temperatura aislada.</p>
-          <h3>Ideal para equipos que ya demostraron límite térmico</h3>
-          <p>En Pixon PC revisamos laptops gamer y PC de alto rendimiento cuando hay apagados, pérdida de frecuencia, thermal throttling o temperaturas sostenidas. Si el equipo no es compatible, proponemos una alternativa más segura.</p>
+  <main>
+    <!-- ============================================================
+         1. ¿QUÉ ES EL METAL LÍQUIDO Y POR QUÉ NO ES UNA PASTA COMÚN?
+         Layout: Split Editorial Compacto (~20px ritmo visual)
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-editorial-split">
+          <div class="lm-editorial-copy">
+            <span class="lm-kicker">Fundamentos Termodinámicos</span>
+            <h2>¿Qué es el metal líquido y por qué no es una pasta térmica común?</h2>
+            <p>
+              El metal líquido utilizado en informática es una <strong>aleación metálica eutéctica</strong> compuesta principalmente por galio, indio y estaño (conocida en la industria como Galinstan). A diferencia de las pastas térmicas convencionales formuladas con polímeros de silicona y micropartículas cerámicas suspendidas, el metal líquido es metal puro en estado líquido a temperatura ambiente.
+            </p>
+            <p>
+              Su función es actuar como <strong>material de interfaz térmica (TIM)</strong> entre el silicio y el disipador. Al rellenar las microfisuras microscópicas de ambas superficies con una aleación fluida, elimina por completo las bolsas de aire que bloquean el calor, permitiendo que la energía se transfiera por conducción molecular directa.
+            </p>
+            <div class="lm-highlight-box">
+              <h4>
+                <i class="fa-solid fa-bolt-lightning" aria-hidden="true"></i>
+                Conductividad térmica frente a riesgo eléctrico
+              </h4>
+              <p>
+                Mientras una pasta térmica de gama alta alcanza entre <strong>8.5 y 14.2 W/m·K</strong>, una aleación de metal líquido de grado laboratorio supera los <strong>73 W/m·K</strong>. Sin embargo, esta misma estructura metálica la convierte en un <strong>conductor eléctrico activo</strong>: una microgota mal colocada puede generar un cortocircuito irreversible en los componentes SMD circundantes.
+              </p>
+            </div>
+          </div>
+          <aside class="lm-editorial-aside">
+            <div class="lm-spec-card">
+              <div class="lm-spec-head">
+                <i class="fa-solid fa-atom"></i>
+                <h3>Ficha Técnica del Compuesto</h3>
+              </div>
+              <ul class="lm-spec-list">
+                <li>
+                  <strong>Composición principal:</strong>
+                  <span>Galio (Ga), Indio (In), Estaño (Sn)</span>
+                </li>
+                <li>
+                  <strong>Punto de fusión:</strong>
+                  <span>Aprox. -19 °C a 10 °C (líquido a temperatura ambiente)</span>
+                </li>
+                <li>
+                  <strong>Conductividad térmica:</strong>
+                  <span>~73 W/m·K (Thermal Grizzly Conductonaut)</span>
+                </li>
+                <li>
+                  <strong>Conductividad eléctrica:</strong>
+                  <span>Conductor activo (Requiere aislamiento dieléctrico)</span>
+                </li>
+                <li>
+                  <strong>Reactividad química:</strong>
+                  <span>Corrosión destructiva en aluminio / Amalgama en cobre</span>
+                </li>
+                <li>
+                  <strong>Viscosidad:</strong>
+                  <span>Baja tensión superficial (Fluido de alta movilidad)</span>
+                </li>
+              </ul>
+              <div class="lm-spec-footer">
+                <p>
+                  No evaluamos el material por moda: el resultado real depende de la presión de contacto, la planicidad del bloque y el flujo de aire del sistema.
+                </p>
+              </div>
+            </div>
+          </aside>
         </div>
-        <aside class="lm-panel">
-          <strong>Lectura técnica rápida</strong>
-          <p>La mejora puede ser alta en sistemas compatibles, pero depende de disipador, presión, ventilación, consumo y estado interno.</p>
-          <ul>
-            <li><Icon name="circle-check" /> Diagnóstico antes de aplicar</li>
-            <li><Icon name="circle-check" /> Aislamiento de componentes cercanos</li>
-            <li><Icon name="circle-check" /> Pruebas térmicas al finalizar</li>
-          </ul>
-        </aside>
       </div>
     </section>
 
-    <section class="lm-section lm-symptoms">
-      <div class="lm-shell">
-        <header class="lm-heading">
-          <Icon name="temperature-high" />
-          <div>
-            <h2>Cuándo puede tener sentido aplicar metal líquido</h2>
-            <p>Primero buscamos evidencia. La meta no es vender el material más extremo, sino resolver el límite térmico real.</p>
+    <!-- ============================================================
+         2. ¿CUÁNDO PUEDE TENER SENTIDO USAR METAL LÍQUIDO?
+         Layout: 3 Cards de Criterio + Advertencia de Diagnóstico
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-heading lm-heading--center">
+          <span class="lm-kicker">Criterio y Evidencia</span>
+          <h2>¿Cuándo puede tener sentido usar metal líquido?</h2>
+          <p>
+            La meta en Pixon PC nunca es vender el material más extremo, sino resolver la limitación térmica real con la intervención más segura y duradera.
+          </p>
+        </div>
+
+        <div class="lm-cards-grid lm-cards-grid--3">
+          <article class="lm-card">
+            <div class="lm-card-icon"><i class="fa-solid fa-laptop-code"></i></div>
+            <h3>Laptops con metal líquido de fábrica</h3>
+            <p>
+              Equipos diseñados desde origen para este compuesto (como las series ASUS ROG Strix, Scar, Zephyrus o PlayStation 5) donde el material original se ha oxidado, desplazado por transporte vertical o secado en los bordes.
+            </p>
+          </article>
+
+          <article class="lm-card">
+            <div class="lm-card-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <h3>Thermal throttling comprobado bajo carga</h3>
+            <p>
+              Sistemas de alto consumo energético (Intel Core i9, AMD Ryzen 9, GPUs RTX) donde el procesador reduce frecuencias drásticamente bajo cargas de renderizado 3D, exportación de video o gaming competitivo continuo.
+            </p>
+          </article>
+
+          <article class="lm-card">
+            <div class="lm-card-icon"><i class="fa-solid fa-microchip"></i></div>
+            <h3>Sistemas donde la interfaz es el límite</h3>
+            <p>
+              Casos donde se ha verificado que los ventiladores operan a sus RPM máximas, los heatpipes transfieren calor y no hay polvo, pero la temperatura se concentra en el silicio debido a una transferencia ineficiente.
+            </p>
+          </article>
+        </div>
+
+        <!-- Aclaración crucial: Alta temperatura no siempre es metal líquido -->
+        <div class="lm-callout-warning">
+          <div class="lm-cw-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="lm-cw-text">
+            <h3>Temperatura alta no significa automáticamente necesidad de metal líquido</h3>
+            <p>
+              En la mayoría de los casos que recibimos en Cancún, el sobrecalentamiento se debe a acumulación de polvo salino en las aletas del radiador, ventiladores con bujes desgastados, perfiles de energía agresivos o pasta térmica original cristalizada. Antes de considerar metal líquido, evaluamos si un <a href="/servicios/laptop/pasta-termica">cambio de pasta térmica profesional</a> o un <a href="/mantenimiento-preventivo-computadora">mantenimiento preventivo integral</a> resuelven el problema con total seguridad.
+            </p>
           </div>
-        </header>
-        <div class="lm-signal-grid">
-          {signals.map(([icon, title, text]) => (
-            <article>
-              <Icon name={icon} />
-              <h3>{title}</h3>
-              <p>{text}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         3. METAL LÍQUIDO DE FÁBRICA VS CONVERSIÓN DESDE PASTA TÉRMICA
+         Layout: Comparativa de 2 Columnas Técnicas
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Arquitectura de Enfriamiento</span>
+          <h2>Metal líquido de fábrica vs conversión desde pasta térmica</h2>
+          <p>
+            Existe una diferencia técnica radical entre renovar un equipo diseñado para metal líquido y modificar un chasis pensado originalmente para pasta térmica.
+          </p>
+        </div>
+
+        <div class="lm-factory-vs-conversion">
+          <!-- Columna 1: De Fábrica -->
+          <div class="lm-fvc-col lm-fvc-col--factory">
+            <div class="lm-fvc-head">
+              <span class="lm-fvc-tag">Diseño Original</span>
+              <h3>Equipo con metal líquido de fábrica</h3>
+              <p class="lm-fvc-sub">Ej. ASUS ROG Strix / Zephyrus, consolas PS5</p>
+            </div>
+            <ul class="lm-fvc-list">
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                  <strong>Barrera de contención perimetral</strong>
+                  <span>El fabricante integra una junta de esponja de poro cerrado y resina epóxica alrededor del chip para evitar fugas mecánicas.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                  <strong>Disipador con recubrimiento galvánico de níquel</strong>
+                  <span>La base de contacto viene tratada de fábrica para impedir que el galio penetre en la estructura molecular del metal.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                  <strong>Tolerancia de altura Z calculada</strong>
+                  <span>La tornillería y los resortes del disipador ejercen la presión exacta sin riesgo de deformar el silicio descubierto.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                  <strong>Alcance del servicio técnico</strong>
+                  <span>Consiste en retirar el material desplazado, limpiar residuos con solvente especializado y reaplicar la dosis calibrada.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Columna 2: Conversión -->
+          <div class="lm-fvc-col lm-fvc-col--conversion">
+            <div class="lm-fvc-head">
+              <span class="lm-fvc-tag lm-fvc-tag--caution">Modificación de Taller</span>
+              <h3>Conversión desde pasta térmica</h3>
+              <p class="lm-fvc-sub">Equipos que usaban pasta convencional de fábrica</p>
+            </div>
+            <ul class="lm-fvc-list">
+              <li>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <strong>Requiere creación manual de barreras aislantes</strong>
+                  <span>Es imprescindible aplicar barniz dieléctrico (conformal coating) y cinta Kapton sobre cada componente SMD alrededor del silicio.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <strong>Verificación microscópica del disipador</strong>
+                  <span>Debe confirmarse que la base sea 100% cobre o níquel. Si existen ranuras de aluminio expuesto, la conversión está prohibida.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <strong>Riesgo mecánico al transportar el equipo</strong>
+                  <span>Si el chasis de la laptop sufre flexión o se transporta verticalmente, el metal líquido puede migrar si no existe contención.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <strong>Criterio de recomendación en Pixon PC</strong>
+                  <span>No la promovemos como mejora automática. Solo se aprueba tras descartar otras vías y comprobar que el equipo tolera la modificación.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         4. COMPATIBILIDAD DEL DISIPADOR: NÍQUEL, COBRE Y ALUMINIO
+         Layout: Visual Matriz de Materiales + Advertencia Grave Aluminio
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Metalurgia y Química</span>
+          <h2>Compatibilidad del disipador: níquel, cobre y aluminio</h2>
+          <p>
+            El comportamiento químico del galio varía completamente según el metal con el que entra en contacto directo. No todos los disipadores pueden recibir este material.
+          </p>
+        </div>
+
+        <div class="lm-materials-grid">
+          {materialsMatrix.map((item) => (
+            <article class={`lm-mat-card ${item.statusClass}`}>
+              <div class="lm-mat-header">
+                <span class="lm-mat-pill">{item.status}</span>
+                <h3>{item.material}</h3>
+              </div>
+              <div class="lm-mat-body">
+                <p class="lm-mat-behavior">
+                  <strong>Comportamiento físico-químico:</strong> {item.behavior}
+                </p>
+                <p class="lm-mat-rec">
+                  <strong>Directriz técnica:</strong> {item.recommendation}
+                </p>
+              </div>
             </article>
           ))}
         </div>
-      </div>
-    </section>
 
-    <section class="lm-section lm-proof">
-      <div class="lm-shell lm-proof__grid">
-        <figure>
-          <img src="/assets/images/laptop-gamer-rogstrix.webp" alt="Laptop gamer con diagnóstico térmico en Cancún antes de aplicar metal líquido" width="1200" height="900" loading="lazy" />
-        </figure>
-        <div class="lm-copy">
-          <span class="lm-icon lm-icon--dark"><Icon name="temperature-high" /></span>
-          <h2>Reducción de temperatura sin prometer resultados sin diagnóstico</h2>
-          <h3>Mejoras posibles en casos compatibles</h3>
-          <p>En equipos adecuados, una aplicación correcta puede ayudar a reducir entre 15°C y 30°C, sostener frecuencia y disminuir thermal throttling. Ese rango no se promete sin medir el equipo.</p>
-          <h3>Lo que también revisamos</h3>
-          <p>Un mal ventilador, pads incorrectos, presión irregular, polvo o un disipador dañado pueden limitar el resultado aunque se use el mejor material térmico. Por eso la intervención incluye revisión del sistema completo.</p>
+        <!-- Banner de Alerta Máxima sobre Aluminio -->
+        <div class="lm-aluminum-alert">
+          <div class="lm-aa-badge"><i class="fa-solid fa-ban"></i> ADVERTENCIA TÉCNICA CRÍTICA</div>
+          <h3>Nunca apliques metal líquido sobre aluminio</h3>
+          <p>
+            El galio ataca los límites de grano del aluminio a temperatura ambiente en cuestión de minutos. La pieza pierde toda su resistencia mecánica y se convierte en un conglomerado poroso quebradizo que colapsa físicamente. Si tu disipador tiene base de aluminio o heatpipes directos (Direct Touch) con separadores de aluminio, el metal líquido está <strong>terminantemente descartado</strong>.
+          </p>
         </div>
       </div>
     </section>
 
-    <section class="lm-section lm-warning">
-      <div class="lm-shell lm-warning__grid">
-        <div>
-          <span class="lm-icon lm-icon--dark"><Icon name="triangle-exclamation" /></span>
-          <h2>Riesgos que se controlan antes de tocar tu equipo</h2>
-          <p>El metal líquido exige aislamiento, cantidad precisa y materiales compatibles. No se usa sobre aluminio y no se recomienda si el diseño no tiene contención adecuada.</p>
-        </div>
-        <div class="lm-risk-list">
-          <article><strong>Material conductor</strong><span>Una fuga puede causar corto si toca componentes o pistas cercanas.</span></article>
-          <article><strong>Compatibilidad con disipador</strong><span>Confirmamos cobre o níquel antes de aprobar el servicio.</span></article>
-          <article><strong>Mantenimiento delicado</strong><span>El equipo requiere inspección futura y cuidado al mover o abrir.</span></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="lm-section lm-process">
-      <div class="lm-shell">
-        <header class="lm-heading">
-          <Icon name="screwdriver-wrench" />
-          <div>
-            <h2>Proceso Pixon PC para metal líquido en Cancún</h2>
-            <p>El servicio se decide con datos, no con suposiciones. Cada paso reduce riesgo y deja claro qué se hizo.</p>
-          </div>
-        </header>
-        <ol class="lm-process__list">
-          {process.map(([step, title, text]) => (
-            <li>
-              <strong>{step}</strong>
-              <div>
-                <h3>{title}</h3>
-                <p>{text}</p>
+    <!-- ============================================================
+         5. ¿POR QUÉ EL METAL LÍQUIDO REQUIERE AISLAMIENTO ELÉCTRICO?
+         Layout: Technical Callout / Diagrama de Seguridad SMD
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-isolation-split">
+          <div class="lm-iso-copy">
+            <span class="lm-kicker">Seguridad de Componentes</span>
+            <h2>¿Por qué el metal líquido requiere aislamiento eléctrico?</h2>
+            <p>
+              Alrededor del cristal de silicio de cualquier CPU o GPU moderna se encuentran distribuidos decenas de <strong>microcondensadores cerámicos multicapa (MLCC)</strong> y resistencias superficiales SMD que manejan voltajes críticos de alimentación.
+            </p>
+            <p>
+              Debido a que el metal líquido conduce la electricidad de forma continua, el más mínimo contacto con cualquiera de estos componentes provoca un cortocircuito directo entre las líneas de voltaje y tierra, destruyendo la etapa de alimentación o quemando el silicio en microsegundos.
+            </p>
+            <div class="lm-iso-steps">
+              <div class="lm-iso-step">
+                <span class="lm-iso-num">A</span>
+                <div>
+                  <strong>Conformal Coating Dieléctrico</strong>
+                  <p>Cubrimos los condensadores SMD con una laca protectora aislante certificada de grado electrónico resistente a temperaturas extremas.</p>
+                </div>
               </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
+              <div class="lm-iso-step">
+                <span class="lm-iso-num">B</span>
+                <div>
+                  <strong>Cinta de Poliimida (Kapton)</strong>
+                  <p>Añadimos una barrera física de cinta Kapton para sellar los perímetros y proteger pistas expuestas contra cualquier microesfera suelta.</p>
+                </div>
+              </div>
+              <div class="lm-iso-step">
+                <span class="lm-iso-num">C</span>
+                <div>
+                  <strong>Junta de Contención / Espuma de Alta Densidad</strong>
+                  <p>En laptops colocamos o restauramos la esponja perimetral para retener cualquier exceso por tensión superficial durante el movimiento del equipo.</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    <section class="lm-section lm-local">
-      <div class="lm-shell lm-local__grid">
-        <div>
-          <span class="lm-icon"><Icon name="location-dot" /></span>
-          <h2>Servicio técnico local para laptops gamer y PC en Cancún</h2>
-          <h3>Atención para equipos de alto rendimiento</h3>
-          <p>Atendemos equipos de Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Puerto Cancún, Av. Tulum, Bonampak, Puerto Juárez, Supermanzanas y Haciendas.</p>
-          <h3>Cuándo elegir ticket o WhatsApp</h3>
-          <p>Usa ticket si ya tienes modelo, temperaturas y síntomas. Usa WhatsApp si necesitas explicar el caso rápido antes de traer el equipo.</p>
+          <aside class="lm-iso-aside">
+            <div class="lm-diy-warning-card">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <h3>Servicio de Laboratorio, no Tutorial Casero</h3>
+              <p>
+                La aplicación de metal líquido exige instrumental de aumento óptico, microcánulas dosificadoras, disolventes de óxidos y control de torque. Intentar aplicarlo en casa sin experiencia ni aislamiento adecuado es una de las causas más frecuentes de laptops gamer quemadas que recibimos para <a href="/servicios/pc/tarjeta-video-gpu">reparación de tarjeta madre o GPU</a>.
+              </p>
+              <div class="lm-diy-footer">
+                <span>En Pixon PC cada intervención se realiza con protocolo antiestático y garantía de montaje.</span>
+              </div>
+            </div>
+          </aside>
         </div>
-        <address>
-          <strong>Pixon PC</strong>
-          <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
-          <a href="tel:+529986690777">+52 998 669 0777</a>
-          <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
-        </address>
       </div>
     </section>
 
-    <ServiceTicketSection
-      id="ticket-metal-liquido"
-      defaultDevice="Laptop gamer / PC de alto rendimiento"
-      defaultService="Diagnóstico térmico y aplicación de metal líquido"
-      sourcePage="/blogs/aplicacion-metal-liquido-cancun"
-    />
+    <!-- ============================================================
+         6. CÓMO EVALUAMOS UN EQUIPO ANTES DE APLICAR METAL LÍQUIDO
+         Layout: Technical Evaluation Flow (6 Pasos de Decisión)
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-heading lm-heading--center">
+          <span class="lm-kicker">Protocolo de Laboratorio</span>
+          <h2>Cómo evaluamos un equipo antes de aplicar metal líquido</h2>
+          <p>
+            No desarmamos un equipo para aplicar metal líquido sin haber comprobado primero su comportamiento y viabilidad física.
+          </p>
+        </div>
 
+        <div class="lm-eval-flow">
+          <div class="lm-eval-card">
+            <span class="lm-eval-idx">1</span>
+            <h4>Modelo y Arquitectura</h4>
+            <p>Verificamos en bases de datos técnicas si el equipo incluye barreras de fábrica o requiere acondicionamiento manual de aislamiento.</p>
+          </div>
+
+          <div class="lm-eval-card">
+            <span class="lm-eval-idx">2</span>
+            <h4>Composición del Disipador</h4>
+            <p>Comprobamos mediante pruebas ópticas y no destructivas que la base de contacto sea cobre niquelado o cobre puro sin aluminio.</p>
+          </div>
+
+          <div class="lm-eval-card">
+            <span class="lm-eval-idx">3</span>
+            <h4>Estado del Sistema Térmico</h4>
+            <p>Inspeccionamos que las aletas no tengan tapones de pelusa, los ventiladores alcancen sus RPM nominales y los heatpipes retengan su gas.</p>
+          </div>
+
+          <div class="lm-eval-card">
+            <span class="lm-eval-idx">4</span>
+            <h4>Tolerancia Z y Presión</h4>
+            <p>Evaluamos que los resortes y tornillos del chasis apliquen presión perpendicular uniforme sin deformar el encapsulado.</p>
+          </div>
+
+          <div class="lm-eval-card">
+            <span class="lm-eval-idx">5</span>
+            <h4>Mediciones Previas (Baseline)</h4>
+            <p>Registramos temperaturas en reposo, estrés térmico, consumo en vatios y frecuencias de reloj para tener un punto de partida real.</p>
+          </div>
+
+          <div class="lm-eval-card lm-eval-card--action">
+            <span class="lm-eval-idx">6</span>
+            <h4>Decisión Técnica</h4>
+            <p>Si el sistema es viable, procedemos al servicio. Si existe una alternativa más segura (como <a href="/servicios/laptop/pasta-termica">pasta de alta viscosidad</a> o almohadilla PTM), te lo informamos con transparencia.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         7. PROCESO PROFESIONAL DE APLICACIÓN DE METAL LÍQUIDO
+         Layout: Timeline Técnica de Taller (6 Fases de Taller)
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Intervención Especializada</span>
+          <h2>Proceso profesional de aplicación de metal líquido</h2>
+          <p>
+            Un procedimiento meticuloso desarrollado en taller bajo estándares de precisión electrónica para garantizar seguridad y máxima transferencia.
+          </p>
+        </div>
+
+        <div class="lm-timeline">
+          {workshopPhases.map((phase) => (
+            <div class="lm-timeline-item">
+              <div class="lm-timeline-badge">
+                <span class="lm-tb-num">{phase.phase}</span>
+                <i class={`fa-solid ${phase.icon}`}></i>
+              </div>
+              <div class="lm-timeline-content">
+                <h3>{phase.name}</h3>
+                <p>{phase.summary}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         8. METAL LÍQUIDO EN LAPTOP GAMER
+         Layout: Split Técnico con Foco en Movilidad y Bare-Die
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-split-feature">
+          <div class="lm-sf-copy">
+            <span class="lm-kicker">Equipos Portátiles de Alta Potencia</span>
+            <h2>Metal líquido en laptop gamer</h2>
+            <p>
+              Las laptops gamer representan el escenario más exigente para la disipación térmica. A diferencia de una PC de torre con un gabinete espacioso y un disipador de 1 kg, una laptop concentra un procesador de hasta 140W y una gráfica de 175W en un chasis de menos de 25 milímetros de grosor.
+            </p>
+            <p>
+              Además, en laptops el silicio no tiene difusor metálico (IHS): el bloque de cobre asienta directamente sobre el <strong>cristal descubierto (bare-die)</strong>, compartiendo a menudo los mismos heatpipes para CPU y GPU.
+            </p>
+            <div class="lm-sf-bullets">
+              <div class="lm-sfb-item">
+                <i class="fa-solid fa-arrows-up-down-left-right"></i>
+                <div>
+                  <strong>Dinámica de chasis y transporte vertical</strong>
+                  <p>Al guardar la laptop en una mochila o usarla en bases verticales, la gravedad actúa sobre el fluido. Es mandatorio contar con una junta de sellado intacta para impedir cualquier escurrimiento.</p>
+                </div>
+              </div>
+              <div class="lm-sfb-item">
+                <i class="fa-solid fa-layer-group"></i>
+                <div>
+                  <strong>Heatpipes y tolerancias milimétricas</strong>
+                  <p>Si los <a href="/servicios/laptop/pasta-termica">thermal pads de la VRAM</a> tienen un espesor superior al diseño de fábrica, el disipador no asienta plano sobre el núcleo y el metal líquido no hace contacto, generando picos de 100°C.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lm-sf-visual">
+            <div class="lm-sf-card">
+              <div class="lm-sfc-icon"><i class="fa-solid fa-gamepad"></i></div>
+              <h3>Rendimiento Sostenido sin Throttling</h3>
+              <p>
+                Al mejorar la transferencia térmica entre el die y la cámara de vapor, el sistema disipa el calor con mayor velocidad. Esto evita que el procesador entre en estrangulamiento térmico (throttling), estabilizando los frametimes y eliminando caídas bruscas de FPS en sesiones prolongadas.
+              </p>
+              <div class="lm-sfc-disclaimer">
+                <strong>Nota de rigor técnico:</strong> La mejora permite al procesador alcanzar las frecuencias boost diseñadas por el fabricante; no crea potencia por encima de las especificaciones del hardware.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         9. METAL LÍQUIDO EN PC Y SISTEMAS DE ALTO RENDIMIENTO
+         Layout: 3 Cards Informativas PC Desktop / Workstations
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Sistemas de Escritorio</span>
+          <h2>Metal líquido en PC y sistemas de alto rendimiento</h2>
+          <p>
+            En computadoras de escritorio, estaciones de trabajo de renderizado y PC gamer personalizadas, el metal líquido se utiliza en escenarios específicos de alto consumo.
+          </p>
+        </div>
+
+        <div class="lm-cards-grid lm-cards-grid--3">
+          <article class="lm-card">
+            <div class="lm-card-icon"><i class="fa-solid fa-desktop"></i></div>
+            <h3>Entre el IHS y Bloques AIO / Coolers</h3>
+            <p>
+              Aplicado sobre el difusor térmico metálico (IHS) de procesadores Intel o AMD con disipadores por aire de gama alta o sistemas de refrigeración líquida AIO con base de cobre niquelado.
+            </p>
+          </article>
+
+          <article class="lm-card">
+            <div class="lm-card-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+            <h3>Workstations de Carga Sostenida</h3>
+            <p>
+              Estaciones dedicadas a renderizado 3D (Blender, V-Ray), exportación de video 4K/8K, simulaciones CAD o compilación de código, donde los núcleos operan al 100% durante horas continuas.
+            </p>
+          </article>
+
+          <article class="lm-card">
+            <div class="lm-card-icon"><i class="fa-solid fa-fan"></i></div>
+            <h3>Sinergia con el Airflow del Gabinete</h3>
+            <p>
+              El metal líquido solo traslada el calor del chip al disipador; si el gabinete carece de una correcta ventilación, el calor se acumulará internamente. Revisa nuestro servicio de <a href="/servicios/pc/refrigeracion">refrigeración y ventiladores de PC</a>.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         10. METAL LÍQUIDO, PASTA TÉRMICA, PTM Y THERMAL PADS
+         Layout: Tabla Técnica Comparativa Compacta y Rigurosa
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Desambiguación Técnica</span>
+          <h2>Metal líquido, pasta térmica, PTM y thermal pads no cumplen la misma función</h2>
+          <p>
+            Cada material cumple un propósito específico dentro de la ingeniería térmica. Ninguno reemplaza al otro arbitrariamente.
+          </p>
+        </div>
+
+        <div class="lm-table-wrap">
+          <table class="lm-table">
+            <thead>
+              <tr>
+                <th>Compuesto Térmico</th>
+                <th>Zona de Aplicación</th>
+                <th>Conductividad Típica</th>
+                <th>Riesgo Eléctrico</th>
+                <th>Uso Recomendado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {thermalComparison.map((row) => (
+                <tr>
+                  <td><strong>{row.tech}</strong></td>
+                  <td>{row.target}</td>
+                  <td>{row.conductivity}</td>
+                  <td>{row.electricalRisk}</td>
+                  <td>{row.idealUse}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="lm-table-links">
+          <p>
+            ¿Buscas una comparativa detallada entre materiales? Lee nuestro artículo sobre <a href="/blogs/pasta-termica-vs-metal-liquido">Pasta térmica vs metal líquido</a>, o consulta nuestro servicio de <a href="/servicios/laptop/pasta-termica">Cambio de pasta térmica en Cancún</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         11. RIESGOS REALES QUE DEBEN CONTROLARSE
+         Layout: Risk Matrix Table Profesional
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Gestión de Riesgo Técnico</span>
+          <h2>Riesgos reales que deben controlarse</h2>
+          <p>
+            El metal líquido es un compuesto exigente. En Pixon PC identificamos cada factor de riesgo y aplicamos contramedidas activas para neutralizarlo.
+          </p>
+        </div>
+
+        <div class="lm-risk-matrix">
+          {riskMatrix.map((item) => (
+            <div class="lm-rm-row">
+              <div class="lm-rm-col lm-rm-col--risk">
+                <span class="lm-rm-label">Factor de Riesgo</span>
+                <h4><i class="fa-solid fa-triangle-exclamation"></i> {item.risk}</h4>
+              </div>
+              <div class="lm-rm-col lm-rm-col--cause">
+                <span class="lm-rm-label">Origen Físico</span>
+                <p>{item.cause}</p>
+              </div>
+              <div class="lm-rm-col lm-rm-col--control">
+                <span class="lm-rm-label">Protocolo Pixon PC</span>
+                <p><i class="fa-solid fa-shield-halved"></i> {item.control}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="lm-warranty-note">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>
+            <strong>Garantía del Fabricante y Huellas de Superficie:</strong>
+            <p>
+              En equipos con disipadores de cobre directo, el galio puede dejar una coloración grisácea permanente (amalgama superficial) que no afecta el rendimiento pero puede ser detectada por centros de servicio autorizados. Siempre te informamos si la intervención puede tener implicaciones en la garantía de fábrica antes de abrir el equipo.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         12. ¿CÓMO SABEMOS SI REALMENTE MEJORÓ?
+         Layout: Metodología de Validación Científica (Sin Números Falsos)
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Rigor y Telemetría Real</span>
+          <h2>¿Cómo sabemos si realmente mejoró?</h2>
+          <p>
+            No utilizamos temperaturas simuladas ni prometemos "-30°C universales" que ningún laboratorio serio puede garantizar sin medir las variables del equipo.
+          </p>
+        </div>
+
+        <div class="lm-methodology-grid">
+          <div class="lm-meth-card">
+            <div class="lm-mc-icon"><i class="fa-solid fa-temperature-half"></i></div>
+            <h3>Delta de Temperatura (ΔT)</h3>
+            <p>
+              Medimos la diferencia entre la temperatura ambiente de Cancún y la temperatura del núcleo en reposo y bajo carga sostenida en exactamente las mismas condiciones.
+            </p>
+          </div>
+
+          <div class="lm-meth-card">
+            <div class="lm-mc-icon"><i class="fa-solid fa-microchip"></i></div>
+            <h3>Frecuencias Turbo Sostenidas</h3>
+            <p>
+              Comprobamos mediante pruebas multinúcleo (Cinebench) si el procesador sostiene sus frecuencias turbo sin caídas abruptas por protección térmica.
+            </p>
+          </div>
+
+          <div class="lm-meth-card">
+            <div class="lm-mc-icon"><i class="fa-solid fa-fan"></i></div>
+            <h3>Curva Acústica y PWM</h3>
+            <p>
+              Evaluamos si los ventiladores recuperan velocidades de rotación normales tras cesar la carga, indicando que el disipador evacúa el calor rápidamente.
+            </p>
+          </div>
+
+          <div class="lm-meth-card">
+            <div class="lm-mc-icon"><i class="fa-solid fa-chart-area"></i></div>
+            <h3>Homogeneidad entre Núcleos</h3>
+            <p>
+              Verificamos que no existan discrepancias anormales (más de 8-10°C de diferencia entre núcleos del mismo chip), señal inequívoca de que el metal está esparcido uniformemente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         13. ¿CUÁNDO NO RECOMENDAMOS METAL LÍQUIDO?
+         Layout: Decision Matrix / Filtro Negativo de Honestidad
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-split-editorial">
+          <div class="lm-se-copy">
+            <span class="lm-kicker">Transparencia y Diagnóstico Honesto</span>
+            <h2>¿Cuándo NO recomendamos metal líquido?</h2>
+            <p>
+              Una parte esencial de nuestra ética técnica en Cancún consiste en decirle al cliente cuando una solución NO es la adecuada para su equipo.
+            </p>
+            <ul class="lm-negative-list">
+              <li>
+                <i class="fa-solid fa-xmark"></i>
+                <div>
+                  <strong>Disipadores con base de aluminio o heatpipes directos mixtos</strong>
+                  <span>El riesgo de destrucción química por galio es total e irreversible.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-xmark"></i>
+                <div>
+                  <strong>Problemas causados por polvo o ventiladores lentos</strong>
+                  <span>Si el flujo de aire está bloqueado, cambiar el compuesto no bajará las temperaturas. Primero se requiere limpieza de ventilación.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-xmark"></i>
+                <div>
+                  <strong>Laptops ultraligeras con chasis flexible</strong>
+                  <span>La flexión constante al transportarla puede romper los sellos de contención y provocar fugas de líquido conductor.</span>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-xmark"></i>
+                <div>
+                  <strong>Equipos donde una almohadilla de cambio de fase (PTM7950) es suficiente</strong>
+                  <span>El PTM ofrece un rendimiento cercano al metal líquido con cero conductividad eléctrica y nulo riesgo de derrame.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <aside class="lm-se-aside">
+            <div class="lm-alt-box">
+              <h3>¿Tu equipo no califica para metal líquido?</h3>
+              <p>
+                Contamos con soluciones térmicas de alto nivel seguras para cualquier configuración:
+              </p>
+              <div class="lm-alt-links">
+                <a href="/servicios/laptop/pasta-termica" class="lm-alt-link">
+                  <i class="fa-solid fa-temperature-half"></i>
+                  <div>
+                    <strong>Cambio de pasta térmica premium</strong>
+                    <span>Compuestos no conductores de alta densidad (Arctic MX-4/6, Noctua NT-H2).</span>
+                  </div>
+                </a>
+                <a href="/servicios/pc/refrigeracion" class="lm-alt-link">
+                  <i class="fa-solid fa-wind"></i>
+                  <div>
+                    <strong>Mantenimiento de refrigeración y ventiladores</strong>
+                    <span>Limpieza ultrasónica, lubricación de turbinas y optimización de curvas PWM.</span>
+                  </div>
+                </a>
+                <a href="/servicios/pc/tarjeta-video-gpu" class="lm-alt-link">
+                  <i class="fa-solid fa-microchip"></i>
+                  <div>
+                    <strong>Mantenimiento térmico de GPU</strong>
+                    <span>Reemplazo milimétrico de thermal pads en memorias VRAM y etapas VRM.</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         14. ¿CADA CUÁNTO SE REVISA EL METAL LÍQUIDO?
+         Layout: Condición Basada en Telemetría (Desmitificando el Calendario Fijo)
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-interval-banner">
+          <div class="lm-ib-copy">
+            <span class="lm-kicker">Mantenimiento Basado en Condición</span>
+            <h2>¿Cada cuánto se revisa el metal líquido?</h2>
+            <p class="lm-lead-text">
+              No existe una regla rígida que obligue a cambiar el metal líquido cada 6 o 12 meses.
+            </p>
+            <p>
+              En sistemas con disipador niquelado de fábrica y sellado hermético, el compuesto puede operar de manera óptima durante años sin evaporarse ni perder propiedades térmicas. Por el contrario, en disipadores de cobre puro que reciben metal líquido por primera vez, la amalgama superficial puede requerir una inspección y reposición técnica tras unos meses de uso intenso.
+            </p>
+            <div class="lm-ib-triggers">
+              <strong>Señales reales para solicitar revisión:</strong>
+              <div class="lm-triggers-grid">
+                <span><i class="fa-solid fa-circle-exclamation"></i> Ventiladores acelerando al 100% en tareas habituales</span>
+                <span><i class="fa-solid fa-circle-exclamation"></i> Pérdida abrupta de FPS o congelamientos en juegos</span>
+                <span><i class="fa-solid fa-circle-exclamation"></i> Caída de frecuencias boost del procesador (throttling)</span>
+                <span><i class="fa-solid fa-circle-exclamation"></i> El equipo sufrió un golpe o intervención técnica previa no calificada</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         15. EQUIPOS Y CASOS COMPATIBLES
+         Layout: Grid de Familias Compatibles (Modelo Específico > Marca)
+    ============================================================ -->
+    <section class="lm-section">
+      <div class="container">
+        <div class="lm-heading">
+          <span class="lm-kicker">Compatibilidad Comprobada</span>
+          <h2>Equipos y casos compatibles</h2>
+          <p>
+            Revisamos cada modelo de manera individual, ya que el diseño térmico cambia drásticamente incluso dentro de una misma serie o año de fabricación.
+          </p>
+        </div>
+
+        <div class="lm-brands-grid">
+          <div class="lm-brand-card">
+            <div class="lm-brand-head">
+              <h3>ASUS ROG / TUF</h3>
+              <span class="lm-brand-badge">De Fábrica & Conversión</span>
+            </div>
+            <p class="lm-brand-models">Strix G15/G16/G17, Zephyrus G14/M16, Scar 15/17</p>
+            <p class="lm-brand-desc">
+              Modelos pioneros en integrar metal líquido en la CPU con barrera de contención original. Atendemos renovación por desplazamiento o secado de bordes.
+            </p>
+          </div>
+
+          <div class="lm-brand-card">
+            <div class="lm-brand-head">
+              <h3>Dell Alienware</h3>
+              <span class="lm-brand-badge">Element 31 / Galinstan</span>
+            </div>
+            <p class="lm-brand-models">Series m15, m16, x15, x16, x17</p>
+            <p class="lm-brand-desc">
+              Utilizan matrices de galio encapsulado o metal líquido directo sobre cámaras de vapor. Procedimiento de limpieza bajo lupa para preservar barreras.
+            </p>
+          </div>
+
+          <div class="lm-brand-card">
+            <div class="lm-brand-head">
+              <h3>PC Gamer y Workstations</h3>
+              <span class="lm-brand-badge">Sistemas Custom</span>
+            </div>
+            <p class="lm-brand-models">Intel Core i7/i9 (K/KF), AMD Ryzen 7/9 (X/X3D)</p>
+            <p class="lm-brand-desc">
+              Ensamble de procesadores de escritorio sobre disipadores por aire o waterblocks con base niquelada para estaciones de trabajo en Cancún.
+            </p>
+          </div>
+
+          <div class="lm-brand-card lm-brand-card--ps5">
+            <div class="lm-brand-head">
+              <h3>PlayStation 5 (PS5)</h3>
+              <span class="lm-brand-badge">Consolas</span>
+            </div>
+            <p class="lm-brand-models">PS5 Estándar, Digital y Slim</p>
+            <p class="lm-brand-desc">
+              El SoC viene refrigerado con metal líquido de fábrica. Si la consola se apaga por calor, visita nuestro servicio de <a href="/servicios/consola/limpieza-metal-liquido-ps5">limpieza de metal líquido en PS5</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         16. APLICACIÓN DE METAL LÍQUIDO EN CANCÚN (LOCAL NAP)
+         Layout: Local Info + Zonas Atendidas
+    ============================================================ -->
+    <section class="lm-section lm-section--soft">
+      <div class="container">
+        <div class="lm-local-grid">
+          <div class="lm-local-copy">
+            <span class="lm-kicker">Taller Especializado en Cancún</span>
+            <h2>Aplicación de metal líquido en Cancún</h2>
+            <p>
+              Pixon PC cuenta con banco de trabajo antiestático, herramientas de dosificación electrónica y microscopio para intervenciones térmicas avanzadas en Quintana Roo. Atendemos laptops gamer, PC de creadores de contenido y equipos de alto rendimiento.
+            </p>
+            <div class="lm-nap-card">
+              <div class="lm-nap-item">
+                <i class="fa-solid fa-location-dot"></i>
+                <div>
+                  <strong>Dirección de Taller:</strong>
+                  <span>Cto. Hacienda Chimay, 77539 Cancún, Q.R.</span>
+                </div>
+              </div>
+              <div class="lm-nap-item">
+                <i class="fa-solid fa-phone"></i>
+                <div>
+                  <strong>Teléfono / WhatsApp de Diagnóstico:</strong>
+                  <a href="tel:+529986690777">+52 998 669 0777</a>
+                </div>
+              </div>
+              <div class="lm-nap-item">
+                <i class="fa-solid fa-envelope"></i>
+                <div>
+                  <strong>Correo Electrónico:</strong>
+                  <a href="mailto:pixonpc@gmail.com">pixonpc@gmail.com</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="lm-zones-wrap">
+              <span class="lm-zones-label">Zonas de Cancún con Cobertura y Recepción de Equipos:</span>
+              <div class="lm-zones-chips">
+                <span class="lm-zone-chip">Cancún Centro</span>
+                <span class="lm-zone-chip">Zona Hotelera</span>
+                <span class="lm-zone-chip">Av. Huayacán</span>
+                <span class="lm-zone-chip">Cumbres</span>
+                <span class="lm-zone-chip">Polígono Sur</span>
+                <span class="lm-zone-chip">Puerto Cancún</span>
+                <span class="lm-zone-chip">Bonfil</span>
+                <span class="lm-zone-chip">Av. Tulum</span>
+                <span class="lm-zone-chip">Bonampak</span>
+                <span class="lm-zone-chip">Puerto Juárez</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="lm-local-aside">
+            <div class="lm-local-box">
+              <i class="fa-solid fa-shield-halved"></i>
+              <h3>Diagnóstico en Taller Especializado</h3>
+              <p>
+                Debido a la naturaleza química y eléctrica del metal líquido, este procedimiento se realiza <strong>exclusivamente en banco de taller</strong> bajo condiciones controladas de laboratorio.
+              </p>
+              <a class="lm-btn lm-btn--primary lm-btn--block" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-whatsapp"></i> Cotizar por WhatsApp
+              </a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         17. PREGUNTAS FRECUENTES TÉCNICAS (FAQ)
+    ============================================================ -->
     <FaqSection
       id="faq-metal-liquido"
       title="Preguntas frecuentes sobre metal líquido en Cancún"
-      description="Respuestas claras sobre compatibilidad, seguridad, temperatura y diagnóstico antes de aplicar metal líquido."
+      description="Respuestas técnicas transparentes sobre compatibilidad, riesgos, aislamiento, frecuencias y costos de servicio en Pixon PC:"
       items={faqs}
-      viewMoreHref="/preguntas-frecuentes"
-      viewMoreLabel="Ver más preguntas"
-      ariaLabel="Preguntas frecuentes sobre aplicación de metal líquido en Cancún"
-      backgroundColor="#eef6fc"
-      titleColor="#071F3A"
-      descriptionColor="#294963"
-      questionColor="#071F3A"
+      titleColor="var(--heading)"
+      descriptionColor="var(--text-secondary)"
+      questionColor="var(--text-primary)"
+      backgroundColor="var(--page-bg)"
     />
 
-    <section class="lm-final">
-      <div class="lm-shell lm-final__grid">
-        <div>
-          <span>Especialistas en enfriamiento extremo en Cancún</span>
-          <h2>Solicita diagnóstico antes de aplicar metal líquido</h2>
-          <p>Cuéntanos modelo, temperaturas, apagados y trabajos previos. Si el equipo es compatible, te explicamos alcance, riesgos y cotización antes de intervenir.</p>
-          <div class="lm-actions">
-            <a class="lm-btn" href={`https://wa.me/529986690777?text=${whatsappText}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Solicitar servicio</a>
-            <a class="lm-btn lm-btn--light" href="/servicios/laptop/pasta-termica"><Icon name="arrow-right" /> Ver servicio térmico</a>
-            <a class="lm-btn lm-btn--light" href="#ticket-metal-liquido"><Icon name="clipboard-list" /> Crear ticket</a>
-          </div>
-        </div>
-        <figure>
-          <img src="/assets/images/mantenimiento-metal-liquido-cancun.webp" alt="Aplicación controlada de metal líquido por Pixon PC en Cancún" width="1200" height="900" loading="lazy" />
-        </figure>
-      </div>
-    </section>
+    <!-- ============================================================
+         18. TICKET DE SERVICIO
+    ============================================================ -->
+    <div id="ticket-metal-liquido">
+      <ServiceTicketSection
+        defaultDevice="Laptop Gamer / PC de alto rendimiento"
+        defaultService="Cambio de metal líquido"
+        title="Solicita evaluación de compatibilidad para metal líquido"
+        subtitle="Indica tu marca, modelo exacto, temperaturas y si el equipo ya cuenta con metal líquido de fábrica o pasta térmica."
+      />
+    </div>
 
+    <!-- ============================================================
+         19. RESEÑAS Y COMENTARIOS
+    ============================================================ -->
     <CommentsSection viewMoreHref="/comentarios" />
-    <ContactSection />
+
+    <!-- ============================================================
+         20. CONTACTO
+    ============================================================ -->
+    <ContactSection id="ubicacion" />
   </main>
+
   <Footer />
 </Base>
 
-<style is:global>
-  .liquid-metal-page :where(.lm-main, .lm-section, .lm-final){--ink:#071F3A;--muted:#294963;--blue:#1479D4;--cyan:#59C7E8;--ice:#eef6fc;--line:#c9dceb;color:var(--ink)}
-  .liquid-metal-page .lm-shell{width:min(1180px,calc(100% - (var(--page-gutter) * 2)));margin:0 auto}
-  .liquid-metal-page .lm-main :where(h2,h3,p,li,span,strong,a,dt,dd,address){color:var(--ink)}
-  .liquid-metal-page .lm-section{padding:clamp(40px,5vw,64px) 0;background:#fff}
-  .liquid-metal-page .lm-svg,.liquid-metal-page .tc-svg{display:block;width:18px;height:18px;fill:currentColor;flex:0 0 auto}
-  .lm-hero{position:relative;display:grid;min-height:clamp(540px,60vh,660px);align-items:end;overflow:hidden;background:#071F3A}
-  .lm-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .lm-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,15,29,.97),rgba(3,15,29,.78) 52%,rgba(3,15,29,.2))}
-  .lm-hero__content{position:relative;padding:120px 0 44px}
-  .lm-hero span{color:#AEEBFF;font-weight:850;text-transform:uppercase;font-size:.78rem;letter-spacing:.08em}
-  .lm-hero h1{max-width:940px;margin:14px 0 18px;color:#fff;font-family:var(--font-heading);font-size:clamp(2.35rem,5.5vw,5rem);font-style:italic;font-weight:850;line-height:1.02;text-wrap:balance}
-  .lm-hero p{max-width:680px;margin:0;color:rgba(255,255,255,.86);font-size:clamp(1rem,1.6vw,1.13rem);font-weight:600;line-height:1.68}
-  .lm-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
-  .lm-btn{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:9px;padding:12px 18px;border:1px solid var(--blue);border-radius:8px;background:var(--blue);color:#fff!important;font-weight:850;text-decoration:none;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 160ms ease,border-color 160ms ease}
-  .lm-btn--ghost{border-color:rgba(255,255,255,.48);background:rgba(7,31,58,.62)}
-  .lm-btn--light{border-color:#fff;background:#fff;color:var(--ink)!important}
-  .lm-btn:active{transform:scale(.97)}
-  .lm-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:780px;margin:32px 0 0;border-top:1px solid rgba(255,255,255,.26)}
-  .lm-facts div{padding:14px 18px 0 0}
-  .lm-facts dt{color:#AEEBFF;font-size:.76rem;font-weight:850}
-  .lm-facts dd{margin:4px 0 0;color:#fff;font-weight:800}
-  .lm-split,.lm-proof__grid,.lm-warning__grid,.lm-local__grid,.lm-final__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.86fr);gap:clamp(24px,5vw,56px);align-items:center}
-  .lm-copy h2,.lm-heading h2,.lm-local h2,.lm-final h2{margin:0 0 14px;font-family:var(--font-heading);font-size:clamp(1.9rem,3.6vw,3.1rem);font-style:italic;font-weight:850;line-height:1.06;text-wrap:balance}
-  .lm-copy h3,.lm-local h3,.lm-process h3,.lm-signal-grid h3{margin:18px 0 8px;font-size:1.08rem;line-height:1.28;text-wrap:balance}
-  .lm-copy p,.lm-heading p,.lm-panel p,.lm-risk-list span,.lm-local p,.lm-final p,.lm-process p,.lm-signal-grid p{max-width:72ch;margin:0;color:var(--muted);font-weight:560;line-height:1.72}
-  .lm-icon{display:grid;width:44px;height:44px;margin-bottom:14px;place-items:center;border-radius:8px;background:#dff2fb;color:var(--blue)}
-  .lm-icon--dark{background:var(--ink);color:#fff}
-  .lm-panel{position:relative;overflow:hidden;padding:24px;border:1px solid #accde4;border-radius:10px;background:linear-gradient(135deg,#f8fcff,#e3f4fb)}
-  .lm-panel strong{display:block;margin-bottom:10px;font-size:1.12rem}
-  .lm-panel ul{display:grid;gap:10px;margin:18px 0 0;padding:0;list-style:none}
-  .lm-panel li{display:flex;gap:10px;align-items:center;font-weight:800}
-  .lm-panel li .tc-svg{color:var(--blue)}
-  .lm-symptoms{background:var(--ice)!important}
-  .lm-heading{display:grid;grid-template-columns:48px minmax(0,780px);gap:16px;align-items:start;margin-bottom:24px}
-  .lm-heading>.tc-svg{box-sizing:border-box;width:44px;height:44px;max-width:44px;max-height:44px;padding:12px;border-radius:8px;background:var(--blue);color:#fff}
-  .lm-signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-  .lm-signal-grid article{padding:20px;border-radius:10px;background:#fff;border:1px solid var(--line)}
-  .lm-signal-grid article>.tc-svg{width:25px;height:25px;color:var(--blue)}
-  .lm-signal-grid h3{margin-top:16px}
-  .lm-proof{background:#fff}
-  .lm-proof figure{margin:0;overflow:hidden;border-radius:12px;background:#d6e8f2;display:flex;align-items:center}
-  .lm-proof img{display:block;width:100%;height:auto;max-height:360px;aspect-ratio:4/3;object-fit:cover;object-position:center;border-radius:12px}
-  .lm-final figure{margin:0;overflow:hidden;border-radius:12px;background:#d6e8f2}
-  .lm-final img{display:block;width:100%;aspect-ratio:16/10;max-height:240px;object-fit:cover;object-position:center;border-radius:12px}
-  .lm-warning{background:#dcecf7!important}
-  .lm-warning .lm-icon{background:#071F3A;color:#fff}
-  .lm-risk-list{display:grid;gap:1px;background:var(--line)}
-  .lm-risk-list article{display:grid;gap:7px;padding:20px;background:#fff}
-  .lm-process{background:#f8fbfd}
-  .lm-process__list{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin:0;padding:0;background:var(--line);list-style:none}
-  .lm-process__list li{display:grid;min-height:190px;align-content:start;gap:16px;padding:20px;background:#fff}
-  .lm-process__list strong{font-size:1.55rem;color:var(--blue)!important}
-  .lm-process__list h3{margin-top:0}
-  .lm-local{background:#fff}
-  .lm-local address{display:grid;gap:12px;padding:24px;border-radius:10px;background:#e7f4fb;font-style:normal}
-  .lm-local address a{color:var(--blue)!important;text-decoration:none;font-weight:800}
-  .lm-final{padding:clamp(44px,5.5vw,72px) 0;background:#dcecf7}
-  .lm-final>div>div>span{color:var(--blue)!important;font-weight:850;text-transform:uppercase;font-size:.78rem;letter-spacing:.08em}
-  @media(hover:hover) and (pointer:fine){.lm-btn:hover{transform:translateY(-2px);background:#0e68b8}.lm-btn--light:hover{background:#eaf7fd;border-color:#eaf7fd}}
-  @media(max-width:980px){.lm-signal-grid{grid-template-columns:repeat(2,1fr)}.lm-process__list{grid-template-columns:repeat(2,1fr)}.lm-split,.lm-proof__grid,.lm-warning__grid,.lm-local__grid,.lm-final__grid{grid-template-columns:1fr;gap:28px}}
-  @media(max-width:640px){.lm-hero{min-height:640px}.lm-hero__content{padding-top:120px}.lm-facts,.lm-signal-grid,.lm-process__list{grid-template-columns:1fr}.lm-heading{grid-template-columns:42px 1fr;gap:12px}.lm-heading>.tc-svg{width:40px;height:40px;max-width:40px;max-height:40px;padding:11px}.lm-actions,.lm-actions .lm-btn{width:100%}.liquid-metal-page .lm-section{padding:36px 0}.lm-process__list li{min-height:auto}}
-  @media(prefers-reduced-motion:reduce){.lm-btn{transition:none}}
+<style>
+  /* ============================================================
+     VARIABLES Y SCOPE NATIVO PIXON PC (CONSUME TOKENS GLOBALES)
+  ============================================================ */
+  .lm-page {
+    font-family: 'Red Hat Display', sans-serif;
+    color: var(--text-primary);
+    background: var(--page-bg);
+    overflow-x: hidden;
+    transition: var(--theme-transition);
+  }
+
+  .lm-page :global(*) {
+    box-sizing: border-box;
+  }
+
+  /* REGLA OBLIGATORIA AGENTS.md + SEMANTIC CONTRAST */
+  .lm-page main,
+  .lm-page main p,
+  .lm-page main h2,
+  .lm-page main h3,
+  .lm-page main h4,
+  .lm-page main li,
+  .lm-page main span,
+  .lm-page main strong,
+  .lm-page main td,
+  .lm-page main th,
+  .lm-page main dt,
+  .lm-page main dd {
+    color: var(--text-primary);
+  }
+
+  .lm-page main p,
+  .lm-page main span {
+    color: var(--text-secondary);
+  }
+
+  .lm-page main strong {
+    color: var(--heading);
+  }
+
+  /* Salvaguardas de contraste para botones primarios */
+  .lm-page main .lm-btn--primary,
+  .lm-page main .lm-btn--primary * {
+    color: #ffffff !important;
+  }
+
+  .container {
+    width: min(1180px, calc(100% - (var(--page-gutter, 40px) * 2)));
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     HERO CANÓNICO PIXON PC (COMPACTO, CONTINUO, SIN SOBREALTURA)
+  ============================================================ */
+  .lm-hero {
+    position: relative;
+    background: var(--hero-bg);
+    color: var(--hero-text);
+    padding: clamp(28px, 4vw, 54px) 0 clamp(24px, 3.5vw, 48px);
+    overflow: hidden;
+    transition: var(--theme-transition);
+  }
+
+  .lm-hero-glow {
+    position: absolute;
+    top: -120px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.16) 0%, rgba(7, 31, 58, 0) 70%);
+    pointer-events: none;
+  }
+
+  /* Grid móvil riguroso: Eyebrow -> H1 -> Media (FOTO LIMPIA) -> Summary -> Actions -> Trust */
+  .lm-hero__grid {
+    display: grid;
+    grid-template-areas:
+      "eyebrow"
+      "title"
+      "media"
+      "summary"
+      "actions"
+      "trust";
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .lm-hero__eyebrow-wrap { grid-area: eyebrow; }
+  .lm-hero__title { grid-area: title; }
+  .lm-hero__visual-wrap {
+    grid-area: media;
+    width: 100%;
+    max-width: 540px;
+    justify-self: center;
+  }
+  .lm-hero__summary {
+    grid-area: summary;
+    max-width: 660px;
+  }
+  .lm-hero__actions {
+    grid-area: actions;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 2px;
+  }
+  .lm-hero__trust { grid-area: trust; }
+
+  .lm-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #67e8f9 !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lm-hero h1 {
+    margin: 2px 0 6px;
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    color: #ffffff !important;
+    font-family: 'Kanit', sans-serif;
+    text-wrap: balance;
+  }
+
+  .lm-lead {
+    margin: 0 0 8px;
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    font-weight: 700;
+    line-height: 1.42;
+    color: #ffffff !important;
+  }
+
+  .lm-description {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--hero-muted) !important;
+  }
+
+  /* Botones Hero */
+  .lm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    cursor: pointer;
+  }
+
+  .lm-btn--primary {
+    background: var(--cta, #16a34a) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 20px rgba(22, 163, 74, 0.28);
+  }
+  .lm-btn--primary:hover {
+    background: var(--cta-hover, #15803d) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(22, 163, 74, 0.38);
+  }
+
+  .lm-btn--secondary {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+  }
+  .lm-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-color: #38bdf8;
+    color: #38bdf8 !important;
+    transform: translateY(-2px);
+  }
+
+  .lm-btn--block { width: 100%; }
+
+  /* Badges de Confianza Hero */
+  .lm-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lm-badges li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0 !important;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .lm-badges li i { color: #38bdf8; }
+
+  /* ============================================================
+     FOTO DEL HERO (REGLAS 28-39: LIMPIA EN MÓVIL SIN OVERLAYS)
+  ============================================================ */
+  .lm-visual-stage {
+    margin: 0;
+    width: 100%;
+    border-radius: 14px;
+    background: rgba(6, 22, 38, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .lm-visual-media {
+    position: relative;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    min-height: 220px;
+    background: #071F3A;
+  }
+
+  .lm-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 45%;
+    display: block;
+  }
+
+  /* En móvil: CERO tarjetas superpuestas que tapen la foto real */
+  @media (max-width: 999px) {
+    .lm-stage-badges {
+      display: none !important;
+    }
+    .lm-visual-media {
+      aspect-ratio: 16 / 10;
+      min-height: 220px;
+      max-height: 290px;
+    }
+  }
+
+  /* En desktop (>= 1000px): Badges laterales elegantes que no tapan el centro de aplicación */
+  @media (min-width: 1000px) {
+    .lm-stage-badges {
+      position: absolute;
+      inset: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-content: end;
+      pointer-events: none;
+    }
+
+    .lm-stage-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      background: rgba(7, 31, 58, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      backdrop-filter: blur(8px);
+    }
+    .lm-stage-badge i {
+      color: #38bdf8;
+      font-size: 0.9rem;
+    }
+    .lm-stage-badge div {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .lm-stage-badge strong {
+      color: #ffffff !important;
+      font-size: 0.7rem;
+      font-family: 'Kanit', sans-serif;
+      line-height: 1.15;
+    }
+    .lm-stage-badge span {
+      color: #bae6fd !important;
+      font-size: 0.62rem;
+      line-height: 1.1;
+    }
+  }
+
+  .lm-visual-caption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.74rem;
+    color: #94a3b8 !important;
+  }
+  .lm-caption-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #e2e8f0 !important;
+    font-weight: 700;
+  }
+  .lm-step-num {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff !important;
+    font-size: 0.65rem;
+  }
+  .lm-caption-sep {
+    color: #64748b !important;
+    font-weight: 800;
+  }
+
+  /* Desktop 2-column layout (52% copy / 48% visual) */
+  @media (min-width: 1000px) {
+    .lm-hero {
+      padding: clamp(42px, 5vw, 64px) 0;
+      min-height: auto;
+      display: grid;
+      align-items: center;
+    }
+    .lm-hero__grid {
+      grid-template-areas:
+        "eyebrow media"
+        "title   media"
+        "summary media"
+        "actions media"
+        "trust   media";
+      grid-template-columns: 1.1fr 0.9fr;
+      column-gap: clamp(36px, 4.5vw, 56px);
+      row-gap: 14px;
+    }
+  }
+
+  /* ============================================================
+     SECCIONES: RITMO VERTICAL COMPACTO (~20px A 36px)
+  ============================================================ */
+  .lm-section {
+    padding: clamp(24px, 3.5vw, 40px) 0;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: var(--theme-transition);
+  }
+  .lm-section--soft {
+    background: var(--surface-alt);
+  }
+
+  .lm-heading {
+    max-width: 820px;
+    margin-bottom: 22px;
+  }
+  .lm-heading--center {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  .lm-kicker {
+    display: inline-block;
+    color: var(--accent) !important;
+    font-size: 0.76rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .lm-section h2 {
+    margin: 0 0 10px;
+    font-family: 'Kanit', sans-serif;
+    font-size: clamp(1.75rem, 2.8vw, 2.45rem);
+    line-height: 1.14;
+    color: var(--heading);
+    text-wrap: balance;
+  }
+
+  .lm-heading p {
+    margin: 0;
+    font-size: 0.96rem;
+    line-height: 1.62;
+    color: var(--text-secondary) !important;
+  }
+
+  /* ============================================================
+     1. EDITORIAL SPLIT
+  ============================================================ */
+  .lm-editorial-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .lm-editorial-split {
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 44px;
+    }
+  }
+
+  .lm-editorial-copy p {
+    font-size: 0.95rem;
+    line-height: 1.68;
+    margin: 0 0 14px;
+  }
+
+  .lm-highlight-box {
+    background: var(--accent-light, #f0f9ff);
+    border-left: 4px solid var(--accent, #0284c7);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-top: 18px;
+  }
+  .lm-highlight-box h4 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    color: var(--accent, #0369a1) !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lm-highlight-box p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-secondary) !important;
+  }
+
+  .lm-spec-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: var(--px-shadow-sm);
+  }
+  .lm-spec-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 14px;
+  }
+  .lm-spec-head i {
+    font-size: 1.35rem;
+    color: var(--accent);
+  }
+  .lm-spec-head h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.18rem;
+    color: var(--heading);
+  }
+  .lm-spec-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .lm-spec-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.86rem;
+  }
+  .lm-spec-list strong {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted) !important;
+  }
+  .lm-spec-list span {
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .lm-spec-footer {
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .lm-spec-footer p {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+
+  /* ============================================================
+     2. CARDS GRID & WARNING CALLOUT
+  ============================================================ */
+  .lm-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  @media (min-width: 768px) {
+    .lm-cards-grid--3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .lm-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .lm-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--px-shadow-sm);
+    border-color: var(--accent);
+  }
+  .lm-card-icon i {
+    font-size: 1.45rem;
+    color: var(--accent);
+  }
+  .lm-card h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.25;
+    color: var(--heading);
+  }
+  .lm-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.58;
+    color: var(--text-secondary) !important;
+  }
+
+  .lm-callout-warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .lm-cw-icon i {
+    font-size: 1.6rem;
+    color: #d97706;
+  }
+  .lm-cw-text h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    color: #92400e !important;
+  }
+  .lm-cw-text p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #78350f !important;
+  }
+  .lm-cw-text a {
+    color: var(--accent) !important;
+    font-weight: 800;
+    text-decoration: underline;
+  }
+
+  /* ============================================================
+     3. FACTORY VS CONVERSION (2 COLUMNAS)
+  ============================================================ */
+  .lm-factory-vs-conversion {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  @media (min-width: 860px) {
+    .lm-factory-vs-conversion {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .lm-fvc-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .lm-fvc-col--factory { border-top: 4px solid #16a34a; }
+  .lm-fvc-col--conversion { border-top: 4px solid #f59e0b; }
+
+  .lm-fvc-head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .lm-fvc-tag {
+    align-self: flex-start;
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #dcfce7;
+    color: #166534 !important;
+  }
+  .lm-fvc-tag--caution {
+    background: #fef3c7;
+    color: #92400e !important;
+  }
+  .lm-fvc-head h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.22rem;
+    color: var(--heading);
+  }
+  .lm-fvc-sub {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted) !important;
+  }
+
+  .lm-fvc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lm-fvc-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .lm-fvc-list li i {
+    margin-top: 3px;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+  .lm-fvc-col--factory li i { color: #16a34a; }
+  .lm-fvc-col--conversion li i { color: #f59e0b; }
+  .lm-fvc-list div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .lm-fvc-list strong {
+    font-size: 0.9rem;
+    color: var(--heading);
+  }
+  .lm-fvc-list span {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+
+  /* ============================================================
+     4. COMPATIBILIDAD DE MATERIALES (GRID)
+  ============================================================ */
+  .lm-materials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  @media (min-width: 860px) {
+    .lm-materials-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .lm-mat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lm-mat-card.status-optimal { border-top: 4px solid #16a34a; }
+  .lm-mat-card.status-caution { border-top: 4px solid #f59e0b; }
+  .lm-mat-card.status-prohibited { border-top: 4px solid #dc2626; }
+
+  .lm-mat-pill {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .status-optimal .lm-mat-pill { background: #dcfce7; color: #166534 !important; }
+  .status-caution .lm-mat-pill { background: #fef3c7; color: #92400e !important; }
+  .status-prohibited .lm-mat-pill { background: #fee2e2; color: #991b1b !important; }
+
+  .lm-mat-card h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.25;
+    color: var(--heading);
+  }
+  .lm-mat-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+  .lm-mat-body strong {
+    color: var(--heading) !important;
+  }
+  .lm-mat-body p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+
+  .lm-aluminum-alert {
+    background: #fef2f2;
+    border: 1.5px solid #fecaca;
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .lm-aa-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #dc2626;
+    color: #ffffff !important;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .lm-aluminum-alert h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.2rem;
+    color: #991b1b !important;
+  }
+  .lm-aluminum-alert p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.62;
+    color: #7f1d1d !important;
+  }
+
+  /* ============================================================
+     5. AISLAMIENTO ELÉCTRICO SPLIT
+  ============================================================ */
+  .lm-isolation-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .lm-isolation-split {
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 44px;
+    }
+  }
+
+  .lm-iso-copy p {
+    font-size: 0.95rem;
+    line-height: 1.68;
+    margin: 0 0 14px;
+  }
+
+  .lm-iso-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .lm-iso-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .lm-iso-num {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #ffffff !important;
+    font-weight: 900;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .lm-iso-step strong {
+    font-size: 0.92rem;
+    margin-bottom: 2px;
+    display: block;
+    color: var(--heading);
+  }
+  .lm-iso-step p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+
+  .lm-diy-warning-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--px-shadow-sm);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .lm-diy-warning-card i {
+    font-size: 2.2rem;
+    color: #f59e0b;
+  }
+  .lm-diy-warning-card h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.2rem;
+    color: var(--heading);
+  }
+  .lm-diy-warning-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-secondary) !important;
+  }
+  .lm-diy-warning-card a {
+    color: var(--accent) !important;
+    font-weight: 700;
+    text-decoration: underline;
+  }
+  .lm-diy-footer {
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent) !important;
+  }
+
+  /* ============================================================
+     6. EVALUATION FLOW (6 PASOS)
+  ============================================================ */
+  .lm-eval-flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .lm-eval-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lm-eval-idx {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--accent) !important;
+  }
+  .lm-eval-card h4 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.08rem;
+    color: var(--heading);
+  }
+  .lm-eval-card p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+  .lm-eval-card--action {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+  .lm-eval-card--action a {
+    color: var(--accent) !important;
+    font-weight: 800;
+    text-decoration: underline;
+  }
+
+  /* ============================================================
+     7. TIMELINE TÉCNICA (6 FASES)
+  ============================================================ */
+  .lm-timeline {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 768px) {
+    .lm-timeline {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .lm-timeline-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .lm-timeline-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .lm-tb-num {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: var(--accent) !important;
+  }
+  .lm-timeline-badge i {
+    font-size: 1.15rem;
+    color: var(--accent);
+  }
+  .lm-timeline-content h3 {
+    margin: 0 0 4px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.12rem;
+    color: var(--heading);
+  }
+  .lm-timeline-content p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text-secondary) !important;
+  }
+
+  /* ============================================================
+     8. LAPTOP GAMER SPLIT
+  ============================================================ */
+  .lm-split-feature {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .lm-split-feature {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 44px;
+    }
+  }
+
+  .lm-sf-copy p {
+    font-size: 0.95rem;
+    line-height: 1.68;
+    margin: 0 0 14px;
+  }
+
+  .lm-sf-bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .lm-sfb-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .lm-sfb-item i {
+    color: var(--accent);
+    font-size: 1.05rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .lm-sfb-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .lm-sfb-item strong {
+    font-size: 0.9rem;
+    color: var(--heading);
+  }
+  .lm-sfb-item p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+  .lm-sfb-item a {
+    color: var(--accent) !important;
+    text-decoration: underline;
+    font-weight: 700;
+  }
+
+  .lm-sf-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--px-shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lm-sfc-icon i {
+    font-size: 2rem;
+    color: var(--accent);
+  }
+  .lm-sf-card h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.25rem;
+    color: var(--heading);
+  }
+  .lm-sf-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-secondary) !important;
+  }
+  .lm-sfc-disclaimer {
+    background: var(--surface-soft);
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary) !important;
+    line-height: 1.45;
+  }
+
+  /* ============================================================
+     10. TABLA COMPARATIVA
+  ============================================================ */
+  .lm-table-wrap {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--px-shadow-sm);
+  }
+  .lm-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: 700px;
+  }
+  .lm-table th {
+    background: var(--surface-soft);
+    padding: 12px 16px;
+    font-size: 0.78rem;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--heading) !important;
+    border-bottom: 2px solid var(--border);
+  }
+  .lm-table td {
+    padding: 14px 16px;
+    font-size: 0.86rem;
+    line-height: 1.48;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .lm-table td strong {
+    color: var(--heading);
+  }
+  .lm-table tr:last-child td { border-bottom: none; }
+  .lm-table tr:hover td { background: var(--surface-alt); }
+
+  .lm-table-links {
+    margin-top: 16px;
+    text-align: center;
+  }
+  .lm-table-links p {
+    margin: 0;
+    font-size: 0.92rem;
+  }
+  .lm-table-links a {
+    color: var(--accent) !important;
+    font-weight: 800;
+    text-decoration: underline;
+  }
+
+  /* ============================================================
+     11. RISK MATRIX
+  ============================================================ */
+  .lm-risk-matrix {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .lm-rm-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 860px) {
+    .lm-rm-row {
+      grid-template-columns: 1.1fr 1.2fr 1.3fr;
+      align-items: center;
+      gap: 20px;
+    }
+  }
+
+  .lm-rm-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted) !important;
+    margin-bottom: 2px;
+  }
+  .lm-rm-col--risk h4 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    color: #dc2626 !important;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .lm-rm-col--cause p, .lm-rm-col--control p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+  .lm-rm-col--control p i {
+    color: #16a34a;
+    margin-right: 4px;
+  }
+
+  .lm-warranty-note {
+    background: var(--accent-light);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .lm-warranty-note i {
+    color: var(--accent);
+    font-size: 1.2rem;
+    margin-top: 2px;
+  }
+  .lm-warranty-note strong {
+    display: block;
+    font-size: 0.92rem;
+    margin-bottom: 2px;
+    color: var(--heading);
+  }
+  .lm-warranty-note p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text-secondary) !important;
+  }
+
+  /* ============================================================
+     12. METHODOLOGY GRID
+  ============================================================ */
+  .lm-methodology-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+  }
+  .lm-meth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .lm-mc-icon i {
+    font-size: 1.5rem;
+    color: var(--accent);
+  }
+  .lm-meth-card h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.12rem;
+    color: var(--heading);
+  }
+  .lm-meth-card p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text-secondary) !important;
+  }
+
+  /* ============================================================
+     13. NEGATIVE CRITERIA SPLIT
+  ============================================================ */
+  .lm-split-editorial {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .lm-split-editorial {
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 44px;
+    }
+  }
+
+  .lm-negative-list {
+    list-style: none;
+    padding: 0;
+    margin: 18px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .lm-negative-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .lm-negative-list li i {
+    color: #dc2626;
+    font-size: 1.05rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .lm-negative-list div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .lm-negative-list strong {
+    font-size: 0.92rem;
+    color: var(--heading);
+  }
+  .lm-negative-list span {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+
+  .lm-alt-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: var(--px-shadow-sm);
+  }
+  .lm-alt-box h3 {
+    margin: 0 0 6px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.2rem;
+    color: var(--heading);
+  }
+  .lm-alt-box p {
+    margin: 0 0 14px;
+    font-size: 0.88rem;
+    color: var(--text-secondary) !important;
+  }
+  .lm-alt-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .lm-alt-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.18s ease, border-color 0.18s ease;
+  }
+  .lm-alt-link:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+  .lm-alt-link i {
+    color: var(--accent);
+    font-size: 1.05rem;
+    margin-top: 2px;
+  }
+  .lm-alt-link strong {
+    font-size: 0.88rem;
+    color: var(--heading) !important;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .lm-alt-link span {
+    font-size: 0.78rem;
+    color: var(--text-secondary) !important;
+    line-height: 1.4;
+  }
+
+  /* ============================================================
+     14. INTERVAL BANNER
+  ============================================================ */
+  .lm-interval-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: clamp(22px, 3.5vw, 36px);
+    box-shadow: var(--px-shadow-sm);
+  }
+  .lm-lead-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.48;
+    margin: 0 0 8px;
+    color: var(--heading);
+  }
+  .lm-ib-copy p {
+    margin: 0 0 14px;
+    font-size: 0.92rem;
+    line-height: 1.62;
+    color: var(--text-secondary) !important;
+  }
+  .lm-ib-triggers {
+    padding-top: 14px;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 14px;
+  }
+  .lm-ib-triggers strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    color: var(--heading);
+  }
+  .lm-triggers-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  @media (min-width: 768px) {
+    .lm-triggers-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .lm-triggers-grid span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .lm-triggers-grid i { color: var(--accent); }
+
+  /* ============================================================
+     15. BRANDS & COMPATIBILITY
+  ============================================================ */
+  .lm-brands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+  }
+  .lm-brand-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lm-brand-card--ps5 {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+  .lm-brand-card--ps5 a {
+    color: var(--accent) !important;
+    text-decoration: underline;
+    font-weight: 800;
+  }
+  .lm-brand-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .lm-brand-head h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.12rem;
+    color: var(--heading);
+  }
+  .lm-brand-badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--accent-light);
+    color: var(--accent) !important;
+  }
+  .lm-brand-models {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted) !important;
+  }
+  .lm-brand-desc {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--text-secondary) !important;
+  }
+
+  /* ============================================================
+     16. SECCIÓN LOCAL CANCÚN
+  ============================================================ */
+  .lm-local-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    align-items: center;
+  }
+  @media (min-width: 920px) {
+    .lm-local-grid {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 44px;
+    }
+  }
+
+  .lm-nap-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .lm-nap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .lm-nap-item i {
+    color: var(--accent);
+    font-size: 1.05rem;
+    margin-top: 3px;
+  }
+  .lm-nap-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.86rem;
+  }
+  .lm-nap-item strong {
+    color: var(--heading);
+  }
+  .lm-nap-item span, .lm-nap-item a {
+    color: var(--text-secondary);
+  }
+  .lm-nap-item a {
+    color: var(--accent) !important;
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .lm-nap-item a:hover {
+    text-decoration: underline;
+  }
+
+  .lm-zones-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lm-zones-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted) !important;
+  }
+  .lm-zones-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .lm-zone-chip {
+    padding: 3px 9px;
+    border-radius: 5px;
+    background: var(--surface);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-primary) !important;
+  }
+
+  .lm-local-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 26px;
+    box-shadow: var(--px-shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    align-items: center;
+  }
+  .lm-local-box i {
+    font-size: 2.2rem;
+    color: var(--accent);
+  }
+  .lm-local-box h3 {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.25rem;
+    color: var(--heading);
+  }
+  .lm-local-box p {
+    margin: 0 0 6px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-secondary) !important;
+  }
 </style>

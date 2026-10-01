@@ -1,0 +1,747 @@
+---
+import type { ServiceCategory, ServiceItem } from '../../data/services';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import FaqSection from '../FaqSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import Footer from '../Footer.astro';
+
+interface Props {
+  service: ServiceItem;
+  category: ServiceCategory;
+  faqs: { question: string; answer: string }[];
+}
+
+const { service, faqs } = Astro.props;
+
+const whatsappText = encodeURIComponent(`Hola Pixon PC. Necesito revisar mi MacBook.
+
+Modelo: MacBook Air / Pro
+Año o chip (si lo sé):
+Falla principal:
+¿Enciende? Sí / No
+¿Carga? Sí / No
+¿Hubo líquido? Sí / No
+¿Fue reparada antes? Sí / No
+
+Puedo enviar fotos.`);
+const whatsappUrl = `https://wa.me/529986690777?text=${whatsappText}`;
+
+const symptoms = [
+  { id: 'no-enciende', icon: 'fa-power-off', label: 'No enciende', title: 'No enciende o no da señal', desc: 'Probamos cargador, USB-C o MagSafe, batería, consumo, pantalla externa y placa antes de asumir la causa.', owner: { href: '/servicios/mac/macbook-no-enciende', label: 'Ver servicio de no enciende →' } },
+  { id: 'no-carga', icon: 'fa-plug-circle-xmark', label: 'No carga', title: 'No carga o solo carga a veces', desc: 'Revisamos cable, adaptador, puerto USB-C o MagSafe, batería, SMC y posible daño en circuito de carga.', owner: null },
+  { id: 'pantalla', icon: 'fa-display', label: 'Pantalla', title: 'Pantalla negra, rota o con líneas', desc: 'Separamos panel, flex, backlight, salida externa y placa antes de cotizar una pantalla.', owner: { href: '/servicios/mac/cambio-pantalla-macbook', label: 'Ver cambio de pantalla →' } },
+  { id: 'bateria', icon: 'fa-battery-quarter', label: 'Batería', title: 'Batería se agota, infla o apaga', desc: 'Medimos ciclos, salud, consumo, temperatura y riesgo para trackpad y carcasa antes de instalar batería.', owner: { href: '/servicios/mac/cambio-bateria-macbook', label: 'Ver cambio de batería →' } },
+  { id: 'teclado', icon: 'fa-keyboard', label: 'Teclado / Trackpad', title: 'Teclado o trackpad no responden', desc: 'Validamos teclas, flex, top case, batería inflada, humedad y compatibilidad antes de cotizar reemplazo.', owner: null },
+  { id: 'usb', icon: 'fa-plug', label: 'USB-C / MagSafe', title: 'Puerto USB-C o MagSafe dañado', desc: 'Revisamos falso contacto, consumo, flex y circuito de carga para determinar el alcance real.', owner: null },
+  { id: 'liquido', icon: 'fa-droplet', label: 'Líquido / Humedad', title: 'Derrame, humedad o salitre', desc: 'No recomendamos energizar. Revisamos placa, conectores y corrosión antes de aplicar corriente.', owner: { href: '/servicios/mac/limpieza-liquido-macbook', label: 'Ver daño por líquido →' } },
+  { id: 'macos', icon: 'fa-hard-drive', label: 'macOS / Sistema', title: 'macOS lento, reinicios o datos', desc: 'Revisamos arranque, almacenamiento, temperatura, errores y respaldo antes de reinstalar.', owner: { href: '/servicios/mac/software-macos', label: 'Ver servicio de macOS →' } },
+];
+
+const repairTypes = [
+  { id: 'modulo', label: 'Por módulo', icon: 'fa-puzzle-piece', items: ['Pantalla / display', 'Batería', 'Teclado / top case', 'Trackpad', 'Puertos modulares', 'Cámara'], note: 'Pieza identificada y reemplazada cuando la causa está confirmada.' },
+  { id: 'placa', label: 'Nivel de componente', icon: 'fa-microchip', items: ['Circuito de alimentación', 'Carga USB-C / MagSafe', 'Cortos en placa', 'Corrosión por líquido', 'Conectores internos'], note: 'Se evalúa caso por caso. No toda falla de placa es reparable.' },
+  { id: 'software', label: 'Sistema y software', icon: 'fa-terminal', items: ['macOS dañado o lento', 'Arranque / Recovery', 'Configuración de usuario', 'Datos y respaldo', 'FileVault / contraseñas'], note: 'Se deriva al owner especializado cuando corresponde.' },
+];
+
+const process = [
+  { n: '01', title: 'Recepción', desc: 'Registramos modelo, chip, síntomas, cargador, golpes, líquido y reparaciones previas.' },
+  { n: '02', title: 'Pruebas de energía', desc: 'Verificamos cargador, USB-C o MagSafe, consumo, batería, encendido y pantalla.' },
+  { n: '03', title: 'Revisión de módulos', desc: 'Teclado, trackpad, flex, humedad, top case y comportamiento bajo macOS cuando inicia.' },
+  { n: '04', title: 'Diagnóstico y hallazgo', desc: 'Identificamos causa, alcance de la falla y riesgo para datos antes de cotizar.' },
+  { n: '05', title: 'Cotización y autorización', desc: 'Te enviamos opciones, tiempo y garantía por WhatsApp. No reparamos sin aprobación.' },
+  { n: '06', title: 'Reparación y validación', desc: 'Instalamos, probamos carga, teclado, pantalla, temperatura y estabilidad antes de entregar.' },
+];
+
+const relatedOwners = [
+  { href: '/servicios/mac/diagnostico-mac', icon: 'fa-magnifying-glass', label: 'Diagnóstico Mac', desc: 'Cuando la falla aún no está identificada.' },
+  { href: '/servicios/mac/macbook-no-enciende', icon: 'fa-power-off', label: 'MacBook no enciende', desc: 'Sin señal de vida, carga ni respuesta.' },
+  { href: '/servicios/mac/cambio-pantalla-macbook', icon: 'fa-display', label: 'Cambio de pantalla', desc: 'Pantalla rota, con líneas o sin imagen.' },
+  { href: '/servicios/mac/cambio-bateria-macbook', icon: 'fa-battery-three-quarters', label: 'Cambio de batería', desc: 'Batería que no dura, se infla o se apaga.' },
+  { href: '/servicios/mac/limpieza-liquido-macbook', icon: 'fa-droplet', label: 'Daño por líquido', desc: 'Derrame, humedad o salitre en la placa.' },
+  { href: '/servicios/mac/software-macos', icon: 'fa-terminal', label: 'Software / macOS', desc: 'Arranque, errores de sistema y recuperación.' },
+  { href: '/servicios/mac/mantenimiento-macbook', icon: 'fa-screwdriver-wrench', label: 'Mantenimiento', desc: 'Temperatura, ventilación y pasta térmica.' },
+  { href: '/servicios/mac/diagnostico-mac', icon: 'fa-magnifying-glass-chart', label: 'No sé cuál es la falla', desc: 'El diagnóstico identifica la causa exacta.' },
+];
+
+const risks = [
+  { icon: 'fa-plug-circle-xmark', title: 'No sigas conectando el cargador', desc: 'Si no carga, huele raro o tuvo líquido, conectar puede agravar batería, puerto o placa.', href: null },
+  { icon: 'fa-keyboard', title: 'No fuerces teclas ni top case', desc: 'Trackpad levantado o carcasa abierta pueden indicar batería inflada o daño interno.', href: null },
+  { icon: 'fa-database', title: 'No reinstales macOS sin respaldo', desc: 'Si hay reinicios o pantalla negra, primero revisamos datos antes de borrar o reinstalar.', href: '/servicios/mac/software-macos' },
+  { icon: 'fa-droplet', title: 'Líquido y salitre avanzan rápido', desc: 'En Cancún la humedad acelera corrosión. Apaga el equipo y tráela antes de encender de nuevo.', href: '/servicios/mac/limpieza-liquido-macbook' },
+];
+---
+
+<main class="mr-page">
+
+  <!-- HERO -->
+  <section class="mr-hero" id="inicio">
+    <div class="container mr-hero__grid">
+      <div class="mr-hero__copy">
+        <p class="mr-eyebrow"><span></span>Servicio técnico Mac · Cancún</p>
+        <h1>Reparación de MacBook en Cancún</h1>
+        <p class="mr-lead">Cuando una MacBook falla, no empezamos cambiando piezas.</p>
+        <p class="mr-body">Identificamos si el problema está en alimentación, carga, pantalla, batería, teclado, macOS o placa y cotizamos solo lo necesario.</p>
+        <div class="mr-actions">
+          <a class="mr-btn mr-btn--primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer" id="hero-wa-macbook-repair">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Revisar mi MacBook
+          </a>
+          <a class="mr-btn mr-btn--secondary" href="#ticket" id="hero-ticket-macbook-repair">
+            <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Crear ticket
+          </a>
+        </div>
+        <ul class="mr-trust" aria-label="Puntos del servicio">
+          <li>MacBook Air y Pro</li>
+          <li>Intel y Apple Silicon</li>
+          <li>Diagnóstico antes de reparar</li>
+          <li>Cotización previa</li>
+        </ul>
+      </div>
+
+      <!-- MICROSCOPE VISUAL -->
+      <div class="mr-hero__visual" aria-hidden="true">
+        <figure class="mr-scope" data-scope-animation>
+          <div class="mr-scope__ring">
+            <div class="mr-scope__vignette"></div>
+            <svg class="mr-scope__pcb" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+              <defs>
+                <radialGradient id="mr-pcb-bg" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#0c2235"/>
+                  <stop offset="70%" stop-color="#081828"/>
+                  <stop offset="100%" stop-color="#040e18"/>
+                </radialGradient>
+                <linearGradient id="mr-trace-h" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#0e4f6e" stop-opacity="0"/>
+                  <stop offset="30%" stop-color="#1b8ab8"/>
+                  <stop offset="70%" stop-color="#62c8f4"/>
+                  <stop offset="100%" stop-color="#0e4f6e" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="mr-trace-v" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0e4f6e" stop-opacity="0"/>
+                  <stop offset="30%" stop-color="#1b8ab8"/>
+                  <stop offset="70%" stop-color="#62c8f4"/>
+                  <stop offset="100%" stop-color="#0e4f6e" stop-opacity="0"/>
+                </linearGradient>
+                <radialGradient id="mr-ic-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#62c8f4" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#62c8f4" stop-opacity="0"/>
+                </radialGradient>
+                <radialGradient id="mr-solder-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#f5a623" stop-opacity="0.9"/>
+                  <stop offset="50%" stop-color="#e07b0a" stop-opacity="0.5"/>
+                  <stop offset="100%" stop-color="#e07b0a" stop-opacity="0"/>
+                </radialGradient>
+                <clipPath id="mr-scope-mask">
+                  <circle cx="240" cy="240" r="225"/>
+                </clipPath>
+                <filter id="mr-glow-sm">
+                  <feGaussianBlur stdDeviation="3" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <g clip-path="url(#mr-scope-mask)">
+                <circle cx="240" cy="240" r="240" fill="url(#mr-pcb-bg)"/>
+                <g opacity="0.07" stroke="#4ab3d4" stroke-width="0.5">
+                  <line x1="44" y1="0" x2="44" y2="480"/><line x1="88" y1="0" x2="88" y2="480"/><line x1="132" y1="0" x2="132" y2="480"/>
+                  <line x1="176" y1="0" x2="176" y2="480"/><line x1="220" y1="0" x2="220" y2="480"/><line x1="264" y1="0" x2="264" y2="480"/>
+                  <line x1="308" y1="0" x2="308" y2="480"/><line x1="352" y1="0" x2="352" y2="480"/><line x1="396" y1="0" x2="396" y2="480"/>
+                  <line x1="440" y1="0" x2="440" y2="480"/><line x1="0" y1="44" x2="480" y2="44"/><line x1="0" y1="88" x2="480" y2="88"/>
+                  <line x1="0" y1="132" x2="480" y2="132"/><line x1="0" y1="176" x2="480" y2="176"/><line x1="0" y1="220" x2="480" y2="220"/>
+                  <line x1="0" y1="264" x2="480" y2="264"/><line x1="0" y1="308" x2="480" y2="308"/><line x1="0" y1="352" x2="480" y2="352"/>
+                  <line x1="0" y1="396" x2="480" y2="396"/><line x1="0" y1="440" x2="480" y2="440"/>
+                </g>
+                <rect class="mr-trace mr-trace--h1" x="0" y="148" width="480" height="2" fill="url(#mr-trace-h)" opacity="0.7"/>
+                <rect class="mr-trace mr-trace--h2" x="0" y="240" width="480" height="2.5" fill="url(#mr-trace-h)" opacity="0.9"/>
+                <rect class="mr-trace mr-trace--h3" x="0" y="332" width="480" height="2" fill="url(#mr-trace-h)" opacity="0.6"/>
+                <rect class="mr-trace mr-trace--v1" x="148" y="0" width="2" height="480" fill="url(#mr-trace-v)" opacity="0.7"/>
+                <rect class="mr-trace mr-trace--v2" x="240" y="0" width="2.5" height="480" fill="url(#mr-trace-v)" opacity="0.9"/>
+                <rect class="mr-trace mr-trace--v3" x="332" y="0" width="2" height="480" fill="url(#mr-trace-v)" opacity="0.6"/>
+                <g fill="none" stroke="#62c8f4" stroke-width="1.2" opacity="0.55">
+                  <circle cx="148" cy="148" r="5"/><circle cx="332" cy="148" r="5"/>
+                  <circle cx="148" cy="332" r="5"/><circle cx="332" cy="332" r="5"/>
+                  <circle cx="240" cy="148" r="4"/><circle cx="240" cy="332" r="4"/>
+                  <circle cx="148" cy="240" r="4"/><circle cx="332" cy="240" r="4"/>
+                </g>
+                <g class="mr-component" fill="#0d3550" stroke="#1a6a90" stroke-width="1">
+                  <rect x="58" y="60" width="30" height="20" rx="2"/><rect x="68" y="88" width="20" height="12" rx="2"/>
+                </g>
+                <g class="mr-component" fill="#0d3550" stroke="#1a6a90" stroke-width="1">
+                  <rect x="392" y="60" width="28" height="18" rx="2"/><rect x="396" y="84" width="18" height="11" rx="2"/>
+                </g>
+                <g class="mr-component" fill="#0d3550" stroke="#1a6a90" stroke-width="1">
+                  <rect x="60" y="392" width="26" height="16" rx="2"/>
+                </g>
+                <g class="mr-component" fill="#0d3550" stroke="#1a6a90" stroke-width="1">
+                  <rect x="393" y="396" width="24" height="15" rx="2"/>
+                </g>
+                <g class="mr-ic-block" filter="url(#mr-glow-sm)">
+                  <rect x="172" y="72" width="60" height="46" rx="4" fill="#0a2840" stroke="#2d84b0" stroke-width="1.5"/>
+                  <rect x="178" y="70" width="6" height="4" rx="1" fill="#1b6fa0"/><rect x="188" y="70" width="6" height="4" rx="1" fill="#1b6fa0"/>
+                  <rect x="198" y="70" width="6" height="4" rx="1" fill="#1b6fa0"/><rect x="208" y="70" width="6" height="4" rx="1" fill="#1b6fa0"/>
+                  <rect x="170" y="80" width="4" height="8" rx="1" fill="#1b6fa0"/><rect x="170" y="94" width="4" height="8" rx="1" fill="#1b6fa0"/>
+                  <rect x="228" y="80" width="4" height="8" rx="1" fill="#1b6fa0"/><rect x="228" y="94" width="4" height="8" rx="1" fill="#1b6fa0"/>
+                </g>
+                <g class="mr-ic-block" filter="url(#mr-glow-sm)">
+                  <rect x="72" y="192" width="46" height="60" rx="4" fill="#0a2840" stroke="#2d84b0" stroke-width="1.5"/>
+                  <rect x="70" y="198" width="4" height="8" rx="1" fill="#1b6fa0"/><rect x="70" y="212" width="4" height="8" rx="1" fill="#1b6fa0"/>
+                  <rect x="116" y="198" width="4" height="8" rx="1" fill="#1b6fa0"/><rect x="116" y="212" width="4" height="8" rx="1" fill="#1b6fa0"/>
+                </g>
+                <g class="mr-ic-block" filter="url(#mr-glow-sm)">
+                  <rect x="362" y="192" width="46" height="60" rx="4" fill="#0a2840" stroke="#2d84b0" stroke-width="1.5"/>
+                  <rect x="360" y="198" width="4" height="8" rx="1" fill="#1b6fa0"/><rect x="360" y="212" width="4" height="8" rx="1" fill="#1b6fa0"/>
+                  <rect x="406" y="198" width="4" height="8" rx="1" fill="#1b6fa0"/><rect x="406" y="212" width="4" height="8" rx="1" fill="#1b6fa0"/>
+                </g>
+                <!-- Central Apple Silicon IC -->
+                <circle cx="240" cy="240" r="78" fill="url(#mr-ic-glow)" opacity="0.6"/>
+                <rect class="mr-central-ic" x="182" y="182" width="116" height="116" rx="10" fill="#091f32" stroke="#3eaede" stroke-width="2.5"/>
+                <g stroke="#1a5a7a" stroke-width="1" opacity="0.6">
+                  <line x1="198" y1="182" x2="198" y2="298"/><line x1="214" y1="182" x2="214" y2="298"/>
+                  <line x1="240" y1="182" x2="240" y2="298"/><line x1="266" y1="182" x2="266" y2="298"/>
+                  <line x1="182" y1="198" x2="298" y2="198"/><line x1="182" y1="240" x2="298" y2="240"/>
+                  <line x1="182" y1="266" x2="298" y2="266"/>
+                </g>
+                <rect x="207" y="207" width="66" height="66" rx="5" fill="#0e2d46" stroke="#4ab4d8" stroke-width="1.5"/>
+                <g fill="#2a8abd">
+                  <rect x="188" y="180" width="8" height="4" rx="1"/><rect x="204" y="180" width="8" height="4" rx="1"/>
+                  <rect x="220" y="180" width="8" height="4" rx="1"/><rect x="236" y="180" width="8" height="4" rx="1"/>
+                  <rect x="252" y="180" width="8" height="4" rx="1"/><rect x="268" y="180" width="8" height="4" rx="1"/>
+                  <rect x="188" y="296" width="8" height="4" rx="1"/><rect x="204" y="296" width="8" height="4" rx="1"/>
+                  <rect x="220" y="296" width="8" height="4" rx="1"/><rect x="236" y="296" width="8" height="4" rx="1"/>
+                  <rect x="252" y="296" width="8" height="4" rx="1"/><rect x="268" y="296" width="8" height="4" rx="1"/>
+                  <rect x="180" y="188" width="4" height="8" rx="1"/><rect x="180" y="204" width="4" height="8" rx="1"/>
+                  <rect x="180" y="220" width="4" height="8" rx="1"/><rect x="180" y="252" width="4" height="8" rx="1"/>
+                  <rect x="180" y="268" width="4" height="8" rx="1"/><rect x="180" y="284" width="4" height="8" rx="1"/>
+                  <rect x="296" y="188" width="4" height="8" rx="1"/><rect x="296" y="204" width="4" height="8" rx="1"/>
+                  <rect x="296" y="220" width="4" height="8" rx="1"/><rect x="296" y="252" width="4" height="8" rx="1"/>
+                  <rect x="296" y="268" width="4" height="8" rx="1"/><rect x="296" y="284" width="4" height="8" rx="1"/>
+                </g>
+                <!-- Solder point -->
+                <circle class="mr-solder-glow" cx="294" cy="215" r="22" fill="url(#mr-solder-glow)"/>
+                <line class="mr-tool-tip" x1="318" y1="192" x2="297" y2="217" stroke="#c0cdd8" stroke-width="3.5" stroke-linecap="round"/>
+                <circle class="mr-solder-dot" cx="295" cy="216" r="4.5" fill="#f5a623"/>
+                <circle cx="295" cy="216" r="2" fill="#ffe08a"/>
+                <g class="mr-sparks" stroke="#f5a623" stroke-width="1.5" stroke-linecap="round" opacity="0.75">
+                  <line x1="299" y1="210" x2="305" y2="204"/>
+                  <line x1="302" y1="215" x2="310" y2="213"/>
+                  <line x1="298" y1="220" x2="305" y2="226"/>
+                </g>
+                <circle class="mr-pulse mr-pulse--h" cx="0" cy="240" r="4" fill="#62c8f4" opacity="0.9"/>
+                <circle class="mr-pulse mr-pulse--v" cx="240" cy="0" r="4" fill="#62c8f4" opacity="0.9"/>
+              </g>
+              <circle cx="240" cy="240" r="226" fill="none" stroke="#1c3d54" stroke-width="8"/>
+              <circle cx="240" cy="240" r="230" fill="none" stroke="#0e2333" stroke-width="6"/>
+              <g stroke="#4ab3d4" stroke-width="1" opacity="0.18">
+                <line x1="240" y1="15" x2="240" y2="465"/>
+                <line x1="15" y1="240" x2="465" y2="240"/>
+                <circle cx="240" cy="240" r="60" fill="none"/>
+                <circle cx="240" cy="240" r="120" fill="none"/>
+              </g>
+            </svg>
+          </div>
+          <figcaption>
+            <span class="mr-scope-dot"></span>
+            <span data-scope-status>Analizando placa lógica</span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRIAGE -->
+  <section class="mr-section mr-triage" id="sintomas">
+    <div class="container">
+      <div class="mr-heading">
+        <p class="mr-section-label">¿Qué le pasa a tu MacBook?</p>
+        <h2>Identifica la falla antes de traerla</h2>
+        <span>Selecciona el síntoma principal para ver qué revisamos primero.</span>
+      </div>
+      <div class="mr-symptom-grid" role="list">
+        {symptoms.map((s) => (
+          <button class="mr-symptom-card" type="button" data-symptom={s.id} role="listitem" aria-expanded="false" id={`symptom-btn-${s.id}`}>
+            <i class={`fa-solid ${s.icon}`} aria-hidden="true"></i>
+            <span>{s.label}</span>
+          </button>
+        ))}
+      </div>
+      <div class="mr-symptom-detail" id="symptom-detail" aria-live="polite">
+        <div class="mr-symptom-default">
+          <i class="fa-solid fa-arrow-pointer" aria-hidden="true"></i>
+          <p>Selecciona un síntoma para ver qué revisamos.</p>
+        </div>
+        {symptoms.map((s) => (
+          <div class="mr-symptom-info" id={`symptom-info-${s.id}`} hidden>
+            <h3>{s.title}</h3>
+            <p>{s.desc}</p>
+            {s.owner && (
+              <a href={s.owner.href} class="mr-symptom-link">{s.owner.label} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            )}
+            {!s.owner && (
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="mr-symptom-link">Consultar por WhatsApp <i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- TYPES -->
+  <section class="mr-section mr-repair-types" id="tipos">
+    <div class="container">
+      <div class="mr-heading">
+        <p class="mr-section-label">Según la causa</p>
+        <h2>No toda falla necesita el mismo tipo de reparación</h2>
+        <span>El diagnóstico determina el camino. Cotizamos solo el alcance real.</span>
+      </div>
+      <div class="mr-type-grid">
+        {repairTypes.map((rt) => (
+          <div class="mr-type-card">
+            <div class="mr-type-icon"><i class={`fa-solid ${rt.icon}`} aria-hidden="true"></i></div>
+            <h3>{rt.label}</h3>
+            <ul>
+              {rt.items.map((item) => (
+                <li><i class="fa-solid fa-check" aria-hidden="true"></i>{item}</li>
+              ))}
+            </ul>
+            <p class="mr-type-note">{rt.note}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPAT -->
+  <section class="mr-section mr-compat" id="modelos">
+    <div class="container">
+      <div class="mr-heading mr-heading--dark">
+        <p class="mr-section-label">Compatibilidad verificada</p>
+        <h2>MacBook Air y MacBook Pro que atendemos</h2>
+        <span>La disponibilidad de pieza y el alcance se confirman por modelo y generación exacta.</span>
+      </div>
+      <div class="mr-matrix" role="table" aria-label="Compatibilidad por familia y arquitectura">
+        <div class="mr-matrix__corner" role="columnheader">Familia</div>
+        <div class="mr-matrix__head" role="columnheader">Intel</div>
+        <div class="mr-matrix__head" role="columnheader">Apple Silicon</div>
+        <div class="mr-matrix__model" role="rowheader">
+          <strong>MacBook Air</strong>
+          <span>Delgada, distintos tamaños y acabados</span>
+        </div>
+        <div role="cell">
+          <strong>Generaciones Intel</strong>
+          <p>Año, tamaño, número Axxxx, refacciones y disponibilidad confirmados por modelo.</p>
+        </div>
+        <div role="cell">
+          <strong>M1 · M2 · M3 · M4</strong>
+          <p>Piezas soldadas. Disponibilidad confirmada por generación y ensamble exacto.</p>
+        </div>
+        <div class="mr-matrix__model" role="rowheader">
+          <strong>MacBook Pro</strong>
+          <span>Variantes de tamaño y chip por generación</span>
+        </div>
+        <div role="cell">
+          <strong>Generaciones Intel</strong>
+          <p>Panel, flex, tapa, bisagras, batería y top case según modelo y año.</p>
+        </div>
+        <div role="cell">
+          <strong>M1 · M2 · M3 · M4</strong>
+          <p>Tamaño (13", 14", 16"), acabado, sensores y pieza disponible por modelo.</p>
+        </div>
+      </div>
+      <p class="mr-matrix__note">El chip ayuda a ubicar la familia, pero no define por sí solo qué piezas usa tu MacBook. El modelo exacto se confirma al cotizar.</p>
+    </div>
+  </section>
+
+  <!-- DECISION -->
+  <section class="mr-section mr-decide" id="decision">
+    <div class="container mr-decide__grid">
+      <div>
+        <p class="mr-section-label">Antes de invertir</p>
+        <h2>¿Cómo decidimos si conviene reparar?</h2>
+        <p>El diagnóstico no solo identifica la falla — también evalúa si la reparación tiene sentido para ese equipo. Analizamos modelo, año, tipo de falla, disponibilidad de pieza, estado general y costo total.</p>
+        <p>Si reparar no tiene sentido para tu caso, te lo decimos antes de que gastes en piezas o mano de obra.</p>
+      </div>
+      <div class="mr-decide__factors">
+        <h3>Factores que consideramos</h3>
+        <ul>
+          <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><strong>Modelo y año</strong><span>Define disponibilidad de piezas y compatibilidad real.</span></div></li>
+          <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><strong>Tipo y alcance de la falla</strong><span>Módulo, placa, sistema o combinación.</span></div></li>
+          <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><strong>Estado general del equipo</strong><span>Condición física, historial y reparaciones previas.</span></div></li>
+          <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><strong>Riesgo para los datos</strong><span>SSD accesible, arranque posible o recuperación necesaria.</span></div></li>
+          <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><strong>Costo vs. valor del equipo</strong><span>Para equipos con antigüedad o daño múltiple.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="mr-section mr-process" id="proceso">
+    <div class="container">
+      <div class="mr-heading mr-heading--dark">
+        <p class="mr-section-label">Cómo trabajamos</p>
+        <h2>Proceso paso a paso</h2>
+        <span>Sin cambiar piezas sin autorización. Sin cobrar por trabajo no acordado.</span>
+      </div>
+      <ol class="mr-timeline">
+        {process.map((step) => (
+          <li>
+            <span>{step.n}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- RISKS -->
+  <section class="mr-section mr-risks" id="cuidados">
+    <div class="container mr-risks__grid">
+      <div>
+        <p class="mr-section-label">Antes de seguir usando tu MacBook</p>
+        <h2>Cuándo conviene apagarla y no esperar</h2>
+        <p>Algunas fallas empeoran con el uso continuado. Estos casos requieren revisión antes de encender o cargar el equipo de nuevo.</p>
+      </div>
+      <div class="mr-risk-rows">
+        {risks.map((r) => (
+          r.href ? (
+            <a href={r.href} class="mr-risk-row">
+              <i class={`fa-solid ${r.icon}`} aria-hidden="true"></i>
+              <span><strong>{r.title}</strong>{r.desc}</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          ) : (
+            <div class="mr-risk-row">
+              <i class={`fa-solid ${r.icon}`} aria-hidden="true"></i>
+              <span><strong>{r.title}</strong>{r.desc}</span>
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- HUB -->
+  <section class="mr-section mr-hub" id="servicios">
+    <div class="container">
+      <div class="mr-heading">
+        <p class="mr-section-label">Si el problema ya está identificado</p>
+        <h2>Cada falla tiene su especialista</h2>
+        <span>Esta página cubre la reparación general. Si ya sabes cuál es el problema, ve directo al servicio correcto.</span>
+      </div>
+      <div class="mr-owner-grid">
+        {relatedOwners.map((o) => (
+          <a href={o.href} class="mr-owner-card" id={`hub-link-${o.href.split('/').pop()}`}>
+            <i class={`fa-solid ${o.icon}`} aria-hidden="true"></i>
+            <div>
+              <h3>{o.label}</h3>
+              <p>{o.desc}</p>
+            </div>
+            <i class="fa-solid fa-arrow-right mr-owner-arrow" aria-hidden="true"></i>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA STRIP -->
+  <div class="mr-cta-strip">
+    <div class="container mr-cta-strip__inner">
+      <p>¿No sabes exactamente qué le pasa? El diagnóstico lo aclara.</p>
+      <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="mr-btn mr-btn--primary" id="mid-wa-macbook-repair">
+        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Revisar mi MacBook
+      </a>
+    </div>
+  </div>
+
+  <!-- TICKET -->
+  <ServiceTicketSection
+    id="ticket"
+    defaultDevice="MacBook"
+    defaultService={service.label}
+    sourcePage="/servicios/mac/reparacion-macbook"
+    title="Revisar mi MacBook"
+    subtitle="Cuéntanos si es Air o Pro, año o chip si lo sabes, falla principal, si enciende, si carga, si hubo líquido o si fue reparada antes."
+  />
+
+  <!-- FAQ -->
+  <FaqSection
+    id="faq"
+    title="Preguntas frecuentes sobre reparación de MacBook"
+    description="Costo, diagnóstico, placa, datos, garantía y qué conviene hacer antes de cotizar."
+    items={faqs}
+    viewMoreHref="/preguntas-frecuentes"
+    viewMoreLabel="Ver más preguntas frecuentes"
+    backgroundColor="#f4f8fc"
+    questionColor="#071F3A"
+    titleColor="#071F3A"
+    descriptionColor="#294963"
+    itemGap="8px"
+    questionPadding="16px 18px"
+  />
+
+  <CommentsSection viewMoreHref="/comentarios" viewMoreLabel="Ver todas las reseñas" id="comentarios" dark={true} />
+  <ContactSection id="ubicacion" />
+  <Footer />
+
+</main>
+
+<script>
+  const scope = document.querySelector('[data-scope-animation]');
+  if (scope) {
+    const statusEl = scope.querySelector('[data-scope-status]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const states = ['Analizando placa lógica','Revisando circuitos de alimentación','Verificando módulo de carga','Trazando vías de señal','Diagnóstico en progreso…'];
+    let si = 0;
+    if (reduced) {
+      scope.classList.add('mr-scope--ready');
+      if (statusEl) statusEl.textContent = 'Diagnóstico completado';
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting && e.intersectionRatio >= 0.3)) {
+          scope.classList.add('mr-scope--active');
+          if (statusEl) {
+            const interval = setInterval(() => { si = (si + 1) % states.length; statusEl.textContent = states[si]; }, 2400);
+            setTimeout(() => { clearInterval(interval); scope.classList.add('mr-scope--ready'); if (statusEl) statusEl.textContent = 'Diagnóstico completado'; }, 15000);
+          }
+          observer.disconnect();
+        }
+      }, { threshold: [0.3] });
+      observer.observe(scope);
+    }
+  }
+  const symptomBtns = document.querySelectorAll<HTMLButtonElement>('[data-symptom]');
+  const defaultInfo = document.querySelector<HTMLElement>('.mr-symptom-default');
+  let activeBtn: HTMLButtonElement | null = null;
+  symptomBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = (btn as HTMLButtonElement).dataset.symptom;
+      const info = document.getElementById('symptom-info-' + id);
+      if (activeBtn === btn) {
+        btn.classList.remove('mr-symptom-card--active');
+        btn.setAttribute('aria-expanded','false');
+        info?.setAttribute('hidden','');
+        if (defaultInfo) (defaultInfo as HTMLElement).hidden = false;
+        activeBtn = null;
+        return;
+      }
+      if (activeBtn) {
+        const prevId = (activeBtn as HTMLButtonElement).dataset.symptom;
+        activeBtn.classList.remove('mr-symptom-card--active');
+        activeBtn.setAttribute('aria-expanded','false');
+        document.getElementById('symptom-info-' + prevId)?.setAttribute('hidden','');
+      }
+      btn.classList.add('mr-symptom-card--active');
+      btn.setAttribute('aria-expanded','true');
+      if (defaultInfo) (defaultInfo as HTMLElement).hidden = true;
+      info?.removeAttribute('hidden');
+      activeBtn = btn;
+    });
+  });
+</script>
+
+<style>
+  .mr-page{--navy:#071f3a;--blue:#087ec1;--cyan:#62c8f4;--amber:#f5a623;--ink:#071f3a;--muted:#36556d;--line:#cad8e4;--soft:#f4f8fc;--surface:#eef5fa;background:#fff;color:var(--ink)!important;font-family:var(--font-main,'Red Hat Display',sans-serif);overflow-x:hidden}
+  .mr-page :where(h1,h2,h3){font-family:var(--font-heading,'Kanit',sans-serif);font-style:italic;font-weight:800;text-wrap:balance}
+  .mr-page p{text-wrap:pretty}
+  .mr-section{padding:clamp(42px,6vw,72px) 0}
+  .mr-heading{max-width:740px;margin-bottom:32px}
+  .mr-heading>p,.mr-section-label{margin:0 0 8px;color:var(--blue)!important;font-weight:850;font-size:.88rem;text-transform:uppercase;letter-spacing:.06em}
+  .mr-heading h2{font-size:clamp(2rem,3.6vw,3.1rem);line-height:1.04;letter-spacing:-.025em;margin:0 0 10px;color:#071f3a!important}
+  .mr-heading>span{color:#36556d!important;font-size:1.04rem}
+  .mr-heading--dark>p{color:#75d1fa!important}
+  .mr-heading--dark h2{color:#fff}
+  .mr-heading--dark>span{color:#c8dce9}
+  .mr-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:12px 20px;border-radius:9px;font-weight:850;text-decoration:none;border:1px solid transparent;transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s;font-family:var(--font-main,sans-serif);font-style:normal}
+  .mr-btn:hover{transform:translateY(-2px)}
+  .mr-btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+  .mr-btn--primary{background:#12a85a;color:#fff}
+  .mr-btn--primary:hover{box-shadow:0 6px 22px rgba(18,168,90,.32)}
+  .mr-btn--secondary{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff}
+  .mr-hero{background:radial-gradient(circle at 74% 30%,rgba(20,138,200,.22),transparent 35%),linear-gradient(140deg,#030d18 0%,#071f3a 55%,#0b2f52 100%);color:#fff;padding:clamp(28px,5vw,60px) 0 32px;overflow:hidden}
+  .mr-hero__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,1fr);align-items:center;gap:clamp(24px,4vw,60px)}
+  .mr-eyebrow{display:flex;align-items:center;gap:10px;margin:0 0 16px;color:#bfe9fb!important;font-weight:800;font-size:.86rem}
+  .mr-eyebrow span{width:28px;height:2px;background:#48b9ec;flex-shrink:0}
+  .mr-hero h1{font-size:clamp(2.5rem,4.8vw,4.5rem);line-height:.97;letter-spacing:-.04em;margin:0 0 18px}
+  .mr-lead{font-size:clamp(1.1rem,2vw,1.4rem);font-weight:800;margin:0 0 8px;line-height:1.35}
+  .mr-body{color:#c9dce9!important;max-width:60ch;line-height:1.65;margin:0;font-size:1.02rem}
+  .mr-actions{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 18px}
+  .mr-trust{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:16px 0 0;border-top:1px solid rgba(255,255,255,.16);list-style:none;color:#dbeef5}
+  .mr-trust li{font-size:.84rem;font-weight:700}
+  .mr-trust li::before{content:"✓";margin-right:7px;color:#65d7a0}
+  .mr-scope{position:relative;margin:0;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:380px;justify-content:center}
+  .mr-scope__ring{position:relative;width:min(440px,100%);aspect-ratio:1;border-radius:50%;box-shadow:0 0 0 16px rgba(7,31,58,.55),0 0 0 30px rgba(7,31,58,.3),0 28px 50px rgba(0,0,0,.5)}
+  .mr-scope__vignette{position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 68%,rgba(4,12,24,.55) 82%,rgba(3,8,18,.9) 100%)}
+  .mr-scope__pcb{width:100%;height:100%;border-radius:50%;overflow:hidden;display:block;transform:scale(.88);opacity:0;transition:transform 1.8s cubic-bezier(.25,.8,.25,1),opacity 1.2s ease,filter 1.5s ease;filter:blur(6px)}
+  .mr-scope--active .mr-scope__pcb{transform:scale(1);opacity:1;filter:blur(0)}
+  .mr-scope--ready .mr-scope__pcb{transform:scale(1.04)}
+  .mr-trace{opacity:0}
+  .mr-scope--active .mr-trace--h1{animation:mr-trace-appear .8s 1.5s both}
+  .mr-scope--active .mr-trace--h2{animation:mr-trace-appear .8s 1.7s both}
+  .mr-scope--active .mr-trace--h3{animation:mr-trace-appear .8s 1.9s both}
+  .mr-scope--active .mr-trace--v1{animation:mr-trace-appear .8s 1.6s both}
+  .mr-scope--active .mr-trace--v2{animation:mr-trace-appear .8s 1.8s both}
+  .mr-scope--active .mr-trace--v3{animation:mr-trace-appear .8s 2.0s both}
+  .mr-pulse{opacity:0}
+  .mr-scope--active .mr-pulse--h{animation:mr-pulse-h 3.2s 2.5s ease-in-out infinite}
+  .mr-scope--active .mr-pulse--v{animation:mr-pulse-v 3.6s 2.8s ease-in-out infinite}
+  .mr-solder-glow{opacity:0}
+  .mr-scope--active .mr-solder-glow{animation:mr-solder-pulse 2s 3s ease-in-out infinite}
+  .mr-scope--active .mr-solder-dot{animation:mr-solder-dot-pulse 2s 3s ease-in-out infinite}
+  .mr-scope--active .mr-sparks{animation:mr-sparks-flash 2s 3s ease-in-out infinite}
+  .mr-scope--active .mr-central-ic{animation:mr-ic-breathe 4s 2s ease-in-out infinite}
+  .mr-scope figcaption{display:flex;align-items:center;gap:8px;color:#c8deeb;font-size:.82rem;font-weight:600}
+  .mr-scope-dot{width:7px;height:7px;border-radius:50%;background:#4ec6f4;box-shadow:0 0 0 5px rgba(78,198,244,.15);animation:mr-dot-blink 1.8s ease-in-out infinite}
+  @keyframes mr-trace-appear{from{opacity:0}to{opacity:1}}
+  @keyframes mr-pulse-h{0%{transform:translateX(0);opacity:0}5%{opacity:.9}95%{opacity:.9}100%{transform:translateX(480px);opacity:0}}
+  @keyframes mr-pulse-v{0%{transform:translateY(0);opacity:0}5%{opacity:.9}95%{opacity:.9}100%{transform:translateY(480px);opacity:0}}
+  @keyframes mr-solder-pulse{0%,100%{opacity:.3}50%{opacity:.85}}
+  @keyframes mr-solder-dot-pulse{0%,100%{fill:#f5a623}50%{fill:#ffe08a}}
+  @keyframes mr-sparks-flash{0%,100%{opacity:.2}50%{opacity:.95}}
+  @keyframes mr-ic-breathe{0%,100%{stroke:#3eaede;stroke-width:2.5}50%{stroke:#62c8f4;stroke-width:3}}
+  @keyframes mr-dot-blink{0%,100%{opacity:1;box-shadow:0 0 0 5px rgba(78,198,244,.15)}50%{opacity:.4;box-shadow:0 0 0 8px rgba(78,198,244,.06)}}
+  .mr-triage{background:#fff}
+  .mr-symptom-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+  .mr-symptom-card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;border-radius:10px;cursor:pointer;font-weight:700;border:1.5px solid var(--line);background:var(--soft);color:#071f3a!important;font-size:.88rem;font-family:var(--font-main,sans-serif);transition:border-color .2s,background .2s,transform .18s,box-shadow .2s;min-height:80px}
+  .mr-symptom-card i{font-size:1.3rem;color:#087ec1!important}
+  .mr-symptom-card:hover{border-color:var(--blue);background:#e8f4fc;transform:translateY(-2px);box-shadow:0 6px 18px rgba(8,126,193,.14)}
+  .mr-symptom-card:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  .mr-symptom-card--active{border-color:var(--blue);background:#071f3a;color:#fff!important;box-shadow:0 8px 24px rgba(7,31,58,.25)}
+  .mr-symptom-card--active i{color:#62c8f4!important}
+  .mr-symptom-detail{background:var(--soft);border:1.5px solid var(--line);border-radius:12px;padding:24px 28px;min-height:120px}
+  .mr-symptom-default{display:flex;align-items:center;gap:14px;color:#36556d!important;font-size:1rem}
+  .mr-symptom-default i{font-size:1.5rem;opacity:.5;color:#36556d!important}
+  .mr-symptom-info h3{font-size:1.25rem;margin:0 0 8px;color:#071f3a!important}
+  .mr-symptom-info p{color:#36556d!important;margin:0 0 14px;line-height:1.6}
+  .mr-symptom-link{display:inline-flex;align-items:center;gap:7px;color:#087ec1!important;font-weight:750;text-decoration:none;font-size:.95rem}
+  .mr-symptom-link:hover{text-decoration:underline}
+  .mr-repair-types{background:var(--soft)}
+  .mr-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .mr-type-card{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 16px rgba(7,31,58,.05);transition:box-shadow .2s,transform .2s}
+  .mr-type-card:hover{box-shadow:0 8px 28px rgba(7,31,58,.1);transform:translateY(-2px)}
+  .mr-type-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#e3f4fc,#c8e9f8);display:grid;place-items:center;color:#087ec1!important;font-size:1.2rem}
+  .mr-type-card h3{margin:0;font-size:1.1rem;color:#071f3a!important}
+  .mr-type-card ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;flex:1}
+  .mr-type-card li{display:flex;align-items:flex-start;gap:8px;font-size:.9rem;color:#36556d!important}
+  .mr-type-card li i{color:#12a85a!important;margin-top:3px;flex-shrink:0}
+  .mr-type-note{margin:0;font-size:.82rem;color:#36556d!important;font-style:italic;padding-top:6px;border-top:1px solid var(--line)}
+  .mr-compat{background:var(--navy);color:#fff}
+  .mr-matrix{display:grid;grid-template-columns:.8fr 1fr 1fr;border:1px solid #1e4a66;border-radius:12px;overflow:hidden}
+  .mr-matrix>div{padding:20px;border-right:1px solid #1e4a66;border-bottom:1px solid #1e4a66;min-width:0}
+  .mr-matrix>div:nth-child(3n){border-right:0}
+  .mr-matrix>div:nth-last-child(-n+3){border-bottom:0}
+  .mr-matrix__corner,.mr-matrix__head{background:#051525;color:#fff;font-weight:900}
+  .mr-matrix__model{background:#0a2035}
+  .mr-matrix__model strong{display:block;font-size:1.06rem;color:#fff}
+  .mr-matrix__model span{color:#6a9ab8;font-size:.87rem}
+  .mr-matrix>div:not(.mr-matrix__corner):not(.mr-matrix__head):not(.mr-matrix__model){background:#091828}
+  .mr-matrix>div>strong{display:block;font-size:1rem;color:#62c8f4;margin-bottom:5px}
+  .mr-matrix>div>p{color:#88b5cc;margin:0;font-size:.87rem;line-height:1.5}
+  .mr-matrix__note{margin:14px 0 0;color:#6a9ab8;font-size:.9rem}
+  .mr-decide{background:var(--soft)}
+  .mr-decide__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,1fr);gap:clamp(28px,5vw,72px);align-items:start}
+  .mr-decide__grid>div>h2{color:#071f3a!important}
+  .mr-decide__grid>div>p{color:#36556d!important;line-height:1.7;margin-bottom:12px}
+  .mr-decide__factors{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:24px;box-shadow:0 6px 20px rgba(7,31,58,.06)}
+  .mr-decide__factors h3{font-size:1.1rem;margin:0 0 18px;color:#071f3a!important}
+  .mr-decide__factors ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px}
+  .mr-decide__factors li{display:flex;align-items:flex-start;gap:12px}
+  .mr-decide__factors li>i{color:#087ec1!important;font-size:1rem;margin-top:3px;flex-shrink:0}
+  .mr-decide__factors li>div>strong{display:block;color:#071f3a!important;font-size:.95rem}
+  .mr-decide__factors li>div>span{color:#36556d!important;font-size:.88rem}
+  .mr-process{background:var(--navy);color:#fff}
+  .mr-timeline{display:grid;grid-template-columns:repeat(6,1fr);padding:0;margin:0;list-style:none}
+  .mr-timeline li{position:relative;padding:0 14px 0 0;display:flex;flex-direction:column}
+  .mr-timeline li:not(:last-child)::after{content:"";position:absolute;left:26px;right:0;top:19px;height:1px;background:#2d5e7a}
+  .mr-timeline li>span{position:relative;z-index:1;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--cyan);color:var(--navy);font-weight:900;font-size:.9rem;flex-shrink:0}
+  .mr-timeline li>div{padding-top:14px}
+  .mr-timeline h3{margin:0 0 6px;font-size:1rem;color:#fff}
+  .mr-timeline p{margin:0;color:#bfd5e2;font-size:.86rem;line-height:1.5}
+  .mr-risks{background:var(--surface)}
+  .mr-risks__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(28px,6vw,78px);align-items:center}
+  .mr-risks__grid>div>h2{font-size:clamp(1.9rem,3vw,2.8rem);line-height:1.06;margin:0 0 14px;color:#071f3a!important}
+  .mr-risks__grid>div>p{color:#36556d!important;line-height:1.65}
+  .mr-risk-rows{border-top:1px solid var(--line)}
+  .mr-risk-row{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;padding:16px 4px;border-bottom:1px solid var(--line);color:#071f3a!important;text-decoration:none;transition:background .2s,padding-inline .2s}
+  a.mr-risk-row:hover{background:#e5f3fb;padding-inline:10px}
+  .mr-risk-row>i:first-child{display:grid;place-items:center;width:40px;height:40px;background:#fff;border-radius:8px;color:#087ec1!important}
+  .mr-risk-row>span{line-height:1.5;color:#071f3a!important}
+  .mr-risk-row strong{display:block;color:#071f3a!important;margin-bottom:2px}
+  .mr-risk-row>i.fa-arrow-right{color:#36556d!important}
+  .mr-hub{background:#fff}
+  .mr-owner-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .mr-owner-card{display:flex;align-items:center;gap:12px;padding:16px;border:1.5px solid var(--line);border-radius:10px;color:#071f3a!important;text-decoration:none;transition:border-color .2s,background .2s,transform .2s,box-shadow .2s}
+  .mr-owner-card:hover{border-color:var(--blue);background:#eef6fc;transform:translateY(-2px);box-shadow:0 6px 18px rgba(8,126,193,.12)}
+  .mr-owner-card:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  .mr-owner-card>i:first-child{display:grid;place-items:center;width:38px;height:38px;flex-shrink:0;background:var(--soft);border-radius:8px;color:#087ec1!important;font-size:1.1rem}
+  .mr-owner-card>div{flex:1;min-width:0}
+  .mr-owner-card h3{margin:0 0 2px;font-size:.92rem;color:#071f3a!important;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mr-owner-card p{margin:0;font-size:.8rem;color:#36556d!important}
+  .mr-owner-arrow{color:#36556d!important;font-size:.85rem;flex-shrink:0}
+  .mr-cta-strip{background:var(--navy);padding:28px 0;border-top:1px solid #1a3a56;border-bottom:1px solid #1a3a56}
+  .mr-cta-strip__inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .mr-cta-strip p{margin:0;color:#c8dce9;font-size:1.06rem;font-weight:600}
+  @media(prefers-reduced-motion:reduce){
+    .mr-scope__pcb{transform:scale(1);opacity:1;filter:none;transition:none}
+    .mr-scope--active .mr-trace,.mr-trace{opacity:1;animation:none!important}
+    .mr-pulse,.mr-solder-glow,.mr-solder-dot,.mr-sparks,.mr-central-ic{animation:none!important;opacity:1}
+    .mr-scope-dot{animation:none}
+    .mr-btn,.mr-symptom-card,.mr-type-card,.mr-owner-card,.mr-risk-row{transition:none}
+  }
+  @media(prefers-color-scheme:dark){
+    .mr-page{--ink:#eef7fc;--muted:#b7ccda;--line:#29455b;--soft:#0b1b2b;--surface:#0b1b2b;background:#081522}
+    .mr-triage,.mr-hub{background:#081522}
+    .mr-repair-types,.mr-decide{background:#0b1b2b}
+    .mr-type-card,.mr-decide__factors{background:#10253a;border-color:var(--line)}
+    .mr-symptom-detail{background:#10253a;border-color:var(--line)}
+    .mr-symptom-card{background:#10253a;border-color:var(--line);color:#eef7fc}
+    .mr-symptom-card:hover{background:#1a3550}
+    .mr-symptom-card--active{background:var(--navy)}
+    .mr-owner-card{background:#10253a;border-color:var(--line)}
+    .mr-owner-card:hover{background:#1a3550;border-color:var(--blue)}
+    .mr-owner-card>i:first-child{background:#1a3550}
+    .mr-risk-row>i:first-child{background:#10253a}
+    a.mr-risk-row:hover{background:#10253a}
+    .mr-risks{background:#0b1b2b}
+  }
+  @media(max-width:1024px){
+    .mr-owner-grid{grid-template-columns:repeat(2,1fr)}
+    .mr-type-grid{grid-template-columns:1fr 1fr}
+    .mr-timeline{grid-template-columns:repeat(3,1fr);gap:28px 12px}
+  }
+  @media(max-width:768px){
+    .mr-hero__grid{grid-template-columns:1fr}
+    .mr-hero h1{font-size:clamp(2.3rem,10vw,3.2rem)}
+    .mr-hero__copy{display:contents}
+    .mr-eyebrow{order:1}
+    .mr-hero h1{order:2}
+    .mr-hero__visual{order:3;margin:-6px 0 -10px}
+    .mr-lead{order:4;margin-top:20px}
+    .mr-body{order:5}
+    .mr-actions{order:6}
+    .mr-trust{order:7;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .mr-actions .mr-btn{width:100%}
+    .mr-scope__ring{width:min(320px,88vw)}
+    .mr-decide__grid,.mr-risks__grid{grid-template-columns:1fr}
+    .mr-symptom-grid{grid-template-columns:repeat(4,1fr);gap:8px}
+    .mr-symptom-card{padding:12px 6px;font-size:.78rem;min-height:70px}
+    .mr-symptom-card i{font-size:1.1rem}
+    .mr-type-grid{grid-template-columns:1fr}
+    .mr-owner-grid{grid-template-columns:1fr 1fr}
+    .mr-timeline{grid-template-columns:1fr;gap:16px}
+    .mr-timeline li{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start}
+    .mr-timeline li>div{padding-top:0}
+    .mr-timeline li:not(:last-child)::after{left:19px;right:auto;top:38px;bottom:-16px;width:1px;height:auto}
+    .mr-cta-strip__inner{flex-direction:column;text-align:center}
+    .mr-matrix{grid-template-columns:1fr}
+    .mr-matrix>div{border-right:0!important;border-bottom:1px solid #1e4a66!important}
+    .mr-matrix>div:last-child{border-bottom:0!important}
+    .mr-matrix__corner{display:none}
+  }
+  @media(max-width:430px){
+    .mr-symptom-grid{grid-template-columns:repeat(2,1fr)}
+    .mr-owner-grid{grid-template-columns:1fr}
+    .mr-hero h1{font-size:clamp(2rem,11vw,2.8rem)}
+    .mr-scope__ring{width:min(260px,88vw)}
+  }
+</style>

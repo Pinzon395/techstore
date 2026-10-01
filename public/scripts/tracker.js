@@ -5,6 +5,29 @@
   const API = '/api/track/view';
   const EVENT_API = '/api/track/event';
   let lastPath = location.pathname;
+  const attributionKey = 'pixon_first_touch_utm';
+  const landingParams = new URLSearchParams(location.search);
+  const incomingAttribution = {
+    utm_source: landingParams.get('utm_source') || '',
+    utm_medium: landingParams.get('utm_medium') || '',
+    utm_campaign: landingParams.get('utm_campaign') || ''
+  };
+  try {
+    if (incomingAttribution.utm_source || incomingAttribution.utm_medium || incomingAttribution.utm_campaign) {
+      sessionStorage.setItem(attributionKey, JSON.stringify(incomingAttribution));
+    }
+  } catch (_) { /* tracking remains optional */ }
+
+  function getAttribution() {
+    const params = new URLSearchParams(location.search);
+    let firstTouch = {};
+    try { firstTouch = JSON.parse(sessionStorage.getItem(attributionKey) || '{}'); } catch (_) {}
+    return {
+      utm_source: params.get('utm_source') || firstTouch.utm_source || '',
+      utm_medium: params.get('utm_medium') || firstTouch.utm_medium || '',
+      utm_campaign: params.get('utm_campaign') || firstTouch.utm_campaign || ''
+    };
+  }
 
   function track(path, title) {
     try {
@@ -25,15 +48,12 @@
 
   function conversion(eventName) {
     try {
-      const params = new URLSearchParams(location.search);
       const payload = JSON.stringify({
         event: eventName,
         path: location.pathname,
         locale: document.documentElement.lang === 'en' ? 'en' : 'es',
         referrer: document.referrer || '',
-        utm_source: params.get('utm_source') || '',
-        utm_medium: params.get('utm_medium') || '',
-        utm_campaign: params.get('utm_campaign') || ''
+        ...getAttribution()
       });
       if (navigator.sendBeacon) navigator.sendBeacon(EVENT_API, payload);
       else fetch(EVENT_API, { method: 'POST', body: payload, headers: { 'Content-Type': 'application/json' }, keepalive: true });

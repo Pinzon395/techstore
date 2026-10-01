@@ -6,10 +6,10 @@
  * - body sin .light-theme (sin preload sprite, ya que el admin no lo usa)
  */
 import Base from '../../layouts/Base.astro';
-import CommerceHubView from '../../components/admin/CommerceHubView.astro';
 import CommerceCatalogView from '../../components/admin/CommerceCatalogView.astro';
 import CommerceOperationsView from '../../components/admin/CommerceOperationsView.astro';
 import '../../styles/admin.css';
+import buildInfo from '../../../public/version.json';
 ---
 
 <Base
@@ -21,6 +21,7 @@ import '../../styles/admin.css';
   preloadSprite={false}
   robots="noindex, nofollow"
 >
+  <meta slot="head" name="app-build" content={buildInfo.version} />
   <!-- Pantalla de carga mientras admin.js verifica permisos -->
   <div id="auth-loading">
     <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: #22d3ee;"></i>
@@ -48,60 +49,23 @@ import '../../styles/admin.css';
       </button>
 
       <nav class="admin-nav" aria-label="Navegación admin">
-        <div class="nav-single-item">
-          <button class="nav-link active" type="button" data-view="dashboard" data-tooltip="Dashboard" title="Dashboard" aria-controls="view-dashboard" aria-current="page">
-            <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gauge-high" /></svg>
-            <span class="nav-link-label">Dashboard</span>
-          </button>
-        </div>
-
-        <div class="nav-group" data-nav-group="hoy">
-          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-hoy">
-            <span class="nav-section-title">Hoy</span>
+        <div class="nav-group" data-nav-group="taller">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-taller">
+            <span class="nav-section-title">Taller</span>
             <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
           </button>
-          <div class="nav-group-items" id="nav-group-items-hoy">
-            <button class="nav-link" type="button" data-view="dashboard" data-tooltip="Mi jornada" title="Mi jornada" aria-controls="view-dashboard">
+          <div class="nav-group-items" id="nav-group-items-taller">
+            <button class="nav-link active" type="button" data-view="dashboard" data-tooltip="Hoy" title="Hoy — mi jornada" aria-controls="view-dashboard" aria-current="page">
               <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gauge-high" /></svg>
-              <span class="nav-link-label">Mi jornada</span>
+              <span class="nav-link-label">Hoy</span>
             </button>
-            <button class="nav-link" type="button" data-view="agenda" data-tooltip="Agenda" title="Agenda operativa" aria-controls="view-agenda">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-calendar-days" /></svg>
-              <span class="nav-link-label">Agenda</span>
-            </button>
-            <button class="nav-link" type="button" data-notifications-focus data-tooltip="Notificaciones" title="Notificaciones" aria-controls="notificationsDropdown">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bell" /></svg>
-              <span class="nav-link-label">Notificaciones</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="nav-group" data-nav-group="operacion">
-          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-operacion">
-            <span class="nav-section-title">Operación</span>
-            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
-          </button>
-          <div class="nav-group-items" id="nav-group-items-operacion">
-            <button class="nav-link" type="button" data-view="repairs" data-tooltip="Taller" title="Taller" aria-controls="view-repairs">
+            <button class="nav-link" type="button" data-view="repairs" data-tooltip="Órdenes" title="Órdenes de taller" aria-controls="view-repairs">
               <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-screwdriver-wrench" /></svg>
-              <span class="nav-link-label">Taller</span>
+              <span class="nav-link-label">Órdenes</span>
             </button>
-            <button class="nav-link" type="button" data-view="commerce-orders" data-tooltip="Pedidos" title="Pedidos" aria-controls="view-commerce-orders">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bag-shopping" /></svg>
-              <span class="nav-link-label">Pedidos</span>
-              <span class="badge warn" id="nav-badge-orders" style="display:none;">0</span>
-            </button>
-            <button class="nav-link" type="button" data-view="commerce-payments" data-tooltip="Pagos" title="Pagos" aria-controls="view-commerce-payments">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg>
-              <span class="nav-link-label">Pagos</span>
-            </button>
-            <button class="nav-link" type="button" data-view="commerce-inventory" data-tooltip="Inventario" title="Inventario" aria-controls="view-commerce-inventory">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-boxes-stacked" /></svg>
-              <span class="nav-link-label">Inventario</span>
-            </button>
-            <button class="nav-link" type="button" data-view="builds" data-tooltip="Ensambles" title="Ensambles" aria-controls="view-builds">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-microchip" /></svg>
-              <span class="nav-link-label">Ensambles</span>
+            <button class="nav-link" type="button" data-view="agenda" data-tooltip="Calendario" title="Calendario y capacidad" aria-controls="view-agenda">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-calendar-days" /></svg>
+              <span class="nav-link-label">Calendario</span>
             </button>
           </div>
         </div>
@@ -112,9 +76,14 @@ import '../../styles/admin.css';
             <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
           </button>
           <div id="nav-group-items-comercio" class="nav-group-items" hidden>
-            <button class="nav-link" type="button" data-view="commerce" data-tooltip="Resumen comercial" title="Resumen comercial" aria-controls="view-commerce">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-cart-shopping" /></svg>
-              <span class="nav-link-label">Resumen comercial</span>
+            <button class="nav-link" type="button" data-view="commerce-orders" data-tooltip="Pedidos" title="Pedidos" aria-controls="view-commerce-orders">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-bag-shopping" /></svg>
+              <span class="nav-link-label">Pedidos</span>
+              <span class="badge warn" id="nav-badge-orders" style="display:none;">0</span>
+            </button>
+            <button class="nav-link" type="button" data-view="commerce-payments" data-tooltip="Pagos" title="Pagos" aria-controls="view-commerce-payments">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg>
+              <span class="nav-link-label">Pagos</span>
             </button>
             <button class="nav-link" type="button" data-view="commerce-store" data-tooltip="Catálogo" title="Catálogo" aria-controls="view-commerce-store">
               <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-store" /></svg>
@@ -128,9 +97,22 @@ import '../../styles/admin.css';
               <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-tags" /></svg>
               <span class="nav-link-label">Promociones</span>
             </button>
-            <button class="nav-link" type="button" data-view="commerce-settings" data-tooltip="Métodos de pago" title="Métodos de pago" aria-controls="view-commerce-settings">
-              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg>
-              <span class="nav-link-label">Métodos de pago</span>
+            <button class="nav-link" type="button" data-view="builds" data-tooltip="Ensambles" title="Ensambles" aria-controls="view-builds">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-microchip" /></svg>
+              <span class="nav-link-label">Ensambles</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-group" data-nav-group="inventario">
+          <button type="button" class="nav-group-header" data-group-toggle aria-expanded="true" aria-controls="nav-group-items-inventario">
+            <span class="nav-section-title">Inventario</span>
+            <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="nav-group-items" id="nav-group-items-inventario">
+            <button class="nav-link" type="button" data-view="commerce-inventory" data-tooltip="Inventario" title="Inventario" aria-controls="view-commerce-inventory">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-boxes-stacked" /></svg>
+              <span class="nav-link-label">Inventario</span>
             </button>
           </div>
         </div>
@@ -172,13 +154,17 @@ import '../../styles/admin.css';
             <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
           </button>
           <div class="nav-group-items" id="nav-group-items-configuracion">
-            <button class="nav-link" type="button" data-view="repairs" data-repair-panel="config" data-tooltip="Config. agenda" title="Configuración de agenda" aria-controls="view-repairs">
+            <button class="nav-link" type="button" data-view="repairs" data-repair-panel="config" data-tooltip="Horarios y capacidad" title="Horarios y capacidad del taller" aria-controls="view-repairs">
               <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-sliders" /></svg>
-              <span class="nav-link-label">Config. agenda</span>
+              <span class="nav-link-label">Horarios y capacidad</span>
             </button>
-            <button class="nav-link" type="button" data-view="preferences" data-tooltip="Preferencias" title="Preferencias" aria-controls="view-preferences">
+            <button class="nav-link" type="button" data-view="commerce-settings" data-tooltip="Pagos" title="Métodos de pago aceptados" aria-controls="view-commerce-settings">
+              <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-credit-card" /></svg>
+              <span class="nav-link-label">Pagos</span>
+            </button>
+            <button class="nav-link" type="button" data-view="preferences" data-tooltip="Configuración" title="Configuración general" aria-controls="view-preferences">
               <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-gear" /></svg>
-              <span class="nav-link-label">Preferencias</span>
+              <span class="nav-link-label">Configuración</span>
             </button>
           </div>
         </div>
@@ -214,7 +200,7 @@ import '../../styles/admin.css';
     <main class="admin-main">
       <header class="admin-topbar">
         <div class="admin-topbar-left">
-          <button class="admin-mobile-toggle" id="adminMobileToggle" aria-label="Abrir menú">
+          <button class="admin-mobile-toggle" id="adminMobileToggle" type="button" aria-label="Abrir menú">
             <svg class="fa-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#fa-sliders" /></svg>
           </button>
           <div>
@@ -231,7 +217,7 @@ import '../../styles/admin.css';
           </div>
           <!-- Centro de Notificaciones -->
           <div class="notifications-wrapper" id="notifications-wrapper">
-            <button class="notifications-bell-btn" id="notificationsBellBtn" aria-label="Notificaciones" aria-expanded="false">
+            <button class="notifications-bell-btn" id="notificationsBellBtn" type="button" aria-label="Notificaciones" aria-expanded="false">
               <i class="fa-solid fa-bell"></i>
               <span class="notifications-badge" id="notifications-badge" style="display: none;">0</span>
             </button>
@@ -437,7 +423,7 @@ import '../../styles/admin.css';
               <button class="btn-admin" type="button" id="repairTabTickets"><i class="fa-solid fa-list"></i> Tickets</button>
               <button class="btn-admin" type="button" id="repairTabAgenda"><i class="fa-solid fa-calendar-days"></i> Agenda</button>
               <button class="btn-admin" type="button" id="repairTabConfig"><i class="fa-solid fa-gear"></i> Configurar agenda</button>
-              <button class="btn-admin btn-approve" type="button" onclick="window.openRepairModal && openRepairModal()">
+              <button class="btn-admin btn-approve" type="button" data-admin-action="open-repair-modal">
                 <i class="fa-solid fa-plus"></i> Nuevo Ticket
               </button>
             </div>
@@ -528,8 +514,8 @@ import '../../styles/admin.css';
                 <div style="display: flex; align-items: center; gap: 12px;">
                   <span id="crmPaginationInfo" style="font-size: 0.85rem; color: var(--a-text-muted);">0 - 0 de 0</span>
                   <div style="display: flex; gap: 6px;">
-                    <button class="btn-admin" id="crmPrevPage" style="padding: 4px 8px; height: auto;" disabled><i class="fa-solid fa-chevron-left"></i></button>
-                    <button class="btn-admin" id="crmNextPage" style="padding: 4px 8px; height: auto;" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="btn-admin" id="crmPrevPage" type="button" aria-label="Página anterior" style="padding: 4px 8px; height: auto;" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="btn-admin" id="crmNextPage" type="button" aria-label="Página siguiente" style="padding: 4px 8px; height: auto;" disabled><i class="fa-solid fa-chevron-right"></i></button>
                   </div>
                 </div>
               </div>
@@ -714,11 +700,11 @@ import '../../styles/admin.css';
 
           <!-- Drawer lateral derecho para Detalle de Cita y Quick Actions -->
           <div id="agenda-details-drawer" class="agenda-modal-overlay" style="display:none;">
-            <div class="agenda-modal-backdrop" onclick="window.adminAgenda.closeDetails()"></div>
+            <div class="agenda-modal-backdrop" data-agenda-action="closeDetails"></div>
             <div class="agenda-drawer-card">
               <div class="agenda-drawer-header">
                 <h3>Detalle de Cita Operativa</h3>
-                <button type="button" class="agenda-modal-close" onclick="window.adminAgenda.closeDetails()" aria-label="Cerrar detalle">&times;</button>
+                <button type="button" class="agenda-modal-close" data-agenda-action="closeDetails" aria-label="Cerrar detalle">&times;</button>
               </div>
               <div id="agenda-drawer-content" class="agenda-drawer-body">
                 <!-- Contenido generado dinámicamente -->
@@ -854,7 +840,7 @@ import '../../styles/admin.css';
               </div>
               <div class="agenda-modal-footer">
                 <button type="button" class="btn-admin" data-close-agenda-modal>Cancelar</button>
-                <button type="button" class="btn-admin btn-approve" onclick="window.adminAgenda.submitNewAppointment()">
+                <button type="button" class="btn-admin btn-approve" data-agenda-action="submitNewAppointment">
                   <i class="fa-solid fa-floppy-disk"></i> Crear Cita
                 </button>
               </div>
@@ -892,7 +878,7 @@ import '../../styles/admin.css';
               </div>
               <div class="agenda-modal-footer">
                 <button type="button" class="btn-admin" data-close-agenda-modal>Cancelar</button>
-                <button type="button" class="btn-admin btn-primary" onclick="window.adminAgenda.submitReschedule()">
+                <button type="button" class="btn-admin btn-primary" data-agenda-action="submitReschedule">
                   <i class="fa-solid fa-check"></i> Confirmar Reprogramación
                 </button>
               </div>
@@ -960,7 +946,7 @@ import '../../styles/admin.css';
               </div>
               <div class="agenda-modal-footer">
                 <button type="button" class="btn-admin" data-close-agenda-modal>Cancelar</button>
-                <button type="button" class="btn-admin btn-warn" onclick="window.adminAgenda.submitBlock()">
+                <button type="button" class="btn-admin btn-warn" data-agenda-action="submitBlock">
                   <i class="fa-solid fa-lock"></i> Aplicar Bloqueo
                 </button>
               </div>
@@ -1074,7 +1060,6 @@ import '../../styles/admin.css';
           <div id="agenda-toast-container" class="agenda-toast-container" aria-live="polite"></div>
         </section>
 
-        <CommerceHubView />
         <CommerceCatalogView />
         <CommerceOperationsView />
 
@@ -1082,7 +1067,7 @@ import '../../styles/admin.css';
         <section id="view-builds" class="admin-section" style="display:none;">
           <div class="admin-section-header">
             <h2>Catálogo de Ensambles y Paquetes</h2>
-            <button class="btn-admin btn-approve" type="button" onclick="window.openBuildModal && openBuildModal()">
+            <button class="btn-admin btn-approve" type="button" data-admin-action="open-build-modal">
               <i class="fa-solid fa-plus"></i> Nuevo Ensamble
             </button>
           </div>
@@ -1135,7 +1120,7 @@ import '../../styles/admin.css';
         <section id="view-faqs" class="admin-section" style="display:none;">
           <div class="admin-section-header">
             <h2>Búsquedas sin respuesta</h2>
-            <button class="btn-admin btn-delete" type="button" onclick="window.clearUnanswered && clearUnanswered()">
+            <button class="btn-admin btn-delete" type="button" data-admin-action="clear-unanswered">
               <i class="fa-solid fa-trash"></i> Limpiar Registro
             </button>
           </div>
@@ -1166,7 +1151,7 @@ import '../../styles/admin.css';
               <button class="btn-admin" type="button" id="faqCollapseAll">
                 <i class="fa-solid fa-chevron-up"></i> Cerrar todas
               </button>
-              <button class="btn-admin btn-approve" type="button" onclick="window.addNewFaq && addNewFaq()">
+              <button class="btn-admin btn-approve" type="button" data-admin-action="add-faq">
                 <i class="fa-solid fa-plus"></i> Nueva
               </button>
             </div>
@@ -1196,6 +1181,11 @@ import '../../styles/admin.css';
               <div class="drawer-kv"><span>Horario operativo:</span> <strong>08:30 – 19:00</strong></div>
               <div class="drawer-kv"><span>Políticas de precio:</span> <strong>Diagnóstico desde $600 · Mantenimiento desde $1,000 / 15% · Mojado por confirmar</strong></div>
             </div>
+            <div class="preferences-card" aria-label="Versión desplegada">
+              <h3 style="margin-top:0; font-size:1.1rem; color:var(--a-text);"><i class="fa-solid fa-code-branch"></i> Sistema</h3>
+              <div class="drawer-kv"><span>Build:</span> <strong id="admin-build-id">{buildInfo.version}</strong></div>
+              <div class="drawer-kv"><span>Generado:</span> <strong>{new Date(buildInfo.builtAt).toLocaleString('es-MX', { timeZone: 'America/Cancun' })}</strong></div>
+            </div>
           </div>
         </section>
 
@@ -1212,7 +1202,7 @@ import '../../styles/admin.css';
     <div class="admin-modal">
       <div class="admin-modal-header">
         <h2 id="faqModalTitle">Nueva Pregunta</h2>
-        <button class="admin-modal-close" type="button" onclick="window.closeFaqModal && closeFaqModal()">&times;</button>
+        <button class="admin-modal-close" type="button" data-admin-action="close-faq-modal">&times;</button>
       </div>
       <div class="admin-modal-body">
         <input type="hidden" id="faqId" />
@@ -1241,8 +1231,8 @@ import '../../styles/admin.css';
         </div>
       </div>
       <div class="admin-modal-footer">
-        <button class="admin-btn admin-btn-cancel" type="button" onclick="window.closeFaqModal && closeFaqModal()">Cancelar</button>
-        <button class="admin-btn admin-btn-save" type="button" onclick="window.saveFaqModal && saveFaqModal()">Guardar</button>
+        <button class="admin-btn admin-btn-cancel" type="button" data-admin-action="close-faq-modal">Cancelar</button>
+        <button class="admin-btn admin-btn-save" type="button" data-admin-action="save-faq-modal">Guardar</button>
       </div>
     </div>
   </div>
@@ -1252,7 +1242,7 @@ import '../../styles/admin.css';
     <div class="admin-modal">
       <div class="admin-modal-header">
         <h2>Nuevo Ticket de Reparación</h2>
-        <button class="admin-modal-close" type="button" onclick="window.closeRepairModal && closeRepairModal()">&times;</button>
+        <button class="admin-modal-close" type="button" data-admin-action="close-repair-modal">&times;</button>
       </div>
       <div class="admin-modal-body">
         <div class="admin-form-group">
@@ -1305,8 +1295,8 @@ import '../../styles/admin.css';
         </div>
       </div>
       <div class="admin-modal-footer">
-        <button class="admin-btn admin-btn-cancel" type="button" onclick="window.closeRepairModal && closeRepairModal()">Cancelar</button>
-        <button class="admin-btn admin-btn-save" type="button" onclick="window.saveRepair && saveRepair()">Crear Ticket</button>
+        <button class="admin-btn admin-btn-cancel" type="button" data-admin-action="close-repair-modal">Cancelar</button>
+        <button class="admin-btn admin-btn-save" type="button" data-admin-action="save-repair">Crear Ticket</button>
       </div>
     </div>
   </div>
@@ -1378,7 +1368,7 @@ import '../../styles/admin.css';
     <div class="admin-modal">
       <div class="admin-modal-header">
         <h2>Nuevo Paquete / Ensamble</h2>
-        <button class="admin-modal-close" type="button" onclick="window.closeBuildModal && closeBuildModal()">&times;</button>
+        <button class="admin-modal-close" type="button" data-admin-action="close-build-modal">&times;</button>
       </div>
       <div class="admin-modal-body">
         <div class="admin-form-group">
@@ -1419,8 +1409,8 @@ import '../../styles/admin.css';
         </div>
       </div>
       <div class="admin-modal-footer">
-        <button class="admin-btn admin-btn-cancel" type="button" onclick="window.closeBuildModal && closeBuildModal()">Cancelar</button>
-        <button class="admin-btn admin-btn-save" type="button" onclick="window.saveBuild && saveBuild()">Guardar Ensamble</button>
+        <button class="admin-btn admin-btn-cancel" type="button" data-admin-action="close-build-modal">Cancelar</button>
+        <button class="admin-btn admin-btn-save" type="button" data-admin-action="save-build">Guardar Ensamble</button>
       </div>
     </div>
   </div>
@@ -1458,9 +1448,8 @@ import '../../styles/admin.css';
       // Tab switching
       const VIEW_TITLES = {
         dashboard: { title: 'Mi jornada',           sub: 'Prioridades, agenda y operación de hoy.' },
-        agenda:    { title: 'Agenda Operativa',     sub: 'Capacidad de taller, citas multicliente y disponibilidad en tiempo real.' },
-        repairs:   { title: 'Taller (Tickets)',     sub: 'Tickets de reparación activos y completados.' },
-        commerce:  { title: 'Commerce',             sub: 'Centro de operaciones comerciales de Pixon PC.' },
+        agenda:    { title: 'Calendario',           sub: 'Capacidad de taller, citas multicliente y disponibilidad en tiempo real.' },
+        repairs:   { title: 'Órdenes de taller',    sub: 'Tickets de reparación activos y completados.' },
         'commerce-store': { title: 'Tienda',        sub: 'Catálogo central, publicación y contenido comercial.' },
         'commerce-dashboard': { title: 'Ventas', sub: 'Métricas comerciales y actividad confirmada.' },
         'commerce-orders': { title: 'Pedidos', sub: 'Pagos, seguimiento y estados de pedidos.' },
@@ -1477,8 +1466,8 @@ import '../../styles/admin.css';
 
       const COMMERCE_ROUTES = {
         dashboard: '/admin',
+        repairs: '/admin/repairs',
         agenda: '/admin/agenda',
-        commerce: '/admin/commerce',
         'commerce-store': '/admin/commerce/store',
         'commerce-dashboard': '/admin/commerce/sales',
         'commerce-orders': '/admin/commerce/orders',
@@ -1486,11 +1475,19 @@ import '../../styles/admin.css';
         'commerce-inventory': '/admin/commerce/inventory',
         'commerce-promotions': '/admin/commerce/promotions',
         'commerce-settings': '/admin/commerce/payment-methods',
+        builds: '/admin/builds',
+        comments: '/admin/comments',
+        users: '/admin/users',
+        faqs: '/admin/faqs',
+        preferences: '/admin/preferences',
       };
       const ROUTE_VIEWS = Object.fromEntries(Object.entries(COMMERCE_ROUTES).map(([view, path]) => [path, view]));
 
       function switchView(view, options = {}) {
-        if (!VIEW_TITLES[view]) return;
+        if (!VIEW_TITLES[view]) {
+          console.error('[admin] switchView: vista desconocida, ignorada ->', view);
+          return;
+        }
         document.querySelectorAll('.nav-link[data-view]').forEach(l => {
           const isActive = l.dataset.view === view;
           l.classList.toggle('active', isActive);
@@ -1522,13 +1519,18 @@ import '../../styles/admin.css';
         }
         window.dispatchEvent(new CustomEvent('admin:switch-view', { detail: { view } }));
       }
+      window.switchAdminView = switchView;
 
       document.querySelectorAll('.nav-link[data-view]').forEach(link => {
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          switchView(link.dataset.view);
-          if (link.dataset.repairPanel) {
-            window.setTimeout(() => window.switchRepairPanel?.(link.dataset.repairPanel), 0);
+          try {
+            switchView(link.dataset.view);
+            if (link.dataset.repairPanel) {
+              window.setTimeout(() => window.switchRepairPanel?.(link.dataset.repairPanel), 0);
+            }
+          } catch (err) {
+            console.error('[admin] error al cambiar de vista', link.dataset.view, err);
           }
         });
       });
@@ -1598,17 +1600,33 @@ import '../../styles/admin.css';
       document.querySelectorAll('[data-view-target]').forEach(button => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
-          switchView(button.dataset.viewTarget);
-          if (button.hasAttribute('data-open-repair')) {
-            window.setTimeout(() => window.openRepairModal?.(), 0);
+          try {
+            switchView(button.dataset.viewTarget);
+            if (button.hasAttribute('data-open-repair')) {
+              window.setTimeout(() => window.openRepairModal?.(), 0);
+            }
+          } catch (err) {
+            console.error('[admin] error al cambiar de vista', button.dataset.viewTarget, err);
           }
         });
       });
 
+      // Alias de rutas retiradas (bookmarks/enlaces viejos no deben quedar en blanco)
+      const LEGACY_VIEW_ALIASES = {
+        '/admin/dashboard': 'dashboard',
+        '/admin/tickets': 'repairs',
+        '/admin/workshop': 'repairs',
+        '/admin/commerce': 'commerce-dashboard',
+        '/admin/inventory': 'commerce-inventory',
+        '/admin/settings': 'preferences',
+        '/admin/agenda/configuracion': 'repairs',
+      };
+
       // Restaurar última vista
       try {
         const isHtmlFile = location.pathname.endsWith('.html');
-        const routeView = !isHtmlFile && ROUTE_VIEWS[location.pathname.replace(/\/$/, '') || '/admin'];
+        const cleanPath = location.pathname.replace(/\/$/, '') || '/admin';
+        const routeView = !isHtmlFile && (ROUTE_VIEWS[cleanPath] || LEGACY_VIEW_ALIASES[cleanPath]);
         const hashView = location.hash.slice(1);
         const saved = sessionStorage.getItem('admin_view');
         if (routeView) switchView(routeView, { replace: true });
@@ -1620,7 +1638,8 @@ import '../../styles/admin.css';
       window.addEventListener('popstate', (e) => {
         const isHtmlFile = location.pathname.endsWith('.html');
         const viewFromState = e.state?.adminView;
-        const view = viewFromState || (!isHtmlFile && ROUTE_VIEWS[location.pathname.replace(/\/$/, '')]) || location.hash.slice(1) || 'dashboard';
+        const cleanPath = location.pathname.replace(/\/$/, '') || '/admin';
+        const view = viewFromState || (!isHtmlFile && (ROUTE_VIEWS[cleanPath] || LEGACY_VIEW_ALIASES[cleanPath])) || location.hash.slice(1) || 'dashboard';
         switchView(VIEW_TITLES[view] ? view : 'dashboard', { replace: true, skipHistory: true });
       });
 
@@ -1839,5 +1858,4 @@ import '../../styles/admin.css';
   <script src="/scripts/admin-agenda.js?v=20260905-1" is:inline defer></script>
   <script src="/scripts/admin-commerce.js?v=20260812-5" is:inline defer></script>
   <script src="/scripts/admin-marketplace.js?v=20260820-promotions-1" is:inline defer></script>
-  <script src="/scripts/user-menu.js?v=20260525-admin-link-1" is:inline defer></script>
 </Base>

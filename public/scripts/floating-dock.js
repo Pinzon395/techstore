@@ -17,6 +17,7 @@
     const stickyCta = document.querySelector('.mobile-sticky-cta');
     const btt = document.getElementById('back-to-top');
     const wa = document.getElementById('whatsapp-float');
+    const cart = document.getElementById('store-cart-launcher');
 
     let leftClearance = 0;
     let rightClearance = 0;
@@ -55,6 +56,12 @@
     }
     if (wa) {
       wa.style.setProperty('--wa-clearance', `${rightClearance}px`);
+    }
+    if (cart) {
+      const bannerRect = isBannerVisible ? banner.getBoundingClientRect() : null;
+      const cartRect = cart.getBoundingClientRect();
+      const overlapsBanner = bannerRect && cartRect.left < bannerRect.right && cartRect.right > bannerRect.left;
+      cart.style.setProperty('--cart-clearance', `${Math.max(overlapsBanner ? Math.ceil(window.innerHeight - bannerRect.top + 14) : 0, stickyCta instanceof HTMLElement && window.innerWidth <= 768 ? Math.ceil(stickyCta.getBoundingClientRect().height + 14) : 0)}px`);
     }
   }
 

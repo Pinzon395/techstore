@@ -58,8 +58,8 @@ const pcClusterService = ({
   metaDescription,
   schemaName,
   schemaServiceType,
-  hideSchemaOffer,
-  fromPrice: '$650 MXN',
+  fromPrice: undefined,
+  hideSchemaOffer: hideSchemaOffer ?? true,
   eta: '24-72 h',
   warranty: 'Garantía por escrito según reparación',
   whyUs: [
@@ -122,7 +122,7 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['no-enciende', 'tarjeta-video-gpu', 'instalacion-componentes', 'diagnostico'],
     faqs: [
-      { question: '¿Cuánto cuesta cambiar la fuente de poder de una PC en Cancún?', answer: 'El diagnóstico técnico de energía y fuente comienza desde $600 MXN. Si requiere reemplazo, la mano de obra de instalación y acomodo de cableado es de $650 MXN y la refacción se cotiza según los Watts y certificación requeridos.' },
+      { question: '¿Cuánto cuesta cambiar la fuente de poder de una PC en Cancún?', answer: 'El diagnóstico técnico de energía y fuente comienza desde $600 MXN. Si requiere reemplazo, cotizamos mano de obra y refacción según el modelo exacto, potencia y certificación requeridas.' },
       { question: '¿El diagnóstico de la fuente de poder incluye la refacción?', answer: 'No. El diagnóstico cubre únicamente las pruebas con tester de voltaje, carga y multímetro para determinar la falla. El reemplazo de la pieza o cualquier reparación se cotiza por separado.' },
       { question: '¿Por qué mi computadora se apaga sola mientras juego o trabajo?', answer: 'Suele deberse a sobrecalentamiento o a una fuente de poder degradada que ya no soporta la demanda eléctrica de la tarjeta de video (GPU). También puede ser un corto en la tarjeta madre.' },
       { question: '¿Qué es la certificación 80 Plus (Bronze, Gold, etc.)?', answer: 'Es un estándar de eficiencia energética. Una fuente 80 Plus Gold desperdicia menos electricidad en forma de calor, lo cual es vital en el clima cálido de Cancún, y protege mejor los componentes.' },

@@ -322,5 +322,22 @@
       });
   }
 
-  loadCatalog();
+  var storeLoaded = false;
+  function triggerStoreLoad() {
+    if (storeLoaded) return;
+    storeLoaded = true;
+    loadCatalog();
+  }
+
+  if ('IntersectionObserver' in window && grid) {
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries.some(function(e) { return e.isIntersecting; })) {
+        triggerStoreLoad();
+        obs.disconnect();
+      }
+    }, { rootMargin: '600px 0px' });
+    obs.observe(grid);
+  } else {
+    triggerStoreLoad();
+  }
 })();

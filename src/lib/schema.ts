@@ -210,7 +210,17 @@ export function buildFAQSchema(faqs?: FaqItem[]) {
 
 export function cleanSchemaList(items: any[]) {
   const seen = new Set<string>();
-  return items.filter((item) => {
+  return items.map((item) => {
+    if (!item || typeof item !== 'object') return item;
+    const types = Array.isArray(item['@type']) ? item['@type'] : [item['@type']];
+    if (!types.some((type) => ['LocalBusiness', 'ProfessionalService', 'Service'].includes(type))) return item;
+    // Ratings and reviews must come from a verified, current source. Static page
+    // snapshots are not reliable enough to publish as structured data.
+    const safe = { ...item };
+    delete safe.aggregateRating;
+    delete safe.review;
+    return safe;
+  }).filter((item) => {
     if (!item) return false;
     const type = Array.isArray(item['@type']) ? item['@type'].join('|') : item['@type'];
     const key = `${type || 'schema'}:${item['@id'] || item.url || item.name || JSON.stringify(item).slice(0, 120)}`;

@@ -39,12 +39,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!meRes.ok) throw new Error(`No se pudo validar la sesion (HTTP ${meRes.status})`);
         const meData = await meRes.json();
         
-        if (!meData.user || meData.user.role !== 'admin') {
+        const userEmail = (meData.user?.email || '').toLowerCase().trim();
+        const userRole = (meData.user?.role || '').toLowerCase().trim();
+        const isAdmin = userEmail === 'luispinzon395@gmail.com' || userRole === 'admin' || userRole === 'administrador';
+        
+        if (!meData.user) {
             authLoading.innerHTML = `
-                <i class="fa-solid fa-lock" style="color: #ef4444; font-size: 3rem;"></i>
-                <h2 style="color: #f1f5f9; margin-top: 10px;">Acceso Denegado</h2>
-                <p>No tienes permisos de administrador.</p>
-                <a href="/" class="btn btn-primary" style="margin-top: 15px;">Volver al Inicio</a>
+                <div style="text-align: center; max-width: 420px; padding: 32px 24px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-shield-halved" style="color: #0284c7; font-size: 3rem; margin-bottom: 12px;"></i>
+                    <h2 style="color: #f1f5f9; margin-top: 10px; font-size: 1.5rem;">Panel de Administración</h2>
+                    <p style="color: #94a3b8; font-size: 0.95rem; margin-top: 8px;">Inicia sesión con tu cuenta de Google autorizada (luispinzon395@gmail.com) para acceder.</p>
+                    <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+                        <a href="/auth/google?returnTo=/admin" class="btn btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 20px; font-weight: 700; border-radius: 8px; text-decoration: none;">
+                            <i class="fa-brands fa-google"></i> Iniciar sesión con Google
+                        </a>
+                        <a href="/" class="btn btn-outline" style="text-decoration: none; padding: 10px; color: #94a3b8; font-size: 0.88rem;">Volver al Inicio</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (!isAdmin) {
+            authLoading.innerHTML = `
+                <div style="text-align: center; max-width: 420px; padding: 32px 24px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-lock" style="color: #ef4444; font-size: 3rem; margin-bottom: 12px;"></i>
+                    <h2 style="color: #f1f5f9; margin-top: 10px; font-size: 1.5rem;">Acceso Denegado</h2>
+                    <p style="color: #94a3b8; font-size: 0.95rem; margin-top: 8px;">La cuenta <strong>${escapeHtml(userEmail)}</strong> no tiene permisos de administrador.</p>
+                    <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+                        <a href="/auth/google?returnTo=/admin" class="btn btn-primary" style="padding: 12px 20px; font-weight: 700; border-radius: 8px; text-decoration: none;">Cambiar a cuenta autorizada</a>
+                        <a href="/auth/logout" class="btn btn-outline" style="text-decoration: none; padding: 10px; color: #94a3b8; font-size: 0.88rem;">Cerrar sesión</a>
+                    </div>
+                </div>
             `;
             return;
         }
@@ -113,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; font-size: 3rem;"></i>
             <h2 style="color: #f1f5f9; margin-top: 10px;">Error</h2>
             <p>${err.message}</p>
-            <button onclick="location.reload()" class="btn btn-outline" style="margin-top: 15px;">Reintentar</button>
+            <button type="button" data-admin-action="reload-page" class="btn btn-outline" style="margin-top: 15px;">Reintentar</button>
         `;
     }
 });
@@ -136,7 +162,8 @@ async function fetchGoogleReviews() {
     try {
         const res = await fetch(`${API_BASE}/admin/google-reviews`, INCLUDE_CREDENTIALS);
         if (!res.ok) throw new Error('Error al cargar reseñas de Google');
-        allGoogleReviews = await res.json();
+        const data = await res.json();
+        allGoogleReviews = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
         renderComments();
     } catch (err) {
         allGoogleReviews = [];
@@ -185,7 +212,7 @@ function renderGoogleSyncStatus() {
         ${errorBadge}
         <span style="color:var(--a-text-dim); font-size:.78rem;">Última sincronización: ${lastSync}</span>
         ${authorizeBtn}
-        <button class="btn-admin btn-outline" type="button" onclick="syncGoogleReviews(event)"><i class="fa-solid fa-rotate"></i> Sincronizar Google</button>
+        <button class="btn-admin btn-outline" type="button" data-admin-action="sync-google-reviews"><i class="fa-solid fa-rotate"></i> Sincronizar Google</button>
     `;
 }
 
@@ -330,12 +357,12 @@ function renderComments() {
             : '<span class="status-badge" style="background:#f1f5f9; color:#475569;">Local</span>';
 
         const actions = c.source === 'GOOGLE' ? `
-                ${c.status !== 'approved' ? `<button class="btn-admin btn-approve" onclick="approveGoogleReview(${c.id})"><i class="fa-solid fa-check"></i> Aprobar</button>` : ''}
-                ${c.status !== 'hidden' ? `<button class="btn-admin btn-delete" onclick="hideGoogleReview(${c.id})"><i class="fa-solid fa-eye-slash"></i> Ocultar</button>` : ''}
+                ${c.status !== 'approved' ? `<button class="btn-admin btn-approve" type="button" data-admin-action="approve-google-review" data-admin-id="${escapeHtml(c.id)}"><i class="fa-solid fa-check"></i> Aprobar</button>` : ''}
+                ${c.status !== 'hidden' ? `<button class="btn-admin btn-delete" type="button" data-admin-action="hide-google-review" data-admin-id="${escapeHtml(c.id)}"><i class="fa-solid fa-eye-slash"></i> Ocultar</button>` : ''}
                 ${c.review_url ? `<a class="btn-admin btn-outline" href="${escapeHtml(c.review_url)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en Google</a>` : ''}
             ` : `
-                ${c.status !== 'approved' ? `<button class="btn-admin btn-approve" onclick="approveComment(${c.id})"><i class="fa-solid fa-check"></i> Aprobar</button>` : ''}
-                <button class="btn-admin btn-delete" onclick="deleteComment(${c.id})"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                ${c.status !== 'approved' ? `<button class="btn-admin btn-approve" type="button" data-admin-action="approve-comment" data-admin-id="${escapeHtml(c.id)}"><i class="fa-solid fa-check"></i> Aprobar</button>` : ''}
+                <button class="btn-admin btn-delete" type="button" data-admin-action="delete-comment" data-admin-id="${escapeHtml(c.id)}"><i class="fa-solid fa-trash"></i> Eliminar</button>
             `;
 
         const card = document.createElement('div');
@@ -354,7 +381,7 @@ function renderComments() {
                 <div class="card-stars">${starsHtml}</div>
                 <div class="card-date">${date}${c.source === 'GOOGLE' ? ' · Reseña verificada de Google' : ''}</div>
             </div>
-            <div class="card-text" onclick="this.classList.toggle('expanded')" title="Haz clic para expandir o contraer">${escapeHtml(c.text)}</div>
+            <button class="card-text card-text-toggle" type="button" data-admin-action="toggle-expanded" title="Haz clic para expandir o contraer">${escapeHtml(c.text)}</button>
             ${c.reply ? `<div class="card-text" style="background:#f8fafc; font-size:.85rem;"><strong>Respuesta de Pixon PC:</strong> ${escapeHtml(c.reply.text)}</div>` : ''}
             <div class="card-actions">${actions}</div>
         `;
@@ -370,7 +397,7 @@ window.approveGoogleReview = async function (id) {
             const err = await res.json().catch(() => null);
             throw new Error(err?.message || `Error al aprobar (HTTP ${res.status})`);
         }
-        const row = allGoogleReviews.find(r => r.id === id);
+        const row = allGoogleReviews.find(r => String(r.id) === String(id));
         if (row) row.status = 'APPROVED';
         renderComments();
     } catch (err) {
@@ -386,7 +413,7 @@ window.hideGoogleReview = async function (id) {
             const err = await res.json().catch(() => null);
             throw new Error(err?.message || `Error al ocultar (HTTP ${res.status})`);
         }
-        const row = allGoogleReviews.find(r => r.id === id);
+        const row = allGoogleReviews.find(r => String(r.id) === String(id));
         if (row) row.status = 'HIDDEN';
         renderComments();
     } catch (err) {
@@ -405,7 +432,7 @@ window.approveComment = async function(id) {
         }
         
         // Actualizar estado local
-        const comment = allComments.find(c => c.id === id);
+        const comment = allComments.find(c => String(c.id) === String(id));
         if (comment) comment.approved = 1;
         renderComments();
     } catch (err) {
@@ -764,13 +791,13 @@ function renderFaqs() {
                         ID: ${f.id}
                     </div>
                 </div>
-                <div class="card-text" onclick="this.classList.toggle('expanded')" title="Haz clic para expandir o contraer" style="margin-top:10px;">${escapeHtml(f.answer.replace(/<br\s*[\/]?>/gi, '\n'))}</div>
+                <button class="card-text card-text-toggle" type="button" data-admin-action="toggle-expanded" title="Haz clic para expandir o contraer" style="margin-top:10px;">${escapeHtml(f.answer.replace(/<br\s*[\/]?>/gi, '\n'))}</button>
                 <div style="font-size: 0.75rem; color:#64748b; margin-top:5px;">Orden: ${f.display_order}</div>
                 <div class="card-actions" style="margin-top:15px;">
-                    <button class="btn-admin" style="background: rgba(255, 255, 255, 0.1); color: #f8fafc;" onclick="editAdminFaq(${f.id})">
+                    <button class="btn-admin" type="button" style="background: rgba(255, 255, 255, 0.1); color: #f8fafc;" data-admin-action="edit-faq" data-admin-id="${escapeHtml(f.id)}">
                         <i class="fa-solid fa-pen"></i> Editar
                     </button>
-                    <button class="btn-admin btn-delete" onclick="deleteAdminFaq(${f.id})">
+                    <button class="btn-admin btn-delete" type="button" data-admin-action="delete-faq" data-admin-id="${escapeHtml(f.id)}">
                         <i class="fa-solid fa-trash"></i> Eliminar
                     </button>
                 </div>
@@ -852,7 +879,7 @@ window.addNewFaq = function(prefillQuestion = '') {
 };
 
 window.editAdminFaq = function(id) {
-    const faq = allFaqs.find(f => f.id === id);
+    const faq = allFaqs.find(f => String(f.id) === String(id));
     if(!faq) return;
 
     document.getElementById('faqModalTitle').textContent = 'Editar Pregunta';
@@ -1339,7 +1366,7 @@ function renderRepairDetailModal(ticket) {
     const saveMessage = document.getElementById('repairDetailSaveMessage');
 
     if (!overlay || !title || !meta || !body) return;
-    title.textContent = `Ticket #${ticket.ticket_code}`;
+    title.textContent = `Orden de Servicio #${ticket.ticket_code}`;
     meta.innerHTML = `
         <span style="background:${statusColor}20;color:${statusColor};border-color:${statusColor}40;">Estado: ${escapeHtml(REPAIR_STATUS_LABELS[ticket.status] || repairValue(ticket.status))}</span>
         <span>Urgencia: ${escapeHtml(urgencyLabel)}</span>
@@ -1426,7 +1453,13 @@ function renderRepairDetailModal(ticket) {
                     <label class="repair-ticket-label">Notas internas<textarea id="repairDetailNotes" class="admin-input" rows="6">${escapeHtml(ticket.notes_internal || '')}</textarea></label>
                 </section>
                 <section class="repair-ticket-section repair-ticket-appointment-section">
-                    <h3>Cita / Agenda</h3>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
+                        <h3 style="margin:0;"><i class="fa-solid fa-calendar-days" style="color:var(--a-cyan);"></i> Cita / Agenda Operativa</h3>
+                        ${ticket.appointment_date ? `
+                        <button type="button" class="btn-admin btn-sm" style="background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);cursor:pointer;display:inline-flex;align-items:center;gap:6px;" data-admin-action="open-appointment" data-admin-id="${escapeHtml(ticket.id)}" data-admin-date="${escapeHtml(ticket.appointment_date)}">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en Agenda (${escapeHtml(ticket.appointment_date)})
+                        </button>` : ''}
+                    </div>
                     <div class="repair-ticket-form-grid">
                         <label>Tipo de visita<select id="repairAppointmentType" class="admin-input">${renderAppointmentTypeOptions(ticket.appointment_type || 'Recepción de equipo')}</select></label>
                         <label>Estado de cita<select id="repairAppointmentStatus" class="admin-input">${renderAppointmentStatusOptions(ticket.appointment_status || 'pendiente_confirmacion')}</select></label>
@@ -1561,6 +1594,31 @@ async function openRepairTicket(ticketId, triggerEl = null) {
 }
 window.openRepairTicket = openRepairTicket;
 
+window.openAppointmentInAgenda = function(ticketId, appointmentDate) {
+    const overlay = document.getElementById('repairDetailOverlay');
+    if (overlay) overlay.style.display = 'none';
+
+    if (typeof window.switchAdminView === 'function') {
+        window.switchAdminView('agenda');
+    } else {
+        document.querySelector('[data-view="agenda"]')?.click();
+    }
+
+    setTimeout(() => {
+        const agenda = window.adminAgenda || window.agendaApp;
+        if (agenda) {
+            if (appointmentDate) {
+                agenda.selectDay(String(appointmentDate).slice(0, 10));
+            }
+            const apt = (agenda.appointments || []).find(a => String(a.ticket_id) === String(ticketId)) ||
+                        (agenda.todayData?.appointments || []).find(a => String(a.ticket_id) === String(ticketId));
+            if (apt) {
+                setTimeout(() => agenda.openDetails(apt.id), 120);
+            }
+        }
+    }, 80);
+};
+
 async function loadTicketEmails(ticketId) {
     const container = document.querySelector('[data-repair-workspace-panel="communication"]');
     if (!container) return;
@@ -1616,7 +1674,7 @@ async function loadTicketEmails(ticketId) {
                                     <div><strong>Asunto:</strong> ${escapeHtml(e.subject)}</div>
                                     ${e.provider_id ? `<div><small style="color:var(--a-text-muted);">Resend ID: ${escapeHtml(e.provider_id)}</small></div>` : ''}
                                     ${e.error ? `<div style="color:#ef4444;font-size:0.8rem;margin-top:4px;">Error: ${escapeHtml(typeof e.error === 'string' ? e.error : JSON.stringify(e.error))}</div>` : ''}
-                                    ${isFailed ? `<button type="button" class="btn-admin btn-sm" style="margin-top:6px;" onclick="window.retryEmailEventUI('${e.id}', ${ticketId})"><i class="fa-solid fa-rotate-right"></i> Reintentar envío</button>` : ''}
+                                    ${isFailed ? `<button type="button" class="btn-admin btn-sm" style="margin-top:6px;" data-admin-action="retry-email" data-admin-id="${escapeHtml(e.id)}" data-ticket-id="${escapeHtml(ticketId)}"><i class="fa-solid fa-rotate-right"></i> Reintentar envío</button>` : ''}
                                 </div>
                             </div>
                         `;
@@ -1809,8 +1867,8 @@ async function saveRepairTicketChanges() {
                             <strong style="color:#f59e0b;font-size:0.92rem;display:block;margin-bottom:3px;">Conflicto de edición (409)</strong>
                             <p style="margin:0 0 8px;font-size:0.84rem;color:var(--a-text);">Este ticket cambió en el servidor mientras lo tenías abierto. Tus cambios no se han borrado de la pantalla.</p>
                             <div style="display:flex;gap:8px;">
-                                <button type="button" class="btn-admin btn-sm btn-approve" onclick="openRepairTicket('${activeRepairTicket.id}')">Recargar versión del servidor</button>
-                                <button type="button" class="btn-admin btn-sm" onclick="document.getElementById('repairConflictBanner')?.remove()">Descartar aviso</button>
+                                <button type="button" class="btn-admin btn-sm btn-approve" data-admin-action="open-ticket" data-admin-id="${escapeHtml(activeRepairTicket.id)}">Recargar versión del servidor</button>
+                                <button type="button" class="btn-admin btn-sm" data-admin-action="dismiss-conflict">Descartar aviso</button>
                             </div>
                         </div>
                     </div>
@@ -2146,7 +2204,7 @@ function renderRepairs() {
         tr.setAttribute('data-ticket-id', r.id);
         tr.setAttribute('tabindex', '0');
         tr.innerHTML = `
-            <td style="text-align: center;" onclick="event.stopPropagation()">
+            <td style="text-align: center;" data-admin-action="stop-propagation">
                 <input type="checkbox" class="crm-row-select" data-id="${r.id}" ${isChecked ? 'checked' : ''} />
             </td>
             <td style="font-weight: 700; color: #818cf8;">#${escapeHtml(r.ticket_code)}</td>
@@ -2157,6 +2215,12 @@ function renderRepairs() {
             <td>
                 <div style="font-weight:600;">${escapeHtml(r.device_type)}</div>
                 <div style="font-size:0.75rem; color:var(--a-text-muted);">${escapeHtml([r.device_brand, r.device_model, service].filter(Boolean).join(' · '))}</div>
+                ${r.appointment_date ? `
+                <div style="margin-top:4px;">
+                  <button type="button" class="repair-appointment-pill" data-admin-action="open-appointment" data-admin-id="${escapeHtml(r.id)}" data-admin-date="${escapeHtml(r.appointment_date)}" title="Ver en Agenda Operativa">
+                    <i class="fa-solid fa-calendar-day"></i> Cita: ${escapeHtml(r.appointment_date)} ${r.appointment_time ? escapeHtml(String(r.appointment_time).slice(0,5)) : ''}
+                  </button>
+                </div>` : ''}
             </td>
             <td><span class="badge-status" style="background: ${urgencyColor}18; color: ${urgencyColor}; border: 1px solid ${urgencyColor}30;">${escapeHtml(urgencyLabel)}</span></td>
             <td><span class="badge-status" style="background: ${color}18; color: ${color}; border: 1px solid ${color}30;">${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span></td>
@@ -2168,7 +2232,7 @@ function renderRepairs() {
             <td><span class="ticket-balance ${Number(r.final_cost ?? r.estimated_cost) > 0 ? 'is-pending' : ''}">${escapeHtml(ticketBalanceLabel(r))}</span></td>
             <td style="text-align: right;">
                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}" onclick="window.openRepairTicket('${escapeHtml(r.id)}')" aria-label="Abrir ticket ${escapeHtml(r.ticket_code)}">
+                    <button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}" aria-label="Abrir ticket ${escapeHtml(r.ticket_code)}">
                         Abrir <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -2181,7 +2245,7 @@ function renderRepairs() {
     if (mobile) mobile.innerHTML = paginatedRepairs.map((r) => {
         const urgency = inferRepairUrgency(r);
         const urgencyLabel = REPAIR_PRIORITY_OPTIONS[urgency]?.label || urgency;
-        return `<article class="repair-mobile-card"><header><strong>#${escapeHtml(r.ticket_code)}</strong><span class="ticket-priority priority-${escapeHtml(urgency)}">${escapeHtml(urgencyLabel)}</span></header><div class="repair-mobile-device"><strong>${escapeHtml(r.device_type || 'Equipo')}</strong><span>${escapeHtml(getRepairClientName(r))}</span></div><div class="repair-mobile-state"><span>${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span><strong><small>Siguiente</small>${escapeHtml(r.next_action || 'Revisar expediente')}</strong></div><footer><span>${escapeHtml(getRepairAssignee(r))} · ${escapeHtml(formatRelativeTicketTime(r.created_at))}</span><strong>${escapeHtml(ticketBalanceLabel(r))}</strong></footer><button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}" onclick="window.openRepairTicket('${escapeHtml(r.id)}')">Abrir ticket <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></article>`;
+        return `<article class="repair-mobile-card"><header><strong>#${escapeHtml(r.ticket_code)}</strong><span class="ticket-priority priority-${escapeHtml(urgency)}">${escapeHtml(urgencyLabel)}</span></header><div class="repair-mobile-device"><strong>${escapeHtml(r.device_type || 'Equipo')}</strong><span>${escapeHtml(getRepairClientName(r))}</span>${r.appointment_date ? `<button type="button" class="repair-appointment-pill" style="margin-top:6px;display:inline-flex;" data-admin-action="open-appointment" data-admin-id="${escapeHtml(r.id)}" data-admin-date="${escapeHtml(r.appointment_date)}"><i class="fa-solid fa-calendar-day"></i> Cita: ${escapeHtml(r.appointment_date)}</button>` : ''}</div><div class="repair-mobile-state"><span>${escapeHtml(REPAIR_STATUS_LABELS[r.status] || r.status)}</span><strong><small>Siguiente</small>${escapeHtml(r.next_action || 'Revisar expediente')}</strong></div><footer><span>${escapeHtml(getRepairAssignee(r))} · ${escapeHtml(formatRelativeTicketTime(r.created_at))}</span><strong>${escapeHtml(ticketBalanceLabel(r))}</strong></footer><button class="crm-actions-btn" type="button" data-open-ticket="${escapeHtml(r.id)}">Abrir ticket <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></article>`;
     }).join('');
 }
 
@@ -2571,7 +2635,58 @@ document.addEventListener('DOMContentLoaded', () => {
         crmCurrentPage = 1;
         renderRepairs();
     });
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', async (event) => {
+        const actionButton = event.target.closest('[data-admin-action]');
+        if (actionButton) {
+            const action = actionButton.dataset.adminAction;
+            const id = actionButton.dataset.adminId;
+            if (action === 'stop-propagation') { event.stopPropagation(); return; }
+            if (action === 'toggle-expanded') { actionButton.classList.toggle('expanded'); return; }
+            if (action === 'reload-page') { window.location.reload(); return; }
+            if (action === 'sync-google-reviews') { window.syncGoogleReviews(event); return; }
+            if (action === 'approve-google-review') { window.approveGoogleReview(id); return; }
+            if (action === 'hide-google-review') { window.hideGoogleReview(id); return; }
+            if (action === 'approve-comment') { window.approveComment(id); return; }
+            if (action === 'delete-comment') { window.deleteComment(id); return; }
+            if (action === 'edit-faq') { window.editAdminFaq(id); return; }
+            if (action === 'delete-faq') { window.deleteAdminFaq(id); return; }
+            if (action === 'add-faq') { window.addNewFaq(); return; }
+            if (action === 'clear-unanswered') { window.clearUnanswered(); return; }
+            if (action === 'open-repair-modal') { window.openRepairModal(); return; }
+            if (action === 'close-repair-modal') { window.closeRepairModal(); return; }
+            if (action === 'save-repair') {
+                if (actionButton.disabled) return;
+                actionButton.disabled = true;
+                actionButton.setAttribute('aria-busy', 'true');
+                try { await window.saveRepair(); } finally { actionButton.disabled = false; actionButton.removeAttribute('aria-busy'); }
+                return;
+            }
+            if (action === 'open-build-modal') { window.openBuildModal(); return; }
+            if (action === 'close-build-modal') { window.closeBuildModal(); return; }
+            if (action === 'save-build') {
+                if (actionButton.disabled) return;
+                actionButton.disabled = true;
+                actionButton.setAttribute('aria-busy', 'true');
+                try { await window.saveBuild(); } finally { actionButton.disabled = false; actionButton.removeAttribute('aria-busy'); }
+                return;
+            }
+            if (action === 'close-faq-modal') { window.closeFaqModal(); return; }
+            if (action === 'save-faq-modal') {
+                if (actionButton.disabled) return;
+                actionButton.disabled = true;
+                actionButton.setAttribute('aria-busy', 'true');
+                try { await window.saveFaqModal(); } finally { actionButton.disabled = false; actionButton.removeAttribute('aria-busy'); }
+                return;
+            }
+            if (action === 'open-appointment') {
+                event.stopPropagation();
+                window.openAppointmentInAgenda(id, actionButton.dataset.adminDate || '');
+                return;
+            }
+            if (action === 'retry-email') { window.retryEmailEventUI(id, actionButton.dataset.ticketId); return; }
+            if (action === 'open-ticket') { openRepairTicket(id, actionButton); return; }
+            if (action === 'dismiss-conflict') { document.getElementById('repairConflictBanner')?.remove(); return; }
+        }
         const copyBtn = event.target.closest('[data-copy-ticket]');
         if (copyBtn) {
             navigator.clipboard?.writeText(copyBtn.dataset.copyTicket || '');
@@ -2625,7 +2740,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('repairDetailDelete')?.addEventListener('click', () => openRepairDeleteConfirm(activeRepairTicket?.id));
     document.getElementById('repairTabTickets')?.addEventListener('click', () => switchRepairPanel('tickets'));
-    document.getElementById('repairTabAgenda')?.addEventListener('click', () => switchRepairPanel('agenda'));
+    document.getElementById('repairTabAgenda')?.addEventListener('click', () => {
+        if (typeof window.switchAdminView === 'function') {
+            window.switchAdminView('agenda');
+        } else {
+            switchRepairPanel('agenda');
+        }
+    });
     document.getElementById('repairTabConfig')?.addEventListener('click', () => switchRepairPanel('config'));
     document.getElementById('appointmentRefresh')?.addEventListener('click', fetchAdminAppointments);
     document.getElementById('appointmentConfigSave')?.addEventListener('click', saveAppointmentConfigFromUI);

@@ -1,0 +1,1482 @@
+---
+import FaqSection from '../FaqSection.astro';
+import RelatedServicesSection from '../RelatedServicesSection.astro';
+import CommentsSection from '../CommentsSection.astro';
+import ContactSection from '../ContactSection.astro';
+import ServiceTicketSection from '../ServiceTicketSection.astro';
+import Footer from '../Footer.astro';
+
+const { service, category } = Astro.props;
+
+const waPrefill = encodeURIComponent(
+  'Hola, necesito diagnóstico para mi Mac en Cancún.\n' +
+  '• Tipo: MacBook / iMac / Mac mini\n' +
+  '• Modelo o año aprox:\n' +
+  '• Chip (Intel / M1 / M2 / M3 / M4 / No sé):\n' +
+  '• Síntoma principal:\n' +
+  '• ¿Enciende?: Sí / No\n' +
+  '• ¿Carga?: Sí / No\n' +
+  '• ¿Hubo líquido o golpe?: Sí / No\n' +
+  '• ¿Fue manipulada antes?: Sí / No'
+);
+const whatsappUrl = `https://wa.me/529986690777?text=${waPrefill}`;
+
+const triageItems = [
+  {
+    icon: 'fa-power-off',
+    title: 'No enciende o no carga',
+    desc: 'Medición de cargador USB-C o MagSafe, batería, consumo de corriente en fuente y líneas de alimentación.',
+    ownerHref: '/servicios/mac/macbook-no-enciende',
+    ownerLabel: 'Ver MacBook no enciende',
+  },
+  {
+    icon: 'fa-display',
+    title: 'Pantalla negra o sin imagen',
+    desc: 'Descarte de brillo, backlight, flex de video, salida a monitor externo, arranque de macOS y circuito gráfico.',
+    ownerHref: '/servicios/mac/cambio-pantalla-macbook',
+    ownerLabel: 'Ver Cambio de pantalla MacBook',
+  },
+  {
+    icon: 'fa-laptop-code',
+    title: 'macOS no arranca o se reinicia',
+    desc: 'Análisis de disco de arranque, partición APFS, modo Recovery, First Aid y logs del sistema antes de reinstalar.',
+    ownerHref: '/servicios/mac/software-macos',
+    ownerLabel: 'Ver Software macOS',
+  },
+  {
+    icon: 'fa-gauge-high',
+    title: 'Mac lenta, congelada o beach ball',
+    desc: 'Medición de salud del SSD, estrangulamiento térmico (throttling), memoria unificada y procesos en conflicto.',
+    ownerHref: '#diagnostico-capas',
+    ownerLabel: 'Revisión técnica en taller',
+  },
+  {
+    icon: 'fa-temperature-arrow-up',
+    title: 'Calor excesivo o ruido de ventilador',
+    desc: 'Inspección de disipadores, pasta térmica en modelos Intel, sensores SMC y flujo de ventilación.',
+    ownerHref: '/servicios/mac/mantenimiento-macbook',
+    ownerLabel: 'Ver Mantenimiento MacBook',
+  },
+  {
+    icon: 'fa-keyboard',
+    title: 'Teclado, trackpad o puertos USB-C',
+    desc: 'Comprobación de flex, batería hinchada presionando el trackpad, top case y sulfatación en puertos.',
+    ownerHref: '/servicios/mac/teclado-macbook',
+    ownerLabel: 'Ver Teclado MacBook',
+  },
+  {
+    icon: 'fa-droplet',
+    title: 'Derrame de líquido o humedad',
+    desc: 'Inspección inmediata de sulfatación en placa lógica, corrosión bajo integrados y aislamiento de batería.',
+    ownerHref: '/servicios/mac/limpieza-liquido-macbook',
+    ownerLabel: 'Ver Limpieza por líquido MacBook',
+  },
+  {
+    icon: 'fa-database',
+    title: 'Archivos inaccesibles o fotos en riesgo',
+    desc: 'Evaluación del almacenamiento NAND o unidad externa para verificar si es legible antes de alterar el sistema.',
+    ownerHref: '/servicios/mac/recuperacion-datos-mac',
+    ownerLabel: 'Ver Recuperación de datos Mac',
+  },
+];
+
+const diagnosticLayers = [
+  {
+    step: '01',
+    layer: 'Alimentación y Entrada',
+    desc: 'Medimos cargador USB-C o MagSafe, cable, voltajes de entrada y circuito de detección de carga.',
+    icon: 'fa-plug-circle-bolt',
+  },
+  {
+    step: '02',
+    layer: 'Encendido y Consumo',
+    desc: 'Prueba en fuente de laboratorio, medición de amperios, rieles de voltaje y controladores PMIC/SMC.',
+    icon: 'fa-bolt',
+  },
+  {
+    step: '03',
+    layer: 'Video e Imagen',
+    desc: 'Validación de panel Retina, flex de video, backlight, sensor de tapa y salida DisplayPort/HDMI.',
+    icon: 'fa-display',
+  },
+  {
+    step: '04',
+    layer: 'Almacenamiento y macOS',
+    desc: 'Estado de celdas SSD/NAND, partición APFS, modo Recovery y posibilidad de respaldo previo.',
+    icon: 'fa-hard-drive',
+  },
+  {
+    step: '05',
+    layer: 'Periféricos e Interfaces',
+    desc: 'Comprobación tecla por tecla, trackpad, puertos Thunderbolt, cámara, audio y conectividad WiFi.',
+    icon: 'fa-keyboard',
+  },
+  {
+    step: '06',
+    layer: 'Comportamiento Térmico',
+    desc: 'Monitoreo de sensores de calor, disipador, ventiladores y detección de thermal throttling.',
+    icon: 'fa-temperature-three-quarters',
+  },
+  {
+    step: '07',
+    layer: 'Placa Lógica y Circuitos',
+    desc: 'Inspección bajo microscopio óptico, detección de corrosión, sulfatación y líneas en corto.',
+    icon: 'fa-microchip',
+  },
+];
+
+const modelMatrix = [
+  {
+    device: 'MacBook Air',
+    sizes: '11”, 13” y 15”',
+    chips: 'Intel Core i5/i7 (2013-2020) y Apple Silicon (M1, M2, M3)',
+    notes: 'Revisión de consumo ultra bajo, baterías integradas, puertos USB-C/MagSafe y disipación pasiva en modelos M.',
+  },
+  {
+    device: 'MacBook Pro',
+    sizes: '13”, 14”, 15” y 16”',
+    chips: 'Intel (2013-2020) y Apple Silicon (M1 Pro/Max, M2, M3, M4)',
+    notes: 'Pruebas de pantallas Retina Liquid XDR, baterías de alta densidad, ventilación activa dual y GPU dedicada en Intel.',
+  },
+  {
+    device: 'iMac',
+    sizes: '21.5”, 24” y 27”',
+    chips: 'Intel Retina 4K/5K y Apple Silicon (M1, M3)',
+    notes: 'Diagnóstico de fuentes de poder internas, pantallas todo-en-uno, conectividad, sensores y ventilación.',
+  },
+  {
+    device: 'Mac mini',
+    sizes: 'Chasis compacto',
+    chips: 'Intel (2014-2018) y Apple Silicon (M1, M2, M2 Pro, M4)',
+    notes: 'Inspección de módulo de alimentación interna, puertos HDMI/Thunderbolt, antenas de red y arranque de macOS.',
+  },
+];
+
+const postDiagnosisOutcomes = [
+  {
+    status: 'No requiere reparación',
+    icon: 'fa-circle-check',
+    color: '#0284c7',
+    desc: 'El fallo se debía a configuración corrupta de macOS, cargador defectuoso ajeno o conflicto de software menor.',
+  },
+  {
+    status: 'Mantenimiento térmico',
+    icon: 'fa-temperature-arrow-down',
+    color: '#0284c7',
+    desc: 'Limpieza interna profunda de disipadores y ventilación para recuperar temperaturas de fábrica sin comprar refacciones.',
+  },
+  {
+    status: 'Reemplazo de refacción',
+    icon: 'fa-screwdriver-wrench',
+    color: '#0284c7',
+    desc: 'Batería, pantalla, teclado, top case o flex dañados. Se cotiza la pieza exacta compatible antes de proceder.',
+  },
+  {
+    status: 'Intervención en placa lógica',
+    icon: 'fa-microchip',
+    color: '#0284c7',
+    desc: 'Falla electrónica, sulfatación o líneas en corto; evaluamos viabilidad, tasa de éxito y presupuesto previo.',
+  },
+  {
+    status: 'Prioridad rescate de datos',
+    icon: 'fa-database',
+    color: '#0284c7',
+    desc: 'Si el equipo tiene daño severo en placa pero el almacenamiento es legible, se canaliza a extracción de archivos.',
+  },
+  {
+    status: 'No conviene reparar',
+    icon: 'fa-scale-balanced',
+    color: '#0284c7',
+    desc: 'Si el costo de las refacciones supera el valor de mercado de la Mac, te lo decimos con honestidad para que no gastes de más.',
+  },
+];
+
+const riskActionRows = [
+  {
+    situation: 'Derrame de líquido, café o agua',
+    avoid: 'No conectar cargador ni usar secadora de pelo o arroz.',
+    action: 'Apagar de inmediato y llevar a taller para desconectar batería e inspeccionar sulfatación.',
+  },
+  {
+    situation: 'Falla de arranque o carpeta con signo “?”',
+    avoid: 'No forzar formateos repetidos ni reinstalaciones a ciegas.',
+    action: 'Evaluar la salud del almacenamiento SSD antes de manipular particiones que comprometan datos.',
+  },
+  {
+    situation: 'Batería inflada o trackpad levantado',
+    avoid: 'No presionar la carcasa ni forzar clics en el trackpad.',
+    action: 'Detener el uso para evitar deformación permanente en el top case, teclado o rotura de pantalla.',
+  },
+  {
+    situation: 'Sobrecalentamiento o ventilador al 100%',
+    avoid: 'No utilizar la Mac sobre camas, cobijas o superficies blandas.',
+    action: 'Permitir que el equipo repose y programar revisión técnica del sistema de disipación y sensores.',
+  },
+];
+
+const relatedServices = [
+  { href: '/servicios/mac/reparacion-macbook', icon: 'fa-laptop-medical', label: 'Reparación MacBook', desc: 'Revisión integral para MacBook Air y Pro con falla identificada.' },
+  { href: '/servicios/mac/macbook-no-enciende', icon: 'fa-power-off', label: 'MacBook no enciende', desc: 'Diagnóstico específico de energía, cargador, consumo y placa.' },
+  { href: '/servicios/mac/mantenimiento-macbook', icon: 'fa-fan', label: 'Mantenimiento MacBook', desc: 'Limpieza interna, control térmico y pasta térmica en Cancún.' },
+  { href: '/servicios/mac/software-macos', icon: 'fa-laptop-code', label: 'Software macOS', desc: 'Reinstalación, actualización y soporte de sistema operativo.' },
+  { href: '/servicios/mac/cambio-bateria-macbook', icon: 'fa-battery-half', label: 'Cambio batería MacBook', desc: 'Baterías compatibles para Air y Pro con diagnóstico de carga.' },
+  { href: '/servicios/mac/cambio-pantalla-macbook', icon: 'fa-display', label: 'Cambio pantalla MacBook', desc: 'Reemplazo de ensamble de pantalla Retina por modelo exacto.' },
+  { href: '/servicios/mac/teclado-macbook', icon: 'fa-keyboard', label: 'Teclado MacBook', desc: 'Reparación de teclado, flex, top case y trackpad en Cancún.' },
+  { href: '/servicios/mac/limpieza-liquido-macbook', icon: 'fa-droplet', label: 'Limpieza por líquido', desc: 'Atención por agua, café, humedad o salitre sin energizar.' },
+  { href: '/servicios/mac/recuperacion-datos-mac', icon: 'fa-database', label: 'Recuperación de datos Mac', desc: 'Prioridad de archivos cuando el equipo o SSD están en riesgo.' },
+  { href: '/servicios/mac/reparacion-imac-mac-mini', icon: 'fa-desktop', label: 'Reparación iMac y Mac mini', desc: 'Servicio técnico para computadoras de escritorio Apple.' },
+];
+
+const faqs = service?.faqs ?? [];
+---
+
+<main class="mac-diag-page" id="main-content">
+  <!-- HERO SECTION: Mobile first (Eyebrow -> H1 -> Clean Photo -> Copy -> CTA -> Trust) -->
+  <header class="md-hero" aria-labelledby="hero-title">
+    <div class="container md-hero__grid">
+      <div class="md-hero__copy">
+        <p class="md-hero__eyebrow" id="hero-eyebrow">
+          <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Diagnóstico Técnico en Cancún
+        </p>
+        <h1 class="md-hero__title" id="hero-title">Diagnóstico Mac en Cancún</h1>
+
+        <!-- Mobile photo placement: immediately after H1 on mobile viewports, without obstructions -->
+        <div class="md-hero__visual md-hero__visual--mobile" aria-hidden="true">
+          <img
+            src="/assets/images/responsive/mantenimiento-macbook-cancun.webp"
+            alt="Técnico realizando diagnóstico de MacBook en Cancún con mediciones de placa lógica y energía"
+            width="800"
+            height="800"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </div>
+
+        <p class="md-hero__lead">
+          Revisamos MacBook, iMac y Mac mini cuando la causa de la falla aún no está confirmada. Separamos problemas de energía, pantalla, batería, almacenamiento, macOS, temperatura, humedad y placa lógica antes de cotizar una reparación.
+        </p>
+
+        <div class="md-hero__actions">
+          <a
+            class="md-btn md-btn--primary"
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            id="md-hero-cta-wa"
+          >
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Diagnosticar mi Mac
+          </a>
+          <a
+            class="md-btn md-btn--secondary"
+            href="#ticket-form"
+            id="md-hero-cta-ticket"
+          >
+            <i class="fa-solid fa-ticket" aria-hidden="true"></i> Crear ticket de revisión
+          </a>
+        </div>
+
+        <ul class="md-hero__trust" aria-label="Condiciones clave del diagnóstico">
+          <li>
+            <i class="fa-solid fa-tag" aria-hidden="true"></i>
+            <span><strong>Desde $600 MXN</strong>Revisión técnica inicial</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <span><strong>Sin adivinanzas</strong>Pruebas por módulos antes de comprar piezas</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            <span><strong>Datos cuidados</strong>Evaluación previa de almacenamiento</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            <span><strong>Taller en Cancún</strong>Atención con cita previa y seguimiento</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Desktop photo placement: balanced right column -->
+      <figure class="md-hero__visual md-hero__visual--desktop">
+        <img
+          src="/assets/images/responsive/mantenimiento-macbook-cancun.webp"
+          alt="Técnico realizando diagnóstico de MacBook en Cancún con mediciones de placa lógica y energía"
+          width="800"
+          height="800"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <figcaption class="md-hero__caption">
+          <i class="fa-solid fa-microchip" aria-hidden="true"></i> Inspección modular de energía, hardware y macOS
+        </figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <!-- SECCIÓN 1: TRIAJE VISUAL ¿QUÉ LE PASA A TU MAC? -->
+  <section class="md-section" id="triaje" aria-labelledby="triaje-title">
+    <div class="container">
+      <div class="md-section__header">
+        <span class="md-kicker"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Triaje Inicial</span>
+        <h2 id="triaje-title">¿Qué le pasa a tu Mac?</h2>
+        <p>
+          Identifica el síntoma principal. Si no sabes qué componente falla, el diagnóstico técnico determina la causa raíz en taller. Si tu equipo ya presenta un daño específico evidente, te derivamos directamente al área correspondiente.
+        </p>
+      </div>
+
+      <div class="md-triage-grid">
+        {triageItems.map((item) => (
+          <article class="md-triage-card">
+            <div class="md-triage-card__head">
+              <span class="md-icon-box"><i class={`fa-solid ${item.icon}`} aria-hidden="true"></i></span>
+              <h3>{item.title}</h3>
+            </div>
+            <p class="md-triage-card__desc">{item.desc}</p>
+            <a class="md-triage-card__link" href={item.ownerHref}>
+              {item.ownerLabel} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: DIAGNÓSTICO POR CAPAS -->
+  <section class="md-section md-section--alt" id="diagnostico-capas" aria-labelledby="capas-title">
+    <div class="container">
+      <div class="md-section__header">
+        <span class="md-kicker"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Metodología Modular</span>
+        <h2 id="capas-title">Diagnóstico por capas: de la alimentación a la placa lógica</h2>
+        <p>
+          Un síntoma no es un veredicto. Una Mac que no carga puede deberse al cargador, al cable, al puerto USB-C/MagSafe, a la batería, a un sensor SMC o a un integrado de alimentación en placa. Aplicamos pruebas progresivas para confirmar el origen real de la falla.
+        </p>
+      </div>
+
+      <div class="md-layers-flow">
+        {diagnosticLayers.map((l) => (
+          <div class="md-layer-item">
+            <div class="md-layer-item__num">{l.step}</div>
+            <div class="md-layer-item__body">
+              <div class="md-layer-item__title">
+                <i class={`fa-solid ${l.icon}`} aria-hidden="true"></i>
+                <h3>{l.layer}</h3>
+              </div>
+              <p>{l.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p class="md-note">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <em>Nota técnica:</em> El orden y profundidad de las pruebas se adaptan al modelo exacto y al síntoma reportado.
+      </p>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: HARDWARE VS MACOS VS DATOS -->
+  <section class="md-section" id="areas-diagnostico" aria-labelledby="areas-title">
+    <div class="container">
+      <div class="md-section__header">
+        <span class="md-kicker"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Alcance Técnico</span>
+        <h2 id="areas-title">Separamos el problema: Hardware, macOS o Datos</h2>
+        <p>
+          Una Mac lenta o con problemas de arranque puede deberse a desgaste físico, archivos de sistema corruptos o sectores inestables en almacenamiento. Identificar el área evita intervenciones innecesarias o destructivas.
+        </p>
+      </div>
+
+      <div class="md-areas-grid">
+        <article class="md-area-card">
+          <div class="md-area-card__top">
+            <span class="md-icon-box"><i class="fa-solid fa-microchip" aria-hidden="true"></i></span>
+            <h3>Hardware Físico y Electrónico</h3>
+          </div>
+          <p>
+            Alimentación, cargador, batería, panel Retina, puertos Thunderbolt, disipadores, chips de gestión de energía o circuitos soldados.
+          </p>
+          <ul class="md-area-card__list">
+            <li>Medición eléctrica en rieles de voltaje</li>
+            <li>Inspección de cortos y consumo en amperios</li>
+            <li>Las fallas físicas no se resuelven formateando</li>
+          </ul>
+        </article>
+
+        <article class="md-area-card">
+          <div class="md-area-card__top">
+            <span class="md-icon-box"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i></span>
+            <h3>macOS y Software de Sistema</h3>
+          </div>
+          <p>
+            Actualizaciones interrumpidas, incompatibilidades de versión, extensiones dañadas, permisos de usuario o saturación de procesos.
+          </p>
+          <ul class="md-area-card__list">
+            <li>Pruebas en modo Recovery y First Aid</li>
+            <li>Análisis de logs de pánico de kernel (Kernel Panic)</li>
+            <li>Optimización o reinstalación limpia conservando archivos</li>
+          </ul>
+        </article>
+
+        <article class="md-area-card">
+          <div class="md-area-card__top">
+            <span class="md-icon-box"><i class="fa-solid fa-database" aria-hidden="true"></i></span>
+            <h3>Almacenamiento y Datos</h3>
+          </div>
+          <p>
+            Salud de las celdas NAND del SSD, tablas de partición APFS, archivos de trabajo, proyectos y documentos personales del cliente.
+          </p>
+          <ul class="md-area-card__list">
+            <li>Evaluación previa de legibilidad de la unidad</li>
+            <li>Prioridad de rescate antes de procedimientos agresivos</li>
+            <li>No formateamos sin previa autorización escrita</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: INTEL VS APPLE SILICON -->
+  <section class="md-section md-section--alt" id="arquitectura" aria-labelledby="arquitectura-title">
+    <div class="container">
+      <div class="md-section__header">
+        <span class="md-kicker"><i class="fa-solid fa-atom" aria-hidden="true"></i> Arquitectura Apple</span>
+        <h2 id="arquitectura-title">Diagnóstico para Mac Intel y Apple Silicon (M1 a M4)</h2>
+        <p>
+          La estructura de una Mac cambia radicalmente según la plataforma de procesamiento. Conocer la arquitectura nos permite diagnosticar con exactitud los puntos críticos de cada generación.
+        </p>
+      </div>
+
+      <div class="md-arch-grid">
+        <article class="md-arch-card">
+          <div class="md-arch-card__badge">SoC Integrado</div>
+          <h3>Apple Silicon (M1, M2, M3, M4)</h3>
+          <p class="md-arch-card__summary">
+            Diseño System on Chip con CPU, GPU y Neural Engine en el mismo encapsulado. Memoria unificada (UMA) y almacenamiento SSD soldados directamente en placa lógica.
+          </p>
+          <ul class="md-arch-list">
+            <li><strong>Gestión de energía:</strong> Diagnóstico de controladores PMIC integrados y rieles de bajo voltaje.</li>
+            <li><strong>Almacenamiento cifrado:</strong> Enlazado al procesador mediante Secure Enclave; el rescate requiere estabilizar la placa.</li>
+            <li><strong>Modo de recuperación:</strong> Diagnóstico desde menú <em>Startup Options</em> manteniendo presionado el botón de encendido.</li>
+            <li><strong>Restauración de firmware:</strong> Pruebas DFU con herramientas de soporte cuando el equipo queda en bucle de arranque.</li>
+          </ul>
+        </article>
+
+        <article class="md-arch-card">
+          <div class="md-arch-card__badge">Arquitectura Clásica</div>
+          <h3>Modelos Mac con Procesador Intel</h3>
+          <p class="md-arch-card__summary">
+            Procesador modular independiente con puente sur/PCH y, en modelos de 15” y 16”, gráficos dedicados (GPU AMD/NVIDIA).
+          </p>
+          <ul class="md-arch-list">
+            <li><strong>Gestión térmica:</strong> Mayor susceptibilidad a acumulación de polvo y degradación de pasta térmica en disipadores.</li>
+            <li><strong>Controlador SMC:</strong> Diagnóstico y reinicio de System Management Controller ante fallas de ventilación o carga.</li>
+            <li><strong>NVRAM / PRAM:</strong> Almacena configuraciones de arranque y resolución de pantalla; comprobación de batería interna.</li>
+            <li><strong>Compatibilidad macOS:</strong> Evaluación de versiones compatibles según año y parches oficiales de seguridad.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: MATRIZ DE MODELOS -->
+  <section class="md-section" id="modelos" aria-labelledby="modelos-title">
+    <div class="container">
+      <div class="md-section__header">
+        <span class="md-kicker"><i class="fa-solid fa-laptop" aria-hidden="true"></i> Compatibilidad</span>
+        <h2 id="modelos-title">Modelos de Mac que diagnosticamos en Cancún</h2>
+        <p>
+          Atendemos portátiles y computadoras de escritorio Apple de uso personal, profesional o para empresas.
+        </p>
+      </div>
+
+      <div class="md-matrix-grid">
+        {modelMatrix.map((m) => (
+          <article class="md-matrix-card">
+            <div class="md-matrix-card__head">
+              <h3>{m.device}</h3>
+              <span class="md-matrix-card__sizes">{m.sizes}</span>
+            </div>
+            <div class="md-matrix-card__chips">
+              <strong>Plataformas:</strong> {m.chips}
+            </div>
+            <p>{m.notes}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="md-matrix-footer">
+        <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+        <span>
+          <strong>¿Cómo saber el modelo exacto de tu Mac?</strong> Puedes revisar el número de modelo grabado en la tapa inferior de aluminio (comienza con la letra “A”, ej. A2337, A2141, A1708, A1466) o en el menú Apple > Acerca de esta Mac.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 6: QUÉ PASA DESPUÉS DEL DIAGNÓSTICO (DECISIÓN CLARA) -->
+  <section class="md-section md-section--alt" id="despues-diagnostico" aria-labelledby="despues-title">
+    <div class="container">
+      <div class="md-section__header">
+        <span class="md-kicker"><i class="fa-solid fa-compass" aria-hidden="true"></i> Transparencia Total</span>
+        <h2 id="despues-title">¿Qué puede pasar después del diagnóstico?</h2>
+        <p>
+          El diagnóstico no te compromete a una reparación costosa. Te entregamos un informe claro con la causa confirmada para que decidas con certeza técnica y financiera.
+        </p>
+      </div>
+
+      <div class="md-outcomes-grid">
+        {postDiagnosisOutcomes.map((o) => (
+          <article class="md-outcome-card">
+            <div class="md-outcome-card__icon" style={`color: ${o.color};`}>
+              <i class={`fa-solid ${o.icon}`} aria-hidden="true"></i>
+            </div>
+            <h3>{o.status}</h3>
+            <p>{o.desc}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="md-decision-box">
+        <div class="md-decision-box__copy">
+          <h3>Criterios para evaluar si conviene reparar</h3>
+          <p>
+            Analizamos la antigüedad de tu Mac, el valor de reposición frente al costo de la refacción, la disponibilidad de piezas legítimas y la urgencia de tus archivos. Si la inversión no tiene sentido financiero, te lo diremos abiertamente antes de hacer cualquier gasto.
+          </p>
+        </div>
+        <a class="md-btn md-btn--primary" href="#ticket-form">
+          <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Solicitar revisión técnica
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 7: RIESGOS IMPORTANTES (FORMATO RISK / ACTION) -->
+  <section class="md-section" id="riesgos" aria-labelledby="riesgos-title">
+    <div class="container">
+      <div class="md-section__header">
+        <span class="md-kicker"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Cuidados y Prevención</span>
+        <h2 id="riesgos-title">Qué evitar y qué hacer ante una falla en tu Mac</h2>
+        <p>
+          Acciones comunes tras un imprevisto pueden convertir una falla menor en un daño irreversible en la placa lógica o provocar pérdida de datos.
+        </p>
+      </div>
+
+      <div class="md-risk-table" role="region" aria-label="Tabla de riesgos y acciones">
+        {riskActionRows.map((r) => (
+          <div class="md-risk-row">
+            <div class="md-risk-row__col md-risk-row__col--situation">
+              <span class="md-risk-tag">Situación</span>
+              <strong>{r.situation}</strong>
+            </div>
+            <div class="md-risk-row__col md-risk-row__col--avoid">
+              <span class="md-risk-tag md-risk-tag--avoid"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Qué evitar</span>
+              <p>{r.avoid}</p>
+            </div>
+            <div class="md-risk-row__col md-risk-row__col--action">
+              <span class="md-risk-tag md-risk-tag--action"><i class="fa-solid fa-check" aria-hidden="true"></i> Qué hacer</span>
+              <p>{r.action}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 8: CONTEXTO LOCAL CANCÚN (NATURAL Y SIN EXAGERACIONES) -->
+  <section class="md-section md-section--alt" id="clima-local" aria-labelledby="local-title">
+    <div class="container md-local-layout">
+      <div class="md-local-copy">
+        <span class="md-kicker"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Entorno Local</span>
+        <h2 id="local-title">Diagnóstico de Mac en Cancún y condiciones costeras</h2>
+        <p>
+          En el clima cálido y húmedo de Cancún, la combinación de humedad ambiental alta y partículas salinas puede influir en el comportamiento de las computadoras Apple, en particular si el equipo se utiliza cerca de ventanas abiertas, en balcones de la Zona Hotelera, Puerto Cancún o en áreas expuestas.
+        </p>
+        <p>
+          La salinidad y la humedad pueden acelerar la corrosión superficial en los contactos de los puertos USB-C, el conector MagSafe y las rejillas de ventilación. En nuestro diagnóstico verificamos si existen indicios de sulfatación antes de energizar o conectar periféricos, evitando cortos mayores en los rieles de alimentación.
+        </p>
+        <p class="md-local-zones">
+          Atendemos clientes en Cancún Centro, Zona Hotelera, Huayacán, Cumbres, Bonfil, Polígono Sur, Bonampak y Puerto Cancún con citas programadas en nuestro laboratorio técnico privado.
+        </p>
+      </div>
+      <figure class="md-local-figure">
+        <img
+          src="/assets/images/responsive/reparacion-mac-cancun.webp"
+          alt="Inspección de conectores y placa lógica de MacBook en taller de Cancún"
+          width="800"
+          height="600"
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption>Revisión técnica de conectores y componentes en taller Pixon PC</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 9: SERVICIOS MAC RELACIONADOS (DERIVACIÓN POR RESULTADO) -->
+  <RelatedServicesSection
+    title="Servicios Mac relacionados en Cancún"
+    eyebrow="Derivación por resultado"
+    items={relatedServices}
+    initialLimit={10}
+    compact={false}
+    light={true}
+  />
+
+  <!-- SECCIÓN 10: FAQ EXPANDIDO -->
+  <FaqSection
+    title="Preguntas frecuentes sobre el diagnóstico de Mac"
+    description="Respuestas claras y directas sobre costos, tiempos, manejo de contraseñas y proceso técnico en Pixon PC Cancún."
+    items={faqs}
+    id="faq-diagnostico-mac"
+    backgroundColor="#f8fafc"
+    titleColor="#071F3A"
+    descriptionColor="#334155"
+    questionColor="#071F3A"
+  />
+
+  <!-- SECCIÓN 11: TICKET DE SERVICIO -->
+  <ServiceTicketSection
+    defaultDevice="Mac"
+    defaultService="Diagnóstico Mac"
+    title="Agendar diagnóstico de Mac en Cancún"
+    subtitle="Indica si es MacBook, iMac o Mac mini, síntomas principales, cargador, si hubo líquido o pantalla negra. Te contactaremos para confirmar tu cita y el diagnóstico técnico desde $600 MXN."
+  />
+
+  <!-- SECCIÓN 12: RESEÑAS Y CONTACTO -->
+  <CommentsSection viewMoreHref="/comentarios" />
+  <ContactSection id="ubicacion" />
+</main>
+<Footer />
+
+<style>
+  /* ============================================================
+     SISTEMA VISUAL: MacDiagnosticView (Pixon PC DNA)
+     Textos fuera de hero: #071F3A
+     Jerarquía Kanit + Red Hat Display
+     Espaciado rítmico ~20px / clamp moderado
+     Mobile first con foto no obstruida
+     ============================================================ */
+  .mac-diag-page {
+    --ink: #071F3A;
+    --muted: #294963;
+    --line: #cbd5e1;
+    --line-subtle: #e2e8f0;
+    --soft: #f8fafc;
+    --blue: #0284c7;
+    --blue-dark: #071F3A;
+    --blue-light: #e0f2fe;
+    --accent: #16a34a;
+    background: #ffffff;
+    color: var(--ink);
+    font-family: var(--font-main, 'Red Hat Display', sans-serif);
+  }
+
+  .mac-diag-page :where(h1, h2, h3, h4) {
+    font-family: var(--font-heading, 'Kanit', sans-serif) !important;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  .mac-diag-page .md-hero :is(h1, .md-hero__title) {
+    color: #ffffff !important;
+  }
+
+  .mac-diag-page :not(.md-hero) :is(h2, h3, h4) {
+    color: var(--ink) !important;
+  }
+
+  .mac-diag-page :where(p, li, span, strong, a) {
+    text-wrap: pretty;
+  }
+
+  .container {
+    width: min(1180px, calc(100% - 32px));
+    margin-inline: auto;
+  }
+
+  /* ─── HERO SECTION ─────────────────────────────────────────── */
+  .md-hero {
+    padding: clamp(36px, 5vw, 64px) 0 36px;
+    background: linear-gradient(135deg, #071F3A 0%, #0c2b50 60%, #071F3A 100%);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .md-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+    gap: clamp(28px, 4.5vw, 56px);
+    align-items: center;
+  }
+
+  .md-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(2, 132, 199, 0.2);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8 !important;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .md-hero__title {
+    margin: 0;
+    color: #ffffff !important;
+    font-size: clamp(2.2rem, 4.2vw, 3.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .md-hero__lead {
+    max-width: 620px;
+    margin: 18px 0 0;
+    color: #e2e8f0 !important;
+    font-size: clamp(1rem, 1.25vw, 1.12rem);
+    line-height: 1.6;
+  }
+
+  .md-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .md-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 12px 22px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 0.98rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform 150ms ease, background-color 160ms ease, border-color 160ms ease;
+  }
+
+  .md-btn:active {
+    transform: scale(0.98);
+  }
+
+  .md-btn--primary {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff !important;
+  }
+
+  .md-btn--primary:hover {
+    background: #15803d;
+    border-color: #15803d;
+  }
+
+  .md-btn--secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff !important;
+  }
+
+  .md-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: #ffffff;
+  }
+
+  .md-hero__trust {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+    margin: 24px 0 0;
+    padding: 20px 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    list-style: none;
+  }
+
+  .md-hero__trust li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #ffffff !important;
+  }
+
+  .md-hero__trust i {
+    margin-top: 3px;
+    color: #38bdf8;
+    font-size: 1rem;
+  }
+
+  .md-hero__trust span {
+    display: flex;
+    flex-direction: column;
+    color: #cbd5e1 !important;
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+
+  .md-hero__trust strong {
+    color: #ffffff !important;
+    font-size: 0.94rem;
+  }
+
+  .md-hero__visual {
+    margin: 0;
+    position: relative;
+  }
+
+  .md-hero__visual img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  }
+
+  .md-hero__caption {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #cbd5e1 !important;
+    font-size: 0.85rem;
+  }
+
+  .md-hero__caption i {
+    color: #38bdf8;
+  }
+
+  /* Desktop/Mobile photo toggle */
+  .md-hero__visual--mobile {
+    display: none;
+    margin: 18px 0;
+  }
+
+  .md-hero__visual--desktop {
+    display: block;
+  }
+
+  /* ─── SECCIONES BASE ───────────────────────────────────────── */
+  .md-section {
+    padding: clamp(48px, 6vw, 72px) 0;
+    background: #ffffff;
+  }
+
+  .md-section--alt {
+    background: var(--soft);
+    border-top: 1px solid var(--line-subtle);
+    border-bottom: 1px solid var(--line-subtle);
+  }
+
+  .md-section__header {
+    max-width: 780px;
+    margin-bottom: 36px;
+  }
+
+  .md-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 8px;
+    color: var(--blue) !important;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .md-section h2 {
+    margin: 0 0 12px;
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    letter-spacing: -0.01em;
+  }
+
+  .md-section p {
+    margin: 0 0 12px;
+    color: var(--muted) !important;
+    font-size: 1.02rem;
+    line-height: 1.65;
+  }
+
+  /* ─── TRIAJE VISUAL ────────────────────────────────────────── */
+  .md-triage-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .md-triage-card {
+    display: flex;
+    flex-direction: column;
+    padding: 22px 18px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.04);
+    transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  }
+
+  .md-triage-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--blue);
+    box-shadow: 0 10px 24px rgba(2, 132, 199, 0.12);
+  }
+
+  .md-triage-card__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .md-icon-box {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .md-triage-card h3 {
+    margin: 0;
+    font-size: 1.08rem;
+  }
+
+  .md-triage-card__desc {
+    margin: 0 0 16px;
+    color: var(--muted) !important;
+    font-size: 0.91rem;
+    line-height: 1.5;
+    flex-grow: 1;
+  }
+
+  .md-triage-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--blue) !important;
+    font-size: 0.86rem;
+    font-weight: 800;
+    text-decoration: none;
+    border-top: 1px solid var(--line-subtle);
+    padding-top: 12px;
+  }
+
+  .md-triage-card__link:hover {
+    text-decoration: underline;
+  }
+
+  /* ─── DIAGNÓSTICO POR CAPAS ────────────────────────────────── */
+  .md-layers-flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .md-layer-item {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+    align-items: flex-start;
+  }
+
+  .md-layer-item__num {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: #071F3A;
+    color: #ffffff !important;
+    font-family: var(--font-heading, 'Kanit', sans-serif);
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  .md-layer-item__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .md-layer-item__title i {
+    color: var(--blue);
+    font-size: 0.95rem;
+  }
+
+  .md-layer-item__title h3 {
+    margin: 0;
+    font-size: 1.04rem;
+  }
+
+  .md-layer-item__body p {
+    margin: 0;
+    color: var(--muted) !important;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .md-note {
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--blue-light);
+    color: #071F3A !important;
+    font-size: 0.88rem;
+  }
+
+  .md-note i {
+    color: var(--blue);
+  }
+
+  /* ─── HARDWARE VS MACOS VS DATOS ───────────────────────────── */
+  .md-areas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .md-area-card {
+    padding: 26px 22px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(7, 31, 58, 0.04);
+  }
+
+  .md-area-card__top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .md-area-card h3 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .md-area-card p {
+    margin-bottom: 16px;
+    font-size: 0.93rem;
+  }
+
+  .md-area-card__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line-subtle);
+    padding-top: 14px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .md-area-card__list li {
+    position: relative;
+    padding-left: 20px;
+    color: var(--ink) !important;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .md-area-card__list li::before {
+    content: '•';
+    position: absolute;
+    left: 4px;
+    color: var(--blue);
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  /* ─── INTEL VS APPLE SILICON ───────────────────────────────── */
+  .md-arch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .md-arch-card {
+    padding: 28px 24px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    position: relative;
+  }
+
+  .md-arch-card__badge {
+    display: inline-block;
+    padding: 4px 10px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    background: var(--blue-light);
+    color: var(--blue) !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .md-arch-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.35rem;
+  }
+
+  .md-arch-card__summary {
+    font-size: 0.94rem;
+    margin-bottom: 18px;
+  }
+
+  .md-arch-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    border-top: 1px solid var(--line-subtle);
+    padding-top: 16px;
+  }
+
+  .md-arch-list li {
+    color: var(--ink) !important;
+    font-size: 0.89rem;
+    line-height: 1.5;
+  }
+
+  .md-arch-list strong {
+    color: var(--blue) !important;
+  }
+
+  /* ─── MATRIZ DE MODELOS ────────────────────────────────────── */
+  .md-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .md-matrix-card {
+    padding: 22px 18px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  .md-matrix-card__head {
+    margin-bottom: 10px;
+  }
+
+  .md-matrix-card h3 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .md-matrix-card__sizes {
+    color: var(--blue) !important;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .md-matrix-card__chips {
+    padding: 8px 0;
+    margin-bottom: 10px;
+    border-top: 1px solid var(--line-subtle);
+    border-bottom: 1px solid var(--line-subtle);
+    font-size: 0.85rem;
+    color: var(--ink) !important;
+  }
+
+  .md-matrix-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .md-matrix-footer {
+    margin-top: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .md-matrix-footer i {
+    margin-top: 3px;
+    color: var(--blue);
+    font-size: 1.1rem;
+  }
+
+  /* ─── RESULTADOS POST-DIAGNÓSTICO ──────────────────────────── */
+  .md-outcomes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .md-outcome-card {
+    padding: 22px 18px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  .md-outcome-card__icon {
+    font-size: 1.35rem;
+    margin-bottom: 10px;
+  }
+
+  .md-outcome-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+  }
+
+  .md-outcome-card p {
+    margin: 0;
+    font-size: 0.89rem;
+    line-height: 1.5;
+  }
+
+  .md-decision-box {
+    margin-top: 28px;
+    padding: 28px;
+    border-radius: 12px;
+    background: #071F3A;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  .md-decision-box h3 {
+    margin: 0 0 8px;
+    color: #ffffff !important;
+    font-size: 1.3rem;
+  }
+
+  .md-decision-box p {
+    margin: 0;
+    color: #e2e8f0 !important;
+    font-size: 0.95rem;
+    max-width: 720px;
+    line-height: 1.55;
+  }
+
+  /* ─── RIESGOS (RISK / ACTION) ──────────────────────────────── */
+  .md-risk-table {
+    display: grid;
+    gap: 14px;
+  }
+
+  .md-risk-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr 1.5fr;
+    gap: 18px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+    align-items: center;
+  }
+
+  .md-risk-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: var(--soft);
+    color: var(--muted) !important;
+  }
+
+  .md-risk-tag--avoid {
+    background: #fee2e2;
+    color: #b91c1c !important;
+  }
+
+  .md-risk-tag--action {
+    background: #dcfce7;
+    color: #15803d !important;
+  }
+
+  .md-risk-row strong {
+    display: block;
+    color: var(--ink) !important;
+    font-size: 0.98rem;
+  }
+
+  .md-risk-row p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  /* ─── CONTEXTO LOCAL ───────────────────────────────────────── */
+  .md-local-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .md-local-zones {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--blue) !important;
+  }
+
+  .md-local-figure {
+    margin: 0;
+  }
+
+  .md-local-figure img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+  }
+
+  .md-local-figure figcaption {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--muted) !important;
+    text-align: center;
+  }
+
+  /* ─── RESPONSIVE & MOBILE POLISH ───────────────────────────── */
+  @media (max-width: 1024px) {
+    .md-triage-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .md-matrix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .md-outcomes-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .md-hero__grid {
+      grid-template-columns: 1fr;
+    }
+    .md-hero__visual--desktop {
+      display: none;
+    }
+    .md-hero__visual--mobile {
+      display: block;
+    }
+    .md-local-layout {
+      grid-template-columns: 1fr;
+    }
+    .md-risk-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .md-hero {
+      padding: 28px 0;
+    }
+    .md-hero__actions,
+    .md-btn {
+      width: 100%;
+    }
+    .md-hero__trust {
+      grid-template-columns: 1fr;
+    }
+    .md-areas-grid,
+    .md-arch-grid {
+      grid-template-columns: 1fr;
+    }
+    .md-decision-box {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .md-decision-box .md-btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .md-triage-grid,
+    .md-matrix-grid,
+    .md-outcomes-grid {
+      grid-template-columns: 1fr;
+    }
+    .md-layer-item {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ─── ACCESSIBILITY & MOTION ───────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .md-btn,
+    .md-triage-card {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Dark mode support through shared contrast contract */
+  :global(.theme-dark) .mac-diag-page,
+  :global([data-theme='dark']) .mac-diag-page {
+    --ink: #f1f5f9;
+    --muted: #cbd5e1;
+    --line: #334155;
+    --line-subtle: #1e293b;
+    --soft: #0f172a;
+    background: #0B1120;
+    color: var(--ink);
+  }
+
+  :global(.theme-dark) .mac-diag-page .md-section,
+  :global([data-theme='dark']) .mac-diag-page .md-section {
+    background: #0B1120;
+  }
+
+  :global(.theme-dark) .mac-diag-page .md-section--alt,
+  :global([data-theme='dark']) .mac-diag-page .md-section--alt {
+    background: #0F172A;
+  }
+
+  :global(.theme-dark) .mac-diag-page :where(.md-triage-card, .md-layer-item, .md-area-card, .md-arch-card, .md-matrix-card, .md-outcome-card, .md-risk-row),
+  :global([data-theme='dark']) .mac-diag-page :where(.md-triage-card, .md-layer-item, .md-area-card, .md-arch-card, .md-matrix-card, .md-outcome-card, .md-risk-row) {
+    background: #111C30;
+    border-color: #1e293b;
+  }
+
+  :global(.theme-dark) .mac-diag-page :where(h1, h2, h3, h4),
+  :global([data-theme='dark']) .mac-diag-page :where(h1, h2, h3, h4) {
+    color: #ffffff !important;
+  }
+
+  :global(.theme-dark) .mac-diag-page .md-risk-row strong,
+  :global([data-theme='dark']) .mac-diag-page .md-risk-row strong {
+    color: #ffffff !important;
+  }
+</style>
