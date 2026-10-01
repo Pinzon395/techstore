@@ -114,14 +114,23 @@ function safeInternalReturnTo(value, fallback = '/cuenta') {
 // ─── Guardrail 1: Dual Hyperdrive Request-Scoped Connection (withDb) ─────────
 
 export async function withDb(env, { fresh = true } = {}, fn) {
-  const connStr = fresh
-    ? (env.HYPERDRIVE_FRESH?.connectionString || env.DATABASE_URL)
-    : (env.HYPERDRIVE_CACHED?.connectionString || env.HYPERDRIVE_FRESH?.connectionString || env.DATABASE_URL);
+  const hyperdrive = fresh
+    ? env.HYPERDRIVE_FRESH
+    : (env.HYPERDRIVE_CACHED || env.HYPERDRIVE_FRESH);
 
-  if (!connStr) throw new Error('Database connection string no configurada');
+  // Hyperdrive expone credenciales ya adaptadas para mysql2. Usar su
+  // connectionString convierte `ssl-mode` en una opción desconocida y hace que
+  // MySQL cierre la conexión antes de la primera consulta.
+  if (!hyperdrive?.host || !hyperdrive?.user || !hyperdrive?.database || !hyperdrive?.port) {
+    throw new Error('Hyperdrive no está configurado');
+  }
 
   const conn = await mysql.createConnection({
-    uri: connStr,
+    host: hyperdrive.host,
+    user: hyperdrive.user,
+    password: hyperdrive.password,
+    database: hyperdrive.database,
+    port: hyperdrive.port,
     disableEval: true,
     connectTimeout: 5000,
   });
