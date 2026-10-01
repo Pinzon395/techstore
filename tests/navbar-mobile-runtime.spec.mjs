@@ -60,21 +60,41 @@ test('Drawer resets when switching to desktop and desktop menus still open', asy
   await expect(page.locator('#navbar')).toBeVisible();
 });
 
-test('Phone services support the third menu level and collapse cleanly', async ({ page }) => {
+test('Each services category exposes its complete central inventory only when opened', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(base, { waitUntil: 'networkidle' });
   await page.locator('#mobile-menu').click();
   await page.locator('#dd-servicios-trigger').click();
-  await page.locator('#dd-servicios-menu .cascade-cat-link').filter({ hasText: 'Celular' }).first().click();
-  const trigger = page.locator('#dd-servicios-menu .cascade-item.open .v3-sub-trigger').first();
-  await trigger.click();
-  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-  const link = page.locator('#dd-servicios-menu .v3-sub-item.open .v3-l3-link').first();
-  await link.scrollIntoViewIfNeeded();
-  await expect(link).toBeVisible();
-  await trigger.click();
-  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-  await expect(link).toBeHidden();
-  await page.keyboard.press('Escape');
-  expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+
+  const categories = page.locator('#dd-servicios-menu > .cascade-item[data-services]');
+  const categoryCount = await categories.count();
+  expect(categoryCount).toBeGreaterThan(0);
+
+  for (let index = 0; index < categoryCount; index += 1) {
+    const category = categories.nth(index);
+    const expected = JSON.parse((await category.getAttribute('data-services')) || '[]');
+    await category.locator('.cascade-cat-link').click();
+    const links = category.locator('.v3-sub-link[href]');
+    await expect(links).toHaveCount(expected.length);
+    expect(new Set(await links.evaluateAll(nodes => nodes.map(node => node.getAttribute('href')))).size).toBe(expected.length);
+  }
+});
+
+test('Phone services expose their complete inventory and the drawer closes after navigation', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(base, { waitUntil: 'networkidle' });
+  await page.locator('#mobile-menu').click();
+  await page.locator('#dd-servicios-trigger').click();
+  const category = page.locator('#dd-servicios-menu .cascade-cat-link').filter({ hasText: 'Celular' }).first();
+  const parent = category.locator('..');
+  const expected = JSON.parse((await parent.getAttribute('data-services')) || '[]');
+  await category.click();
+  const links = parent.locator('.v3-sub-link[href]');
+  await expect(links).toHaveCount(expected.length);
+  expect(expected.length).toBeGreaterThanOrEqual(20);
+  const destination = links.last();
+  const href = await destination.getAttribute('href');
+  await destination.click();
+  await expect(page).toHaveURL(new RegExp(new URL(href, base).pathname + '(?:[/?#]|$)'));
+  await expect(page.locator('#mobile-menu')).toHaveAttribute('aria-expanded', 'false');
 });

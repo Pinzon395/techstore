@@ -70,6 +70,47 @@ let lastOpenedCascade = null;
 let activeCascade = null;
 let desktopCloseTimer = null;
 
+// El catálogo puede tener muchos servicios. Cada categoría lleva una copia
+// serializada desde src/data/services.ts y se materializa únicamente cuando el
+// usuario la abre. Así desktop y móvil comparten exactamente el mismo inventario
+// sin inflar el DOM de todas las páginas.
+function hydrateCategoryServices(item) {
+  if (!item || item.dataset.servicesLoaded === 'true') return;
+  const submenu = item.querySelector('.v3-cascade-l2');
+  const footer = submenu?.querySelector('.v3-l2-footer');
+  if (!submenu || !footer) return;
+
+  let services;
+  try {
+    services = JSON.parse(item.dataset.services || '[]');
+  } catch {
+    services = [];
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const service of services) {
+    if (!service?.href || !service?.label) continue;
+    const row = document.createElement('li');
+    row.className = 'v3-sub-item';
+    row.setAttribute('role', 'none');
+
+    const link = document.createElement('a');
+    link.href = service.href;
+    link.className = 'v3-sub-link';
+    link.setAttribute('role', 'menuitem');
+
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-angle-right v3-sub-arrow';
+    icon.setAttribute('aria-hidden', 'true');
+    link.append(icon, document.createTextNode(service.label));
+    row.append(link);
+    fragment.append(row);
+  }
+
+  footer.before(fragment);
+  item.dataset.servicesLoaded = 'true';
+}
+
 function clearTimers() {
   if (autoCloseTimer)    { clearTimeout(autoCloseTimer);    autoCloseTimer = null; }
   if (crossSectionTimer) { clearTimeout(crossSectionTimer); crossSectionTimer = null; }
@@ -259,6 +300,7 @@ document.querySelectorAll('.cascade-item').forEach((item) => {
   let gapTimer = null;
   item.addEventListener('mouseenter', () => {
     if (IS_MOBILE()) return;
+    hydrateCategoryServices(item);
     if (gapTimer) { clearTimeout(gapTimer); gapTimer = null; }
     if (item.querySelector('.v3-cascade-l2')) item.classList.add('intent-open');
   });
@@ -288,6 +330,7 @@ document.querySelectorAll('.cascade-cat-link').forEach((link) => {
       activeCascade = null;
       return;
     }
+    hydrateCategoryServices(item);
     if (!submenu) {
       closeMobileMenu();
       return;

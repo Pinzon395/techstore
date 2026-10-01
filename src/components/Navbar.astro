@@ -149,7 +149,16 @@ const t = lang === 'en' ? {
         <!-- Nivel 1: Categóras -->
         <ul class="v3-cascade-l1" role="menu" aria-label="Categorías de servicio" id="dd-servicios-menu">
           {NAV_SERVICE_CATEGORIES.map((cat) => (
-            <li class="cascade-item" role="none" data-cat={cat.id} id={`dd-cat-${cat.id}`}>
+            <li
+              class="cascade-item"
+              role="none"
+              data-cat={cat.id}
+              data-services={JSON.stringify(cat.services.filter((service) => !service.navHidden).map((service) => ({
+                href: service.customUrl || `/servicios/${cat.slug}/${service.slug}`,
+                label: service.label,
+              })))}
+              id={`dd-cat-${cat.id}`}
+            >
               <a
                 href={`/servicios/${cat.slug}`}
                 class="cascade-cat-link"
@@ -174,21 +183,8 @@ const t = lang === 'en' ? {
                   <i class={`fa-solid ${cat.icon}`} aria-hidden="true"></i>
                   <span>{cat.title}</span>
                 </li>
-                {cat.services.filter((s) => !s.navHidden).slice(0, 4).map((s) => {
-                  const serviceHref = s.customUrl ? s.customUrl : `/servicios/${cat.slug}/${s.slug}`;
-                  return (
-                    <li role="none" class="v3-sub-item">
-                      <a
-                        href={serviceHref}
-                        class="v3-sub-link"
-                        role="menuitem"
-                      >
-                        <i class="fa-solid fa-angle-right v3-sub-arrow" aria-hidden="true"></i>
-                        {s.label}
-                      </a>
-                    </li>
-                  );
-                })}
+                <!-- El listado completo se crea al abrir una categoría. La fuente sigue
+                     siendo services.ts y el HTML inicial conserva solo las categorías. -->
                 <li class="v3-l2-footer" role="none">
                   <a href={`/servicios/${cat.slug}`} class="v3-all-link">
                     Ver todos los servicios de {cat.title}
