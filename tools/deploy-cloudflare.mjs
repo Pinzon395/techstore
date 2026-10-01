@@ -13,7 +13,7 @@
  *   - Variables de entorno en Cloudflare correctamente configuradas
  */
 
-import { execFileSync, execSync } from 'child_process';
+import { execSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -32,16 +32,16 @@ function step(n, title) {
 }
 
 function run(cmd, args = [], opts = {}) {
-  console.log(`  $ ${cmd} ${args.join(' ')}`);
+  const fullCmd = [cmd, ...args].join(' ');
+  console.log(`  $ ${fullCmd}`);
   try {
-    const out = execFileSync(cmd, args, {
+    execSync(fullCmd, {
       stdio: 'inherit',
-      encoding: 'utf8',
+      shell: true,
       ...opts,
     });
-    return out;
   } catch (e) {
-    console.error(red(`\n✗ Comando falló: ${cmd} ${args.join(' ')}`));
+    console.error(red(`\n✗ Comando falló: ${fullCmd}`));
     throw e;
   }
 }
