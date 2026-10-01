@@ -96,28 +96,39 @@ console.log(`Target: ${BASE_URL}`);
 console.log(`Local build: ${localVersion ?? '(no dist/version.json)'}`);
 console.log('─'.repeat(60));
 
-// 1. Versión remota
+// 1. Versión remota (con retry para propagación CDN)
 console.log(`\n${bold('[1] Version sync')}`);
-try {
-  const res = await fetchWithTimeout(`${BASE_URL}/version.json`);
-  if (!res.ok) {
-    fail(`/version.json → HTTP ${res.status}`);
-  } else {
-    const data = await res.json();
-    const remote = data.version ?? '?';
-    if (!localVersion) {
-      warn('No hay dist/version.json local. Ejecuta npm run build primero.');
-    } else if (remote === localVersion) {
-      pass(`Versión sincronizada: ${remote}`);
-    } else {
-      fail(
-        `Versión DESINCRONIZADA`,
-        `local=${localVersion}  producción=${remote}`
-      );
+let remote = null;
+const maxAttempts = 6;
+for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/version.json?_t=${Date.now()}`);
+    if (res.ok) {
+      const data = await res.json();
+      remote = data.version ?? '?';
+      if (!localVersion || remote === localVersion) {
+        break;
+      }
     }
+  } catch {
+    // Reintentar si hay error transitorio
   }
-} catch (e) {
-  fail(`/version.json no accesible: ${e.message}`);
+  if (attempt < maxAttempts) {
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+}
+
+if (!localVersion) {
+  warn('No hay dist/version.json local. Ejecuta npm run build primero.');
+} else if (remote === localVersion) {
+  pass(`Versión sincronizada: ${remote}`);
+} else if (remote) {
+  fail(
+    `Versión DESINCRONIZADA tras ${maxAttempts} intentos`,
+    `local=${localVersion}  producción=${remote}`
+  );
+} else {
+  fail(`/version.json no accesible tras ${maxAttempts} intentos`);
 }
 
 // 2. Headers de diagnóstico
