@@ -1065,6 +1065,7 @@ async function handleGetCatalogCategories(request, env) {
     return jsonResponse({ ok: true, data: [] }, 200, {
       'Cache-Control': 'public, max-age=30',
     }, request);
+  }
 }
 
 // ─── FAQs & Tracking ─────────────────────────────────────────────────────────
