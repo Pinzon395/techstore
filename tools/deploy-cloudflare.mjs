@@ -69,13 +69,13 @@ step(1, 'Pre-flight checks');
 
 // Git: detectar cambios que NO sean archivos de versión generados por el build
 try {
-  const rawStatus = execSync('git status --porcelain', { encoding: 'utf8' }).trim();
-  if (rawStatus) {
-    const lines = rawStatus.split('\n');
+  const rawStatus = execSync('git status --porcelain', { encoding: 'utf8' });
+  const lines = rawStatus.split(/\r?\n/).filter((l) => l.length > 0);
+  if (lines.length > 0) {
     const nonVersionChanges = lines.filter((line) => {
-      // Formato: "XY filepath" — extraer la ruta (puede tener espacios iniciales)
-      const filePath = line.slice(3).trim().replace(/^"(.*)"$/, '$1');
-      return !VERSION_FILES.some((vf) => filePath === vf || filePath.endsWith(vf.replace(/\//g, '\\')));
+      // Formato: "XY filepath" — los primeros 2 chars son estado, char 3 es espacio, luego ruta
+      const filePath = (line.length > 3 ? line.slice(3) : line).trim().replace(/^"(.*)"$/, '$1').replace(/\\/g, '/');
+      return !VERSION_FILES.some((vf) => filePath === vf || filePath.endsWith('/' + vf));
     });
 
     if (nonVersionChanges.length > 0) {
@@ -85,12 +85,11 @@ try {
       process.exit(1);
     }
 
-    if (lines.length > 0) {
-      console.log(yellow(`  ! Archivos de versión del build anterior detectados (${lines.length} archivos) — se re-generarán`));
-    }
+    console.log(yellow(`  ! Archivos de versión del build anterior detectados (${lines.length} archivos) — se re-generarán`));
   }
   console.log(green('  ✓ Working tree OK para deploy'));
-} catch {
+} catch (e) {
+  if (e.status === 1) process.exit(1);
   console.log(yellow('  ! No se pudo verificar git status — continuando'));
 }
 
@@ -101,12 +100,16 @@ if (!existsSync('wrangler.toml')) {
 }
 console.log(green('  ✓ wrangler.toml presente'));
 
-// worker/index.js debe existir
+// worker/index.js y worker/index.mjs deben existir
 if (!existsSync('worker/index.js')) {
   console.error(red('✗ No se encontró worker/index.js'));
   process.exit(1);
 }
-console.log(green('  ✓ worker/index.js presente'));
+if (!existsSync('worker/index.mjs')) {
+  console.error(red('✗ No se encontró worker/index.mjs'));
+  process.exit(1);
+}
+console.log(green('  ✓ worker/index.{js,mjs} presentes'));
 
 // ─── Build ──────────────────────────────────────────────────────────────────
 
