@@ -3,7 +3,7 @@
  * Maneja cache offline y garantiza actualización inmediata de contenido.
  */
 
-const CACHE_NAME = 'pixon-20261002T185049Z-452fda85c03b';
+const CACHE_NAME = 'pixon-20261002T185536Z-f6fc4795b446';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/favicon.png',

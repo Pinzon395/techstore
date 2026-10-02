@@ -1,6 +1,7 @@
 # Producción VPS
 
-**Proveedor y plan aprobados (2026-09-28):** Hostinger, plan KVM 2 (2 vCPU / 8 GB RAM / 100 GB NVMe). No escalar a un plan mayor salvo que la línea base de recursos (ver `npm run inventory:hosting` tras cutover) muestre presión real.
+> [!WARNING]
+> **DEPRECATED / OBSOLETO:** La arquitectura autogestionada en VPS (KVM 2) ha sido reemplazada por **Hostinger Cloud Startup Managed Hosting**. Ver [HOSTINGER_PRODUCTION.md](file:///c:/Users/Usuario/techstore/docs/HOSTINGER_PRODUCTION.md).
 
 ## Arquitectura
 

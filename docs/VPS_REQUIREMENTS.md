@@ -1,6 +1,7 @@
 # VPS requirements
 
-- **Provider (approved 2026-09-28):** Hostinger, plan KVM 2. Do not upgrade to a larger plan unless measured resource usage after cutover shows real pressure.
+> [!WARNING]
+> **DEPRECATED / OBSOLETO:** La opción VPS no administrado (KVM 2 / Ubuntu / cloudflared) ha sido sustituida por **Hostinger Cloud Startup (Managed Node.js + Managed MySQL)** para simplificar la administración a una sola plataforma sin necesidad de gestionar el sistema operativo. Ver [HOSTINGER_PRODUCTION.md](file:///c:/Users/Usuario/techstore/docs/HOSTINGER_PRODUCTION.md).
 - **OS:** Ubuntu LTS.
 - **Capacity target:** 2 vCPU, 8 GB RAM and 100 GB SSD minimum.
 - **Node.js:** 22.17.0 (the version pinned in `.nvmrc`).

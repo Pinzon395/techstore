@@ -1,6 +1,7 @@
 # Cloudflare edge para Pixon PC
 
-El sitio Astro ya genera HTML estatico en `dist/`, por lo que la ruta mas rapida y de menor riesgo es servir el front desde Cloudflare Pages o desde el servidor actual detras de Cloudflare con cache en edge. La API, auth, sesiones, tickets y admin siguen viviendo en Express + MariaDB.
+> [!WARNING]
+> **DEPRECATED / OBSOLETO:** Esta arquitectura experimental (Cloudflare Workers/Pages/Edge + Túnel Local) ha sido reemplazada por la migración definitiva a **Hostinger Cloud Startup** (One Provider, One App, One Managed Database). Ver [HOSTINGER_PRODUCTION.md](file:///c:/Users/Usuario/techstore/docs/HOSTINGER_PRODUCTION.md).
 
 ## Opcion recomendada: Cloudflare Pages para el front
 

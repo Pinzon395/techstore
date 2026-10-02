@@ -1,6 +1,7 @@
 # VPS cutover checklist
 
-Target: Hostinger KVM 2 (2 vCPU / 8 GB / 100 GB NVMe), approved 2026-09-28. Nothing below has been executed yet — see `docs/PRODUCTION_HOSTING.md` for the full procedure each item refers to.
+> [!WARNING]
+> **DEPRECATED / OBSOLETO:** Este checklist para VPS KVM 2 ha sido reemplazado por la migración a **Hostinger Cloud Startup (Managed Hosting)**. Ver [HOSTINGER_PRODUCTION.md](file:///c:/Users/Usuario/techstore/docs/HOSTINGER_PRODUCTION.md).
 
 ## 0. Pre-purchase (safe to do without spending anything)
 - [x] `CURRENT_ARCHITECTURE.md`, `LOCAL_DEPENDENCIES.md`, `COST_COMPARISON.md` written and cross-checked against the live repo.
