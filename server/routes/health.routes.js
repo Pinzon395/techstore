@@ -5,13 +5,28 @@ const express = require('express');
 function createHealthRoutes({ getClientCount, checkDatabase }) {
     const router = express.Router();
 
-    router.get('/health', async (_req, res) => {
+    // Liveness: confirma que el proceso Express puede responder. No consulta
+    // dependencias externas, de modo que un monitor puede diferenciar un
+    // proceso caído de una dependencia (por ejemplo MySQL) no disponible.
+    router.get('/health', (_req, res) => {
+        res.setHeader('Cache-Control', 'no-store, private');
+        res.json({
+            ok: true,
+            status: 'UP',
+            app: 'UP',
+            ts: new Date().toISOString()
+        });
+    });
+
+    // Readiness: confirma que la aplicación y su dependencia transaccional
+    // principal están listas para recibir tráfico. No revela datos de conexión.
+    router.get('/ready', async (_req, res) => {
         try {
             if (checkDatabase) await checkDatabase();
             res.setHeader('Cache-Control', 'no-store, private');
             res.json({
                 ok: true,
-                status: 'UP',
+                status: 'READY',
                 app: 'UP',
                 db: 'UP',
                 ts: new Date().toISOString()
@@ -20,7 +35,7 @@ function createHealthRoutes({ getClientCount, checkDatabase }) {
             res.setHeader('Cache-Control', 'no-store, private');
             res.status(503).json({
                 ok: false,
-                status: 'DOWN',
+                status: 'NOT_READY',
                 app: 'UP',
                 db: 'DOWN',
                 ts: new Date().toISOString()
