@@ -6,6 +6,14 @@ const now = new Date();
 const timestamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
 let commit = String(process.env.GIT_COMMIT || process.env.SOURCE_VERSION || '').trim().slice(0, 12);
 if (!commit) {
+  try {
+    // `git archive` substitutes this file before packaging. This preserves the
+    // source SHA when a production ZIP intentionally has no .git directory.
+    const archivedCommit = fs.readFileSync(path.resolve('.release-commit'), 'utf8').trim();
+    if (/^[0-9a-f]{40}$/i.test(archivedCommit)) commit = archivedCommit.slice(0, 12);
+  } catch {}
+}
+if (!commit) {
   try { commit = execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { encoding: 'utf8' }).trim(); }
   catch { commit = 'nogit'; }
 }
