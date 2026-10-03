@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
-const ref = process.argv[2] || 'HEAD';
+const ref = process.argv.slice(2).find((a) => !a.startsWith('--')) || 'HEAD';
 const git = (...a) => execFileSync('git', a, { cwd: root, encoding: 'utf8' }).trim();
 
 const dirty = git('status', '--porcelain', '--untracked-files=no');
@@ -27,7 +27,12 @@ rmSync(zipPath, { force: true });
 git('archive', '--format=zip', `--output=${zipPath}`, sha);
 
 const extract = mkdtempSync(path.join(tmpdir(), 'pixon-release-'));
-execFileSync('tar', ['-xf', zipPath, '-C', extract]);
+if (process.platform === 'win32') {
+    // bsdtar de Windows lee ZIP; el tar GNU de Git Bash no.
+    execFileSync(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'tar.exe'), ['-xf', zipPath, '-C', extract]);
+} else {
+    execFileSync('unzip', ['-q', zipPath, '-d', extract]);
+}
 const commitFile = readFileSync(path.join(extract, '.release-commit'), 'utf8').trim();
 if (commitFile !== sha) { console.error(`.release-commit=${commitFile} no coincide con ${sha} (export-subst)`); process.exit(1); }
 
