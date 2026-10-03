@@ -111,6 +111,12 @@ function createMockPool(initialData = {}) {
         async commit() {},
         async rollback() {},
         release() {},
+        // Lock por día (GET_LOCK) — la serialización real se prueba contra MySQL
+        // con tools/e2e-calendar-production.mjs.
+        async query(sql) {
+          if (/GET_LOCK/.test(sql)) return [[{ acquired: 1 }]];
+          return [[{}]];
+        },
         async execute(sql, params = []) {
           const s = sql.trim();
           if (s.includes('FOR UPDATE') && s.includes('FROM appointments a')) {

@@ -78,19 +78,19 @@ PORT=3000
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=uXXXXX_pixon
-DB_PASSWORD=ContraseñaSuperSegura_MySQL8
+DB_PASSWORD=<definir-en-hPanel>
 DB_NAME=uXXXXX_pixondb
 
 # Sesión y Seguridad (mínimo 64 caracteres aleatorios)
-SESSION_SECRET=a8f9c2d1e0b347...long_random_hex...
+SESSION_SECRET=<definir-en-hPanel>
 
 # Google OAuth 2.0
 GOOGLE_CLIENT_ID=827973477493-dgeltontfj0esnq7d25bkfpdjm58ol11.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=GOCSPX-...
+GOOGLE_CLIENT_SECRET=<definir-en-hPanel>
 GOOGLE_CALLBACK_URL=https://pixon.com.mx/auth/google/callback
 
 # Notificaciones y Correos
-RESEND_API_KEY=re_...
+RESEND_API_KEY=<definir-en-hPanel>
 EMAIL_FROM=soporte@pixon.com.mx
 NOTIFICATION_EMAIL=luispinzon395@gmail.com
 ADMIN_EMAIL=luispinzon395@gmail.com

@@ -6,6 +6,7 @@ const { AppointmentService } = require('./appointment.service');
 function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter }) {
   const router = express.Router();
   const service = new AppointmentService({ pool });
+  const limit = typeof rateLimiter === 'function' ? rateLimiter : (_req, _res, next) => next();
 
   // -------------------------------------------------------------
   // PUBLIC ENDPOINTS
@@ -98,7 +99,7 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
 
 
   // 3. Create Hold / Booking
-  router.post('/hold', async (req, res) => {
+  router.post('/hold', limit, async (req, res) => {
     try {
       const idempotencyKey = req.header('X-Idempotency-Key') || req.body.idempotency_key || null;
       const {
@@ -109,7 +110,7 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
 
       const appointment = await service.hold({
         ticketId: ticket_id,
-        customerId: customer_id || req.user?.id || null,
+        customerId: (req.user?.role === 'admin' ? customer_id : null) || req.user?.id || null,
         customerName: customer_name,
         customerEmail: customer_email,
         customerPhone: customer_phone,
@@ -141,8 +142,9 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
     }
   });
 
-  // 4. Confirm Payment
-  router.post('/:id/confirm-payment', async (req, res) => {
+  // 4. Confirm Payment — solo admin: el pago no se verifica contra el proveedor
+  // aquí, así que un endpoint público permitiría marcar citas como PAID.
+  router.post('/:id/confirm-payment', requireAdmin, async (req, res) => {
     try {
       const { payment_id } = req.body;
       if (!payment_id) {
@@ -160,7 +162,7 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
   });
 
   // 5. Customer / Public Reschedule
-  router.post('/:id/reschedule', async (req, res) => {
+  router.post('/:id/reschedule', limit, async (req, res) => {
     try {
       const { date, time, reason } = req.body;
       const idempotencyKey = req.header('X-Idempotency-Key') || req.body.idempotency_key || null;
@@ -175,12 +177,12 @@ function createAppointmentRouter({ pool, requireAdmin, requireAuth, rateLimiter 
       });
       res.json(result);
     } catch (err) {
-      res.status(400).json({ success: false, message: err.message });
+      res.status(err.statusCode || 400).json({ success: false, message: err.message });
     }
   });
 
   // 6. Customer / Public Cancel
-  router.post('/:id/cancel', async (req, res) => {
+  router.post('/:id/cancel', limit, async (req, res) => {
     try {
       const { reason } = req.body;
       const result = await service.cancel({

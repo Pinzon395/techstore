@@ -10,7 +10,7 @@
 
 'use strict';
 
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
@@ -80,6 +80,15 @@ function validateEnv() {
 
     if (isProduction && sessionSecret.length < 32) {
         throw new Error('SESSION_SECRET debe tener al menos 32 caracteres en produccion.');
+    }
+
+    const callback = String(process.env.GOOGLE_CALLBACK_URL || '');
+    if (isProduction && /localhost|127\.0\.0\.1|workers\.dev|trycloudflare/i.test(callback)) {
+        throw new Error('GOOGLE_CALLBACK_URL apunta a un host no productivo; usa https://pixon.com.mx/auth/google/callback');
+    }
+
+    if (isProduction && !String(process.env.DATA_DIR || '').trim()) {
+        console.warn('[env] DATA_DIR no definido: uploads y comprobantes se guardan dentro del release y se perderan en el siguiente deploy.');
     }
 
     if (!isProduction && missing.length) {
@@ -168,12 +177,24 @@ const resolvePort = () => {
 
 const PORT = resolvePort();
 
+// Orígenes de confianza (CORS + CSRF). Producción: dominio canónico + www +
+// APP_URL/PUBLIC_SITE_URL y CORS_EXTRA_ORIGINS (p. ej. el preview temporal de
+// Hostinger, separado por comas). localhost solo fuera de producción.
+function originOf(value) {
+    try { return new URL(String(value).trim()).origin; } catch (_e) { return null; }
+}
 const trustedOrigins = new Set([
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://pixon.com.mx'
+    'https://pixon.com.mx',
+    'https://www.pixon.com.mx',
+    ...[process.env.APP_URL, process.env.PUBLIC_SITE_URL, ...String(process.env.CORS_EXTRA_ORIGINS || '').split(',')]
+        .map(originOf)
+        .filter(Boolean),
+    ...(isProduction ? [] : [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:5173',
+        'http://localhost:5174'
+    ])
 ]);
 
 function appendCustomerNote(notes, note, author) {
@@ -216,7 +237,7 @@ async function bootstrap() {
     let sseIdCounter = 0;
 
     const sseStats = {
-        date: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City' }),
+        date: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Cancun' }),
         visits: 0,
         totalTimeSec: 0
     };
@@ -476,8 +497,27 @@ async function bootstrap() {
 
     // Trazabilidad y Correlación de Peticiones (Senior Execution Contract V3)
     app.use((req, res, next) => {
-        req.correlationId = req.get('X-Correlation-ID') || req.get('X-Request-ID') || crypto.randomUUID();
+        const incomingId = String(req.get('X-Correlation-ID') || req.get('X-Request-ID') || '');
+        req.correlationId = /^[A-Za-z0-9._:-]{8,100}$/.test(incomingId) ? incomingId : require('crypto').randomUUID();
         res.setHeader('X-Correlation-ID', req.correlationId);
+        // Access log estructurado solo para API/auth (sin query string, cookies ni cuerpos).
+        if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) {
+            const startedAt = process.hrtime.bigint();
+            const route = req.originalUrl.split('?')[0].slice(0, 200);
+            if (route === '/api/health') return next();
+            res.on('finish', () => {
+                console.log(JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    level: res.statusCode >= 500 ? 'error' : (res.statusCode >= 400 ? 'warn' : 'info'),
+                    event: 'http_request',
+                    method: req.method,
+                    route,
+                    status: res.statusCode,
+                    correlation_id: req.correlationId,
+                    duration_ms: Number((process.hrtime.bigint() - startedAt) / 1000000n)
+                }));
+            });
+        }
         next();
     });
 
@@ -508,6 +548,11 @@ async function bootstrap() {
         windowMs: 10 * 60 * 1000,
         max: 5,
         message: 'Demasiados tickets creados. Espera unos minutos.'
+    });
+    const appointmentLimiter = createLimiter({
+        windowMs: 10 * 60 * 1000,
+        max: 20,
+        message: 'Demasiadas solicitudes de cita. Espera unos minutos.'
     });
     const profileLimiter = createLimiter({
         windowMs: 5 * 60 * 1000,
@@ -540,7 +585,9 @@ async function bootstrap() {
        SESIONES + PASSPORT
        (usa la tabla `sessions` que ya creó 01-schema.sql)
     ───────────────────────────────────────────────────────── */
-    app.set('trust proxy', 1);
+    // Hostinger termina TLS en su proxy (1 salto). Si Cloudflare (proxied) queda
+    // delante, define TRUST_PROXY_HOPS=2 para que req.ip y el rate-limit vean al cliente real.
+    app.set('trust proxy', Math.min(Math.max(Number(process.env.TRUST_PROXY_HOPS) || 1, 1), 3));
 
     // Canonicaliza host y trailing slash en un solo salto para las páginas públicas.
     // Las peticiones locales y los flujos internos quedan fuera de esta regla.
@@ -692,7 +739,7 @@ async function bootstrap() {
         pool: getDB(),
         requireAdmin,
         requireAuth,
-        rateLimiter: ticketLimiter
+        rateLimiter: appointmentLimiter
     });
     const appointmentAdminRouter = createAdminAppointmentRouter({
         pool: getDB(),
@@ -863,16 +910,17 @@ async function bootstrap() {
     /* ─────────────────────────────────────────────────────────
        AUTH
     ───────────────────────────────────────────────────────── */
-    app.get('/auth/dev-login', ah(async (req, res) => {
-        const isLocal = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.ip) || req.hostname === 'localhost';
-        if (!isLocal && process.env.NODE_ENV === 'production') {
-            return res.status(403).send('Solo permitido localmente');
-        }
+    // Atajo de desarrollo. En producción NO existe: detrás del proxy de
+    // Hostinger req.ip/req.hostname (X-Forwarded-*) no prueban que sea local.
+    app.get('/auth/dev-login', ah(async (req, res, next) => {
+        if (isProduction) return next();
+        const isLocal = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
+        if (!isLocal) return res.status(403).send('Solo permitido localmente');
         const user = await getUserById('93096683-687c-4e1d-b878-e6ea98f37dfe');
         if (!user) return res.status(404).send('Admin user not found in database');
         req.login(user, (err) => {
             if (err) return res.status(500).send(err.message);
-            res.redirect(req.query.returnTo || '/admin');
+            res.redirect(safeInternalReturnTo(req.query.returnTo, '/admin'));
         });
     }));
 
@@ -996,7 +1044,7 @@ async function bootstrap() {
         client.connectTime = connectTime;
         sseClients.add(client);
         
-        const connectTimeStr = new Date(connectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City', hour12: false });
+        const connectTimeStr = new Date(connectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Cancun', hour12: false });
         console.log(`[${connectTimeStr}] SSE #${clientId} conectado (total activos: ${sseClients.size})`);
 
         const keepalive = setInterval(() => {
@@ -1009,7 +1057,7 @@ async function bootstrap() {
             
             const disconnectTime = Date.now();
             const durationSec = Math.round((disconnectTime - client.connectTime) / 1000);
-            const currentDate = new Date(disconnectTime).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City' });
+            const currentDate = new Date(disconnectTime).toLocaleDateString('es-MX', { timeZone: 'America/Cancun' });
             
             if (sseStats.date !== currentDate) {
                 sseStats.date = currentDate;
@@ -1020,7 +1068,7 @@ async function bootstrap() {
             sseStats.visits++;
             sseStats.totalTimeSec += durationSec;
             const avgTimeSec = Math.round(sseStats.totalTimeSec / sseStats.visits);
-            const disconnectTimeStr = new Date(disconnectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City', hour12: false });
+            const disconnectTimeStr = new Date(disconnectTime).toLocaleTimeString('es-MX', { timeZone: 'America/Cancun', hour12: false });
             
             console.log(`[${disconnectTimeStr}] SSE #${clientId} desconectado. Duró: ${durationSec}s. ` +
                         `Subtotal Hoy -> Visitas: ${sseStats.visits} | Promedio: ${avgTimeSec}s | Tiempo Total: ${sseStats.totalTimeSec}s`);
@@ -1335,7 +1383,7 @@ async function bootstrap() {
         res.json({ success: true, config });
     }));
 
-    app.get(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
+    app.get(['/api/admin/tickets/:id(\\d+)', '/api/admin/repairs/:id(\\d+)'], requireAdmin, ah(async (req, res) => {
         const id = toPositiveInt(req.params.id);
         if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
         const ticket = await getRepairAdminById(id);
@@ -1343,7 +1391,7 @@ async function bootstrap() {
         res.json({ success: true, ticket });
     }));
 
-    app.patch(['/api/admin/tickets/:id', '/api/admin/repairs/:id'], requireAdmin, ah(async (req, res) => {
+    app.patch(['/api/admin/tickets/:id(\\d+)', '/api/admin/repairs/:id(\\d+)'], requireAdmin, ah(async (req, res) => {
         const id = toPositiveInt(req.params.id);
         if (!id) return res.status(400).json({ success: false, message: 'ID invalido.' });
         const previousTicket = await getRepairAdminById(id);

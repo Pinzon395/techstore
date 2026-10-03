@@ -753,7 +753,7 @@ async function handleGetAvailability(request, env) {
 // ─── Envíos Transaccionales (Resend API) ──────────────────────────────────────
 
 async function sendResendEmail(env, { to, subject, html, text, ticketId = null }) {
-  const apiKey = env.RESEND_API_KEY || 're_ap45g8ya_HJhd8M9nfBHrNSMzMwrsPhTR';
+  const apiKey = env.RESEND_API_KEY || '';
   const from = env.EMAIL_FROM || 'soporte@pixon.com.mx';
   if (!apiKey || !to) return { ok: false, error: 'Configuración o destinatario faltante' };
 

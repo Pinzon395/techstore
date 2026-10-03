@@ -15,7 +15,7 @@
 
 'use strict';
 
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 const DOMPurify = require('isomorphic-dompurify');
 const { EventEmitter } = require('events');
 const crypto = require('crypto');

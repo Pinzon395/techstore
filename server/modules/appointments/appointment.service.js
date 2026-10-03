@@ -59,6 +59,69 @@ class AppointmentService {
     }
   }
 
+  // Serializa reservas por día (GET_LOCK es por conexión y funciona en MySQL y
+  // MariaDB). Evita los deadlocks de gap-locks de FOR UPDATE sobre rangos vacíos
+  // cuando varias reservas compiten por el mismo horario.
+  async _acquireDayLock(connection, date) {
+    const name = `pixon_appt_${String(date).slice(0, 10)}`;
+    const [[row]] = await connection.query('SELECT GET_LOCK(?, 15) AS acquired', [name]);
+    if (Number(row?.acquired) !== 1) {
+      const error = new Error('SLOT_BUSY: Hay mucha demanda en este horario, intenta de nuevo en unos segundos.');
+      error.statusCode = 409;
+      throw error;
+    }
+    return name;
+  }
+
+  async _releaseDayLock(connection, name) {
+    if (!name) return;
+    try { await connection.query('SELECT RELEASE_LOCK(?)', [name]); } catch (_e) { /* la conexión libera el lock al cerrarse */ }
+  }
+
+  async _assertSlotCapacity(connection, { date, time, endTime, appointmentType, capacityUnits, excludeId = null }) {
+    const [[typeConfig]] = await connection.execute(
+      'SELECT is_exclusive FROM appointment_type_configs WHERE appointment_type = ?',
+      [appointmentType]
+    );
+    const dayOfWeek = new Date(`${date}T12:00:00Z`).getUTCDay();
+    const [[setting]] = await connection.execute('SELECT * FROM appointment_settings WHERE weekday = ?', [dayOfWeek]);
+    const [[exception]] = await connection.execute('SELECT * FROM appointment_exceptions WHERE date = ?', [date]);
+    if (exception?.status === 'closed' || (!exception && setting && !setting.is_open)) {
+      const error = new Error('SLOT_BLOCKED: El taller está cerrado ese día.');
+      error.statusCode = 409;
+      throw error;
+    }
+    const maxCapacity = Number(exception?.capacity_override || setting?.capacity || 3);
+    const [rows] = await connection.execute(
+      `SELECT a.capacity_units, tc.is_exclusive
+       FROM appointments a
+       LEFT JOIN appointment_type_configs tc ON tc.appointment_type = a.appointment_type
+       WHERE DATE(a.start_at) = ?
+         AND a.id <> ?
+         AND a.status IN (${ACTIVE_STATUSES.map(s => `'${s}'`).join(',')})
+         AND (a.reservation_expires_at IS NULL OR a.reservation_expires_at > NOW())
+         AND TIME(a.start_at) < ? AND TIME(a.end_at) > ?`,
+      [date, excludeId || '', endTime, time]
+    );
+    const [blocks] = await connection.execute(
+      `SELECT id FROM appointment_blocks
+       WHERE date = ? AND (is_all_day = 1 OR (TIME(start_time) < ? AND TIME(end_time) > ?))`,
+      [date, endTime, time]
+    );
+    let used = 0;
+    let hasExclusive = false;
+    for (const row of rows) {
+      if (row.is_exclusive) hasExclusive = true;
+      used += Number(row.capacity_units || 1);
+    }
+    const full = blocks.length > 0 || hasExclusive || used + capacityUnits > maxCapacity || (typeConfig?.is_exclusive && used > 0);
+    if (full) {
+      const error = new Error('SLOT_NO_LONGER_AVAILABLE: El horario ya no cuenta con capacidad disponible.');
+      error.statusCode = 409;
+      throw error;
+    }
+  }
+
   async hold({
     ticketId = null,
     customerId = null,
@@ -86,6 +149,14 @@ class AppointmentService {
     if (!customerName || !customerPhone || !date || !time) {
       throw new Error('Nombre, teléfono, fecha y hora son obligatorios.');
     }
+    // Entradas públicas: se reutilizan en emails HTML y en notas internas.
+    const plain = (value, max) => String(value ?? '').replace(/<[^>]*>/g, '').replace(/[<>]/g, '').trim().slice(0, max);
+    customerName = plain(customerName, 120);
+    serviceType = plain(serviceType, 60) || 'GENERAL';
+    if (!customerName) throw new Error('Nombre, teléfono, fecha y hora son obligatorios.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || !/^\d{2}:\d{2}(:\d{2})?$/.test(String(time))) {
+      throw new Error('Formato de fecha u hora inválido (YYYY-MM-DD, HH:MM).');
+    }
 
     // Fast check idempotency
     if (idempotencyKey) {
@@ -100,6 +171,13 @@ class AppointmentService {
     await this.cleanupExpiredHolds();
 
     const connection = await this.pool.getConnection();
+    let lockName = null;
+    try {
+      lockName = await this._acquireDayLock(connection, date);
+    } catch (err) {
+      connection.release();
+      throw err;
+    }
     await connection.beginTransaction();
 
     try {
@@ -365,6 +443,7 @@ class AppointmentService {
       await connection.rollback();
       throw err;
     } finally {
+      await this._releaseDayLock(connection, lockName);
       connection.release();
     }
   }
@@ -398,7 +477,7 @@ class AppointmentService {
       await emailService.sendTransactionalEmail({
         to: apt.customer_email,
         subject: '¡Cita confirmada! - Taller Pixon PC Cancún',
-        html: `<p>Hola ${apt.customer_name},</p><p>Tu cita ha sido <strong>confirmada</strong> para el día <strong>${String(apt.start_at).slice(0, 16)}</strong> en nuestro taller.</p><p>Los $600 MXN abonados de diagnóstico serán aplicados al costo final si aceptas la cotización de reparación.</p>`,
+        html: `<p>Hola ${String(apt.customer_name || '').replace(/[<>&"']/g, '')},</p><p>Tu cita ha sido <strong>confirmada</strong> para el día <strong>${String(apt.start_at).slice(0, 16)}</strong> en nuestro taller.</p><p>Los $600 MXN abonados de diagnóstico serán aplicados al costo final si aceptas la cotización de reparación.</p>`,
         text: `Hola ${apt.customer_name}, tu cita para el ${String(apt.start_at).slice(0, 16)} está confirmada.`,
         eventType: 'appointment_confirmed'
       }).catch(() => {});
@@ -410,7 +489,18 @@ class AppointmentService {
   async reschedule({ appointmentId, newDate, newTime, actor = 'CUSTOMER', actorRole = 'CUSTOMER', reason = null, idempotencyKey = null }) {
     if (!newDate || !newTime) throw new Error('Nueva fecha y hora requeridas.');
 
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(newDate)) || !/^\d{2}:\d{2}$/.test(String(newTime))) {
+      throw new Error('Formato de fecha u hora inválido (YYYY-MM-DD, HH:MM).');
+    }
+
     const connection = await this.pool.getConnection();
+    let lockName = null;
+    try {
+      lockName = await this._acquireDayLock(connection, newDate);
+    } catch (err) {
+      connection.release();
+      throw err;
+    }
     await connection.beginTransaction();
 
     try {
@@ -423,13 +513,26 @@ class AppointmentService {
       if (oldApt.status === APPOINTMENT_STATUSES.RESCHEDULED) {
         throw new Error('Esta cita ya fue reprogramada anteriormente.');
       }
+      if (!ACTIVE_STATUSES.includes(oldApt.status)) {
+        throw new Error('Solo se pueden reprogramar citas activas.');
+      }
 
-      // Check capacity for new slot
+      // Check capacity for new slot (excluye la cita original)
       const newAptId = crypto.randomUUID();
       const newStartAt = `${newDate} ${newTime}:00`;
       const duration = Number(oldApt.duration_minutes || 30);
       const newEndMins = timeToMinutes(newTime) + duration;
       const newEndAt = `${newDate} ${minutesToTime(newEndMins)}:00`;
+      if (actorRole !== 'ADMIN') {
+        await this._assertSlotCapacity(connection, {
+          date: newDate,
+          time: newTime,
+          endTime: minutesToTime(newEndMins),
+          appointmentType: oldApt.appointment_type,
+          capacityUnits: Number(oldApt.capacity_units || 1),
+          excludeId: appointmentId
+        });
+      }
 
       // Create new appointment, retaining valid payment
       const paymentStatus = oldApt.payment_status === 'PAID' ? 'PAID' : oldApt.payment_status;
@@ -513,7 +616,7 @@ class AppointmentService {
         await emailService.sendTransactionalEmail({
           to: oldApt.customer_email,
           subject: 'Cita reprogramada - Pixon PC Cancún',
-          html: `<p>Hola ${oldApt.customer_name},</p><p>Tu cita programada originalmente para <strong>${String(oldApt.start_at).slice(0, 16)}</strong> ha sido reprogramada con éxito.</p><p>Tu nuevo horario confirmado es: <strong>${newStartAt}</strong>.</p>`,
+          html: `<p>Hola ${String(oldApt.customer_name || "").replace(/[<>&"']/g, "")},</p><p>Tu cita programada originalmente para <strong>${String(oldApt.start_at).slice(0, 16)}</strong> ha sido reprogramada con éxito.</p><p>Tu nuevo horario confirmado es: <strong>${newStartAt}</strong>.</p>`,
           text: `Hola ${oldApt.customer_name}, tu cita previa del ${String(oldApt.start_at).slice(0, 16)} ha sido reprogramada para el ${newStartAt}.`,
           eventType: 'appointment_rescheduled'
         }).catch(() => {});
@@ -530,6 +633,7 @@ class AppointmentService {
       await connection.rollback();
       throw err;
     } finally {
+      await this._releaseDayLock(connection, lockName);
       connection.release();
     }
   }
@@ -567,7 +671,7 @@ class AppointmentService {
       await emailService.sendTransactionalEmail({
         to: apt.customer_email,
         subject: 'Cita cancelada - Taller Pixon PC',
-        html: `<p>Hola ${apt.customer_name},</p><p>Te informamos que tu cita del <strong>${String(apt.start_at).slice(0, 16)}</strong> ha sido cancelada.</p>`,
+        html: `<p>Hola ${String(apt.customer_name || '').replace(/[<>&"']/g, '')},</p><p>Te informamos que tu cita del <strong>${String(apt.start_at).slice(0, 16)}</strong> ha sido cancelada.</p>`,
         text: `Hola ${apt.customer_name}, tu cita del ${String(apt.start_at).slice(0, 16)} ha sido cancelada.`,
         eventType: 'appointment_cancelled'
       }).catch(() => {});
