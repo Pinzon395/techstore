@@ -1,160 +1,98 @@
-# PIXON PC — ARQUITECTURA PRODUCTIVA EN HOSTINGER CLOUD STARTUP
+# Pixon PC — Runbook de producción en Hostinger (Node.js Web App)
 
-**Estado:** Vigente / Canónico  
-**Dominio:** `https://pixon.com.mx`  
-**Proveedor:** Hostinger (Plan: Cloud Startup — Managed Hosting)  
-**Filosofía:** ONE PROVIDER · ONE APP · ONE DATABASE · ONE DEPLOYMENT  
+Plan: **Hostinger Unlimited Web Hosting** · Dominio final: `https://pixon.com.mx` ·
+Despliegue temporal: **ZIP** (GitHub auto-deploy bloqueado del lado del proveedor).
 
----
+## 1. Configuración de la app (hPanel → Sitios web → Añadir sitio web → Desplegar app web)
 
-## 1. Resumen Ejecutivo
+| Campo hPanel | Valor (verificado en `package.json` del release) |
+|---|---|
+| Framework | Express / Other (Node.js) |
+| Node.js | `22.x` (fallback `20.x`; `engines: >=20 <=22.x`, `.nvmrc 22.17.0`) |
+| Install | `npm ci` (`.npmrc include=dev` ⇒ instala Astro aunque `NODE_ENV=production`) |
+| Build | `npm run build` (genera `dist/` + `dist/version.json` con el SHA del release) |
+| Start | `npm start` (= `node server/server.js`) |
+| Entry file | `server/server.js` |
+| Output dir | `dist` (lo sirve Express; no es un sitio estático) |
 
-Pixon PC consolida toda su infraestructura en **Hostinger Cloud Startup**, eliminando la dispersión entre múltiples servicios gratuitos y túneles locales.
+## 2. Variables de entorno (hPanel → app → Variables de entorno)
 
-```
-Usuario / Navegador
-        │
-        ▼ HTTPS
-HOSTINGER CLOUD STARTUP (pixon.com.mx)
-  ├── Red Global CDN / WAF / Anti-DDoS
-  ├── Certificado SSL Let's Encrypt (Automático)
-  ├── 1 Aplicación Node.js (Express + Astro)
-  │     ├── Frontend estático pre-renderizado (dist/)
-  │     ├── API REST (/api/*) y Autenticación (/auth/*)
-  │     ├── SSR dinámico para catálogo en vivo (/tienda/:slug)
-  │     ├── Tareas programadas internas (Hold cleanup, Review sync, Outbox)
-  │     └── Almacenamiento persistente (storage/ fuera del release)
-  ├── MySQL Administrado (Base de datos transaccional)
-  ├── Backups diarios automatizados (retención nativa)
-  └── Despliegue automático vía GitHub (push a main)
-```
-
----
-
-## 2. Pila Tecnológica
-
-| Componente | Tecnología | Rol |
-| :--- | :--- | :--- |
-| **Hosting & Runtime** | Hostinger Cloud Startup (Node.js LTS 20.x / 22.x) | Servidor de aplicaciones administrado |
-| **Frontend** | Astro 6.x (Modo SSG / Static File) | Generación estática de 217+ rutas optimizadas en `dist/` |
-| **Backend & API** | Node.js + Express 4.x (`server/server.js`) | API REST, sesiones, seguridad, headers CSP, OAuth, uploads |
-| **Base de Datos** | MySQL 8.0 Administrado en Hostinger | 98 tablas InnoDB, índices, transacciones ACID, row locking |
-| **Sesiones** | `express-mysql-session` | Sesiones persistentes en tabla `sessions` con cookies HttpOnly/Secure/SameSite=Lax |
-| **Storage Persistente**| Directorio persistente de Hostinger | Comprobantes de pago y multimedia protegida en `storage/` |
-| **Seguridad** | Helmet, CSP estricto, Rate Limiting, CORS | Cabeceras HTTP seguras, protección anti-CSRF |
-| **Correos** | Resend API | Envío transaccional y cola en tabla `email_outbox` |
-| **OAuth** | Google OAuth 2.0 (Passport.js) | Callback oficial `https://pixon.com.mx/auth/google/callback` |
-
----
-
-## 3. Comandos de Construcción y Arranque
-
-En el panel de Hostinger (hPanel -> Sección **Node.js**):
-
-- **Node.js version:** `22.x` (o `20.x` LTS)
-- **Application root:** `/home/uXXXXX/domains/pixon.com.mx/public_html` (o directorio asignado)
-- **Application startup file:** `server/server.js`
-- **Build command:**
-  ```bash
-  npm run build
-  ```
-- **Start command:**
-  ```bash
-  npm run start
-  ```
-
----
-
-## 4. Variables de Entorno en Producción (.env)
-
-Estas variables deben configurarse de forma segura en el gestor de variables de Hostinger:
+Nunca en Git, ZIP, chat ni capturas. `server/server.js#validateEnv` aborta el arranque si falta una crítica.
 
 ```ini
-# Entorno
 NODE_ENV=production
-PORT=3000
-
-# Base de Datos MySQL Hostinger
-DB_HOST=localhost
+# PORT lo inyecta Hostinger; no fijarlo salvo que hPanel lo pida
+DB_HOST=<host exacto que muestra hPanel → Bases de datos → u493813761_pixondb>
 DB_PORT=3306
-DB_USER=uXXXXX_pixon
+DB_NAME=u493813761_pixondb
+DB_USER=u493813761_pixonusr
 DB_PASSWORD=<definir-en-hPanel>
-DB_NAME=uXXXXX_pixondb
-
-# Sesión y Seguridad (mínimo 64 caracteres aleatorios)
-SESSION_SECRET=<definir-en-hPanel>
-
-# Google OAuth 2.0
-GOOGLE_CLIENT_ID=827973477493-dgeltontfj0esnq7d25bkfpdjm58ol11.apps.googleusercontent.com
+DB_CONNECTION_LIMIT=8
+SESSION_SECRET=<definir-en-hPanel: 64+ caracteres aleatorios>
+APP_URL=https://pixon.com.mx
+PUBLIC_SITE_URL=https://pixon.com.mx
+CORS_EXTRA_ORIGINS=<URL temporal de preview Hostinger; vaciar tras el cutover>
+TRUST_PROXY_HOPS=1          # 2 solo si Cloudflare queda en modo proxied (nube naranja)
+DATA_DIR=/home/u493813761/pixon-data   # FUERA del directorio de la app
+GOOGLE_CLIENT_ID=<id>.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=<definir-en-hPanel>
 GOOGLE_CALLBACK_URL=https://pixon.com.mx/auth/google/callback
-
-# Notificaciones y Correos
-RESEND_API_KEY=<definir-en-hPanel>
-EMAIL_FROM=soporte@pixon.com.mx
-NOTIFICATION_EMAIL=luispinzon395@gmail.com
-ADMIN_EMAIL=luispinzon395@gmail.com
-
-# Almacenamiento Persistente (Fuera del build/dist)
-DATA_DIR=/home/uXXXXX/pixon_persistent_data
-UPLOAD_DIR=/home/uXXXXX/pixon_persistent_data/commerce-payment-proofs
-MEDIA_DIR=/home/uXXXXX/pixon_persistent_data/commerce-media
+ADMIN_EMAIL=<correo admin>
+RESEND_API_KEY=<definir-en-hPanel: CLAVE NUEVA, la anterior está expuesta>
+EMAIL_FROM="Pixon PC <tickets@pixon.com.mx>"
+NOTIFICATION_EMAIL=<correo>
 ```
 
----
+## 3. Base de datos
 
-## 5. Base de Datos MySQL Administrada
+1. hPanel → Bases de datos → confirmar que existe `u493813761_pixondb` y anotar el **host**.
+2. phpMyAdmin → `u493813761_pixondb` → contar tablas. Si ≠ 99 o vacía: Importar
+   `backups/pixon_full_production_backup_mysql8.sql` (SHA256 `7d1d25ba…a1e10c` (el `a301a478…` del reporte anterior no coincide con el archivo actual), 98 tablas +
+   `job_runs`, 16 567 filas; restauración probada en BD temporal 2026-10-03: 16 567/16 567 filas,
+   116/116 FKs). El archivo contiene datos de clientes: no subirlo a Git ni al ZIP.
+3. Con la app arrancada, `GET /api/ready` debe dar `db: "UP"`.
 
-### Conexión y Pool
-El backend utiliza `mysql2/promise` con pool optimizado para el límite de conexiones de Hostinger:
-- **connectionLimit:** 10 conexiones persistentes
-- **waitForConnections:** `true`
-- **queueLimit:** `0`
-- **charset:** `utf8mb4`
-- **collation:** `utf8mb4_unicode_ci`
+## 4. Archivos (uploads/comprobantes)
 
-### Importación de Datos
-El dump inicial completo y validado se encuentra en:
-`backups/pixon_full_production_backup_mysql8.sql`
-- **Tablas:** 98 tablas base + `job_runs` (idempotencia)
-- **Filas:** 16,568 registros íntegros
-- **Integridad:** Claves foráneas diferidas al final para prevenir fallos de importación.
+Runtime usa disco local en `DATA_DIR` (R2 no se usa en runtime; `pixon-backups` sigue como
+respaldo externo). Subir las 4 imágenes de `server/storage/commerce-media/` a
+`$DATA_DIR/commerce-media/` (Administrador de archivos). Prueba obligatoria: subir un medio
+TEST desde admin → redeploy → verificar que sigue. Si desaparece: `HOSTINGER_FILESYSTEM_NOT_SAFE_FOR_UPLOADS`.
 
----
+## 5. Despliegue por ZIP (mientras GitHub siga roto)
 
-## 6. Almacenamiento de Archivos y Persistencia
+```bash
+git switch main && git status            # árbol limpio
+npm run preflight:production             # PREFLIGHT=PASS
+npm run release:build                    # release/release-prod.zip + release-manifest.json
+# verificar SHA256 del manifest; subir el ZIP en hPanel → app → Subir archivos
+npm run smoke:postdeploy -- https://<preview-o-dominio> --expect-commit <sha12>
+PIXON_ADMIN_COOKIE="connect.sid=..." npm run e2e:admin -- https://<url>
+PIXON_ADMIN_COOKIE="connect.sid=..." npm run e2e:calendar -- https://<url>
+```
 
-1. **Archivos Estáticos del Build:** Viven en `dist/` y se regeneran en cada despliegue de Astro.
-2. **Archivos de Usuarios (Comprobantes / Multimedia Privada):**
-   - Viven en `DATA_DIR` configurado fuera de la raíz de releases de Git.
-   - Acceso autenticado mediante `/api/commerce/payment-proofs/:key`.
-   - Sandbox CSP, `Cache-Control: private, no-store`, `nosniff`.
+`PIXON_ADMIN_COOKIE`: tras iniciar sesión con Google como admin, DevTools → Application →
+Cookies → `connect.sid`. Exportarla solo en la terminal; los scripts nunca la imprimen.
 
----
+## 6. Cutover DNS (solo con preview PASS)
 
-## 7. Despliegue Automatizado (CI/CD con GitHub)
+Inventario actual (Cloudflare, 2026-10-03) — **no tocar** salvo A/AAAA/CNAME de apex y www:
+`TXT google-site-verification`, `_dmarc` (p=quarantine), `resend._domainkey` (DKIM),
+`send.pixon.com.mx` (SPF amazonses + MX de Resend). No hay MX en el apex.
 
-1. En Hostinger hPanel -> **Git**:
-   - Conectar con repositorio: `Pinzon395/techstore`
-   - Branch: `main`
-   - Configurar webhook de GitHub para despliegue automático ante cada push a `main`.
-2. Flujo de trabajo de desarrollo:
-   ```
-   Cambio en local -> Tests locales pasan -> git push origin main -> Hostinger build automático -> Sitio en vivo
-   ```
-3. Verificación de versión tras el despliegue:
-   - Endpoint: `https://pixon.com.mx/api/version`
-   - Endpoint de salud: `https://pixon.com.mx/api/health` (Devuelve `status: "UP"`, `app: "UP"`, `db: "UP"`)
+1. Cloudflare → Workers → quitar la ruta `pixon.com.mx/*` del Worker (si no, el Worker sigue respondiendo).
+2. A `pixon.com.mx` y `www` → IP de Hostinger, **DNS-only** (nube gris) para que Hostinger emita SSL.
+3. hPanel → SSL → instalar Let's Encrypt; forzar HTTPS. Express ya redirige `www` → apex.
+4. Google Cloud Console → OAuth → confirmar redirect URI `https://pixon.com.mx/auth/google/callback`.
+5. `npm run smoke:postdeploy -- https://pixon.com.mx` (incluye http→https y www→apex).
+6. Vaciar `CORS_EXTRA_ORIGINS`.
 
----
+## 7. Futuro: GitHub auto-deploy
 
-## 8. Configuración DNS
+Cuando Hostinger resuelva el mapping: repo `Pinzon395/techstore`, rama `main`. Prueba: commit
+de marcador → push → `/api/version` cambia de commit sin subida manual.
 
-Registros canónicos para `pixon.com.mx`:
+## 8. Rollback
 
-| Tipo | Host | Valor / Destino | TTL |
-| :--- | :--- | :--- | :--- |
-| **A** | `@` | IP del servidor Hostinger Cloud Startup | 300 (inicial) -> 3600 |
-| **CNAME** | `www` | `pixon.com.mx` | 3600 |
-| **MX** | `@` | Registros del proveedor de correo (ej. Titan Mail / Google Workspace) | 3600 |
-| **TXT** | `@` | SPF / DKIM / DMARC vigentes | 3600 |
+Volver a subir el ZIP anterior (manifest con SHA previo). DNS: restaurar la ruta del Worker.
+BD: backups de Hostinger o el dump local.
