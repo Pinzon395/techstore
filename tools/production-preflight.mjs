@@ -40,7 +40,8 @@ check('node-engine', /^>=20/.test(pkg.engines?.node || '') && [20, 22].includes(
 check('lockfile-version', JSON.parse(readFileSync(path.join(root, 'package-lock.json'), 'utf8')).lockfileVersion >= 2);
 
 // 3. Contenido prohibido en el release
-const prohibited = files.filter((f) =>
+const postBuild = args.includes('--require-dist'); // carpeta ya construida: dist/ y logs locales son esperados
+const prohibited = files.filter((f) => !(postBuild && (/^dist\//.test(f) || /^[^/]+\.log$/.test(f)))).filter((f) =>
     /(^|\/)node_modules\//.test(f) ||
     (/(^|\/)\.env(\.[^/]*)?$/.test(f) && !/\.example$/.test(f)) ||
     (/\.sql$/i.test(f) && !/^server\/sql\//.test(f)) ||
