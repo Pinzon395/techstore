@@ -55,6 +55,14 @@ function decimal(value) {
     return value === null || value === undefined ? null : String(value);
 }
 
+// value_number es DECIMAL(20,6): MariaDB lo devuelve como "4.000000". Se
+// canoniza para que el admin pueda reenviar el valor (INTEGER exige "4").
+function attributeNumber(value) {
+    const raw = decimal(value);
+    if (raw === null || !raw.includes('.')) return raw;
+    return raw.replace(/0+$/, '').replace(/\.$/, '');
+}
+
 function mapItem(row, { publicView = false } = {}) {
     if (!row) return null;
     const item = {
@@ -459,7 +467,7 @@ class CatalogRepository {
 
     mapAttribute(row) {
         let value;
-        if (row.data_type === 'INTEGER' || row.data_type === 'DECIMAL') value = decimal(row.value_number);
+        if (row.data_type === 'INTEGER' || row.data_type === 'DECIMAL') value = attributeNumber(row.value_number);
         else if (row.data_type === 'BOOLEAN') value = bool(row.value_boolean);
         else if (row.data_type === 'DATE') value = row.value_date;
         else if (row.data_type === 'JSON') value = parseJson(row.value_json);
@@ -1112,6 +1120,7 @@ class CatalogRepository {
 module.exports = {
     CatalogRepository,
     mapItem,
+    attributeNumber,
     parseJson,
     escapeLike,
     updateStatement

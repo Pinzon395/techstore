@@ -7,7 +7,7 @@ const {
     assertPriceRelationship,
     normalizeTypedAttribute
 } = require('../catalog/catalog.service');
-const { mapItem } = require('../catalog/catalog.repository');
+const { mapItem, attributeNumber } = require('../catalog/catalog.repository');
 const { ValidationError } = require('../errors');
 
 test('precio promocional no puede superar precio base', () => {
@@ -35,6 +35,19 @@ test('atributos INTEGER y DECIMAL usan value_number con validacion diferenciada'
         { value: '15.6', sort_order: 1 }
     );
     assert.equal(decimal.value_number, '15.6');
+});
+
+test('value_number DECIMAL(20,6) leido de MariaDB se puede reenviar al guardar', () => {
+    assert.equal(attributeNumber('4.000000'), '4');
+    assert.equal(attributeNumber('15.600000'), '15.6');
+    assert.equal(attributeNumber('-0.500000'), '-0.5');
+    assert.equal(attributeNumber('120'), '120');
+    assert.equal(attributeNumber(null), null);
+    const roundTrip = normalizeTypedAttribute(
+        { id: 3, attribute_key: 'cores', label: 'Nucleos', data_type: 'INTEGER' },
+        { value: attributeNumber('4.000000'), sort_order: 0 }
+    );
+    assert.equal(roundTrip.value_number, '4');
 });
 
 test('DTO publico nunca incluye costo interno', () => {
