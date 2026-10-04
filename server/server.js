@@ -155,6 +155,29 @@ const {
 const app = express();
 app.disable('x-powered-by');
 
+// Hostinger (y otros hosts Node gestionados) cargan este archivo con require()
+// desde un wrapper y sirven el `app` exportado: require.main !== module y el
+// host ya escucha el puerto. Standalone (`node server/server.js`) escucha aquí.
+const EMBEDDED = require.main !== module;
+const SHOULD_LISTEN = !EMBEDDED || process.env.PIXON_FORCE_LISTEN === '1';
+
+// Liveness/readiness/version se registran antes de bootstrap(): responden
+// aunque MariaDB esté caída o el arranque siga en curso, para diagnosticar.
+let appState = 'starting';
+const HEALTH_PATHS = new Set(['/api/health', '/api/ready', '/api/version']);
+app.use((req, res, next) => {
+    if (appState === 'ready' || HEALTH_PATHS.has(req.path)) return next();
+    res.setHeader('Cache-Control', 'no-store, private');
+    res.setHeader('Retry-After', '10');
+    return res.status(503).json({ ok: false, status: appState === 'failed' ? 'BOOT_FAILED' : 'STARTING' });
+});
+app.use('/api', createHealthRoutes({
+    getClientCount: () => 0,
+    checkDatabase: async () => {
+        await getDB().query('SELECT 1 AS ok');
+    }
+}));
+
 // Cache HTTP para contenido estático
 const cacheMiddleware = (duration) => (req, res, next) => {
   if (req.method === 'GET') {
@@ -1014,13 +1037,6 @@ async function bootstrap() {
     /* ─────────────────────────────────────────────────────────
        API PÚBLICA
     ───────────────────────────────────────────────────────── */
-    app.use('/api', createHealthRoutes({
-        getClientCount: () => sseClients.size,
-        checkDatabase: async () => {
-            await getDB().query('SELECT 1 AS ok');
-        }
-    }));
-
     app.get('/api/comments', ah(async (_req, res) => {
         const comments = await getAllComments();
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -1922,7 +1938,11 @@ async function bootstrap() {
     /* ─────────────────────────────────────────────────────────
        ARRANCAR
     ───────────────────────────────────────────────────────── */
-    const server = app.listen(PORT, () => {
+    appState = 'ready';
+    if (!SHOULD_LISTEN) {
+        console.log(`[server] Pixon PC API [${process.env.NODE_ENV || 'development'}] lista (modo embebido: el host sirve el app exportado).`);
+    }
+    const server = SHOULD_LISTEN ? app.listen(PORT, () => {
         const mode = process.env.NODE_ENV || 'development';
         console.log(`
 +--------------------------------------------------+
@@ -1931,8 +1951,8 @@ async function bootstrap() {
 |  SSE   -> http://localhost:${PORT}/api/comments/stream
 |  OAuth -> http://localhost:${PORT}/auth/google
 +--------------------------------------------------+`);
-    });
-    server.on('error', (error) => {
+    }) : null;
+    if (server) server.on('error', (error) => {
         if (error.code === 'EADDRINUSE') {
             console.error(`
 [server] El puerto ${PORT} ya esta en uso.
@@ -1964,21 +1984,25 @@ Alternativa para arrancar en otro puerto:
         emailOutboxWorker.stop();
         googleReviewsSyncWorker.stop();
         clearInterval(holdCleanupInterval);
-        server.close(async () => {
+        const finish = async () => {
             try { await getDB().end(); } catch (error) { console.error('[server] Error cerrando MariaDB:', error.message); }
             process.exit(0);
-        });
+        };
+        if (server) server.close(finish); else finish();
         setTimeout(() => process.exit(1), 25_000).unref();
     };
     process.once('SIGTERM', () => shutdown('SIGTERM'));
     process.once('SIGINT', () => shutdown('SIGINT'));
 }
 
-if (require.main === module) {
+if (process.env.PIXON_SKIP_BOOTSTRAP !== '1') {
     bootstrap().catch(err => {
+        appState = 'failed';
         console.error('Bootstrap fallido:', err.message);
         console.error(err.stack);
-        process.exit(1);
+        // Standalone: salir para que el supervisor reinicie. Embebido: el host
+        // ya sirve el app; mantener /api/health y /api/ready para diagnóstico.
+        if (SHOULD_LISTEN) process.exit(1);
     });
 }
 
