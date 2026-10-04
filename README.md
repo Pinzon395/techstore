@@ -120,7 +120,7 @@ Deja `GOOGLE_CALLBACK_URL=/auth/google/callback` para que el callback use el mis
 npm ci              # instala exactamente lo fijado en package-lock.json
 npm run build       # genera dist/
 npm run start       # servidor de produccion en PORT o 3000
-npm run dev         # servidor Node con nodemon en puerto 3001
+npm run dev         # servidor Node con node --watch en puerto 3001
 npm run dev:astro   # Astro dev server en puerto 4321
 npm run setup:local # npm ci + build
 npm run db:snapshot # actualiza datos no sensibles versionados
