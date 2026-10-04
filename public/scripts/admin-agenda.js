@@ -747,17 +747,7 @@
       const nowTime = cancunNowTime();
       const nowMin = parseInt(nowTime.slice(0, 2), 10) * 60 + parseInt(nowTime.slice(3, 5), 10);
 
-      // Horarios estándar de 08:30 a 19:00
-      const timeSlots = [];
-      for (let h = 8; h <= 19; h++) {
-        const hh = String(h).padStart(2, '0');
-        if (h === 8) {
-          timeSlots.push('08:30');
-        } else {
-          timeSlots.push(`${hh}:00`);
-          if (h < 19) timeSlots.push(`${hh}:30`);
-        }
-      }
+      const timeSlots = this.getTimeSlots([todayISO], appts);
 
       let nowInserted = false;
       const timelineHtml = timeSlots.map(time => {
@@ -911,6 +901,34 @@
     /**
      * 2. VISTA SEMANAL PROFESIONAL (TIMETABLE REJILLA UNIFICADA — UN SOLO SCROLL)
      */
+    getTimeSlots(dates, appts) {
+      const slots = new Set();
+      const minutes = value => {
+        const match = /^(\d{2}):(\d{2})/.exec(String(value || ''));
+        return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+      };
+      for (const date of dates) {
+        const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
+        const setting = this.config?.settings?.find(row => Number(row.weekday) === weekday);
+        const exception = this.config?.exceptions?.find(row => String(row.date).slice(0, 10) === date);
+        if (exception?.status === 'closed' || (!exception && setting && !Number(setting.is_open))) continue;
+        const start = minutes(exception?.start_time || setting?.start_time);
+        const end = minutes(exception?.end_time || setting?.end_time);
+        const interval = Math.max(1, Number(exception?.slot_minutes || setting?.slot_minutes) || 30);
+        if (start !== null && end !== null) {
+          for (let minute = start; minute < end; minute += interval) {
+            slots.add(`${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`);
+          }
+        }
+      }
+      // Overrides and appointments outside current opening hours must stay visible.
+      for (const apt of appts) {
+        const time = formatTime(apt.start_at);
+        if (minutes(time) !== null) slots.add(time);
+      }
+      return [...slots].sort();
+    }
+
     renderWeekView(container, appts) {
       const { start } = this.getDateRangeForView();
       const [y, m, d] = start.split('-').map(Number);
@@ -926,13 +944,7 @@
       const todayISO = cancunTodayISO();
       const nowTime = cancunNowTime();
 
-      // Horarios 09:00 a 19:00 en saltos de 30m
-      const timeSlots = [];
-      for (let h = 9; h <= 19; h++) {
-        const hh = String(h).padStart(2, '0');
-        timeSlots.push(`${hh}:00`);
-        if (h < 19) timeSlots.push(`${hh}:30`);
-      }
+      const timeSlots = this.getTimeSlots(days, appts);
 
       // Header row
       let headersHtml = `<div class="agenda-tt-corner">Hora</div>`;
@@ -1119,13 +1131,7 @@
         `;
       }
 
-      // Horarios 09:00 a 19:00
-      const timeSlots = [];
-      for (let h = 9; h <= 19; h++) {
-        const hh = String(h).padStart(2, '0');
-        timeSlots.push(`${hh}:00`);
-        if (h < 19) timeSlots.push(`${hh}:30`);
-      }
+      const timeSlots = this.getTimeSlots([dateStr], dayAppts);
 
       const nowTime = cancunNowTime();
       const isToday = dateStr === cancunTodayISO();

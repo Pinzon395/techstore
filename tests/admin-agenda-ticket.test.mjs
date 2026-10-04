@@ -10,6 +10,28 @@ import { JSDOM } from 'jsdom';
 
 const source = fs.readFileSync(new URL('../public/scripts/admin-agenda.js', import.meta.url), 'utf8');
 
+test('weekly agenda displays a real appointment at 21:30 using configured opening hours', () => {
+  const window = loadAgendaManager();
+  const agenda = window.adminAgenda;
+  agenda.currentDate = '2026-10-08';
+  agenda.view = 'week';
+  agenda.config = { settings: Array.from({ length: 7 }, (_, weekday) => ({ weekday, is_open: 1, start_time: '11:00:00', end_time: '22:00:00', slot_minutes: 30 })), exceptions: [] };
+  const container = window.document.createElement('div');
+  agenda.renderWeekView(container, [{ id: 'late-booking', start_at: '2026-10-08 21:30:00', customer_name: 'Late customer', appointment_type: 'DROP_OFF', status: 'CONFIRMED', capacity_units: 1 }]);
+  assert.match(container.textContent, /Late customer/);
+  assert.ok(container.querySelector('[data-date="2026-10-08"][data-time="21:30"]'));
+  assert.equal(container.querySelector('[data-time="09:00"]'), null);
+  window.close();
+});
+
+test('agenda keeps appointments outside changed or closed opening hours visible', () => {
+  const window = loadAgendaManager();
+  const agenda = window.adminAgenda;
+  agenda.config = { settings: [{ weekday: 4, is_open: 0, start_time: '11:00:00', end_time: '18:00:00' }], exceptions: [] };
+  assert.deepEqual(Array.from(agenda.getTimeSlots(['2026-10-08'], [{ start_at: '2026-10-08 21:30:00' }])), ['21:30']);
+  window.close();
+});
+
 function loadAgendaManager() {
   const dom = new JSDOM(
     `<!doctype html><html><body><script>${source}</script></body></html>`,
