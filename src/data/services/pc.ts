@@ -462,13 +462,12 @@ export const pcCategory: ServiceCategory = {
         relatedSlugs: ['mantenimiento-correctivo', 'limpieza-profunda', 'upgrade', 'diagnostico'],
         relatedExternal: [
           { label: 'Formateo y Windows', href: '/servicios/laptop/formateo-windows-virus-cancun', icon: 'fa-windows', desc: 'Respaldo, reinstalación limpia, drivers, eliminación de virus y optimización.' },
-          { label: 'Instalación de Windows', href: '/instalacion-windows', icon: 'fa-windows', desc: 'Página dedicada con más opciones de licencia y versiones.' },
+          { label: 'Instalación de Windows', href: '/servicios/pc/formateo', icon: 'fa-windows', desc: 'Reinstalación limpia con respaldo, drivers y activación.' },
           { label: 'Optimización del Sistema', href: '/optimizacion', icon: 'fa-bolt', desc: 'Ya con Windows limpio, optimización avanzada exprime más.' },
         ],
       },
 
       { slug: 'formateo-windows-virus-cancun', label: 'Formateo y Windows', customUrl: '/servicios/laptop/formateo-windows-virus-cancun' },
-      { slug: 'instalacion-sistema', label: 'Instalación de Windows', customUrl: '/instalacion-windows' },
 
       // --- Upgrade de PC (completa) -----------------------------------
       {

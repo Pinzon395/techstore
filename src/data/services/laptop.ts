@@ -78,7 +78,7 @@ const laptopDataRecoveryService = {
     { question: '¿Cuánto tarda?', answer: 'Puede tomar desde 24 horas hasta varios días según daño, capacidad y estabilidad del disco.' },
     { question: '¿También cambian el disco después?', answer: 'Sí. Si el disco está fallando, podemos instalar SSD nuevo, clonar si es viable o reinstalar Windows.' },
   ],
-  relatedSlugs: ['diagnostico', 'upgrade', 'limpieza-liquido', 'instalacion-windows'],
+  relatedSlugs: ['diagnostico', 'upgrade', 'limpieza-liquido', 'formateo-windows-virus-cancun'],
 };
 
 export const laptopCategory: ServiceCategory = {
@@ -285,7 +285,7 @@ export const laptopCategory: ServiceCategory = {
         relatedSlugs: ['cambio-pantalla', 'cambio-teclado', 'pasta-termica', 'diagnostico'],
         relatedExternal: [
           { label: 'Optimización del Sistema', href: '/optimizacion', icon: 'fa-bolt',    desc: 'Una laptop optimizada gasta menos batería.' },
-          { label: 'Mantenimiento Mac',         href: '/mantenimiento-mac', icon: 'fa-apple',  desc: 'Para MacBook hacemos servicio especializado.' },
+          { label: 'Mantenimiento Mac',         href: '/servicios/mac/mantenimiento-macbook', icon: 'fa-apple',  desc: 'Para MacBook hacemos servicio especializado.' },
         ],
       },
 
@@ -400,7 +400,7 @@ export const laptopCategory: ServiceCategory = {
         relatedExternal: [
           { label: 'Mantenimiento a domicilio', href: '/mantenimiento-pc-laptop-domicilio-cancun', icon: 'fa-house-laptop', desc: 'Visita técnica en sitio para laptop o PC con cita previa en Cancún.' },
           { label: 'Paquetes de mantenimiento', href: '/paquetes', icon: 'fa-box', desc: 'Si necesitas plan recurrente para varios equipos o mantenimiento programado.' },
-          { label: 'Mantenimiento Mac', href: '/mantenimiento-mac', icon: 'fa-apple', desc: 'Servicio especializado para MacBook con procedimiento dedicado.' },
+          { label: 'Mantenimiento Mac', href: '/servicios/mac/mantenimiento-macbook', icon: 'fa-apple', desc: 'Servicio especializado para MacBook con procedimiento dedicado.' },
         ],
       },
 
@@ -460,7 +460,7 @@ export const laptopCategory: ServiceCategory = {
         ],
         relatedSlugs: ['mantenimiento-preventivo', 'cambio-bateria', 'upgrade', 'diagnostico'],
         relatedExternal: [
-          { label: 'Mantenimiento Mac',         href: '/mantenimiento-mac',         icon: 'fa-apple',   desc: 'Servicio especializado para MacBook con metal líquido opcional.' },
+          { label: 'Mantenimiento Mac',         href: '/servicios/mac/mantenimiento-macbook',         icon: 'fa-apple',   desc: 'Servicio especializado para MacBook con metal líquido opcional.' },
           { label: 'Limpieza por líquido',     href: '/limpieza-laptop-liquido',   icon: 'fa-droplet', desc: 'Si tu laptop calienta tras un derrame, hay que atender ambas cosas.' },
           { label: 'Paquetes de mantenimiento', href: '/paquetes',                  icon: 'fa-box',     desc: 'Servicio recurrente con descuentos.' },
         ],
@@ -476,17 +476,14 @@ export const laptopCategory: ServiceCategory = {
         //   Sin este customUrl, [servicio].astro genera un conflicto de ruta.
         customUrl: '/servicios/laptop/upgrade',
         seoKeyword: 'Upgrade de SSD y RAM para laptop en Cancún',
-        hook: 'Tu laptop puede ser hasta 5x más rápida. Migración a SSD NVMe + ampliación de RAM con clonado de tu Windows actual  -  sin perder NADA.',
-        intro: 'Migración a SSD NVMe/SATA y/o ampliación de memoria RAM. Tu equipo arranca en segundos y multiplica su rendimiento.',
+        hook: 'Si tu laptop todavía usa disco mecánico o poca RAM, migrar a SSD y ampliar memoria es la mejora que más se nota. Clonamos tu Windows actual para que conserves tus programas.',
+        intro: 'Migración a SSD NVMe/SATA y/o ampliación de memoria RAM. Antes de comprar piezas confirmamos compatibilidad y qué mejora vale la pena en tu modelo.',
         bullets: ['Clonado de Windows sin reinstalar nada', 'SSD desde 240 GB hasta 2 TB', 'Hasta 64 GB RAM según modelo', 'Backup completo antes de tocar nada', 'Asesoría: te decimos qué upgrade vale más la pena'],
         fromPrice: '$800 MXN + pieza', eta: '24-48 h', warranty: 'SSD: 3 años fabricante | RAM: 5 años fabricante',
-        featuredImage: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&q=80',
-        sectionImages: {
-          whyUs:    'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=600&q=80',
-          process:  'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80',
-        },
+        // Solo fotos reales del taller (antes eran fotos de stock de Unsplash).
+        featuredImage: '/assets/images/cambio-ssd.webp',
         whyUs: [
-          { icon: 'fa-rocket',     title: 'Hasta 5x más rápida',   desc: 'Boot de 3 min a 15 segundos. Apps abren al instante.' },
+          { icon: 'fa-rocket',     title: 'Arranque más rápido',   desc: 'Pasar de disco mecánico a SSD reduce mucho el tiempo de encendido y de apertura de programas.' },
           { icon: 'fa-clone',      title: 'Sin reinstalar nada',  desc: 'Clonamos tu sistema actual. Conservas TODO: programas, archivos, configuraciones.' },
           { icon: 'fa-shield-halved',title: 'Backup previo',      desc: 'Imagen completa de tu disco antes de iniciar. Cero riesgo de pérdida.' },
           { icon: 'fa-microchip',  title: 'Asesoría experta',     desc: 'Te decimos si conviene SSD, RAM o ambos según tu uso real.' },
@@ -518,7 +515,7 @@ export const laptopCategory: ServiceCategory = {
         relatedExternal: [
           { label: 'Optimización del Sistema',   href: '/optimizacion',          icon: 'fa-bolt',     desc: 'Tras el upgrade, optimización exprime aún más el equipo.' },
           { label: 'Formateo y Windows',         href: '/servicios/laptop/formateo-windows-virus-cancun', icon: 'fa-windows', desc: 'Respaldo, reinstalación limpia, drivers y eliminación de virus.' },
-          { label: 'Instalación de Windows',     href: '/instalacion-windows',   icon: 'fa-windows',  desc: 'Si prefieres reinstalación limpia en lugar de clonado.' },
+          { label: 'Instalación de Windows',     href: '/servicios/laptop/formateo-windows-virus-cancun',   icon: 'fa-windows',  desc: 'Si prefieres reinstalación limpia en lugar de clonado.' },
           { label: 'Ensambles PC Gamer',         href: '/ensambles',             icon: 'fa-microchip',desc: 'Si tu laptop ya no da para más, te armamos PC desde cero.' },
         ],
       },
@@ -572,8 +569,7 @@ export const laptopCategory: ServiceCategory = {
       { slug: 'laptop-mojada', label: 'Laptop mojada', customUrl: '/servicios/laptop/laptop-mojada' },
       { slug: 'formateo-windows-virus-cancun', label: 'Formateo y Windows', customUrl: '/servicios/laptop/formateo-windows-virus-cancun' },
       { slug: 'optimizacion',         label: 'Optimización del Sistema',customUrl: '/optimizacion' },
-      { slug: 'instalacion-windows',  label: 'Instalación de Windows',  customUrl: '/instalacion-windows' },
-      { slug: 'mantenimiento-mac',    label: 'Mantenimiento Mac',       customUrl: '/mantenimiento-mac' },
+      { slug: 'mantenimiento-mac',    label: 'Mantenimiento Mac',       customUrl: '/servicios/mac/mantenimiento-macbook' },
       { slug: 'limpieza-liquido',     label: 'Limpieza por Líquido',    customUrl: '/limpieza-laptop-liquido' },
     ],
   };

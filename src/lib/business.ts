@@ -25,6 +25,10 @@ export const business = {
     region: 'Quintana Roo',
     country: 'MX',
   },
+  // Pin del perfil de Google Maps del negocio (maps.app.goo.gl/yRr626kNbtchtDTs6 → 21.157872,-86.896027);
+  // cae en CP 77539, igual que la dirección. Las coordenadas anteriores (21.0512,-86.8475) eran Lagos del Sol, CP 77569.
+  geo: { latitude: 21.157875, longitude: -86.896057 },
+  mapsUrl: 'https://maps.app.goo.gl/yRr626kNbtchtDTs6',
   englishSupport: { type: 'WRITTEN' as const },
 } as const;
 

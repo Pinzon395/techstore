@@ -343,12 +343,31 @@ async function bootstrap() {
         '/limpieza-interna-pc': '/mantenimiento-preventivo-computadora',
         '/pc-se-calienta': '/servicios/pc/refrigeracion',
         '/cambio-pasta-termica-pc': '/servicios/pc/refrigeracion',
-        '/mantenimiento-laptop': '/limpieza-laptop',
-        '/mantenimiento-preventivo-laptop': '/limpieza-laptop',
-        '/limpieza-interna-laptop': '/limpieza-laptop',
-        '/laptop-se-calienta': '/limpieza-laptop',
-        '/ventilador-laptop-suena-fuerte': '/limpieza-laptop',
-        '/cambio-pasta-termica-laptop': '/limpieza-laptop',
+        // Intención local "mantenimiento/limpieza de laptop": la ficha de servicio es la que
+        // Search Console posiciona (343 impresiones, pos. 7.9). /limpieza-laptop queda para
+        // envíos por paquetería desde otros estados.
+        '/mantenimiento-laptop': '/servicios/laptop/mantenimiento-preventivo',
+        '/mantenimiento-preventivo-laptop': '/servicios/laptop/mantenimiento-preventivo',
+        '/limpieza-interna-laptop': '/servicios/laptop/mantenimiento-preventivo',
+        '/laptop-se-calienta': '/servicios/laptop/mantenimiento-preventivo',
+        '/ventilador-laptop-suena-fuerte': '/servicios/laptop/mantenimiento-preventivo',
+        '/cambio-pasta-termica-laptop': '/servicios/laptop/mantenimiento-preventivo',
+        // Canibalización (auditoría 2026-10): una URL por intención.
+        '/mantenimiento-mac': '/servicios/mac/mantenimiento-macbook',
+        '/servicios/mantenimiento-mac': '/servicios/mac/mantenimiento-macbook',
+        '/servicios/laptop/reparacion-macbook': '/servicios/mac/reparacion-macbook',
+        // URLs en inglés retiradas que aún reciben impresiones en Search Console.
+        '/en/repairs': '/en/services',
+        '/en/controller-repair': '/en/game-console-repair',
+        '/en/pc-builds': '/en/custom-pc-builds',
+        '/en/optimization': '/en/pc-optimization',
+        '/en/mac-maintenance': '/en/macbook-repair',
+        '/en/windows-install': '/en/computer-repair',
+        '/en/hinge-repair': '/en/laptop-repair',
+        '/en/anti-sulfatation': '/en/liquid-damage',
+        // Formateo: /servicios/pc/formateo (188 impr., pos. 10.4) absorbe la página genérica duplicada.
+        '/instalacion-windows': '/servicios/pc/formateo',
+        '/servicios/instalacion-windows': '/servicios/pc/formateo',
     });
 
     app.get(Object.keys(serviceAliasRedirects), (req, res) => {
@@ -1752,10 +1771,6 @@ async function bootstrap() {
             '/servicios/paquetes':          'paquetes.html',
             '/ensambles':                   'ensambles.html',
             '/servicios/ensambles':         'ensambles.html',
-            '/mantenimiento-mac':           'mantenimiento-mac.html',
-            '/servicios/mantenimiento-mac': 'mantenimiento-mac.html',
-            '/instalacion-windows':         'instalacion-windows.html',
-            '/servicios/instalacion-windows':'instalacion-windows.html',
             '/reparaciones':                'reparaciones.html',
             '/servicios/reparaciones':      'reparaciones.html',
             '/reparacion-bisagras':         'reparacion-bisagras.html',
@@ -1783,29 +1798,14 @@ async function bootstrap() {
             '/test-navbar-3':               'test-navbar-3.html',
             // Hub general de servicios
             '/servicios':                   'servicios/index.html',
-            // Páginas en inglés (Astro)
-            '/en/packages':                 'en/packages.html',
-            '/en/pc-builds':                'en/pc-builds.html',
-            '/en/repairs':                  'en/repairs.html',
-            '/en/hinge-repair':             'en/hinge-repair.html',
-            '/en/controller-repair':        'en/controller-repair.html',
+            // Páginas en inglés (Astro); las retiradas redirigen en serviceAliasRedirects.
             '/en/liquid-damage':            'en/liquid-damage.html',
-            '/en/mac-maintenance':          'en/mac-maintenance.html',
-            '/en/windows-install':          'en/windows-install.html',
-            '/en/optimization':             'en/optimization.html',
-            '/en/anti-sulfatation':         'en/anti-sulfatation.html',
-            '/en/corporate':                'en/corporate.html',
             '/en/contact':                  'en/contact.html',
-            '/en/catalog':                  'en/catalog.html',
-            '/en/reviews':                  'en/reviews.html',
-            '/en/faq':                      'en/faq.html',
-            '/en/privacy':                  'en/privacy.html',
-            '/en/warranty':                 'en/warranty.html',
             '/en/404':                      'en/404.html',
         };
 
         const legacyRedirects = [
-            { from: '/formateo-optimizacion', to: '/instalacion-windows' },
+            { from: '/formateo-optimizacion', to: '/servicios/pc/formateo' },
             { from: '/garantia', to: '/politica-de-garantia' }
         ];
         legacyRedirects.forEach(({ from, to }) => {
