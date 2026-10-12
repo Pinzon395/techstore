@@ -51,12 +51,16 @@ const printerIssueService = ({
   relatedSlugs,
 });
 
-const printerBrandService = (slug: string, brand: string, models: string[]) => ({
+// Cada marca tiene fallas típicas distintas (contadores de almohadillas, bloqueo de cartuchos,
+// tambor separado, códigos de error). Las páginas por marca solo se justifican si responden eso.
+type PrinterBrandDetail = { hook: string; intro: string; problems: { problem: string; solution: string }[] };
+
+const printerBrandService = (slug: string, brand: string, models: string[], detail: PrinterBrandDetail) => ({
   slug,
   label: `Reparación impresora ${brand}`,
   seoKeyword: `Reparación impresora ${brand} en Cancún`,
-  hook: `Servicio técnico para impresoras ${brand} que no imprimen, fallan por WiFi, tienen rayas, atascos, error de tinta, tóner, cabezal o rodillos.`,
-  intro: `Diagnóstico de impresoras ${brand} en Cancún con revisión de insumos, cabezal, rodillos, sensores, drivers, WiFi y calidad de impresión.`,
+  hook: detail.hook,
+  intro: detail.intro,
   bullets: ['Revisión por modelo exacto', 'Tinta, tóner, cabezal, rodillos y sensores', 'Configuración WiFi, USB o red', 'Soporte para hogar, oficina y negocio'],
   fromPrice: undefined,
   hideSchemaOffer: true,
@@ -74,12 +78,7 @@ const printerBrandService = (slug: string, brand: string, models: string[]) => (
     { title: 'Cotización', desc: 'Indicamos costo, insumo o pieza requerida, tiempo y garantía antes de reparar.' },
     { title: 'Entrega probada', desc: 'Hacemos prueba de impresión y conexión con los equipos necesarios.' },
   ],
-  commonProblems: [
-    { problem: `${brand} no imprime`, solution: 'Revisamos cola de impresión, driver, conexión, cabezal, tóner/tinta, sensores y errores.' },
-    { problem: 'Imprime con rayas o manchas', solution: 'Puede ser cabezal tapado, tinta, tóner, tambor, fusor o falta de mantenimiento.' },
-    { problem: 'No conecta por WiFi', solution: 'Configuramos red, IP, driver, firmware y equipos conectados.' },
-    { problem: 'Atasco recurrente', solution: 'Revisamos rodillos, sensores, ruta de papel, bandeja y tipo de papel.' },
-  ],
+  commonProblems: detail.problems,
   compatibleBrands: models,
   faqs: printerFaqs(`impresoras ${brand}`),
   relatedSlugs: ['diagnostico', 'conectividad', 'mantenimiento', 'atascos', 'cambio-tinta-toner'],
@@ -119,10 +118,46 @@ export const impresoraCategory: ServiceCategory = {
       { slug: 'rodillos',           label: 'Rodillos / alimentación',      intro: 'Rodillos gastados que ya no agarran el papel. Sustitución e instalación técnica de refacciones compatibles.', bullets: ['Mano de obra técnica especializada', 'Limpieza del trayecto del papel y calibración', 'Refacción cotizada según modelo y marca', 'Garantía por escrito'], fromPrice: undefined, hideSchemaOffer: true, eta: '2-4 días' },
       { slug: 'conectividad',       label: 'Conectividad / configuración', intro: 'Configuramos tu impresora WiFi, Ethernet o USB en cualquier dispositivo.',                              bullets: ['Configuración WiFi / IP fija', 'Drivers en PC, Mac o móvil', 'Pruebas con cada dispositivo'],            fromPrice: '$550 MXN', eta: '1-2 h' },
       { slug: 'diagnostico',        label: 'Diagnóstico',                  intro: 'Revisamos qué tiene tu impresora y te damos cotización clara.',                                         bullets: ['Test eléctrico y mecánico', 'Revisión de cabezales y software', 'Reporte técnico por escrito'],                  fromPrice: 'Desde $600 MXN', eta: '1-2 h' },
-      printerBrandService('reparacion-epson', 'Epson', ['Epson EcoTank', 'Epson L Series', 'Epson WorkForce', 'Epson Expression']),
-      printerBrandService('reparacion-hp', 'HP', ['HP DeskJet', 'HP Ink Tank', 'HP Smart Tank', 'HP LaserJet', 'HP OfficeJet']),
-      printerBrandService('reparacion-canon', 'Canon', ['Canon PIXMA', 'Canon G Series', 'Canon ImageCLASS', 'Canon Maxify']),
-      printerBrandService('reparacion-brother', 'Brother', ['Brother DCP', 'Brother HL', 'Brother MFC', 'Brother InkBenefit']),
+      printerBrandService('reparacion-epson', 'Epson', ['Epson EcoTank', 'Epson L Series', 'Epson WorkForce', 'Epson Expression'], {
+        hook: 'Epson EcoTank y Serie L con mensaje de almohadillas llenas, cabezal tapado tras días sin uso, colores faltantes o aire en las mangueras de tinta.',
+        intro: 'En Epson de tanque la mayoría de las fallas vienen del sistema de tinta: almohadillas saturadas, cabezal seco o aire en las líneas. Revisamos cuál es antes de cotizar un cabezal nuevo.',
+        problems: [
+          { problem: 'Aviso "almohadillas de tinta al final de su vida útil"', solution: 'Las almohadillas absorben la tinta de cada limpieza. Revisamos su saturación, las cambiamos o instalamos depósito externo y reiniciamos el contador.' },
+          { problem: 'Faltan colores o salen rayas en EcoTank', solution: 'Hacemos patrón de inyectores; si hay aire o tinta seca, purgamos líneas antes de considerar un cabezal.' },
+          { problem: 'Dejó de imprimir tras semanas sin uso', solution: 'La tinta se seca en el cabezal con el calor de Cancún; evaluamos limpieza técnica y no solo ciclos desde el panel.' },
+          { problem: 'Tinta mezclada o de otra marca en los tanques', solution: 'Revisamos color, flujo y residuos; si hace falta, vaciamos y purgamos el sistema.' },
+        ],
+      }),
+      printerBrandService('reparacion-hp', 'HP', ['HP DeskJet', 'HP Ink Tank', 'HP Smart Tank', 'HP LaserJet', 'HP OfficeJet'], {
+        hook: 'HP que rechaza cartuchos después de una actualización, Smart Tank con error de cabezal, LaserJet con manchas o problemas para conectar con la app HP Smart.',
+        intro: 'En HP pesan mucho el firmware y los cartuchos: una actualización puede bloquear insumos no originales. Revisamos firmware, cabezales, tóner y conexión antes de recomendar piezas.',
+        problems: [
+          { problem: '"Cartucho incompatible" o "cartucho protegido"', solution: 'Revisamos firmware, protección de cartuchos y chip; te decimos qué insumos funcionan con tu modelo.' },
+          { problem: 'Smart Tank o Ink Tank con error de cabezal', solution: 'Revisamos instalación, contactos y flujo de los cabezales de tinta antes de cambiar alguno.' },
+          { problem: 'LaserJet con manchas, impresión tenue o arrugada', solution: 'Separamos tóner, tambor, fusor y rodillos de alimentación con páginas de prueba.' },
+          { problem: 'No aparece en HP Smart o en la red', solution: 'Configuramos WiFi, IP fija, controlador y la app en cada computadora o celular.' },
+        ],
+      }),
+      printerBrandService('reparacion-canon', 'Canon', ['Canon PIXMA', 'Canon G Series', 'Canon ImageCLASS', 'Canon Maxify'], {
+        hook: 'Canon PIXMA y Serie G con error 5B00 (absorbedor de tinta lleno), error de cabezal, colores faltantes o papel que no entra.',
+        intro: 'Canon muestra códigos de soporte que orientan el diagnóstico: 5B00/5B02 indican absorbedor de tinta lleno y los errores de cabezal piden revisar contactos y flujo. Partimos del código para no cambiar piezas a ciegas.',
+        problems: [
+          { problem: 'Error 5B00 o 5B02', solution: 'El absorbedor de tinta llegó a su límite. Lo cambiamos o limpiamos y reiniciamos el contador según el modelo.' },
+          { problem: 'Error de cabezal en PIXMA o Serie G', solution: 'Revisamos contactos, instalación del cabezal y flujo de tinta antes de cotizar uno nuevo.' },
+          { problem: 'Serie G con colores faltantes', solution: 'Revisamos aire en los tubos, nivel real de los tanques y patrón de inyectores.' },
+          { problem: 'No toma el papel o lo arruga', solution: 'Limpiamos o cambiamos rodillos y revisamos el sensor y la bandeja.' },
+        ],
+      }),
+      printerBrandService('reparacion-brother', 'Brother', ['Brother DCP', 'Brother HL', 'Brother MFC', 'Brother InkBenefit'], {
+        hook: 'Brother láser con aviso de tambor o tóner, impresión con puntos repetidos, atascos en multifuncionales MFC/DCP y problemas de red en oficina.',
+        intro: 'En las láser Brother el tóner y el tambor son piezas separadas: muchos avisos de "cambiar tambor" o puntos negros repetidos vienen del tambor o de su contador, no del tóner. Lo comprobamos con páginas de prueba antes de cambiar insumos.',
+        problems: [
+          { problem: 'Aviso "Cambiar tambor" o "Reemplace tóner"', solution: 'Revisamos vida útil real, contador y contactos; a veces basta limpiar el hilo de corona o reiniciar el contador del tambor.' },
+          { problem: 'Puntos o marcas que se repiten en la hoja', solution: 'La distancia entre marcas indica qué rodillo o tambor está dañado; lo medimos antes de cotizar.' },
+          { problem: 'Atascos en MFC o DCP', solution: 'Revisamos rodillos, alimentador automático, sensores y restos de papel en la ruta.' },
+          { problem: 'Deja de imprimir en red de oficina', solution: 'Configuramos IP fija, controlador y cola en cada equipo para que no se pierda.' },
+        ],
+      }),
       printerIssueService({
         slug: 'no-imprime',
         label: 'Impresora no imprime',

@@ -72,12 +72,8 @@
     /* ────────────────────────────────────────────────────────
        COMENTARIOS SEMILLA (fallback offline)
     ──────────────────────────────────────────────────────── */
-    const SEED = [
-        { id: 1, name: 'Eduardo Álvarez',    stars: 5, text: 'Excelente servicio, dejé mi PC y todas las instalaciones se veían muy limpias y de calidad. Todo un experto.' },
-        { id: 2, name: 'Ana Maria Martínez', stars: 5, text: 'Pensé que mi equipo estaba perdido, pero me salvaron y además recuperó velocidad. Rápido y confiable.' },
-        { id: 3, name: 'Carlos Rodríguez',   stars: 5, text: 'Mi laptop gamer quedó como nueva. Las temperaturas bajaron 25 °C después del mantenimiento Pro. Recomendado 100%.' },
-        { id: 4, name: 'Laura Gómez',        stars: 5, text: 'Llevé mi impresora que nadie quería reparar. En Pixon PC la dejaron lista en menos de 2 horas. Increíble.' },
-    ];
+    // Sin reseñas de ejemplo: si la API no responde se muestra el estado vacío, nunca testimonios ficticios.
+    const SEED = [];
 
     /* ═══════════════════════════════════════════════════════
        CAPA DE DATOS

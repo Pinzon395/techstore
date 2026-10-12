@@ -480,10 +480,27 @@ const imageRules: Array<{ match: RegExp; image: string }> = [
   { match: /(wifi|red|router|mesh|cableado)/, image: '/assets/images/mac-mini.webp' },
 ];
 
-function getServiceImage() {
+// Política de fotos: solo fotos reales del taller y relevantes al equipo de la página.
+// Si no hay una foto real apropiada se devuelve null y el hero muestra un bloque neutro
+// (antes: Xbox en páginas de Nintendo, Mac mini en soporte a restaurantes, etc.).
+function getServiceImage(): string | null {
   if (service.featuredImage) return service.featuredImage;
 
   const key = `${category.slug}-${service.slug}`;
+
+  if (category.slug === 'consola') {
+    if (/(switch|nintendo)/.test(service.slug)) return null;
+    if (/(drift|control)/.test(service.slug)) return '/assets/images/gaming_controllers_collection.webp';
+  }
+
+  if (category.slug === 'telefono') {
+    if (/software|liberacion/.test(service.slug)) return null;
+    if (/(placa|no-prende|se-reinicia)/.test(service.slug) && /iphone/.test(service.slug)) return '/assets/images/motherboard-iphone-microcomponentes-reparacion.webp';
+    if (service.slug === 'reparacion-huawei') return '/assets/images/reparacion-celulares-cancun.webp';
+    if (/^reparacion-(samsung|xiaomi|motorola)$/.test(service.slug)) return '/assets/images/servicio-celulares-cancun.webp';
+  }
+
+  if (category.slug === 'b2b') return null;
 
   if (category.slug === 'laptop') {
     if (/(pantalla|display)/.test(service.slug)) return '/assets/images/cambio-pantalla-laptop.webp';
@@ -493,12 +510,15 @@ function getServiceImage() {
   }
 
   if (category.slug === 'pc') {
+    if (service.slug === 'tarjeta-madre') return '/assets/images/microcomponentes-tarjeta-madre-microscopio.webp';
+    if (service.slug === 'no-enciende') return '/assets/images/microsoldadura-componente-quemado-corto-circuito.webp';
     if (/(upgrade|ssd|lentitud|instalacion-componentes)/.test(service.slug)) return '/assets/images/cambio-ssd.webp';
     if (/(gamer|gpu)/.test(service.slug)) return '/assets/images/laptop-gamer-rogstrix.webp';
     return imageByCategory.pc;
   }
 
   if (category.slug === 'mac') {
+    if (service.slug === 'recuperacion-datos-mac') return null;
     if (/(mantenimiento|teclado|pantalla|bateria|liquido|macbook)/.test(service.slug)) return '/assets/images/mantenimiento-macbook-cancun.webp';
     return imageByCategory.mac;
   }
@@ -554,8 +574,14 @@ const serviceImageAlt = isPs5HdmiService
               <div class="sdv-network-node node-c"><i class="fa-solid fa-print"></i></div>
               <div class="sdv-network-node node-d"><i class="fa-solid fa-network-wired"></i></div>
             </div>
-          ) : (
+          ) : serviceImage ? (
             <img src={serviceImage} alt={serviceImageAlt} loading="eager" decoding="async" fetchpriority="high" />
+          ) : (
+            <div class="sdv-device-visual" role="img" aria-label={serviceImageAlt}>
+              <i class={`fa-solid ${category.icon}`} aria-hidden="true"></i>
+              <strong>{category.title}</strong>
+              <span>Diagnóstico en taller · Cancún</span>
+            </div>
           )}
           {(isMacPremiumView || isNetworkService) && (
             <div class="sdv-macbook-media-badge">

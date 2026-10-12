@@ -97,6 +97,8 @@ const patterns = [
   /\bgarantizado|guaranteed|english\s+spoken/gi,
   /(?:pickup|delivery|recolecci[oó]n|entrega)\s+(?:gratis|free|incluid)/gi,
   /(?:desde|from)\s*\$\s*\d+/gi,
+  // Tiempos universales sin SLA operativo (auditoría 2026-10): no se permiten en copy público.
+  /menos de \d+\s*horas|diagn[oó]stico (?:inicial )?en \d+\s*horas|(?:respondemos|contactamos|respuesta) en minutos/gi,
 ];
 
 function walk(dir) {

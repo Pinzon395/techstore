@@ -22,11 +22,14 @@ const androidBrandService = ({
   label,
   brand,
   models,
+  brandProblems,
 }: {
   slug: string;
   label: string;
   brand: string;
   models: string[];
+  /** Fallas típicas de la marca: lo que distingue esta página de las otras marcas. */
+  brandProblems: { problem: string; solution: string }[];
 }): ServiceItem => ({
   slug,
   label,
@@ -46,6 +49,7 @@ const androidBrandService = ({
   ],
   process: phoneProcess,
   commonProblems: [
+    ...brandProblems,
     { problem: `${brand} no carga o carga lento`, solution: 'Revisamos cable, puerto, flex, batería, consumo y humedad antes de cambiar centro de carga.' },
     { problem: 'Pantalla rota, verde, con líneas o sin touch', solution: 'Confirmamos si falla display, touch, flex, marco o placa para cotizar el módulo correcto.' },
     { problem: `${brand} se mojó`, solution: 'No recomendamos cargarlo. Revisamos corrosión, conectores y placa antes de encender.' },
@@ -117,24 +121,40 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     label: 'Reparación Samsung',
     brand: 'Samsung Galaxy',
     models: ['Galaxy S', 'Galaxy A', 'Galaxy M', 'Galaxy Note', 'Galaxy Z Fold', 'Galaxy Z Flip', 'Samsung Tab'],
+    brandProblems: [
+      { problem: "Línea verde o rosa en pantalla AMOLED", solution: "Suele ser daño del panel por golpe o presión; probamos si la línea cambia al mover el flex antes de cotizar el módulo." },
+      { problem: "Aviso \"Se detectó humedad\" en el puerto de carga", solution: "Revisamos si hay agua, salitre o corrosión en el USB-C; si el puerto está seco y sigue el aviso, probamos el flex de carga." },
+    ],
   }),
   androidBrandService({
     slug: 'reparacion-xiaomi',
     label: 'Reparación Xiaomi',
     brand: 'Xiaomi, Redmi y POCO',
     models: ['Xiaomi', 'Redmi Note', 'Redmi', 'POCO X', 'POCO F', 'Mi', 'Black Shark'],
+    brandProblems: [
+      { problem: "Se queda en el logo o entra solo en modo Fastboot", solution: "Separamos falla de sistema, memoria o batería; te avisamos antes de cualquier reinstalación que pueda borrar datos." },
+      { problem: "Toques fantasma o touch que responde solo", solution: "Revisamos protector, marco y pantalla; si el touch falla sin presión externa, el módulo de pantalla es la causa más común." },
+    ],
   }),
   androidBrandService({
     slug: 'reparacion-motorola',
     label: 'Reparación Motorola',
     brand: 'Motorola',
     models: ['Moto G', 'Moto E', 'Motorola Edge', 'Moto One', 'Razr', 'Lenovo Moto'],
+    brandProblems: [
+      { problem: "Batería inflada que levanta la tapa o la pantalla", solution: "No lo cargues ni lo presiones; cambiamos la batería y revisamos si la presión dañó la pantalla." },
+      { problem: "Razr con línea o falla en el pliegue de la pantalla", solution: "Revisamos panel plegable, bisagra y flex; te decimos si conviene la pantalla completa antes de pedirla." },
+    ],
   }),
   androidBrandService({
     slug: 'reparacion-huawei',
     label: 'Reparación Huawei',
     brand: 'Huawei',
     models: ['Huawei P', 'Huawei Mate', 'Huawei Nova', 'Huawei Y', 'Honor', 'Huawei Tablet'],
+    brandProblems: [
+      { problem: "Modelo sin servicios de Google", solution: "Muchos Huawei recientes no traen servicios de Google de fábrica. No los instalamos de forma no oficial; te orientamos con AppGallery y alternativas." },
+      { problem: "Batería que se descarga rápido en P o Mate", solution: "Medimos salud y consumo de la batería; si es apps o sistema lo indicamos antes de cambiar la pieza." },
+    ],
   }),
   {
     ...phoneIssueService({
@@ -283,6 +303,7 @@ const iphoneClusterService = ({
   relatedSlugs,
   fromPrice,
   hideSchemaOffer,
+  faqs,
 }: {
   slug: string;
   label: string;
@@ -294,6 +315,8 @@ const iphoneClusterService = ({
   relatedSlugs: string[];
   fromPrice?: string;
   hideSchemaOffer?: boolean;
+  /** Preguntas propias de la falla: evitan que las páginas por falla sean clones. */
+  faqs?: { question: string; answer: string }[];
 }): ServiceItem => ({
   slug,
   label,
@@ -321,7 +344,7 @@ const iphoneClusterService = ({
   ],
   commonProblems: problems,
   compatibleBrands: ['iPhone 8', 'iPhone X/XS/XR', 'iPhone 11', 'iPhone 12', 'iPhone 13', 'iPhone 14', 'iPhone 15', 'iPhone 16'],
-  faqs: iphoneFaqs(label.toLowerCase()),
+  faqs: [...(faqs ?? []), ...iphoneFaqs(label.toLowerCase())],
   relatedSlugs,
 });
 
@@ -342,6 +365,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Marco doblado', solution: 'Te decimos si conviene reparar o si aumenta riesgo de pantalla/tapa nueva.' },
     ],
     relatedSlugs: ['reparacion-lente-camara-iphone', 'reparacion-camara-iphone', 'diagnostico-iphone', 'reparacion-humedad-iphone'],
+    faqs: [{ question: '¿Se puede cambiar solo el cristal trasero?', answer: "Depende del modelo: en algunos iPhone el cristal trasero es una pieza independiente y en otros va unido al chasis. Lo confirmamos con tu modelo exacto antes de cotizar." }],
   }),
   iphoneClusterService({
     slug: 'reparacion-lente-camara-iphone',
@@ -357,6 +381,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Vibra al enfocar', solution: 'Puede ser cámara dañada, no solo lente; se diagnostica antes.' },
     ],
     relatedSlugs: ['reparacion-camara-iphone', 'reparacion-tapa-trasera-iphone', 'diagnostico-iphone', 'reparacion-humedad-iphone'],
+    faqs: [{ question: '¿Si cambio el lente, las fotos vuelven a enfocar?', answer: "Solo si el módulo de cámara está bien. Si la cámara vibra o hace ruido al enfocar, el daño está en el módulo y no se resuelve cambiando el lente." }],
   }),
   iphoneClusterService({
     slug: 'reparacion-wifi-bluetooth-iphone',
@@ -372,6 +397,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Falló después de golpe', solution: 'Puede soltarse antena o dañarse placa; se inspecciona internamente.' },
     ],
     relatedSlugs: ['iphone-sin-senal', 'software-iphone', 'diagnostico-iphone', 'reparacion-humedad-iphone'],
+    faqs: [{ question: '¿Restaurar el iPhone arregla el WiFi en gris?', answer: "A veces, cuando la causa es software. Si sigue en gris después de restaurar, la falla suele ser física (antena o placa). Te avisamos antes de restaurar porque sin respaldo se pierden los datos." }],
   }),
   iphoneClusterService({
     slug: 'iphone-no-prende',
@@ -387,6 +413,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Se queda en la manzana', solution: 'Puede ser software, memoria, batería o placa; te avisamos si hay riesgo de datos.' },
     ],
     relatedSlugs: ['diagnostico-iphone', 'cambio-bateria-iphone', 'reparacion-carga-iphone', 'reparacion-humedad-iphone', 'software-iphone'],
+    faqs: [{ question: '¿Puedo recuperar mis fotos si el iPhone no prende?', answer: "Depende de la causa. Si la falla es de batería, pantalla o carga, los datos normalmente siguen en el equipo. Si hubo líquido, no lo cargues: energizarlo mojado puede dañar la placa y empeorar la recuperación." }],
   }),
   iphoneClusterService({
     slug: 'iphone-se-reinicia',
@@ -402,6 +429,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Se queda en logo', solution: 'Se separa software, memoria, batería y placa antes de restaurar.' },
     ],
     relatedSlugs: ['diagnostico-iphone', 'cambio-bateria-iphone', 'software-iphone', 'reparacion-placa-iphone'],
+    faqs: [{ question: '¿Qué es un panic log y para qué sirve?', answer: "Es un registro que iOS guarda cuando el sistema se reinicia por un error (Ajustes > Privacidad y seguridad > Análisis y mejoras > Datos de análisis). Suele indicar qué sensor o componente provocó el reinicio y orienta el diagnóstico." }],
   }),
   iphoneClusterService({
     slug: 'reparacion-placa-iphone',
@@ -417,6 +445,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Corto o calentamiento', solution: 'Se mide consumo y se ubica zona afectada antes de cotizar.' },
     ],
     relatedSlugs: ['diagnostico-iphone', 'iphone-no-prende', 'iphone-se-reinicia', 'iphone-sin-senal', 'reparacion-humedad-iphone'],
+    faqs: [{ question: '¿Cuándo conviene reparar la placa y cuándo no?', answer: "Conviene sobre todo cuando importan los datos o el equipo es reciente. Si el costo se acerca al valor del iPhone o la corrosión está muy extendida, te lo decimos antes de empezar." }],
   }),
   iphoneClusterService({
     slug: 'software-iphone',
@@ -432,6 +461,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Apps fallan o sistema lento', solution: 'Revisamos almacenamiento, iOS, batería y configuración.' },
     ],
     relatedSlugs: ['diagnostico-iphone', 'iphone-se-reinicia', 'iphone-no-prende', 'reparacion-wifi-bluetooth-iphone'],
+    faqs: [{ question: '¿Se borran mis datos al actualizar o restaurar?', answer: "Actualizar desde modo de recuperación intenta conservar los datos; restaurar los borra. Siempre intentamos primero actualizar y pedimos tu autorización antes de restaurar." }],
   }),
   iphoneClusterService({
     slug: 'iphone-sin-senal',
@@ -447,6 +477,7 @@ const IPHONE_CLUSTER_SERVICES: ServiceItem[] = [
       { problem: 'Falló después de golpe o humedad', solution: 'Se revisan antenas, conectores, placa y corrosión.' },
     ],
     relatedSlugs: ['diagnostico-iphone', 'reparacion-wifi-bluetooth-iphone', 'software-iphone', 'reparacion-placa-iphone'],
+    faqs: [{ question: '¿Puede ser problema de la compañía y no del iPhone?', answer: "Sí. Probamos con otra SIM o eSIM y revisamos que el IMEI aparezca en Ajustes. Si con otra SIM funciona, el problema es la línea o la compañía, no el equipo." }],
   }),
 ];
 
