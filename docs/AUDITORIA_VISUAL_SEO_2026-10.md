@@ -64,6 +64,30 @@ Rama: `audit/seo-visual-2026-10` (sin desplegar). Producción auditada: https://
 - `/limpieza-laptop` usa "Envíos desde México" en el title (confuso para búsqueda local).
 - Saltos de nivel de encabezado (H2→H4) en varias fichas.
 
+## Estado final de los pendientes (fase 2 · 12-oct-2026)
+
+Estados: **FIXED** corregido · **CONSOLIDATED** fusionado con 301 · **DEFERRED** pospuesto con motivo · **NEEDS_REAL_PHOTO** requiere foto del taller · **PRE_EXISTING_DEBT** deuda anterior a esta rama.
+
+| Pendiente | Estado | Qué se hizo / por qué |
+|---|---|---|
+| P1.1 Fotos repetidas o equivocadas | FIXED + NEEDS_REAL_PHOTO | Nintendo Switch, software iPhone, recuperación de datos Mac y B2B ya no muestran fotos de otro equipo: bloque neutro de marca. Placa/no prende/reinicios iPhone → foto real de placa iPhone; Samsung/Xiaomi/Motorola → foto real de Android abierto; Huawei → foto real Honor; tarjeta madre y PC no enciende → fotos reales de microscopio. Retiradas una foto generada por IA que simulaba un taller (`control_repair_workshop`) y fotos de stock de Unsplash (upgrade de laptop). |
+| P1.2 Páginas casi clonadas | FIXED | Impresoras HP/Epson/Canon/Brother (todas con clics en GSC) tienen fallas propias de la marca (almohadillas Epson, bloqueo de cartuchos HP, error 5B00 Canon, tambor separado Brother). Fallas de iPhone con una pregunta frecuente propia cada una; Samsung/Xiaomi/Motorola/Huawei con dos fallas típicas propias. Nube de 40 keywords eliminada de `/servicios/laptop/mantenimiento-preventivo` (patrón de spam). |
+| P1.3 Canibalización | CONSOLIDATED | `/mantenimiento-mac` (45 impr.) → `/servicios/mac/mantenimiento-macbook` (235 impr., 3 clics). `/instalacion-windows` (91) → `/servicios/pc/formateo` (188). `/servicios/laptop/reparacion-macbook` (404 con impresiones) → `/servicios/mac/reparacion-macbook`. Alias de laptop → `/servicios/laptop/mantenimiento-preventivo` (343 impr.). `/limpieza-laptop` reposicionada a envíos por paquetería desde otros estados. `/paquetes` se mantiene (intención de precio) y enlaza a la ficha de mantenimiento. 8 URLs `/en/*` retiradas con impresiones → equivalente actual. Todo en 1 salto. |
+| P1.4 Reseñas | FIXED (parcial) | `comments.js` mostraba 4 reseñas inventadas con nombres cuando la API fallaba: eliminado (estado vacío). Orden y reseñas de Google: DEFERRED, depende de `GOOGLE_PLACES_API_KEY`. |
+| P1.5 "Diagnóstico en menos de 2 horas" | FIXED | Sin evidencia operativa: retirado de `/tickets`, formulario de ticket, blog de bisagras y soporte hotelero; también "respuesta en minutos". `check:claims` ahora bloquea esas frases. |
+| P1.6 Coordenadas | FIXED | Los dos enlaces de Google Maps del negocio apuntan a 21.157875, -86.896057 (CP 77539, igual que la dirección). El schema usaba 21.0512, -86.8475 (Lagos del Sol, CP 77569). Fuente única `business.geo` + `hasMap`. |
+| P2 Tipografía (cursivas) | FIXED | Encabezados en cursiva: 8,907 → 0 en el sitio (regla global + 24 reglas locales). |
+| P2 Degradados en texto | FIXED | Texto con degradado neutralizado en todo el sitio; las palabras heredan el color del título. |
+| P2 Contraste | FIXED (crítico) | Promedio de textos bajo AA por vista: 32.9 → 8.4. Botón primario, footer, selector de idioma, botones verdes, etiquetas invisibles de `/limpieza-laptop` (1:1), cookies. El resto son paletas locales de algunas vistas. |
+| P2 Números decorativos "01" | FIXED | `/limpieza-laptop` (1.06:1 → legibles) y `/servicios/laptop/mantenimiento-preventivo` (3.6:1 → AA). Se conservan: numeran pasos. |
+| P2 Exceso de tarjetas | DEFERRED | Quitar tarjetas vista por vista es rediseño de contenido sin evidencia de impacto; se corrigió primero lo que daña lectura (contraste, cursivas, degradados). |
+| P2 Font Awesome desde cdnjs | DEFERRED | Iconos estabilizados (sin CLS); migración completa al sprite es trabajo aparte. Nuevo `check:icons` impide pedir símbolos inexistentes del sprite. |
+| P3 `/limpieza-laptop` "Envíos desde México" | FIXED | Ahora es la página nacional por paquetería y enlaza a la ficha local. |
+| 404 | FIXED | Accesos a agendar, registrar equipo, preguntas frecuentes y contacto (ES y EN). |
+| Admin · entradas y salidas | FIXED | Panel "Taller hoy" en Mi jornada; ver `docs/PIXON_AUDIT_FINAL_2026-10.md`. |
+| `astro check` | PRE_EXISTING_DEBT | Rama: 29 errores; `main`: 31. Los 29 son idénticos en ambas (parámetros `any` implícitos); ninguno introducido por la rama. Los 2 extra de `main` venían de `EeatHomeSections.astro`, componente sin uso que importaba un archivo fuera de git; eliminado. |
+| CLS restante | FIXED | Las 5 vistas que el rastreo marcó (inicio, correctivo PC, wifi lento, teléfono, flex botones) miden 0.000–0.005 en dos mediciones de carga y una con scroll: ruido del rastreo concurrente. |
+
 ## SEO local Cancún · lectura de Search Console y plan
 
 **Datos (3 meses al 25-ago-2026, Web):** 621 clics, ~72,700 impresiones, posición media ~5.8.
