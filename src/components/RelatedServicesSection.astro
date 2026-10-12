@@ -161,6 +161,19 @@ const hasExpandableRelated = relatedCards.length > visibleLimit;
 
 <script is:inline>
   (() => {
+    // La regla global de secciones claras puede pisar el fondo oscuro de este bloque según la página; si el fondo
+    // final es claro, se usa la variante clara para que títulos y tarjetas no queden en blanco sobre blanco.
+    const luminance = (color) => {
+      const m = String(color).match(/[\d.]+/g);
+      if (!m || (m.length > 3 && Number(m[3]) < 0.5)) return null;
+      return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
+    };
+    document.querySelectorAll('[data-related-section]').forEach((section) => {
+      const bg = luminance(getComputedStyle(section).backgroundColor);
+      const title = section.querySelector('.ux-h2');
+      const text = title ? luminance(getComputedStyle(title).color) : null;
+      if (bg !== null && bg > 0.85 && text !== null && text > 0.85) section.classList.add('svc-related--light');
+    });
     document.querySelectorAll('[data-related-section]').forEach((section) => {
       const button = section.querySelector('[data-related-toggle]');
       const label = section.querySelector('[data-related-toggle-text]');
@@ -293,6 +306,15 @@ const hasExpandableRelated = relatedCards.length > visibleLimit;
   .svc-related--light {
     background: #F8FAFC !important;
     color: #071F3A !important;
+  }
+  .svc-related--light .related-toggle,
+  .svc-related--light .related-toggle span,
+  .svc-related--light .related-toggle i {
+    color: #071F3A !important;
+  }
+  .svc-related--light .related-toggle {
+    border-color: #94A3B8;
+    background: #FFFFFF;
   }
   .svc-related--light .ux-section-header {
     margin-bottom: 40px;

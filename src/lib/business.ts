@@ -33,6 +33,28 @@ export const appointmentPolicy = {
   appointmentOnly: true,
 } as const;
 
+// ─── Horario ────────────────────────────────────────────────
+// Debe coincidir con appointment_settings de producción (agenda pública):
+// lunes a sábado 11:00–22:00 (último turno 21:30), domingo 11:00–18:00 (último turno 17:30).
+export const openingHours = {
+  specification: [
+    { dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '11:00', closes: '22:00' },
+    { dayOfWeek: ['Sunday'], opens: '11:00', closes: '18:00' },
+  ],
+  es: 'Lunes a sábado 11:00 AM – 10:00 PM · Domingo 11:00 AM – 6:00 PM · con cita',
+  esShort: 'L–S 11:00–22:00 · D 11:00–18:00',
+  en: 'Monday to Saturday 11:00 AM – 10:00 PM · Sunday 11:00 AM – 6:00 PM · by appointment',
+} as const;
+
+export function buildOpeningHoursSchema() {
+  return openingHours.specification.map((slot) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: slot.dayOfWeek,
+    opens: slot.opens,
+    closes: slot.closes,
+  }));
+}
+
 // ─── Diagnostic ─────────────────────────────────────────────
 export const diagnosticPolicy = {
   enabled: true,

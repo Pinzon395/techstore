@@ -1,0 +1,98 @@
+---
+/**
+ * Bloque común para las páginas de servicio en inglés (/en/*-repair).
+ * Las páginas tenían ~150–220 palabras y Google ya las muestra para "computer repair" / "laptop repair"
+ * (≈14k impresiones/3 meses en Search Console) sin clics. Aquí se agregan solo datos reales del negocio
+ * (business.ts): costo de diagnóstico, horario, ubicación, coordinación de recolección y preguntas frecuentes.
+ */
+import { business, diagnosticPolicy, openingHours } from '../lib/business';
+
+interface Faq { question: string; answer: string }
+interface Props {
+  service: string;
+  faqs?: Faq[];
+  related?: Array<{ href: string; label: string }>;
+}
+
+const { service, faqs = [], related = [] } = Astro.props;
+
+const baseFaqs: Faq[] = [
+  {
+    question: `How much does a ${service} diagnosis cost in Cancun?`,
+    answer: `Diagnosis starts at $${diagnosticPolicy.startingPriceMXN} MXN and covers the inspection and tests only. Any repair or part is quoted separately in writing, and nothing is done until you approve it.`,
+  },
+  {
+    question: 'Do you speak English?',
+    answer: 'Yes. Quotes, diagnosis results and repair updates are sent in written English through WhatsApp, so you keep a clear record of what was agreed.',
+  },
+  {
+    question: 'Can you pick up my device from my hotel or condo?',
+    answer: 'Pickup and delivery can be coordinated in Cancun, including the Hotel Zone, depending on schedule, location and device type. Send your area and device model by WhatsApp to confirm before moving it.',
+  },
+  {
+    question: 'Do you offer a warranty?',
+    answer: 'Yes. Each repair includes a written warranty that covers the work and the parts installed for that service. The scope depends on the repair and is stated in your quote.',
+  },
+];
+const allFaqs = [...faqs, ...baseFaqs];
+const phoneHref = `tel:${business.phone}`;
+---
+
+<section class="esf" aria-labelledby="esf-title">
+  <div class="esf-shell">
+    <div class="esf-facts">
+      <div>
+        <p class="esf-eyebrow">Before you book</p>
+        <h2 id="esf-title">Price, hours and location</h2>
+        <p>Pixon PC is a repair workshop in Cancun that works by appointment. Send the model and symptoms first so we can confirm the right route before you bring the device.</p>
+      </div>
+      <dl class="esf-list">
+        <div><dt>Diagnosis</dt><dd>From ${diagnosticPolicy.startingPriceMXN} MXN · repairs quoted separately and only after your approval</dd></div>
+        <div><dt>Hours</dt><dd>{openingHours.en}</dd></div>
+        <div><dt>Workshop</dt><dd>{business.address.street}, {business.address.postalCode} {business.address.locality}, Quintana Roo</dd></div>
+        <div><dt>Contact</dt><dd><a href={phoneHref}>{business.phoneDisplay}</a> · WhatsApp in English</dd></div>
+      </dl>
+    </div>
+
+    <div class="esf-faq">
+      <h2>Frequently asked questions</h2>
+      {allFaqs.map((faq: Faq) => (
+        <details>
+          <summary>{faq.question}</summary>
+          <p>{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+
+    {related.length > 0 && (
+      <nav class="esf-related" aria-label="Other repair services in English">
+        <h2>Other repairs in Cancun</h2>
+        <ul>
+          {related.map((item: { href: string; label: string }) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+    )}
+  </div>
+</section>
+
+<style>
+  .esf { padding: clamp(52px, 8vw, 88px) 0; background: #fff; color: #071F3A; }
+  .esf-shell { width: min(calc(100% - (var(--page-gutter, 20px) * 2)), 1180px); margin-inline: auto; display: grid; gap: 40px; }
+  .esf h2 { margin: 0 0 14px; color: #071F3A; font-family: Kanit, sans-serif; font-size: clamp(1.6rem, 3.4vw, 2.4rem); line-height: 1.15; }
+  .esf p, .esf dd, .esf summary { color: #071F3A; line-height: 1.7; }
+  .esf-eyebrow { margin: 0 0 10px; color: #1479D4 !important; font-size: .76rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+  .esf-facts { display: grid; gap: 24px; }
+  .esf-list { display: grid; gap: 12px; margin: 0; }
+  .esf-list div { padding: 16px 18px; border: 1px solid #b9dfe9; border-radius: 14px; background: #f7fcfe; }
+  .esf-list dt { font-weight: 900; margin-bottom: 4px; }
+  .esf-list dd { margin: 0; }
+  .esf-list a { color: #0b5cad; font-weight: 800; }
+  .esf-faq details { border-bottom: 1px solid #d6e6ee; padding: 14px 0; }
+  .esf-faq summary { cursor: pointer; font-weight: 800; }
+  .esf-faq summary:focus-visible { outline: 2px solid #1479D4; outline-offset: 3px; }
+  .esf-faq details p { margin: 10px 0 0; }
+  .esf-related ul { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0; list-style: none; }
+  .esf-related a { display: inline-flex; min-height: 44px; align-items: center; padding: 0 16px; border: 1px solid #b9dfe9; border-radius: 999px; color: #071F3A; font-weight: 800; text-decoration: none; }
+  .esf-related a:hover { border-color: #1479D4; }
+  @media (min-width: 900px) { .esf-facts { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; } }
+</style>

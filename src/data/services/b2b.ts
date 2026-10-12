@@ -159,9 +159,9 @@ export const b2bCategory: ServiceCategory = {
         { problem: 'Muchos equipos sin seguimiento', solution: 'Usamos tickets y prioridades por área.' },
       ],
       relatedSlugs: ['mantenimiento-flotilla', 'soporte-hoteles', 'soporte-oficinas', 'wifi-empresarial'],
-      h1: 'Mantenimiento preventivo TI en Cancun',
-      metaTitle: 'Mantenimiento preventivo TI en Cancun | Polizas para empresas',
-      metaDescription: 'Mantenimiento preventivo TI en Cancun para empresas, hoteles, oficinas y restaurantes. Polizas con visitas programadas, tickets, inventario, reportes, CFDI y soporte local.',
+      h1: 'Mantenimiento preventivo TI en Cancún',
+      metaTitle: 'Mantenimiento preventivo TI en Cancún | Pólizas para empresas',
+      metaDescription: 'Mantenimiento preventivo TI en Cancún para empresas, hoteles, oficinas y restaurantes. Pólizas con visitas programadas, tickets, inventario, reportes, CFDI y soporte local.',
     }),
     b2bService({
       slug: 'mantenimiento-flotilla',

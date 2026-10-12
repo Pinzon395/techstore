@@ -1203,41 +1203,8 @@ const zonasCancun = [
       }
     }
 
-    // 2. Telemetría segura sin PII hacia endpoint /api/track/event si existe
-    function trackEvent(name, data = {}) {
-      try {
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon('/api/track/event', JSON.stringify({ event: name, ...data }));
-        }
-      } catch (_) {}
-    }
-
-    // Rastrear clicks en acciones clave
-    document.querySelectorAll('.isr-track-action').forEach((el) => {
-      el.addEventListener('click', () => {
-        const action = el.getAttribute('data-action') || 'iphone_screen_click';
-        const model = el.getAttribute('data-model') || undefined;
-        trackEvent(action, { model });
-      });
-    });
-
-    // 3. Section Reach Observer
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.target.id) {
-            trackEvent('section_reach', { sectionId: entry.target.id });
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.3 });
-
-      const sections = ['hero', 'opciones-pantalla', 'sintomas-falla', 'modelos-cotizar', 'faq-pantalla-iphone'];
-      sections.forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) observer.observe(el);
-      });
-    }
+    // Telemetría: los clics a WhatsApp ya los registra /scripts/tracker.js. Los eventos propios que se enviaban
+    // aquí (section_reach, iphone_screen_*) no están en la lista del servidor y solo generaban 400 en cada visita.
   })();
 </script>
 
@@ -1255,7 +1222,7 @@ const zonasCancun = [
   --gris-borde: #e2e8f0;
   --verde-wa: #20a45a;
   --verde-wa-hover: #168c49;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-main);
   color: var(--azul-oscuro);
   background: #ffffff;
   line-height: 1.6;

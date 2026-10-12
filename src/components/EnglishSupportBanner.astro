@@ -21,12 +21,24 @@ const { href = '/en' } = Astro.props;
     </a>
   </div>
 </aside>
+<script is:inline>
+  // Solo para navegadores que no están en español: a la mayoría local el aviso le quitaba espacio en cada página.
+  (function () {
+    var banner = document.currentScript && document.currentScript.previousElementSibling;
+    var lang = String((navigator.languages && navigator.languages[0]) || navigator.language || 'es').toLowerCase();
+    if (banner && lang.indexOf('es') === 0) banner.hidden = true;
+  })();
+</script>
 
 <style>
+  .english-support-banner[hidden] {
+    display: none;
+  }
+
   .english-support-banner {
     --english-support-navy: #071F3A;
     --english-support-cyan: #0ea5c9;
-    margin-top: 58px;
+    margin-top: 73px; /* alto real del navbar fijo */
     padding: 12px 0;
     background: #edf8fc;
     border-block: 1px solid #b7dfeb;
@@ -97,7 +109,7 @@ const { href = '/en' } = Astro.props;
   }
 
   @media (max-width: 520px) {
-    .english-support-banner { margin-top: 54px; padding: 9px 0; }
+    .english-support-banner { margin-top: 73px; padding: 9px 0; }
     .english-support-banner__inner { gap: 9px; }
     .english-support-banner__icon { width: 31px; height: 31px; border-radius: 9px; }
     .english-support-banner__copy span { display: none; }

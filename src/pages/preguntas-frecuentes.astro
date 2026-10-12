@@ -400,7 +400,8 @@ const schema = [
       const totalCount = document.getElementById('faq-total-count');
       const loggedQueries = new Set();
       const localData = (() => {
-        try { return JSON.parse(document.getElementById('faq-local-data')?.textContent || '[]'); }
+        // <template> guarda su contenido en .content: textContent del elemento siempre es ''
+        try { const tpl = document.getElementById('faq-local-data'); return JSON.parse(tpl?.content?.textContent || tpl?.textContent || '[]'); }
         catch (_error) { return []; }
       })();
       let activeCategory = new URLSearchParams(location.search).get('categoria') || 'all';
@@ -628,9 +629,11 @@ const schema = [
       fetch('/api/faqs')
         .then((response) => response.ok ? response.json() : Promise.reject())
         .then((data) => {
-          if (!Array.isArray(data)) return;
+          // Sin FAQs del panel se conserva el contenido verificado ya renderizado (con iconos y orden editorial)
+          if (!Array.isArray(data) || !data.some((faq) => faq && faq.question)) return;
           const merged = new Map(localData.map((faq) => [normalize(faq.question), faq]));
-          data.forEach((faq) => merged.set(normalize(faq.question), faq));
+          data.filter((faq) => faq && faq.question).forEach((faq) => merged.set(normalize(faq.question), faq));
+          if (!merged.size) return;
           renderFaqData([...merged.values()]);
           if (![...tabs.querySelectorAll('[data-faq-filter]')].some((tab) => tab.dataset.faqFilter === activeCategory)) activeCategory = 'all';
           if (sourceStatus) sourceStatus.textContent = 'Sincronizado con el panel administrativo';
@@ -664,6 +667,15 @@ const schema = [
     .faq-search-clear[hidden] { display:none; }
     .faq-search-wrap:has(.faq-search-clear:not([hidden])) .faq-search-shortcut { display:none; }
     .faq-search-meta { display:flex; justify-content:space-between; gap:12px; max-width:860px; margin-top:8px; color:#5a7186; font-size:.76rem; font-weight:700; }
+    .faq-meta-item { display:inline-flex; align-items:center; gap:8px; min-width:0; }
+    .faq-meta-icon { display:grid; place-items:center; width:26px; height:26px; flex:0 0 auto; color:var(--faq-blue); border-radius:6px; background:var(--faq-soft); }
+    .faq-meta-item small { display:block; color:#5a7186; font-size:.7rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+    .faq-meta-item strong { display:block; color:var(--faq-ink); font-size:.82rem; }
+    .faq-filter-header { display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 10px; margin-top:14px; color:var(--faq-ink); font-size:.85rem; font-weight:800; }
+    .faq-filter-header span { display:inline-flex; align-items:center; gap:7px; }
+    .faq-filter-header small { color:#5a7186; font-weight:600; }
+    .faq-category-tab { display:inline-flex; align-items:center; gap:7px; }
+    .faq-tab-icon { display:inline-grid; place-items:center; color:inherit; }
     .faq-category-tabs { display:flex; gap:8px; margin-top:14px; padding-bottom:2px; overflow-x:auto; scrollbar-width:thin; }
     .faq-category-tab { flex:0 0 auto; min-height:36px; padding:0 13px; color:#2d4b64; border:1px solid #c6d7e4; border-radius:6px; background:#fff; font:800 .78rem var(--font-main); cursor:pointer; transition:background-color 160ms ease-out,color 160ms ease-out,border-color 160ms ease-out,transform 160ms ease-out; }
     .faq-category-tab.active { color:#fff; border-color:var(--faq-ink); background:var(--faq-ink); }
@@ -703,7 +715,8 @@ const schema = [
     .faq-final-actions .faq-primary-action { color:#05233d!important; border-color:#51c8f1; background:#51c8f1; }
     @media (min-width:900px) { .faq-final-cta { grid-template-columns:1fr auto; } }
     @media (max-width:760px) {
-      :global(.faq-hub-page .faq-search-bar) { top:58px; }
+      /* En móvil la barra completa (búsqueda + estado + filtros) ocupaba media pantalla al quedar fija */
+      :global(.faq-hub-page .faq-search-bar) { position:static; }
       :global(.faq-hub-page .faq-page-grid) { grid-template-columns:1fr; }
       .faq-search-meta { align-items:flex-start; flex-direction:column; gap:2px; }
       .faq-final-actions a { width:100%; }

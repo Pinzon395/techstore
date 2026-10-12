@@ -572,7 +572,8 @@ ul {
 }
 .pulse-whatsapp {
   animation: 5.5s ease-in-out infinite pulse-wa;
-  background-color: #25d366;
+  /* #25d366 con texto blanco da 2:1 de contraste; #128c55 cumple WCAG AA para texto grande */
+  background-color: #128c55;
   color: #fff!important;
   box-shadow: 0 4px 15px rgba(37, 211, 102, .4);
   will-change: box-shadow;
@@ -587,7 +588,7 @@ ul {
   }
 }
 .pulse-whatsapp:hover {
-  background-color: #20ba56
+  background-color: #0f7a49
 }
 .navbar {
   position: fixed;
@@ -3741,6 +3742,8 @@ section {
   position: relative;
   z-index: 1
 }
+/* Fondo claro por defecto en secciones (regla de marca: fuera del hero, fondo claro y texto azul oscuro #071F3A).
+   Tiene especificidad alta a propósito; los heros oscuros deben declararlo con más especificidad (ver .store-hero). */
 section:not([style*=background]):not(.climate-banner-section):not([class*="homevisit"]):not([class*="home-visit"]) {
   background-color: var(--bg-main)
 }
@@ -3752,9 +3755,9 @@ section:not([style*=background]):not(.climate-banner-section):not([class*="homev
   background: #f1f5f9;
   border-bottom: 1px solid #e2e8f0;
 }
-.english-support-banner ~ * .breadcrumb-container,
-.english-support-banner ~ .breadcrumb-container,
-body:has(.english-support-banner) .breadcrumb-container {
+.english-support-banner:not([hidden]) ~ * .breadcrumb-container,
+.english-support-banner:not([hidden]) ~ .breadcrumb-container,
+body:has(.english-support-banner:not([hidden])) .breadcrumb-container {
   margin-top: 0 !important;
 }
 .breadcrumb {
@@ -3955,13 +3958,10 @@ html {
    PERFORMANCE OPTIMIZATIONS – Pixon PC
    ══════════════════════════════════════════════════════════════ */
 
-/* 1. content-visibility: auto — solo renderiza secciones visibles.
-   La página tiene 10+ secciones; el browser salta el layout/paint
-   de lo que no está en viewport. Ganancia enorme en gama baja. */
-section[id]:not(.hero):not(#inicio) {
-  content-visibility: auto;
-  contain-intrinsic-size: 400px 1px;
-}
+/* 1. (Retirado) content-visibility:auto global en section[id].
+   Usaba "contain-intrinsic-size: 400px 1px" (ancho 400, ALTO 1px): cada sección fuera de pantalla medía 1px y al
+   renderizarse empujaba el contenido. Era la principal causa de CLS en escritorio (0.2–0.77). Las páginas largas
+   que lo necesiten deben declararlo localmente con "contain-intrinsic-size: auto <alto estimado>". */
 
 /* 2. Modo ahorro: quita backdrop-filter (causa jank GPU en gama baja)
    cuando el usuario activa "reduce motion" o data-ahorro="true" */
@@ -7965,3 +7965,17 @@ alert-box[type="info"]::before {
         .filter-btn:hover {
             transform: translateY(-2px);
         }
+
+/* <alert-box> se dibuja en requestAnimationFrame: antes de eso el texto quedaba sin caja y al envolverse empujaba
+   el contenido (CLS). Esta caja previa replica medidas del render final (padding 10/14, icono 26px + gap 10px). */
+alert-box:not([data-r]) {
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px 14px 10px 50px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  min-height: 49px;
+  font-size: .83rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
