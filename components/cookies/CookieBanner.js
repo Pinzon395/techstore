@@ -172,7 +172,7 @@ function injectBannerStyles() {
 
         .pixon-cb-more {
             font-size: 0.7rem;
-            color: #94a3b8;
+            color: #475569;
             background: none;
             border: none;
             cursor: pointer;
