@@ -505,6 +505,7 @@ class DashboardService {
             `SELECT (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL)
                   + (SELECT COUNT(*) FROM commerce_orders) total`
         );
+        const workshop = await this.workshopNow();
         const currentActive = numeric(current.repair_active) + numeric(current.commerce_active);
         const previousActive = numeric(previous.repair_active) + numeric(previous.commerce_active);
         const currentReady = numeric(current.repair_ready) + numeric(current.commerce_ready);
@@ -529,7 +530,74 @@ class DashboardService {
                 overdue: numeric(attention.overdue),
                 ready: numeric(attention.ready) + numeric(attention.orders_ready),
                 payment_review: numeric(attention.payment_review)
-            }
+            },
+            workshop
+        };
+    }
+
+    /**
+     * Estado del taller en este momento (no depende del periodo elegido): qué entró y salió hoy,
+     * cuántos equipos siguen abiertos por etapa y cuáles llevan más tiempo. Solo lee repairs y su historial.
+     */
+    async workshopNow() {
+        const today = cancunToday(this.now());
+        const tomorrow = addDays(today, 1);
+        const open = `'received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready'`;
+        const [[row]] = await this.pool.execute(
+            `SELECT
+                (SELECT COUNT(DISTINCT h.repair_id) FROM repair_status_history h JOIN repairs r ON r.id = h.repair_id AND r.deleted_at IS NULL
+                    WHERE h.old_status = 'new' AND h.new_status <> 'cancelled' AND h.created_at >= ? AND h.created_at < ?)
+                 + (SELECT COUNT(*) FROM repairs r WHERE r.deleted_at IS NULL AND r.status <> 'new' AND r.created_at >= ? AND r.created_at < ?
+                    AND NOT EXISTS (SELECT 1 FROM repair_status_history h WHERE h.repair_id = r.id AND h.old_status = 'new')) entered_today,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status = 'delivered' AND delivered_at >= ? AND delivered_at < ?) delivered_today,
+                (SELECT COUNT(DISTINCT h.repair_id) FROM repair_status_history h WHERE h.new_status = 'cancelled' AND h.created_at >= ? AND h.created_at < ?) cancelled_today,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status = 'new') pending_intake,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status IN (${open})) open_total,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status IN ('received','diagnosing')) diagnosis,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status IN ('contacted','quoted')) waiting_customer,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status = 'waiting_parts') waiting_parts,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status IN ('approved','in_progress')) in_repair,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status = 'ready') ready,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status IN (${open})
+                    AND promised_at IS NOT NULL AND promised_at < NOW()) overdue,
+                (SELECT COUNT(*) FROM repairs WHERE deleted_at IS NULL AND status IN (${open})
+                    AND created_at < NOW() - INTERVAL 7 DAY) stale`,
+            [today, tomorrow, today, tomorrow, today, tomorrow, today, tomorrow]
+        );
+        const [oldest] = await this.pool.execute(
+            `SELECT r.id, r.ticket_code, r.device_type, r.device_brand, r.device_model, r.status, r.promised_at,
+                    r.created_at, r.contact_phone, r.notes_internal, u.name user_name
+             FROM repairs r LEFT JOIN users u ON u.id = r.user_id
+             WHERE r.deleted_at IS NULL AND r.status IN (${open})
+             ORDER BY (r.promised_at IS NOT NULL AND r.promised_at < NOW()) DESC, r.created_at ASC
+             LIMIT 6`
+        );
+        const nowMs = this.now().getTime();
+        return {
+            date: today,
+            entered_today: numeric(row.entered_today),
+            delivered_today: numeric(row.delivered_today),
+            cancelled_today: numeric(row.cancelled_today),
+            pending_intake: numeric(row.pending_intake),
+            open_total: numeric(row.open_total),
+            stages: {
+                diagnosis: numeric(row.diagnosis),
+                waiting_customer: numeric(row.waiting_customer),
+                waiting_parts: numeric(row.waiting_parts),
+                in_repair: numeric(row.in_repair),
+                ready: numeric(row.ready)
+            },
+            overdue: numeric(row.overdue),
+            stale: numeric(row.stale),
+            oldest: oldest.map((item) => ({
+                id: item.id,
+                ticket_code: item.ticket_code,
+                customer: item.user_name || String(item.notes_internal || '').match(/Cliente:\s*([^\n\r]+)/i)?.[1]?.trim() || item.contact_phone || 'Cliente sin registrar',
+                device: [item.device_type, item.device_brand, item.device_model].filter(Boolean).join(' · '),
+                status: item.status,
+                days_open: Math.max(0, Math.floor((nowMs - new Date(item.created_at).getTime()) / 86_400_000)),
+                overdue: Boolean(item.promised_at && new Date(item.promised_at).getTime() < nowMs)
+            }))
         };
     }
 

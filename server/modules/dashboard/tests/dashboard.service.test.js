@@ -87,3 +87,32 @@ test('el adaptador de Commerce conserva estados y no convierte ausencia de datos
     assert.equal(report.metric_states.sales, 'empty');
     assert.equal(report.metric_states.available, 'empty');
 });
+
+test('taller hoy usa el día de Cancún, agrupa etapas y ordena primero los atrasados', async () => {
+    const calls = [];
+    const now = new Date('2026-10-13T03:30:00Z'); // 12-oct 22:30 en Cancún
+    const pool = {
+        async execute(sql, params = []) {
+            calls.push({ sql, params });
+            if (/LIMIT 6/.test(sql)) {
+                return [[
+                    { id: 9, ticket_code: 'AB12', device_type: 'Laptop', device_brand: 'HP', device_model: null, status: 'quoted',
+                      promised_at: '2026-10-10T12:00:00Z', created_at: '2026-10-01T15:00:00Z', contact_phone: '998', notes_internal: 'Cliente: Ana', user_name: null },
+                ]];
+            }
+            return [[{ entered_today: 2, delivered_today: 1, cancelled_today: 0, pending_intake: 3, open_total: 5,
+                diagnosis: 1, waiting_customer: 2, waiting_parts: 0, in_repair: 1, ready: 1, overdue: 1, stale: 2 }]];
+        }
+    };
+    const service = new DashboardService({ pool, now: () => now });
+    const w = await service.workshopNow();
+    assert.equal(w.date, '2026-10-12');
+    assert.deepEqual(calls[0].params.slice(0, 2), ['2026-10-12', '2026-10-13']);
+    assert.equal(w.open_total, 5);
+    assert.deepEqual(w.stages, { diagnosis: 1, waiting_customer: 2, waiting_parts: 0, in_repair: 1, ready: 1 });
+    assert.equal(w.oldest[0].customer, 'Ana');
+    assert.equal(w.oldest[0].device, 'Laptop · HP');
+    assert.equal(w.oldest[0].overdue, true);
+    assert.equal(w.oldest[0].days_open, 11);
+    assert.match(calls[1].sql, /ORDER BY \(r\.promised_at IS NOT NULL AND r\.promised_at < NOW\(\)\) DESC, r\.created_at ASC/);
+});

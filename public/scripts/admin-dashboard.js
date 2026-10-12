@@ -165,6 +165,7 @@
         setStatus(`Actualizado ${new Date(report.generated_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`, 'ready');
         renderKpis();
         renderOperations();
+        renderWorkshop();
         renderSeries();
         renderFinance();
         renderCustomers();
@@ -221,6 +222,38 @@
                 <button type="button" data-operation-action="ready"><strong>${numberFormatter.format(attention.ready || 0)}</strong> por entregar</button>
                 <button type="button" data-operation-action="payment_review"><strong>${numberFormatter.format(attention.payment_review || 0)}</strong> pagos por revisar</button>
             </div>`;
+    }
+
+    function renderWorkshop() {
+        const container = document.getElementById('dashboard-workshop');
+        if (!container) return;
+        container.classList.remove('dashboard-skeleton');
+        container.setAttribute('aria-busy', 'false');
+        const w = state.report.operations?.workshop;
+        if (!w) { sectionError(container, 'el estado del taller'); return; }
+        const n = (value) => numberFormatter.format(Number(value || 0));
+        const stage = (filter, label, value, tone = '') => `<button type="button" class="workshop-stage ${tone}" data-workshop-filter="${filter}"><strong>${n(value)}</strong><span>${label}</span></button>`;
+        const oldest = (w.oldest || []).map((item) => `<li><button type="button" data-workshop-ticket="${escapeHtml(item.id)}">
+                <span class="workshop-folio">#${escapeHtml(item.ticket_code)}</span>
+                <span class="workshop-who"><strong>${escapeHtml(item.customer)}</strong><small>${escapeHtml(item.device || 'Equipo')}</small></span>
+                <span class="workshop-state">${escapeHtml(statusLabels[item.status] || item.status)}</span>
+                <span class="workshop-age ${item.overdue ? 'is-overdue' : item.days_open > 7 ? 'is-stale' : ''}">${item.overdue ? 'Atrasado · ' : ''}${n(item.days_open)} d</span>
+            </button></li>`).join('');
+        container.innerHTML = `<div class="workshop-flow">
+                <div class="workshop-flow-item"><strong>${n(w.entered_today)}</strong><span>entraron hoy</span></div>
+                <div class="workshop-flow-item"><strong>${n(w.delivered_today)}</strong><span>entregados hoy</span></div>
+                <div class="workshop-flow-item"><strong>${n(w.open_total)}</strong><span>abiertos ahora</span></div>
+                <button type="button" class="workshop-flow-item" data-workshop-filter="new"><strong>${n(w.pending_intake)}</strong><span>solicitudes sin recibir</span></button>
+            </div>
+            <div class="workshop-stages" role="group" aria-label="Equipos abiertos por etapa">
+                ${stage('stage_diagnosis', 'En diagnóstico', w.stages?.diagnosis)}
+                ${stage('stage_waiting_customer', 'Esperan al cliente', w.stages?.waiting_customer, w.stages?.waiting_customer ? 'is-warn' : '')}
+                ${stage('waiting_parts', 'Esperan pieza', w.stages?.waiting_parts)}
+                ${stage('stage_in_repair', 'En reparación', w.stages?.in_repair)}
+                ${stage('ready', 'Listos para entregar', w.stages?.ready, w.stages?.ready ? 'is-good' : '')}
+                ${stage('overdue', 'Atrasados', w.overdue, w.overdue ? 'is-alert' : '')}
+            </div>
+            ${oldest ? `<div class="workshop-oldest"><h4>Llevan más tiempo abiertos${w.stale ? ` · ${n(w.stale)} con más de 7 días` : ''}</h4><ol>${oldest}</ol></div>` : '<p class="dashboard-empty">No hay equipos abiertos en el taller.</p>'}`;
     }
 
     function renderSeries() {
@@ -566,6 +599,10 @@
                 const filter = String(status.dataset.operationStatus);
                 return navigate({ view: filter === filter.toUpperCase() ? 'commerce-orders' : 'repairs', filter: filter.toLowerCase() });
             }
+            const workshopTicket = event.target.closest('[data-workshop-ticket]');
+            if (workshopTicket && typeof window.openRepairTicket === 'function') return window.openRepairTicket(workshopTicket.dataset.workshopTicket, workshopTicket);
+            const workshopFilter = event.target.closest('[data-workshop-filter]');
+            if (workshopFilter) return navigate({ view: 'repairs', filter: workshopFilter.dataset.workshopFilter });
             const operation = event.target.closest('[data-operation-action]');
             if (operation) {
                 const filter = operation.dataset.operationAction;

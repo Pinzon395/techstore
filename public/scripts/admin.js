@@ -1132,10 +1132,17 @@ function populateSelectOptions(selectId, values, allLabel, labelMap = {}) {
     select.value = unique.includes(current) ? current : 'all';
 }
 
+// Etapas del taller que agrupan varios estados (mismas que el panel "Taller hoy" del dashboard).
+const REPAIR_STAGE_GROUPS = {
+    stage_diagnosis: { label: 'Etapa: diagnóstico', statuses: ['received', 'diagnosing'] },
+    stage_waiting_customer: { label: 'Etapa: esperan al cliente', statuses: ['contacted', 'quoted'] },
+    stage_in_repair: { label: 'Etapa: en reparación', statuses: ['approved', 'in_progress'] },
+};
+
 function populateRepairFilters() {
     const priorityLabels = Object.fromEntries(Object.entries(REPAIR_PRIORITY_OPTIONS).map(([key, data]) => [key, data.label]));
-    populateSelectOptions('repairStatusFilter', ['active', 'overdue', ...Object.keys(REPAIR_STATUS_LABELS)], 'Todos', {
-        active: 'Activos', overdue: 'Atrasados', ...REPAIR_STATUS_LABELS
+    populateSelectOptions('repairStatusFilter', ['active', 'overdue', ...Object.keys(REPAIR_STAGE_GROUPS), ...Object.keys(REPAIR_STATUS_LABELS)], 'Todos', {
+        active: 'Activos', overdue: 'Atrasados', ...Object.fromEntries(Object.entries(REPAIR_STAGE_GROUPS).map(([key, group]) => [key, group.label])), ...REPAIR_STATUS_LABELS
     });
     populateSelectOptions('repairDeviceFilter', Object.keys(REPAIR_DEVICE_SERVICE_OPTIONS), 'Todos');
     populateSelectOptions('repairUrgencyFilter', Object.keys(REPAIR_PRIORITY_OPTIONS), 'Todas', priorityLabels);
@@ -1173,6 +1180,7 @@ function filterRepairs() {
         const matchesStatus = filters.status === 'all'
             || r.status === filters.status
             || (filters.status === 'active' && activeStatuses.has(r.status))
+            || (REPAIR_STAGE_GROUPS[filters.status]?.statuses.includes(r.status) ?? false)
             || (filters.status === 'overdue' && Number.isFinite(promisedAt) && promisedAt < now && activeStatuses.has(r.status));
         return (!filters.search || haystack.includes(filters.search))
             && matchesStatus
@@ -1947,6 +1955,15 @@ function ticketBalanceLabel(repair) {
     return `${formatRepairMoney(total)} pendiente`;
 }
 
+function sortRepairs(repairs) {
+    const mode = document.getElementById('repairSortFilter')?.value || 'recent';
+    const time = (value) => { const t = value ? new Date(value).getTime() : NaN; return Number.isFinite(t) ? t : null; };
+    const closed = new Set(['delivered', 'cancelled', 'eliminado']);
+    if (mode === 'oldest') return [...repairs].sort((a, b) => (closed.has(a.status) - closed.has(b.status)) || ((time(a.created_at) ?? 0) - (time(b.created_at) ?? 0)));
+    if (mode === 'promised') return [...repairs].sort((a, b) => (time(a.promised_at) ?? Infinity) - (time(b.promised_at) ?? Infinity));
+    return repairs;
+}
+
 function applyRepairQuickView(repairs) {
     const view = activeRepairQuickView;
     const activeStatuses = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready']);
@@ -1961,7 +1978,7 @@ function renderRepairFilterChips(filters) {
     const container = document.getElementById('repairFilterChips');
     if (!container) return;
     const labels = {
-        status: REPAIR_STATUS_LABELS[filters.status] || (filters.status === 'active' ? 'Activos' : filters.status === 'overdue' ? 'Atrasados' : ''),
+        status: REPAIR_STATUS_LABELS[filters.status] || REPAIR_STAGE_GROUPS[filters.status]?.label || (filters.status === 'active' ? 'Activos' : filters.status === 'overdue' ? 'Atrasados' : ''),
         urgency: REPAIR_PRIORITY_OPTIONS[filters.urgency]?.label || '',
         device: filters.device === 'all' ? '' : filters.device,
         service: filters.service === 'all' ? '' : filters.service
@@ -2153,7 +2170,7 @@ function renderRepairs() {
     tbody.innerHTML = '';
 
     const filters = getRepairFilters();
-    const filteredRepairs = applyRepairQuickView(filterRepairs());
+    const filteredRepairs = sortRepairs(applyRepairQuickView(filterRepairs()));
     const totalCount = filteredRepairs.length;
 
     // Calcular paginación
@@ -2607,7 +2624,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRepairs();
     }));
 
-    ['repairSearchInput', 'repairStatusFilter', 'repairUrgencyFilter', 'repairDeviceFilter', 'repairServiceFilter'].forEach(id => {
+    ['repairSearchInput', 'repairStatusFilter', 'repairUrgencyFilter', 'repairDeviceFilter', 'repairServiceFilter', 'repairSortFilter'].forEach(id => {
         document.getElementById(id)?.addEventListener(id === 'repairSearchInput' ? 'input' : 'change', () => {
             if (id === 'repairDeviceFilter') refreshRepairServiceFilterOptions();
             crmCurrentPage = 1; // reset a la primera página al filtrar
