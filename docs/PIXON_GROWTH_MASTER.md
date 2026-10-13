@@ -28,6 +28,26 @@ La agenda en línea (`appointment_settings`, migración 015) sigue ofreciendo tu
 - **FACT (búsqueda web 2026-10-12):** para "reparación de computadoras Cancún" y "laptop mojada Cancún" la búsqueda web devuelve sobre todo directorios (Cronoshare, Sección Amarilla). Pixon ("Luis Pinzón") aparece listado en Cronoshare. INFERENCE: los directorios son citaciones NAP que deben coincidir con el sitio.
 - **PENDIENTE (bloqueado):** auditoría de competidores en Google Maps (RedMovil y otros: reseñas, categorías, fotos, horarios). Requiere navegador con sesión; la extensión de Chrome no estaba conectada en esta sesión. No se registran datos de competidores sin verificarlos.
 
+### Actualización GSC 2026-10-12 (export de 3 meses, `Downloads/pixon.com.mx-Performance-on-Search-2026-10-12.zip`)
+- **FACT:** el inicio `/` tiene 35,907 impresiones, 158 clics y posición 3.6. El escritorio suma 70,496 impresiones con CTR 0.34 %; el móvil, 32,781 con CTR 1.68 %.
+- **FACT:** "computer repair" 18,221 impr. (1 clic), "laptop repair" 17,071 (0), "graphics card repair" 13,218 (0) y "phone repair" 8,482 (0), todas creciendo frente a agosto.
+- **FACT:** `/en/graphics-card-repair` tiene 7,267 impresiones con 0 clics en posición 5; `/en/computer-repair`, 2,403 con 0 clics en posición 8.2.
+- **INFERENCE:** el volumen en inglés de escritorio y CTR ~0 se concentra en el inicio y en `/en/*`. Siguiente prueba: en GSC, filtrar la consulta "computer repair" → pestaña Páginas y País/Dispositivo. Si es México + escritorio sobre `/`, el snippet en español no responde a la búsqueda en inglés.
+- **FACT:** fragmentos de producto: 6,473 impresiones y 99 clics (CTR 1.5 %). Las fichas de `/tienda/*` traen `Offer`, pero no `hasMerchantReturnPolicy`. **Decisión del dueño:** definir la política de devoluciones real antes de marcarla en el schema; no se inventa.
+
+## 4b. Core Web Vitals (laboratorio, 2026-10-12, `tools/measure-cwv.mjs`)
+No se pudo abrir el reporte de Search Console (sin sesión de navegador). Mediciones propias, móvil con CPU 4x y red 4G lenta, recorriendo la página:
+| Vista | Producción (commit 80191b7) | Local (esta rama) |
+|---|---|---|
+| `/tienda` escritorio | **CLS 0.627** (salto del footer) | 0.005 |
+| `/tienda` móvil | 0.017 | 0.102 → **0.000** (espacio reservado para la cuadrícula) |
+| `/contacto` escritorio | CLS 0.048 | 0.007 |
+| `/reparaciones` escritorio | CLS 0.045 | 0.007 |
+| Botón del carrito (móvil, con banner de cookies) | 0.017 | **0.000** (holgura con `translate`, no con `bottom`) |
+| LCP móvil, 14 vistas principales | 1.1–2.6 s | 1.3–2.0 s |
+| Interacciones (menú, FAQ) móvil | 64–256 ms | 40–144 ms |
+**Conclusión:** los avisos de CLS en producción se corrigen con el deploy de esta rama (incluye el arreglo de CLS de la auditoría anterior, que tampoco está publicado). Riesgo pendiente: el JS y CSS en móvil (TBT de laboratorio de 0.3 a 1.5 s según la carga de la máquina) puede afectar el INP de teléfonos de gama baja; mayor costo medido: `gtag` (587 KB) y el recálculo de estilos.
+
 ## 4. Mapa QUERY → PÁGINA → ACCIÓN (GSC 2026-08-25)
 La exportación no une consulta y página; la columna "página" es la URL que debe ganar esa intención.
 

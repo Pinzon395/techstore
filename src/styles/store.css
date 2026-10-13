@@ -448,7 +448,9 @@
   position: fixed;
   z-index: 9998;
   right: 96px;
-  bottom: calc(24px + var(--cart-clearance, 0px) + env(safe-area-inset-bottom, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  /* La holgura sobre el banner de cookies se aplica con translate: mover con `bottom` contaba como CLS. */
+  translate: 0 calc(-1 * var(--cart-clearance, 0px));
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
@@ -465,7 +467,7 @@
   white-space: nowrap;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), translate 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease;
 }
 .store-cart-launcher:hover {
   transform: translateY(-2px);
@@ -2307,7 +2309,7 @@ main.store-page > section.store-local {
 
   .store-cart-launcher {
     right: 88px;
-    bottom: calc(18px + var(--cart-clearance, 0px) + env(safe-area-inset-bottom, 0px));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     height: 48px;
     min-height: 48px;
     padding: 5px;
@@ -2837,3 +2839,7 @@ main.store-page > section.store-local {
     font-size: 0.88rem;
   }
 }
+
+/* CLS: la cuadrícula se llena por JS después de cargar. Reservar al menos una pantalla evita que el
+   footer (visible mientras el catálogo está vacío) salte hacia abajo: /tienda medía CLS 0.61 escritorio / 0.10 móvil. */
+.store-results-column { min-height: 100vh; min-height: 100svh; }
