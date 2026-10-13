@@ -71,3 +71,31 @@ test('modo embebido: registra health/ready/version y no responde "Cannot GET" co
     assert.equal(other.status, 503);
     assert.doesNotMatch(await other.text(), /Cannot GET/);
 });
+
+test('modo embebido: durante el arranque la petición espera en lugar de responder 503 al instante', async (t) => {
+    // 10.255.255.1 no es enrutable: initDB queda colgado y el app permanece en "starting".
+    const { child, port } = startEmbedded({
+        NODE_ENV: 'production',
+        SESSION_SECRET: 'x'.repeat(48),
+        DB_HOST: '10.255.255.1',
+        DB_PORT: '3306',
+        DB_USER: 'nobody',
+        DB_PASSWORD: 'nobody',
+        DB_NAME: 'nobody',
+        PIXON_BOOT_WAIT_MS: '800',
+        GOOGLE_CALLBACK_URL: 'https://pixon.com.mx/auth/google/callback'
+    });
+    t.after(() => child.kill());
+    const base = `http://127.0.0.1:${await port}`;
+
+    const health = await fetch(`${base}/api/health`);
+    assert.equal(health.status, 200, 'health no espera al arranque');
+
+    const started = Date.now();
+    const res = await fetch(`${base}/tienda`);
+    const elapsed = Date.now() - started;
+    assert.ok(elapsed >= 700, `debe esperar al arranque (esperó ${elapsed} ms)`);
+    assert.equal(res.status, 503, 'si el arranque no termina en el límite, 503 con Retry-After');
+    assert.equal(res.headers.get('retry-after'), '10');
+    assert.equal((await res.json()).status, 'STARTING');
+});

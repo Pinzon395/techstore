@@ -165,8 +165,18 @@ const SHOULD_LISTEN = !EMBEDDED || process.env.PIXON_FORCE_LISTEN === '1';
 // aunque MariaDB esté caída o el arranque siga en curso, para diagnosticar.
 let appState = 'starting';
 const HEALTH_PATHS = new Set(['/api/health', '/api/ready', '/api/version']);
-app.use((req, res, next) => {
+// Hostinger arranca el proceso con la primera petición (arranque en frío): en vez de
+// responder 503 al instante (Search Console lo reporta como "Error de servidor 5xx"),
+// la petición espera a que bootstrap termine, con un límite.
+const BOOT_WAIT_MS = Number(process.env.PIXON_BOOT_WAIT_MS) || 20_000;
+let settleBoot;
+const bootSettled = new Promise((resolve) => { settleBoot = resolve; });
+app.use(async (req, res, next) => {
     if (appState === 'ready' || HEALTH_PATHS.has(req.path)) return next();
+    if (appState === 'starting') {
+        await Promise.race([bootSettled, new Promise((r) => setTimeout(r, BOOT_WAIT_MS).unref())]);
+        if (appState === 'ready') return next();
+    }
     res.setHeader('Cache-Control', 'no-store, private');
     res.setHeader('Retry-After', '10');
     return res.status(503).json({ ok: false, status: appState === 'failed' ? 'BOOT_FAILED' : 'STARTING' });
@@ -365,6 +375,12 @@ async function bootstrap() {
         '/en/windows-install': '/en/computer-repair',
         '/en/hinge-repair': '/en/laptop-repair',
         '/en/anti-sulfatation': '/en/liquid-damage',
+        // GSC 2026-10-13 (404 en "Indexación > Páginas"): rutas inglesas antiguas con equivalente real.
+        '/en/privacy': '/privacidad',
+        '/en/warranty': '/politica-de-garantia',
+        '/en/packages': '/paquetes',
+        '/en/catalog': '/en/store',
+        '/en/corporate': '/en/business-it-support',
         // Formateo: /servicios/pc/formateo (188 impr., pos. 10.4) absorbe la página genérica duplicada.
         '/instalacion-windows': '/servicios/pc/formateo',
         '/servicios/instalacion-windows': '/servicios/pc/formateo',
@@ -1942,6 +1958,7 @@ async function bootstrap() {
        ARRANCAR
     ───────────────────────────────────────────────────────── */
     appState = 'ready';
+    settleBoot();
     if (!SHOULD_LISTEN) {
         console.log(`[server] Pixon PC API [${process.env.NODE_ENV || 'development'}] lista (modo embebido: el host sirve el app exportado).`);
     }
@@ -2001,6 +2018,7 @@ Alternativa para arrancar en otro puerto:
 if (process.env.PIXON_SKIP_BOOTSTRAP !== '1') {
     bootstrap().catch(err => {
         appState = 'failed';
+        settleBoot();
         console.error('Bootstrap fallido:', err.message);
         console.error(err.stack);
         // Standalone: salir para que el supervisor reinicie. Embebido: el host

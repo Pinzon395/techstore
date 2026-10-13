@@ -55,6 +55,27 @@ No se pudo abrir el reporte de Search Console (sin sesión de navegador). Medici
 - **INFERENCE (inglés, CTR ~0):** 97.7k de 103k impresiones son de México. "laptop repair" está en posición 2.6 con 17,071 impresiones y 0 clics, y `/en/laptop-repair` solo tiene 108 impresiones: Google muestra el inicio en español (hreflang correcto: un usuario con Google en español recibe la versión es-MX). Una posición orgánica de 2–4 sin ningún clic en un término local suele indicar que el pack de Maps absorbe los clics, o impresiones de rastreadores de posiciones (concentradas en escritorio, lo que también explicaría el CTR de escritorio de 0.34 % frente a 1.68 % en móvil). Los títulos y descripciones en inglés ya son específicos y honestos; reescribirlos no ataca esa causa. **HYPOTHESIS a verificar en GSC:** consulta "laptop repair" → Dispositivos/País. Palanca real: el perfil de Google Business (categoría, fotos, reseñas), medido con el UTM del enlace del perfil.
 - **Residual:** `/tienda` móvil local dio un salto aislado de 0.086 en `#main-content` en 1 de 8 corridas (no reproducible con red lenta); queda por debajo de 0.1.
 
+### SEARCH CONSOLE STATUS (leído en la interfaz, 2026-10-13)
+| Sección | Estado | Clasificación / acción |
+|---|---|---|
+| CORE WEB VITALS MOBILE | "No hay suficientes datos de uso (90 días)" | Sin datos de campo: no hay grupos de URL que validar. Referencia = laboratorio. |
+| CORE WEB VITALS DESKTOP | "No hay suficientes datos de uso (90 días)" | Igual que móvil. |
+| INDEXATION | 185 indexadas / 347 sin indexar (actualizado 8/10/26) | noindex 162 (esperado: cuenta, auth, duplicados), canónica alternativa 107 (esperado), redirección 29 (esperado), 404 21, 5xx 15, 403 1 (`/api/admin/...`, esperado), rastreada sin indexar 9, descubierta 2, duplicada 1 (`/blogs/` → 301). |
+| 5xx | 15 (ej. `/tickets`, `/ensambles`, `www/...`) | **Causa raíz:** en Hostinger el proceso arranca con la primera petición y el middleware respondía 503 inmediato mientras `bootstrap()` seguía. Fix: la petición espera el arranque (hasta 20 s). Test en `server/tests/embedded-boot.test.js` (falla con el código anterior). Hoy todas devuelven 200/301. |
+| 404 | 21 | `/en/privacy`, `/en/warranty`, `/en/packages`, `/en/catalog`, `/en/corporate` → 301 a su equivalente real. `/servicios/tablet/*`, `/servicios/monitor/*`, `/en/reviews`: servicios/páginas que no existen → 404 correcto. |
+| SITEMAPS | `sitemap.xml` correcto (189 descubiertas) | Hay 6 envíos erróneos (robots.txt, `/`, `contacto.html`, `catalogo.html`, `ensambles.html`, `paquetes.html`) con "1 error" que generan los avisos "Nuevos motivos... de un sitemap". Acción del dueño: quitarlos en Sitemaps (no se pudo desde la sesión automática). |
+| HTTPS | 110 HTTPS / 0 no HTTPS | OK |
+| PRODUCT SNIPPETS | 1 válido / 0 no válidos | Solo recomendados: `aggregateRating`, `review`. No se inventan. |
+| MERCHANT LISTINGS | 1 válido / 0 no válidos | Recomendado: `hasMerchantReturnPolicy` → NEEDS_BUSINESS_POLICY_CONFIRMATION. `shippingDetails` 0. |
+| BREADCRUMBS | 199 válidos / 0 | OK |
+| VIDEOS | 2 sin indexar: "no está en una página de visualización" | Esperado (video de apoyo). |
+| MANUAL ACTIONS | Ningún problema | NONE |
+| SECURITY ISSUES | Ningún problema | NONE |
+
+**Inglés (FACT, filtros de GSC, 3 meses):** "laptop repair" = 16,950 impr. escritorio vs 2 móvil, 100 % México, 0 clics (páginas: `/` 13,972; `/servicios/laptop` 5,182; `/en/laptop-repair` 107). "computer repair" = 18,065 escritorio vs 3 móvil, 1 clic. "graphics card repair" = 13,198 escritorio, 0 móvil (`/en/graphics-card-repair` 7,260; `/servicios/pc/tarjeta-video-gpu` 5,617). **Conclusión:** son impresiones automatizadas de escritorio (rastreo de posiciones), no demanda humana en inglés; no se reescriben títulos.
+**Home (FACT):** CTR escritorio 0.1 % (30,634 impr.) vs móvil 4.4 %. Excluyendo consultas con "repair": escritorio 4.1 % (589 impr.) vs móvil 4.5 % (1,073). La brecha la explican esas impresiones, no el diseño ni el snippet.
+**Producción (2026-10-13):** commit `613ca01` desplegado (hPanel, build OK). Migración 016 aplicada vía phpMyAdmin con el SQL exacto del archivo, después de respaldo manual de Hostinger `u493813761_pixondb` 2026-10-13 14:00; registrada en `schema_migrations` con checksum `94d50632…` (runner `phpmyadmin-manual-2026-10-13`); 57 tickets intactos. Laboratorio en producción: CLS ≤ 0.005 escritorio y 0.000 móvil en `/`, `/tienda`, `/contacto`, `/reparaciones`, `/paquetes`; LCP móvil 1.4–2.2 s; cards de paquetes PASS en 360–1920.
+
 ## 4. Mapa QUERY → PÁGINA → ACCIÓN (GSC 2026-08-25)
 La exportación no une consulta y página; la columna "página" es la URL que debe ganar esa intención.
 

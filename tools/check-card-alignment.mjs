@@ -5,7 +5,7 @@ const BASE = process.argv[2];
 const OUT = process.argv[3];
 // Sin cards visibles la auditoría no prueba nada: se reporta como fallo.
 const targets = [['/paquetes', '.pricing-card'], ['/', '.pricing-card'], ['/mantenimiento-preventivo-computadora', '.mpc-symptom-card'], ['/mantenimiento-pc-laptop-domicilio-cancun', '[class*="card"]:not([class*="__"])']];
-const widths = [360, 390, 430, 768, 1024, 1440, 1920];
+const widths = [360, 390, 430, 768, 1024, 1280, 1440, 1920];
 const b = await chromium.launch();
 for (const [path, sel] of targets) for (const w of widths) {
   const ctx = await b.newContext({ viewport: { width: w, height: 900 }, isMobile: w < 768, hasTouch: w < 768 });
