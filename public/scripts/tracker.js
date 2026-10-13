@@ -46,7 +46,15 @@
 
   track();
 
+  const lastEventAt = {};
   function conversion(eventName) {
+    // Un enlace wa.me con smartWaRedirect dispara clic + llamada: se cuenta una sola vez.
+    const now = Date.now();
+    if (lastEventAt[eventName] && now - lastEventAt[eventName] < 1500) return;
+    lastEventAt[eventName] = now;
+    try {
+      if (typeof window.gtag === 'function') window.gtag('event', eventName, { page_path: location.pathname });
+    } catch (e) { /* GA opcional */ }
     try {
       const payload = JSON.stringify({
         event: eventName,
@@ -61,6 +69,14 @@
   }
 
   window.pixonTrackEvent = conversion;
+  // Botones (no enlaces) que abren WhatsApp vía smartWaRedirect(url): antes no se medían.
+  if (typeof window.smartWaRedirect === 'function') {
+    const originalWaRedirect = window.smartWaRedirect;
+    window.smartWaRedirect = function (url) {
+      if (/wa\.me\//i.test(String(url || ''))) conversion('whatsapp_click');
+      return originalWaRedirect.apply(this, arguments);
+    };
+  }
   document.addEventListener('click', function (event) {
     const link = event.target.closest('a[href]');
     if (!link) return;

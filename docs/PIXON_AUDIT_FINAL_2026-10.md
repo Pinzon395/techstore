@@ -41,7 +41,7 @@ La lista completa está en `docs/MISSING_REAL_PHOTOS.md`.
 
 ## Google Business Profile (acciones del dueño)
 1. Categoría principal "Servicio de reparación de computadoras"; secundarias "Tienda de reparación de teléfonos móviles" y "Servicio de reparación de consolas".
-2. Horario idéntico al sitio: lunes a sábado 11:00–22:00, domingo 11:00–18:00.
+2. Horario idéntico al sitio: abierto 24 horas con cita previa (actualizado 2026-10-12, ver `docs/PIXON_GROWTH_MASTER.md`).
 3. Servicios con los mismos nombres de las fichas del sitio y enlace a cada ficha.
 4. 10+ fotos reales: fachada o acceso, banco de trabajo y equipos abiertos.
 5. Pedir reseña al entregar cada equipo y responder todas las reseñas.

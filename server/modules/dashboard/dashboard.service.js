@@ -903,7 +903,52 @@ class DashboardService {
         );
         return {
             state: numeric(coverage.total) ? (rows.length ? 'value' : 'empty') : 'not_configured',
-            items: rows.map((row) => ({ name: row.name, quantity: numeric(row.quantity), revenue: money(row.revenue) }))
+            items: rows.map((row) => ({ name: row.name, quantity: numeric(row.quantity), revenue: money(row.revenue) })),
+            leads: await this.leads(period).catch(() => ({ state: 'error' }))
+        };
+    }
+
+    // Embudo comercial de tickets creados en el periodo + origen del cliente (migración 016).
+    // Sin la columna lead_source responde not_configured en vez de inventar ceros.
+    async leads(period) {
+        const [[column]] = await this.pool.execute(
+            `SELECT COUNT(*) total FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'repairs' AND COLUMN_NAME = 'lead_source'`
+        );
+        if (!numeric(column.total)) return { state: 'not_configured' };
+        const params = [period.from, period.toExclusive];
+        const [[funnel]] = await this.pool.execute(
+            `SELECT COUNT(*) received,
+                SUM(estimated_cost IS NOT NULL OR status IN ('quoted','approved','in_progress','waiting_parts','ready','delivered')) quoted,
+                SUM(status IN ('approved','in_progress','waiting_parts','ready','delivered')) approved,
+                SUM(status = 'delivered') delivered,
+                SUM(status = 'cancelled') lost,
+                SUM(lead_source IS NULL) unattributed
+             FROM repairs WHERE created_at >= ? AND created_at < ? AND deleted_at IS NULL AND status <> 'eliminado'`,
+            params
+        );
+        const [sources] = await this.pool.execute(
+            `SELECT COALESCE(lead_source,'unattributed') source, COUNT(*) tickets,
+                SUM(status IN ('approved','in_progress','waiting_parts','ready','delivered')) approved
+             FROM repairs WHERE created_at >= ? AND created_at < ? AND deleted_at IS NULL AND status <> 'eliminado'
+             GROUP BY source ORDER BY tickets DESC`,
+            params
+        );
+        const [lostReasons] = await this.pool.execute(
+            `SELECT lost_reason reason, COUNT(*) tickets FROM repairs
+             WHERE created_at >= ? AND created_at < ? AND deleted_at IS NULL AND status = 'cancelled' AND lost_reason IS NOT NULL
+             GROUP BY lost_reason ORDER BY tickets DESC`,
+            params
+        );
+        const received = numeric(funnel.received);
+        return {
+            state: received ? 'value' : 'empty',
+            funnel: {
+                received, quoted: numeric(funnel.quoted), approved: numeric(funnel.approved),
+                delivered: numeric(funnel.delivered), lost: numeric(funnel.lost), unattributed: numeric(funnel.unattributed)
+            },
+            sources: sources.map((row) => ({ source: row.source, tickets: numeric(row.tickets), approved: numeric(row.approved) })),
+            lost_reasons: lostReasons.map((row) => ({ reason: row.reason, tickets: numeric(row.tickets) }))
         };
     }
 

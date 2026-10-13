@@ -1331,6 +1331,23 @@ function renderRepairPriorityOptions(current) {
         .join('');
 }
 
+// Atribución comercial (migración 016). Claves validadas en server/database.js.
+const LEAD_SOURCE_LABELS = {
+    google_maps: 'Google Maps', google_search: 'Google Search', whatsapp: 'WhatsApp directo',
+    facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', referral: 'Recomendación',
+    returning: 'Cliente anterior', hotel: 'Hotel', business: 'Empresa', other: 'Otro'
+};
+const LOST_REASON_LABELS = {
+    price: 'Precio', no_response: 'Sin respuesta', repaired_elsewhere: 'Reparó en otro lugar',
+    not_repairable: 'No reparable', part_unavailable: 'Pieza no disponible', other: 'Otro'
+};
+
+function renderOptionalOptions(labels, current, emptyLabel) {
+    return `<option value="">${escapeHtml(emptyLabel)}</option>` + Object.entries(labels)
+        .map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(label)}</option>`)
+        .join('');
+}
+
 function renderAppointmentStatusOptions(current) {
     return Object.entries(APPOINTMENT_STATUS_LABELS)
         .map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(label)}</option>`)
@@ -1450,6 +1467,8 @@ function renderRepairDetailModal(ticket) {
                     <div class="repair-ticket-form-grid">
                         <label>Estado del ticket<select id="repairDetailStatus" class="admin-input">${renderRepairStatusOptions(ticket.status)}</select></label>
                         <label>Prioridad<select id="repairDetailPriority" class="admin-input">${renderRepairPriorityOptions(ticket.priority || 'normal')}</select></label>
+                        ${'lead_source' in ticket ? `<label>Origen del cliente<select id="repairDetailLeadSource" class="admin-input">${renderOptionalOptions(LEAD_SOURCE_LABELS, ticket.lead_source || '', 'Sin registrar')}</select></label>
+                        <label>Motivo si no autoriza<select id="repairDetailLostReason" class="admin-input">${renderOptionalOptions(LOST_REASON_LABELS, ticket.lost_reason || '', 'No aplica')}</select></label>` : ''}
                         <label>Costo estimado<input id="repairDetailEstimatedCost" class="admin-input" type="number" min="0" step="0.01" value="${escapeHtml(ticket.estimated_cost ?? '')}"></label>
                         <label>Costo final<input id="repairDetailFinalCost" class="admin-input" type="number" min="0" step="0.01" value="${escapeHtml(ticket.final_cost ?? '')}"></label>
                         <label>Fecha prometida<input id="repairDetailPromisedAt" class="admin-input" type="datetime-local" value="${escapeHtml(formatRepairDateTimeInput(ticket.promised_at))}"></label>
@@ -1719,6 +1738,8 @@ const REPAIR_HISTORY_ACTION_LABELS = {
 const REPAIR_HISTORY_FIELD_LABELS = {
     status: 'Estado',
     priority: 'Prioridad',
+    lead_source: 'Origen del cliente',
+    lost_reason: 'Motivo de pérdida',
     diagnostic: 'Diagnóstico',
     notes_internal: 'Notas internas',
     estimated_cost: 'Costo estimado',
@@ -1740,6 +1761,8 @@ function repairHistoryValue(field, value) {
     if (value === null || value === undefined || value === '') return 'Sin definir';
     if (field === 'status') return REPAIR_STATUS_LABELS[value] || String(value);
     if (field === 'appointment_status') return APPOINTMENT_STATUS_LABELS[value] || String(value);
+    if (field === 'lead_source') return LEAD_SOURCE_LABELS[value] || String(value);
+    if (field === 'lost_reason') return LOST_REASON_LABELS[value] || String(value);
     if (field === 'priority') return ({ low: 'Baja', normal: 'Normal', high: 'Alta', urgent: 'Urgente' })[value] || String(value);
     if (field === 'estimated_cost' || field === 'final_cost') return formatRepairMoney(value);
     return String(value);
@@ -1853,6 +1876,11 @@ async function saveRepairTicketChanges() {
             : null,
         expected_updated_at: activeRepairTicket.updated_at || null
     };
+    // Solo se envía si la base ya tiene la migración 016 (el ticket trae la columna).
+    if ('lead_source' in activeRepairTicket) {
+        payload.lead_source = document.getElementById('repairDetailLeadSource')?.value || null;
+        payload.lost_reason = document.getElementById('repairDetailLostReason')?.value || null;
+    }
     try {
         const res = await fetch(`${API_BASE}/admin/tickets/${activeRepairTicket.id}`, {
             method: 'PATCH',

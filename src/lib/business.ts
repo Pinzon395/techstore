@@ -37,17 +37,29 @@ export const appointmentPolicy = {
   appointmentOnly: true,
 } as const;
 
-// ─── Horario ────────────────────────────────────────────────
-// Debe coincidir con appointment_settings de producción (agenda pública):
-// lunes a sábado 11:00–22:00 (último turno 21:30), domingo 11:00–18:00 (último turno 17:30).
+// ─── Horario / disponibilidad ───────────────────────────────
+// Política oficial (2026-10-12): atención 24/7 con cita previa; emergencias 24/7 con aviso previo
+// por WhatsApp o correo. La agenda pública (appointment_settings) solo define qué turnos se ofrecen
+// en línea; fuera de ellos se coordina por WhatsApp. No reintroducir horarios por día en el copy.
+const ALL_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 export const openingHours = {
-  specification: [
-    { dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '11:00', closes: '22:00' },
-    { dayOfWeek: ['Sunday'], opens: '11:00', closes: '18:00' },
-  ],
-  es: 'Lunes a sábado 11:00 AM – 10:00 PM · Domingo 11:00 AM – 6:00 PM · con cita',
-  esShort: 'L–S 11:00–22:00 · D 11:00–18:00',
-  en: 'Monday to Saturday 11:00 AM – 10:00 PM · Sunday 11:00 AM – 6:00 PM · by appointment',
+  is247: true,
+  specification: [{ dayOfWeek: ALL_DAYS, opens: '00:00', closes: '23:59' }],
+  es: 'Atención 24/7 con cita previa',
+  esShort: '24/7 con cita',
+  en: 'Open 24/7 by appointment',
+  enShort: '24/7 by appointment',
+} as const;
+
+// ─── Emergencias ────────────────────────────────────────────
+export const emergencyPolicy = {
+  noAppointmentNeeded: true,
+  requiresPriorNotice: true,
+  noticeChannels: ['whatsapp', 'email'] as const,
+  es: 'En una emergencia (equipo mojado, que dejó de encender, olor a quemado, corto o sobrecalentamiento grave) puedes traer tu equipo sin esperar una cita normal. Solo avísanos antes por WhatsApp o correo para estar listos para recibirlo.',
+  esShort: 'Emergencias 24/7: avísanos por WhatsApp antes de venir',
+  en: 'In an emergency (liquid spill, device stopped powering on, burning smell, short circuit or severe overheating) you can bring your device without waiting for a regular appointment. Just message us on WhatsApp or by email before coming so we are ready to receive it.',
+  enShort: '24/7 emergencies: message us on WhatsApp before coming',
 } as const;
 
 export function buildOpeningHoursSchema() {
@@ -63,6 +75,9 @@ export function buildOpeningHoursSchema() {
 export const diagnosticPolicy = {
   enabled: true,
   startingPriceMXN: 600,
+  /** Tiempo habitual de diagnóstico: 8 horas a 2 días según equipo, falla y pruebas necesarias. */
+  minHours: 8,
+  maxDays: 2,
   prepaid: true,
   requiredForBooking: true,
   coversDiagnosisOnly: true,
@@ -71,6 +86,19 @@ export const diagnosticPolicy = {
 
 // ─── Warranty ───────────────────────────────────────────────
 export type WarrantyMode = 'SERVICE_OR_PART_SPECIFIC';
+export const diagnosticCopy = {
+  es: {
+    price: 'Diagnóstico desde $600 MXN',
+    time: 'de 8 horas a 2 días',
+    full: 'El diagnóstico tiene un costo desde $600 MXN. El tiempo habitual es de 8 horas a 2 días, según el tipo de equipo, la falla y las pruebas necesarias. Antes de reparar te informamos el diagnóstico, la solución propuesta y el costo; no hacemos ningún trabajo sin tu autorización.',
+  },
+  en: {
+    price: 'Diagnosis from MXN $600',
+    time: '8 hours to 2 days',
+    full: 'Diagnosis starts at MXN $600. It usually takes 8 hours to 2 days, depending on the device, the fault and the tests required. Before any repair we explain the diagnosis, the proposed fix and the cost; no work is done without your approval.',
+  },
+} as const;
+
 export const warrantyPolicy = {
   mode: 'SERVICE_OR_PART_SPECIFIC' as WarrantyMode,
   /**
@@ -140,8 +168,8 @@ export const defaultPaymentMethods: Record<PaymentMethodKey, boolean> = {
 // ─── Commercial Copy ────────────────────────────────────────
 export const commercialCopy = {
   es: {
-    appointment: 'Atención únicamente con cita previa.',
-    diagnostic: 'El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.',
+    appointment: 'Atención 24/7 con cita previa. En emergencias, avísanos por WhatsApp o correo antes de venir.',
+    diagnostic: 'El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión; normalmente toma de 8 horas a 2 días. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.',
     warranty: 'La garantía aplicable se confirma según la reparación y la pieza instalada.',
     liquidDamage: 'El servicio por daño de líquido corresponde inicialmente a limpieza e inspección. Debido a que el líquido puede causar daños progresivos o irreversibles, no se garantiza que el equipo vuelva a encender ni que no aparezcan fallas posteriores. Cualquier reparación necesaria después de la limpieza se diagnostica y cotiza por separado.',
     turnaround: 'El tiempo estimado se confirma después de la revisión.',
@@ -151,8 +179,8 @@ export const commercialCopy = {
     maintenancePricing: 'El costo del mantenimiento preventivo se cotiza según el tipo de equipo, su valor, complejidad y el alcance requerido.',
   },
   en: {
-    appointment: 'Service by appointment only.',
-    diagnostic: 'Diagnostics start from MXN $600 and may vary depending on device type and inspection complexity. This fee covers diagnosis only; any repair, parts or additional work are quoted separately.',
+    appointment: 'Open 24/7 by appointment. For emergencies, message us on WhatsApp or by email before coming.',
+    diagnostic: 'Diagnostics start from MXN $600 and may vary depending on device type and inspection complexity; they usually take 8 hours to 2 days. This fee covers diagnosis only; any repair, parts or additional work are quoted separately.',
     warranty: 'Applicable warranty terms are confirmed according to the repair and installed part.',
     liquidDamage: 'Liquid-damage service initially covers cleaning and inspection. Because liquid exposure can cause progressive or irreversible damage, powering on the device or preventing future failures cannot be guaranteed. Any repair required after cleaning is diagnosed and quoted separately.',
     turnaround: 'Estimated turnaround is confirmed after inspection.',

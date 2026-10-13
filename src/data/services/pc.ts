@@ -534,7 +534,7 @@ export const pcCategory: ServiceCategory = {
         whyUs: [
           { icon: 'fa-spray-can-sparkles', title: 'Limpieza nivel pro',   desc: 'Aire comprimido + alcohol isopropílico + ultrasonidos. No solo soplar.' },
           { icon: 'fa-temperature-arrow-down', title: 'Bajan temperaturas', desc: 'Tu PC vuelve a temperaturas de fábrica. Ventiladores en silencio.' },
-          { icon: 'fa-flask',              title: 'Pasta térmica nueva',  desc: 'Arctic MX-4 incluida. Bajan otros 10-15°C extra del CPU.' },
+          { icon: 'fa-flask',              title: 'Pasta térmica nueva',  desc: 'Arctic MX-4 incluida. Mejora la transferencia de calor del CPU cuando la pasta anterior está seca.' },
           { icon: 'fa-list-check',         title: 'Cableado pro',         desc: 'Reorganizamos cables para mejor flujo de aire post-limpieza.' },
         ],
         process: [
@@ -546,7 +546,7 @@ export const pcCategory: ServiceCategory = {
           { title: 'Test térmico final', desc: 'Mismas pruebas que al inicio. Reporte comparativo antes/después.' },
         ],
         commonProblems: [
-          { problem: 'PC quema y los ventiladores rugen',        solution: 'Polvo + pasta seca. Limpieza profunda baja 20-30°C inmediatamente.' },
+          { problem: 'PC quema y los ventiladores rugen',        solution: 'Polvo + pasta seca. Limpieza profunda y pasta nueva; medimos la temperatura antes y después.' },
           { problem: 'Apagados aleatorios bajo carga',            solution: 'Throttling térmico por temperatura. Limpieza lo soluciona.' },
           { problem: 'PC con años sin servicio',                  solution: 'Acumulación crítica de polvo. Necesita limpieza profunda urgente.' },
           { problem: 'Olor extraño o quemado al encender',        solution: 'PARA YA. Tráela de inmediato  -  riesgo de daño a fuente o placa.' },
@@ -555,7 +555,7 @@ export const pcCategory: ServiceCategory = {
         faqs: [
           { question: `¿Cada cuánto necesito una limpieza profunda?`, answer: `En Cancún recomendamos cada <strong>12 a 18 meses</strong> por polvo, humedad y salitre. Si la PC está cerca de ventana, piso, mascotas o nunca se ha abierto, puede necesitarse antes para evitar temperaturas altas y ruido.` },
           { question: `¿Cuánto cuesta la limpieza profunda?`, answer: `La limpieza profunda inicia desde <strong>$600 MXN</strong>. Puede cambiar si requiere desmontaje complejo, pasta térmica especial, limpieza de fuente o tratamiento por sulfatación. Antes de hacer extras te mostramos el estado interno y cotizamos.` },
-          { question: `¿Qué tanto bajan las temperaturas?`, answer: `En PCs muy sucias puede bajar de <strong>20 a 30°C</strong>; en casos moderados suele mejorar de 10 a 15°C. La cifra real depende de polvo, pasta térmica, flujo de aire y ventiladores, por eso comparamos antes/después.` },
+          { question: `¿Qué tanto bajan las temperaturas?`, answer: `La diferencia depende del nivel de polvo, el estado de la pasta térmica, el flujo de aire del gabinete y los ventiladores; no prometemos una cifra fija. Por eso medimos temperaturas antes y después y te mostramos el resultado real de tu equipo.` },
           { question: `¿Es seguro abrir mi PC?`, answer: `Sí, se hace con pulsera antiestática, herramientas correctas y registro del cableado antes de desmontar. Revisamos conectores, ventiladores y tornillería para no forzar piezas. Si vemos humedad u óxido, te avisamos.` },
           { question: `¿Vale la pena en una PC vieja?`, answer: `Sí vale la pena si el equipo aún cumple su función. Una limpieza puede reducir calor, ruido y apagados, además de alargar la vida de fuente, placa y GPU. Si conviene más un upgrade, te lo diremos.` },
         ],

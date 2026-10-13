@@ -389,6 +389,41 @@
         container.innerHTML = `<div class="dashboard-split-list">
             <section><h4>Servicios con demanda</h4>${renderRankedItems(services.items, 'name', 'quantity', 'Sin servicios clasificados en el periodo.')}</section>
             <section><h4>Carga técnica</h4>${renderRankedItems(technicians.items, 'name', 'completed', technicians.state === 'not_configured' ? 'No hay técnicos ni asignaciones registradas.' : 'Sin trabajos asignados en el periodo.')}</section>
+        </div>${renderLeads(services.leads)}`;
+    }
+
+    const LEAD_SOURCE_LABELS = {
+        google_maps: 'Google Maps', google_search: 'Google Search', whatsapp: 'WhatsApp directo', facebook: 'Facebook',
+        instagram: 'Instagram', tiktok: 'TikTok', referral: 'Recomendación', returning: 'Cliente anterior',
+        hotel: 'Hotel', business: 'Empresa', other: 'Otro', unattributed: 'Sin registrar'
+    };
+    const LOST_REASON_LABELS = {
+        price: 'Precio', no_response: 'Sin respuesta', repaired_elsewhere: 'Reparó en otro lugar',
+        not_repairable: 'No reparable', part_unavailable: 'Pieza no disponible', other: 'Otro'
+    };
+
+    // Embudo de tickets del periodo y origen del cliente: responde "¿de dónde vienen y cuántos autorizan?".
+    function renderLeads(leads) {
+        if (!leads || leads.state === 'not_configured') {
+            return '<p class="dashboard-empty">Origen del cliente: pendiente de aplicar la migración 016 en la base.</p>';
+        }
+        if (leads.state === 'error') return '<p class="dashboard-empty">No se pudo calcular el embudo de tickets.</p>';
+        if (leads.state === 'empty') return '<p class="dashboard-empty">Sin tickets creados en el periodo.</p>';
+        const f = leads.funnel;
+        const pct = (part) => (f.received ? `${Math.round((part / f.received) * 100)}%` : '—');
+        const sources = leads.sources.map((row) => ({ label: LEAD_SOURCE_LABELS[row.source] || row.source, tickets: row.tickets }));
+        const reasons = leads.lost_reasons.map((row) => ({ label: LOST_REASON_LABELS[row.reason] || row.reason, tickets: row.tickets }));
+        return `<div class="dashboard-inline-facts" aria-label="Embudo de tickets del periodo">
+            <span>Tickets <strong>${numberFormatter.format(f.received)}</strong></span>
+            <span>Cotizados <strong>${numberFormatter.format(f.quoted)}</strong> (${pct(f.quoted)})</span>
+            <span>Autorizados <strong>${numberFormatter.format(f.approved)}</strong> (${pct(f.approved)})</span>
+            <span>Entregados <strong>${numberFormatter.format(f.delivered)}</strong></span>
+            <span>Perdidos <strong>${numberFormatter.format(f.lost)}</strong></span>
+            <span>Sin origen <strong>${numberFormatter.format(f.unattributed)}</strong></span>
+        </div>
+        <div class="dashboard-split-list">
+            <section><h4>Origen del cliente</h4>${renderRankedItems(sources, 'label', 'tickets', 'Sin tickets en el periodo.')}</section>
+            <section><h4>Por qué no autorizaron</h4>${renderRankedItems(reasons, 'label', 'tickets', 'Sin motivos registrados.')}</section>
         </div>`;
     }
 

@@ -369,6 +369,8 @@ CREATE TABLE IF NOT EXISTS repairs (
   status          ENUM('new','received','diagnosing','contacted','quoted','approved','in_progress','waiting_parts','ready','delivered','cancelled','eliminado')
                   NOT NULL DEFAULT 'received',
   priority        ENUM('low','normal','high','urgent') NOT NULL DEFAULT 'normal',
+  lead_source     VARCHAR(32) NULL,
+  lost_reason     VARCHAR(32) NULL,
   estimated_cost  DECIMAL(10,2),
   final_cost      DECIMAL(10,2),
   appointment_at  DATETIME,
@@ -396,7 +398,8 @@ CREATE TABLE IF NOT EXISTS repairs (
   KEY idx_repairs_appointment (appointment_at),
   KEY idx_repairs_appointment_date (appointment_date, appointment_time),
   KEY idx_repairs_user        (user_id, created_at DESC),
-  KEY idx_repairs_priority    (priority, status)
+  KEY idx_repairs_priority    (priority, status),
+  KEY idx_repairs_lead_source (lead_source, created_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS repair_status_history (

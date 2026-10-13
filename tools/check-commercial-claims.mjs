@@ -235,3 +235,43 @@ if (stats.unsafePublished > 0) {
 } else {
   console.log('✓ Commercial claims gate PASSED — no unsafe published claims.');
 }
+
+// ─── Policy regression gate (2026-10-12) ────────────────────
+// Reglas oficiales de business.ts: atención 24/7 con cita, diagnóstico desde $600 MXN
+// en 8 h–2 días, sin ratings/porcentajes no verificados. A diferencia del escaneo anterior,
+// aquí no hay excepciones por carpeta (src/data también es copy público).
+const policyRegressionPatterns = [
+  { label: 'horario anterior', re: /lunes a s[aá]bado|monday to saturday|L–S 11|11:00\s*(?:AM)?\s*[–-]\s*(?:10:00|22:00)|9:00 AM – 7:00 PM/i },
+  { label: 'diagnóstico gratis', re: /diagn[oó]stico\s+(?:gratis|gratuito|sin costo)|free\s+diagnos/i },
+  { label: 'tiempo de diagnóstico fuera de política', re: /diagn[oó]stic\w*[^.<`'"]{0,60}(?:\b1\s*(?:a|-|–)\s*2\s*(?:h\b|horas)|1–2h|menos de \d+\s*horas|en minutos)|diagnos\w*[^.<]{0,40}\b(?:within|in) (?:1|2|one|two) hours?/i },
+  { label: 'precio de diagnóstico distinto de $600', re: /diagn[oó]stico[^.<]{0,30}\$\s*(?!600\b)\d{3}\b/i },
+  { label: 'baja de temperatura prometida', re: /(?:baja|bajan|reduce)[^.<]{0,20}\d+\s*°?C?\s*(?:-|–|a)\s*\d+\s*°C/i },
+  { label: 'rating o porcentaje sin respaldo', re: /4\.9\s*\/\s*5|superiores al 90|100% RECOMENDADO|85\s*%\s*(?:de\s*)?[eé]xito/i },
+];
+const policyRoots = ['src', 'public/llms.txt'];
+const policySkip = [/^src\/lib\/business\.ts$/, /^src\/pages\/admin\//, /^src\/components\/admin\//];
+const policyFindings = [];
+function policyScanFiles(entry) {
+  if (!fs.existsSync(entry)) return [];
+  if (fs.statSync(entry).isFile()) return [entry];
+  return walk(entry);
+}
+for (const root of policyRoots) {
+  for (const file of policyScanFiles(root)) {
+    const norm = normalizeFile(file);
+    if (policySkip.some((re) => re.test(norm))) continue;
+    fs.readFileSync(file, 'utf8').split(/\r?\n/).forEach((line, index) => {
+      for (const { label, re } of policyRegressionPatterns) {
+        const match = line.match(re);
+        if (match) policyFindings.push(`${norm}:${index + 1}: ${label}: ${match[0]}`);
+      }
+    });
+  }
+}
+if (policyFindings.length) {
+  console.error(`POLICY REGRESSION: ${policyFindings.length} textos contradicen business.ts:\n`);
+  policyFindings.forEach((d) => console.error(`  ${d}`));
+  process.exitCode = 1;
+} else {
+  console.log('✓ Policy regression gate PASSED — horario, diagnóstico y claims alineados con business.ts.');
+}

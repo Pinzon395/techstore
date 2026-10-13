@@ -306,7 +306,7 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
         },
       ],
       faqs: [
-        { question: '¿Cuánto cuesta cambiar el HDMI de PS5 en Cancún?', answer: 'El diagnóstico inicia desde $650 MXN. El costo final depende de si solo se cambia el puerto o si hay pistas levantadas, pads dañados, humedad o falla en circuito de video. Te damos cotización antes de reparar.' },
+        { question: '¿Cuánto cuesta cambiar el HDMI de PS5 en Cancún?', answer: 'El diagnóstico inicia desde $600 MXN. El costo final depende de si solo se cambia el puerto o si hay pistas levantadas, pads dañados, humedad o falla en circuito de video. Te damos cotización antes de reparar.' },
         { question: '¿Cuánto tarda el cambio de puerto HDMI de PS5?', answer: 'Normalmente puede tomar de 48 a 96 horas según carga de trabajo, disponibilidad de puerto y nivel de daño. Si hay pistas o componentes afectados, puede requerir más pruebas.' },
         { question: '¿Mi PS5 puede prender y aun así tener el HDMI dañado?', answer: 'Sí. La consola puede encender, dar luz y no mandar imagen si el puerto, pines, soldadura, pistas o circuito de video están dañados. También puede ser cable, pantalla o resolución.' },
         { question: '¿Conviene seguir usando la PS5 si solo da imagen moviendo el cable?', answer: 'No es recomendable. Mover el cable puede terminar de romper pines o levantar pistas de la placa, haciendo la reparación más compleja.' },
@@ -359,8 +359,8 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
         { question: '¿Por qué mi PS5 se apaga sola al jugar?', answer: 'Puede apagarse por temperatura alta, polvo en disipador, metal líquido mal distribuido, fuente fatigada, ventilador con bajo flujo, cable de corriente, humedad o consumo anormal en placa. Se prueba bajo carga antes de recomendar reparación.' },
         { question: '¿Por qué mi PS5 se apaga sin aviso de temperatura?', answer: 'Cuando no aparece aviso térmico, la causa puede estar en fuente, cableado, consumo, placa o una caída eléctrica. También puede haber apagado térmico rápido si el APU no transfiere calor correctamente.' },
         { question: '¿Siempre hay que cambiar el metal líquido?', answer: 'No. Manipular metal líquido sin necesidad aumenta riesgo porque es conductor. Primero revisamos polvo, ventilador, disipador y evidencia de mala transferencia térmica.' },
-        { question: '¿Cuánto cuesta revisar una PS5 que se apaga en Cancún?', answer: 'El diagnóstico inicia desde $650 MXN. El costo final depende de si requiere limpieza, corrección de metal líquido, fuente, ventilador o reparación de placa. Se cotiza antes de avanzar.' },
-        { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente de 24 a 72 horas. Si el apagado es intermitente o sólo ocurre con juegos exigentes, puede requerir pruebas extendidas para confirmar estabilidad.' },
+        { question: '¿Cuánto cuesta revisar una PS5 que se apaga en Cancún?', answer: 'El diagnóstico inicia desde $600 MXN. El costo final depende de si requiere limpieza, corrección de metal líquido, fuente, ventilador o reparación de placa. Se cotiza antes de avanzar.' },
+        { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente de 8 horas a 2 días. Si el apagado es intermitente o sólo ocurre con juegos exigentes, puede requerir pruebas extendidas para confirmar estabilidad.' },
         { question: '¿Puedo seguir usando mi PS5 si se apaga sola?', answer: 'No es recomendable. Cada apagado puede afectar datos, fuente o placa si la causa es temperatura o alimentación. Lo mejor es apagarla, evitar muebles cerrados y traerla a revisión.' },
       ],
     },
@@ -574,7 +574,7 @@ export const consolaCategory: ServiceCategory = {
         fromPrice: '$500 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
         whyUs: [
           { icon: 'fa-volume-low',       title: 'Adiós al ruido',        desc: 'Tu consola deja de sonar como turbina. Vuelve al silencio de fábrica.' },
-          { icon: 'fa-temperature-arrow-down', title: 'Baja temperatura', desc: '15-25°C menos en el APU. Sin throttling ni reinicios.' },
+          { icon: 'fa-temperature-arrow-down', title: 'Menos temperatura', desc: 'Medimos la temperatura del APU antes y después para confirmar la mejora.' },
           { icon: 'fa-flask',            title: 'Pasta premium',         desc: 'Arctic MX-4 o equivalente. No la pasta gris barata.' },
           { icon: 'fa-shield-halved',    title: 'Sin daños a sellos',    desc: 'Desarmamos sin dañar sellos críticos. Trabajo limpio.' },
         ],
@@ -631,7 +631,7 @@ export const consolaCategory: ServiceCategory = {
         bullets: ['Diagnóstico térmico antes de cambiar compuesto', 'Pasta premium según modelo', 'Revisión de metal líquido en PS5', 'Limpieza de disipador y flujo de aire', 'Prueba de ruido y estabilidad'],
         fromPrice: '$850 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
         whyUs: [
-          { icon: 'fa-temperature-arrow-down', title: 'Bajan 15-25°C',  desc: 'En APU bajo carga. Tu consola deja de calentar como horno.' },
+          { icon: 'fa-temperature-arrow-down', title: 'Temperatura medida',  desc: 'Comparamos la temperatura del APU bajo carga antes y después del servicio.' },
           { icon: 'fa-volume-low',             title: 'Adiós al ruido', desc: 'Ventilador deja de girar al máximo todo el tiempo.' },
           { icon: 'fa-flask',                  title: 'Pasta premium',  desc: 'Arctic MX-4 (8 años) o Thermal Grizzly Kryonaut (top performance).' },
           { icon: 'fa-chart-line',             title: 'Reporte real',   desc: 'Screenshots de temperaturas antes/después. Mejora medible.' },
@@ -647,7 +647,7 @@ export const consolaCategory: ServiceCategory = {
           { problem: 'PS5/Xbox con ventilador a tope siempre',     solution: 'Pasta seca = throttling térmico. Pasta nueva soluciona.' },
           { problem: 'Reinicios aleatorios al jugar',              solution: 'Sobrecalentamiento extremo. Pasta nueva evita apagados.' },
           { problem: 'Consola con +3 años sin servicio',           solution: 'Pasta original ya secó. Es momento de cambiar.' },
-          { problem: 'Quiero metal líquido para máximo rendimiento',solution: 'Lo cotizamos aparte. Es delicado pero baja 8-12°C extra.' },
+          { problem: 'Quiero metal líquido para máximo rendimiento',solution: 'Lo cotizamos aparte. Es delicado y solo lo aplicamos cuando el modelo y el uso lo justifican.' },
         ],
         compatibleBrands: ['PlayStation 5', 'PS4 / Pro / Slim', 'Xbox Series X / S', 'Xbox One / X / S', 'Nintendo Switch', 'Switch OLED'],
         faqs: [
@@ -822,7 +822,7 @@ export const consolaCategory: ServiceCategory = {
         hook: 'Tu PS5/Xbox/Switch tiene un problema y no entiendes qué es. Diagnóstico técnico real con reporte por escrito. Desde $600 MXN según complejidad.',
         intro: 'Revisión completa para identificar el problema con reporte técnico. Te decimos exactamente qué tiene tu consola y qué opciones existen.',
         bullets: ['Test de encendido, video, audio, conectividad', 'Revisión térmica y de placa', 'Reporte por escrito con fotos', 'Diagnóstico desde $600 MXN', 'Reparación y piezas se cotizan aparte'],
-        fromPrice: 'Desde $600 MXN', eta: '1-2 h', warranty: 'Reporte por escrito',
+        fromPrice: 'Desde $600 MXN', eta: '8 h a 2 días', warranty: 'Reporte por escrito',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico real',  desc: 'No "es la placa" sin pruebas. Test sistemático.' },
           { icon: 'fa-file-contract',    title: 'Reporte por escrito',desc: 'Por WhatsApp con fotos y explicación clara.' },
@@ -845,7 +845,7 @@ export const consolaCategory: ServiceCategory = {
         compatibleBrands: ['Cualquier PlayStation', 'Cualquier Xbox', 'Cualquier Nintendo Switch', 'Consolas retro'],
         faqs: [
           { question: `¿Cuánto cuesta el diagnóstico de consola?`, answer: `El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.` },
-          { question: `¿Qué tan rápido entregan el diagnóstico?`, answer: `Una revisión básica puede tomar de <strong>1 a 2 horas</strong>, pero fallas intermitentes, apagados o problemas de video pueden requerir pruebas más largas. Si hay cola de trabajo, normalmente queda dentro de 24 horas con reporte por WhatsApp.` },
+          { question: `¿Qué tan rápido entregan el diagnóstico?`, answer: `El diagnóstico normalmente toma de <strong>8 horas a 2 días</strong>. Fallas intermitentes, apagados o problemas de video pueden requerir pruebas más largas; te enviamos el reporte por WhatsApp antes de reparar.` },
           { question: `¿Qué incluye el reporte?`, answer: `Incluye síntoma confirmado, pruebas realizadas, causa probable, fotos si aplica, costo estimado, tiempo de reparación y recomendación honesta. Si conviene no reparar por costo o riesgo, también te lo decimos antes de que gastes.` },
           { question: `¿Hacen diagnóstico a domicilio?`, answer: `Para consolas casi siempre recomendamos taller porque ahí podemos probar fuente, video, HDMI, temperatura y controles con mejor equipo. Podemos hacer visita en Cancún con costo para revisión inicial, pero abrir y reparar se hace con más seguridad en taller.` },
         ],

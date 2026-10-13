@@ -368,6 +368,10 @@ async function bootstrap() {
         // Formateo: /servicios/pc/formateo (188 impr., pos. 10.4) absorbe la página genérica duplicada.
         '/instalacion-windows': '/servicios/pc/formateo',
         '/servicios/instalacion-windows': '/servicios/pc/formateo',
+        // Laptop mojada (2026-10-12, GSC 3 meses): /limpieza-laptop-liquido 422 impr., 3 clics, pos. 4.6
+        // vs /servicios/laptop/laptop-mojada 270 impr., 1 clic, pos. 6.3 → una sola URL de emergencia.
+        '/servicios/laptop/laptop-mojada': '/limpieza-laptop-liquido',
+        '/servicios/limpieza-laptop-liquido': '/limpieza-laptop-liquido',
     });
 
     app.get(Object.keys(serviceAliasRedirects), (req, res) => {
@@ -1778,7 +1782,6 @@ async function bootstrap() {
             '/reparacion-controles':        'reparacion-controles.html',
             '/servicios/reparacion-controles':'reparacion-controles.html',
             '/limpieza-laptop-liquido':     'limpieza-laptop-liquido.html',
-            '/servicios/limpieza-laptop-liquido':'limpieza-laptop-liquido.html',
             '/empresas':                    'empresas.html',
             '/B2B':                         'empresas.html',
             '/servicios/b2b':               'empresas.html',

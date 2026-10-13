@@ -552,8 +552,11 @@ async function getRepairAdminById(id) {
 const REPAIR_STATUS_VALUES = new Set(['new', 'received', 'diagnosing', 'contacted', 'quoted', 'approved', 'in_progress', 'waiting_parts', 'ready', 'delivered', 'cancelled', 'eliminado']);
 const REPAIR_PRIORITY_VALUES = new Set(['low', 'normal', 'high', 'urgent']);
 const APPOINTMENT_STATUS_VALUES = new Set(['pendiente_confirmacion', 'confirmada', 'reagendada', 'cancelada', 'completada']);
+// Atribución comercial (migración 016). Claves estables; etiquetas en public/scripts/admin.js.
+const LEAD_SOURCE_VALUES = new Set(['google_maps', 'google_search', 'whatsapp', 'facebook', 'instagram', 'tiktok', 'referral', 'returning', 'hotel', 'business', 'other']);
+const LOST_REASON_VALUES = new Set(['price', 'no_response', 'repaired_elsewhere', 'not_repairable', 'part_unavailable', 'other']);
 const REPAIR_AUDIT_FIELDS = [
-    'status', 'priority', 'diagnostic', 'notes_internal', 'estimated_cost', 'final_cost',
+    'status', 'priority', 'lead_source', 'lost_reason', 'diagnostic', 'notes_internal', 'estimated_cost', 'final_cost',
     'appointment_type', 'appointment_date', 'appointment_time', 'appointment_datetime',
     'appointment_delivery_method', 'appointment_note', 'appointment_status',
     'promised_at', 'delivered_at', 'warranty_until'
@@ -637,6 +640,16 @@ async function updateRepairAdmin(id, data) {
     if (has('priority')) {
         if (!REPAIR_PRIORITY_VALUES.has(String(data.priority))) throw repairUpdateError('Prioridad no reconocida.');
         set('priority', String(data.priority));
+    }
+    if (has('lead_source')) {
+        const source = data.lead_source ? String(data.lead_source) : null;
+        if (source && !LEAD_SOURCE_VALUES.has(source)) throw repairUpdateError('Origen del cliente no reconocido.');
+        set('lead_source', source);
+    }
+    if (has('lost_reason')) {
+        const reason = data.lost_reason ? String(data.lost_reason) : null;
+        if (reason && !LOST_REASON_VALUES.has(reason)) throw repairUpdateError('Motivo de pérdida no reconocido.');
+        set('lost_reason', reason);
     }
     if (has('diagnostic')) set('diagnostic', nullableText(data.diagnostic, 10_000));
     if (has('notes_internal')) set('notes_internal', nullableText(data.notes_internal, 20_000));

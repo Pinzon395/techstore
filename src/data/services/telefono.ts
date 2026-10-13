@@ -108,7 +108,7 @@ const phoneIssueService = ({
     { question: `¿Qué revisan en ${label.toLowerCase()}?`, answer: 'Revisamos carga, batería, pantalla, humedad, conectores, software, consumo, señal y placa según el síntoma.' },
     { question: '¿Conviene repararlo o comprar otro celular?', answer: 'Te lo decimos con honestidad después del diagnóstico, considerando costo de pieza, antigüedad, datos y riesgo de fallas adicionales.' },
     { question: '¿Se borran mis fotos o datos?', answer: 'No en reparaciones físicas normales. Si se requiere restauración, flasheo o recuperación por daño grave, te pedimos autorización antes.' },
-    { question: '¿Cuánto tarda el diagnóstico?', answer: 'Puede tomar de 1 a 72 horas según si la falla es simple, intermitente, por humedad o requiere pruebas de consumo.' },
+    { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente de 8 horas a 2 días, según si la falla es simple, intermitente, por humedad o requiere pruebas de consumo.' },
     { question: '¿Puedo llevarlo aunque ya lo revisaron en otro taller?', answer: 'Sí. Revisamos tornillería, conectores, pieza instalada, humedad, flex y síntomas actuales para ubicar el problema real.' },
     { question: '¿Dan garantía?', answer: 'Sí, cuando se realiza reparación o cambio de pieza. La garantía no cubre golpes, humedad posterior o manipulación externa.' },
   ],

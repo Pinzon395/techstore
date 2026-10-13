@@ -528,7 +528,7 @@ export const laptopCategory: ServiceCategory = {
         hook: '¿Tu laptop tiene una falla que no entiendes? Diagnóstico profesional con reporte por escrito. Desde $600 MXN según complejidad.',
         intro: 'Revisión profesional para identificar la falla y darte presupuesto claro. Te explicamos qué tiene y qué opciones técnicas existen.',
         bullets: ['Test eléctrico, software y hardware', 'Revisión de placa, RAM, disco, ventilación', 'Reporte por escrito con fotos', 'Diagnóstico desde $600 MXN', 'Reparación y piezas se cotizan aparte'],
-        fromPrice: 'Desde $600 MXN', eta: '1-2 h', warranty: 'Reporte por escrito',
+        fromPrice: 'Desde $600 MXN', eta: '8 h a 2 días', warranty: 'Reporte por escrito',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico completo', desc: 'Eléctrico, mecánico y de software. No te decimos "es la placa" sin pruebas.' },
           { icon: 'fa-file-contract',    title: 'Reporte por escrito',  desc: 'Lo recibes por WhatsApp con fotos y explicación clara, no jerga técnica.' },
@@ -550,7 +550,7 @@ export const laptopCategory: ServiceCategory = {
         ],
         compatibleBrands: ['Cualquier marca', 'Cualquier modelo', 'Cualquier antigüedad'],
         faqs: [
-          { question: `¿Qué tan rápido me dan el diagnóstico?`, answer: `Normalmente entregamos diagnóstico en <strong>1 a 2 horas</strong> si la falla es evidente y hay disponibilidad. Cuando requiere pruebas de disco, memoria, temperatura, pantalla o placa puede tomar hasta 24 horas. Te avisamos por WhatsApp con hallazgos, costo y recomendación antes de reparar.` },
+          { question: `¿Qué tan rápido me dan el diagnóstico?`, answer: `El diagnóstico normalmente toma de <strong>8 horas a 2 días</strong>, según el modelo, la falla y las pruebas necesarias (disco, memoria, temperatura, pantalla o placa). Te avisamos por WhatsApp con hallazgos, costo y recomendación antes de reparar.` },
           { question: `¿Cuánto cuesta el diagnóstico de laptop?`, answer: `El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.` },
           { question: `¿Qué incluye el reporte técnico?`, answer: `Incluye fallas detectadas, causa probable, evidencia cuando aplica, costo estimado, tiempo de reparación y recomendación honesta. Si el equipo no conviene repararlo por costo, antigüedad o riesgo, también te lo decimos antes de que inviertas de más.` },
           { question: `¿Qué pasa si descubren más fallas durante la revisión?`, answer: `Si aparece una falla adicional, detenemos el trabajo y te avisamos antes de cambiar piezas o aumentar costo. Tú decides qué se repara y qué se deja pendiente. No cerramos el equipo ni cobramos extras sin autorización previa.` },
@@ -566,10 +566,9 @@ export const laptopCategory: ServiceCategory = {
       laptopBrandService('reparacion-dell', 'Dell', ['Dell Inspiron', 'Dell Latitude', 'Dell XPS', 'Dell Vostro', 'Alienware', 'Dell Precision']),
       laptopBrandService('reparacion-lenovo', 'Lenovo', ['Lenovo IdeaPad', 'Lenovo ThinkPad', 'Lenovo Legion', 'Lenovo Yoga', 'Lenovo LOQ']),
       laptopDataRecoveryService,
-      { slug: 'laptop-mojada', label: 'Laptop mojada', customUrl: '/servicios/laptop/laptop-mojada' },
       { slug: 'formateo-windows-virus-cancun', label: 'Formateo y Windows', customUrl: '/servicios/laptop/formateo-windows-virus-cancun' },
       { slug: 'optimizacion',         label: 'Optimización del Sistema',customUrl: '/optimizacion' },
       { slug: 'mantenimiento-mac',    label: 'Mantenimiento Mac',       customUrl: '/servicios/mac/mantenimiento-macbook' },
-      { slug: 'limpieza-liquido',     label: 'Limpieza por Líquido',    customUrl: '/limpieza-laptop-liquido' },
+      { slug: 'limpieza-liquido',     label: 'Laptop mojada',    customUrl: '/limpieza-laptop-liquido' },
     ],
   };
