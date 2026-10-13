@@ -158,3 +158,13 @@ LEADS (tickets) · ORIGEN · SERVICIOS · AUTORIZADOS / PERDIDOS (motivo) · CLI
 - **Garantías por servicio** ("3 meses", "6 meses" en `src/data/services/*`): confirmar que son las condiciones reales.
 - **Turnos en línea vs 24/7:** ver sección 1.
 - **Precio "Inspección pre-compra $200 MXN"** en las fichas de diagnóstico: confirmar que sigue vigente.
+
+## 13. Seguridad y producción (2026-10-13)
+
+- FACT: Producción = `ab3121c` (deploy hPanel 2026-10-13 15:30; `/api/health` 200, `/api/ready` 200 DB UP). Migración 016 aplicada una vez, no se re-ejecuta.
+- FACT: Escáner de vulnerabilidades Hostinger antes: 1 crítico (proxy-addr 2.0.7, runtime vía express + `trust proxy`), 2 altos (compression 1.8.1 runtime directo; source-map-js 1.2.1 build-time). Corregido con parches: proxy-addr 2.0.8, compression ^1.8.2, source-map-js 1.2.2. Re-escaneo 2026-10-13 15:31: "No se encontraron vulnerabilidades".
+- FACT: `npm audit` = 0 y `npm audit --omit=dev` = 0. Sin `--force`, sin majors, sin @astrojs/node ni nodemon.
+- FACT: Fix 5xx (`c66bc5d`): requests no-health esperan el boot embebido (hasta `PIXON_BOOT_WAIT_MS`, 20 s) en vez de 503 inmediato; test `server/tests/embedded-boot.test.js`. Barrido post-deploy 39 requests, 0 5xx.
+- FACT: 5 redirects EN (`/en/privacy`, `/en/warranty`, `/en/packages`, `/en/catalog`, `/en/corporate`) = 301 de un salto a 200.
+- FACT: Search Console "Validar corrección" iniciada 2026-10-13 para grupos 5xx y 404. En el grupo 404 quedan 404 intencionales (tablet/monitor/impresora no ofrecidos, `/api/*`, `/cdn-cgi/*`); la validación de esas URLs fallará y es esperado.
+- PENDIENTE USUARIO: quitar 6 sitemaps inválidos (Search Console › Sitemaps › clic en la fila › ⋮ › Quitar sitemap). No verificado por agente: login Google, admin autenticado, subida de archivos y email en producción.
