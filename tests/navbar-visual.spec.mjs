@@ -42,7 +42,7 @@ test.describe('Navbar Visual Verification', () => {
     console.log('Desktop - Logo dimensions:', logoBoundingBox);
 
     // Verificar que el logo tiene dimensiones razonables
-    expect(logoBoundingBox.height).toBeGreaterThanOrEqual(50);
+    expect(logoBoundingBox.height).toBeGreaterThanOrEqual(36); // Navbar.astro fija height:42px
     expect(logoBoundingBox.height).toBeLessThanOrEqual(70);
 
     // Tomar screenshot del navbar (desktop)
@@ -229,7 +229,7 @@ test.describe('Navbar Visual Verification', () => {
     const src = await logo.getAttribute('src');
     console.log('Logo src:', src);
     expect(src).toBeTruthy();
-    expect(src).toBe('/assets/logos/Logo.svg');
+    expect(src).toMatch(/^\/assets\/logos\/Logo\.svg(\?v=\d+)?$/); // admite cache-buster
 
     // Esperar a que la imagen esté cargada
     await page.waitForFunction(() => {

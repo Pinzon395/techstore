@@ -295,12 +295,21 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-ZRD2NG8MKH', { anonymize_ip: true });
-    window.addEventListener('load', function () {
-      var s = document.createElement('script');
-      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZRD2NG8MKH';
-      s.async = true;
-      document.head.appendChild(s);
-    });
+    // gtag.js cuesta ~400 ms de tareas largas en móvil: se carga en la primera interacción o 4 s después de load,
+    // lo que ocurra antes. Los eventos previos quedan en dataLayer y se envían al cargar (sin pérdida de medición).
+    (function () {
+      var done = false, evs = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+      function loadGa() {
+        if (done) return; done = true;
+        evs.forEach(function (e) { removeEventListener(e, loadGa, true); });
+        var s = document.createElement('script');
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZRD2NG8MKH';
+        s.async = true;
+        document.head.appendChild(s);
+      }
+      evs.forEach(function (e) { addEventListener(e, loadGa, { capture: true, passive: true, once: true }); });
+      addEventListener('load', function () { setTimeout(loadGa, 4000); });
+    })();
   </script>
 
   {allSchema.map((s) => (
@@ -373,8 +382,8 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
   </script>
   <script defer src="/scripts/user-menu.js"></script>
   <script defer src="/scripts/locale-preference.js"></script>
-  <script defer src="/cache-buster.js?v=20261013T022927Z-97f2ed1ad340"></script>
+  <script defer src="/cache-buster.js?v=20261013T154113Z-2379c1c276a3"></script>
   <script defer src="/scripts/tracker.js?v=20261012-1"></script>
-  <script defer src="/scripts/pwa-register.js?v=20261013T022927Z-97f2ed1ad340"></script>
+  <script defer src="/scripts/pwa-register.js?v=20261013T154113Z-2379c1c276a3"></script>
 </body>
 </html>

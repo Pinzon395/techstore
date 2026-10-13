@@ -10,6 +10,7 @@ for (const route of routes) {
     ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }
     : { viewport: { width: 1366, height: 768 } });
   const page = await ctx.newPage();
+  if (process.env.BLOCK_GA) await page.route(/googletagmanager|google-analytics/, (r) => r.abort());
   const cdp = await ctx.newCDPSession(page);
   if (mode === 'mobile') {
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
