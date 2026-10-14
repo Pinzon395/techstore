@@ -1,4 +1,5 @@
 import type { ServiceCategory, ServiceItem } from './types';
+import { diagnosticCopy, emergencyPolicy } from '../../lib/business';
 
 const phoneProcess = [
   { title: 'Diagnóstico inicial', desc: 'Registramos modelo, síntoma, estado físico, historial de humedad o golpes y pruebas visibles antes de abrir.' },
@@ -184,7 +185,8 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
       { question: '¿Puedo cargarlo si todavía enciende?', answer: 'No es recomendable después de contacto con líquido o si aparece una alerta de humedad. Introducir corriente mientras quedan humedad o residuos puede agravar un corto. Conviene mantenerlo desconectado hasta revisar el caso.' },
       { question: 'Mi celular se mojó, prende y funciona; ¿aun así necesita revisión?', answer: 'Puede requerirla. Un equipo puede funcionar al principio y presentar después fallas de carga, audio, cámara, pantalla, batería o encendido por residuos y corrosión. La necesidad de abrirlo depende del líquido, el tiempo y los síntomas.' },
       { question: '¿Se puede reparar un celular mojado que no prende?', answer: 'A veces sí, pero no puede garantizarse sin diagnóstico. La viabilidad depende del tipo de líquido, tiempo transcurrido, intentos de carga o encendido y componentes afectados. Primero se inspecciona y después se propone una ruta.' },
-      { question: '¿Cuánto cuesta reparar un celular mojado?', answer: 'No manejamos un precio fijo porque dos equipos mojados pueden tener daños completamente distintos. El costo se define después de revisar si requiere limpieza, reparación de conectores, cambio de módulos, trabajo en placa o recuperación de datos. No avanzamos sin tu autorización.' },
+      { question: '¿Cuánto cuesta reparar un celular mojado?', answer: `${diagnosticCopy.es.price}; normalmente toma ${diagnosticCopy.es.time}. La reparación no tiene precio fijo porque dos equipos mojados pueden tener daños completamente distintos: después del diagnóstico te decimos si requiere limpieza, reparación de conectores, cambio de módulos, trabajo en placa o recuperación de datos, y cuánto cuesta. No avanzamos sin tu autorización.` },
+      { question: '¿Necesito cita si mi celular se acaba de mojar?', answer: emergencyPolicy.es },
       { question: '¿Cuánto tarda el diagnóstico por humedad?', answer: 'Depende de la condición del equipo y de las pruebas necesarias. Un daño visible puede identificarse rápido; una falla intermitente, corrosión en placa o recuperación de datos puede requerir observación y pruebas adicionales. Te comunicamos el tiempo estimado al recibirlo.' },
       { question: '¿Pueden recuperar fotos y archivos de un celular mojado?', answer: 'Se puede evaluar. Si los datos son la prioridad, indícalo desde el inicio para evitar procesos innecesarios. La estrategia depende de si el almacenamiento y la placa pueden estabilizarse; ningún resultado se promete antes de revisar el daño.' },
       { question: '¿Es más grave si cayó al mar, alberca o una bebida?', answer: 'Puede serlo. El agua salada, el cloro y las bebidas dejan residuos conductivos o corrosivos distintos al agua limpia. El tipo de líquido cambia la urgencia, la limpieza y las zonas que deben inspeccionarse.' },
@@ -209,10 +211,10 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['celular-mojado', 'cambio-bateria', 'celular-no-prende', 'reparacion-carga-iphone', 'diagnostico'],
   }),
-  phoneIssueService({
+  { ...phoneIssueService({
     slug: 'cambio-pantalla-samsung',
-    label: 'Cambio pantalla Samsung',
-    keyword: 'Cambio pantalla Samsung en Cancún',
+    label: 'Cambio de pantalla Samsung',
+    keyword: 'Cambio de pantalla Samsung en Cancún',
     hook: 'Reemplazo de pantalla Samsung Galaxy rota, verde, con líneas, manchas, sin touch o sin imagen con diagnóstico previo.',
     intro: 'Cambio de pantalla Samsung en Cancún para Galaxy S, A, M, Note, Fold y Flip según disponibilidad de módulo compatible.',
     bullets: ['Validación de display, touch y marco', 'Cotización según modelo exacto', 'Prueba de brillo, sensores y huella', 'Garantía por escrito'],
@@ -232,6 +234,9 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['reparacion-samsung', 'cambio-bateria-samsung', 'centro-carga-celular', 'celular-mojado', 'diagnostico'],
   }),
+    metaTitle: 'Cambio de pantalla Samsung en Cancún | Galaxy A, S y Z Fold',
+    metaDescription: `Pantalla Samsung rota, verde, con líneas o sin touch en Cancún. Cotización por modelo exacto (Galaxy A, S, M, Note, Z Fold y Z Flip) antes de instalar. ${diagnosticCopy.es.price}.`,
+  },
   phoneIssueService({
     slug: 'cambio-bateria-samsung',
     label: 'Cambio batería Samsung',
@@ -768,8 +773,8 @@ export const telefonoCategory: ServiceCategory = {
         slug: 'reparacion-humedad-iphone',
         label: 'Reparación por humedad iPhone',
         navHidden: true,
-        metaTitle: 'Reparación de iPhone Mojado en Cancún | Agua y Humedad | Pixon PC',
-        metaDescription: '¿Tu iPhone cayó al mar, alberca o se mojó en Cancún? Diagnóstico de humedad, corrosión, placa lógica y microsoldadura. Atención con cita y recolección coordinada.',
+        metaTitle: 'iPhone mojado en Cancún: qué hacer y reparación | Pixon PC',
+        metaDescription: `¿Tu iPhone cayó al mar o a la alberca en Cancún, Zona Hotelera o Costa Mujeres? No lo cargues. Emergencias 24/7: avísanos y tráelo sin cita. ${diagnosticCopy.es.price}.`,
         seoKeyword: 'Reparación por humedad iPhone en Cancún',
         intro: 'Atención para iPhone con contacto con agua o humedad, priorizando diagnóstico y limpieza técnica antes de cambiar piezas.',
         bullets: ['Revisión de indicadores y conectores', 'Limpieza técnica si aplica', 'Prueba de funciones afectadas'],

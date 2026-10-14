@@ -11,6 +11,7 @@ import CommentsSection from '../../../components/CommentsSection.astro';
 import ServiceTicketSection from '../../../components/ServiceTicketSection.astro';
 import FaqSection from '../../../components/FaqSection.astro';
 import { SERVICE_CATEGORIES } from '../../../data/services';
+import { diagnosticCopy } from '../../../lib/business';
 import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema } from '../../../lib/schema';
 
 export function getStaticPaths() {
@@ -27,10 +28,10 @@ const canonical = isB2bAlias
   ? 'https://pixon.com.mx/empresas'
   : `https://pixon.com.mx/servicios/${category.slug}`;
 const title = isPhoneCategory
-  ? 'Reparación de Celulares en Cancún | Pantallas, Baterías y Diagnóstico | Pixon PC'
+  ? 'Reparación de celulares en Cancún | Pantalla, batería y mojados'
   : `Reparación de ${category.title} en Cancún | Pixon PC`;
 const description = isPhoneCategory
-  ? 'Reparación de celulares en Cancún para pantallas, baterías, carga, cámaras, audio y fallas por humedad. Solicita revisión por WhatsApp o ticket.'
+  ? `Reparación de celulares en Cancún: cambio de pantalla, batería, carga y celulares mojados (iPhone, Samsung, Xiaomi, Motorola). ${diagnosticCopy.es.price}. Escríbenos por WhatsApp.`
   : `Servicios profesionales de reparación de ${category.title.toLowerCase()} en Cancún. ${category.services.length} servicios disponibles con garantía por escrito. Atención con cita previa.`;
 const waMessage = encodeURIComponent(`Hola, quiero información sobre los servicios de ${category.title}`);
 
@@ -41,8 +42,8 @@ const orderedServices = category.slug === 'laptop'
     ]
   : isPhoneCategory
     ? [
-        ...category.services.filter((service) => ['diagnostico', 'cambio-pantalla', 'cambio-bateria'].includes(service.slug)),
-        ...category.services.filter((service) => !['diagnostico', 'cambio-pantalla', 'cambio-bateria'].includes(service.slug)),
+        ...category.services.filter((service) => ['cambio-pantalla', 'celular-mojado', 'cambio-bateria', 'diagnostico'].includes(service.slug)),
+        ...category.services.filter((service) => !['cambio-pantalla', 'celular-mojado', 'cambio-bateria', 'diagnostico'].includes(service.slug)),
       ]
   : category.services;
 const featured = orderedServices.slice(0, 3);

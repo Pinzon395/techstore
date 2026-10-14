@@ -1,5 +1,5 @@
 /**
- * Servicios - agregador de categorias.
+ * Servicios - agregador de categorías.
  *
  * Los datos viven en src/data/services/*.ts para mantener cada cluster
  * separado y escalable. Mantener los slugs estables evita romper URLs SEO.

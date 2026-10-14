@@ -17,9 +17,9 @@ export interface ServiceItem {
   // --- Data extendida (opcional, solo en landings premium) ---
   /** Keyword H1 SEO específica si difiere del label */
   seoKeyword?: string;
-  /** H1 final para landings que necesitan una frase SEO mas precisa */
+  /** H1 final para landings que necesitan una frase SEO más precisa */
   h1?: string;
-  /** Meta tags especificos cuando difieren del patron automatico */
+  /** Meta tags específicos cuando difieren del patron automatico */
   metaTitle?: string;
   metaDescription?: string;
   /** Overrides puntuales para Schema Service sin alterar el label de navegación. */
@@ -55,9 +55,9 @@ export interface ServiceItem {
   relatedCardDesc?: string;
   /** Links externos a otras vistas relacionadas (paquetes, FAQ general, etc.) */
   relatedExternal?: { label: string; href: string; icon: string; desc: string }[];
-  /** Titulo especifico para la seccion de servicios relacionados */
+  /** Título específico para la sección de servicios relacionados */
   relatedTitle?: string;
-  /** Titulo y subtitulo especificos para el formulario de ticket */
+  /** Título y subtítulo específicos para el formulario de ticket */
   ticketTitle?: string;
   ticketSubtitle?: string;
   /** Bloques SEO locales renderizados en ServiceDetailView */

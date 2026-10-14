@@ -8,38 +8,38 @@ export interface LocalServiceArea {
 export const LOCAL_SERVICE_AREAS: LocalServiceArea[] = [
   {
     slug: "cancun-centro",
-    name: "Cancun Centro",
-    searchName: "Cancun Centro",
+    name: "Cancún Centro",
+    searchName: "Cancún Centro",
     priority: 1,
   },
   {
     slug: "zona-hotelera",
     name: "Zona Hotelera",
-    searchName: "Zona Hotelera Cancun",
+    searchName: "Zona Hotelera Cancún",
     priority: 1,
   },
   {
     slug: "bonampak",
     name: "Bonampak",
-    searchName: "Avenida Bonampak Cancun",
+    searchName: "Avenida Bonampak Cancún",
     priority: 2,
   },
   {
     slug: "kabah",
     name: "Kabah",
-    searchName: "Avenida Kabah Cancun",
+    searchName: "Avenida Kabah Cancún",
     priority: 2,
   },
   {
     slug: "huayacan",
-    name: "Huayacan",
-    searchName: "Avenida Huayacan Cancun",
+    name: "Huayacán",
+    searchName: "Avenida Huayacán Cancún",
     priority: 2,
   },
   {
     slug: "plaza-las-americas",
     name: "Plaza Las Americas",
-    searchName: "Plaza Las Americas Cancun",
+    searchName: "Plaza Las Americas Cancún",
     priority: 3,
   },
 ];

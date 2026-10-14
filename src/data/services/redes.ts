@@ -100,7 +100,7 @@ export const redesCategory: ServiceCategory = {
         faqs: [
           { question: '¿Por qué mi WiFi esta lento aunque pago buen internet?', answer: 'Puede ser cobertura baja, router saturado, mala ubicación, interferencia, repetidores mal colocados, muchos equipos conectados o cableado deficiente. Medimos velocidad por zona para separar falla de proveedor y falla interna.' },
           { question: '¿Arreglan WiFi lento en casas y negocios de Cancún?', answer: 'Sí. Revisamos casas, oficinas, restaurantes, consultorios, agencias y hoteles pequeños en Cancún. Evaluamos módem, router, repetidores, Mesh, cableado, switches y equipos conectados.' },
-          { question: '¿Conviene comprar repetidor WiFi o sistema Mesh?', answer: 'Depende del espacio. Un repetidor mal ubicado puede empeorar la velocidad. Primero revisamos distancia, muros, saturación y zonas criticas para recomendar repetidor, Mesh, punto de acceso o cableado.' },
+          { question: '¿Conviene comprar repetidor WiFi o sistema Mesh?', answer: 'Depende del espacio. Un repetidor mal ubicado puede empeorar la velocidad. Primero revisamos distancia, muros, saturación y zonas críticas para recomendar repetidor, Mesh, punto de acceso o cableado.' },
           { question: '¿Pueden revisar si la falla es del proveedor?', answer: 'Sí. Probamos velocidad por cable, respuesta del módem, WiFi por zonas y equipos conectados. Si el problema apunta al proveedor, te decimos que evidencia reportar.' },
           { question: '¿Cuánto cuesta revisar WiFi lento en Cancún?', answer: 'La visita parte desde $650 MXN según zona, alcance y cantidad de equipos. Antes de ir te pedimos datos del proveedor, router, ubicación y síntomas para estimar mejor.' },
         ],
