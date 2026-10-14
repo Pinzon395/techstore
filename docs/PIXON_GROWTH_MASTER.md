@@ -168,3 +168,17 @@ LEADS (tickets) · ORIGEN · SERVICIOS · AUTORIZADOS / PERDIDOS (motivo) · CLI
 - FACT: 5 redirects EN (`/en/privacy`, `/en/warranty`, `/en/packages`, `/en/catalog`, `/en/corporate`) = 301 de un salto a 200.
 - FACT: Search Console "Validar corrección" iniciada 2026-10-13 para grupos 5xx y 404. En el grupo 404 quedan 404 intencionales (tablet/monitor/impresora no ofrecidos, `/api/*`, `/cdn-cgi/*`); la validación de esas URLs fallará y es esperado.
 - PENDIENTE USUARIO: quitar 6 sitemaps inválidos (Search Console › Sitemaps › clic en la fila › ⋮ › Quitar sitemap). No verificado por agente: login Google, admin autenticado, subida de archivos y email en producción.
+
+## 14. SEO de páginas con pocas impresiones, celular mojado y pantallas (2026-10-13, commit c329507)
+
+FACT (GSC, 3 meses): `/servicios/telefono` 9,915 impr., pos. 7.8, CTR 0.4 %; `/reparaciones` recibe 305 impr. de consultas con "celular" (pos. 8.9) sin enlazar al hub → canibalización. `/servicios/telefono/celular-mojado` 275 impr.; sus consultas visibles son de precio ("cuánto cuesta reparar un celular mojado"). `/servicios/laptop/laptop-mojada` ya hace 301 a `/limpieza-laptop-liquido` (impresiones históricas).
+FACT: ~180 páginas mostraban español sin acentos (Cancun, diagnostico, reparacion…) desde plantillas compartidas. Corregido en c329507.
+CAMBIOS: H2 naturales y enlaces a los hubs en `/reparaciones`; celular/iPhone mojado con CTA de emergencia (avisar y traer sin cita), diagnóstico desde $600 MXN y title/meta para turistas; Samsung con meta propia; hub de celulares con title más corto.
+
+Estrategia (sin datos inventados; medir antes de escalar):
+1. Google Business Profile = principal palanca para "reparación de celulares cerca de mí": servicios "Celular mojado" y "Cambio de pantalla" con enlace a su página, fotos reales de reparaciones y reseñas sin incentivo que mencionen el servicio.
+2. Hoteles de Zona Hotelera, Costa Mujeres y Playa Mujeres: tarjeta para recepción y concierge con QR a `/servicios/telefono/celular-mojado?utm_source=hotel&utm_medium=qr&utm_campaign=<hotel>` (y `/en/liquid-damage` para huéspedes en inglés). Medir clics a WhatsApp por hotel.
+3. Experimento pequeño de Google Ads con intención urgente ("celular mojado cancún", "cambio de pantalla cancún"), con presupuesto fijo y página de destino ya existente; mantener solo si el costo por conversación de WhatsApp es rentable.
+4. Contenido: no crear páginas por zona (doorway). Reforzar las existentes con fotos de casos reales con permiso del cliente.
+
+NEEDS_BUSINESS_CONFIRMATION: `pickupDeliveryPolicy.pickupEnabled=false` en business.ts, pero varias vistas (ContactSection, iCloud, consolas, iPhone mojado) hablan de recolección. Confirmar si se ofrece recolección en hoteles antes de promoverla.
