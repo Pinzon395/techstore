@@ -332,20 +332,23 @@ const copy = lang === 'en'
   .bubble--7 { --bubble-duration: 4.9s; left: 22%; width: 4px; height: 4px; animation-delay: -3.7s; }
   .bubble--8 { --bubble-duration: 6.2s; left: 53%; width: 7px; height: 7px; animation-delay: -4.6s; }
 
-  /* The global low-end safeguard shortens every animation to .01ms.
+  /* The global low-end safeguard plays every animation once at .01ms.
      This visual only animates transform and opacity, so keep these four
-     essential cues visible without changing the rest of the site. */
+     essential cues looping without changing the rest of the site. */
   :global(html.low-end-mode) .water-phone,
   :global(html.low-end-mode) .water-phone-shadow {
     animation-duration: 5.8s !important;
+    animation-iteration-count: infinite !important;
   }
 
   :global(html.low-end-mode) .water-warning-card {
     animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
   }
 
   :global(html.low-end-mode) .bubble {
     animation-duration: var(--bubble-duration, 5s) !important;
+    animation-iteration-count: infinite !important;
   }
 
   .water-scene__depth {
@@ -361,11 +364,16 @@ const copy = lang === 'en'
 
   .water-hero-visual__bottom { padding-inline: 3px; }
 
+  /* Fondo propio: la tarjeta se usa sobre heros claros (ES) y oscuros (EN); sin fondo, el texto
+     azul oscuro desaparecía sobre el hero oscuro. */
   .water-instructions {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
-    border-top: 1px solid #c7e3eb;
+    border: 1px solid #c7e3eb;
+    border-radius: 14px;
+    background: #ffffff;
+    overflow: hidden;
     padding: 0;
     margin: 0;
     list-style: none;
@@ -386,7 +394,7 @@ const copy = lang === 'en'
   }
 
   .water-instructions li:last-child { border-right: 0; }
-  .water-instructions li span { margin-right: 6px; color: #1284a5; font-size: .58rem; letter-spacing: .12em; }
+  .water-instructions li span { margin-right: 6px; color: #0b6480; font-size: .58rem; letter-spacing: .12em; }
 
   @keyframes phone-float {
     0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(8deg); }
@@ -423,7 +431,7 @@ const copy = lang === 'en'
     .bubble--8 { display: none; }
     .water-instructions { grid-template-columns: 1fr; }
     .water-instructions li,
-    .water-instructions li:last-child { min-height: 34px; padding: 7px 2px; border-right: 0; border-bottom: 1px solid #d2e2ee; }
+    .water-instructions li:last-child { min-height: 34px; padding: 7px 10px; border-right: 0; border-bottom: 1px solid #d2e2ee; }
     .water-instructions li:last-child { border-bottom: 0; }
   }
 

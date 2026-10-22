@@ -197,6 +197,10 @@ function createGoogleReviewsModule({ pool, requireAdmin, rateLimiter, dbEmitter,
                 user_id: req.user?.id, action: 'authorize', entity: 'google_reviews_oauth', entity_id: null,
                 diff: null, ip: req.ip, user_agent: req.get('user-agent')
             });
+            // Primera sincronización inmediata: descubre la ficha y trae las reseñas sin esperar al cron.
+            syncService.runSync({ trigger: 'MANUAL' }).catch((syncError) => {
+                console.error('[google-reviews] Sync tras autorizar falló:', syncError.message);
+            });
             res.redirect('/admin#comments?google=connected');
         } catch (err) {
             res.status(502).send(`No se pudo completar la autorización con Google: ${escapeHtmlLite(err.message)}`);

@@ -834,39 +834,38 @@ const faqs = [
     const tabs = Array.from(container.querySelectorAll('.cmp-tab-btn'));
     const consoles = ['ps5', 'xbox', 'switch'];
     let currentIndex = 0;
-    let autoTimer = null;
 
-    function activateConsole(consoleKey, userTriggered = false) {
+    // El cambio de consola sigue al ciclo CSS de 12.5 s (evento animationiteration) en vez de un
+    // setInterval aparte: así nunca cambia a mitad de la animación ni se desfasa con el tiempo.
+    // Con movimiento reducido no hay iteraciones y la rotación automática no ocurre.
+    const restartTimeline = () => {
+      container.getAnimations({ subtree: true }).forEach((animation) => {
+        if (animation.effect?.getTiming?.().duration === 12500) animation.currentTime = 0;
+      });
+    };
+
+    function activateConsole(consoleKey) {
       container.setAttribute('data-active-console', consoleKey);
       tabs.forEach((tab) => {
         const isMatch = tab.getAttribute('data-console') === consoleKey;
         tab.classList.toggle('cmp-tab-btn--active', isMatch);
         tab.setAttribute('aria-selected', isMatch ? 'true' : 'false');
       });
-
-      if (userTriggered) {
-        clearInterval(autoTimer);
-        startAutoTimer();
-      }
     }
 
-    function nextConsole() {
+    container.addEventListener('animationiteration', (event) => {
+      if (event.animationName !== 'c-success-badge-pop') return;
       currentIndex = (currentIndex + 1) % consoles.length;
       activateConsole(consoles[currentIndex]);
-    }
-
-    function startAutoTimer() {
-      autoTimer = setInterval(nextConsole, 12500);
-    }
+    });
 
     tabs.forEach((tab, index) => {
       tab.addEventListener('click', () => {
         currentIndex = index;
-        activateConsole(tab.getAttribute('data-console'), true);
+        activateConsole(tab.getAttribute('data-console'));
+        restartTimeline();
       });
     });
-
-    startAutoTimer();
   })();
 </script>
 
@@ -1263,21 +1262,21 @@ const faqs = [
 
   /* Sheen, Sparkles, Check Badge */
   @keyframes c-sheen-sweep-fx {
-    0%, 93% { opacity: 0; transform: translateX(-200px) skewX(-20deg); }
-    94% { opacity: 0.8; }
-    96% { opacity: 0.8; transform: translateX(200px) skewX(-20deg); }
-    98%, 100% { opacity: 0; transform: translateX(220px) skewX(-20deg); }
+    0%, 82% { opacity: 0; transform: translateX(-200px) skewX(-20deg); }
+    84% { opacity: 0.8; }
+    89% { opacity: 0.8; transform: translateX(200px) skewX(-20deg); }
+    91%, 100% { opacity: 0; transform: translateX(220px) skewX(-20deg); }
   }
   @keyframes c-sparkle-pop {
-    0%, 93% { opacity: 0; transform: scale(0.2); }
-    94%, 97% { opacity: 1; transform: scale(1.3) rotate(15deg); }
-    98%, 100% { opacity: 0; transform: scale(0.2); }
+    0%, 83% { opacity: 0; transform: scale(0.2); }
+    85%, 94% { opacity: 1; transform: scale(1.3) rotate(15deg); }
+    97%, 100% { opacity: 0; transform: scale(0.2); }
   }
   @keyframes c-success-badge-pop {
-    0%, 93% { opacity: 0; transform: translateY(6px) scale(0.3); }
-    94% { opacity: 1; transform: translateY(-2px) scale(1.12); }
-    96%, 98% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-2px) scale(0.85); }
+    0%, 82% { opacity: 0; transform: translateY(6px) scale(0.3); }
+    84% { opacity: 1; transform: translateY(-2px) scale(1.12); }
+    86%, 95% { opacity: 1; transform: translateY(0) scale(1); }
+    98%, 100% { opacity: 0; transform: translateY(-2px) scale(0.85); }
   }
 
   /* ==================== 5-STEP TIMELINE BELOW HERO ==================== */
@@ -1568,4 +1567,10 @@ const faqs = [
     .cmp-step { opacity: 1 !important; transform: none !important; animation: none !important; }
     .cmp-button { transition: none; }
   }
+
+  /* Contraste (auditoría 2026-10-22): la regla general de color azul oscuro alcanzaba los números
+     de pasos sobre el panel oscuro de la animación. */
+  .console-maintenance-page .cmp-step__num { color: #7dd3fc; }
+  /* La sección de servicios relacionados es blanca en esta vista: etiqueta en azul oscuro legible. */
+  .console-maintenance-page .svc-related .ux-eyebrow { color: #0369a1 !important; }
 </style>

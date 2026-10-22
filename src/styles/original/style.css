@@ -3747,7 +3747,7 @@ section {
 }
 /* Fondo claro por defecto en secciones (regla de marca: fuera del hero, fondo claro y texto azul oscuro #071F3A).
    Tiene especificidad alta a propósito; los heros oscuros deben declararlo con más especificidad (ver .store-hero). */
-section:not([style*=background]):not(.climate-banner-section):not([class*="homevisit"]):not([class*="home-visit"]) {
+:where(section:not([style*=background]):not(.climate-banner-section):not([class*="homevisit"]):not([class*="home-visit"])) {
   background-color: var(--bg-main)
 }
 #controles-index {
@@ -3976,8 +3976,13 @@ html {
 }
 
 /* 3. Clase .low-end-mode — se activa por JS en celulares gama baja */
-.low-end-mode * {
+/* animation-iteration-count:1 es obligatorio: un bucle infinito con duración de .01ms se reinicia
+   miles de veces por segundo y la escena parpadea a toda velocidad en lugar de quedarse quieta. */
+.low-end-mode *,
+.low-end-mode *::before,
+.low-end-mode *::after {
   animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
 }
 .low-end-mode .navbar {

@@ -219,7 +219,23 @@ body {
 .light-footer .footer-links li a:hover,
 .light-footer .footer-bottom a:hover { color: #ffffff !important; border-bottom-color: #ffffff; }
 .light-footer .footer-bottom { color: #94a3b8; }
+/* El footer es oscuro en todas las vistas. Varias vistas fuerzan color:#071F3A !important en todo
+   p/span/strong de la página (incluido el footer) y lo dejaban invisible: se protege con mayor especificidad. */
+footer.light-footer :where(p, span, strong, address, em, b, small, h3, h4, li) { color: #cbd5e1 !important; }
+footer.light-footer :where(.footer-bottom, .footer-legal) :where(p, span, strong, small) { color: #94a3b8 !important; }
+footer.light-footer :where(.footer-nap, .footer-legal, .footer-social) a { color: #cbd5e1 !important; }
 .light-footer .language-switcher a { color: #cbd5e1; }
 .light-footer .language-switcher a[aria-current] { color: #ffffff; }
 .light-footer .language-switcher a:hover { background: #1e293b; }
 .light-footer .language-switcher a + a { border-left-color: #334155; }
+
+/* Movimiento reducido (WCAG 2.3.3): quien lo pide en su sistema no ve bucles infinitos.
+   animation-iteration-count:1 evita que una animación de .01ms se reinicie sin parar (parpadeo). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

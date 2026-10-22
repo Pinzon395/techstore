@@ -45,11 +45,13 @@ class GoogleReviewsSyncService {
         if (!this.client.clientId) missingEnv.push('GOOGLE_CLIENT_ID');
         if (!this.client.clientSecret) missingEnv.push('GOOGLE_CLIENT_SECRET');
         if (!this.client.redirectUri) missingEnv.push('GOOGLE_REVIEWS_OAUTH_CALLBACK_URL o PUBLIC_SITE_URL');
-        if (!this.accountId) missingEnv.push('GOOGLE_REVIEWS_ACCOUNT_ID');
-        if (!this.locationId) missingEnv.push('GOOGLE_REVIEWS_LOCATION_ID');
 
         const credentials = await this.repository.getOAuthCredentials();
         const syncState = await this.repository.getSyncState();
+        // accountId/locationId se descubren solos tras autorizar (ver _resolveLocation);
+        // solo faltan si tampoco están guardados en el estado de sincronización.
+        if (!this.accountId && !syncState?.account_id) missingEnv.push('GOOGLE_REVIEWS_ACCOUNT_ID');
+        if (!this.locationId && !syncState?.location_id) missingEnv.push('GOOGLE_REVIEWS_LOCATION_ID');
 
         let status = 'NOT_CONFIGURED';
         if (missingEnv.length === 0 && credentials) status = 'CONNECTED';
@@ -97,8 +99,8 @@ class GoogleReviewsSyncService {
     }
 
     async _runSyncInternal({ trigger }) {
-        if (!this.client.isConfigured || !this.accountId || !this.locationId) {
-            return { ok: false, reason: 'EXTERNAL_REQUIRED', detail: 'Faltan credenciales OAuth o accountId/locationId de Google.' };
+        if (!this.client.isConfigured) {
+            return { ok: false, reason: 'EXTERNAL_REQUIRED', detail: 'Faltan GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET.' };
         }
 
         let accessToken;
@@ -118,6 +120,12 @@ class GoogleReviewsSyncService {
         }
 
         try {
+            await this._resolveLocation(accessToken);
+            if (!this.accountId || !this.locationId) {
+                const detail = 'No se encontró la ficha de Pixon PC en la cuenta autorizada de Google; define GOOGLE_REVIEWS_ACCOUNT_ID y GOOGLE_REVIEWS_LOCATION_ID.';
+                await this.repository.updateSyncState({ last_sync_status: 'ERROR', last_error: detail, last_sync_trigger: trigger });
+                return { ok: false, reason: 'LOCATION_NOT_FOUND', detail };
+            }
             const { reviews, averageRating, totalReviewCount } = await this.client.listAllReviews({
                 accessToken, accountId: this.accountId, locationId: this.locationId
             });
@@ -166,6 +174,22 @@ class GoogleReviewsSyncService {
             });
             return { ok: false, reason: 'API_ERROR', detail: error.message };
         }
+    }
+
+    /** Usa env → estado guardado → descubrimiento con la API (una sola vez). */
+    async _resolveLocation(accessToken) {
+        if (this.accountId && this.locationId) return;
+        const syncState = await this.repository.getSyncState();
+        if (syncState?.account_id && syncState?.location_id) {
+            this.accountId = syncState.account_id;
+            this.locationId = syncState.location_id;
+            return;
+        }
+        const found = await this.client.discoverLocation({ accessToken });
+        if (!found) return;
+        this.accountId = found.accountId;
+        this.locationId = found.locationId;
+        await this.repository.updateSyncState({ account_id: found.accountId, location_id: found.locationId });
     }
 
     /** Punto de entrada para el webhook de Pub/Sub: debounce por ráfagas (regla 5). */

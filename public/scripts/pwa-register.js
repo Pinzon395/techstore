@@ -6,7 +6,7 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js?v=20261022T063232Z-69cb4c4ad184', {
+      const registration = await navigator.serviceWorker.register('/sw.js?v=20261022T152934Z-f39da85360e3', {
         scope: '/'
       });
 

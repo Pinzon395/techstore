@@ -17,6 +17,13 @@ const OAUTH_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GBP_API_BASE = 'https://mybusiness.googleapis.com/v4';
 const BUSINESS_MANAGE_SCOPE = 'https://www.googleapis.com/auth/business.manage';
+const ACCOUNTS_API = 'https://mybusinessaccountmanagement.googleapis.com/v1/accounts';
+const LOCATIONS_API_BASE = 'https://mybusinessbusinessinformation.googleapis.com/v1';
+
+/** Acepta "123", "accounts/123" o "accounts/1/locations/123" y devuelve solo el número final. */
+function bareId(value) {
+    return String(value || '').trim().split('/').filter(Boolean).pop() || '';
+}
 
 function httpsJson(url, { method = 'GET', headers = {}, form, json } = {}) {
     return new Promise((resolve, reject) => {
@@ -126,11 +133,30 @@ class GoogleBusinessProfileClient {
      * Devuelve { reviews, averageRating, totalReviewCount, nextPageToken }.
      */
     async listReviews({ accessToken, accountId, locationId, pageToken }) {
-        const url = new URL(`${GBP_API_BASE}/accounts/${encodeURIComponent(accountId)}/locations/${encodeURIComponent(locationId)}/reviews`);
+        const url = new URL(`${GBP_API_BASE}/accounts/${encodeURIComponent(bareId(accountId))}/locations/${encodeURIComponent(bareId(locationId))}/reviews`);
         if (pageToken) url.searchParams.set('pageToken', pageToken);
         return httpsJson(url.toString(), {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
+    }
+
+    /**
+     * Encuentra la ficha del negocio sin pedir IDs a mano: recorre las cuentas del usuario
+     * autorizado y elige la ubicación cuyo nombre coincide con `preferredTitle`
+     * (o la única que exista). Devuelve { accountId, locationId, title } o null.
+     */
+    async discoverLocation({ accessToken, preferredTitle = /pixon/i }) {
+        const headers = { Authorization: `Bearer ${accessToken}` };
+        const { accounts = [] } = await httpsJson(ACCOUNTS_API, { headers });
+        const found = [];
+        for (const account of accounts) {
+            const url = `${LOCATIONS_API_BASE}/${account.name}/locations?readMask=name,title&pageSize=100`;
+            const { locations = [] } = await httpsJson(url, { headers });
+            for (const location of locations) {
+                found.push({ accountId: bareId(account.name), locationId: bareId(location.name), title: location.title || '' });
+            }
+        }
+        return found.find((l) => preferredTitle.test(l.title)) || (found.length === 1 ? found[0] : null);
     }
 
     /** Lista todas las páginas de reseñas de una ubicación en una sola llamada lógica. */
@@ -150,4 +176,4 @@ class GoogleBusinessProfileClient {
     }
 }
 
-module.exports = { GoogleBusinessProfileClient, BUSINESS_MANAGE_SCOPE };
+module.exports = { GoogleBusinessProfileClient, BUSINESS_MANAGE_SCOPE, bareId };
