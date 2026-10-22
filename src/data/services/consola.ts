@@ -28,7 +28,7 @@ const consoleClusterService = ({
   relatedSlugs,
   fromPrice,
   eta = '24-72 h',
-  warranty = 'Garantía por escrito según reparación',
+  warranty = '90 días de garantía con piezas originales',
   overrides = {},
 }: {
   slug: string;
@@ -152,7 +152,7 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['reparacion-nintendo-switch', 'controles-drift', 'limpieza-interna', 'diagnostico'],
     eta: 'Se confirma al recibir',
-    warranty: 'Garantía por escrito sobre el mantenimiento realizado',
+    warranty: 'Garantía a la entrega y en material térmico',
     overrides: {
       navHidden: true,
       customUrl: '/servicios/consola/mantenimiento-nintendo-switch',
@@ -306,7 +306,7 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
         },
       ],
       faqs: [
-        { question: '¿Cuánto cuesta cambiar el HDMI de PS5 en Cancún?', answer: 'El diagnóstico inicia desde $600 MXN. El costo final depende de si solo se cambia el puerto o si hay pistas levantadas, pads dañados, humedad o falla en circuito de video. Te damos cotización antes de reparar.' },
+        { question: '¿Cuánto cuesta cambiar el HDMI de PS5 en Cancún?', answer: 'El diagnóstico cuesta $600 MXN y es gratis si reparas con nosotros. El costo final depende de si solo se cambia el puerto o si hay pistas levantadas, pads dañados, humedad o falla en circuito de video. Te damos cotización antes de reparar.' },
         { question: '¿Cuánto tarda el cambio de puerto HDMI de PS5?', answer: 'Normalmente puede tomar de 48 a 96 horas según carga de trabajo, disponibilidad de puerto y nivel de daño. Si hay pistas o componentes afectados, puede requerir más pruebas.' },
         { question: '¿Mi PS5 puede prender y aun así tener el HDMI dañado?', answer: 'Sí. La consola puede encender, dar luz y no mandar imagen si el puerto, pines, soldadura, pistas o circuito de video están dañados. También puede ser cable, pantalla o resolución.' },
         { question: '¿Conviene seguir usando la PS5 si solo da imagen moviendo el cable?', answer: 'No es recomendable. Mover el cable puede terminar de romper pines o levantar pistas de la placa, haciendo la reparación más compleja.' },
@@ -359,8 +359,8 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
         { question: '¿Por qué mi PS5 se apaga sola al jugar?', answer: 'Puede apagarse por temperatura alta, polvo en disipador, metal líquido mal distribuido, fuente fatigada, ventilador con bajo flujo, cable de corriente, humedad o consumo anormal en placa. Se prueba bajo carga antes de recomendar reparación.' },
         { question: '¿Por qué mi PS5 se apaga sin aviso de temperatura?', answer: 'Cuando no aparece aviso térmico, la causa puede estar en fuente, cableado, consumo, placa o una caída eléctrica. También puede haber apagado térmico rápido si el APU no transfiere calor correctamente.' },
         { question: '¿Siempre hay que cambiar el metal líquido?', answer: 'No. Manipular metal líquido sin necesidad aumenta riesgo porque es conductor. Primero revisamos polvo, ventilador, disipador y evidencia de mala transferencia térmica.' },
-        { question: '¿Cuánto cuesta revisar una PS5 que se apaga en Cancún?', answer: 'El diagnóstico inicia desde $600 MXN. El costo final depende de si requiere limpieza, corrección de metal líquido, fuente, ventilador o reparación de placa. Se cotiza antes de avanzar.' },
-        { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente de 8 horas a 2 días. Si el apagado es intermitente o sólo ocurre con juegos exigentes, puede requerir pruebas extendidas para confirmar estabilidad.' },
+        { question: '¿Cuánto cuesta revisar una PS5 que se apaga en Cancún?', answer: 'El diagnóstico cuesta $600 MXN y es gratis si reparas con nosotros. El costo final depende de si requiere limpieza, corrección de metal líquido, fuente, ventilador o reparación de placa. Se cotiza antes de avanzar.' },
+        { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente en menos de 1 día. Si el apagado es intermitente o sólo ocurre con juegos exigentes, puede requerir pruebas extendidas para confirmar estabilidad.' },
         { question: '¿Puedo seguir usando mi PS5 si se apaga sola?', answer: 'No es recomendable. Cada apagado puede afectar datos, fuente o placa si la causa es temperatura o alimentación. Lo mejor es apagarla, evitar muebles cerrados y traerla a revisión.' },
       ],
     },
@@ -570,8 +570,8 @@ export const consolaCategory: ServiceCategory = {
         seoKeyword: 'Limpieza interna de consolas en Cancún',
         hook: '¿PS5, Xbox o Switch que parece avión despegando? Polvo + pasta seca = sobrecalentamiento. Limpieza profunda + pasta nueva.',
         intro: 'Eliminamos polvo acumulado en PS5, Xbox y Switch. Adiós a sobrecalentamiento, ruido del ventilador y reinicios aleatorios.',
-        bullets: ['Desarmado total profesional', 'Limpieza de ventiladores y disipadores', 'Cambio de pasta térmica incluido', 'Test acústico antes/después', 'Garantía 3 meses'],
-        fromPrice: '$500 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        bullets: ['Desarmado total profesional', 'Limpieza de ventiladores y disipadores', 'Cambio de pasta térmica incluido', 'Test acústico antes/después', 'Garantía a la entrega y en material térmico'],
+        fromPrice: '$500 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
         whyUs: [
           { icon: 'fa-volume-low',       title: 'Adiós al ruido',        desc: 'Tu consola deja de sonar como turbina. Vuelve al silencio de fábrica.' },
           { icon: 'fa-temperature-arrow-down', title: 'Menos temperatura', desc: 'Medimos la temperatura del APU antes y después para confirmar la mejora.' },
@@ -629,7 +629,7 @@ export const consolaCategory: ServiceCategory = {
         hook: '¿Tu PS5, Xbox, Nintendo Switch, Steam Deck o ROG Ally se calienta, suena fuerte o se apaga al jugar? Revisamos pasta térmica, metal líquido, disipador, ventilador y polvo antes de cotizar.',
         intro: 'Cambio de pasta térmica de consolas en Cancún para PS5, PS4, Xbox, Nintendo Switch, Steam Deck y ROG Ally. Revisamos metal líquido en PS5, flujo de aire, disipador y ventilador con garantía por escrito.',
         bullets: ['Diagnóstico térmico antes de cambiar compuesto', 'Pasta premium según modelo', 'Revisión de metal líquido en PS5', 'Limpieza de disipador y flujo de aire', 'Prueba de ruido y estabilidad'],
-        fromPrice: '$850 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        fromPrice: '$850 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
         whyUs: [
           { icon: 'fa-temperature-arrow-down', title: 'Temperatura medida',  desc: 'Comparamos la temperatura del APU bajo carga antes y después del servicio.' },
           { icon: 'fa-volume-low',             title: 'Adiós al ruido', desc: 'Ventilador deja de girar al máximo todo el tiempo.' },
@@ -712,12 +712,12 @@ export const consolaCategory: ServiceCategory = {
         hook: '¿Tu PS5, PS4, Xbox o Nintendo Switch no enciende, hace beep, se apaga al jugar o falló después de un apagón? Medimos fuente, voltajes, fusibles, capacitores, consumo y placa antes de cotizar.',
         intro: 'Reparación de fuente de consolas en Cancún para PS5, PS4, Xbox Series, Xbox One y Nintendo Switch. Diagnosticamos alimentación, voltajes, consumo y placa antes de cambiar piezas.',
         bullets: ['Diagnóstico eléctrico con multímetro', 'Medición de voltajes y consumo', 'Revisión de fusibles y capacitores', 'Reparación o reemplazo según daño', 'Prueba bajo carga y garantía por escrito'],
-        fromPrice: undefined, hideSchemaOffer: true, eta: '3-5 días', warranty: '3 meses por escrito',
+        fromPrice: undefined, hideSchemaOffer: true, eta: '3-5 días', warranty: '90 días con piezas originales',
         whyUs: [
           { icon: 'fa-bolt',          title: 'Diagnóstico eléctrico', desc: 'Multímetro + osciloscopio. Identificamos componente exacto.' },
           { icon: 'fa-microchip',     title: 'Reparación a nivel componente', desc: 'No reemplazamos toda la fuente si solo es un capacitor.' },
           { icon: 'fa-clock',         title: '24h stress test',       desc: 'Encendidos repetidos + carga máxima antes de entregar.' },
-          { icon: 'fa-shield-halved', title: '3 meses garantía',      desc: 'Si vuelve a fallar la fuente reparada, cambio sin costo.' },
+          { icon: 'fa-shield-halved', title: '90 días de garantía',      desc: 'Si vuelve a fallar la fuente reparada, cambio sin costo.' },
         ],
         process: [
           { title: 'Test eléctrico',  desc: 'Voltajes de salida con multímetro. Identificación de fallo exacto.' },
@@ -819,10 +819,10 @@ export const consolaCategory: ServiceCategory = {
         slug: 'diagnostico',
         label: 'Diagnóstico',
         seoKeyword: 'Diagnóstico técnico de consolas en Cancún',
-        hook: 'Tu PS5/Xbox/Switch tiene un problema y no entiendes qué es. Diagnóstico técnico real con reporte por escrito. Desde $600 MXN según complejidad.',
+        hook: 'Tu PS5/Xbox/Switch tiene un problema y no entiendes qué es. Diagnóstico técnico real con reporte por escrito. $600 MXN, gratis si reparas con nosotros.',
         intro: 'Revisión completa para identificar el problema con reporte técnico. Te decimos exactamente qué tiene tu consola y qué opciones existen.',
-        bullets: ['Test de encendido, video, audio, conectividad', 'Revisión térmica y de placa', 'Reporte por escrito con fotos', 'Diagnóstico desde $600 MXN', 'Reparación y piezas se cotizan aparte'],
-        fromPrice: 'Desde $600 MXN', eta: '8 h a 2 días', warranty: 'Reporte por escrito',
+        bullets: ['Test de encendido, video, audio, conectividad', 'Revisión térmica y de placa', 'Reporte por escrito con fotos', 'Diagnóstico de $600 MXN gratis si reparas con nosotros', 'Reparación y piezas se cotizan aparte'],
+        fromPrice: 'Gratis si reparas ($600 MXN)', eta: 'Menos de 1 día', warranty: 'Reporte por escrito',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico real',  desc: 'No "es la placa" sin pruebas. Test sistemático.' },
           { icon: 'fa-file-contract',    title: 'Reporte por escrito',desc: 'Por WhatsApp con fotos y explicación clara.' },
@@ -844,8 +844,8 @@ export const consolaCategory: ServiceCategory = {
         ],
         compatibleBrands: ['Cualquier PlayStation', 'Cualquier Xbox', 'Cualquier Nintendo Switch', 'Consolas retro'],
         faqs: [
-          { question: `¿Cuánto cuesta el diagnóstico de consola?`, answer: `El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.` },
-          { question: `¿Qué tan rápido entregan el diagnóstico?`, answer: `El diagnóstico normalmente toma de <strong>8 horas a 2 días</strong>. Fallas intermitentes, apagados o problemas de video pueden requerir pruebas más largas; te enviamos el reporte por WhatsApp antes de reparar.` },
+          { question: `¿Cuánto cuesta el diagnóstico de consola?`, answer: `El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con nosotros, te sale gratis. Normalmente está en menos de 1 día, según el día y la hora en que traigas el equipo y la falla; la reparación se cotiza antes y solo se hace con tu autorización.` },
+          { question: `¿Qué tan rápido entregan el diagnóstico?`, answer: `El diagnóstico normalmente toma de <strong>menos de 1 día</strong>. Fallas intermitentes, apagados o problemas de video pueden requerir pruebas más largas; te enviamos el reporte por WhatsApp antes de reparar.` },
           { question: `¿Qué incluye el reporte?`, answer: `Incluye síntoma confirmado, pruebas realizadas, causa probable, fotos si aplica, costo estimado, tiempo de reparación y recomendación honesta. Si conviene no reparar por costo o riesgo, también te lo decimos antes de que gastes.` },
           { question: `¿Hacen diagnóstico a domicilio?`, answer: `Para consolas casi siempre recomendamos taller porque ahí podemos probar fuente, video, HDMI, temperatura y controles con mejor equipo. Podemos hacer visita en Cancún con costo para revisión inicial, pero abrir y reparar se hace con más seguridad en taller.` },
         ],

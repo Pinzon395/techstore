@@ -91,7 +91,8 @@ const allowlist = [
 
 
 const patterns = [
-  /diagn[oó]stico\s+gratis|free\s+diagnosis/gi,
+  // 2026-10-22: "diagnóstico gratis" solo es válido con la condición "si reparas" (se abona a la reparación).
+  /diagn[oó]stico\s+gratis(?!\s+si\s+reparas)|free\s+diagnosis(?!\s+(?:when|if)\s+you\s+repair)/gi,
   /\b(?:24|48)\s*(?:h|horas|hours)\b|same[- ]day|mismo\s+d[ií]a/gi,
   /\b90\s*(?:d[ií]as|days)\b|\+?7\s+a[nñ]os|years?\s+of\s+experience/gi,
   /\bgarantizado|guaranteed|english\s+spoken/gi,
@@ -128,6 +129,9 @@ function classify(file, matchText) {
       return rule.reason.startsWith('FIXED') ? 'FIXED' : 'SAFE_INFORMATIONAL';
     }
   }
+
+  // 90 días de garantía: política oficial en business.ts (warrantyCopy, 2026-10-22)
+  if (/\b90\s*(?:d[ií]as|days)\b/i.test(matchText)) return 'VERIFIED_POLICY';
 
   // Experience claims are informational
   if (/\+?7\s+a[nñ]os|years?\s+of\s+experience/i.test(matchText)) return 'SAFE_INFORMATIONAL';
@@ -237,12 +241,12 @@ if (stats.unsafePublished > 0) {
 }
 
 // ─── Policy regression gate (2026-10-12) ────────────────────
-// Reglas oficiales de business.ts: atención 24/7 con cita, diagnóstico desde $600 MXN
-// en 8 h–2 días, sin ratings/porcentajes no verificados. A diferencia del escaneo anterior,
+// Reglas oficiales de business.ts (2026-10-22): diagnóstico $600 MXN abonable a la reparación
+// ("gratis si reparas"), normalmente en menos de 1 día, sin ratings/porcentajes no verificados. A diferencia del escaneo anterior,
 // aquí no hay excepciones por carpeta (src/data también es copy público).
 const policyRegressionPatterns = [
   { label: 'horario anterior', re: /lunes a s[aá]bado|monday to saturday|L–S 11|11:00\s*(?:AM)?\s*[–-]\s*(?:10:00|22:00)|9:00 AM – 7:00 PM/i },
-  { label: 'diagnóstico gratis', re: /diagn[oó]stico\s+(?:gratis|gratuito|sin costo)|free\s+diagnos/i },
+  { label: 'diagnóstico gratis sin condición', re: /diagn[oó]stico\s+(?:gratis|gratuito|sin costo)(?!\s+si\s+reparas)|free\s+diagnos(?!is\s+(?:when|if)\s+you\s+repair)/i },
   { label: 'tiempo de diagnóstico fuera de política', re: /diagn[oó]stic\w*[^.<`'"]{0,60}(?:\b1\s*(?:a|-|–)\s*2\s*(?:h\b|horas)|1–2h|menos de \d+\s*horas|en minutos)|diagnos\w*[^.<]{0,40}\b(?:within|in) (?:1|2|one|two) hours?/i },
   { label: 'precio de diagnóstico distinto de $600', re: /diagn[oó]stico[^.<]{0,30}\$\s*(?!600\b)\d{3}\b/i },
   { label: 'baja de temperatura prometida', re: /(?:baja|bajan|reduce)[^.<]{0,20}\d+\s*°?C?\s*(?:-|–|a)\s*\d+\s*°C/i },

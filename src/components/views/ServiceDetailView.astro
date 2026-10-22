@@ -5,7 +5,7 @@ import ContactSection from '../ContactSection.astro';
 import RelatedServicesSection from '../RelatedServicesSection.astro';
 import ServiceTicketSection from '../ServiceTicketSection.astro';
 import Footer from '../Footer.astro';
-import { commercialCopy, diagnosticPolicy } from '../../lib/business';
+import { visibleFaultSlugPattern, visibleFaultQuoteLabel, commercialCopy, diagnosticPolicy } from '../../lib/business';
 
 const { service, category, description = '', faqs: providedFaqs = [] } = Astro.props;
 
@@ -600,7 +600,7 @@ const serviceImageAlt = isPs5HdmiService
           {isPs5HdmiService ? (
             <div class="sdv-hdmi-diagnostic-card" aria-label="Resumen de diagnóstico HDMI PS5">
               <span class="sdv-hdmi-kicker">Orden de revisión</span>
-              <strong>Diagnóstico desde ${diagnosticPolicy.startingPriceMXN} MXN</strong>
+              <strong>Diagnóstico gratis si reparas (${diagnosticPolicy.priceMXN} MXN abonables)</strong>
               <div class="sdv-hdmi-checklist">
                 <p><i class="fa-solid fa-magnifying-glass-chart"></i> Diagnóstico de puerto, pines, pads y filtros</p>
                 <p><i class="fa-solid fa-clock"></i> {service.eta || '48-96 h según daño'}</p>
@@ -610,8 +610,8 @@ const serviceImageAlt = isPs5HdmiService
             </div>
           ) : (
             <>
-              <strong>{service.fromPrice || 'Cotización por modelo'}</strong>
-              <span>{service.fromPrice ? 'Precio desde' : 'Presupuesto'}</span>
+              <strong>{service.fromPrice || (visibleFaultSlugPattern.test(service.slug) ? visibleFaultQuoteLabel : 'Cotización por modelo')}</strong>
+              <span>{service.fromPrice?.startsWith('$') ? 'Precio desde' : service.fromPrice ? 'Diagnóstico' : 'Presupuesto'}</span>
               <div class="sdv-mini-list">
                 <p><i class="fa-solid fa-clock"></i> {service.eta || commercialCopy.es.turnaround}</p>
                 <p><i class="fa-solid fa-shield-halved"></i> {service.warranty || commercialCopy.es.warranty}</p>

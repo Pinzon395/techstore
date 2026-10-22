@@ -1,4 +1,5 @@
 ---
+import { visibleFaultSlugPattern, visibleFaultQuoteLabel } from '../../../lib/business';
 import Base from '../../../layouts/Base.astro';
 import Navbar from '../../../components/Navbar.astro';
 import Footer from '../../../components/Footer.astro';
@@ -125,7 +126,7 @@ const faqItems = [
 ];
 
 const phoneSpeakerFaqs = [
-  { question: '¿Cuánto cuesta reparar la bocina de un celular en Cancún?', answer: 'El diagnóstico técnico inicia desde $600 MXN. La reparación se cotiza según el modelo exacto, disponibilidad de refacción y si la falla viene de bocina, auricular, flex, micrófono, humedad o rejilla obstruida. Primero revisamos el síntoma para evitar cambios innecesarios.' },
+  { question: '¿Cuánto cuesta reparar la bocina de un celular en Cancún?', answer: 'El diagnóstico técnico cuesta $600 MXN y es gratis si reparas con nosotros. La reparación se cotiza según el modelo exacto, disponibilidad de refacción y si la falla viene de bocina, auricular, flex, micrófono, humedad o rejilla obstruida. Primero revisamos el síntoma para evitar cambios innecesarios.' },
   { question: '¿Cómo sé si falla la bocina, el auricular o el micrófono?', answer: 'Si no suena música, videos o timbre, normalmente revisamos la bocina principal. Si no escuchas llamadas, revisamos el auricular superior. Si la otra persona no te escucha, puede ser micrófono, flex o software; por eso hacemos pruebas de llamada, grabación y multimedia antes de cotizar.' },
   { question: '¿Se puede limpiar la bocina sin cambiar la pieza?', answer: 'Sí, en algunos equipos el problema es polvo, pelusa, humedad o residuos en la rejilla. Cuando la bocina está físicamente dañada, distorsiona o perdió volumen por desgaste, sí puede requerir reemplazo. Te decimos cuál caso aplica después del diagnóstico.' },
   { question: '¿Qué pasa si el celular se mojó y dejó de escucharse?', answer: 'Cuando hay contacto con líquido, no conviene cambiar la bocina sin revisar humedad, corrosión, flex y conectores. El audio puede fallar por sulfato o daño en placa, así que primero se revisa para evitar que la falla regrese con una pieza nueva.' },
@@ -239,7 +240,7 @@ const printerRollersRelatedServices = [
 ];
 
 const printerJamsFaqs = [
-  { question: `¿Cuánto cuesta reparar un atasco de impresora en Cancún?`, answer: `El diagnóstico técnico inicia desde <strong>$600 MXN</strong>. La reparación se cotiza según el modelo exacto y si hay papel roto, rodillos gastados, sensor dañado, bandeja desalineada o piezas por sustituir. Primero revisamos la ruta completa.` },
+  { question: `¿Cuánto cuesta reparar un atasco de impresora en Cancún?`, answer: `El diagnóstico técnico cuesta <strong>$600 MXN y es gratis si reparas con nosotros</strong>. La reparación se cotiza según el modelo exacto y si hay papel roto, rodillos gastados, sensor dañado, bandeja desalineada o piezas por sustituir. Primero revisamos la ruta completa.` },
   { question: `¿Por qué mi impresora se atasca cada vez que imprime?`, answer: `Puede deberse a rodillos sucios o gastados, papel húmedo, bandeja mal ajustada, sensor bloqueado, restos de papel, tóner derramado o una pieza de la ruta de papel fuera de lugar. Revisamos la causa para evitar que vuelva.` },
   { question: `¿Puedo sacar el papel atorado yo mismo?`, answer: `Puedes retirar papel visible con cuidado, sin jalar fuerte ni usar objetos metálicos. Si el papel se rompe, queda dentro o el atasco regresa, conviene revisión para no dañar sensores, rodillos o engranes internos.` },
   { question: `¿Atienden atascos en impresoras HP, Epson, Canon y Brother?`, answer: `Sí. Revisamos HP, Epson, Canon, Brother, Samsung, Xerox, Lexmark, Ricoh, Kyocera y multifuncionales de casa, oficina o negocio en Cancún. El procedimiento depende del tipo de mecanismo y ruta de papel.` },
@@ -367,7 +368,7 @@ const pcBlueScreenFaqs = [
   { question: 'Se puede arreglar una pantalla azul sin formatear?', answer: 'Si, muchas veces se puede corregir sin borrar archivos: reparación de arranque, drivers, actualizaciones, archivos de sistema, configuración de memoria o restauracion. Si el sistema esta muy dañado, primero revisamos respaldo.' },
   { question: 'Que hago si mi PC se reinicia sola con pantalla azul?', answer: 'No sigas forzando reinicios si tienes archivos importantes. Toma foto del código de error y trae la PC para revisar RAM, SSD/HDD, fuente, temperatura y eventos del sistema.' },
   { question: 'La pantalla azul puede ser por memoria RAM?', answer: 'Si. Errores como MEMORY_MANAGEMENT, IRQL_NOT_LESS_OR_EQUAL o PAGE_FAULT pueden relacionarse con RAM, ranuras, frecuencia, XMP/EXPO, drivers o placa. Se confirma con pruebas.' },
-  { question: 'Cuanto tarda el diagnóstico de pantalla azul en Cancún?', answer: 'Depende de si la falla aparece rápido o es intermitente. El diagnóstico normalmente toma de 8 horas a 2 días; fallas intermitentes con pruebas de RAM, disco, temperatura o carga pueden tomar más para confirmarlo bien.' },
+  { question: 'Cuanto tarda el diagnóstico de pantalla azul en Cancún?', answer: 'Depende de si la falla aparece rápido o es intermitente. El diagnóstico normalmente toma menos de 1 día; fallas intermitentes con pruebas de RAM, disco, temperatura o carga pueden tomar más para confirmarlo bien.' },
   { question: 'Pierdo mis archivos si reparan Windows?', answer: 'No necesariamente. Si hay riesgo de perdida de datos, primero te avisamos y priorizamos respaldo. No hacemos formateo ni reinstalacion limpia sin autorización.' },
 ];
 
@@ -1161,8 +1162,8 @@ const pageSchema = [
                 <span class="keyboard-quote-time"><i class="fa-solid fa-stopwatch"></i> 24-72 h</span>
               </div>
               <div class="keyboard-price-block">
-                <span>{service.fromPrice ? 'Desde' : 'Presupuesto'}</span>
-                <strong>{service.fromPrice || 'Cotización según modelo'}</strong>
+                <span>{service.fromPrice?.startsWith('$') ? 'Desde' : service.fromPrice ? 'Diagnóstico' : 'Presupuesto'}</span>
+                <strong>{service.fromPrice || (visibleFaultSlugPattern.test(service.slug) ? visibleFaultQuoteLabel : 'Cotización según modelo')}</strong>
                 <small>El precio final depende del modelo, distribución, backlit, palmrest y disponibilidad.</small>
               </div>
               <div class="keyboard-diagnosis-included">
@@ -1458,7 +1459,7 @@ const pageSchema = [
             <div class="phone-diagnostic-card">
               <div class="phone-diagnostic-card-head">
                 <span>Diagnóstico completo</span>
-                <strong>Desde $600 MXN</strong>
+                <strong>Gratis si reparas</strong>
               </div>
               <div class="phone-diagnostic-device" aria-hidden="true">
                 <i class="fa-solid fa-mobile-screen-button"></i>
@@ -1474,7 +1475,7 @@ const pageSchema = [
                 <li><i class="fa-solid fa-check"></i> Software, reinicios y errores de sistema</li>
                 <li><i class="fa-solid fa-check"></i> Cotización clara antes de reparar</li>
               </ul>
-              <p>El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.</p>
+              <p>El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con nosotros, te sale gratis. Normalmente está en menos de 1 día, según el día y la hora en que traigas el equipo y la falla; la reparación se cotiza antes y solo se hace con tu autorización.</p>
             </div>
           ) : isPhoneScreenReplacement ? (
             <div class="phone-screen-hero-card">
@@ -1519,8 +1520,8 @@ const pageSchema = [
               )}
             </ul>
             <div class="glass-price">
-              <span>{service.fromPrice ? 'Inversión desde:' : 'Inversión:'}</span>
-              <strong>{service.fromPrice || 'Cotización según modelo'}</strong>
+              <span>{service.fromPrice?.startsWith('$') ? 'Inversión desde:' : 'Inversión:'}</span>
+              <strong>{service.fromPrice || (visibleFaultSlugPattern.test(service.slug) ? visibleFaultQuoteLabel : 'Cotización según modelo')}</strong>
               {isLaptopScreenReplacement && <small>El precio final depende del modelo y tipo de pantalla de tu laptop.</small>}
               {isLaptopKeyboardReplacement && <small>El precio final depende del modelo, distribución, si es retroiluminado y disponibilidad de la pieza.</small>}
             </div>

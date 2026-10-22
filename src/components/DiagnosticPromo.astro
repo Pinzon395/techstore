@@ -1,0 +1,113 @@
+---
+// Promoción sitewide del diagnóstico abonable. Todo el copy sale de business.ts (diagnosticCopy / warrantyCopy).
+// Se renderiza al inicio del Footer y es el destino del enlace #promo-diagnostico de la barra del navbar.
+import { business, diagnosticCopy, warrantyCopy, diagnosticPolicy } from '../lib/business';
+
+interface Props {
+  lang?: 'es' | 'en';
+}
+const { lang = 'es' } = Astro.props;
+const d = diagnosticCopy[lang];
+const w = warrantyCopy[lang];
+const waText = lang === 'en'
+  ? 'Hi Pixon PC, I want the diagnosis offer. Device and problem: '
+  : 'Hola Pixon PC, quiero la mega promoción del diagnóstico. Equipo y falla: ';
+const waHref = `https://wa.me/${business.phone.replace('+', '')}?text=${encodeURIComponent(waText)}`;
+const ticketHref = lang === 'en' ? '/en/tickets' : '/tickets';
+const t = lang === 'en' ? {
+  title: 'Free diagnosis when you repair with us',
+  steps: [
+    ['Book for free', d.noPrepay + ' WhatsApp us or book online; emergencies are taken in without an appointment.'],
+    [`Diagnosis in ${d.time}`, d.timeNote],
+    ['Repair: diagnosis is free', `The MXN $${diagnosticPolicy.priceMXN} are fully credited to your repair. Decide not to repair? You pay only the diagnosis and get the written report.`],
+  ],
+  wa: 'Claim it on WhatsApp',
+  ticket: 'Create ticket',
+  visible: d.visibleFaults,
+} : {
+  title: 'Diagnóstico GRATIS si reparas con nosotros',
+  steps: [
+    ['Agenda sin pagar', d.noPrepay + ' Escríbenos por WhatsApp o agenda en línea; las emergencias se reciben sin cita.'],
+    [`Diagnóstico en ${d.time}`, d.timeNote],
+    ['Si reparas, te sale gratis', `Los $${diagnosticPolicy.priceMXN} MXN se abonan completos a tu reparación. ¿Decides no reparar? Solo pagas el diagnóstico y te llevas el reporte por escrito.`],
+  ],
+  wa: 'Pedir la promoción por WhatsApp',
+  ticket: 'Crear ticket',
+  visible: d.visibleFaults,
+};
+---
+<section class="dpromo" id="promo-diagnostico" aria-labelledby="dpromo-title">
+  <div class="dpromo__inner">
+    <div class="dpromo__head">
+      <span class="dpromo__tag">{d.promoTag}</span>
+      <h2 id="dpromo-title" class="dpromo__title">{t.title}</h2>
+      <p class="dpromo__price" aria-label={lang === 'en' ? `Diagnosis MXN $${diagnosticPolicy.priceMXN}, free when you repair` : `Diagnóstico de $${diagnosticPolicy.priceMXN} MXN, gratis si reparas`}>
+        <s>${diagnosticPolicy.priceMXN} MXN</s> <strong>$0</strong> <span>{lang === 'en' ? 'when you repair' : 'si reparas'}</span>
+      </p>
+    </div>
+    <ol class="dpromo__steps">
+      {t.steps.map(([title, text], i) => (
+        <li><span class="dpromo__num">{i + 1}</span><div><strong>{title}</strong><p>{text}</p></div></li>
+      ))}
+    </ol>
+    <ul class="dpromo__facts">
+      <li>{t.visible}</li>
+      <li>{w.parts}</li>
+    </ul>
+    <div class="dpromo__actions">
+      <a class="dpromo__btn dpromo__btn--wa" href={waHref} target="_blank" rel="noopener noreferrer">{t.wa}</a>
+      <a class="dpromo__btn dpromo__btn--ghost" href={ticketHref}>{t.ticket}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .dpromo {
+    --dp-navy: #071F3A;
+    --dp-amber: #fbbf24;
+    padding: clamp(28px, 5vw, 48px) 16px;
+    background: #fff8e6;
+    border-top: 1px solid #f5d27a;
+    scroll-margin-top: 120px;
+  }
+  .dpromo__inner { max-width: 1100px; margin: 0 auto; display: grid; gap: 20px; }
+  .dpromo__head { display: grid; gap: 8px; }
+  .dpromo__tag {
+    justify-self: start;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--dp-navy);
+    color: var(--dp-amber);
+    font-size: .72rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .dpromo__title { margin: 0; color: var(--dp-navy); font-size: clamp(1.4rem, 4vw, 2rem); line-height: 1.15; }
+  .dpromo__price { margin: 0; color: var(--dp-navy); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .dpromo__price s { font-size: 1.05rem; color: #5b6b7f; }
+  .dpromo__price strong { font-size: clamp(2rem, 6vw, 2.6rem); line-height: 1; color: var(--dp-navy); }
+  .dpromo__price span { font-weight: 700; }
+  .dpromo__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .dpromo__steps li { display: flex; gap: 12px; padding: 14px; background: #fff; border: 1px solid #f1dfae; border-radius: 12px; }
+  .dpromo__num {
+    flex: 0 0 32px; height: 32px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--dp-navy); color: #fff; font-weight: 800;
+  }
+  .dpromo__steps strong { color: var(--dp-navy); display: block; margin-bottom: 2px; }
+  .dpromo__steps p { margin: 0; color: var(--dp-navy); font-size: .92rem; line-height: 1.5; }
+  .dpromo__facts { margin: 0; padding-left: 18px; color: var(--dp-navy); font-size: .92rem; line-height: 1.6; }
+  .dpromo__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .dpromo__btn {
+    min-height: 48px; display: inline-flex; align-items: center; justify-content: center;
+    padding: 12px 20px; border-radius: 10px; font-weight: 800; text-decoration: none; flex: 1 1 220px;
+  }
+  .dpromo__btn--wa { background: #128c4a; color: #fff; }
+  .dpromo__btn--wa:hover { background: #0e7a40; }
+  .dpromo__btn--ghost { border: 2px solid var(--dp-navy); color: var(--dp-navy); background: #fff; }
+  .dpromo__btn:focus-visible { outline: 3px solid var(--dp-navy); outline-offset: 2px; }
+  @media (min-width: 768px) {
+    .dpromo__steps { grid-template-columns: repeat(3, 1fr); }
+    .dpromo__btn { flex: 0 0 auto; }
+  }
+</style>

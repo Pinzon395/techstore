@@ -9,7 +9,7 @@
 (function () {
     'use strict';
 
-    var CURRENT_VERSION = '20261002T185536Z-f6fc4795b446'; // Reemplazado automáticamente en build
+    var CURRENT_VERSION = '20261022T060052Z-81b0f918dc79'; // Reemplazado automáticamente en build
     var KEY = 'pixon_version';
 
     function purgeOldCaches(targetVersion) {

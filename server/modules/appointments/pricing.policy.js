@@ -27,7 +27,7 @@ function computePricing(appointmentType, equipmentValueMxn = null) {
       return {
         mode: PRICE_MODES.PENDING_CONFIRMATION,
         amount: DIAGNOSTIC_STARTING_PRICE,
-        label: 'Diagnóstico técnico desde $600 MXN'
+        label: 'Diagnóstico técnico $600 MXN — se abona completo si se repara'
       };
 
     case 'LIQUID_DAMAGE':

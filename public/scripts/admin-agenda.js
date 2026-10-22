@@ -164,8 +164,8 @@
     if (type === 'DIAGNOSTIC') {
       return {
         mode: 'PENDING_CONFIRMATION',
-        text: `Diagnóstico técnico desde $${DIAGNOSTIC_STARTING_PRICE} MXN. El diagnóstico determina la causa de la falla.`,
-        badge: 'DESDE $600 · POR CONFIRMAR'
+        text: `Diagnóstico técnico $${DIAGNOSTIC_STARTING_PRICE} MXN, se abona completo si el cliente repara. No se cobra para agendar.`,
+        badge: '$600 · ABONABLE SI REPARA'
       };
     }
     if (type === 'LIQUID_DAMAGE') {

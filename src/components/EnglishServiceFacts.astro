@@ -5,7 +5,7 @@
  * (≈14k impresiones/3 meses en Search Console) sin clics. Aquí se agregan solo datos reales del negocio
  * (business.ts): costo de diagnóstico, horario, ubicación, coordinación de recolección y preguntas frecuentes.
  */
-import { business, diagnosticCopy, diagnosticPolicy, emergencyPolicy, openingHours } from '../lib/business';
+import { business, diagnosticCopy, diagnosticPolicy, emergencyPolicy, openingHours, warrantyCopy } from '../lib/business';
 
 interface Faq { question: string; answer: string }
 interface Props {
@@ -19,7 +19,7 @@ const { service, faqs = [], related = [] } = Astro.props;
 const baseFaqs: Faq[] = [
   {
     question: `How much does a ${service} diagnosis cost in Cancun?`,
-    answer: `Diagnosis starts at MXN $${diagnosticPolicy.startingPriceMXN} and usually takes ${diagnosticCopy.en.time}, depending on the device and the tests needed. It covers the inspection and tests only. Any repair or part is quoted separately in writing, and nothing is done until you approve it.`,
+    answer: `${diagnosticCopy.en.credit} It usually takes ${diagnosticCopy.en.time}. ${diagnosticCopy.en.timeNote} ${diagnosticCopy.en.visibleFaults} Any repair or part is quoted in writing first, and nothing is done until you approve it.`,
   },
   {
     question: 'Is it an emergency? Can I come without an appointment?',
@@ -48,10 +48,11 @@ const phoneHref = `tel:${business.phone}`;
       <div>
         <p class="esf-eyebrow">Before you book</p>
         <h2 id="esf-title">Price, hours and location</h2>
-        <p>Pixon PC is a repair workshop in Cancun, open 24/7 by appointment. Send the model and symptoms first so we can confirm the right route before you bring the device. Emergencies (liquid spill, no power, burning smell): message us before coming and bring it in.</p>
+        <p>Pixon PC is a repair workshop in Cancun, open 24/7. Send the model and symptoms first so we can confirm the right route before you bring the device. Emergencies (liquid spill, no power, burning smell) are taken in right away without an appointment: just WhatsApp us before you leave.</p>
       </div>
       <dl class="esf-list">
-        <div><dt>Diagnosis</dt><dd>From MXN ${diagnosticPolicy.startingPriceMXN} · usually {diagnosticCopy.en.time} · repairs quoted separately and only after your approval</dd></div>
+        <div><dt>Diagnosis</dt><dd>Free when you repair with us (MXN ${diagnosticPolicy.priceMXN}, fully credited) · usually {diagnosticCopy.en.time} · nothing to pay to book</dd></div>
+        <div><dt>Warranty</dt><dd>{warrantyCopy.en.parts}</dd></div>
         <div><dt>Hours</dt><dd>{openingHours.en}</dd></div>
         <div><dt>Workshop</dt><dd>{business.address.street}, {business.address.postalCode} {business.address.locality}, Quintana Roo</dd></div>
         <div><dt>Contact</dt><dd><a href={phoneHref}>{business.phoneDisplay}</a> · WhatsApp in English</dd></div>

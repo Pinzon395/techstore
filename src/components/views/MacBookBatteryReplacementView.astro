@@ -1,4 +1,5 @@
 ---
+import { visibleFaultSlugPattern, visibleFaultQuoteLabel } from '../../lib/business';
 import FaqSection from '../FaqSection.astro';
 import RelatedServicesSection from '../RelatedServicesSection.astro';
 import CommentsSection from '../CommentsSection.astro';
@@ -86,8 +87,8 @@ const batteryFaqs = [
       <aside class="mbb-hero-card" aria-label="Resumen del servicio">
         <img src="/assets/images/mantenimiento-macbook-cancun.webp" alt="Cambio de batería MacBook en taller técnico de Cancún" />
         <div class="mbb-hero-card-body">
-          <span>{service.fromPrice ? 'Desde' : 'Presupuesto'}</span>
-          <strong>{service.fromPrice || 'Cotización por modelo'}</strong>
+          <span>{service.fromPrice?.startsWith('$') ? 'Desde' : service.fromPrice ? 'Diagnóstico' : 'Presupuesto'}</span>
+          <strong>{service.fromPrice || (visibleFaultSlugPattern.test(service.slug) ? visibleFaultQuoteLabel : 'Cotización por modelo')}</strong>
           <p>Tiempo estimado: {service.eta || '24-72 h'} según modelo y disponibilidad de pieza.</p>
         </div>
         <ul>
@@ -219,7 +220,7 @@ const batteryFaqs = [
         <p>Cuando la pieza está disponible, el servicio suele resolverse entre 24 y 72 horas. Si la batería se pide por modelo especial, te confirmamos tiempo antes de autorizar.</p>
       </div>
       <div class="mbb-price-panel">
-        <div><span>{service.fromPrice ? 'Inicio de servicio' : 'Presupuesto'}</span><strong>{service.fromPrice || 'Cotización por modelo'}</strong></div>
+        <div><span>{service.fromPrice ? 'Inicio de servicio' : 'Presupuesto'}</span><strong>{service.fromPrice || (visibleFaultSlugPattern.test(service.slug) ? visibleFaultQuoteLabel : 'Cotización por modelo')}</strong></div>
         <div><span>Tiempo típico</span><strong>{service.eta || '24-72 h'}</strong></div>
         <div><span>Garantía</span><strong>Por escrito</strong></div>
       </div>
@@ -349,7 +350,7 @@ const batteryFaqs = [
   .mbb-safety-item i { margin-top: 4px; color: #B42318; }
   .mbb-safety-item p { margin: 0; font-weight: 650; }
   .mbb-process-layout { grid-template-columns: minmax(260px,.72fr) minmax(0,1fr); }
-  .mbb-process-copy { position: sticky; top: 110px; }
+  .mbb-process-copy { position: sticky; top: calc(110px + var(--nav-promo-h, 0px)); }
   .mbb-process-list { display: grid; gap: 14px; }
   .mbb-process-list article { display: grid; grid-template-columns: 54px 1fr; gap: 16px; padding: 18px; }
   .mbb-process-list article > span { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 13px; background: #071F3A; color: #fff !important; font-family: 'Kanit', sans-serif; font-weight: 900; }

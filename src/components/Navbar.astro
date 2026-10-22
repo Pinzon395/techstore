@@ -38,6 +38,7 @@
 import { SERVICE_CATEGORIES } from '../data/services';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import { getLocaleFromPath } from '../lib/i18n';
+import { diagnosticCopy } from '../lib/business';
 
 interface Props {
   lang?: 'es' | 'en';
@@ -45,6 +46,7 @@ interface Props {
 const { lang = getLocaleFromPath(Astro.originPathname) } = Astro.props;
 const home = lang === 'en' ? '/en' : '/';
 const isEnglishNavigation = () => lang === 'en';
+const promo = diagnosticCopy[lang === 'en' ? 'en' : 'es'];
 // El catálogo completo de enlaces vive en las páginas hub y servicios relacionados.
 // El navbar conserva la jerarquía de categorías sin enviar todos los servicios al DOM inicial.
 const NAV_SERVICE_CATEGORIES = SERVICE_CATEGORIES;
@@ -81,6 +83,12 @@ const t = lang === 'en' ? {
 <div class="nav-reveal-zone" id="nav-reveal-zone" aria-hidden="true"></div>
 
 <nav class="navbar navbar-v3" id="navbar" role="navigation" aria-label={lang === 'en' ? 'Main navigation' : 'Menú principal'}>
+  <a class="nav-promo" href="#promo-diagnostico">
+    <span class="nav-promo__tag">{promo.promoTag}</span>
+    <span class="nav-promo__text nav-promo__text--full">{promo.promo} · {lang === 'en' ? 'MXN $600 fully credited · usually ready in under 1 day' : '$600 MXN abonables · normalmente listo en menos de 1 día'}</span>
+    <span class="nav-promo__text nav-promo__text--short">{lang === 'en' ? 'Free diagnosis if you repair' : 'Diagnóstico GRATIS si reparas'}</span>
+    <span class="nav-promo__cta" aria-hidden="true">{lang === 'en' ? 'Details' : 'Ver promo'} →</span>
+  </a>
   <div class="nav-container">
 
     <!-- Logo -->
@@ -283,12 +291,6 @@ const t = lang === 'en' ? {
                 </a>
               </li>
               <li class="v3-sub-item" role="none">
-                <a href="/blogs/desarrollo-software-paginas-web-cancun" class="v3-sub-link" role="menuitem">
-                  <i class="fa-solid fa-code v3-sub-arrow" aria-hidden="true"></i>
-                  <span>{lang === 'en' ? 'Software & Web Development' : 'Desarrollo web y software'}</span>
-                </a>
-              </li>
-              <li class="v3-sub-item" role="none">
                 <a href="/blogs/humedad-salitre-calor-cancun" class="v3-sub-link" role="menuitem">
                   <i class="fa-solid fa-cloud-sun-rain v3-sub-arrow" aria-hidden="true"></i>
                   <span>{lang === 'en' ? 'Humidity and salt air in Cancun' : 'Humedad, salitre y calor'}</span>
@@ -371,6 +373,12 @@ const t = lang === 'en' ? {
             </a>
           </li>
           <li class="cascade-item" role="none">
+            <a href="/servicios/b2b/soporte-hoteles" class="cascade-cat-link" role="menuitem">
+              <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-hotel" aria-hidden="true"></i></span>
+              <span class="cascade-cat-label">Soporte TI para hoteles</span>
+            </a>
+          </li>
+          <li class="cascade-item" role="none">
             <a href="/servicios/b2b/soporte-oficinas" class="cascade-cat-link" role="menuitem">
               <span class="cascade-cat-icon-wrap"><i class="fa-solid fa-building" aria-hidden="true"></i></span>
               <span class="cascade-cat-label">Soporte TI para oficinas</span>
@@ -411,7 +419,6 @@ const t = lang === 'en' ? {
     <div class="nav-actions">
       <LanguageSwitcher />
       <a
-        href="https://pixon.com.mx/admin"
         class="nav-admin-gear"
         id="nav-admin-gear"
         title="Panel de administración"
@@ -427,6 +434,51 @@ const t = lang === 'en' ? {
 </nav>
 
 <style is:global>
+/* Barra de promoción (fuente: diagnosticCopy en business.ts). Altura fija para que el padding del body la compense. */
+:root { --nav-promo-h: 34px; }
+body { padding-top: var(--nav-promo-h); }
+.navbar-v3 .nav-promo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: var(--nav-promo-h);
+  margin: -10px 0 8px;
+  padding: 0 16px;
+  background: #071F3A;
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.navbar-v3 .nav-promo:hover .nav-promo__cta,
+.navbar-v3 .nav-promo:focus-visible .nav-promo__cta { text-decoration: underline; }
+.navbar-v3 .nav-promo:focus-visible { outline: 2px solid #fbbf24; outline-offset: -3px; }
+.navbar-v3 .nav-promo__tag {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #fbbf24;
+  color: #071F3A;
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.navbar-v3 .nav-promo__text { color: #fff; overflow: hidden; text-overflow: ellipsis; }
+.navbar-v3 .nav-promo__text--short { display: none; }
+.navbar-v3 .nav-promo__cta { flex: 0 0 auto; color: #fbbf24; }
+@media (max-width: 767px) {
+  .navbar-v3 .nav-promo { gap: 8px; font-size: .78rem; }
+  .navbar-v3 .nav-promo__text--full { display: none; }
+  .navbar-v3 .nav-promo__text--short { display: inline; }
+}
+@media (max-width: 359px) {
+  .navbar-v3 .nav-promo__tag { display: none; }
+}
 /* ══════════════════════════════════════════════════════════════
    NAVBAR 3.0 AUTOLAYOUT SYSTEM (FLEXBOX HARMONIC SPACING)
    ══════════════════════════════════════════════════════════════ */

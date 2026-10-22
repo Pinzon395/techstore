@@ -41,7 +41,7 @@ const androidBrandService = ({
   fromPrice: undefined,
   hideSchemaOffer: true,
   eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  warranty: '90 días de garantía con piezas originales',
   whyUs: [
     { icon: 'fa-mobile-screen-button', title: 'Modelo exacto', desc: 'Confirmamos variante, número de modelo y compatibilidad antes de pedir o instalar piezas.' },
     { icon: 'fa-stethoscope', title: 'Diagnóstico real', desc: 'Separamos falla de pieza, software, humedad o placa para evitar cambios innecesarios.' },
@@ -95,7 +95,7 @@ const phoneIssueService = ({
   fromPrice,
   hideSchemaOffer,
   eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  warranty: '90 días de garantía con piezas originales',
   whyUs: [
     { icon: 'fa-magnifying-glass', title: 'Diagnóstico por síntoma', desc: 'No asumimos la pieza: primero confirmamos si la falla viene de carga, batería, pantalla, software, humedad o placa.' },
     { icon: 'fa-screwdriver-wrench', title: 'Reparación por ruta', desc: 'Te explicamos si conviene limpieza, refacción, software, recuperación de datos o detenerse por costo/riesgo.' },
@@ -109,7 +109,7 @@ const phoneIssueService = ({
     { question: `¿Qué revisan en ${label.toLowerCase()}?`, answer: 'Revisamos carga, batería, pantalla, humedad, conectores, software, consumo, señal y placa según el síntoma.' },
     { question: '¿Conviene repararlo o comprar otro celular?', answer: 'Te lo decimos con honestidad después del diagnóstico, considerando costo de pieza, antigüedad, datos y riesgo de fallas adicionales.' },
     { question: '¿Se borran mis fotos o datos?', answer: 'No en reparaciones físicas normales. Si se requiere restauración, flasheo o recuperación por daño grave, te pedimos autorización antes.' },
-    { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente de 8 horas a 2 días, según si la falla es simple, intermitente, por humedad o requiere pruebas de consumo.' },
+    { question: '¿Cuánto tarda el diagnóstico?', answer: 'Normalmente en menos de 1 día, según si la falla es simple, intermitente, por humedad o requiere pruebas de consumo.' },
     { question: '¿Puedo llevarlo aunque ya lo revisaron en otro taller?', answer: 'Sí. Revisamos tornillería, conectores, pieza instalada, humedad, flex y síntomas actuales para ubicar el problema real.' },
     { question: '¿Dan garantía?', answer: 'Sí, cuando se realiza reparación o cambio de pieza. La garantía no cubre golpes, humedad posterior o manipulación externa.' },
   ],
@@ -261,7 +261,7 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     hook: 'Diagnóstico para celular que no enciende, se queda negro, vibra sin imagen, no carga, se mojó o se apagó de repente.',
     intro: 'Revisión técnica de celulares que no prenden en Cancún para separar falla de batería, carga, pantalla, software, humedad o placa.',
     bullets: ['Prueba de carga y consumo', 'Revisión de pantalla sin imagen', 'Diagnóstico de humedad y placa', 'Cotización por causa real'],
-    fromPrice: 'Desde $600 MXN',
+    fromPrice: 'Gratis si reparas ($600 MXN)',
     problems: [
       { problem: 'Pantalla negra pero vibra', solution: 'Puede ser display, flex, backlight o placa; se revisa antes de cotizar pantalla.' },
       { problem: 'No carga ni muestra batería', solution: 'Probamos puerto, batería, cable, cargador y consumo.' },
@@ -277,7 +277,7 @@ const ANDROID_PHONE_SERVICES: ServiceItem[] = [
     hook: 'Revisión para celulares sin señal, sin datos móviles, SIM no detectada, llamadas fallando, IMEI con problema o antena dañada.',
     intro: 'Diagnóstico de señal celular en Cancún revisando SIM, bandeja, antena, configuración, software, IMEI y placa.',
     bullets: ['Prueba con SIM y operador', 'Revisión de bandeja, antena e IMEI', 'Diagnóstico de golpes o humedad', 'Cotización antes de reparar'],
-    fromPrice: 'Desde $600 MXN',
+    fromPrice: 'Gratis si reparas ($600 MXN)',
     problems: [
       { problem: 'Dice sin servicio', solution: 'Revisamos SIM, operador, configuración, antena, IMEI y posible daño por golpe.' },
       { problem: 'No detecta SIM', solution: 'Puede ser bandeja, lector SIM, humedad, software o placa.' },
@@ -333,7 +333,7 @@ const iphoneClusterService = ({
   fromPrice,
   hideSchemaOffer,
   eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  warranty: '90 días de garantía con piezas originales',
   whyUs: [
     { icon: 'fa-mobile-screen', title: 'Diagnóstico por modelo', desc: 'Confirmamos iPhone exacto, síntoma, historial de golpe o humedad y pieza probable antes de cotizar.' },
     { icon: 'fa-magnifying-glass', title: 'No cambiamos por cambiar', desc: 'Probamos flex, conectores, batería, carga, pantalla, sistema y placa cuando aplica.' },
@@ -494,7 +494,7 @@ export const telefonoCategory: ServiceCategory = {
     blurb: 'iPhone, Samsung y más',
     heroBg: 'linear-gradient(135deg, #0e7490 0%, #06b6d4 100%)',
     services: [
-      { slug: 'diagnostico',         label: 'Diagnóstico',            intro: 'Revisión técnica para identificar la causa precisa de la falla.',                                       bullets: ['Test de pantalla, batería, carga, bocinas, cámaras', 'Reporte detallado', 'Diagnóstico desde $600 MXN'],                       fromPrice: 'Desde $600 MXN',      eta: '1 h' },
+      { slug: 'diagnostico',         label: 'Diagnóstico',            intro: 'Revisión técnica para identificar la causa precisa de la falla.',                                       bullets: ['Test de pantalla, batería, carga, bocinas, cámaras', 'Reporte detallado', 'Diagnóstico de $600 MXN gratis si reparas con nosotros'],                       fromPrice: 'Gratis si reparas ($600 MXN)',      eta: 'Menos de 1 día' },
       { slug: 'reparacion-general',  label: 'Reparación General',     customUrl: '/reparaciones' },
       {
         slug: 'reparacion-iphone',
@@ -586,9 +586,9 @@ export const telefonoCategory: ServiceCategory = {
           'Diagnóstico de carga, consumo y temperatura',
           'Atención para Xiaomi, Motorola, Huawei, Honor, Oppo, Realme y más',
           'Revisión prioritaria de batería inflada y seguridad',
-          'Garantía por escrito según refacción y modelo',
+          '90 días de garantía con piezas originales',
         ],
-        warranty: 'Garantía por escrito según refacción y modelo',
+        warranty: '90 días de garantía con piezas originales',
         metaTitle: 'Cambio de Batería de Celular en Cancún | Diagnóstico y Reemplazo',
         metaDescription: 'Cambio de batería de celular en Cancún. Revisamos descarga rápida, calentamiento, apagados, carga lenta y baterías infladas antes de reemplazar la pieza.',
         whyUs: [

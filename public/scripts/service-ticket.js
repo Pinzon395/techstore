@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isDiag = appointmentTypeKey(appointmentType.value) === 'diagnostico';
                 appointmentHint.textContent = availableOptions.length
                     ? (isDiag
-                        ? 'Horario con reserva. El diagnóstico comienza desde $600 MXN y cubre únicamente revisión; reparaciones y refacciones se cotizan por separado.'
+                        ? 'Horario con reserva. El diagnóstico cuesta $600 MXN y se abona completo si reparas con nosotros; reparaciones y refacciones se cotizan antes de trabajar.'
                         : 'Horario con reserva temporal para tu visita.')
                     : 'Este día está lleno o no tiene horarios disponibles para el tipo de visita seleccionado.';
             }

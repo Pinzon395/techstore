@@ -18,7 +18,7 @@ const laptopBrandService = (slug: string, brand: string, models: string[]) => ({
   fromPrice: undefined,
   hideSchemaOffer: true,
   eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  warranty: '90 días de garantía con piezas originales',
   whyUs: [
     { icon: 'fa-laptop-medical', title: 'Modelo exacto', desc: `Confirmamos serie, generación y compatibilidad de ${brand} antes de pedir piezas.` },
     { icon: 'fa-stethoscope', title: 'Diagnóstico real', desc: 'Separamos falla de cargador, batería, placa, pantalla, flex, Windows o almacenamiento.' },
@@ -98,8 +98,8 @@ export const laptopCategory: ServiceCategory = {
         seoKeyword: 'Cambio de pantalla de laptop en Cancún',
         hook: '¿Pantalla rota, con líneas, manchas, parpadeo o sin imagen? Diagnosticamos si la falla es panel, flex o video antes de cotizar.',
         intro: 'Reemplazo de display LCD, LED, FHD, táctil u OLED para laptops Windows y MacBook con piezas originales o equivalentes certificadas.',
-        bullets: ['Diagnóstico técnico previo en Cancún', 'Panel original o equivalente certificado', 'Validación de flex, bisagras y tarjeta de video', 'Calibración de brillo, color y pixeles', 'Garantía 6 meses por escrito'],
-        fromPrice: undefined, hideSchemaOffer: true, eta: '2-5 días', warranty: '6 meses por escrito',
+        bullets: ['Diagnóstico técnico previo en Cancún', 'Panel original o equivalente certificado', 'Validación de flex, bisagras y tarjeta de video', 'Calibración de brillo, color y pixeles', 'Garantía 90 días con piezas originales'],
+        fromPrice: undefined, hideSchemaOffer: true, eta: '2-5 días', warranty: '90 días con piezas originales',
         whyUs: [
           { icon: 'fa-shield-halved',     title: 'Pantalla certificada',   desc: 'Instalamos panel original o equivalente certificado; si es refurbished, te lo avisamos antes.' },
           { icon: 'fa-magnifying-glass',  title: 'Diagnóstico real',  desc: 'Confirmamos si el daño está en pantalla, flex de video, bisagra o tarjeta de video.' },
@@ -140,7 +140,7 @@ export const laptopCategory: ServiceCategory = {
           { question: `¿Cómo sé si necesito pantalla nueva o solo flex de video?`, answer: `Hacemos prueba con monitor externo, revisión de flex, bisagras, retroiluminación y comportamiento al mover la tapa. Si la imagen externa funciona bien, puede ser panel o flex; si también falla afuera, revisamos video o placa antes de cotizar pantalla.` },
           { question: `¿Cuánto tarda cambiar una pantalla de laptop?`, answer: `Si el panel está disponible para modelos comunes HP, Dell, Lenovo, Asus o Acer, normalmente toma <strong>24 a 48 horas</strong>. Modelos táctiles, MacBook, OLED o importados pueden tomar de <strong>3 a 7 días</strong>, según disponibilidad.` },
           { question: `¿La pantalla queda igual que la original?`, answer: `Buscamos el panel compatible correcto por resolución, conector, tamaño, acabado y tipo de montaje. Cuando existe opción original o equivalente certificada, te explicamos diferencia de precio y calidad antes de comprar la pieza.` },
-          { question: `¿Qué garantía tiene la pantalla instalada?`, answer: `Entregamos <strong>6 meses de garantía por escrito</strong> sobre defecto del panel instalado y mano de obra. No aplica por golpes, presión en la tapa, humedad, derrames o manipulación externa después de entregar el equipo.` },
+          { question: `¿Qué garantía tiene la pantalla instalada?`, answer: `Entregamos <strong>90 días de garantía por escrito con piezas originales</strong> sobre defecto del panel instalado y mano de obra. No aplica por golpes, presión en la tapa, humedad, derrames o manipulación externa después de entregar el equipo.` },
           { question: `¿Tienen recolección y entrega en Cancún?`, answer: `Sí, podemos coordinar recolección y entrega según zona y disponibilidad. La instalación se realiza en taller porque requiere cuidado con marco, flex, adhesivos, bisagras y pruebas de imagen antes de cerrar el equipo.` },
         ],
         relatedSlugs: ['cambio-bateria', 'cambio-teclado', 'pasta-termica', 'diagnostico'],
@@ -152,7 +152,7 @@ export const laptopCategory: ServiceCategory = {
         // --- NUEVAS SECCIONES para cambio-pantalla ------------------------
         trustStats: [
           { icon: 'fa-stethoscope', value: '100%', label: 'Diagnóstico de pantalla, flex y video' },
-          { icon: 'fa-shield-halved', value: '6 meses', label: 'Garantía por escrito' },
+          { icon: 'fa-shield-halved', value: '90 días', label: 'Garantía con piezas originales' },
           { icon: 'fa-truck', value: 'Local', label: 'Recolección en Cancún por zona' },
           { icon: 'fa-clock', value: '4 días', label: 'Entrega hábil si la pieza está en Cancún' },
         ],
@@ -179,8 +179,8 @@ export const laptopCategory: ServiceCategory = {
         seoKeyword: 'Cambio de teclado de laptop en Cancún',
         hook: '¿Tu teclado no responde, escribe doble, tiene teclas pegadas o se mojó? Revisamos teclado, flex, conector y posible daño por líquido antes de cotizar.',
         intro: 'Servicio local de cambio y reparación de teclado de laptop en Cancún para HP, Dell, Lenovo, Asus, Acer, MSI y MacBook. Instalamos teclado español latino, US o retroiluminado según modelo, con prueba tecla por tecla y garantía por escrito.',
-        bullets: ['Diagnóstico de teclado, flex, conector y placa', 'Teclado LA-ESP con Ñ, US o backlit según modelo', 'Prueba tecla por tecla antes de entregar', 'Garantía 3 meses por escrito', 'Cotización clara por WhatsApp'],
-        fromPrice: undefined, hideSchemaOffer: true, eta: '24-72 h', warranty: '3 meses por escrito',
+        bullets: ['Diagnóstico de teclado, flex, conector y placa', 'Teclado LA-ESP con Ñ, US o backlit según modelo', 'Prueba tecla por tecla antes de entregar', 'Garantía 90 días con piezas originales', 'Cotización clara por WhatsApp'],
+        fromPrice: undefined, hideSchemaOffer: true, eta: '24-72 h', warranty: '90 días con piezas originales',
         whyUs: [
           { icon: 'fa-keyboard',     title: 'Distribución correcta', desc: 'Confirmamos si tu laptop usa teclado español latino con Ñ, US, retroiluminado o molde especial antes de pedir la pieza.' },
           { icon: 'fa-lightbulb',    title: 'Backlit respetado',     desc: 'Si tu equipo trae iluminación, buscamos teclado backlit compatible con su flex para conservar esa función.' },
@@ -220,7 +220,7 @@ export const laptopCategory: ServiceCategory = {
         trustStats: [
           { icon: 'fa-stethoscope', value: '100%', label: 'Revisión de teclado, flex y placa' },
           { icon: 'fa-keyboard', value: 'LA/US', label: 'Teclado según modelo' },
-          { icon: 'fa-shield-halved', value: '3 meses', label: 'Garantía por escrito' },
+          { icon: 'fa-shield-halved', value: '90 días', label: 'Garantía con piezas originales' },
           { icon: 'fa-clock', value: '24-72 h', label: 'Si la pieza está disponible' },
         ],
       },
@@ -238,13 +238,13 @@ export const laptopCategory: ServiceCategory = {
         seoKeyword: 'Cambio de batería de laptop en Cancún',
         hook: '¿Tu laptop dura 30 minutos desconectada o ya no carga? Recupera 4-8 horas de autonomía con batería nueva certificada.',
         intro: 'Reemplazo de batería interna por una nueva. Recuperas autonomía completa y ciclos de carga frescos.',
-        bullets: ['Batería con celdas nuevas', 'Calibración de carga después del cambio', 'Reciclaje de batería vieja sin costo', 'Garantía 6 meses', 'Capacidad mayor o igual al original'],
-        fromPrice: undefined, hideSchemaOffer: true, eta: '24-48 h', warranty: '6 meses por escrito',
+        bullets: ['Batería con celdas nuevas', 'Calibración de carga después del cambio', 'Reciclaje de batería vieja sin costo', 'Garantía 90 días con piezas originales', 'Capacidad mayor o igual al original'],
+        fromPrice: undefined, hideSchemaOffer: true, eta: '24-48 h', warranty: '90 días con piezas originales',
         whyUs: [
           { icon: 'fa-battery-half', title: 'Capacidad real',      desc: 'mAh igual o superior al original. Sin trampas de "compatible barata".' },
           { icon: 'fa-recycle',      title: 'Reciclaje seguro',    desc: 'Tu batería vieja se desecha de forma segura con protocolos adecuados.' },
           { icon: 'fa-bolt',         title: 'Calibración incluida',desc: 'Calibramos los ciclos de carga del SO para máxima vida útil.' },
-          { icon: 'fa-shield-halved',title: '6 meses garantía',    desc: 'Si baja la capacidad anormalmente, la cambiamos sin costo.' },
+          { icon: 'fa-shield-halved',title: '90 días de garantía',    desc: 'Si baja la capacidad anormalmente, la cambiamos sin costo.' },
         ],
         process: [
           { title: '1. Test de batería', desc: 'Medimos ciclos, capacidad real y desgaste antes de recomendar.' },
@@ -289,7 +289,7 @@ export const laptopCategory: ServiceCategory = {
         ],
       },
 
-      { slug: 'reparacion-bisagras',  label: 'Reparación Bisagras',     customUrl: '/reparacion-bisagras', intro: 'Sustitución de bisagras flojas o rotas y refuerzo de carcasa agrietada.', bullets: ['Bisagras nuevas + tornillería', 'Reforzado de chasis', 'Prueba 100 ciclos apertura/cierre', 'Garantía 6 meses'], fromPrice: undefined, hideSchemaOffer: true, eta: '2-5 días' },
+      { slug: 'reparacion-bisagras',  label: 'Reparación Bisagras',     customUrl: '/reparacion-bisagras', intro: 'Sustitución de bisagras flojas o rotas y refuerzo de carcasa agrietada.', bullets: ['Bisagras nuevas + tornillería', 'Reforzado de chasis', 'Prueba 100 ciclos apertura/cierre', 'Garantía 90 días con piezas originales'], fromPrice: undefined, hideSchemaOffer: true, eta: '2-5 días' },
       {
         slug: 'mantenimiento-preventivo',
         label: 'Mantenimiento preventivo',
@@ -300,7 +300,7 @@ export const laptopCategory: ServiceCategory = {
         hook: 'Servicio preventivo para laptops en Cancún que se calientan, suenan fuerte, trabajan lento o llevan más de un año sin limpieza interna. Revisamos ventilación, pasta térmica, batería, disco y sistema antes de que la falla se vuelva cara.',
         intro: 'Limpieza interna, revisión térmica y pruebas de batería, disco, ventilador y sistema para laptops de trabajo, escuela, oficina y gaming en Cancún.',
         bullets: ['Limpieza interna de ventilador, disipador y carcasa', 'Revisión de pasta térmica y cambio si aplica', 'Prueba de temperatura antes y después', 'Revisión de batería, cargador, SSD/HDD y RAM', 'Reporte claro por WhatsApp con recomendaciones', 'Servicio local en Cancún Centro, Huayacán, Cumbres, Bonampak y Zona Hotelera'],
-        fromPrice: '$1,000 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        fromPrice: '$1,000 MXN', eta: '24-48 h', warranty: '90 días con piezas originales',
         featuredImage: '/assets/images/laptop-feliz-limpia.webp',
         sectionImages: {
           whyUs: '/assets/images/mantenimiento-pastaternima-thermalpads.webp',
@@ -525,10 +525,10 @@ export const laptopCategory: ServiceCategory = {
         slug: 'diagnostico',
         label: 'Diagnóstico',
         seoKeyword: 'Diagnóstico técnico de laptop en Cancún',
-        hook: '¿Tu laptop tiene una falla que no entiendes? Diagnóstico profesional con reporte por escrito. Desde $600 MXN según complejidad.',
+        hook: '¿Tu laptop tiene una falla que no entiendes? Diagnóstico profesional con reporte por escrito. $600 MXN, gratis si reparas con nosotros.',
         intro: 'Revisión profesional para identificar la falla y darte presupuesto claro. Te explicamos qué tiene y qué opciones técnicas existen.',
-        bullets: ['Test eléctrico, software y hardware', 'Revisión de placa, RAM, disco, ventilación', 'Reporte por escrito con fotos', 'Diagnóstico desde $600 MXN', 'Reparación y piezas se cotizan aparte'],
-        fromPrice: 'Desde $600 MXN', eta: '8 h a 2 días', warranty: 'Reporte por escrito',
+        bullets: ['Test eléctrico, software y hardware', 'Revisión de placa, RAM, disco, ventilación', 'Reporte por escrito con fotos', 'Diagnóstico de $600 MXN gratis si reparas con nosotros', 'Reparación y piezas se cotizan aparte'],
+        fromPrice: 'Gratis si reparas ($600 MXN)', eta: 'Menos de 1 día', warranty: 'Reporte por escrito',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico completo', desc: 'Eléctrico, mecánico y de software. No te decimos "es la placa" sin pruebas.' },
           { icon: 'fa-file-contract',    title: 'Reporte por escrito',  desc: 'Lo recibes por WhatsApp con fotos y explicación clara, no jerga técnica.' },
@@ -550,8 +550,8 @@ export const laptopCategory: ServiceCategory = {
         ],
         compatibleBrands: ['Cualquier marca', 'Cualquier modelo', 'Cualquier antigüedad'],
         faqs: [
-          { question: `¿Qué tan rápido me dan el diagnóstico?`, answer: `El diagnóstico normalmente toma de <strong>8 horas a 2 días</strong>, según el modelo, la falla y las pruebas necesarias (disco, memoria, temperatura, pantalla o placa). Te avisamos por WhatsApp con hallazgos, costo y recomendación antes de reparar.` },
-          { question: `¿Cuánto cuesta el diagnóstico de laptop?`, answer: `El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.` },
+          { question: `¿Qué tan rápido me dan el diagnóstico?`, answer: `El diagnóstico normalmente toma de <strong>menos de 1 día</strong>, según el modelo, la falla y las pruebas necesarias (disco, memoria, temperatura, pantalla o placa). Te avisamos por WhatsApp con hallazgos, costo y recomendación antes de reparar.` },
+          { question: `¿Cuánto cuesta el diagnóstico de laptop?`, answer: `El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con nosotros, te sale gratis. Normalmente está en menos de 1 día, según el día y la hora en que traigas el equipo y la falla; la reparación se cotiza antes y solo se hace con tu autorización.` },
           { question: `¿Qué incluye el reporte técnico?`, answer: `Incluye fallas detectadas, causa probable, evidencia cuando aplica, costo estimado, tiempo de reparación y recomendación honesta. Si el equipo no conviene repararlo por costo, antigüedad o riesgo, también te lo decimos antes de que inviertas de más.` },
           { question: `¿Qué pasa si descubren más fallas durante la revisión?`, answer: `Si aparece una falla adicional, detenemos el trabajo y te avisamos antes de cambiar piezas o aumentar costo. Tú decides qué se repara y qué se deja pendiente. No cerramos el equipo ni cobramos extras sin autorización previa.` },
           { question: `¿Hacen diagnóstico a domicilio en Cancún?`, answer: `Podemos hacer revisión a domicilio con costo de visita, pero los diagnósticos profundos conviene hacerlos en taller. Ahí tenemos multímetro, piezas de prueba, herramientas antiestáticas y condiciones para abrir el equipo sin riesgo.` },

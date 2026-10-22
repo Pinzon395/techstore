@@ -38,17 +38,17 @@ export const appointmentPolicy = {
 } as const;
 
 // ─── Horario / disponibilidad ───────────────────────────────
-// Política oficial (2026-10-12): atención 24/7 con cita previa; emergencias 24/7 con aviso previo
-// por WhatsApp o correo. La agenda pública (appointment_settings) solo define qué turnos se ofrecen
+// Política oficial (2026-10-12, copy ajustado 2026-10-22): abierto 24/7, se agenda por WhatsApp o en línea;
+// emergencias sin cita con aviso previo por WhatsApp. La agenda pública (appointment_settings) solo define qué turnos se ofrecen
 // en línea; fuera de ellos se coordina por WhatsApp. No reintroducir horarios por día en el copy.
 const ALL_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 export const openingHours = {
   is247: true,
   specification: [{ dayOfWeek: ALL_DAYS, opens: '00:00', closes: '23:59' }],
-  es: 'Atención 24/7 con cita previa',
-  esShort: '24/7 con cita',
-  en: 'Open 24/7 by appointment',
-  enShort: '24/7 by appointment',
+  es: 'Abierto 24/7 · agenda por WhatsApp o en línea',
+  esShort: 'Abierto 24/7',
+  en: 'Open 24/7 · book on WhatsApp or online',
+  enShort: 'Open 24/7',
 } as const;
 
 // ─── Emergencias ────────────────────────────────────────────
@@ -56,10 +56,10 @@ export const emergencyPolicy = {
   noAppointmentNeeded: true,
   requiresPriorNotice: true,
   noticeChannels: ['whatsapp', 'email'] as const,
-  es: 'En una emergencia (equipo mojado, que dejó de encender, olor a quemado, corto o sobrecalentamiento grave) puedes traer tu equipo sin esperar una cita normal. Solo avísanos antes por WhatsApp o correo para estar listos para recibirlo.',
-  esShort: 'Emergencias 24/7: avísanos por WhatsApp antes de venir',
-  en: 'In an emergency (liquid spill, device stopped powering on, burning smell, short circuit or severe overheating) you can bring your device without waiting for a regular appointment. Just message us on WhatsApp or by email before coming so we are ready to receive it.',
-  enShort: '24/7 emergencies: message us on WhatsApp before coming',
+  es: 'En una emergencia (equipo mojado, que dejó de encender, olor a quemado, corto o sobrecalentamiento grave) lo recibimos de inmediato, sin cita. Solo mándanos un WhatsApp antes de salir para tener la mesa lista.',
+  esShort: 'Emergencias 24/7 sin cita: mándanos WhatsApp y tráelo',
+  en: 'In an emergency (liquid spill, device stopped powering on, burning smell, short circuit or severe overheating) we take it in right away, no appointment needed. Just send us a WhatsApp before you leave so the bench is ready.',
+  enShort: '24/7 emergencies, no appointment: WhatsApp us and bring it',
 } as const;
 
 export function buildOpeningHoursSchema() {
@@ -72,30 +72,71 @@ export function buildOpeningHoursSchema() {
 }
 
 // ─── Diagnostic ─────────────────────────────────────────────
+// Política oficial (2026-10-22, decisión del dueño): el diagnóstico cuesta $600 MXN y se abona
+// completo a la reparación (si el cliente repara con Pixon, el diagnóstico le sale gratis).
+// No se cobra por adelantado para agendar. Normalmente se entrega en menos de 1 día; depende del
+// día y la hora en que llega el equipo y de la falla. Fallas visibles (pantalla rota, batería,
+// puerto de carga) se cotizan directo por modelo, sin diagnóstico. No se publican precios de reparación.
 export const diagnosticPolicy = {
   enabled: true,
+  priceMXN: 600,
+  /** Alias histórico: el precio ya no es "desde", es fijo. */
   startingPriceMXN: 600,
-  /** Tiempo habitual de diagnóstico: 8 horas a 2 días según equipo, falla y pruebas necesarias. */
-  minHours: 8,
-  maxDays: 2,
-  prepaid: true,
-  requiredForBooking: true,
+  creditedToRepair: true,
+  prepaid: false,
+  requiredForBooking: false,
+  typicalMaxHours: 24,
+  visibleFaultsQuotedDirectly: true,
   coversDiagnosisOnly: true,
   repairsQuotedSeparately: true,
 } as const;
 
-// ─── Warranty ───────────────────────────────────────────────
-export type WarrantyMode = 'SERVICE_OR_PART_SPECIFIC';
 export const diagnosticCopy = {
   es: {
-    price: 'Diagnóstico desde $600 MXN',
-    time: 'de 8 horas a 2 días',
-    full: 'El diagnóstico tiene un costo desde $600 MXN. El tiempo habitual es de 8 horas a 2 días, según el tipo de equipo, la falla y las pruebas necesarias. Antes de reparar te informamos el diagnóstico, la solución propuesta y el costo; no hacemos ningún trabajo sin tu autorización.',
+    promo: 'Diagnóstico GRATIS si reparas con nosotros',
+    promoTag: 'Mega promoción',
+    price: 'Diagnóstico de $600 MXN gratis si reparas con nosotros',
+    credit: 'El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con Pixon, te sale gratis. Solo lo pagas si decides no reparar.',
+    time: 'menos de 1 día',
+    timeNote: 'El tiempo depende del día y la hora en que traigas el equipo y de la falla que tenga.',
+    noPrepay: 'No pagas nada para agendar.',
+    visibleFaults: 'Pantalla rota, batería o puerto de carga: te cotizamos directo por modelo, sin diagnóstico.',
+    full: 'El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con Pixon, te sale gratis. Normalmente lo tienes en menos de 1 día; el tiempo depende del día y la hora en que traigas el equipo y de la falla. Antes de reparar te explicamos la falla, la solución y el costo, y no hacemos ningún trabajo sin tu autorización.',
   },
   en: {
-    price: 'Diagnosis from MXN $600',
-    time: '8 hours to 2 days',
-    full: 'Diagnosis starts at MXN $600. It usually takes 8 hours to 2 days, depending on the device, the fault and the tests required. Before any repair we explain the diagnosis, the proposed fix and the cost; no work is done without your approval.',
+    promo: 'FREE diagnosis when you repair with us',
+    promoTag: 'Special offer',
+    price: 'MXN $600 diagnosis, free when you repair with us',
+    credit: 'Diagnosis costs MXN $600 and is fully credited toward your repair: if you repair with Pixon, it is free. You only pay it if you decide not to repair.',
+    time: 'less than 1 day',
+    timeNote: 'Timing depends on the day and time you bring the device and on the fault.',
+    noPrepay: 'Nothing to pay to book.',
+    visibleFaults: 'Cracked screen, battery or charging port: we quote directly by model, no diagnosis needed.',
+    full: 'Diagnosis costs MXN $600 and is fully credited toward your repair: if you repair with Pixon, it is free. It usually takes less than 1 day, depending on the day and time you bring the device and on the fault. Before any repair we explain the fault, the fix and the cost; no work is done without your approval.',
+  },
+} as const;
+
+/** Servicios de falla visible (pantalla, batería, puerto de carga): se cotizan directo por modelo, sin diagnóstico. */
+export const visibleFaultSlugPattern = /pantalla|bateria|carga/;
+export const visibleFaultQuoteLabel = 'Cotización directa por modelo, sin diagnóstico';
+
+// ─── Warranty ───────────────────────────────────────────────
+// Política oficial (2026-10-22): 90 días contra defectos de fábrica en reparaciones con piezas
+// originales; mantenimiento preventivo garantizado a la entrega y por el material térmico aplicado;
+// equipos mojados sin garantía (daño progresivo), con atención inmediata.
+export type WarrantyMode = 'SERVICE_OR_PART_SPECIFIC';
+export const warrantyCopy = {
+  es: {
+    short: '90 días de garantía con piezas originales',
+    parts: '90 días de garantía por escrito contra defectos de fábrica en reparaciones con piezas originales.',
+    maintenance: 'Mantenimiento preventivo: te entregamos el equipo probado y, si aparece un problema de temperatura por el material térmico que aplicamos, lo corregimos sin costo.',
+    liquid: 'Equipos mojados: no llevan garantía porque el líquido sigue dañando por dentro, pero los atendemos de inmediato para salvar el equipo y tus datos.',
+  },
+  en: {
+    short: '90-day warranty with original parts',
+    parts: '90-day written warranty against manufacturing defects on repairs with original parts.',
+    maintenance: 'Preventive maintenance: we hand over the device tested and, if a temperature issue appears due to the thermal material we applied, we fix it at no cost.',
+    liquid: 'Liquid-damaged devices carry no warranty because liquid keeps causing damage inside, but we take them in right away to save the device and your data.',
   },
 } as const;
 
@@ -168,9 +209,9 @@ export const defaultPaymentMethods: Record<PaymentMethodKey, boolean> = {
 // ─── Commercial Copy ────────────────────────────────────────
 export const commercialCopy = {
   es: {
-    appointment: 'Atención 24/7 con cita previa. En emergencias, avísanos por WhatsApp o correo antes de venir.',
-    diagnostic: 'El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión; normalmente toma de 8 horas a 2 días. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.',
-    warranty: 'La garantía aplicable se confirma según la reparación y la pieza instalada.',
+    appointment: 'Abierto 24/7: agenda por WhatsApp o en línea. En emergencias lo recibimos sin cita; solo avísanos por WhatsApp antes de salir.',
+    diagnostic: 'El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con nosotros, te sale gratis. Normalmente está en menos de 1 día, según el día y la hora en que traigas el equipo y la falla. Las piezas y la reparación se cotizan antes de trabajar y solo con tu autorización.',
+    warranty: '90 días de garantía por escrito contra defectos de fábrica en reparaciones con piezas originales.',
     liquidDamage: 'El servicio por daño de líquido corresponde inicialmente a limpieza e inspección. Debido a que el líquido puede causar daños progresivos o irreversibles, no se garantiza que el equipo vuelva a encender ni que no aparezcan fallas posteriores. Cualquier reparación necesaria después de la limpieza se diagnostica y cotiza por separado.',
     turnaround: 'El tiempo estimado se confirma después de la revisión.',
     logistics: 'La recolección o entrega se coordina según zona, disponibilidad y tipo de equipo.',
@@ -179,9 +220,9 @@ export const commercialCopy = {
     maintenancePricing: 'El costo del mantenimiento preventivo se cotiza según el tipo de equipo, su valor, complejidad y el alcance requerido.',
   },
   en: {
-    appointment: 'Open 24/7 by appointment. For emergencies, message us on WhatsApp or by email before coming.',
-    diagnostic: 'Diagnostics start from MXN $600 and may vary depending on device type and inspection complexity; they usually take 8 hours to 2 days. This fee covers diagnosis only; any repair, parts or additional work are quoted separately.',
-    warranty: 'Applicable warranty terms are confirmed according to the repair and installed part.',
+    appointment: 'Open 24/7: book on WhatsApp or online. Emergencies are taken in without an appointment; just WhatsApp us before you leave.',
+    diagnostic: 'Diagnosis costs MXN $600 and is fully credited toward your repair: if you repair with us, it is free. It usually takes less than 1 day, depending on the day and time you bring the device and on the fault. Parts and repair are quoted before any work and only done with your approval.',
+    warranty: '90-day written warranty against manufacturing defects on repairs with original parts.',
     liquidDamage: 'Liquid-damage service initially covers cleaning and inspection. Because liquid exposure can cause progressive or irreversible damage, powering on the device or preventing future failures cannot be guaranteed. Any repair required after cleaning is diagnosed and quoted separately.',
     turnaround: 'Estimated turnaround is confirmed after inspection.',
     logistics: 'Pickup or delivery is coordinated according to area, availability and device type.',

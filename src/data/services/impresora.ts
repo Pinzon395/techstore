@@ -32,7 +32,7 @@ const printerIssueService = ({
   fromPrice: undefined,
   hideSchemaOffer: true,
   eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  warranty: '90 días de garantía con piezas originales',
   whyUs: [
     { icon: 'fa-print', title: 'Prueba real', desc: 'Probamos impresión, alimentación, conexión, escaneo y errores antes de cotizar.' },
     { icon: 'fa-droplet', title: 'Tinta y tóner', desc: 'Separamos falla de insumo, cabezal, rodillo, sensor, driver o configuración.' },
@@ -65,7 +65,7 @@ const printerBrandService = (slug: string, brand: string, models: string[], deta
   fromPrice: undefined,
   hideSchemaOffer: true,
   eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  warranty: '90 días de garantía con piezas originales',
   whyUs: [
     { icon: 'fa-barcode', title: 'Modelo exacto', desc: `Validamos serie ${brand}, insumos compatibles y tipo de sistema antes de cotizar.` },
     { icon: 'fa-screwdriver-wrench', title: 'Falla real', desc: 'No culpamos al cartucho sin revisar cabezal, contactos, driver, sensor y alimentación.' },
@@ -117,7 +117,7 @@ export const impresoraCategory: ServiceCategory = {
       { slug: 'atascos',            label: 'Reparación de atascos',        intro: 'Papel atascado, sensores rotos o rodillos sucios  -  solucionamos para que vuelva a alimentar.',         bullets: ['Limpieza/sustitución de rodillos', 'Calibración de sensores', 'Test continuo 50 hojas'],                fromPrice: undefined, hideSchemaOffer: true, eta: '24-48 h' },
       { slug: 'rodillos',           label: 'Rodillos / alimentación',      intro: 'Rodillos gastados que ya no agarran el papel. Sustitución e instalación técnica de refacciones compatibles.', bullets: ['Mano de obra técnica especializada', 'Limpieza del trayecto del papel y calibración', 'Refacción cotizada según modelo y marca', 'Garantía por escrito'], fromPrice: undefined, hideSchemaOffer: true, eta: '2-4 días' },
       { slug: 'conectividad',       label: 'Conectividad / configuración', intro: 'Configuramos tu impresora WiFi, Ethernet o USB en cualquier dispositivo.',                              bullets: ['Configuración WiFi / IP fija', 'Drivers en PC, Mac o móvil', 'Pruebas con cada dispositivo'],            fromPrice: '$550 MXN', eta: '1-2 h' },
-      { slug: 'diagnostico',        label: 'Diagnóstico',                  intro: 'Revisamos qué tiene tu impresora y te damos cotización clara.',                                         bullets: ['Test eléctrico y mecánico', 'Revisión de cabezales y software', 'Reporte técnico por escrito'],                  fromPrice: 'Desde $600 MXN', eta: '1-2 h' },
+      { slug: 'diagnostico',        label: 'Diagnóstico',                  intro: 'Revisamos qué tiene tu impresora y te damos cotización clara.',                                         bullets: ['Test eléctrico y mecánico', 'Revisión de cabezales y software', 'Reporte técnico por escrito'],                  fromPrice: 'Gratis si reparas ($600 MXN)', eta: 'Menos de 1 día' },
       printerBrandService('reparacion-epson', 'Epson', ['Epson EcoTank', 'Epson L Series', 'Epson WorkForce', 'Epson Expression'], {
         hook: 'Epson EcoTank y Serie L con mensaje de almohadillas llenas, cabezal tapado tras días sin uso, colores faltantes o aire en las mangueras de tinta.',
         intro: 'En Epson de tanque la mayoría de las fallas vienen del sistema de tinta: almohadillas saturadas, cabezal seco o aire en las líneas. Revisamos cuál es antes de cotizar un cabezal nuevo.',

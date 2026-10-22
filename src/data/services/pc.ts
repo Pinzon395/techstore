@@ -10,7 +10,7 @@ const pcProcess = [
 
 const pcFaqs = (topic: string) => [
   { question: `¿Cuánto cuesta ${topic} en Cancún?`, answer: 'Depende del componente, disponibilidad de pieza y causa real. Primero diagnosticamos y luego enviamos cotización clara antes de reparar.' },
-  { question: '¿Cuánto cuesta el diagnóstico de PC?', answer: 'El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.' },
+  { question: '¿Cuánto cuesta el diagnóstico de PC?', answer: 'El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con nosotros, te sale gratis. Normalmente está en menos de 1 día, según el día y la hora en que traigas el equipo y la falla; la reparación se cotiza antes y solo se hace con tu autorización.' },
   { question: '¿Me dicen si conviene reparar o comprar otra PC?', answer: 'Sí. Comparamos costo, antigüedad, uso, disponibilidad de piezas y rendimiento esperado para recomendar la mejor ruta.' },
   { question: '¿Puedo llevar una PC gamer ensamblada?', answer: 'Sí. Revisamos PC gamer, equipos de oficina, workstations, mini PC y equipos ensamblados por piezas.' },
   { question: '¿Pierdo mis archivos?', answer: 'No en reparaciones físicas normales. Si hay riesgo en disco, Windows o recuperación de datos, te avisamos antes de tocar información.' },
@@ -61,7 +61,7 @@ const pcClusterService = ({
   fromPrice: undefined,
   hideSchemaOffer: hideSchemaOffer ?? true,
   eta: '24-72 h',
-  warranty: 'Garantía por escrito según reparación',
+  warranty: '90 días de garantía con piezas originales',
   whyUs: [
     { icon: 'fa-stethoscope', title: 'Diagnóstico por pruebas', desc: 'No cambiamos piezas por intuición. Probamos fuente, RAM, disco, GPU, placa, Windows y temperatura.' },
     { icon: 'fa-microchip', title: 'Hardware real', desc: 'Trabajamos PC gamer, oficina, workstations y equipos ensamblados con revisión de compatibilidad.' },
@@ -93,7 +93,7 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['fuente-poder', 'tarjeta-madre', 'diagnostico', 'recuperacion-datos'],
     faqs: [
-      { question: '¿Cuánto cuesta revisar una PC que no enciende en Cancún?', answer: 'El diagnóstico comienza desde $600 MXN y puede variar según el tipo de equipo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.' },
+      { question: '¿Cuánto cuesta revisar una PC que no enciende en Cancún?', answer: 'El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con nosotros, te sale gratis. Normalmente está en menos de 1 día, según el día y la hora en que traigas el equipo y la falla; la reparación se cotiza antes y solo se hace con tu autorización.' },
       { question: '¿El diagnóstico incluye la reparación?', answer: 'No. El diagnóstico cubre únicamente la revisión técnica y localización precisa de la falla. Con el problema confirmado, te presentamos el presupuesto de piezas y mano de obra para tu autorización.' },
       { question: '¿Qué pasa si mi PC prende ventiladores pero no da imagen?', answer: 'Este síntoma suele deberse a un problema con la memoria RAM, la tarjeta de video (GPU), una BIOS corrupta o fallas en las fases de alimentación de la tarjeta madre. Realizamos pruebas cruzadas para aislar el componente defectuoso.' },
       { question: '¿Puede ser la fuente de poder?', answer: 'Sí, es muy común. Si la fuente de poder sufrió una descarga por apagones en Cancún, puede entregar voltajes incorrectos: suficientes para encender ventiladores o LEDs, pero no para iniciar el procesador.' },
@@ -102,7 +102,7 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
       { question: '¿Pierdo mis archivos?', answer: 'No. Al revisar fallas de encendido no tocamos tus discos de almacenamiento. Tus datos están completamente seguros. Si detectamos que el almacenamiento está en riesgo, te avisamos para realizar un respaldo inmediato.' },
       { question: '¿Me dicen si conviene reparar o comprar otra PC?', answer: 'Sí, siempre actuamos con honestidad. Evaluamos el costo de las refacciones, la antigüedad de tu PC y tus necesidades. Si el costo de reparación se acerca al valor del equipo, te recomendaremos no invertir más.' },
       { question: '¿Dan garantía?', answer: 'Sí, entregamos garantía por escrito sobre la reparación realizada (mano de obra y refacciones instaladas). La garantía no cubre descargas eléctricas posteriores, humedad o problemas ajenos a la intervención.' },
-      { question: '¿Atienden con cita previa?', answer: 'Sí, atendemos de Lunes a Domingo exclusivamente con cita previa para garantizarte una atención personalizada y sin esperas. Puedes agendar tu espacio por WhatsApp o a través de nuestro formulario de tickets.' },
+      { question: '¿Atienden con cita previa?', answer: 'Sí, atendemos todos los días con cita para garantizarte una atención personalizada; si es una emergencia (equipo mojado, olor a quemado), lo recibimos sin cita avisando antes por WhatsApp y sin esperas. Puedes agendar tu espacio por WhatsApp o a través de nuestro formulario de tickets.' },
     ],
   }),
   pcClusterService({
@@ -122,7 +122,7 @@ const PC_CLUSTER_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['no-enciende', 'tarjeta-video-gpu', 'instalacion-componentes', 'diagnostico'],
     faqs: [
-      { question: '¿Cuánto cuesta cambiar la fuente de poder de una PC en Cancún?', answer: 'El diagnóstico técnico de energía y fuente comienza desde $600 MXN. Si requiere reemplazo, cotizamos mano de obra y refacción según el modelo exacto, potencia y certificación requeridas.' },
+      { question: '¿Cuánto cuesta cambiar la fuente de poder de una PC en Cancún?', answer: 'El diagnóstico técnico de energía y fuente cuesta $600 MXN y es gratis si reparas con nosotros. Si requiere reemplazo, cotizamos mano de obra y refacción según el modelo exacto, potencia y certificación requeridas.' },
       { question: '¿El diagnóstico de la fuente de poder incluye la refacción?', answer: 'No. El diagnóstico cubre únicamente las pruebas con tester de voltaje, carga y multímetro para determinar la falla. El reemplazo de la pieza o cualquier reparación se cotiza por separado.' },
       { question: '¿Por qué mi computadora se apaga sola mientras juego o trabajo?', answer: 'Suele deberse a sobrecalentamiento o a una fuente de poder degradada que ya no soporta la demanda eléctrica de la tarjeta de video (GPU). También puede ser un corto en la tarjeta madre.' },
       { question: '¿Qué es la certificación 80 Plus (Bronze, Gold, etc.)?', answer: 'Es un estándar de eficiencia energética. Una fuente 80 Plus Gold desperdicia menos electricidad en forma de calor, lo cual es vital en el clima cálido de Cancún, y protege mejor los componentes.' },
@@ -328,7 +328,7 @@ export const pcCategory: ServiceCategory = {
         hook: 'Mantenimiento para PC de escritorio, oficina y gamer antes de que el polvo, la temperatura o una fuente sucia se conviertan en apagados y reparaciones caras.',
         intro: 'Limpieza interna, revisión térmica, organización básica de cableado y pruebas de fuente, ventiladores, disco, RAM y Windows para PC en Cancún.',
         bullets: ['Limpieza de gabinete, ventiladores, disipador y filtros', 'Cambio o revisión de pasta térmica según estado', 'Prueba de temperaturas y estabilidad', 'Revisión de fuente, RAM, SSD/HDD y GPU', 'Reporte con recomendaciones de upgrade o corrección'],
-        fromPrice: '$600 MXN', eta: '24-48 h', warranty: '3 meses por escrito',
+        fromPrice: '$600 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
         featuredImage: '/assets/images/mantenimiento-pc-escritorio.webp',
         sectionImages: {
           whyUs: '/assets/images/mantenimiento-pc-escritorio.webp',
@@ -386,7 +386,7 @@ export const pcCategory: ServiceCategory = {
           'Presupuesto previo claro con desglose de refacciones y mano de obra',
           'Pruebas de estabilidad, voltajes y temperatura tras la reparación',
         ],
-        warranty: 'Garantía por escrito según reparación y refacción instalada',
+        warranty: '90 días de garantía con piezas originales',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico por pruebas', desc: 'No adivinamos componentes. Realizamos pruebas eléctricas, lógicas y térmicas para hallar la causa real.' },
           { icon: 'fa-handshake',        title: 'Presupuesto previo',      desc: 'Te entregamos una cotización clara antes de comprar refacciones o intervenir tu equipo.' },
@@ -530,7 +530,7 @@ export const pcCategory: ServiceCategory = {
         hook: 'PC con polvo de años, ventiladores que rugen y temperaturas insanas. Desarmamos todo, limpiamos cada componente y aplicamos pasta nueva.',
         intro: 'Desarmado total, limpieza de cada componente con químicos especializados, cambio de pasta térmica y reensamble.',
         bullets: ['Limpieza ultrasónica de placa si aplica', 'Cambio de pasta térmica incluido', 'Reorganización de cableado', 'Test térmico antes/después', 'Limpieza de fuente y disipadores'],
-        fromPrice: '$600 MXN', eta: '24-48 h', warranty: '60 días',
+        fromPrice: '$600 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
         whyUs: [
           { icon: 'fa-spray-can-sparkles', title: 'Limpieza nivel pro',   desc: 'Aire comprimido + alcohol isopropílico + ultrasonidos. No solo soplar.' },
           { icon: 'fa-temperature-arrow-down', title: 'Bajan temperaturas', desc: 'Tu PC vuelve a temperaturas de fábrica. Ventiladores en silencio.' },
@@ -573,13 +573,13 @@ export const pcCategory: ServiceCategory = {
         seoKeyword: 'Diagnóstico de PC en Cancún',
         hook: '¿Tu PC no enciende, se reinicia, va lenta, muestra pantalla azul o no da video? Hacemos diagnóstico técnico real antes de cambiar piezas.',
         intro: 'Diagnóstico profesional de PC en Cancún para fallas de encendido, Windows, virus, fuente de poder, RAM, SSD, disco duro, GPU, temperatura y placa madre.',
-        bullets: ['Prueba de fuente, RAM, SSD/HDD y GPU', 'Revisión de Windows, virus y drivers', 'Medición de temperatura y estabilidad', 'Reporte claro por WhatsApp', 'Diagnóstico técnico desde $600 MXN'],
-        fromPrice: 'Desde $600 MXN', eta: 'Hasta 6 h o más según falla', warranty: 'Reporte por escrito',
+        bullets: ['Prueba de fuente, RAM, SSD/HDD y GPU', 'Revisión de Windows, virus y drivers', 'Medición de temperatura y estabilidad', 'Reporte claro por WhatsApp', 'Diagnóstico de $600 MXN gratis si reparas con nosotros'],
+        fromPrice: 'Gratis si reparas ($600 MXN)', eta: 'Menos de 1 día', warranty: 'Reporte por escrito',
         whyUs: [
           { icon: 'fa-magnifying-glass', title: 'Diagnóstico real', desc: 'No decimos "es la placa" sin pruebas. Separamos fuente, RAM, disco, Windows, temperatura y GPU.' },
           { icon: 'fa-file-contract',    title: 'Reporte por WhatsApp', desc: 'Te explicamos la falla, causa probable, urgencia, costo y tiempo antes de reparar.' },
           { icon: 'fa-handshake',        title: 'Recomendación honesta', desc: 'Si conviene formatear, cambiar SSD, limpiar, reparar o no invertir más, te lo decimos claro.' },
-          { icon: 'fa-piggy-bank',       title: 'Diagnóstico técnico desde $600', desc: 'Comienza desde $600 MXN según complejidad; cubre exclusivamente la revisión y pruebas de falla.' },
+          { icon: 'fa-piggy-bank',       title: 'Diagnóstico gratis si reparas con nosotros', desc: 'Cuesta $600 MXN y se abona completo si reparas con nosotros.' },
         ],
         process: [
           { title: 'Recepción y síntomas', desc: 'Registramos si no enciende, se reinicia, va lenta, no da video, se calienta o marca errores.' },
@@ -600,7 +600,7 @@ export const pcCategory: ServiceCategory = {
         faqs: [
           { question: `¿Qué incluye el diagnóstico de PC?`, answer: `Incluye revisión de fuente, RAM, SSD o disco duro, GPU, temperatura, Windows, drivers, virus, arranque, estabilidad y síntomas reportados. La profundidad depende de la falla, pero la meta es encontrar la causa antes de cambiar piezas.` },
           { question: `¿Cuánto tarda el diagnóstico?`, answer: `Un diagnóstico completo puede tomar hasta <strong>6 horas</strong> según el problema del equipo. Si hay reinicios aleatorios, pantalla azul, fallas bajo carga o pruebas cruzadas de piezas, puede requerir más tiempo para reproducir la falla con seguridad.` },
-          { question: `¿Cuánto cuesta el diagnóstico?`, answer: `El diagnóstico comienza desde $600 MXN y puede variar según el tipo de dispositivo y la complejidad de la revisión. Este costo corresponde únicamente al diagnóstico; cualquier reparación, pieza o trabajo adicional se cotiza por separado.` },
+          { question: `¿Cuánto cuesta el diagnóstico?`, answer: `El diagnóstico cuesta $600 MXN y se abona completo a tu reparación: si reparas con nosotros, te sale gratis. Normalmente está en menos de 1 día, según el día y la hora en que traigas el equipo y la falla; la reparación se cotiza antes y solo se hace con tu autorización.` },
           { question: `¿Me dicen si conviene reparar o comprar otra PC?`, answer: `Sí. Si la reparación no conviene por costo, antigüedad, disponibilidad de piezas o rendimiento esperado, te lo diremos. También podemos recomendar formateo, upgrade SSD/RAM o mantenimiento si eso resuelve mejor el problema.` },
           { question: `¿Hacen diagnóstico a domicilio?`, answer: `Podemos coordinar visita en Cancún según zona y disponibilidad, pero para diagnóstico profundo recomendamos taller. Ahí podemos medir voltajes, probar piezas, revisar temperatura y abrir el equipo con herramienta adecuada.` },
         ],

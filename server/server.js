@@ -388,6 +388,8 @@ async function bootstrap() {
         // vs /servicios/laptop/laptop-mojada 270 impr., 1 clic, pos. 6.3 → una sola URL de emergencia.
         '/servicios/laptop/laptop-mojada': '/limpieza-laptop-liquido',
         '/servicios/limpieza-laptop-liquido': '/limpieza-laptop-liquido',
+        // El blog tenía una página puente (meta refresh + noindex); 301 real al contenido.
+        '/blogs/desarrollo-software-paginas-web-cancun': '/desarrollo-software-paginas-web-cancun',
     });
 
     app.get(Object.keys(serviceAliasRedirects), (req, res) => {
