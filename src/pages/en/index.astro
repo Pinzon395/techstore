@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import { buildBreadcrumbSchema } from '../../lib/schema';
+import { diagnosticCopy, emergencyPolicy } from '../../lib/business';
 
 const canonical = 'https://pixon.com.mx/en';
 const whatsappMessage = `Hi Pixon PC. I need help with a device while I am in Cancun.
@@ -11,6 +12,7 @@ Device:
 Model:
 Problem:
 Hotel / area:
+Checkout date:
 How urgent is it?:
 I prefer written communication in English.`;
 const whatsappUrl = `https://wa.me/529986690777?text=${encodeURIComponent(whatsappMessage)}`;
@@ -28,14 +30,56 @@ const communicationSteps = [
   ['Written quotes in English', 'Send the device model and symptoms on WhatsApp. We explain the findings and quote in writing when the repair path is confirmed.'],
   ['Repair updates by WhatsApp', 'Updates, questions and availability checks can be handled by message, so you have a written record while you are away from home.'],
   ['Clear approval before additional work', 'We do not add work beyond the agreed scope without explaining it and asking for written approval first.'],
-  ['Help for hotel and resort guests', 'Share your hotel, condo or office area. We will explain the options that fit the device, distance and current availability.'],
+  ['Tell us your checkout date', 'If you fly home soon, say so in your first message. We plan the visit and the repair around the time you have left in Cancun.'],
+];
+
+const hotelVisitSteps = [
+  ['Message us from your hotel', 'Send the device, model, problem, hotel name and the time that works for you. Photos or a short video help us bring the right tools.'],
+  ['Get a closed price first', 'The visit price depends on the distance to your hotel and the type of service. You know the full amount, travel included, before you confirm.'],
+  ['A technician comes to you', 'We meet you in your room, the lobby or the business center, following the access rules of each hotel or condo.'],
+  ['Fixed on site or a written plan', 'If the repair can be done safely on site, we do it there. If it needs workshop equipment, we explain why in writing and you decide.'],
+];
+
+const vacationFixes = [
+  { icon: 'fa-water', title: 'Phone dropped in the pool or the ocean', copy: 'Salt water corrodes fast. Turn the phone off, do not charge it and skip the rice. Message us right away: liquid cases are taken in immediately, no appointment.', href: '/en/liquid-damage', link: 'Water damage phone repair' },
+  { icon: 'fa-mobile-screen', title: 'Cracked screen on day one', copy: 'Screens, batteries and charging ports are quoted directly by model, with no diagnosis fee, so you know the price before you decide.', href: '/en/phone-repair', link: 'Phone screen repair' },
+  { icon: 'fa-plug-circle-xmark', title: 'Sand in the charging port', copy: 'Beach sand and humidity block charging ports. A careful cleaning often solves it; if the port is damaged, we quote the replacement first.', href: '/en/phone-repair', link: 'Charging port repair' },
+  { icon: 'fa-laptop', title: 'Work laptop fails before a call', copy: 'For remote workers and business travelers: no power, no Wi-Fi, a blue screen or an update stuck at boot. We start with the symptom and tell you what it needs.', href: '/en/laptop-repair', link: 'Laptop repair' },
+  { icon: 'fa-temperature-high', title: 'Overheating in the Cancun heat', copy: 'Heat and humidity make laptops and consoles shut down or slow down. Cleaning and new thermal paste can usually be done in one visit.', href: '/en/computer-repair', link: 'Computer repair' },
+  { icon: 'fa-images', title: 'Vacation photos you cannot lose', copy: 'Before any repair on a device with photos or work files, tell us. We check whether the data can be backed up first and explain the risk in writing.', href: '/en/data-recovery', link: 'Data recovery' },
+];
+
+const onSiteRows = [
+  ['Diagnosis and written quote', 'Yes', 'When it needs test equipment'],
+  ['Laptop and PC cleaning, thermal paste', 'Yes, in most models', 'Models that need full disassembly'],
+  ['Windows, software, Wi-Fi and setup', 'Yes', 'Not needed'],
+  ['Phone screen, battery or charging port', 'Depends on the model and part', 'When the part must be ordered'],
+  ['Liquid damage', 'First aid and advice', 'Yes: cleaning needs the workshop'],
+  ['Board-level repair and soldering', 'No', 'Yes'],
 ];
 
 const areaCards = [
-  ['Cancun Hotel Zone', 'For hotel guests and travelers along the Hotel Zone, share the hotel name and your device details so we can confirm the most practical next step.'],
-  ['Costa Mujeres', 'Coordination for Costa Mujeres depends on the case, distance and availability. Written updates make it easier to follow the repair from your resort.'],
-  ['Playa Mujeres', 'Visitors in Playa Mujeres can message their hotel or condo location, device model and problem for a clear written response before arranging service.'],
-  ['Puerto Cancun', 'For Puerto Cancun homes, condos and offices, we can review the request by WhatsApp and confirm whether pickup, delivery or workshop service fits the case.'],
+  ['Cancun Hotel Zone', 'Hotels, resorts and condos along Blvd. Kukulcan, from km 0 to km 25. Share the hotel name and we confirm the visit time and price.'],
+  ['Punta Cancun', 'The busiest part of the Hotel Zone, near the convention center. Visits follow the access rules of each property.'],
+  ['Isla Dorada', 'Homes and condos in the Isla Dorada residential area of the Hotel Zone. We coordinate access details with you before the visit.'],
+  ['Puerto Cancun', 'Condos, homes and offices between downtown and the Hotel Zone, a short drive from our workshop.'],
+  ['Costa Mujeres', 'All-inclusive resorts north of Cancun. The visit price includes the extra distance, and you know it before you confirm.'],
+  ['Playa Mujeres', 'Resorts and residences in Playa Mujeres. Send the property name and a time window that works for your stay.'],
+  ['Downtown and Av. Tulum', 'Hotels and rentals in downtown Cancun, Av. Tulum, Av. Bonampak and Puerto Juarez.'],
+  ['Vacation rentals', 'Airbnb and short-term rentals across Cancun. Share the area and building rules so we arrive prepared.'],
+];
+
+const guestChecklist = [
+  'Your hotel name and room number, or where we can meet.',
+  'The device type, exact model and what happened.',
+  'Your checkout or flight date, if you leave soon.',
+  'Whether the device holds photos or files you need to keep.',
+  'The charger, if you have it with you.',
+];
+
+const conciergeCards = [
+  ['For front desk and concierge teams', 'Guests often ask the front desk where to fix a phone or a laptop. Your team can send us the guest case by WhatsApp, and we reply to the guest in English.'],
+  ['For hotel IT and operations', 'Front-desk computers, office PCs and networks are handled as a separate business request, with a written scope and quote.'],
 ];
 
 const faqs = [
@@ -44,9 +88,14 @@ const faqs = [
   ['Can we communicate entirely through WhatsApp?', 'WhatsApp is the main channel for written English communication, including the device details, quote and repair updates.'],
   ['Do you send the repair quote in English?', 'When the repair scope is confirmed, we can send the quote and explanation in written English.'],
   ['Will you ask before performing additional work?', 'Yes. If the diagnosis finds additional work beyond the approved scope, we explain it and request written approval before continuing.'],
-  ['Can you pick up my device from my hotel in Cancun?', 'Pickup coordination may be available depending on the device, hotel area, distance and schedule. A transportation charge can apply; confirm it with us first.'],
-  ['Do you provide service in Cancun Hotel Zone?', 'We can review Hotel Zone requests by WhatsApp and coordinate the available option for the device and location.'],
-  ['Do you serve Costa Mujeres and Playa Mujeres?', 'Message us with the exact hotel or area. We confirm availability, logistics and any transportation charge before arranging a service.'],
+  ['Can a technician come to my hotel in Cancun?', 'Yes. We visit hotels, resorts, condos and vacation rentals in Cancun by appointment. Send the hotel name, the device and the problem by WhatsApp to schedule it.'],
+  ['How much does a hotel visit cost?', 'It depends on the distance to your hotel and the type of service. We give you a closed price, travel included, before you confirm the visit, so there are no surprise charges.'],
+  ['How fast can you come to my hotel?', 'It depends on the schedule and the distance. Tell us how urgent it is and when you check out, and we offer the closest available time. Liquid damage and devices that stopped working can also be brought to the workshop with no appointment.'],
+  ['What if my hotel does not allow outside technicians in rooms?', 'We can meet you in the lobby, the business center or another common area, following the hotel rules.'],
+  ['Can you fix it before my flight?', 'Tell us your flight date in your first message. If the repair cannot be finished in time, we tell you before you pay anything and suggest the safest option.'],
+  ['Do you provide service in Cancun Hotel Zone?', 'Yes. We schedule visits along Blvd. Kukulcan, from km 0 to km 25, for hotel guests, condo residents and offices.'],
+  ['Do you serve Costa Mujeres and Playa Mujeres?', 'Yes. Send us the exact resort or address. The extra distance is included in the closed price we give you before the visit.'],
+  ['Can my hotel concierge contact you for me?', 'Yes. The front desk or concierge can send us your case by WhatsApp, and we continue the conversation with you in English.'],
   ['Can you help tourists staying at resorts?', 'Yes. Tourists, business travelers, expats and digital nomads can receive written English support while the repair is being assessed.'],
   ['Do you repair iPhones?', 'We assess iPhone issues such as batteries, screens, charging, cameras, audio and liquid exposure according to the model and diagnosis.'],
   ['Do you repair laptops and PCs?', 'Yes. We assess laptop and PC hardware, Windows, overheating, storage, memory, batteries, screens and no-power faults.'],
@@ -69,25 +118,44 @@ const schema = [
     url: canonical,
     provider: { '@id': 'https://pixon.com.mx/#business' },
     areaServed: [
-      { '@type': 'City', name: 'Cancun' }, { '@type': 'Place', name: 'Cancun Hotel Zone' }, { '@type': 'Place', name: 'Costa Mujeres' }, { '@type': 'Place', name: 'Playa Mujeres' }, { '@type': 'Place', name: 'Puerto Cancun' },
+      { '@type': 'City', name: 'Cancun' }, { '@type': 'Place', name: 'Cancun Hotel Zone' }, { '@type': 'Place', name: 'Costa Mujeres' }, { '@type': 'Place', name: 'Playa Mujeres' }, { '@type': 'Place', name: 'Puerto Cancun' }, { '@type': 'Place', name: 'Punta Cancun' }, { '@type': 'Place', name: 'Isla Dorada' },
+    ],
+    availableChannel: [
+      { '@type': 'ServiceChannel', name: 'Technician visit to your hotel, condo or vacation rental in Cancun' },
+      { '@type': 'ServiceChannel', name: 'Pixon PC workshop in Cancun' },
     ],
   },
   buildBreadcrumbSchema([{ name: 'Home', url: '/en' }, { name: 'Computer Repair in Cancun', url: canonical }]),
 ].filter(Boolean) as object[];
 ---
 
-<Base title="Computer & Laptop Repair in Cancun | English Support | Pixon PC" description="Computer, laptop, phone and console repair in Cancun with written English support. Clear quotes and WhatsApp updates before repair." canonical={canonical} lang="en" schema={schema} bodyClass="en-home-page">
+<Base title="Computer & Phone Repair in Cancun | We Come to Your Hotel | Pixon PC" description="Laptop, phone and console repair in Cancun with English support. A technician visits your hotel in the Hotel Zone, Costa Mujeres or Playa Mujeres. Closed price first." canonical={canonical} lang="en" schema={schema} bodyClass="en-home-page">
   <Navbar lang="en" />
   <main>
     <header class="en-home-hero" aria-labelledby="en-home-title">
       <div class="en-home-shell en-home-hero__inner">
-        <p class="en-home-eyebrow">Tech repair in Cancun · English support</p>
-        <h1 id="en-home-title">Computer Repair in Cancun with English Support</h1>
-        <p class="en-home-lead">Laptop, PC, phone, iPhone and console repair in Cancun with clear written communication in English. We can coordinate service, pickup or delivery for hotels, condos and offices depending on the case.</p>
-        <div class="en-home-actions"><a class="en-home-btn en-home-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Message us on WhatsApp</a><a class="en-home-btn en-home-btn--secondary" href="#repair-services">View repair services</a></div>
-        <ul class="en-home-trust" aria-label="Service details"><li>Written quotes</li><li>English updates</li><li>Free diagnosis if you repair (MXN $600 credited)</li><li>90-day warranty with original parts</li><li>Pickup coordination</li><li>Clear approval before repair</li></ul>
+        <p class="en-home-eyebrow">Tech repair in Cancun · We come to your hotel</p>
+        <h1 id="en-home-title">Computer and Phone Repair in Cancun, at Your Hotel</h1>
+        <p class="en-home-lead">A quick fix so your vacation keeps going. Laptop, phone, iPhone and console repair with written English support, and a technician who visits your hotel, resort or vacation rental in Cancun.</p>
+        <div class="en-home-actions"><a class="en-home-btn en-home-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Book a hotel visit on WhatsApp</a><a class="en-home-btn en-home-btn--secondary" href="#hotel-visit">How hotel visits work</a></div>
+        <ul class="en-home-trust" aria-label="Service details"><li>Technician visits to your hotel</li><li>Closed price before the visit</li><li>English updates on WhatsApp</li><li>Free diagnosis if you repair (MXN $600 credited)</li><li>90-day warranty with original parts</li><li>Open 24/7 by appointment</li></ul>
       </div>
     </header>
+
+    <section class="en-home-section" id="hotel-visit" aria-labelledby="hotel-visit-title">
+      <div class="en-home-shell">
+        <div class="en-home-section-copy en-home-section-copy--center"><p class="en-home-kicker">Service that comes to you</p><h2 id="hotel-visit-title">Computer and Phone Repair at Your Hotel in Cancun</h2><p>You are on vacation, not in a repair shop line. Send us a message from your room and a technician comes to your hotel, resort, condo or vacation rental, by appointment.</p></div>
+        <ol class="en-home-steps">{hotelVisitSteps.map(([title, copy], index) => (<li class="en-home-step"><span class="en-home-step__num" aria-hidden="true">{index + 1}</span><h3>{title}</h3><p>{copy}</p></li>))}</ol>
+        <div class="en-home-center-cta"><a class="en-home-btn en-home-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Ask for a hotel visit</a></div>
+      </div>
+    </section>
+
+    <section class="en-home-section en-home-section--line" id="vacation-fixes" aria-labelledby="vacation-title">
+      <div class="en-home-shell">
+        <div class="en-home-section-copy en-home-section-copy--center"><p class="en-home-kicker">Quick fixes for your trip</p><h2 id="vacation-title">Quick Fixes So Your Vacation Keeps Going</h2><p>Common device problems on a beach trip. Each one starts with a clear message and a written answer before any work.</p></div>
+        <div class="en-home-service-grid">{vacationFixes.map((fix) => (<article class="en-home-service-card"><span class="en-home-service-card__icon"><i class={`fa-solid ${fix.icon}`} aria-hidden="true"></i></span><h3>{fix.title}</h3><p>{fix.copy}</p><a href={fix.href}>{fix.link} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></article>))}</div>
+      </div>
+    </section>
 
     <section class="en-home-section en-home-section--soft" id="english-support" aria-labelledby="communication-title">
       <div class="en-home-shell en-home-intro-grid">
@@ -104,9 +172,22 @@ const schema = [
 
     <section class="en-home-section en-home-section--line" aria-labelledby="support-title"><div class="en-home-shell"><div class="en-home-section-copy"><p class="en-home-kicker">For international visitors</p><h2 id="support-title">English Support for Tourists and Expats in Cancun</h2><p>Whether you are visiting for a few days, living in Cancun, working remotely or managing a trip, the goal is simple: you can follow the repair with clear written communication.</p></div><div class="en-home-feature-grid">{communicationSteps.map(([title, copy]) => (<article class="en-home-feature-card"><h3>{title}</h3><p>{copy}</p></article>))}</div></div></section>
 
-    <section class="en-home-section en-home-section--navy" id="hotel-coordination" aria-labelledby="hotel-title"><div class="en-home-shell"><div class="en-home-section-copy en-home-section-copy--light"><p class="en-home-kicker">Visitors, hotels and offices</p><h2 id="hotel-title">Device Repair for Hotels and Resorts in Cancun</h2><p>We can coordinate device service for tourists, hotel guests, condo residents and offices by message. Availability and the most practical logistics are confirmed per case.</p></div><div class="en-home-area-grid">{areaCards.map(([area, copy]) => (<article class="en-home-area-card"><h3>{area}</h3><p>{copy}</p></article>))}</div></div></section>
+    <section class="en-home-section" id="in-room-or-workshop" aria-labelledby="onsite-title">
+      <div class="en-home-shell">
+        <div class="en-home-section-copy en-home-section-copy--center"><p class="en-home-kicker">Honest scope before the visit</p><h2 id="onsite-title">What We Fix in Your Hotel Room and What Needs the Workshop</h2><p>Some repairs need a bench, a microscope or parts that are ordered by model. We tell you which case yours is before the visit, so the trip is never wasted.</p></div>
+        <div class="en-home-table-wrap" tabindex="0" role="region" aria-labelledby="onsite-title">
+          <table class="en-home-table">
+            <thead><tr><th scope="col">Service</th><th scope="col">At your hotel</th><th scope="col">At the workshop</th></tr></thead>
+            <tbody>{onSiteRows.map(([service, hotel, workshop]) => (<tr><th scope="row">{service}</th><td data-label="At your hotel">{hotel}</td><td data-label="At the workshop">{workshop}</td></tr>))}</tbody>
+          </table>
+        </div>
+        <p class="en-home-table-note">{emergencyPolicy.en}</p>
+      </div>
+    </section>
 
-    <section class="en-home-section en-home-section--soft" aria-labelledby="pickup-title"><div class="en-home-shell en-home-split"><div class="en-home-section-copy"><p class="en-home-kicker">Availability confirmed per case</p><h2 id="pickup-title">Pickup and Delivery for Device Repair in Cancun</h2><p>Pickup and delivery can be coordinated for a hotel, condo or office when the device, area, distance and schedule allow it. We confirm the logistics in writing before arranging anything.</p></div><div class="en-home-note-card"><h3>Before pickup is arranged</h3><ul><li>Send the device type, exact model and problem.</li><li>Share the hotel, condo, office or Cancun area.</li><li>Confirm the available time window and transportation charge, if applicable.</li><li>Receive the next step and approval request in writing.</li></ul></div></div></section>
+    <section class="en-home-section en-home-section--navy" id="hotel-coordination" aria-labelledby="hotel-title"><div class="en-home-shell"><div class="en-home-section-copy en-home-section-copy--light"><p class="en-home-kicker">Hotel visits across Cancun</p><h2 id="hotel-title">Hotel Visits in the Hotel Zone, Costa Mujeres and Playa Mujeres</h2><p>We visit hotels, resorts, condos and vacation rentals across Cancun by appointment. The price of each visit depends on the distance and the service, and you get it in writing before you confirm.</p></div><div class="en-home-area-grid">{areaCards.map(([area, copy]) => (<article class="en-home-area-card"><h3>{area}</h3><p>{copy}</p></article>))}</div></div></section>
+
+    <section class="en-home-section en-home-section--soft" id="before-the-visit" aria-labelledby="pickup-title"><div class="en-home-shell en-home-split"><div class="en-home-section-copy"><p class="en-home-kicker">A faster visit</p><h2 id="pickup-title">Before the Technician Arrives at Your Hotel</h2><p>A complete first message saves a lot of back and forth. With these details we can tell you the price, the time and whether the repair can be done in your room.</p><ul class="en-home-check-list">{guestChecklist.map((item) => (<li><i class="fa-solid fa-check" aria-hidden="true"></i> {item}</li>))}</ul></div><div class="en-home-note-card en-home-note-card--pay"><h3>What you pay, and when</h3><ul><li><strong>Hotel visit:</strong> closed price by distance and service, travel included, confirmed before the visit.</li><li><strong>Diagnosis:</strong> {diagnosticCopy.en.credit}</li><li><strong>Screens, batteries and charging ports:</strong> {diagnosticCopy.en.visibleFaults}</li><li><strong>Approval:</strong> no repair starts without your written OK.</li></ul></div></div></section>
 
     <section class="en-home-section" aria-labelledby="phone-title"><div class="en-home-shell en-home-content-grid"><div class="en-home-section-copy"><p class="en-home-kicker">Mobile devices</p><h2 id="phone-title">Phone and iPhone Repair in Cancun</h2><p>Phone issues can have more than one cause. We review the model, symptoms and history before quoting screens, batteries, charging, camera, audio or liquid damage work.</p><div class="en-home-inline-links"><a href="/en/phone-repair">Phone repair</a><a href="/en/liquid-damage">Water Damage Phone Repair</a><a href="/en/iphone-battery-replacement">iPhone Battery Replacement</a></div></div><div class="en-home-mini-grid"><article><h3>iPhone repair questions</h3><p>Send the model, issue and iOS message or battery health if relevant. We confirm parts and scope before approval.</p></article><article><h3>Water damage after a beach or pool day</h3><p>Do not charge it. Tell us whether it was fresh water, pool water or salt water and whether the phone still turns on.</p></article></div></div></section>
 
@@ -114,11 +195,11 @@ const schema = [
 
     <section class="en-home-section" aria-labelledby="console-title"><div class="en-home-shell en-home-content-grid"><div class="en-home-section-copy"><p class="en-home-kicker">Consoles</p><h2 id="console-title">Game Console Repair in Cancun</h2><p>We assess PlayStation, Xbox, Nintendo Switch and controller problems without turning the English hub into a console-only page.</p></div><div class="en-home-mini-grid"><article><h3>PS5, Xbox and Nintendo Switch</h3><p>Common requests include cleaning, overheating, HDMI, power and storage-related faults. The solution depends on the diagnosis.</p></article><article><h3>Controller repair</h3><p>For joystick drift, buttons, charging and connection issues, send the controller model and a short description of the behavior.</p></article></div></div></section>
 
-    <section class="en-home-section en-home-section--soft" aria-labelledby="b2b-title"><div class="en-home-shell en-home-split"><div class="en-home-section-copy"><p class="en-home-kicker">Separate business request flow</p><h2 id="b2b-title">IT Support for Businesses and Hotels in Cancun</h2><p>Business, hotel and office requests are reviewed separately from personal-device repairs. Share the number of devices, location, issue and operational impact for a clearer next step.</p></div><div class="en-home-note-card"><h3>For a business or hotel request</h3><ul><li>Office computer and maintenance requests</li><li>Hotel IT and guest-device coordination</li><li>Onsite support feasibility by appointment</li><li>Written scope, quote and approval process</li></ul></div></div></section>
+    <section class="en-home-section en-home-section--soft" aria-labelledby="b2b-title"><div class="en-home-shell en-home-split"><div class="en-home-section-copy"><p class="en-home-kicker">Separate business request flow</p><h2 id="b2b-title">IT Support for Businesses and Hotels in Cancun</h2><p>Business, hotel and office requests are reviewed separately from personal-device repairs. Share the number of devices, location, issue and operational impact for a clearer next step.</p></div><div class="en-home-note-card"><h3>For a business or hotel request</h3><ul><li>Office computer and maintenance requests</li><li>Hotel IT and guest-device coordination</li><li>Onsite support by appointment</li><li>Written scope, quote and approval process</li></ul><a class="en-home-text-link" href="/en/business-it-support">Business IT support <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div></div><div class="en-home-shell en-home-feature-grid en-home-feature-grid--two">{conciergeCards.map(([title, copy]) => (<article class="en-home-feature-card"><h3>{title}</h3><p>{copy}</p></article>))}</div></section>
 
     <section class="en-home-section" aria-labelledby="faq-title"><div class="en-home-shell en-home-faq-shell"><div class="en-home-section-copy en-home-section-copy--center"><p class="en-home-kicker">Helpful details before you message</p><h2 id="faq-title">Frequently Asked Questions About Tech Repair in Cancun</h2></div><div class="en-home-faq-list">{faqs.map(([question, answer]) => (<details><summary>{question}</summary><p>{answer}</p></details>))}</div></div></section>
 
-    <section class="en-home-final-cta" aria-labelledby="final-title"><div class="en-home-shell"><p class="en-home-eyebrow">Clear written English support</p><h2 id="final-title">Need help with a device while you are in Cancun?</h2><p>Message Pixon PC with the device, model, problem and your hotel or area. We will explain the available next step in writing.</p><a class="en-home-btn en-home-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Message us on WhatsApp</a></div></section>
+    <section class="en-home-final-cta" aria-labelledby="final-title"><div class="en-home-shell"><p class="en-home-eyebrow">Clear written English support</p><h2 id="final-title">Device trouble on vacation? We come to your hotel.</h2><p>Message Pixon PC with the device, model, problem, your hotel and your checkout date. You get the price and the next step in writing, in English.</p><a class="en-home-btn en-home-btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Book a hotel visit on WhatsApp</a></div></section>
   </main>
   <Footer lang="en" />
 </Base>
@@ -178,10 +259,30 @@ const schema = [
   .en-home-final-cta p { max-width: 660px; margin: 0 auto 24px; color: #071F3A; line-height: 1.65; }
   .en-home-final-cta .en-home-eyebrow { color: #071F3A; }
   .en-home-final-cta .en-home-btn { width: min(100%, 310px); }
-  .en-home-btn:focus-visible, .en-home-service-card a:focus-visible, .en-home-text-link:focus-visible, .en-home-inline-links a:focus-visible { outline: 3px solid #0ea5c9; outline-offset: 3px; }
+  .en-home-steps { display: grid; gap: 15px; padding: 0; margin: 30px 0 0; list-style: none; counter-reset: none; }
+  .en-home-step { position: relative; padding: 22px; border: 1px solid #b9dfe9; border-radius: 16px; background: #fff; }
+  .en-home-step__num { display: grid; width: 36px; height: 36px; margin-bottom: 14px; place-items: center; border-radius: 50%; color: #fff; background: #071F3A; font-weight: 900; }
+  .en-home-step h3 { margin: 0 0 8px; color: #071F3A; font-family: inherit; font-size: 1.08rem; line-height: 1.3; }
+  .en-home-step p { margin: 0; font-size: .91rem; line-height: 1.58; }
+  .en-home-center-cta { display: flex; justify-content: center; margin-top: 28px; }
+  .en-home-table-wrap { margin-top: 30px; overflow-x: auto; border: 1px solid #b9dfe9; border-radius: 16px; background: #fff; }
+  .en-home-table { width: 100%; min-width: 560px; border-collapse: collapse; color: #071F3A; font-size: .93rem; }
+  .en-home-table th, .en-home-table td { padding: 14px 16px; border-bottom: 1px solid #e1f0f5; text-align: left; vertical-align: top; line-height: 1.45; }
+  .en-home-table thead th { background: #eff9fc; font-size: .78rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+  .en-home-table tbody th { font-weight: 800; }
+  .en-home-table tbody tr:last-child th, .en-home-table tbody tr:last-child td { border-bottom: 0; }
+  .en-home-section .en-home-table-note { max-width: 760px; margin: 18px auto 0; font-size: .92rem; line-height: 1.6; text-align: center; }
+  .en-home-check-list { display: grid; gap: 10px; padding: 0; margin: 20px 0 0; list-style: none; }
+  .en-home-check-list li { display: flex; gap: 10px; align-items: baseline; line-height: 1.5; }
+  .en-home-check-list i { color: #0f7a49; }
+  .en-home-feature-grid--two { margin-top: 24px; }
+  .en-home-note-card--pay li { display: block; }
+  @media (max-width: 619px) { .en-home-table { min-width: 0; } .en-home-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .en-home-table tr { display: block; padding: 14px 16px; border-bottom: 1px solid #e1f0f5; } .en-home-table tbody tr:last-child { border-bottom: 0; } .en-home-table th, .en-home-table td { display: block; padding: 2px 0; border: 0; } .en-home-table tbody th { margin-bottom: 4px; } .en-home-table td::before { content: attr(data-label) ": "; font-weight: 800; } }
+  .en-home-section .en-home-btn--whatsapp { color: #fff; }
+  .en-home-btn:focus-visible,.en-home-service-card a:focus-visible, .en-home-text-link:focus-visible, .en-home-inline-links a:focus-visible { outline: 3px solid #0ea5c9; outline-offset: 3px; }
   @media (hover: hover) and (pointer: fine) { .en-home-btn:hover { transform: translateY(-2px); } .en-home-service-card { transition: transform 160ms ease, box-shadow 160ms ease; } .en-home-service-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(7, 31, 58, .12); } }
-  @media (min-width: 620px) { .en-home-actions { width: auto; flex-direction: row; justify-content: center; } .en-home-service-grid, .en-home-feature-grid, .en-home-area-grid, .en-home-mini-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 860px) { .en-home-intro-grid, .en-home-split, .en-home-content-grid { grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr); align-items: center; } .en-home-service-grid { grid-template-columns: repeat(3, 1fr); } .en-home-feature-grid, .en-home-area-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 620px) { .en-home-actions { width: auto; flex-direction: row; justify-content: center; } .en-home-service-grid, .en-home-feature-grid, .en-home-area-grid, .en-home-mini-grid, .en-home-steps { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 860px) { .en-home-intro-grid, .en-home-split, .en-home-content-grid { grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr); align-items: center; } .en-home-service-grid { grid-template-columns: repeat(3, 1fr); } .en-home-feature-grid, .en-home-area-grid, .en-home-steps { grid-template-columns: repeat(4, 1fr); } .en-home-feature-grid--two { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 520px) { .en-home-hero { padding-top: 44px; padding-bottom: 32px; } .en-home-lead { line-height: 1.55; } }
   @media (prefers-reduced-motion: reduce) { .en-home-btn, .en-home-service-card { transition: none; } }
 </style>

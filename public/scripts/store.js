@@ -24,21 +24,6 @@
     return ({ NEW: 'Nuevo', USED: 'Usado', REFURBISHED: 'Reacondicionado', OPEN_BOX: 'Caja abierta', FOR_PARTS: 'Para refacciones', NOT_APPLICABLE: 'Garantizado' })[condition] || condition;
   }
 
-  const TYPE_LABELS = {
-    PRODUCT: 'Producto',
-    EQUIPMENT: 'Equipo',
-    HARDWARE: 'Hardware',
-    SERVICE: 'Servicio',
-    BUNDLE: 'Paquete',
-  };
-  const CONDITION_LABELS = {
-    NEW: 'Nuevo',
-    USED: 'Usado',
-    REFURBISHED: 'Reacondicionado',
-    OPEN_BOX: 'Caja abierta',
-    FOR_PARTS: 'Para refacciones',
-    NOT_APPLICABLE: 'No aplica',
-  };
 
 
   const elements = {
@@ -559,6 +544,19 @@
     }
   }
 
+  const CATEGORY_EN = {
+    'Productos': 'Products', 'Equipos': 'Equipment', 'Mantenimiento': 'Maintenance', 'Software y licencias': 'Software & licenses',
+    'PC Gamer': 'Gaming PCs', 'Reparaciones': 'Repairs', 'PC Oficina': 'Office PCs', 'Recuperación de datos': 'Data recovery',
+    'Servicios': 'Services', 'Optimización': 'Optimization', 'Paquetes': 'Bundles', 'Consolas': 'Consoles',
+    'Instalaciones': 'Installations', 'Promociones': 'Promotions', 'Diagnóstico': 'Diagnostics', 'Fuentes de poder': 'Power supplies',
+    'Servicios empresariales': 'Business services', 'Refrigeración': 'Cooling', 'Periféricos': 'Peripherals', 'Accesorios': 'Accessories',
+    'Categoría': 'Category'
+  };
+
+  function categoryLabel(name) {
+    return isEn() ? (CATEGORY_EN[name] || name) : name;
+  }
+
   function categoryList(payload) {
     const result = unwrapPayload(payload);
     if (result.items.length) return result.items;
@@ -573,7 +571,7 @@
       categories.forEach((raw) => {
         const category = asObject(raw);
         const value = String(firstDefined(category.slug, category.id, ''));
-        const name = String(firstDefined(category.name, 'Categoría'));
+        const name = categoryLabel(String(firstDefined(category.name, 'Categoría')));
         if (!value) return;
         const button = element('button', 'store-category-chip', name);
         button.type = 'button';
@@ -626,10 +624,10 @@
       ['PRODUCT', 'SERVICE'].forEach((group) => {
         const matches = items.filter((item) => group === 'SERVICE' ? item.type === 'SERVICE' : item.type !== 'SERVICE');
         if (!matches.length) return;
-        elements.suggestions.appendChild(element('strong', 'store-suggestion-group', group === 'SERVICE' ? 'Servicios' : 'Productos'));
+        elements.suggestions.appendChild(element('strong', 'store-suggestion-group', group === 'SERVICE' ? (isEn() ? 'Services' : 'Servicios') : (isEn() ? 'Products' : 'Productos')));
         matches.forEach((item) => {
           const link = element('a', 'store-suggestion-option');
-          link.href = '/tienda/' + encodeURIComponent(item.slug);
+          link.href = (isEn() ? '/en/store/item?slug=' : '/tienda/') + encodeURIComponent(item.slug);
           link.setAttribute('role', 'option');
           link.append(element('span', '', item.name), element('small', '', money(item.currentPrice, item.currency)));
           elements.suggestions.appendChild(link);
@@ -638,9 +636,9 @@
       const categories = new Map();
       items.forEach((item) => { if (item.categoryName && item.categoryName !== 'Catálogo') categories.set(item.categoryName, item.categoryName); });
       if (categories.size) {
-        elements.suggestions.appendChild(element('strong', 'store-suggestion-group', 'Categorías'));
+        elements.suggestions.appendChild(element('strong', 'store-suggestion-group', isEn() ? 'Categories' : 'Categorías'));
         categories.forEach((name) => {
-          const button = element('button', 'store-suggestion-option', name); button.type = 'button';
+          const button = element('button', 'store-suggestion-option', categoryLabel(name)); button.type = 'button';
           button.setAttribute('role', 'option');
           button.addEventListener('click', () => { elements.search.value = name; closeSuggestions(); state.page = 1; loadCatalog(); });
           elements.suggestions.appendChild(button);
@@ -712,10 +710,10 @@
     const specs = document.createElement('dl');
     specs.className = 'store-dialog-specs';
     const baseSpecs = [
-      ['Tipo', TYPE_LABELS[item.type] || item.type],
-      ['Condición', CONDITION_LABELS[item.condition] || item.condition],
-      ['Estado', availability(item)],
-      ['Categoría', item.categoryName],
+      [isEn() ? 'Type' : 'Tipo', getTypeLabel(item.type)],
+      [isEn() ? 'Condition' : 'Condición', getConditionLabel(item.condition, item.type)],
+      [isEn() ? 'Status' : 'Estado', availability(item)],
+      [isEn() ? 'Category' : 'Categoría', categoryLabel(item.categoryName)],
     ];
     item.attributes.slice(0, 8).forEach((attribute) => {
       const entry = asObject(attribute);
@@ -895,75 +893,6 @@
     document.getElementById('catalogo-tienda')?.scrollIntoView({ behavior: 'smooth' });
   });
 
-  function localizeStorePage() {
-    if (!isEn()) return;
-    const title = document.getElementById('store-title');
-    if (title) title.textContent = 'Equipment, components and repair services in Cancun';
-    const label = document.querySelector('.store-marketplace-header .store-section-label');
-    if (label) label.textContent = 'Pixon PC Catalog';
-    const lead = document.querySelector('.store-marketplace-lead');
-    if (lead) lead.textContent = 'Real listings with verified pricing, condition and availability directly accessible.';
-    const actionsA = document.querySelectorAll('.store-marketplace-actions a');
-    if (actionsA[0]) actionsA[0].innerHTML = '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Inquire';
-    if (actionsA[1]) actionsA[1].innerHTML = '<i class="fa-solid fa-ticket" aria-hidden="true"></i> Create ticket';
-
-    const searchField = document.querySelector('.store-search-field > span:first-child');
-    if (searchField) searchField.textContent = 'Search in store';
-    if (elements.search) elements.search.placeholder = 'Search laptops, SSDs, maintenance...';
-
-    const catTitle = document.getElementById('catalog-title');
-    if (catTitle) catTitle.textContent = 'Full catalog';
-    const catLead = document.querySelector('.store-catalog-heading p');
-    if (catLead) catLead.textContent = 'Filter by type, condition and availability to find what you need faster.';
-    if (elements.filterToggle) elements.filterToggle.innerHTML = '<i class="fa-solid fa-sliders" aria-hidden="true"></i> Filters';
-
-    const legends = document.querySelectorAll('.store-filters legend');
-    if (legends[0]) legends[0].textContent = 'Type';
-    if (legends[1]) legends[1].textContent = 'Condition';
-    if (legends[2]) legends[2].textContent = 'Availability';
-    if (legends[3]) legends[3].textContent = 'Sort by';
-
-    const typeSpans = document.querySelectorAll('[data-filter-group="type"] + span');
-    const typeEn = ['Products', 'Equipment', 'Hardware', 'Services', 'Bundles'];
-    typeSpans.forEach((span, i) => { if (typeEn[i]) span.textContent = typeEn[i]; });
-
-    const condSpans = document.querySelectorAll('[data-filter-group="condition"] + span');
-    const condEn = ['Brand new', 'Open box', 'Refurbished', 'Pre-owned'];
-    condSpans.forEach((span, i) => { if (condEn[i]) span.textContent = condEn[i]; });
-
-    const availSpans = document.querySelectorAll('[data-filter-group="availability"] + span');
-    const availEn = ['Available for pickup', 'Reserved / In progress', 'Recently sold'];
-    availSpans.forEach((span, i) => { if (availEn[i]) span.textContent = availEn[i]; });
-
-    const sortSpans = document.querySelectorAll('[data-filter-group="sort"] + span');
-    const sortEn = ['Newest first', 'Price: low to high', 'Price: high to low', 'Biggest discount'];
-    sortSpans.forEach((span, i) => { if (sortEn[i]) span.textContent = sortEn[i]; });
-
-    if (elements.clear) elements.clear.textContent = 'Clear filters';
-    const promoLink = document.querySelector('.store-catalog-sidebar a[href="/tienda/promociones"]');
-    if (promoLink) promoLink.textContent = 'View promotions';
-
-    const loadingP = document.querySelector('#store-loading p');
-    if (loadingP) loadingP.textContent = 'Loading listings…';
-    const errH3 = document.querySelector('#store-error h3');
-    if (errH3) errH3.textContent = 'Could not load catalog';
-    const errP = document.querySelector('#store-error p');
-    if (errP) errP.textContent = 'Information is currently unavailable. Please try again or reach out to confirm stock.';
-    if (elements.retry) elements.retry.textContent = 'Try again';
-
-    const emptyH3 = document.querySelector('#store-empty h3');
-    if (emptyH3) emptyH3.textContent = 'No listings match these filters';
-    const emptyP = document.querySelector('#store-empty p');
-    if (emptyP) emptyP.textContent = 'Try another search term or let us know what equipment, part or service you need.';
-    if (elements.emptyClear) elements.emptyClear.textContent = 'View full catalog';
-    const emptyWa = document.querySelector('#store-empty a');
-    if (emptyWa) emptyWa.textContent = 'Inquire on WhatsApp';
-
-    if (elements.previous) elements.previous.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Previous';
-    if (elements.next) elements.next.innerHTML = 'Next <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
-  }
-
-  localizeStorePage();
   applyInitialQuery();
   Promise.allSettled([loadCategories(), loadCatalog(), loadSold(), loadPromotionBanner()]);
 })();
