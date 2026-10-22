@@ -182,3 +182,11 @@ Estrategia (sin datos inventados; medir antes de escalar):
 4. Contenido: no crear páginas por zona (doorway). Reforzar las existentes con fotos de casos reales con permiso del cliente.
 
 NEEDS_BUSINESS_CONFIRMATION: `pickupDeliveryPolicy.pickupEnabled=false` en business.ts, pero varias vistas (ContactSection, iCloud, consolas, iPhone mojado) hablan de recolección. Confirmar si se ofrece recolección en hoteles antes de promoverla.
+
+## 15. Cambio de oferta (2026-10-22, commit 40bb58d)
+
+DECISIÓN DEL DUEÑO: diagnóstico $600 MXN que se abona completo a la reparación ("gratis si reparas"), sin cobro para agendar, normalmente en menos de 1 día (depende del día/hora de entrega y de la falla). Fallas visibles (pantalla, batería, puerto de carga) se cotizan directo por modelo, sin diagnóstico. No se publican precios de reparación. Garantía: 90 días con piezas originales contra defectos de fábrica; mantenimiento preventivo garantizado a la entrega y por el material térmico aplicado; equipos mojados sin garantía, con atención inmediata.
+FACT: `appointment_type_configs.DIAGNOSTIC.requires_payment = 1` dejaba las citas en línea en PENDING_PAYMENT y expiraban a los 15 min. Migración 017 lo pone en 0 (pendiente aplicar en producción).
+CAMBIOS: fuente única en `business.ts` (`diagnosticCopy`, `warrantyCopy`, `visibleFaultSlugPattern`); barra "Mega promoción" en el navbar (`--nav-promo-h`, compensada con `padding-top` del body) y sección `#promo-diagnostico` en el footer de todas las páginas; footer agregado a 7 vistas que no lo tenían; hoteles en menú B2B; sin `href` a /admin en HTML público; 301 real del blog de desarrollo web.
+PENDIENTE: número real de reseñas para el badge "5.0", reseñas renderizadas en HTML, precio cerrado de domicilio por zona, duración de la garantía de material térmico.
+Respaldo previo: rama `backup/antes-oferta-2026-10-22` y tag `antes-oferta-2026-10-22` (= 81b0f91).
