@@ -300,7 +300,7 @@ export const laptopCategory: ServiceCategory = {
         hook: 'Servicio preventivo para laptops en Cancún que se calientan, suenan fuerte, trabajan lento o llevan más de un año sin limpieza interna. Revisamos ventilación, pasta térmica, batería, disco y sistema antes de que la falla se vuelva cara.',
         intro: 'Limpieza interna, revisión térmica y pruebas de batería, disco, ventilador y sistema para laptops de trabajo, escuela, oficina y gaming en Cancún.',
         bullets: ['Limpieza interna de ventilador, disipador y carcasa', 'Revisión de pasta térmica y cambio si aplica', 'Prueba de temperatura antes y después', 'Revisión de batería, cargador, SSD/HDD y RAM', 'Reporte claro por WhatsApp con recomendaciones', 'Servicio local en Cancún Centro, Huayacán, Cumbres, Bonampak y Zona Hotelera'],
-        fromPrice: '$1,000 MXN', eta: '24-48 h', warranty: '90 días con piezas originales',
+        fromPrice: '$1,000 MXN', eta: '24-48 h', warranty: 'Garantía de trabajo: revisión térmica sin costo',
         featuredImage: '/assets/images/laptop-feliz-limpia.webp',
         sectionImages: {
           whyUs: '/assets/images/mantenimiento-pastaternima-thermalpads.webp',

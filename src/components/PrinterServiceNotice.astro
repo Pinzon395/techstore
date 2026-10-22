@@ -1,0 +1,138 @@
+---
+// Aviso temporal: reparación de impresoras pausada; solo se recibe mantenimiento preventivo.
+// Se monta desde Base.astro en las rutas de impresora. No borra ni oculta el contenido de la vista
+// (sigue en el HTML para usuarios y buscadores); solo lo cubre con un fondo gris hasta cerrar el aviso.
+import { business } from '../lib/business';
+
+interface Props {
+  lang?: 'es' | 'en';
+}
+const { lang = 'es' } = Astro.props;
+const waText = lang === 'en'
+  ? 'Hi Pixon PC, I need preventive maintenance for my printer. Brand and model: '
+  : 'Hola Pixon PC, quiero mantenimiento preventivo para mi impresora. Marca y modelo: ';
+const waHref = `https://wa.me/${business.phone.replace('+', '')}?text=${encodeURIComponent(waText)}`;
+const t = lang === 'en' ? {
+  tag: 'Service update',
+  title: 'Printer repairs are paused',
+  body: 'For now we only accept preventive maintenance for printers: internal cleaning, rollers, alignment and print tests. Repairs (boards, heads, jams with broken parts) are temporarily unavailable.',
+  primary: 'Book preventive maintenance',
+  wa: 'Ask on WhatsApp',
+  close: 'Got it, view the page',
+  maintenanceHref: '/servicios/impresora/mantenimiento',
+} : {
+  tag: 'Aviso de servicio',
+  title: 'Por ahora solo aceptamos mantenimientos preventivos de impresoras',
+  body: 'Las reparaciones de impresora (tarjeta, cabezal, atascos con piezas rotas, fallas eléctricas) están pausadas temporalmente. Sí recibimos mantenimiento preventivo: limpieza interna, rodillos, alineación y pruebas de impresión.',
+  primary: 'Ver mantenimiento preventivo',
+  wa: 'Preguntar por WhatsApp',
+  close: 'Entendido, ver la página',
+  maintenanceHref: '/servicios/impresora/mantenimiento',
+};
+---
+<div class="pnotice" id="printer-notice" role="dialog" aria-modal="true" aria-labelledby="pnotice-title" aria-describedby="pnotice-body">
+  <div class="pnotice__card">
+    <span class="pnotice__tag">{t.tag}</span>
+    <h2 id="pnotice-title" class="pnotice__title">{t.title}</h2>
+    <p id="pnotice-body" class="pnotice__body">{t.body}</p>
+    <div class="pnotice__actions">
+      <a class="pnotice__btn pnotice__btn--primary" href={t.maintenanceHref}>{t.primary}</a>
+      <a class="pnotice__btn pnotice__btn--wa" href={waHref} target="_blank" rel="noopener noreferrer">{t.wa}</a>
+    </div>
+    <button type="button" class="pnotice__close" data-pnotice-close>{t.close}</button>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('printer-notice');
+    if (!root) return;
+    var previous = document.activeElement;
+    document.documentElement.classList.add('pnotice-open');
+    var focusables = root.querySelectorAll('a, button');
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    setTimeout(function () { first && first.focus({ preventScroll: true }); }, 50);
+    function close() {
+      root.hidden = true;
+      document.documentElement.classList.remove('pnotice-open');
+      if (previous && previous.focus) previous.focus({ preventScroll: true });
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(event) {
+      if (event.key === 'Escape') return close();
+      if (event.key !== 'Tab') return;
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+    document.addEventListener('keydown', onKey);
+    root.querySelector('[data-pnotice-close]').addEventListener('click', close);
+  })();
+</script>
+
+<style is:global>
+  html.pnotice-open, html.pnotice-open body { overflow: hidden; }
+  .pnotice[hidden] { display: none; }
+  .pnotice {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(71, 85, 105, 0.82);
+  }
+  .pnotice__card {
+    width: min(520px, 100%);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    padding: clamp(22px, 4vw, 32px);
+    border-radius: 16px;
+    background: #fff;
+    border-top: 5px solid #fbbf24;
+    box-shadow: 0 24px 60px rgba(7, 31, 58, 0.35);
+    color: #071F3A;
+  }
+  .pnotice__tag {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: #071F3A;
+    color: #fbbf24;
+    font-size: .72rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .pnotice__title { margin: 12px 0 8px; color: #071F3A; font-size: clamp(1.25rem, 3.6vw, 1.6rem); line-height: 1.2; }
+  .pnotice__body { margin: 0 0 18px; color: #071F3A; font-size: .98rem; line-height: 1.55; }
+  .pnotice__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pnotice__btn {
+    flex: 1 1 200px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+  }
+  .pnotice__btn--primary { background: #071F3A; color: #fff; }
+  .pnotice__btn--wa { background: #128c4a; color: #fff; }
+  .pnotice__close {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 12px;
+    border: 0;
+    background: none;
+    color: #071F3A;
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .pnotice a:focus-visible, .pnotice button:focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
+</style>

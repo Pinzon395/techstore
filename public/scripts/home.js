@@ -266,7 +266,7 @@ if (commentsTarget) {
     if (!safeReviews.length) return;
     target.innerHTML = safeReviews.map((review) => {
       const name = escapeHtml(review.author_name || review.name || review.author || 'Usuario de Google');
-      const date = escapeHtml(review.relative_time_description || review.date || review.time_description || 'Fecha visible en Google');
+      const date = escapeHtml(review.relative_time_description || review.relative_time || review.date || review.time_description || 'Fecha visible en Google');
       const numericRating = Number(review.rating || review.reviewRating);
       const rating = Number.isFinite(numericRating) && numericRating >= 1 && numericRating <= 5 ? numericRating : null;
       const text = escapeHtml(review.text || review.reviewBody || '');

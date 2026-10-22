@@ -328,7 +328,7 @@ export const pcCategory: ServiceCategory = {
         hook: 'Mantenimiento para PC de escritorio, oficina y gamer antes de que el polvo, la temperatura o una fuente sucia se conviertan en apagados y reparaciones caras.',
         intro: 'Limpieza interna, revisión térmica, organización básica de cableado y pruebas de fuente, ventiladores, disco, RAM y Windows para PC en Cancún.',
         bullets: ['Limpieza de gabinete, ventiladores, disipador y filtros', 'Cambio o revisión de pasta térmica según estado', 'Prueba de temperaturas y estabilidad', 'Revisión de fuente, RAM, SSD/HDD y GPU', 'Reporte con recomendaciones de upgrade o corrección'],
-        fromPrice: '$600 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
+        fromPrice: '$600 MXN', eta: '24-48 h', warranty: 'Garantía de trabajo: revisión térmica sin costo',
         featuredImage: '/assets/images/mantenimiento-pc-escritorio.webp',
         sectionImages: {
           whyUs: '/assets/images/mantenimiento-pc-escritorio.webp',
@@ -530,7 +530,7 @@ export const pcCategory: ServiceCategory = {
         hook: 'PC con polvo de años, ventiladores que rugen y temperaturas insanas. Desarmamos todo, limpiamos cada componente y aplicamos pasta nueva.',
         intro: 'Desarmado total, limpieza de cada componente con químicos especializados, cambio de pasta térmica y reensamble.',
         bullets: ['Limpieza ultrasónica de placa si aplica', 'Cambio de pasta térmica incluido', 'Reorganización de cableado', 'Test térmico antes/después', 'Limpieza de fuente y disipadores'],
-        fromPrice: '$600 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
+        fromPrice: '$600 MXN', eta: '24-48 h', warranty: 'Garantía de trabajo: revisión térmica sin costo',
         whyUs: [
           { icon: 'fa-spray-can-sparkles', title: 'Limpieza nivel pro',   desc: 'Aire comprimido + alcohol isopropílico + ultrasonidos. No solo soplar.' },
           { icon: 'fa-temperature-arrow-down', title: 'Bajan temperaturas', desc: 'Tu PC vuelve a temperaturas de fábrica. Ventiladores en silencio.' },

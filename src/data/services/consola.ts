@@ -152,7 +152,7 @@ const CONSOLE_CLUSTER_SERVICES: ServiceItem[] = [
     ],
     relatedSlugs: ['reparacion-nintendo-switch', 'controles-drift', 'limpieza-interna', 'diagnostico'],
     eta: 'Se confirma al recibir',
-    warranty: 'Garantía a la entrega y en material térmico',
+    warranty: 'Garantía de trabajo: revisión térmica sin costo',
     overrides: {
       navHidden: true,
       customUrl: '/servicios/consola/mantenimiento-nintendo-switch',
@@ -570,8 +570,8 @@ export const consolaCategory: ServiceCategory = {
         seoKeyword: 'Limpieza interna de consolas en Cancún',
         hook: '¿PS5, Xbox o Switch que parece avión despegando? Polvo + pasta seca = sobrecalentamiento. Limpieza profunda + pasta nueva.',
         intro: 'Eliminamos polvo acumulado en PS5, Xbox y Switch. Adiós a sobrecalentamiento, ruido del ventilador y reinicios aleatorios.',
-        bullets: ['Desarmado total profesional', 'Limpieza de ventiladores y disipadores', 'Cambio de pasta térmica incluido', 'Test acústico antes/después', 'Garantía a la entrega y en material térmico'],
-        fromPrice: '$500 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
+        bullets: ['Desarmado total profesional', 'Limpieza de ventiladores y disipadores', 'Cambio de pasta térmica incluido', 'Test acústico antes/después', 'Garantía de trabajo: revisión térmica sin costo'],
+        fromPrice: '$500 MXN', eta: '24-48 h', warranty: 'Garantía de trabajo: revisión térmica sin costo',
         whyUs: [
           { icon: 'fa-volume-low',       title: 'Adiós al ruido',        desc: 'Tu consola deja de sonar como turbina. Vuelve al silencio de fábrica.' },
           { icon: 'fa-temperature-arrow-down', title: 'Menos temperatura', desc: 'Medimos la temperatura del APU antes y después para confirmar la mejora.' },
@@ -629,7 +629,7 @@ export const consolaCategory: ServiceCategory = {
         hook: '¿Tu PS5, Xbox, Nintendo Switch, Steam Deck o ROG Ally se calienta, suena fuerte o se apaga al jugar? Revisamos pasta térmica, metal líquido, disipador, ventilador y polvo antes de cotizar.',
         intro: 'Cambio de pasta térmica de consolas en Cancún para PS5, PS4, Xbox, Nintendo Switch, Steam Deck y ROG Ally. Revisamos metal líquido en PS5, flujo de aire, disipador y ventilador con garantía por escrito.',
         bullets: ['Diagnóstico térmico antes de cambiar compuesto', 'Pasta premium según modelo', 'Revisión de metal líquido en PS5', 'Limpieza de disipador y flujo de aire', 'Prueba de ruido y estabilidad'],
-        fromPrice: '$850 MXN', eta: '24-48 h', warranty: 'Garantía a la entrega y en material térmico',
+        fromPrice: '$850 MXN', eta: '24-48 h', warranty: 'Garantía de trabajo: revisión térmica sin costo',
         whyUs: [
           { icon: 'fa-temperature-arrow-down', title: 'Temperatura medida',  desc: 'Comparamos la temperatura del APU bajo carga antes y después del servicio.' },
           { icon: 'fa-volume-low',             title: 'Adiós al ruido', desc: 'Ventilador deja de girar al máximo todo el tiempo.' },

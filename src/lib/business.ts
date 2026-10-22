@@ -129,13 +129,13 @@ export const warrantyCopy = {
   es: {
     short: '90 días de garantía con piezas originales',
     parts: '90 días de garantía por escrito contra defectos de fábrica en reparaciones con piezas originales.',
-    maintenance: 'Mantenimiento preventivo: te entregamos el equipo probado y, si aparece un problema de temperatura por el material térmico que aplicamos, lo corregimos sin costo.',
+    maintenance: 'Mantenimiento preventivo: te entregamos el equipo probado. Si después ves temperaturas altas, lo revisamos sin costo para verificar nuestro trabajo (ventiladores conectados, cantidad y aplicación de pasta o pads térmicos). Si la causa es nuestra intervención, lo corregimos gratis; si es otra, te la explicamos con evidencia antes de cotizar.',
     liquid: 'Equipos mojados: no llevan garantía porque el líquido sigue dañando por dentro, pero los atendemos de inmediato para salvar el equipo y tus datos.',
   },
   en: {
     short: '90-day warranty with original parts',
     parts: '90-day written warranty against manufacturing defects on repairs with original parts.',
-    maintenance: 'Preventive maintenance: we hand over the device tested and, if a temperature issue appears due to the thermal material we applied, we fix it at no cost.',
+    maintenance: 'Preventive maintenance: we hand over the device tested. If you later see high temperatures, we inspect it at no cost to verify our work (fans connected, amount and application of thermal paste or pads). If the cause is our work, we fix it for free; if it is something else, we show you the evidence before quoting.',
     liquid: 'Liquid-damaged devices carry no warranty because liquid keeps causing damage inside, but we take them in right away to save the device and your data.',
   },
 } as const;

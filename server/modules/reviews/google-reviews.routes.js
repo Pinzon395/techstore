@@ -7,6 +7,7 @@ const { GoogleReviewsRepository } = require('./google-reviews.repository');
 const { GoogleReviewsSyncService } = require('./google-reviews.sync');
 const { GoogleBusinessProfileClient } = require('./google-business-profile.client');
 const { createPubsubHandler } = require('./google-reviews.pubsub');
+const { GooglePlacesClient } = require('./google-places.client');
 
 const GOOGLE_REVIEW_SHARE_URL = 'https://share.google/RdsuiK10TObYQxIne';
 
@@ -49,7 +50,20 @@ function toAdminShape(row) {
  * Construye ambos routers (público y admin) + arranca nada por sí mismo:
  * el worker de cron se arranca aparte (server/jobs/google-reviews-sync.worker.js).
  */
-function createGoogleReviewsModule({ pool, requireAdmin, rateLimiter, dbEmitter }) {
+function mergeReviews(liveReviews, storedReviews) {
+    const key = (r) => `${String(r.name || '').trim().toLowerCase()}|${String(r.text || '').trim().slice(0, 60).toLowerCase()}`;
+    const seen = new Set();
+    const merged = [];
+    for (const review of [...liveReviews, ...storedReviews]) {
+        const k = key(review);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        merged.push(review);
+    }
+    return merged;
+}
+
+function createGoogleReviewsModule({ pool, requireAdmin, rateLimiter, dbEmitter, placesClient = new GooglePlacesClient() }) {
     const repository = new GoogleReviewsRepository({ pool });
     const syncService = new GoogleReviewsSyncService({ repository, dbEmitter });
 
@@ -59,23 +73,31 @@ function createGoogleReviewsModule({ pool, requireAdmin, rateLimiter, dbEmitter 
     // Mismo contrato de respuesta que el antiguo passthrough de Places API,
     // para no tocar el frontend (comments.js / home.js ya lo consumen así).
     // Único cambio real: la fuente ahora es nuestra DB, solo APPROVED.
+    // Fuentes: (1) Places API en vivo (rating, total y hasta 5 reseñas que Google elige, caché en
+    // memoria ~30 min) y (2) reseñas de Business Profile aprobadas en admin. Mismo contrato de respuesta
+    // que consumen comments.js y home.js.
     publicRouter.get('/google', async (_req, res) => {
-        const [rows, syncState] = await Promise.all([
-            repository.listApproved({ limit: 60 }),
-            repository.getSyncState()
+        const [rows, syncState, live] = await Promise.all([
+            repository.listApproved({ limit: 60 }).catch(() => []),
+            repository.getSyncState().catch(() => null),
+            placesClient.getPlace()
         ]);
-        res.setHeader('Cache-Control', 'public, max-age=120');
+        const place = live.ok ? live.data : null;
+        const reviews = mergeReviews(place?.reviews || [], rows.map(starsToPublicShape));
+        const mapsUri = place?.google_maps_uri || syncState?.google_maps_uri || GOOGLE_REVIEW_SHARE_URL;
+        res.setHeader('Cache-Control', 'public, max-age=300');
         res.json({
-            source: rows.length ? 'google' : 'unconfigured',
-            configured: Boolean(syncState?.location_id),
-            place_id: syncState?.location_id || null,
-            place_name: 'Pixon PC',
-            rating: syncState?.average_rating || 0,
-            total: syncState?.total_review_count || 0,
-            google_maps_uri: syncState?.google_maps_uri || GOOGLE_REVIEW_SHARE_URL,
-            reviews_url: syncState?.google_maps_uri || GOOGLE_REVIEW_SHARE_URL,
-            write_review_url: syncState?.write_review_url || GOOGLE_REVIEW_SHARE_URL,
-            reviews: rows.map(starsToPublicShape)
+            source: place ? 'google_places' : (rows.length ? 'google' : 'unconfigured'),
+            configured: Boolean(place || syncState?.location_id),
+            place_id: place?.place_id || syncState?.location_id || null,
+            place_name: place?.place_name || 'Pixon PC',
+            rating: place?.rating || syncState?.average_rating || 0,
+            total: place?.total || syncState?.total_review_count || 0,
+            google_maps_uri: mapsUri,
+            reviews_url: place?.reviews_url || syncState?.google_maps_uri || GOOGLE_REVIEW_SHARE_URL,
+            write_review_url: place?.write_review_url || syncState?.write_review_url || GOOGLE_REVIEW_SHARE_URL,
+            fetched_at: place?.fetched_at || null,
+            reviews
         });
     });
 
@@ -190,4 +212,4 @@ function escapeHtmlLite(value) {
     }[ch]));
 }
 
-module.exports = { createGoogleReviewsModule };
+module.exports = { createGoogleReviewsModule, mergeReviews };

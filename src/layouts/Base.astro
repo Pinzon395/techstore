@@ -9,6 +9,7 @@ import { getLocaleFromPath, normalizeRoutePath } from '../lib/i18n';
 import WhatsappFloat from '../components/WhatsappFloat.astro';
 import BackToTopButton from '../components/BackToTopButton/BackToTopButton.astro';
 import RegistrationDiscount from '../components/RegistrationDiscount.astro';
+import PrinterServiceNotice from '../components/PrinterServiceNotice.astro';
 import EnglishSupportBanner from '../components/EnglishSupportBanner.astro';
 import { business, buildOpeningHoursSchema } from '../lib/business';
 
@@ -68,6 +69,9 @@ const isPrivateRoute = [
   '/en/account',
   '/en/tickets',
 ].some((prefix) => normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`));
+// Reparación de impresoras pausada (2026-10-22): aviso en todas las vistas de impresora salvo mantenimiento.
+const showPrinterNotice = (normalizedPath === '/servicios/impresora' || normalizedPath.startsWith('/servicios/impresora/') || normalizedPath === '/en/printer-repair')
+  && normalizedPath !== '/servicios/impresora/mantenimiento';
 const isDiagnosticFirstService = normalizedPath === '/servicios/telefono/celular-mojado';
 const shouldShowRegistrationDiscount = normalizedPath !== '/404'
   && !isPrivateRoute
@@ -353,6 +357,7 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
     )}
     <script defer src="/scripts/faq-accordion.js?v=20260804-1"></script>
   </div>
+  {showPrinterNotice && <PrinterServiceNotice lang={lang} />}
   <WhatsappFloat lang={lang} />
   <BackToTopButton />
   <script is:inline defer src="/scripts/floating-dock.js?v=20260930-cart-clearance"></script>
@@ -382,8 +387,9 @@ const htmlLang = lang === 'en' ? 'en' : 'es-MX';
   </script>
   <script defer src="/scripts/user-menu.js"></script>
   <script defer src="/scripts/locale-preference.js"></script>
-  <script defer src="/cache-buster.js?v=20261022T060052Z-81b0f918dc79"></script>
+  <script defer src="/cache-buster.js?v=20261022T063232Z-69cb4c4ad184"></script>
+  <script defer src="/scripts/google-rating.js?v=20261022-1"></script>
   <script defer src="/scripts/tracker.js?v=20261012-1"></script>
-  <script defer src="/scripts/pwa-register.js?v=20261022T060052Z-81b0f918dc79"></script>
+  <script defer src="/scripts/pwa-register.js?v=20261022T063232Z-69cb4c4ad184"></script>
 </body>
 </html>

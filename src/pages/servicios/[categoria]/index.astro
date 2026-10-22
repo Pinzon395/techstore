@@ -27,12 +27,37 @@ const isPhoneCategory = category.slug === 'telefono';
 const canonical = isB2bAlias
   ? 'https://pixon.com.mx/empresas'
   : `https://pixon.com.mx/servicios/${category.slug}`;
-const title = isPhoneCategory
-  ? 'Reparación de celulares en Cancún | Pantalla, batería y mojados'
-  : `Reparación de ${category.title} en Cancún | Pixon PC`;
-const description = isPhoneCategory
-  ? `Reparación de celulares en Cancún: cambio de pantalla, batería, carga y celulares mojados (iPhone, Samsung, Xiaomi, Motorola). ${diagnosticCopy.es.price}. Escríbenos por WhatsApp.`
-  : `Servicios profesionales de reparación de ${category.title.toLowerCase()} en Cancún. ${category.services.length} servicios disponibles con garantía por escrito. Atención con cita previa.`;
+// SEO por categoría: palabra clave principal primero, diferenciador después, marca al final (≤ 60 caracteres).
+const categorySeo: Record<string, { title: string; description: string }> = {
+  telefono: {
+    title: 'Reparación de celulares en Cancún | Pantalla, batería y mojados',
+    description: `Reparación de celulares en Cancún: pantalla, batería, carga y celular mojado (iPhone, Samsung, Xiaomi, Motorola). Diagnóstico gratis si reparas. WhatsApp.`,
+  },
+  laptop: {
+    title: 'Reparación de laptops en Cancún | Diagnóstico gratis si reparas',
+    description: 'Reparación de laptops en Cancún: pantalla, batería, teclado, laptop mojada y que no enciende. Diagnóstico en menos de 1 día y 90 días de garantía.',
+  },
+  pc: {
+    title: 'Reparación de computadoras en Cancún | PC de escritorio y gamer',
+    description: 'Reparación de PC en Cancún: no enciende, pantalla azul, fuente, tarjeta de video y mantenimiento. Diagnóstico gratis si reparas, listo en menos de 1 día.',
+  },
+  consola: {
+    title: 'Reparación de consolas en Cancún | PS5, Xbox y Nintendo Switch',
+    description: 'Reparación de PS5, Xbox y Nintendo Switch en Cancún: HDMI, sobrecalentamiento, fuente, pasta térmica y controles. Diagnóstico gratis si reparas.',
+  },
+  mac: {
+    title: 'Reparación de MacBook y Mac en Cancún | Pixon PC',
+    description: 'Reparación de MacBook, iMac y Mac mini en Cancún: batería, pantalla, teclado, MacBook mojada y macOS. Diagnóstico gratis si reparas y 90 días de garantía.',
+  },
+  impresora: {
+    title: 'Mantenimiento de impresoras en Cancún | Pixon PC',
+    description: 'Mantenimiento preventivo de impresoras en Cancún: limpieza interna, rodillos, alineación y pruebas. Por ahora la reparación de impresoras está pausada.',
+  },
+};
+const seo = categorySeo[category.slug];
+const title = seo?.title ?? `Reparación de ${category.title} en Cancún | Pixon PC`;
+const description = seo?.description
+  ?? `${category.title} en Cancún: ${category.services.length} servicios con diagnóstico gratis si reparas, listo en menos de 1 día y 90 días de garantía. Cotiza por WhatsApp.`;
 const waMessage = encodeURIComponent(`Hola, quiero información sobre los servicios de ${category.title}`);
 
 const orderedServices = category.slug === 'laptop'
@@ -115,7 +140,7 @@ const schema = [
             Catálogo {category.title}
           </span>
           <h1>
-            {isPhoneCategory ? <>Reparación de <span>celulares</span> <small>en Cancún</small></> : <>Reparación de <span>{category.title}</span> <small>en Cancún</small></>}
+            {isPhoneCategory ? <>Reparación de <span>celulares</span> <small>en Cancún</small></> : category.slug === 'impresora' ? <>Mantenimiento de <span>impresoras</span> <small>en Cancún</small></> : <>Reparación de <span>{category.title}</span> <small>en Cancún</small></>}
           </h1>
           <p>
             {isPhoneCategory
